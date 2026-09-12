@@ -1,0 +1,109 @@
+name: sdk
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sdk-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install 1.97.1 --profile minimal --component rustfmt --component clippy
+      - run: cargo fmt --all --check
+        if: runner.os == 'Linux'
+      - run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+      - run: cargo test --workspace --all-features --locked
+      - run: cargo test --workspace --no-default-features --locked
+      - run: cargo doc --workspace --all-features --no-deps --locked
+        env:
+          RUSTDOCFLAGS: -D warnings
+  reference-and-harness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: node --version && npm --version && python3 --version
+      - run: npm ci --prefix compatibility --ignore-scripts
+      - run: npm run verify --prefix compatibility
+      - run: npm test --prefix compatibility
+      - run: npm run generate --prefix compatibility
+      - run: npm run parity --prefix compatibility
+      - run: git diff --exit-code -- compatibility/api-inventory.json compatibility/fixtures/
+      - run: python3 -m unittest discover -s test-infra/tests -v
+      - run: python3 -m unittest discover -s test-infra/local-chain -p 'test_*.py' -v
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install 1.97.1 --profile minimal --component clippy --target wasm32-unknown-unknown
+      - run: cargo install wasm-bindgen-cli --version 0.2.128 --locked
+      - run: cargo fetch --locked
+      - run: cargo check -p quai-sdk --no-default-features --features browser,wallet,abi,payments,keystore --target wasm32-unknown-unknown --locked
+      - run: cargo clippy -p quai-browser --target wasm32-unknown-unknown --all-targets --locked -- -D warnings
+      - name: Configure installed browser and driver
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, pathlib, shutil
+          chrome = shutil.which('google-chrome') or shutil.which('chromium')
+          driver = shutil.which('chromedriver')
+          assert chrome and driver, 'Chrome and chromedriver are required'
+          config = pathlib.Path(os.environ['RUNNER_TEMP']) / 'quai-webdriver.json'
+          config.write_text(json.dumps({'goog:chromeOptions': {'binary': chrome, 'args': ['--headless=new', '--disable-dev-shm-usage']}}))
+          with open(os.environ['GITHUB_ENV'], 'a') as output:
+              output.write(f'CHROMEDRIVER={driver}\nWASM_BINDGEN_TEST_WEBDRIVER_JSON={config}\n')
+          PYTHON
+      - run: python3 crates/quai-browser/tests/run_browser.py
+        env:
+          CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner
+          WASM_BINDGEN_TEST_TIMEOUT: 90
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite worker
+        env:
+          CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner
+          WASM_BINDGEN_TEST_TIMEOUT: 90
+  fuzz-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install nightly-2026-09-11 --profile minimal --component rust-src
+      - run: cargo install cargo-fuzz --version 0.13.2 --locked
+      - run: cargo fetch --manifest-path fuzz/Cargo.toml --locked
+      - run: cargo +nightly-2026-09-11 fuzz build --fuzz-dir fuzz --no-cfg-fuzzing --codegen-units 16
+        env:
+          CARGO_NET_OFFLINE: true
+      - run: python3 fuzz/run-smoke.py --seconds 30
+  dependency-advisories:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install 1.97.1 --profile minimal
+      - run: cargo install cargo-audit --version 0.22.2 --locked
+      # Warnings remain visible. Two inactive optional-dependency maintenance
+      # warnings are documented in docs/dependency-audit.md; none are ignored.
+      - run: cargo audit
+      - run: cargo fetch --manifest-path fuzz/Cargo.toml --locked
+      - run: cargo audit --file fuzz/Cargo.lock
+      - run: npm ci --prefix compatibility --ignore-scripts
+      - run: npm audit --prefix compatibility --audit-level=low

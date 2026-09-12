@@ -1,0 +1,617 @@
+{
+  "schemaVersion": 1,
+  "files": [
+    {
+      "file": "src/_version.ts",
+      "sha256": "8222c2aff493e6e18754ac9c89f43e3ece5fb3938cd1daa2b8db34c5e4d1b446"
+    },
+    {
+      "file": "src/abi/abi-coder.ts",
+      "sha256": "580c3f897e1d6a2f4e40e3c4f4717a30b09096fe187716edbc813d80ba3b2656"
+    },
+    {
+      "file": "src/abi/coders/abstract-coder.ts",
+      "sha256": "296e47ae686a24344be27ba734d7f7e098dee16176e9bb10bee0db93fba0c055"
+    },
+    {
+      "file": "src/abi/coders/address.ts",
+      "sha256": "928ed17d69395a55e75e6affa88eb93cd354268e0789e8e617f7af29e3d0fa4b"
+    },
+    {
+      "file": "src/abi/coders/anonymous.ts",
+      "sha256": "d583ea3607e132f228da4871b5cf9b18889b13f95ce0e1a98f17a90da54a90e7"
+    },
+    {
+      "file": "src/abi/coders/array.ts",
+      "sha256": "96ed34e5e12227046c323aae43c089e9406c90ef8b6dc33695add3bf9db40dd2"
+    },
+    {
+      "file": "src/abi/coders/boolean.ts",
+      "sha256": "6b54a54fd866b67b7567a9492119ff469b903509ba59771fe441b81dc7553264"
+    },
+    {
+      "file": "src/abi/coders/bytes.ts",
+      "sha256": "99328c63f504d04c97293bb4675f17b087cbed00419f83fc4a21ffaa2e89e6c8"
+    },
+    {
+      "file": "src/abi/coders/fixed-bytes.ts",
+      "sha256": "8f6637660bff2c9adc0508c263750384b5348a315647aef680a6ecdefc551c5e"
+    },
+    {
+      "file": "src/abi/coders/null.ts",
+      "sha256": "d32b6c925a7923dc13c7aeadc6508b7a2f5c25d3817c58a519a0eb02a93193df"
+    },
+    {
+      "file": "src/abi/coders/number.ts",
+      "sha256": "f98dfd0651b5708b03eee264d96376996056b1fd6a0ba0a37a85175387e06ea9"
+    },
+    {
+      "file": "src/abi/coders/string.ts",
+      "sha256": "4ea486b02d52bf84d3931f2c1a39ff5839e7b1b9ffc36f40beec9396f46a4472"
+    },
+    {
+      "file": "src/abi/coders/tuple.ts",
+      "sha256": "31dada6fa34555c33a202c318c47e5cf41487362a28c1fd9e95d88bd2cc41e61"
+    },
+    {
+      "file": "src/abi/fragments.ts",
+      "sha256": "d6570d34ea23ec01f022c4c58926636403cd44221417fa1cf9deded6cd7b30fb"
+    },
+    {
+      "file": "src/abi/index.ts",
+      "sha256": "3dfd432841b730738c4e3f4730733f72219cea11724d1706da47d7617372b565"
+    },
+    {
+      "file": "src/abi/interface.ts",
+      "sha256": "0ebfb8c9b5016b597993727ae53ea0108cf97b0856cf1e3ca9ff0ec29ac39fa4"
+    },
+    {
+      "file": "src/abi/typed.ts",
+      "sha256": "040cb2d9a2993c100a0e9d8723a115a39fcb30856ff487a8988b9664867f173e"
+    },
+    {
+      "file": "src/address/address.ts",
+      "sha256": "0e251e8c1f9f07870f9fe662294193598b629b92cb745d691df729a6502eaf60"
+    },
+    {
+      "file": "src/address/checks.ts",
+      "sha256": "e8dd8795012c5003d8e0639d03a594ad9c504cc02deffecffb64e6284af19723"
+    },
+    {
+      "file": "src/address/contract-address.ts",
+      "sha256": "923bfa946495bc9433ad7a0c64e0e7a9a4d3dc40d131523d7c8d1828d0fbeed2"
+    },
+    {
+      "file": "src/address/index.ts",
+      "sha256": "9e9aa7cf125f08854db16514e58c72b72b335013a037740f4981890f87a90410"
+    },
+    {
+      "file": "src/constants/addresses.ts",
+      "sha256": "d9b1d2e4920822bb8d2aa57aa4881b29818e4a175934215ff721022eb7aa2aa2"
+    },
+    {
+      "file": "src/constants/coins.ts",
+      "sha256": "e61d600e401f342c73dfec34027e2a4879fc6659ae52374479e21a8f097ed16f"
+    },
+    {
+      "file": "src/constants/hashes.ts",
+      "sha256": "c6642f074ccd9aecb9dd79ee8ff430cf2d818232211bf8cddbd4b1fdbe6bc614"
+    },
+    {
+      "file": "src/constants/index.ts",
+      "sha256": "7b69034f592f75da22d6b6045cefaa6c69801aa7240178410705079000cd8568"
+    },
+    {
+      "file": "src/constants/numbers.ts",
+      "sha256": "d89f271031591d079f4bb6477b9f440a5827b6a6062b3ad03159e39a1964ef4e"
+    },
+    {
+      "file": "src/constants/shards.ts",
+      "sha256": "ecc144310ba55fbdf23b57e9ff46ffc831aaa88b1a3356cb082555366aa61f56"
+    },
+    {
+      "file": "src/constants/strings.ts",
+      "sha256": "fbb4ab3dc76a991f891e217ad9f5168d9f6c5e10422ffc2d46ce9b0fbafd09f6"
+    },
+    {
+      "file": "src/constants/zones.ts",
+      "sha256": "1a991b7ef542a2d8b2ec8f27f5bfd1e2ff59a3e1d92161d208c96c24252222e4"
+    },
+    {
+      "file": "src/contract/contract.ts",
+      "sha256": "2173544c7c8e4b0adb2b8e33a6706aa16d0e44bea8e83a23c3af9fa252af6cb3"
+    },
+    {
+      "file": "src/contract/factory.ts",
+      "sha256": "399faa1d05b634849f9c0711bd6ed4725a900fd24cb61f10de087d71790f8ef5"
+    },
+    {
+      "file": "src/contract/index.ts",
+      "sha256": "8be553649c997fda75b6653373fbcd5c5689edb322294ac86e33f43b2fa43be3"
+    },
+    {
+      "file": "src/contract/types.ts",
+      "sha256": "cad38299a19a69d88ca80f4e771cb051f990cde6679a417e5d941b8cb229bcd2"
+    },
+    {
+      "file": "src/contract/wrappers.ts",
+      "sha256": "fbdfd8b82eb74a8d2028ec07316e1aab9bed94c806551bf116951ad73a6d744e"
+    },
+    {
+      "file": "src/crypto/crypto-browser.ts",
+      "sha256": "ea4def712a141094e7bcb213e2012f684e56bbc0283c2bf7f191827ec6195f2c"
+    },
+    {
+      "file": "src/crypto/crypto.ts",
+      "sha256": "c36a6d99b79d5182464a411a91969db3d05bdb50fff71e0d64413a1a673f3b34"
+    },
+    {
+      "file": "src/crypto/hmac.ts",
+      "sha256": "960f46169c4b7913e88c7c7ac8e963a2b0116431f6a3b51d7c2ac505a83ce2e7"
+    },
+    {
+      "file": "src/crypto/index.ts",
+      "sha256": "c5e996d906fc21aeb68bcb301f2e8a5612ce35a2c60e6a646d331aed636c5103"
+    },
+    {
+      "file": "src/crypto/keccak.ts",
+      "sha256": "91d7c1b5bcd7fd71d2015e41196094f35a889a32688850a65114ac47e5451ca1"
+    },
+    {
+      "file": "src/crypto/musig.ts",
+      "sha256": "84bc1a20c023f134fff34f643e680769edd7142a9dff8117f5df82190289687d"
+    },
+    {
+      "file": "src/crypto/pbkdf2.ts",
+      "sha256": "7833bd799db773d0afabe0cb1bb9278862322b902f66731939d15b39f6116dfd"
+    },
+    {
+      "file": "src/crypto/random.ts",
+      "sha256": "5375bd030619a3d9d4885c982dc7fed8514ff6768115f14e19f898e56ebfac13"
+    },
+    {
+      "file": "src/crypto/ripemd160.ts",
+      "sha256": "7ca324c4e134f89217c8ebe8b742008cef4626361a96e6a52bdb28362cb1b5cb"
+    },
+    {
+      "file": "src/crypto/scrypt.ts",
+      "sha256": "4a02b54f94750c3d7325f82fb174fc970dd4db7dedeee513ae7238ac320cea4f"
+    },
+    {
+      "file": "src/crypto/sha2.ts",
+      "sha256": "83b69bb6118290e5714dff1d87a15f7fea5b2f3886750c882097516c9a243d23"
+    },
+    {
+      "file": "src/crypto/signature.ts",
+      "sha256": "6a7bdc0e66cebdf4057ca812c4dfff48509ca1099fc4e40925445cd761dd7423"
+    },
+    {
+      "file": "src/crypto/signing-key.ts",
+      "sha256": "e0f8ebf99ea4d3ee9408cf98e4e5ce7049e4603074a74fa57583105bfa481c20"
+    },
+    {
+      "file": "src/encoding/base58.ts",
+      "sha256": "eadc15b9a7734d5a655146b15ad2db0d7fdd4144964dc0dac2883f5de3934b33"
+    },
+    {
+      "file": "src/encoding/base64-browser.ts",
+      "sha256": "d126814602a403aa8eee6dc715263bf0b78cd5366fd24e6fc034fab87aff1c35"
+    },
+    {
+      "file": "src/encoding/base64.ts",
+      "sha256": "664d9949e52107c6cfa55b7af448abc5227d03394a0f3cec7f1a355e2e604fe2"
+    },
+    {
+      "file": "src/encoding/bytes32.ts",
+      "sha256": "19528d8f1a9acc32d54932b6fe9fe0f2201fcf6142229f173d772316c2bcc465"
+    },
+    {
+      "file": "src/encoding/index.ts",
+      "sha256": "09c762a13648d51755b7d2fa72155ea2746a687ea04205e50cc7f2e7cf29906b"
+    },
+    {
+      "file": "src/encoding/proto-decode.ts",
+      "sha256": "f0d1f297aceb365fb23edd6f7b388781fd17c73e92c5f34d94f8bdfc31703626"
+    },
+    {
+      "file": "src/encoding/proto-encode.ts",
+      "sha256": "ebf540240d9fbdfdeed31673bddbc3af0461843213d5159ce02698b149b85453"
+    },
+    {
+      "file": "src/encoding/protoc/proto_block.proto",
+      "sha256": "849607a1ff35216795c0df9962bab3165690519d78dcadd9eed99e82f3fc28ea"
+    },
+    {
+      "file": "src/encoding/protoc/proto_block.ts",
+      "sha256": "254a9a8c76db1753a9fda60e5dbf47505f8e4bce28134f20685d533596240a93"
+    },
+    {
+      "file": "src/encoding/protoc/proto_common.proto",
+      "sha256": "c6a398b1a8daf40c8a7460e8220b0f4f3c248c8b462aa284fe3ae82f0c35c078"
+    },
+    {
+      "file": "src/encoding/protoc/proto_common.ts",
+      "sha256": "09f291b996910f369429bf258e090f951a07ee7d095e10ad23665b7950dbfe98"
+    },
+    {
+      "file": "src/encoding/utf8.ts",
+      "sha256": "50bf8aaf0fa1af7688e04cd5f5b3d240c6bb0f4aa9e99c58a39d378c05fcea01"
+    },
+    {
+      "file": "src/hash/id.ts",
+      "sha256": "067225dac6d143f4fc86f3479b5cd1de37eae7c0fb30f0221f9b3798f8c0946e"
+    },
+    {
+      "file": "src/hash/index.ts",
+      "sha256": "8e1c88c8683afc0435ee3c421ce84c6a7d18026c94e496ac66465ce1500612af"
+    },
+    {
+      "file": "src/hash/message.ts",
+      "sha256": "cc264e4fa0d4a3c17a3f0ec557974034a1d39a5989f159c8b781809efc559300"
+    },
+    {
+      "file": "src/hash/solidity.ts",
+      "sha256": "d24d4d7f8f6572a043ded426ae7ff771a449a5ead74e6dee7851d214c7a73704"
+    },
+    {
+      "file": "src/hash/typed-data.ts",
+      "sha256": "c47459307901db611726c6ae33377d7a8ea0f282f7f2c32adba79dd319b60afb"
+    },
+    {
+      "file": "src/index.ts",
+      "sha256": "b4374c1dab2c79d5457b1e78cbab3edb9c94bf19360b4d42e1c2fd941125a086"
+    },
+    {
+      "file": "src/providers/abstract-provider.ts",
+      "sha256": "a167336f3ef614e166f4e02a34b6a82590be17393480692f634c0b04e9c3bc7e"
+    },
+    {
+      "file": "src/providers/format.ts",
+      "sha256": "6adea51cc6f7d2549f03524a79559263aafde98bedf063202f2f0d97548e48d6"
+    },
+    {
+      "file": "src/providers/formatting.ts",
+      "sha256": "4f3fa3f4f089c297410d7e2a7901401eb5d5e1ea059e1381a9fcade86f8d87ed"
+    },
+    {
+      "file": "src/providers/index.ts",
+      "sha256": "42a0f3dc447f378a5271993e86f5ca1ab15bb764532fa658f29b02acb0e7439d"
+    },
+    {
+      "file": "src/providers/network.ts",
+      "sha256": "7d1af353d931c1dc3b8792b4d02fbc05bf48a239694074545db75e503a52b6e7"
+    },
+    {
+      "file": "src/providers/provider-browser.ts",
+      "sha256": "135687b8444def15ec474dfa2bfd9911e420b1fbc7583384dbe490f7a831d396"
+    },
+    {
+      "file": "src/providers/provider-jsonrpc.ts",
+      "sha256": "aacd0864d0872ce85ef14818d7a07ad27bbee26558abc4d89388d05e2e2dcdbe"
+    },
+    {
+      "file": "src/providers/provider-socket.ts",
+      "sha256": "c221e7582efcac5716fd2e06423a49eb86d0736d4e7f7ea7c92e9f90a56f0c5e"
+    },
+    {
+      "file": "src/providers/provider-websocket.ts",
+      "sha256": "494949b69f9f5ba2eef15a42151b9a84a49172f41faf45d52dee375ade22dbc5"
+    },
+    {
+      "file": "src/providers/provider.ts",
+      "sha256": "2e45d4d2343877eab811dfd3024b4cdd3ed1e4bec9542b17e282e14af8a57ce1"
+    },
+    {
+      "file": "src/providers/subscriber-connection.ts",
+      "sha256": "7e9da673cd83938f1d8222bee3d5f7203e4df9086da240ce3e46b4091c0354f3"
+    },
+    {
+      "file": "src/providers/subscriber-filterid.ts",
+      "sha256": "b61a906d3065811beb9b90c9c8a8c81472b1d460b9a5f6274f09d814dbce9a65"
+    },
+    {
+      "file": "src/providers/subscriber-polling.ts",
+      "sha256": "2d6be57f674b776c5b2fa0161dcf763a9c51395eed2265a9cac68499ef1481c7"
+    },
+    {
+      "file": "src/providers/txpool.ts",
+      "sha256": "3f999605d5385d43e8a8eef6f4f3f72da10cb8d2fc5db4134b77f500e38a94e2"
+    },
+    {
+      "file": "src/providers/ws-browser.ts",
+      "sha256": "a1d5a61f2e4e1322ec60cf92469d47f35616db1885ef6ea9e7a975e2b31019da"
+    },
+    {
+      "file": "src/providers/ws.ts",
+      "sha256": "fc91c20d34df99a77248b1db5810fb75aebe6bbf3a1cc17ae9f52d96b2a90135"
+    },
+    {
+      "file": "src/quais.ts",
+      "sha256": "bd923f535cd309e540896c7c7de0e0cf1c6fea540383c704f27fc8b4100d4419"
+    },
+    {
+      "file": "src/signers/abstract-signer.ts",
+      "sha256": "1d9555151609092c30acfcb0082d45e2b500280f9c4eb4fdcdb4e6c4d6be7f2d"
+    },
+    {
+      "file": "src/signers/index.ts",
+      "sha256": "423443eb4c724a87446079c97af7c7551f7df16f9db0114d713c3d2d1bbba432"
+    },
+    {
+      "file": "src/signers/signer.ts",
+      "sha256": "48480d426f851da24f4b13319174e275afaacad315f5cd875b39102a0bd8d122"
+    },
+    {
+      "file": "src/thirdparty.d.ts",
+      "sha256": "992f37d6a9ab46a08fbbf3322240b2960cf98bb82916d4cc7e8b59584304811f"
+    },
+    {
+      "file": "src/transaction/abstract-coinselector.ts",
+      "sha256": "00dfbe900a80e23277e3232b1af30ae1eac7bc1573c6ee96003cd1bc6ea519a5"
+    },
+    {
+      "file": "src/transaction/abstract-transaction.ts",
+      "sha256": "15e7fac6c5435bb29d13db11965eedfa22413107a3b31fb32f8d0d90f7e85f32"
+    },
+    {
+      "file": "src/transaction/accesslist.ts",
+      "sha256": "07469445eaf5ed63a96b1f61cc6d1926406e4836e3c27b5ef6a56bf57bcacfc5"
+    },
+    {
+      "file": "src/transaction/coinselector-aggregate.ts",
+      "sha256": "a58c8c66a0a8660427bb3fbf34270670ff72db4d109382b041715806eb2023de"
+    },
+    {
+      "file": "src/transaction/coinselector-conversion.ts",
+      "sha256": "c8e825abf03f87897db5576d421cf46840dc7daa7d200656d36cd2c928ed1f7e"
+    },
+    {
+      "file": "src/transaction/coinselector-fewest.ts",
+      "sha256": "17b836322ddb7749262e60c9a908479b19608cabe1efac84dd23a32a4e9da7a2"
+    },
+    {
+      "file": "src/transaction/index.ts",
+      "sha256": "d3c7ce8cf5282c087ebda2e9e8812c836f1474816c1b8b32cfe6577a8aab91db"
+    },
+    {
+      "file": "src/transaction/qi-transaction.ts",
+      "sha256": "15ed74db898ea5dffa5128e12d11c7008ef77acf77583388a14c50c19e40c63b"
+    },
+    {
+      "file": "src/transaction/quai-transaction.ts",
+      "sha256": "783bcb3bd62f74e4333c79ce96b29d09cc2f388a9c69e2f38b5aef3f5b20e031"
+    },
+    {
+      "file": "src/transaction/utxo.ts",
+      "sha256": "db6f4c0343721e84be87d4485aa5e6ee91446b490472148dd6497dee227eaa5f"
+    },
+    {
+      "file": "src/transaction/work-object.ts",
+      "sha256": "9d29dfc7ebd423ba99bdce33c15a1a036807c95131e6a2ba73adf742a5ba79f0"
+    },
+    {
+      "file": "src/utils/data.ts",
+      "sha256": "02bd41937761bec6a7a1084743ea266d0553fa989d20ccc1c38ff74f71bda18c"
+    },
+    {
+      "file": "src/utils/errors.ts",
+      "sha256": "f4c5cbecd19b9148573324e03f510aaec0a8efadc00f0cb25c78beaf0286a900"
+    },
+    {
+      "file": "src/utils/events.ts",
+      "sha256": "b734cabe1aab9343151ed82bf3192d282133cc9fefc6c0879fed3c874225816f"
+    },
+    {
+      "file": "src/utils/fetch.ts",
+      "sha256": "dd2b9b493109875a1bdd6e2d5e3c96ae049a271ad71852ba5a4a6409367922ea"
+    },
+    {
+      "file": "src/utils/fixednumber.ts",
+      "sha256": "7a2d982318c9912b37c7ead2fd902e1d6dfb4b3718270fc9d4a58a6679fddf7e"
+    },
+    {
+      "file": "src/utils/geturl-browser.ts",
+      "sha256": "a8b51a57e03bcedb7b85a0c81625fd33bb0a722935aa062576fe35a1379fc9f3"
+    },
+    {
+      "file": "src/utils/geturl.ts",
+      "sha256": "bc3b3ec444fcedbba811dd090c8cb918a039293bb180d290906ae686eef24c17"
+    },
+    {
+      "file": "src/utils/index.ts",
+      "sha256": "ef5bef042cb688205513637683f8f636354db1a9ab3115def51ba7d399f9fdcc"
+    },
+    {
+      "file": "src/utils/maths.ts",
+      "sha256": "fc97103f4d7d2881406b2b8d7e1e22247fc73aacbdb75865f974dfd9c35b341a"
+    },
+    {
+      "file": "src/utils/properties.ts",
+      "sha256": "dc96f8f49346e444dd6885c69dc27be10722072019aa9a03cc9a29c7f58f613a"
+    },
+    {
+      "file": "src/utils/shards.ts",
+      "sha256": "d3ce41130ea2d495a3b057d4090ddeba5fa283e4c2c0c9a26a6d3c1f6757e171"
+    },
+    {
+      "file": "src/utils/units.ts",
+      "sha256": "44344f494bc5034458eb709d8fd171d4fa369938897dddbc7442f75d998026a4"
+    },
+    {
+      "file": "src/utils/uuid.ts",
+      "sha256": "0dd1b0ad21fd2f6704d2e3c9523685ca154dabbcc64a01bb59cd2a8c5a24cdd9"
+    },
+    {
+      "file": "src/wallet/abstract-hdwallet.ts",
+      "sha256": "0a55a4e0c85a6d6f67432a60c2dfb6e1c1bef2c00cd669e25a0c9d3a065e8e29"
+    },
+    {
+      "file": "src/wallet/base-wallet.ts",
+      "sha256": "3452a6a20c4d7337cde3b801c484c0047c37aeb970f5b83f1b5229dcff8f60b8"
+    },
+    {
+      "file": "src/wallet/bip32/bip32.ts",
+      "sha256": "784b6d01c9d3e6c4b2c4be860c9bb4cc76d84267de5ddc4b4d3fe91c79f7255f"
+    },
+    {
+      "file": "src/wallet/bip32/crypto.ts",
+      "sha256": "7caaa886cf2a202ea2a5ab7082fdbb30a6b78400a5c6e3673b9283387a86c976"
+    },
+    {
+      "file": "src/wallet/bip32/testecc.ts",
+      "sha256": "a15d4013d11e2d886185fdd6e9dca50137a474a9544adbba6645df31223e1711"
+    },
+    {
+      "file": "src/wallet/bip32/types.ts",
+      "sha256": "5a5589030d1dc0d1bba2d08e4e9e7b5aa8361646b141d05d0c13f346b6f963ef"
+    },
+    {
+      "file": "src/wallet/bip32/uint8array-utils.ts",
+      "sha256": "90a077f45489b4a59095a9876f2a0f5f96210eb2daebb5e6988f941491b72af9"
+    },
+    {
+      "file": "src/wallet/bip44/bip44.ts",
+      "sha256": "0379dc1a267c4b40b4012ef0b0e98e9ac7712f0b6ec4661511b330e98f9d39d3"
+    },
+    {
+      "file": "src/wallet/hdnodewallet.ts",
+      "sha256": "9d564820773ada583268cbaef49ba49d845a774fbd2cac4c656ae30a6dca34e9"
+    },
+    {
+      "file": "src/wallet/index.ts",
+      "sha256": "0ba5afe0b946a72a1a6fcc007e73a1b2f9b08e189ac064fba79bfc7b72fc91ef"
+    },
+    {
+      "file": "src/wallet/json-keystore.ts",
+      "sha256": "60788a628f220d655010f49348bf2c6361bded4275f2b25855879e5baeab242d"
+    },
+    {
+      "file": "src/wallet/mnemonic.ts",
+      "sha256": "f3bab1f05d6ce468dcdd1e2b10fadf2c0a78afa670daa945256512f4416cd0f1"
+    },
+    {
+      "file": "src/wallet/payment-codes.ts",
+      "sha256": "01598a844d17e046991828b952cded69c8be010a905f5393182355dba3b5f2e7"
+    },
+    {
+      "file": "src/wallet/qi-hdwallet.ts",
+      "sha256": "35b330d995602c68fb8bbf96f0c53e88a1a88ff4f02bc3cca40f948ca196e459"
+    },
+    {
+      "file": "src/wallet/qi-wallets/abstract-qi-wallet.ts",
+      "sha256": "6ca88b3a28cb7a52c06e6117a8ecf74fdb5380dc3f68db697fc369d125da1926"
+    },
+    {
+      "file": "src/wallet/qi-wallets/bip44-qi-wallet.ts",
+      "sha256": "6ed23157afc3627087e9d474ef934e769743abf4f2c043f120ad75ef7c0790d9"
+    },
+    {
+      "file": "src/wallet/qi-wallets/bip47-counterparty-qi-wallet.ts",
+      "sha256": "b0a6b98f8e93a99463167933e973494f6651ad8268ae12ff53fcbfe3107e34f0"
+    },
+    {
+      "file": "src/wallet/qi-wallets/bip47-paymentchannel.ts",
+      "sha256": "2e409ba6c0e877a4fb9daf0e3aded021789dc12a7c182bd74094c04bb4aab9c8"
+    },
+    {
+      "file": "src/wallet/qi-wallets/bip47-self-qi-wallet.ts",
+      "sha256": "dd15ef7782431dcf44a9ec6e9d70af07f039e7149ec0fd53579cd6ed1a88264d"
+    },
+    {
+      "file": "src/wallet/qi-wallets/privkey-qi-wallet.ts",
+      "sha256": "ac230ea9102ed0c49f292665212d820ddb7815cab327686168d478ff9e8630d5"
+    },
+    {
+      "file": "src/wallet/quai-hdwallet.ts",
+      "sha256": "283b0cdda9066109adf2736df2831b2d05bf200184e2e5387222f1c0c498450b"
+    },
+    {
+      "file": "src/wallet/utils.ts",
+      "sha256": "657193818d1eb9dd3726d98cb4d7400dc991053c34c0bab2397d905b83aecff6"
+    },
+    {
+      "file": "src/wallet/wallet.ts",
+      "sha256": "be8235e953713eb17c2eaee588a783783a956925f2f8c22e8dca84a4fe68649e"
+    },
+    {
+      "file": "src/wordlists/bit-reader.ts",
+      "sha256": "7d11ad67986d7229158978820e567f0059cbf862cf541342dcf331cace7db65e"
+    },
+    {
+      "file": "src/wordlists/decode-owl.ts",
+      "sha256": "93383795e4b602ddfae6b07152b6f33cf7074b316fd3f5e35b3e35365252d93d"
+    },
+    {
+      "file": "src/wordlists/decode-owla.ts",
+      "sha256": "bb00dd2ee47cd1a8fb3a0aa53a1a6925a8d1912e2678d6a51d50e7dc0d1dbf3c"
+    },
+    {
+      "file": "src/wordlists/generation/encode-latin.ts",
+      "sha256": "39aa1efd9a2ce31b8190cfc2a20c0329345c2b08cbd9fa78795c5c1e65fa3f5f"
+    },
+    {
+      "file": "src/wordlists/index.ts",
+      "sha256": "0384c116bf7ce776660e4ae5c32d92f79ae4050360b6ed0f7a8803d62179f511"
+    },
+    {
+      "file": "src/wordlists/lang-cz.ts",
+      "sha256": "61a95277d0ea947981cef8209b0cc779e9f6571dd3e47053816cbea0591bff0f"
+    },
+    {
+      "file": "src/wordlists/lang-en.ts",
+      "sha256": "83539898e1eb3af30d65e5e18f0a8c7ab79015d82fca38d4d0d682b01b5d3491"
+    },
+    {
+      "file": "src/wordlists/lang-es.ts",
+      "sha256": "4b8fc67cd58beca437cf9fd00f3fa56184ac8f8676b79a65fec4f1a04169a1bc"
+    },
+    {
+      "file": "src/wordlists/lang-fr.ts",
+      "sha256": "ce3d39491917ba44f3f2fa93a4102b4b7df87e6275b5ccca049688c71d3b94b5"
+    },
+    {
+      "file": "src/wordlists/lang-it.ts",
+      "sha256": "d8abb1dcc22ac8e425144a86255a508155e1da6f75bd91328efb66849010f5c9"
+    },
+    {
+      "file": "src/wordlists/lang-ja.ts",
+      "sha256": "f45e4ec00edc41e0712398fa9924cc0e051727f1564985ba964256c76ee3c98f"
+    },
+    {
+      "file": "src/wordlists/lang-ko.ts",
+      "sha256": "d9b4e32bd2266062c89f75b3ce58368ead8a06e5cc2c6958ba7fe0a2204ad485"
+    },
+    {
+      "file": "src/wordlists/lang-pt.ts",
+      "sha256": "7e3527eda11408e83e6f55e0006f14973ee9322042aa9221fca97ad36df7b493"
+    },
+    {
+      "file": "src/wordlists/lang-zh.ts",
+      "sha256": "0767989cf2cb0cf2bb3e1d3c24fe6f4d608bf5342261cef6bc763c4f4b49e8b5"
+    },
+    {
+      "file": "src/wordlists/wordlist-owl.ts",
+      "sha256": "37dd91f9c00c7a2da811d53467fe99d4c4f29e99b68d30b84fcfa2c514c21520"
+    },
+    {
+      "file": "src/wordlists/wordlist-owla.ts",
+      "sha256": "ce6f497f8abbc146a80dce0c83dcce4c8e83788965c58a7e141eb22d7ed42c29"
+    },
+    {
+      "file": "src/wordlists/wordlist.ts",
+      "sha256": "7253a3e1c38bd28acaf4d97150c4aa885364a6643d857e505d386e0c663af23a"
+    },
+    {
+      "file": "src/wordlists/wordlists-browser.ts",
+      "sha256": "b23d39a909414991b89902751dceca1f096a0bebceb4b6548b07bb1df3c8d6e7"
+    },
+    {
+      "file": "src/wordlists/wordlists-extra.ts",
+      "sha256": "bc8a4a0630f4abb0d49e050963c102e76b4de0540498da989e1d02b1be945e41"
+    },
+    {
+      "file": "src/wordlists/wordlists.ts",
+      "sha256": "ab7d44ec7f72b4355f8eab2bdc5bcb875e29e26660060a46d057cfb76412b75b"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+# quai-provider
+
+Typed wallet/application RPCs and explicit signed submission over configured shard routes. Every network method checks the routed endpoint's chain ID first. Lookup hashes and account/Qi transaction chain IDs are also checked against the request. RPC response validation is not cryptographic verification or proof of finality.
+
+The provider currently exposes:
+
+- Chain ID, block number, running zones and Quai account balance.
+- Account transaction count, gas price, bytecode and storage words.
+- Account-only `call` and `estimate_gas`, using an explicit sender and block selector.
+- Explicit-zone transaction and receipt lookup with typed Quai, external and Qi variants.
+- Current-head indexed Qi outpoints, preserving denomination and lock values.
+- Zone headers with location/height validation, immutable signed Quai submission and native receipt confirmation polling.
+
+`BlockTag::Number` rejects values above the node's signed 64-bit range before I/O. This matters because go-quai can interpret a 66-character selector as a hash. Nonces, gas and transaction indices enforce their wire integer widths; account values and prices retain 256 bits. `Hash32` is a primitive, whereas `RpcData` distinguishes bytes from quantities and caps decoded data at 1 MiB. Collections have explicit limits: 65,536 entries for outpoints/inputs/outputs/logs and 4,096 access-list entries with 65,536 total storage keys.
+
+`CallRequest::try_from(serde_json::Value)` is a strict adapter for external request objects. It rejects unknown fields, conflicting `data`/`input` usage, unsupported transaction kinds and Ethereum dynamic-fee fields. The request uses `input`, `gasPrice`, and numeric `txType: 0`; both simulation methods send an explicit second block-selector argument. Contract creation requires nonempty input. Same-zone Quai calls are supported; cross-zone simulation, Qi estimates, conversions, state overrides and block-hash selectors need dedicated future APIs. Simulation does not submit anything, and the node may replace a supplied nonce with its state nonce.
+
+The response parsers preserve top-level unknown fields in `Extensions`, whose debug output omits values. Known signatures and public keys are checked for structural encoding only; they are not cryptographically verified. Unknown transaction types, partial inclusion metadata, incorrect lookup hashes, malformed log associations and duplicate outpoints are rejected. Pending and missing transactions remain `Option` values; neither establishes rejection. Receipt outcomes distinguish status from historical post-state roots. Quai log blooms are **10,240 bytes**, as verified against both captured nodes and pinned source; Ethereum's 256-byte bloom assumption is wrong here. ETX receipts can report zero cumulative gas despite nonzero gas used.
+
+`outpoints` operates at current head only. An empty result does not establish address-index readiness, and a returned outpoint does not establish key ownership, maturity, nonexpiry or spendability. Wallet recovery and reservation logic belong to subsequent implementation work.
+
+## Explicit submission and confirmation
+
+`broadcast(&SignedQuaiTransaction)` checks the signed transaction's chain ID before any RPC, computes its expected ID and canonical protobuf before submission, then checks the endpoint chain at the recovered sender's zone. It submits exactly one `quai_sendRawTransaction` request and requires the returned ID to match. There is no automatic retry. Errors distinguish preflight from ambiguous submit-stage outcomes; every send-stage error preserves the expected transaction ID for reconciliation, including malformed or conflicting acknowledgements. Acknowledgement does not establish inclusion. Retain `signed.hash()` before awaiting: dropping the future cancels waiting but cannot roll back a possibly accepted transaction.
+
+`wait_for_receipt(zone, hash, WaitConfig)` requires a positive confirmation count, timeout and poll interval. It tolerates missing or reorged receipt observations, verifies the containing block by canonical number/hash, re-reads the receipt, and verifies the observed head hash before returning. Failed execution receipts are returned with their explicit outcome. RPC failures stop the wait without automatic retry. The overall timeout covers cooperative RPC polling and delays; dropping the future stops polling. Separate RPC reads cannot eliminate races or prove finality, and chain-ID checks cannot authenticate a dishonest node. The native `polling` feature uses Tokio time; `http` enables it. Browser timers/polling remain unqualified.
+
+Broadcast and confirmation regressions use only mock transports. **No real transaction was submitted during this increment**, including to mainnet. Funded disposable-testnet acceptance remains a separate gate.
+
+## Evidence and tests
+
+The pinned candidate protocol reference is [go-quai f3f345c877300c044e3e0081a48bf3cf786fb9cc](https://github.com/dominant-strategies/go-quai/tree/f3f345c877300c044e3e0081a48bf3cf786fb9cc). Method/field review used:
+
+- [Account simulation arguments](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/internal/quaiapi/transaction_args.go#L36).
+- [Transaction RPC model](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/internal/quaiapi/api.go#L999), [nonce and transaction lookup](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/internal/quaiapi/api.go#L1442).
+- [Code/storage/call/estimate methods](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/internal/quaiapi/quai_api.go#L827), [receipts](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/internal/quaiapi/quai_api.go#L1799), [indexed outpoints](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/internal/quaiapi/quai_api.go#L200), [bloom size](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/core/types/bloom9.go#L33).
+
+Normal tests combine mock transports, malformed/adversarial responses and [captured public responses](tests/fixtures/README.md). They neither contact a live node nor contain private keys. Run `cargo test -p quai-provider --locked`. No HTTP transport is needed for the mock/fixture suite; `--no-default-features` is supported.
+
+An ignored `live_reads` test is opt-in and requires `QUAI_RPC_URL` plus decimal `QUAI_EXPECTED_CHAIN_ID`. It uses the exact supplied endpoint, reads public zero-address state and nonexistent transaction lookups, and simulates/estimates a zero-value account call. It does not sign or submit. Invoke with `cargo test -p quai-provider --test live_reads -- --ignored` after explicitly configuring those variables. This smoke test passed on both the authorized direct LAN node (chain 9) and Orchard's resolved Cyprus-1 gateway (chain 15000) on 2026-09-11. It does not establish funded transaction or Qi-signature acceptance.

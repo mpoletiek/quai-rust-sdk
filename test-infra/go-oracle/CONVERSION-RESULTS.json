@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "oracle": "pinned-go-quai-wire-and-signature",
+  "pinnedGoCommit": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "goVersion": "go1.26.5-X:nodwarf5",
+  "fixtureReference": "quais@1.0.0-alpha.57",
+  "fixtureSha256": "b942a5ab7adad0434e0bd6412a905466504bf799dfeee49be78c347195e2f9b9",
+  "nodeAcceptance": false,
+  "results": [
+    {
+      "id": "conversion-qi-0",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "conversion-qi-1",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "conversion-qi-2",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "conversion-qi-3",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "conversion-qi-4",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "conversion-qi-5",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "conversion-quai-0",
+      "kind": "quai",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "senderMatch": true
+    },
+    {
+      "id": "conversion-quai-1",
+      "kind": "quai",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "senderMatch": true
+    }
+  ],
+  "sourceClean": true,
+  "sourceCommitVerified": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "cgoEnabled": true
+}

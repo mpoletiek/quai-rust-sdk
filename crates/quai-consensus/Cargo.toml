@@ -1,0 +1,22 @@
+[package]
+name = "quai-consensus"
+description = "Canonical Quai and Qi transaction codecs and signing payloads"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+quai-primitives.workspace = true
+quai-crypto.workspace = true
+ruint.workspace = true
+prost = "0.14.4"
+thiserror.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

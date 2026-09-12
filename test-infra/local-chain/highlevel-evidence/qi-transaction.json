@@ -1,0 +1,113 @@
+{
+  "blockHash": "0x000001f28d1f163eae612a195b9edb585fffcc7ca61345efafe55777ef9d710e",
+  "blockNumber": "0x5",
+  "gas": "0x0",
+  "hash": "0x00cf00f60caf9938d15cd5981a36b13a9a0a6bc392e452a6a942a9fa69888d4e",
+  "input": "0x",
+  "nonce": "0x0",
+  "transactionIndex": "0x0",
+  "type": "0x2",
+  "chainId": "0x539",
+  "inputs": [
+    {
+      "previousOutPoint": {
+        "txHash": "0x00a000b1ec84c766c61c5ec9b58ae6beed15b5a384c7540084a60cec1700c790",
+        "index": "0x0"
+      },
+      "pubKey": "0x04e87b87d8578a502342f77f5f8c5bfd9ce9752154873c1ec5f90e5793689d6ca6b0dcbfb00f58a63c8b2f5f7ea039e4f9d6962616ffbd9470474939aee91bbcbd"
+    }
+  ],
+  "outputs": [
+    {
+      "denomination": "0x6",
+      "address": "0x008bF85b805a4e8E4fcfd5cC3A8289D938Aa4bf6",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x4",
+      "address": "0x00FfF9C8c54c09Eb1D0FA07749CBF38ee08c4357",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x4",
+      "address": "0x009486247A69A10681EE6247fe4656A7A85a0CcB",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x2",
+      "address": "0x0089542FD38F4fC8768b48F7Ce39Ef1F5AAe2eA8",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x2",
+      "address": "0x00eFAfb80Fd36967B86d6faB588c8f842E506173",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x2",
+      "address": "0x00AaB9CF9346BF4d4f6976ff32cC608A8A007dCb",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x0",
+      "address": "0x00D438AfFe25bA93f4C4DE48eDa9A35d431fc81C",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x0",
+      "address": "0x009758bE83DdbA29297772C4AdC7c96d39367429",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x0",
+      "address": "0x00C167bE7ee1B5B5BB2003136cE75F9B8E5EBF21",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x0",
+      "address": "0x00db903F1Ad6b7B2137BbCb8B776c302c3a7a4ac",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x7",
+      "address": "0x00FE930EBbC77D7A2ec5e795b5726A382989ec7d",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x6",
+      "address": "0x00d4B83077792BE6bf5412fAfEd5c405ae0c762c",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x6",
+      "address": "0x00d802ac3Fb2b488537C457115DD0Bb60dc83Db2",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x6",
+      "address": "0x00D6beaca0149b566AA55C6994Cc973aEbd50082",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x5",
+      "address": "0x00CA4a9B590EC4d152D7131708ed363dBC3ae3AD",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x4",
+      "address": "0x00fb3378D593489eDcE21F2Ec9783ff7652Ac60f",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x4",
+      "address": "0x00FD9D8067F999e1f8D782fbc9459Fb8473f7B5A",
+      "lock": "0x0"
+    },
+    {
+      "denomination": "0x2",
+      "address": "0x00812194b0c2567c42fFBDEB318F832b63f237F9",
+      "lock": "0x0"
+    }
+  ],
+  "utxoSignature": "0xc2a27c36592cea5a3176246673c93d5923f51535ab91087a85e6d37bcf10ca38cdb22612818ef2c57db8725decfb192fa573088247f725f6e7b1fff1c523571d"
+}

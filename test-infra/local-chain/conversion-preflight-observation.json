@@ -1,0 +1,42 @@
+{
+  "profile": "ordinary-development-controller-unmodified",
+  "state": {
+    "chainId": 1337,
+    "genesisHash": "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee",
+    "height": "0x3",
+    "headHash": "0x00000bf254b3d8ffc3f40be90ad32ac68802fa218ac5fe54b60b2b6f49bd73df",
+    "gasLimit": "0xb71b00",
+    "stateLimit": "0xb71b00",
+    "balance": "0x33b2e3c9fd0803ce8000000",
+    "nonce": "0x0",
+    "qiOutpoints": [
+      {
+        "denomination": "0xe",
+        "index": "0x0",
+        "lock": "0x0",
+        "txHash": "0x0080008011111111111111111111111111111111111111111111111111111111"
+      }
+    ]
+  },
+  "method": "quai_estimateGas",
+  "params": [
+    {
+      "from": "0x0049CdA3305ccB9cB23E7Ce2528ceF555E9a5B32",
+      "to": "0x00f47c27f86b20e1BD18a0cAFf71b2eC5e23389a",
+      "value": "0x8ac7230489e80000",
+      "gas": "0xf4240",
+      "gasPrice": "0x43f88ea8f1551",
+      "input": "0x2328",
+      "txType": 0
+    },
+    "latest"
+  ],
+  "response": "0x9858",
+  "writes": false,
+  "callResponse": {
+    "error": {
+      "code": -32000,
+      "message": "CreateETX conversion error: Quai->Qi conversion is not allowed before block 262000"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"types": {"Root": [{"name": "z", "type": "Z"}, {"name": "a", "type": "A"}], "Z": [{"name": "child", "type": "Leaf"}], "A": [{"name": "child", "type": "Leaf"}], "Leaf": [{"name": "number", "type": "uint8"}]}, "primaryType": "Root", "domain": {}, "message": {"z": {"child": {"number": 1}}, "a": {"child": {"number": 2}}}}

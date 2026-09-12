@@ -1,0 +1,54 @@
+{
+  "recordedAt": "2026-09-11T22:55:39.075879+00:00",
+  "scope": "internal bounded security validation; not production qualification",
+  "rustSourceAndManifestSha256": "213f896eed7f8516cefc2621d8a779eda4363e45422c6b2478bd5a6b8eb239f4",
+  "sourceHashMethod": "sorted crates/**/*.rs and crates/**/Cargo.toml, followed by Cargo.toml and Cargo.lock; concatenate UTF-8 relative path, NUL, SHA256 bytes",
+  "sourceFileCount": 116,
+  "checks": {
+    "workspace": {
+      "log": "test-infra/reports/security-2026-09-11/workspace.log",
+      "sha256": "d0359e6caa82e6cd0758d9429f8771b894d8f87dcddf162acdcd8a92d1399453",
+      "exitCode": 0,
+      "passed": 254,
+      "ignored": 4,
+      "subprocessChecks": 3
+    },
+    "no-default": {
+      "log": "test-infra/reports/security-2026-09-11/no-default.log",
+      "sha256": "51e7c293d723eb5693c2cfb2e044d8e691e4734da13f889268596ab214fc0651",
+      "exitCode": 0,
+      "passed": 169,
+      "ignored": 0,
+      "subprocessChecks": 0
+    },
+    "python": {
+      "log": "test-infra/reports/security-2026-09-11/python.log",
+      "sha256": "51a91f401dc930fc512d8a4878b139dd60e6454b35e0f104dffa4f3127340ada",
+      "exitCode": 0
+    },
+    "clippy": {
+      "log": "test-infra/reports/security-2026-09-11/clippy.log",
+      "sha256": "93683422fa4016a6333aa0bc41ebdd493a5e1b25184f125894edab753a61c16a",
+      "exitCode": 0
+    },
+    "doc": {
+      "log": "test-infra/reports/security-2026-09-11/doc.log",
+      "sha256": "517a03d54d4e0ce168c2d02360ebd2d3a7d4ab91456eee7c377f98fa7c6471e5",
+      "exitCode": 0
+    },
+    "wasm": {
+      "log": "test-infra/reports/security-2026-09-11/wasm.log",
+      "sha256": "e7d63b9ae484198da0ad69f12c2efa50d98b75b6b88789fde06f85932de4dc4a",
+      "exitCode": 0
+    },
+    "worker": {
+      "log": "test-infra/reports/security-2026-09-11/worker.log",
+      "sha256": "09f870b70799268f3f458ba58e12bd12c45a0ad805f345b50e290f2ea4b5bb8b",
+      "exitCode": 0
+    }
+  },
+  "fuzzReport": "fuzz/smoke-results.json",
+  "sdkAudit": "test-infra/reports/dependency-audit.json",
+  "fuzzAudit": "test-infra/reports/fuzz-dependency-audit.json",
+  "liveWalletEvidence": "test-infra/local-chain/HIGHLEVEL.md"
+}

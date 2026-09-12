@@ -1,0 +1,22 @@
+{
+  "sourceCommit": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "compiler": "go1.26.5-X:nodwarf5 linux/amd64",
+  "binarySha256": "8f586e96a62b7f1a4ebe2685e4f0572ea0da7470fe22239739f43fd5c3306cbf",
+  "profile": "unmodified local Blake3, address index enabled",
+  "chainId": 1337,
+  "genesisHash": "0x807757af788de808c702427dd465035f743038f0aa9840f0b904c50b7643e13e",
+  "rpcUrl": "http://127.0.0.1:19200",
+  "usePathing": false,
+  "latestHeight": 0,
+  "pendingHeight": 1,
+  "pendingGasLimit": 0,
+  "pendingStateLimit": 0,
+  "minedHeaderHash": "0x000016d36509c8c05aeedea13f99c1bf73d1764efaa7b9e60461a3a865023386",
+  "miningSeconds": 1.686,
+  "miningNonce": 329638,
+  "submitRpcResult": null,
+  "canonicalAcceptance": false,
+  "failure": "core/bodydb.go:148 accesses engine[types.Kawpow] with one Blake3 engine when index-address-utxos is enabled; recovered panic prevents insertion",
+  "snapshotReady": false,
+  "fundedAcceptance": false
+}

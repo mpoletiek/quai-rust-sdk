@@ -1,0 +1,214 @@
+//! Local signing binds a key to an explicit chain; no network or automatic sends.
+pub use quai_abi::TypedData;
+use quai_consensus::{
+    QiTransaction, QuaiTransaction, SignedQiTransaction, SignedQuaiTransaction, U256,
+};
+use quai_crypto::{RecoverableSignature, SecretKey, hash_message};
+use quai_primitives::Address;
+use std::fmt;
+use thiserror::Error;
+
+/// Explicit policy for typed-data domains that omit a chain identifier.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum DomainPolicy {
+    /// Require the domain's chain ID to equal the signer's configured chain.
+    RequireChainId,
+    /// Permit an absent/null chain ID; any present chain ID must still match.
+    /// Such signatures may be usable on multiple chains and require explicit review.
+    AllowUnbound,
+}
+
+impl DomainPolicy {
+    /// Check a validated document against an explicit nonzero chain before any signing prompt.
+    pub fn validate(self, data: &TypedData, chain_id: U256) -> Result<(), SignerError> {
+        if chain_id == U256::ZERO {
+            return Err(SignerError::ChainMismatch);
+        }
+        match data.domain().get("chainId").filter(|v| !v.is_null()) {
+            None if self == DomainPolicy::RequireChainId => {
+                return Err(SignerError::ChainMismatch);
+            }
+            None => (),
+            Some(value) => {
+                let chain = match value {
+                    serde_json::Value::Number(n) => n
+                        .as_u64()
+                        .map(U256::from)
+                        .ok_or(SignerError::ChainMismatch)?,
+                    serde_json::Value::String(text) => {
+                        let (digits, radix) = text
+                            .strip_prefix("0x")
+                            .or_else(|| text.strip_prefix("0X"))
+                            .map_or((text.as_str(), 10), |digits| (digits, 16));
+                        U256::from_str_radix(digits, radix)
+                            .map_err(|_| SignerError::ChainMismatch)?
+                    }
+                    _ => return Err(SignerError::ChainMismatch),
+                };
+                if chain != chain_id {
+                    return Err(SignerError::ChainMismatch);
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+/// Signing failures contain no key, payload or backend diagnostic strings.
+#[derive(Debug, Error)]
+pub enum SignerError {
+    /// The configured chain must be nonzero and equal the transaction chain.
+    #[error("signer chain ID mismatch or invalid chain ID")]
+    ChainMismatch,
+    /// The key/address must select a supported zone.
+    #[error("signer address does not select a supported zone")]
+    InvalidAddress,
+    /// A watch-only signer cannot authorize transactions or messages.
+    #[error("watch-only signer cannot sign")]
+    WatchOnly,
+    /// Invalid ledger, transaction or signature.
+    #[error("transaction signing failed validation")]
+    InvalidTransaction,
+    /// Message signature creation failed.
+    #[error("message signing failed")]
+    MessageSigning,
+    /// This adapter has not implemented typed-data signing.
+    #[error("typed-data signing is unsupported by this signer")]
+    TypedDataUnsupported,
+}
+
+/// Synchronous local-signing contract; remote/browser signing adapters are separate.
+pub trait Signer {
+    /// Public signing address.
+    fn address(&self) -> Address;
+    /// The chain explicitly bound to this signer.
+    fn chain_id(&self) -> U256;
+    /// Sign the exact Quai payload after checking the configured chain.
+    fn sign_quai(
+        &self,
+        transaction: &QuaiTransaction,
+    ) -> Result<SignedQuaiTransaction, SignerError>;
+    /// Sign an ordinary single-input Qi transfer after checking chain and key ownership.
+    fn sign_qi_single(
+        &self,
+        transaction: &QiTransaction,
+    ) -> Result<SignedQiTransaction, SignerError>;
+    /// Personal-message ECDSA signature. This format does not bind chain ID.
+    fn sign_message(&self, message: &[u8]) -> Result<RecoverableSignature, SignerError>;
+    /// Sign an immutable validated typed-data document with explicit domain policy.
+    fn sign_typed_data(
+        &self,
+        _data: &TypedData,
+        _policy: DomainPolicy,
+    ) -> Result<RecoverableSignature, SignerError> {
+        Err(SignerError::TypedDataUnsupported)
+    }
+}
+
+/// A non-cloneable zeroizing local key bound to a chain identity.
+pub struct LocalSigner {
+    key: SecretKey,
+    address: Address,
+    chain_id: U256,
+}
+impl LocalSigner {
+    /// Bind a validated key to a nonzero chain and known address zone.
+    pub fn new(key: SecretKey, chain_id: U256) -> Result<Self, SignerError> {
+        if chain_id == U256::ZERO {
+            return Err(SignerError::ChainMismatch);
+        }
+        let address = key.public_key().address();
+        address.zone().map_err(|_| SignerError::InvalidAddress)?;
+        Ok(Self {
+            key,
+            address,
+            chain_id,
+        })
+    }
+}
+impl fmt::Debug for LocalSigner {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("LocalSigner")
+            .field("address", &self.address)
+            .field("chain_id", &self.chain_id)
+            .finish_non_exhaustive()
+    }
+}
+impl Signer for LocalSigner {
+    fn address(&self) -> Address {
+        self.address
+    }
+    fn chain_id(&self) -> U256 {
+        self.chain_id
+    }
+    fn sign_quai(&self, tx: &QuaiTransaction) -> Result<SignedQuaiTransaction, SignerError> {
+        if tx.chain_id != self.chain_id {
+            return Err(SignerError::ChainMismatch);
+        }
+        tx.sign(&self.key)
+            .map_err(|_| SignerError::InvalidTransaction)
+    }
+    fn sign_qi_single(&self, tx: &QiTransaction) -> Result<SignedQiTransaction, SignerError> {
+        if tx.chain_id != self.chain_id {
+            return Err(SignerError::ChainMismatch);
+        }
+        tx.sign_single(&self.key)
+            .map_err(|_| SignerError::InvalidTransaction)
+    }
+    fn sign_message(&self, message: &[u8]) -> Result<RecoverableSignature, SignerError> {
+        self.key
+            .sign_prehash(&hash_message(message))
+            .map_err(|_| SignerError::MessageSigning)
+    }
+    fn sign_typed_data(
+        &self,
+        data: &TypedData,
+        policy: DomainPolicy,
+    ) -> Result<RecoverableSignature, SignerError> {
+        policy.validate(data, self.chain_id)?;
+        self.key
+            .sign_prehash(data.signing_hash().bytes())
+            .map_err(|_| SignerError::MessageSigning)
+    }
+}
+
+/// Public identity with an explicit inability to sign, suitable for watch-only applications.
+#[derive(Clone, Copy, Debug)]
+pub struct WatchOnlySigner {
+    address: Address,
+    chain_id: U256,
+}
+impl WatchOnlySigner {
+    /// Bind a known-zone public address to a nonzero chain.
+    pub fn new(address: Address, chain_id: U256) -> Result<Self, SignerError> {
+        if chain_id == U256::ZERO {
+            return Err(SignerError::ChainMismatch);
+        }
+        address.zone().map_err(|_| SignerError::InvalidAddress)?;
+        Ok(Self { address, chain_id })
+    }
+}
+impl Signer for WatchOnlySigner {
+    fn address(&self) -> Address {
+        self.address
+    }
+    fn chain_id(&self) -> U256 {
+        self.chain_id
+    }
+    fn sign_quai(&self, _: &QuaiTransaction) -> Result<SignedQuaiTransaction, SignerError> {
+        Err(SignerError::WatchOnly)
+    }
+    fn sign_qi_single(&self, _: &QiTransaction) -> Result<SignedQiTransaction, SignerError> {
+        Err(SignerError::WatchOnly)
+    }
+    fn sign_message(&self, _: &[u8]) -> Result<RecoverableSignature, SignerError> {
+        Err(SignerError::WatchOnly)
+    }
+    fn sign_typed_data(
+        &self,
+        _: &TypedData,
+        _: DomainPolicy,
+    ) -> Result<RecoverableSignature, SignerError> {
+        Err(SignerError::WatchOnly)
+    }
+}

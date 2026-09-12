@@ -1,0 +1,1 @@
+{"types": {"Numbers": [{"name": "minimum", "type": "int24"}, {"name": "maximum", "type": "int24"}, {"name": "unsigned", "type": "uint24"}, {"name": "zero", "type": "uint24"}]}, "primaryType": "Numbers", "domain": {}, "message": {"minimum": "-8388608", "maximum": "8388607", "unsigned": "16777215", "zero": 0}}

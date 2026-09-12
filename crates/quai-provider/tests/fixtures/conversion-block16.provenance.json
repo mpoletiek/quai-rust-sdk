@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Read-only captured block schema and conversion-correlation fixture",
+  "sourceCommit": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "profile": "test-infra/local-chain/conversion-profile.json",
+  "chainId": 1337,
+  "genesisHash": "0xff38a93744ee5aae738addc88da4f6b171528244e81d34aa4b25579fa3f44ed2",
+  "request": {
+    "method": "quai_getBlockByNumber",
+    "params": [
+      "0x10",
+      true
+    ]
+  },
+  "file": "conversion-block16.json",
+  "sha256": "5d1f1d21eb50979dced35a19f1884f1ff51f201b1ef2ef24a283daa18619ea27",
+  "scope": "Disposable accelerated controller/lock profile only; no production finality or spendability claim"
+}

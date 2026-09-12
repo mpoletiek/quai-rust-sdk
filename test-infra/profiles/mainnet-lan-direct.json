@@ -1,0 +1,45 @@
+{
+  "profile_version": 1,
+  "name": "mainnet-lan-direct-cyprus1",
+  "status": "read-only-rust-http-ws-observed",
+  "purpose": "User-supplied mainnet node; read-only SDK qualification",
+  "chain_id": 9,
+  "zone": [
+    0,
+    0
+  ],
+  "use_pathing": false,
+  "http_url": "http://10.0.0.12:9200",
+  "ws_url": "ws://10.0.0.12:8200",
+  "prime_http_url": "http://10.0.0.12:9001",
+  "candidate_node_commit": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "verified_node_commit": null,
+  "genesis_hash": "0xac81c28f1a72591b87b5f16c9793cdc0e87c45c6d426d1a364c3b8f6386b5b8b",
+  "genesis_match": "Pinned ProgpowColosseumGenesisHash",
+  "observed_at": "2026-09-11T20:40:22.335121+00:00",
+  "observed_zone_height": 10047036,
+  "observed_header_hash": "0xd9aa7c9966c4ec693259fba9469763a5c28beb8178ae48dabb0f58ffe084d23f",
+  "observed_prime_terminus_height": 2221544,
+  "observed_expansion_number": 0,
+  "observed_gas_limit": 50000000,
+  "observed_state_limit": 50000000,
+  "observed_running_locations": [
+    [
+      0,
+      0
+    ]
+  ],
+  "http_reads_verified": true,
+  "ws_verified": true,
+  "ws_handshake_and_chain_id_verified": true,
+  "ws_verification_client": "Rust quai-rpc native WS",
+  "ws_subscriptions_verified": true,
+  "address_index_verified": false,
+  "transaction_acceptance_verified": false,
+  "sync_status_verified": false,
+  "known_funded_test_accounts": [],
+  "expected_qi_outpoint": null,
+  "reported_client_version": "go-quai/v0.56.0-f3f345c8",
+  "ws_verified_scope": "chain read, newHeads notification, unsubscribe and shutdown; no reconnect/backfill/finality claim",
+  "ordinary_qi_fee_query_verified": true
+}

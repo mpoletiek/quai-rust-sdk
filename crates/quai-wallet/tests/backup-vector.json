@@ -1,0 +1,19 @@
+{
+  "format": "QUAISEED-v1",
+  "publicTestSecretsOnly": true,
+  "generator": {
+    "cryptography": "50.0.0",
+    "libsodium": "1.0.22"
+  },
+  "seed": "000102030405060708090a0b0c0d0e0f10",
+  "password": "public-backup-vector-password",
+  "salt": "000102030405060708090a0b0c0d0e0f",
+  "nonce": "000102030405060708090a0b0c0d0e0f1011121314151617",
+  "coin": 969,
+  "account": 7,
+  "memoryKiB": 65536,
+  "iterations": 3,
+  "lanes": 4,
+  "key": "c76b55928531b362331a3c7d35e6ac4b3344576b481b22f0bc75aa045cdcbe96",
+  "envelope": "515541495345454401010100000100000000000300000004000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f101112131415161791673c77cae1134197d18fef0b379cd4e0e523aa6bd8f3454e9c7fce59033d7af7eff8fa1e65e05f889b8616b4953ef6efe72205461f13a70dd4b6a78dda137a6c74ef08e67e0fe5761ae6b6bd62b74bc697c7cfca5ed5"
+}

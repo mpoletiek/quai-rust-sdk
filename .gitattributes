@@ -1,0 +1,8 @@
+# Keep source and generated text stable across native CI platforms.
+* text=auto eol=lf
+# Preserve exact upstream vector bytes and intentionally malformed fuzz inputs.
+crates/quai-crypto/tests/fixtures/bip340.csv -text whitespace=cr-at-eol
+fuzz/corpus/** -text
+# Preserve upstream license text and hash-bound captured logs verbatim.
+test-infra/licenses/*.txt -text whitespace=-blank-at-eof
+test-infra/reports/**/*.log -text whitespace=-blank-at-eof

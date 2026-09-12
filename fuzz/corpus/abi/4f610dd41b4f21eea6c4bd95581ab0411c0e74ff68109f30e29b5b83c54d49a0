@@ -1,0 +1,1 @@
+{"types": {"Numbers": [{"name": "a", "type": "int256"}, {"name": "b", "type": "uint64"}, {"name": "c", "type": "int64"}, {"name": "d", "type": "uint256"}]}, "primaryType": "Numbers", "domain": {}, "message": {"a": "-0x80", "b": 9007199254740991, "c": -9007199254740991, "d": "0XFF"}}

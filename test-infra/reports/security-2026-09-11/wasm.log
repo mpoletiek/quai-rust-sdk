@@ -1,0 +1,49 @@
+    Checking hybrid-array v0.4.15
+    Checking sec1 v0.7.3
+    Checking digest v0.10.7
+    Checking quai-abi v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-abi)
+    Checking ff v0.13.1
+    Checking crypto-bigint v0.5.5
+    Checking group v0.13.0
+    Checking hmac v0.12.1
+    Checking sha2 v0.10.9
+    Checking signature v2.2.0
+    Checking ripemd v0.1.3
+    Checking hkdf v0.12.4
+    Checking rfc6979 v0.4.0
+    Checking bs58 v0.5.1
+    Checking crypto-common v0.2.2
+    Checking block-buffer v0.12.1
+    Checking inout v0.2.2
+    Checking elliptic-curve v0.13.8
+    Checking cipher v0.5.2
+    Checking digest v0.11.3
+    Checking universal-hash v0.6.1
+    Checking aead v0.6.1
+    Checking poly1305 v0.9.1
+    Checking sha2 v0.11.0
+    Checking blake2 v0.11.0
+    Checking hmac v0.13.0
+    Checking ecdsa v0.16.9
+    Checking chacha20 v0.10.2
+    Checking salsa20 v0.11.0
+    Checking ctr v0.10.1
+    Checking aes v0.9.3
+    Checking argon2 v0.6.0
+    Checking chacha20poly1305 v0.11.0
+    Checking k256 v0.13.4
+    Checking pbkdf2 v0.13.0
+    Checking scrypt v0.12.0
+    Checking secp v0.7.0
+    Checking bip32 v0.5.3
+    Checking musig2 v0.4.1
+    Checking quai-crypto v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-crypto)
+    Checking quai-consensus v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-consensus)
+    Checking quai-payments v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-payments)
+    Checking quai-signer v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-signer)
+    Checking quai-wallet v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-wallet)
+    Checking quai-provider v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-provider)
+    Checking quai-browser v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-browser)
+    Checking quai-keystore v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-keystore)
+    Checking quai-sdk v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-sdk)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.34s

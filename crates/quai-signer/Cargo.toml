@@ -1,0 +1,23 @@
+[package]
+name = "quai-signer"
+description = "Network-bound local and watch-only Quai signer interfaces"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+quai-primitives.workspace = true
+quai-crypto.workspace = true
+quai-consensus.workspace = true
+quai-abi.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

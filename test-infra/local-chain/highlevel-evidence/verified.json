@@ -1,0 +1,106 @@
+{
+  "qiOutputAssertions": [
+    {
+      "address": "0x008bF85b805a4e8E4fcfd5cC3A8289D938Aa4bf6",
+      "denomination": 6,
+      "index": 0
+    },
+    {
+      "address": "0x00FfF9C8c54c09Eb1D0FA07749CBF38ee08c4357",
+      "denomination": 4,
+      "index": 1
+    },
+    {
+      "address": "0x009486247A69A10681EE6247fe4656A7A85a0CcB",
+      "denomination": 4,
+      "index": 2
+    },
+    {
+      "address": "0x0089542FD38F4fC8768b48F7Ce39Ef1F5AAe2eA8",
+      "denomination": 2,
+      "index": 3
+    },
+    {
+      "address": "0x00eFAfb80Fd36967B86d6faB588c8f842E506173",
+      "denomination": 2,
+      "index": 4
+    },
+    {
+      "address": "0x00AaB9CF9346BF4d4f6976ff32cC608A8A007dCb",
+      "denomination": 2,
+      "index": 5
+    },
+    {
+      "address": "0x00D438AfFe25bA93f4C4DE48eDa9A35d431fc81C",
+      "denomination": 0,
+      "index": 6
+    },
+    {
+      "address": "0x009758bE83DdbA29297772C4AdC7c96d39367429",
+      "denomination": 0,
+      "index": 7
+    },
+    {
+      "address": "0x00C167bE7ee1B5B5BB2003136cE75F9B8E5EBF21",
+      "denomination": 0,
+      "index": 8
+    },
+    {
+      "address": "0x00db903F1Ad6b7B2137BbCb8B776c302c3a7a4ac",
+      "denomination": 0,
+      "index": 9
+    },
+    {
+      "address": "0x00FE930EBbC77D7A2ec5e795b5726A382989ec7d",
+      "denomination": 7,
+      "index": 10
+    },
+    {
+      "address": "0x00d4B83077792BE6bf5412fAfEd5c405ae0c762c",
+      "denomination": 6,
+      "index": 11
+    },
+    {
+      "address": "0x00d802ac3Fb2b488537C457115DD0Bb60dc83Db2",
+      "denomination": 6,
+      "index": 12
+    },
+    {
+      "address": "0x00D6beaca0149b566AA55C6994Cc973aEbd50082",
+      "denomination": 6,
+      "index": 13
+    },
+    {
+      "address": "0x00CA4a9B590EC4d152D7131708ed363dBC3ae3AD",
+      "denomination": 5,
+      "index": 14
+    },
+    {
+      "address": "0x00fb3378D593489eDcE21F2Ec9783ff7652Ac60f",
+      "denomination": 4,
+      "index": 15
+    },
+    {
+      "address": "0x00FD9D8067F999e1f8D782fbc9459Fb8473f7B5A",
+      "denomination": 4,
+      "index": 16
+    },
+    {
+      "address": "0x00812194b0c2567c42fFBDEB318F832b63f237F9",
+      "denomination": 2,
+      "index": 17
+    }
+  ],
+  "qualification": "isolated quiescent node only; no production pinned Qi source",
+  "receipts": [
+    {
+      "durableState": "Confirmed",
+      "file": "qi-signed.json",
+      "gasUsed": 165800,
+      "hash": "0x00cf00f60caf9938d15cd5981a36b13a9a0a6bc392e452a6a942a9fa69888d4e",
+      "height": 5,
+      "outcome": "Succeeded"
+    }
+  ],
+  "runtime": null
+}

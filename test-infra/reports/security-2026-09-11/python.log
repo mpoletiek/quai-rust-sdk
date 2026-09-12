@@ -1,0 +1,27 @@
+test_actual_http_preserves_path_and_request (test_readiness.HttpTests.test_actual_http_preserves_path_and_request) ... ok
+test_oversize_response_rejected (test_readiness.HttpTests.test_oversize_response_rejected) ... ok
+test_redirect_rejected (test_readiness.HttpTests.test_redirect_rejected) ... ok
+test_wall_deadline (test_readiness.HttpTests.test_wall_deadline) ... ok
+test_chain_mismatch_stops_before_other_calls (test_readiness.ValidationTests.test_chain_mismatch_stops_before_other_calls) ... ok
+test_duplicate_and_non_json_numbers_rejected (test_readiness.ValidationTests.test_duplicate_and_non_json_numbers_rejected) ... ok
+test_envelope_validation (test_readiness.ValidationTests.test_envelope_validation) ... ok
+test_error_message_is_redacted (test_readiness.ValidationTests.test_error_message_is_redacted) ... ok
+test_outpoint_witness_required_and_bounds_checked (test_readiness.ValidationTests.test_outpoint_witness_required_and_bounds_checked) ... ok
+test_readiness_does_not_claim_tx_or_index_acceptance (test_readiness.ValidationTests.test_readiness_does_not_claim_tx_or_index_acceptance) ... ok
+test_strict_quantities (test_readiness.ValidationTests.test_strict_quantities) ... ok
+test_urls_preserved_but_redacted (test_readiness.ValidationTests.test_urls_preserved_but_redacted) ... ok
+test_write_method_rejected_without_network (test_readiness.ValidationTests.test_write_method_rejected_without_network) ... ok
+test_wrong_header_height_rejected (test_readiness.ValidationTests.test_wrong_header_height_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 2.501s
+
+OK
+test_launch_flags_disable_external_network_and_pin_direct_ports (test_harness.HarnessTests.test_launch_flags_disable_external_network_and_pin_direct_ports) ... ok
+test_requires_marker_and_tmp_work_directory (test_harness.HarnessTests.test_requires_marker_and_tmp_work_directory) ... ok
+test_snapshot_digest_detects_mutation_and_rejects_links (test_harness.HarnessTests.test_snapshot_digest_detects_mutation_and_rejects_links) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+OK

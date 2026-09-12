@@ -1,0 +1,45 @@
+[package]
+name = "quai-sdk-fuzz"
+version = "0.0.0"
+publish = false
+license = "MIT"
+repository = "https://github.com/mpoletiek/quai-rust-sdk"
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[workspace]
+members = ["."]
+
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+quai-consensus = { path = "../crates/quai-consensus" }
+quai-abi = { path = "../crates/quai-abi" }
+quai-primitives = { path = "../crates/quai-primitives" }
+quai-keystore = { path = "../crates/quai-keystore" }
+quai-payments = { path = "../crates/quai-payments" }
+quai-wallet = { path = "../crates/quai-wallet" }
+quai-crypto = { path = "../crates/quai-crypto" }
+serde_json = "1.0"
+
+[[bin]]
+name = "transactions"
+path = "fuzz_targets/transactions.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "abi"
+path = "fuzz_targets/abi.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "wallet_import"
+path = "fuzz_targets/wallet_import.rs"
+test = false
+doc = false
+bench = false

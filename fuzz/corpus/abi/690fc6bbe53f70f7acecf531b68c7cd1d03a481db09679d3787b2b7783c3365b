@@ -1,0 +1,1 @@
+{"types": {"Root": [{"name": "z", "type": "Zoo[]"}, {"name": "a", "type": "Alpha[2]"}], "Zoo": [{"name": "name", "type": "string"}, {"name": "a", "type": "Alpha"}], "Alpha": [{"name": "value", "type": "uint32"}]}, "primaryType": "Root", "domain": {}, "message": {"z": [{"name": "first", "a": {"value": 3}}, {"name": "second", "a": {"value": 4}}], "a": [{"value": 5}, {"value": 6}]}}

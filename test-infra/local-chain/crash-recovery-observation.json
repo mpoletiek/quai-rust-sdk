@@ -1,0 +1,31 @@
+{
+  "preCrashState": {
+    "chainId": 1337,
+    "genesisHash": "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee",
+    "height": "0x6",
+    "headHash": "0x00000b750896d92d3b5abbf8e6156df2114cc710a45dca8206fcee9f8e49230a",
+    "gasLimit": "0xb71b00",
+    "stateLimit": "0xb71b00",
+    "balance": "0x33b2e39c1069c2925cfd46a",
+    "nonce": "0x1",
+    "qiOutpoints": [],
+    "startupSeconds": 4.317077587009408
+  },
+  "exitCode": -9,
+  "scope": "owned child after readiness; no concurrent block import injected",
+  "reopenedState": {
+    "chainId": 1337,
+    "genesisHash": "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee",
+    "height": "0x6",
+    "headHash": "0x00000b750896d92d3b5abbf8e6156df2114cc710a45dca8206fcee9f8e49230a",
+    "gasLimit": "0xb71b00",
+    "stateLimit": "0xb71b00",
+    "balance": "0x33b2e39c1069c2925cfd46a",
+    "nonce": "0x1",
+    "qiOutpoints": [],
+    "startupSeconds": 4.739022767986171
+  },
+  "allCapturedReceiptsTransactionsAndInventoryExactlyEqual": true,
+  "crashDuringImportQualified": false,
+  "reorgQualified": false
+}

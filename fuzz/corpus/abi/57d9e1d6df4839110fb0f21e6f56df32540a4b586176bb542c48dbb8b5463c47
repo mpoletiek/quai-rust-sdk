@@ -1,0 +1,1 @@
+{"types": {"Arrays": [{"name": "grid", "type": "int16[2][]"}, {"name": "bytes", "type": "bytes[][2]"}, {"name": "flags", "type": "bool[2][2]"}, {"name": "none", "type": "uint8[0]"}]}, "primaryType": "Arrays", "domain": {}, "message": {"grid": [[-1, 2], [32767, -32768]], "bytes": [["0x", "0x1234"], []], "flags": [[true, false], [false, true]], "none": []}}

@@ -1,0 +1,10 @@
+{
+  "addresses": [
+    "0x009fb52f7690694a9401CB28BA0a122CD0359637",
+    "0x00eE7b902b1Ad1bD178294d5078A74ba22625F99"
+  ],
+  "fundedQitsPerAddress": 10000,
+  "fundingFeeIsSyntheticAndNotWalletFeeQualification": true,
+  "hash": "0x00a000b1ec84c766c61c5ec9b58ae6beed15b5a384c7540084a60cec1700c790",
+  "publicSeedHex": "0707070707070707070707070707070707070707070707070707070707070707"
+}

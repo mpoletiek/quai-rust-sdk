@@ -1,0 +1,41 @@
+{
+  "source": "https://gist.github.com/SamouraiDev/6aad669604c5930864bd/beddb67cf219ead27b8b1380a3b084b8dde51093",
+  "warning": "PUBLIC BIP47 TEST SEEDS; NEVER FUND",
+  "coinType": 0,
+  "alice": {
+    "seed": "64dca76abc9c6f0cf3d212d248c380c4622c8f93b2c425ec6a5567fd5db57e10d3e6f94a2f6af4ac2edb8998072aad92098db73558c323777abf5bd1082d970a",
+    "code": "PM8TJTLJbPRGxSbc8EJi42Wrr6QbNSaSSVJ5Y3E4pbCYiTHUskHg13935Ubb7q8tx9GVbh2UuRnBc3WSyJHhUrw8KhprKnn9eDznYGieTzFcwQRya4GA",
+    "notificationSecret": "8d6a8ecd8ee5e0042ad0cb56e3a971c760b5145c3917a8e7beaf0ed92d7a520c",
+    "notificationPublic": "0353883a146a23f988e0f381a9507cbdb3e3130cd81b3ce26daf2af088724ce683"
+  },
+  "bob": {
+    "seed": "87eaaac5a539ab028df44d9110defbef3797ddb805ca309f61a69ff96dbaa7ab5b24038cf029edec5235d933110f0aea8aeecf939ed14fc20730bba71e4b1110",
+    "code": "PM8TJS2JxQ5ztXUpBBRnpTbcUXbUHy2T1abfrb3KkAAtMEGNbey4oumH7Hc578WgQJhPjBxteQ5GHHToTYHE3A1w6p7tU6KSoFmWBVbFGjKPisZDbP97",
+    "notificationSecret": "04448fd1be0c9c13a5ca0b530e464b619dc091b299b98c5cab9978b32b4a1b8b",
+    "notificationPublic": "024ce8e3b04ea205ff49f529950616c3db615b1e37753858cc60c1ce64d17e2ad8"
+  },
+  "sharedX": [
+    "f5bb84706ee366052471e6139e6a9a969d586e5fe6471a9b96c3d8caefe86fef",
+    "adfb9b18ee1c4460852806a8780802096d67a8c1766222598dc801076beb0b4d",
+    "79e860c3eb885723bb5a1d54e5cecb7df5dc33b1d56802906762622fa3c18ee5",
+    "d8339a01189872988ed4bd5954518485edebf52762bf698b75800ac38e32816d",
+    "14c687bc1a01eb31e867e529fee73dd7540c51b9ff98f763adf1fc2f43f98e83",
+    "725a8e3e4f74a50ee901af6444fb035cb8841e0f022da2201b65bc138c6066a2",
+    "521bf140ed6fb5f1493a5164aafbd36d8a9e67696e7feb306611634f53aa9d1f",
+    "5f5ecc738095a6fb1ea47acda4996f1206d3b30448f233ef6ed27baf77e81e46",
+    "1e794128ac4c9837d7c3696bbc169a8ace40567dc262974206fcf581d56defb4",
+    "fe36c27c62c99605d6cd7b63bf8d9fe85d753592b14744efca8be20a4d767c37"
+  ],
+  "bitcoinP2pkh": [
+    "141fi7TY3h936vRUKh1qfUZr8rSBuYbVBK",
+    "12u3Uued2fuko2nY4SoSFGCoGLCBUGPkk6",
+    "1FsBVhT5dQutGwaPePTYMe5qvYqqjxyftc",
+    "1CZAmrbKL6fJ7wUxb99aETwXhcGeG3CpeA",
+    "1KQvRShk6NqPfpr4Ehd53XUhpemBXtJPTL",
+    "1KsLV2F47JAe6f8RtwzfqhjVa8mZEnTM7t",
+    "1DdK9TknVwvBrJe7urqFmaxEtGF2TMWxzD",
+    "16DpovNuhQJH7JUSZQFLBQgQYS4QB9Wy8e",
+    "17qK2RPGZMDcci2BLQ6Ry2PDGJErrNojT5",
+    "1GxfdfP286uE24qLZ9YRP3EWk2urqXgC4s"
+  ]
+}

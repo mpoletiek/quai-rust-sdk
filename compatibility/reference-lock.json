@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "quais": {
+    "version": "1.0.0-alpha.57",
+    "tarball": "https://registry.npmjs.org/quais/-/quais-1.0.0-alpha.57.tgz",
+    "integrity": "sha512-asseq9pWXSwr9+FNOsIa7e4H4b+tKSIDOVh16xjwAtzqNS9zYsYAQak/OJzMKbvehzgurqF/7GcTOQb9RrYt1Q==",
+    "sha256": "d45104f6db1b185cecb6765560c79e7dd924a835d2c7420049af53bd79030bde",
+    "npmGitHead": "3bd0bf5b077f4aa5fab480474e3982e50e1af506",
+    "repository": "https://github.com/dominant-strategies/quais.js",
+    "inspectedCommit": "94e32c7eb9960de36054135c40a341c44c84f922",
+    "sourceComparison": {
+      "matchingTypescriptFiles": 151,
+      "manifest": "reference-source-manifest.json",
+      "note": "All 153 published source files (151 TypeScript and 2 protobuf) byte-equal the inspected checkout. npm gitHead differs; neither this comparison nor gitHead proves full release reproducibility.",
+      "matchingSourceFiles": 153
+    }
+  },
+  "goQuai": {
+    "repository": "https://github.com/dominant-strategies/go-quai",
+    "commit": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+    "version": "v0.56.0",
+    "qualification": "Source-inspected candidate only; no node build or acceptance qualification claimed."
+  },
+  "toolchain": {
+    "typescript": "5.0.4",
+    "typescriptIntegrity": "sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==",
+    "nodeObserved": "v26.8.1"
+  },
+  "dependencyLock": "package-lock.json",
+  "policy": {
+    "lifecycleScripts": false,
+    "publicFixturesOnly": true,
+    "networkRequiredForInstallationOnly": true
+  },
+  "dependencyLockSha256": "3deef1670658845ed8d73a83550a87b5eb810c9e7709f51b7dd7907df2be19c9"
+}

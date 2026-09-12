@@ -1,0 +1,1104 @@
+{
+  "schemaVersion": 1,
+  "reference": "quais@1.0.0-alpha.57",
+  "vectors": [
+    {
+      "id": "amount-0",
+      "input": "0",
+      "decimals": 0,
+      "expected": {
+        "integer": "0",
+        "formatted": "0"
+      }
+    },
+    {
+      "id": "amount-1",
+      "input": "-0",
+      "decimals": 0,
+      "expected": {
+        "integer": "0",
+        "formatted": "0"
+      }
+    },
+    {
+      "id": "amount-2",
+      "input": "1",
+      "decimals": 0,
+      "expected": {
+        "integer": "1",
+        "formatted": "1"
+      }
+    },
+    {
+      "id": "amount-3",
+      "input": "-1",
+      "decimals": 0,
+      "expected": {
+        "integer": "-1",
+        "formatted": "-1"
+      }
+    },
+    {
+      "id": "amount-4",
+      "input": ".1",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-5",
+      "input": "-.1",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-6",
+      "input": "1.",
+      "decimals": 0,
+      "expected": {
+        "integer": "1",
+        "formatted": "1"
+      }
+    },
+    {
+      "id": "amount-7",
+      "input": "00001.2000",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-8",
+      "input": "0.000000000000000001",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-9",
+      "input": "1.0001",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-10",
+      "input": "1.23000",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-11",
+      "input": "-0.000",
+      "decimals": 0,
+      "expected": {
+        "integer": "0",
+        "formatted": "0"
+      }
+    },
+    {
+      "id": "amount-12",
+      "input": "",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-13",
+      "input": ".",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-14",
+      "input": "-.",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-15",
+      "input": "+1",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-16",
+      "input": " 1",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-17",
+      "input": "1 ",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-18",
+      "input": "1e3",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-19",
+      "input": "1.2.3",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-20",
+      "input": "１２",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-21",
+      "input": "--1",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-22",
+      "input": "0",
+      "decimals": 3,
+      "expected": {
+        "integer": "0",
+        "formatted": "0.0"
+      }
+    },
+    {
+      "id": "amount-23",
+      "input": "-0",
+      "decimals": 3,
+      "expected": {
+        "integer": "0",
+        "formatted": "0.0"
+      }
+    },
+    {
+      "id": "amount-24",
+      "input": "1",
+      "decimals": 3,
+      "expected": {
+        "integer": "1000",
+        "formatted": "1.0"
+      }
+    },
+    {
+      "id": "amount-25",
+      "input": "-1",
+      "decimals": 3,
+      "expected": {
+        "integer": "-1000",
+        "formatted": "-1.0"
+      }
+    },
+    {
+      "id": "amount-26",
+      "input": ".1",
+      "decimals": 3,
+      "expected": {
+        "integer": "100",
+        "formatted": "0.1"
+      }
+    },
+    {
+      "id": "amount-27",
+      "input": "-.1",
+      "decimals": 3,
+      "expected": {
+        "integer": "-100",
+        "formatted": "-0.1"
+      }
+    },
+    {
+      "id": "amount-28",
+      "input": "1.",
+      "decimals": 3,
+      "expected": {
+        "integer": "1000",
+        "formatted": "1.0"
+      }
+    },
+    {
+      "id": "amount-29",
+      "input": "00001.2000",
+      "decimals": 3,
+      "expected": {
+        "integer": "1200",
+        "formatted": "1.2"
+      }
+    },
+    {
+      "id": "amount-30",
+      "input": "0.000000000000000001",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-31",
+      "input": "1.0001",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-32",
+      "input": "1.23000",
+      "decimals": 3,
+      "expected": {
+        "integer": "1230",
+        "formatted": "1.23"
+      }
+    },
+    {
+      "id": "amount-33",
+      "input": "-0.000",
+      "decimals": 3,
+      "expected": {
+        "integer": "0",
+        "formatted": "0.0"
+      }
+    },
+    {
+      "id": "amount-34",
+      "input": "",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-35",
+      "input": ".",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-36",
+      "input": "-.",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-37",
+      "input": "+1",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-38",
+      "input": " 1",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-39",
+      "input": "1 ",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-40",
+      "input": "1e3",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-41",
+      "input": "1.2.3",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-42",
+      "input": "１２",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-43",
+      "input": "--1",
+      "decimals": 3,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-44",
+      "input": "0",
+      "decimals": 18,
+      "expected": {
+        "integer": "0",
+        "formatted": "0.0"
+      }
+    },
+    {
+      "id": "amount-45",
+      "input": "-0",
+      "decimals": 18,
+      "expected": {
+        "integer": "0",
+        "formatted": "0.0"
+      }
+    },
+    {
+      "id": "amount-46",
+      "input": "1",
+      "decimals": 18,
+      "expected": {
+        "integer": "1000000000000000000",
+        "formatted": "1.0"
+      }
+    },
+    {
+      "id": "amount-47",
+      "input": "-1",
+      "decimals": 18,
+      "expected": {
+        "integer": "-1000000000000000000",
+        "formatted": "-1.0"
+      }
+    },
+    {
+      "id": "amount-48",
+      "input": ".1",
+      "decimals": 18,
+      "expected": {
+        "integer": "100000000000000000",
+        "formatted": "0.1"
+      }
+    },
+    {
+      "id": "amount-49",
+      "input": "-.1",
+      "decimals": 18,
+      "expected": {
+        "integer": "-100000000000000000",
+        "formatted": "-0.1"
+      }
+    },
+    {
+      "id": "amount-50",
+      "input": "1.",
+      "decimals": 18,
+      "expected": {
+        "integer": "1000000000000000000",
+        "formatted": "1.0"
+      }
+    },
+    {
+      "id": "amount-51",
+      "input": "00001.2000",
+      "decimals": 18,
+      "expected": {
+        "integer": "1200000000000000000",
+        "formatted": "1.2"
+      }
+    },
+    {
+      "id": "amount-52",
+      "input": "0.000000000000000001",
+      "decimals": 18,
+      "expected": {
+        "integer": "1",
+        "formatted": "0.000000000000000001"
+      }
+    },
+    {
+      "id": "amount-53",
+      "input": "1.0001",
+      "decimals": 18,
+      "expected": {
+        "integer": "1000100000000000000",
+        "formatted": "1.0001"
+      }
+    },
+    {
+      "id": "amount-54",
+      "input": "1.23000",
+      "decimals": 18,
+      "expected": {
+        "integer": "1230000000000000000",
+        "formatted": "1.23"
+      }
+    },
+    {
+      "id": "amount-55",
+      "input": "-0.000",
+      "decimals": 18,
+      "expected": {
+        "integer": "0",
+        "formatted": "0.0"
+      }
+    },
+    {
+      "id": "amount-56",
+      "input": "",
+      "decimals": 18,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-57",
+      "input": ".",
+      "decimals": 18,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-58",
+      "input": "-.",
+      "decimals": 18,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-59",
+      "input": "+1",
+      "decimals": 18,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-60",
+      "input": " 1",
+      "decimals": 18,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-61",
+      "input": "1 ",
+      "decimals": 18,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-62",
+      "input": "1e3",
+      "decimals": 18,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-63",
+      "input": "1.2.3",
+      "decimals": 18,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-64",
+      "input": "１２",
+      "decimals": 18,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-65",
+      "input": "--1",
+      "decimals": 18,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-66",
+      "input": "0",
+      "decimals": 80,
+      "expected": {
+        "integer": "0",
+        "formatted": "0.0"
+      }
+    },
+    {
+      "id": "amount-67",
+      "input": "-0",
+      "decimals": 80,
+      "expected": {
+        "integer": "0",
+        "formatted": "0.0"
+      }
+    },
+    {
+      "id": "amount-68",
+      "input": "1",
+      "decimals": 80,
+      "expected": {
+        "integer": "100000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "formatted": "1.0"
+      }
+    },
+    {
+      "id": "amount-69",
+      "input": "-1",
+      "decimals": 80,
+      "expected": {
+        "integer": "-100000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "formatted": "-1.0"
+      }
+    },
+    {
+      "id": "amount-70",
+      "input": ".1",
+      "decimals": 80,
+      "expected": {
+        "integer": "10000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "formatted": "0.1"
+      }
+    },
+    {
+      "id": "amount-71",
+      "input": "-.1",
+      "decimals": 80,
+      "expected": {
+        "integer": "-10000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "formatted": "-0.1"
+      }
+    },
+    {
+      "id": "amount-72",
+      "input": "1.",
+      "decimals": 80,
+      "expected": {
+        "integer": "100000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "formatted": "1.0"
+      }
+    },
+    {
+      "id": "amount-73",
+      "input": "00001.2000",
+      "decimals": 80,
+      "expected": {
+        "integer": "120000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "formatted": "1.2"
+      }
+    },
+    {
+      "id": "amount-74",
+      "input": "0.000000000000000001",
+      "decimals": 80,
+      "expected": {
+        "integer": "100000000000000000000000000000000000000000000000000000000000000",
+        "formatted": "0.000000000000000001"
+      }
+    },
+    {
+      "id": "amount-75",
+      "input": "1.0001",
+      "decimals": 80,
+      "expected": {
+        "integer": "100010000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "formatted": "1.0001"
+      }
+    },
+    {
+      "id": "amount-76",
+      "input": "1.23000",
+      "decimals": 80,
+      "expected": {
+        "integer": "123000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "formatted": "1.23"
+      }
+    },
+    {
+      "id": "amount-77",
+      "input": "-0.000",
+      "decimals": 80,
+      "expected": {
+        "integer": "0",
+        "formatted": "0.0"
+      }
+    },
+    {
+      "id": "amount-78",
+      "input": "",
+      "decimals": 80,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-79",
+      "input": ".",
+      "decimals": 80,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-80",
+      "input": "-.",
+      "decimals": 80,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-81",
+      "input": "+1",
+      "decimals": 80,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-82",
+      "input": " 1",
+      "decimals": 80,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-83",
+      "input": "1 ",
+      "decimals": 80,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-84",
+      "input": "1e3",
+      "decimals": 80,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-85",
+      "input": "1.2.3",
+      "decimals": 80,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-86",
+      "input": "１２",
+      "decimals": 80,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-87",
+      "input": "--1",
+      "decimals": 80,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-88",
+      "input": "6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042047",
+      "decimals": 0,
+      "expected": {
+        "integer": "6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042047",
+        "formatted": "6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042047"
+      }
+    },
+    {
+      "id": "amount-89",
+      "input": "6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042048",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-90",
+      "input": "-6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042048",
+      "decimals": 0,
+      "expected": {
+        "integer": "-6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042048",
+        "formatted": "-6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042048"
+      }
+    },
+    {
+      "id": "amount-91",
+      "input": "-6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042049",
+      "decimals": 0,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": "amount-92",
+      "input": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "decimals": 0,
+      "expected": {
+        "integer": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "formatted": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+      }
+    },
+    {
+      "id": "amount-93",
+      "input": "115792089237316195423570985008687907853269984665640564039457584007913129639936",
+      "decimals": 0,
+      "expected": {
+        "integer": "115792089237316195423570985008687907853269984665640564039457584007913129639936",
+        "formatted": "115792089237316195423570985008687907853269984665640564039457584007913129639936"
+      }
+    }
+  ],
+  "contracts": [
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "0",
+      "code": "0x",
+      "exact": "0x0E50cEa0402d2a396b0db1C5D08155bd219cc52e",
+      "legacy": "0x0E50cEa0402d2a396b0db1C5D08155bd219cc52e",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+      "create2": "0xE33C0C7F7df4809055C3ebA6c09CFe4BaF1BD9e0"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "0",
+      "code": "0x00",
+      "exact": "0x115B52365F2c864200fbCe48e994511Bb9C6006F",
+      "legacy": "0x0E50cEa0402d2a396b0db1C5D08155bd219cc52e",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash": "0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a",
+      "create2": "0x4D1A2e2bB4F88F0250f26Ffff098B0b30B26BF38"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "0",
+      "code": "0x0000",
+      "exact": "0x2cFdc3aCd5c04cF930953ECaBcC86ee3532F317C",
+      "legacy": "0x0E50cEa0402d2a396b0db1C5D08155bd219cc52e",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash": "0x54a8c0ab653c15bfb48b47fd011ba2b9617af01cb45cab344acd57c924d56798",
+      "create2": "0x0E44D3B77af2C4a043375770afF9CaE08615B049"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "0",
+      "code": "0x006001",
+      "exact": "0xb766dc570285302ACA6782E28CA0E098Acc75865",
+      "legacy": "0x427D032B5335826054e26511075FFD1C54e92DE0",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash": "0x1e84b688ef081f72e8cee3191e1c90ab10da0434d34cb4462898b87d0ef43f59",
+      "create2": "0x709f2e5Bc06528e9B97CbdDf4B7b6e02E34cd024"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "0",
+      "code": "0x6001",
+      "exact": "0x427D032B5335826054e26511075FFD1C54e92DE0",
+      "legacy": "0x427D032B5335826054e26511075FFD1C54e92DE0",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash": "0x309c67890bde4c575dc23d2cc3b5c3a3d599e312e980e9b61b5bc8f3cd87c8bb",
+      "create2": "0xf1CD54758891f00394576095dC85a05ce6Ef75c3"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "1",
+      "code": "0x",
+      "exact": "0xdaE9F2d2D8009D22F3EC835228bb34cF55fBb359",
+      "legacy": "0xdaE9F2d2D8009D22F3EC835228bb34cF55fBb359",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+      "create2": "0x765081B94b9cdE9db6440064f960cFfb98755e90"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "1",
+      "code": "0x00",
+      "exact": "0x16E05d20d22113393b892D953B152bA88AfE9A21",
+      "legacy": "0xdaE9F2d2D8009D22F3EC835228bb34cF55fBb359",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "codeHash": "0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a",
+      "create2": "0x90954Abfd77F834cbAbb76D9DA5e0e93F2f42464"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "1",
+      "code": "0x0000",
+      "exact": "0x3b54899b59Ca6A0cF6915BA69345082951D8519d",
+      "legacy": "0xdaE9F2d2D8009D22F3EC835228bb34cF55fBb359",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "codeHash": "0x54a8c0ab653c15bfb48b47fd011ba2b9617af01cb45cab344acd57c924d56798",
+      "create2": "0x5d98EE42248FaF39Bc0D46cc772ce96174A93A5e"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "1",
+      "code": "0x006001",
+      "exact": "0x0da374A3EC3380796b3f8dc6454d5bA6610674B5",
+      "legacy": "0xD6DB26f32F6d7CCd960c6CBf395a543165667616",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "codeHash": "0x1e84b688ef081f72e8cee3191e1c90ab10da0434d34cb4462898b87d0ef43f59",
+      "create2": "0xfc84f2c12b5E8F6A67985BaBFcBA85e18997116C"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "1",
+      "code": "0x6001",
+      "exact": "0xD6DB26f32F6d7CCd960c6CBf395a543165667616",
+      "legacy": "0xD6DB26f32F6d7CCd960c6CBf395a543165667616",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "codeHash": "0x309c67890bde4c575dc23d2cc3b5c3a3d599e312e980e9b61b5bc8f3cd87c8bb",
+      "create2": "0xF3aC850874f65DcA278947bC16c61Cf661853c98"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "18446744073709551615",
+      "code": "0x",
+      "exact": "0x7ee7DbFbE06bEBfC418a1CfA0f9F7A47892A9FfF",
+      "legacy": "0x7ee7DbFbE06bEBfC418a1CfA0f9F7A47892A9FfF",
+      "salt": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+      "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+      "create2": "0x6BCcEc60E2357FC9B909A47728C6367Ae383527F"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "18446744073709551615",
+      "code": "0x00",
+      "exact": "0xF7410c5EB880aF75158e49CeDc44ae68Fb919DBd",
+      "legacy": "0x7ee7DbFbE06bEBfC418a1CfA0f9F7A47892A9FfF",
+      "salt": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+      "codeHash": "0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a",
+      "create2": "0xBb6C1B67b71fefB4dE2098785f9E8BDa86bcA790"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "18446744073709551615",
+      "code": "0x0000",
+      "exact": "0x26982AAD6DD135A5502866aB571C85C546E889d5",
+      "legacy": "0x7ee7DbFbE06bEBfC418a1CfA0f9F7A47892A9FfF",
+      "salt": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+      "codeHash": "0x54a8c0ab653c15bfb48b47fd011ba2b9617af01cb45cab344acd57c924d56798",
+      "create2": "0x10f95ebfFB6c2ECdc5254791B2a97560aAC89583"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "18446744073709551615",
+      "code": "0x006001",
+      "exact": "0x4710bc254Bfc7e53fD10112efB06b0659635c6D3",
+      "legacy": "0xEaeDd9bEbd259FD2343A5803ef9505864072f5c8",
+      "salt": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+      "codeHash": "0x1e84b688ef081f72e8cee3191e1c90ab10da0434d34cb4462898b87d0ef43f59",
+      "create2": "0x769438599C816043420f5CAD7ec516f947D802E2"
+    },
+    {
+      "sender": "0x0000000000000000000000000000000000000000",
+      "nonce": "18446744073709551615",
+      "code": "0x6001",
+      "exact": "0xEaeDd9bEbd259FD2343A5803ef9505864072f5c8",
+      "legacy": "0xEaeDd9bEbd259FD2343A5803ef9505864072f5c8",
+      "salt": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+      "codeHash": "0x309c67890bde4c575dc23d2cc3b5c3a3d599e312e980e9b61b5bc8f3cd87c8bb",
+      "create2": "0x5317Bb2C403c80E0D86deA111e85bA2417495c1B"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "0",
+      "code": "0x",
+      "exact": "0x0CeF9410CC5a0361d588B8A007F64bBb6533F274",
+      "legacy": "0x0CeF9410CC5a0361d588B8A007F64bBb6533F274",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+      "create2": "0x913e9b529a1EE561e4567Ea55a80BFA156AF0F32"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "0",
+      "code": "0x00",
+      "exact": "0x562AF6CBfd6c22f87063bfF89A389B8d4a8FBfD8",
+      "legacy": "0x0CeF9410CC5a0361d588B8A007F64bBb6533F274",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash": "0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a",
+      "create2": "0x6A183165bB7A6f7b1769BC55007C4b68Fd62A708"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "0",
+      "code": "0x0000",
+      "exact": "0x482288f487d061DD9E15912DC8A3520b51B289FB",
+      "legacy": "0x0CeF9410CC5a0361d588B8A007F64bBb6533F274",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash": "0x54a8c0ab653c15bfb48b47fd011ba2b9617af01cb45cab344acd57c924d56798",
+      "create2": "0xe03E8659f3d30817a96e8c14799C49388e94c18e"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "0",
+      "code": "0x006001",
+      "exact": "0x3A21734FBD2D75387febaCD92A55C2b64Ad494C5",
+      "legacy": "0x8B47C3DC83b764D589283d226C683483597c9196",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash": "0x1e84b688ef081f72e8cee3191e1c90ab10da0434d34cb4462898b87d0ef43f59",
+      "create2": "0x2E093a247753fDA6810Aca658410c4b3D574238F"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "0",
+      "code": "0x6001",
+      "exact": "0x8B47C3DC83b764D589283d226C683483597c9196",
+      "legacy": "0x8B47C3DC83b764D589283d226C683483597c9196",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash": "0x309c67890bde4c575dc23d2cc3b5c3a3d599e312e980e9b61b5bc8f3cd87c8bb",
+      "create2": "0x8109af0Cc440b7ddc32664B27288618bE8B840B7"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "1",
+      "code": "0x",
+      "exact": "0x1124CBF37673B3D19C0f63a4A337be54ceAC70bb",
+      "legacy": "0x1124CBF37673B3D19C0f63a4A337be54ceAC70bb",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+      "create2": "0x51d62352299b7339ad8d0F1e529090fB8A69e596"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "1",
+      "code": "0x00",
+      "exact": "0x447134935DD59C25a72e2dB62fDd7153076D3cb4",
+      "legacy": "0x1124CBF37673B3D19C0f63a4A337be54ceAC70bb",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "codeHash": "0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a",
+      "create2": "0x373A3ed179d64d6A77f0C9c2cAd34DEe55815143"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "1",
+      "code": "0x0000",
+      "exact": "0x3641C5A9d73581c4f7702Fd4a75d598422C62703",
+      "legacy": "0x1124CBF37673B3D19C0f63a4A337be54ceAC70bb",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "codeHash": "0x54a8c0ab653c15bfb48b47fd011ba2b9617af01cb45cab344acd57c924d56798",
+      "create2": "0x9a32AAabF2a864D42F2396B8aff6616d45cC41a7"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "1",
+      "code": "0x006001",
+      "exact": "0x607022F8356714510BCB96CE0C28f4a92722FFB0",
+      "legacy": "0x0B9cCAaEeb7142644128320FC72bdacF4624e992",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "codeHash": "0x1e84b688ef081f72e8cee3191e1c90ab10da0434d34cb4462898b87d0ef43f59",
+      "create2": "0x27d004Ce4f020775Db90721E6604b64D7D72f5e4"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "1",
+      "code": "0x6001",
+      "exact": "0x0B9cCAaEeb7142644128320FC72bdacF4624e992",
+      "legacy": "0x0B9cCAaEeb7142644128320FC72bdacF4624e992",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "codeHash": "0x309c67890bde4c575dc23d2cc3b5c3a3d599e312e980e9b61b5bc8f3cd87c8bb",
+      "create2": "0x2F673CFC928a8FFb648B0173c60AE07E30981889"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "18446744073709551615",
+      "code": "0x",
+      "exact": "0xf1047D0366C9A319d9e4b97CB1767b0452d690b4",
+      "legacy": "0xf1047D0366C9A319d9e4b97CB1767b0452d690b4",
+      "salt": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+      "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+      "create2": "0x664C882eCdf27C502cbf9F3F4B314E7c443458dC"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "18446744073709551615",
+      "code": "0x00",
+      "exact": "0xeD06B72B9A1422e1fE501796326dC3A36C6d4B68",
+      "legacy": "0xf1047D0366C9A319d9e4b97CB1767b0452d690b4",
+      "salt": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+      "codeHash": "0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a",
+      "create2": "0x87CedF2c86b491f2572b03141EF1b208769ffB2f"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "18446744073709551615",
+      "code": "0x0000",
+      "exact": "0x6fe170000f0de08a6138f946A525A87530Bf5257",
+      "legacy": "0xf1047D0366C9A319d9e4b97CB1767b0452d690b4",
+      "salt": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+      "codeHash": "0x54a8c0ab653c15bfb48b47fd011ba2b9617af01cb45cab344acd57c924d56798",
+      "create2": "0x7830904553938e9ff175Bf7A84b058a566f3A33F"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "18446744073709551615",
+      "code": "0x006001",
+      "exact": "0xDFb7D4a873CbA375d44f066fcA43Dea2B85B4A95",
+      "legacy": "0x67684118A2127a7bd059d819a9547923A926f56F",
+      "salt": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+      "codeHash": "0x1e84b688ef081f72e8cee3191e1c90ab10da0434d34cb4462898b87d0ef43f59",
+      "create2": "0x22f35Ab84D0E2020F8569E8db0ED97b8fde5b5F6"
+    },
+    {
+      "sender": "0x0011223344556677889900112233445566778899",
+      "nonce": "18446744073709551615",
+      "code": "0x6001",
+      "exact": "0x67684118A2127a7bd059d819a9547923A926f56F",
+      "legacy": "0x67684118A2127a7bd059d819a9547923A926f56F",
+      "salt": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+      "codeHash": "0x309c67890bde4c575dc23d2cc3b5c3a3d599e312e980e9b61b5bc8f3cd87c8bb",
+      "create2": "0xa602666a3976d7C88FD1306050D67d522dd60C94"
+    }
+  ]
+}

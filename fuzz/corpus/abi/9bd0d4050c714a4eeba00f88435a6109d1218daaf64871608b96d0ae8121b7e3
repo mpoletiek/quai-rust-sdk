@@ -1,0 +1,1 @@
+{"types": {"Data": [{"name": "text", "type": "string"}, {"name": "raw", "type": "bytes"}, {"name": "items", "type": "bytes[]"}]}, "primaryType": "Data", "domain": {}, "message": {"text": "", "raw": "0x", "items": []}}

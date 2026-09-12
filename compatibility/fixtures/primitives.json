@@ -1,0 +1,687 @@
+{
+  "schemaVersion": 1,
+  "reference": "quais@1.0.0-alpha.57",
+  "vectors": [
+    {
+      "id": "address-00-00",
+      "operation": "address",
+      "input": {
+        "address": "0x0000aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x0000aABBccddEefF00112233445566778899aaBB",
+        "zone": "0x00",
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-00-80",
+      "operation": "address",
+      "input": {
+        "address": "0x0080aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x0080aABBCcDDEEFf00112233445566778899aABB",
+        "zone": "0x00",
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-01-00",
+      "operation": "address",
+      "input": {
+        "address": "0x0100aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x0100AAbbccddeEFf00112233445566778899AAbb",
+        "zone": "0x01",
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-01-80",
+      "operation": "address",
+      "input": {
+        "address": "0x0180aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x0180aaBBCCDDeEff00112233445566778899AAbB",
+        "zone": "0x01",
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-02-00",
+      "operation": "address",
+      "input": {
+        "address": "0x0200aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x0200AaBBcCDDEeff00112233445566778899AABB",
+        "zone": "0x02",
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-02-80",
+      "operation": "address",
+      "input": {
+        "address": "0x0280aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x0280aabBCcdDEeFf00112233445566778899aabB",
+        "zone": "0x02",
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-10-00",
+      "operation": "address",
+      "input": {
+        "address": "0x1000aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x1000aabbCCDDeEff00112233445566778899Aabb",
+        "zone": "0x10",
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-10-80",
+      "operation": "address",
+      "input": {
+        "address": "0x1080aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x1080AabbCcDdEEFF00112233445566778899AabB",
+        "zone": "0x10",
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-11-00",
+      "operation": "address",
+      "input": {
+        "address": "0x1100aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x1100AAbbCcdDeEfF00112233445566778899AAbB",
+        "zone": "0x11",
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-11-80",
+      "operation": "address",
+      "input": {
+        "address": "0x1180aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x1180AABBcCDdeEfF00112233445566778899aABb",
+        "zone": "0x11",
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-12-00",
+      "operation": "address",
+      "input": {
+        "address": "0x1200aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x1200AAbBCCDdEEFF00112233445566778899AaBB",
+        "zone": "0x12",
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-12-80",
+      "operation": "address",
+      "input": {
+        "address": "0x1280aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x1280aabbCcDDeEff00112233445566778899AABb",
+        "zone": "0x12",
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-20-00",
+      "operation": "address",
+      "input": {
+        "address": "0x2000aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x2000aABBccdDEefF00112233445566778899aABB",
+        "zone": "0x20",
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-20-80",
+      "operation": "address",
+      "input": {
+        "address": "0x2080aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x2080aabbCCDdeeFf00112233445566778899AABb",
+        "zone": "0x20",
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-21-00",
+      "operation": "address",
+      "input": {
+        "address": "0x2100aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x2100AaBbccDDEeff00112233445566778899aaBb",
+        "zone": "0x21",
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-21-80",
+      "operation": "address",
+      "input": {
+        "address": "0x2180aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x2180AABbCcdDeEff00112233445566778899AaBb",
+        "zone": "0x21",
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-22-00",
+      "operation": "address",
+      "input": {
+        "address": "0x2200aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x2200aABBCcdDEEfF00112233445566778899AaBb",
+        "zone": "0x22",
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-22-80",
+      "operation": "address",
+      "input": {
+        "address": "0x2280aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x2280AAbBcCDdEEFf00112233445566778899AaBb",
+        "zone": "0x22",
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-03-00",
+      "operation": "address",
+      "input": {
+        "address": "0x0300aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x0300AAbbCcDdeeff00112233445566778899aabB",
+        "zone": null,
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-03-80",
+      "operation": "address",
+      "input": {
+        "address": "0x0380aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0x0380AabbcCdDEEFf00112233445566778899AaBB",
+        "zone": null,
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-ff-00",
+      "operation": "address",
+      "input": {
+        "address": "0xff00aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0xFF00AabBCCdDEeFf00112233445566778899aABb",
+        "zone": null,
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-ff-80",
+      "operation": "address",
+      "input": {
+        "address": "0xff80aabbccddeeff00112233445566778899aabb"
+      },
+      "expected": {
+        "checksum": "0xFF80AabbCcddEEFf00112233445566778899AabB",
+        "zone": null,
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-zero",
+      "operation": "address",
+      "input": {
+        "address": "0x0000000000000000000000000000000000000000"
+      },
+      "expected": {
+        "checksum": "0x0000000000000000000000000000000000000000",
+        "zone": "0x00",
+        "ledger": "quai"
+      }
+    },
+    {
+      "id": "address-uppercase",
+      "operation": "address",
+      "input": {
+        "address": "0x0080AABBCCDDEEFF00112233445566778899AABB"
+      },
+      "expected": {
+        "checksum": "0x0080aABBCcDDEEFf00112233445566778899aABB",
+        "zone": "0x00",
+        "ledger": "qi"
+      }
+    },
+    {
+      "id": "address-short",
+      "operation": "address",
+      "input": {
+        "address": "0x00"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_ARGUMENT"
+        }
+      }
+    },
+    {
+      "id": "address-nonhex",
+      "operation": "address",
+      "input": {
+        "address": "0xgggggggggggggggggggggggggggggggggggggggg"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_ARGUMENT"
+        }
+      }
+    },
+    {
+      "id": "address-bad-checksum",
+      "operation": "address",
+      "input": {
+        "address": "0x0080AaBbCCDDEEFF00112233445566778899AABB"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_ARGUMENT"
+        }
+      }
+    },
+    {
+      "id": "message-text-27",
+      "operation": "hashMessage",
+      "input": {
+        "encoding": "utf8",
+        "message": ""
+      },
+      "expected": "0x5f35dce98ba4fba25530a026ed80b2cecdaa31091ba4958b99b52ea1d068adad"
+    },
+    {
+      "id": "message-text-28",
+      "operation": "hashMessage",
+      "input": {
+        "encoding": "utf8",
+        "message": "Hello Quai"
+      },
+      "expected": "0xd7de01fed372176e18563568e490d1839893d2d747a8dbb146dbfc3dd0ec4fb3"
+    },
+    {
+      "id": "message-text-29",
+      "operation": "hashMessage",
+      "input": {
+        "encoding": "utf8",
+        "message": "0x4243"
+      },
+      "expected": "0x6d91b221f765224b256762dcba32d62209cf78e9bebb0a1b758ca26c76db3af4"
+    },
+    {
+      "id": "message-text-30",
+      "operation": "hashMessage",
+      "input": {
+        "encoding": "utf8",
+        "message": "Quai 🌍"
+      },
+      "expected": "0x7dfa28ec716153554b9f1e36ca5899a8e2c9661058e911d2c523e30da4e9a526"
+    },
+    {
+      "id": "message-text-31",
+      "operation": "hashMessage",
+      "input": {
+        "encoding": "utf8",
+        "message": "é"
+      },
+      "expected": "0xba8cc708d7c0ceccba0ed21ddc61b53a0db963cffb45659d761ff24f520f0a99"
+    },
+    {
+      "id": "message-bytes-0x",
+      "operation": "hashMessage",
+      "input": {
+        "encoding": "hex",
+        "message": "0x"
+      },
+      "expected": "0x5f35dce98ba4fba25530a026ed80b2cecdaa31091ba4958b99b52ea1d068adad"
+    },
+    {
+      "id": "message-bytes-0x4243",
+      "operation": "hashMessage",
+      "input": {
+        "encoding": "hex",
+        "message": "0x4243"
+      },
+      "expected": "0x0d3abc18ec299cf9b42ba439ac6f7e3e6ec9f5c048943704e30fc2d9c7981438"
+    },
+    {
+      "id": "message-bytes-0x00ff",
+      "operation": "hashMessage",
+      "input": {
+        "encoding": "hex",
+        "message": "0x00ff"
+      },
+      "expected": "0x3638684d567df701dae9863c5df728a585cc74ce3859707edadcb509eb220f74"
+    },
+    {
+      "id": "create-0-null",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "0",
+        "data": null
+      },
+      "expected": "0x8E961a0dEb34ad7B3C727AF41eC65AC07a3f1469"
+    },
+    {
+      "id": "create-0-0x",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "0",
+        "data": "0x"
+      },
+      "expected": "0x8E961a0dEb34ad7B3C727AF41eC65AC07a3f1469"
+    },
+    {
+      "id": "create-0-0x60006000",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "0",
+        "data": "0x60006000"
+      },
+      "expected": "0xEfdF388FE195CbcB4016a0a9fdB206Eb449137D5"
+    },
+    {
+      "id": "create-1-null",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "1",
+        "data": null
+      },
+      "expected": "0xd9102D305a2641F664893291BCAB7236f1Cb7B1C"
+    },
+    {
+      "id": "create-1-0x",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "1",
+        "data": "0x"
+      },
+      "expected": "0xd9102D305a2641F664893291BCAB7236f1Cb7B1C"
+    },
+    {
+      "id": "create-1-0x60006000",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "1",
+        "data": "0x60006000"
+      },
+      "expected": "0x7C5b17A1eB5D0A436e32389FF7C6F5B437AEF9Ce"
+    },
+    {
+      "id": "create-255-null",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "255",
+        "data": null
+      },
+      "expected": "0xFF3055b6C68a954483185877657Ca5f91A49AAE1"
+    },
+    {
+      "id": "create-255-0x",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "255",
+        "data": "0x"
+      },
+      "expected": "0xFF3055b6C68a954483185877657Ca5f91A49AAE1"
+    },
+    {
+      "id": "create-255-0x60006000",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "255",
+        "data": "0x60006000"
+      },
+      "expected": "0x54Ea2b073B40CC54B6E3AdD7415f71e90268C5d1"
+    },
+    {
+      "id": "create-256-null",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "256",
+        "data": null
+      },
+      "expected": "0x575524c88f6683f086A26D99Aab7BC5CB664794F"
+    },
+    {
+      "id": "create-256-0x",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "256",
+        "data": "0x"
+      },
+      "expected": "0x575524c88f6683f086A26D99Aab7BC5CB664794F"
+    },
+    {
+      "id": "create-256-0x60006000",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "256",
+        "data": "0x60006000"
+      },
+      "expected": "0xa0C13eab4a86f38D36CD20310D9e6cA0bD354559"
+    },
+    {
+      "id": "create-18446744073709551615-null",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "18446744073709551615",
+        "data": null
+      },
+      "expected": "0xf1BCE0233055653fF6981BBb2bE3d0293c7ccb55"
+    },
+    {
+      "id": "create-18446744073709551615-0x",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "18446744073709551615",
+        "data": "0x"
+      },
+      "expected": "0xf1BCE0233055653fF6981BBb2bE3d0293c7ccb55"
+    },
+    {
+      "id": "create-18446744073709551615-0x60006000",
+      "operation": "getCreateAddress",
+      "input": {
+        "from": "0x0000aabbccddeeff00112233445566778899aabb",
+        "nonce": "18446744073709551615",
+        "data": "0x60006000"
+      },
+      "expected": "0xD43D48912Ab6398D77B6EDf848B73769DDBA6F70"
+    },
+    {
+      "id": "keccak-0x",
+      "operation": "keccak256",
+      "input": {
+        "data": "0x"
+      },
+      "expected": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+    },
+    {
+      "id": "keccak-0x00",
+      "operation": "keccak256",
+      "input": {
+        "data": "0x00"
+      },
+      "expected": "0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a"
+    },
+    {
+      "id": "keccak-0x4243",
+      "operation": "keccak256",
+      "input": {
+        "data": "0x4243"
+      },
+      "expected": "0xcf64ed798cc730363dc3e4c9e3b0c8887625ef44cdc667fe8460dea13b34813e"
+    },
+    {
+      "id": "keccak-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "operation": "keccak256",
+      "input": {
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      },
+      "expected": "0xa9c584056064687e149968cbab758a3376d22aedc6a55823d1b3ecbee81b8fb9"
+    },
+    {
+      "id": "parse-1-18",
+      "operation": "parseUnits",
+      "input": {
+        "value": "1",
+        "decimals": 18
+      },
+      "expected": "1000000000000000000"
+    },
+    {
+      "id": "parse-1.23456-5",
+      "operation": "parseUnits",
+      "input": {
+        "value": "1.23456",
+        "decimals": 5
+      },
+      "expected": "123456"
+    },
+    {
+      "id": "parse-0.00001-5",
+      "operation": "parseUnits",
+      "input": {
+        "value": "0.00001",
+        "decimals": 5
+      },
+      "expected": "1"
+    },
+    {
+      "id": "parse--1.5-18",
+      "operation": "parseUnits",
+      "input": {
+        "value": "-1.5",
+        "decimals": 18
+      },
+      "expected": "-1500000000000000000"
+    },
+    {
+      "id": "parse-0-0",
+      "operation": "parseUnits",
+      "input": {
+        "value": "0",
+        "decimals": 0
+      },
+      "expected": "0"
+    },
+    {
+      "id": "parse-1.000001-5",
+      "operation": "parseUnits",
+      "input": {
+        "value": "1.000001",
+        "decimals": 5
+      },
+      "expected": {
+        "error": {
+          "code": "NUMERIC_FAULT"
+        }
+      }
+    },
+    {
+      "id": "format-1000000000000000000-18",
+      "operation": "formatUnits",
+      "input": {
+        "value": "1000000000000000000",
+        "decimals": 18
+      },
+      "expected": "1.0"
+    },
+    {
+      "id": "format-123456-5",
+      "operation": "formatUnits",
+      "input": {
+        "value": "123456",
+        "decimals": 5
+      },
+      "expected": "1.23456"
+    },
+    {
+      "id": "format-1-5",
+      "operation": "formatUnits",
+      "input": {
+        "value": "1",
+        "decimals": 5
+      },
+      "expected": "0.00001"
+    },
+    {
+      "id": "format--1500000000000000000-18",
+      "operation": "formatUnits",
+      "input": {
+        "value": "-1500000000000000000",
+        "decimals": 18
+      },
+      "expected": "-1.5"
+    },
+    {
+      "id": "format-0-0",
+      "operation": "formatUnits",
+      "input": {
+        "value": "0",
+        "decimals": 0
+      },
+      "expected": "0"
+    }
+  ]
+}

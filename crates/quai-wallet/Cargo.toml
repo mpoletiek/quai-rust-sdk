@@ -1,0 +1,39 @@
+[package]
+name = "quai-wallet"
+description = "Secret-conscious BIP39 and HD derivation foundation for Quai and Qi"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[features]
+default = []
+sqlite = ["dep:rusqlite", "dep:quai-payments"]
+
+[dependencies]
+quai-primitives.workspace = true
+quai-consensus.workspace = true
+quai-crypto = { path = "../quai-crypto", version = "0.1.0-alpha.1" }
+bip32 = { version = "0.5.3", default-features = false, features = ["secp256k1", "std"] }
+bip39 = { version = "2.2.2", features = ["all-languages", "zeroize"] }
+zeroize = "1.8"
+unicode-normalization = "0.1.24"
+hmac = "0.12.1"
+sha2 = "0.10.9"
+bs58 = { version = "0.5.1", features = ["check"] }
+argon2 = { version = "0.6.0", default-features = false, features = ["alloc", "zeroize"] }
+chacha20poly1305 = { version = "0.11.0", default-features = false, features = ["zeroize"] }
+thiserror.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+getrandom = "0.4.3"
+quai-payments = { path = "../quai-payments", version = "0.1.0-alpha.1", optional = true }
+rusqlite = { version = "0.40.2", features = ["bundled"], optional = true }
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

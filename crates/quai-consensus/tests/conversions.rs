@@ -1,0 +1,242 @@
+//! Explicit conversion vectors and static-policy boundaries; no node acceptance claims.
+use quai_consensus::{
+    ConversionSlippage, Denomination, MIN_QUAI_CONVERSION_VALUE, QiConversionTransaction,
+    QiTransaction, QuaiToQiTransaction, QuaiTransaction, SignedQiConversionTransaction,
+    SignedQiTransaction, SignedQuaiTransaction, U256,
+};
+use quai_crypto::SecretKey;
+use serde_json::Value;
+fn bytes(value: &str) -> Vec<u8> {
+    value
+        .strip_prefix("0x")
+        .unwrap()
+        .as_bytes()
+        .chunks_exact(2)
+        .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap())
+        .collect()
+}
+fn vectors() -> Vec<Value> {
+    serde_json::from_str::<Value>(include_str!("conversion-vectors.json")).unwrap()["vectors"]
+        .as_array()
+        .unwrap()
+        .clone()
+}
+fn qi() -> QiConversionTransaction {
+    let vector = &vectors()[0];
+    QiConversionTransaction::decode_unsigned(&bytes(vector["unsigned"].as_str().unwrap())).unwrap()
+}
+fn keys(vector: &Value) -> Vec<SecretKey> {
+    vector["publicTestSecrets"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|key| {
+            SecretKey::from_bytes(&bytes(key.as_str().unwrap()).try_into().unwrap()).unwrap()
+        })
+        .collect()
+}
+#[test]
+fn pinned_js_conversion_wire_hash_signature_and_intent_match_for_all_local_key_forms() {
+    for vector in vectors() {
+        let unsigned = bytes(vector["unsigned"].as_str().unwrap());
+        let wire = bytes(vector["signed"].as_str().unwrap());
+        if vector["kind"] == "qi" {
+            let tx = QiConversionTransaction::decode_unsigned(&unsigned).unwrap();
+            assert_eq!(tx.unsigned_bytes().unwrap(), unsigned);
+            assert_eq!(tx.signing_digest().unwrap().to_string(), vector["digest"]);
+            assert_eq!(
+                tx.intent().slippage.value(),
+                vector["intent"]["slippage"].as_u64().unwrap() as u16
+            );
+            assert_eq!(tx.intent().refund.to_string(), vector["intent"]["refund"]);
+            assert_eq!(
+                tx.intent().destination.to_string(),
+                vector["intent"]["destination"]
+            );
+            let signed = SignedQiConversionTransaction::decode(&wire).unwrap();
+            assert_eq!(signed.transaction(), &tx);
+            assert_eq!(signed.signed_bytes().unwrap(), wire);
+            assert_eq!(signed.hash().unwrap().to_string(), vector["hash"]);
+            let local_keys = keys(&vector);
+            let local = tx
+                .sign_local(&local_keys.iter().collect::<Vec<_>>())
+                .unwrap();
+            assert_eq!(
+                SignedQiConversionTransaction::decode(&local.signed_bytes().unwrap())
+                    .unwrap()
+                    .transaction(),
+                &tx
+            );
+            if local_keys.len() == 1 {
+                tx.sign_single(&local_keys[0]).unwrap();
+            } else {
+                assert!(tx.sign_single(&local_keys[0]).is_err());
+            }
+            assert!(QiTransaction::decode_unsigned(&unsigned).is_err());
+            assert!(SignedQiTransaction::decode(&wire).is_err());
+            assert!(
+                tx.transaction()
+                    .sign_local(&local_keys.iter().collect::<Vec<_>>())
+                    .is_err()
+            );
+            let rebuilt = QiConversionTransaction::new(
+                tx.chain_id(),
+                tx.transaction().inputs.clone(),
+                vec![Denomination::new(2).unwrap(), Denomination::new(1).unwrap()],
+                vec![tx.transaction().outputs[2].clone()],
+                tx.intent(),
+            )
+            .unwrap();
+            assert_eq!(rebuilt, tx);
+        } else {
+            let tx = QuaiToQiTransaction::decode_unsigned(&unsigned).unwrap();
+            assert_eq!(tx.signing_digest().unwrap().to_string(), vector["digest"]);
+            let key = SecretKey::from_bytes(
+                &bytes(vector["publicTestSecret"].as_str().unwrap())
+                    .try_into()
+                    .unwrap(),
+            )
+            .unwrap();
+            let signed = tx.sign(&key).unwrap();
+            assert_eq!(signed.signed_bytes().unwrap(), wire);
+            assert_eq!(signed.hash().unwrap().to_string(), vector["hash"]);
+            assert_eq!(
+                SignedQuaiTransaction::decode(&wire).unwrap().transaction(),
+                tx.transaction()
+            );
+        }
+    }
+}
+#[test]
+fn conversion_static_rules_reject_wrong_data_scope_destinations_and_reuse() {
+    let original = qi().transaction().clone();
+    for len in [0, 1, 2, 20, 21, 23, 100] {
+        let mut tx = original.clone();
+        tx.data.resize(len, 0);
+        assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    }
+    for slippage in [0u16, 1, 29, 9001, u16::MAX] {
+        assert!(ConversionSlippage::new(slippage).is_err());
+        let mut tx = original.clone();
+        tx.data[..2].copy_from_slice(&slippage.to_be_bytes());
+        assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    }
+    for valid in [30, 31, 8999, 9000] {
+        assert_eq!(ConversionSlippage::new(valid).unwrap().value(), valid);
+    }
+    let mut tx = original.clone();
+    tx.chain_id = U256::ZERO;
+    assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    let mut tx = original.clone();
+    tx.outputs[1].address = "0x0011223344556677889900112233445566778899"
+        .parse()
+        .unwrap();
+    assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    let mut tx = original.clone();
+    tx.outputs
+        .retain(|output| output.address.ledger() == quai_primitives::Ledger::Qi);
+    assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    let mut tx = original.clone();
+    tx.data[3] &= 0x7f;
+    assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    let mut tx = original.clone();
+    tx.data[2] = 0x10;
+    assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    let mut tx = original.clone();
+    tx.outputs[2].address = "0x0188223344556677889900112233445566778877"
+        .parse()
+        .unwrap();
+    assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    let mut tx = original.clone();
+    tx.outputs[2].address = tx.inputs[0].public_key.address();
+    assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    let mut tx = original.clone();
+    tx.outputs.push(tx.outputs[2].clone());
+    assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    let mut tx = original.clone();
+    tx.inputs.push(tx.inputs[0].clone());
+    assert!(QiConversionTransaction::from_transaction(tx).is_err());
+    let mut tx = original.clone();
+    tx.outputs[0].address = "0x0111223344556677889900112233445566778899"
+        .parse()
+        .unwrap();
+    tx.outputs[1].address = tx.outputs[0].address;
+    assert!(QiConversionTransaction::from_transaction(tx).is_err());
+}
+#[test]
+fn signed_mutations_and_wrong_order_keys_fail_without_changing_authorized_bytes() {
+    for vector in vectors()
+        .into_iter()
+        .filter(|vector| vector["kind"] == "qi")
+    {
+        let wire = bytes(vector["signed"].as_str().unwrap());
+        let signed = SignedQiConversionTransaction::decode(&wire).unwrap();
+        for end in 0..wire.len() {
+            assert!(SignedQiConversionTransaction::decode(&wire[..end]).is_err());
+        }
+        let mut altered = wire.clone();
+        *altered.last_mut().unwrap() ^= 1;
+        assert!(SignedQiConversionTransaction::decode(&altered).is_err());
+        let mut unknown = wire.clone();
+        unknown.extend_from_slice(&[0xf8, 0x07, 0]);
+        assert!(SignedQiConversionTransaction::decode(&unknown).is_err());
+        let mut tx = signed.transaction().transaction().clone();
+        tx.data[21] ^= 1;
+        assert!(
+            QiConversionTransaction::from_transaction(tx)
+                .unwrap()
+                .attach_signature(signed.signature())
+                .is_err()
+        );
+        let wrong = SecretKey::from_bytes(&[1; 32]).unwrap();
+        assert!(signed.transaction().sign_local(&[&wrong]).is_err());
+        let local = keys(&vector);
+        let mut reordered: Vec<_> = local.iter().collect();
+        reordered.reverse();
+        if local.len() > 1 && local[0].public_key() != local.last().unwrap().public_key() {
+            assert!(signed.transaction().sign_local(&reordered).is_err());
+        }
+        assert_eq!(signed.signed_bytes().unwrap(), wire);
+    }
+}
+#[test]
+fn quai_conversion_minimum_data_and_recovered_sender_scope_are_exact() {
+    let vector = vectors()
+        .into_iter()
+        .find(|vector| vector["kind"] == "quai")
+        .unwrap();
+    let original =
+        QuaiTransaction::decode_unsigned(&bytes(vector["unsigned"].as_str().unwrap())).unwrap();
+    let key = SecretKey::from_bytes(
+        &bytes(vector["publicTestSecret"].as_str().unwrap())
+            .try_into()
+            .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(original.value, U256::from(MIN_QUAI_CONVERSION_VALUE));
+    let mut tx = original.clone();
+    tx.value -= U256::from(1);
+    assert!(QuaiToQiTransaction::new(tx).is_err());
+    for data in [vec![], vec![0, 29], vec![0x23, 0x29], vec![0, 30, 0]] {
+        let mut tx = original.clone();
+        tx.data = data;
+        assert!(QuaiToQiTransaction::new(tx).is_err());
+    }
+    let mut tx = original.clone();
+    tx.to = None;
+    assert!(QuaiToQiTransaction::new(tx).is_err());
+    let mut tx = original.clone();
+    tx.to = Some(
+        "0x0011223344556677889900112233445566778899"
+            .parse()
+            .unwrap(),
+    );
+    assert!(QuaiToQiTransaction::new(tx).is_err());
+    let mut tx = original.clone();
+    tx.to = Some(
+        "0x0188223344556677889900112233445566778899"
+            .parse()
+            .unwrap(),
+    );
+    assert!(QuaiToQiTransaction::new(tx).unwrap().sign(&key).is_err());
+}

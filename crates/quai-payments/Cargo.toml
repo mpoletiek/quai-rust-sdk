@@ -1,0 +1,25 @@
+[package]
+name = "quai-payments"
+description = "Validated BIP47 payment codes and local channel derivation for Quai"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+quai-primitives.workspace = true
+quai-crypto.workspace = true
+bip32 = { version = "0.5.3", default-features = false, features = ["secp256k1", "std"] }
+bs58 = { version = "0.5.1", features = ["check"] }
+zeroize = "1.9"
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+ripemd = "0.1.3"

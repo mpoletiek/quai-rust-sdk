@@ -1,0 +1,31 @@
+[package]
+name = "quai-provider"
+description = "Typed Quai provider with validated reads and explicit signed submission"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[features]
+default = ["http"]
+http = ["quai-rpc/http", "polling"]
+polling = ["dep:tokio"]
+
+[dependencies]
+quai-primitives.workspace = true
+quai-consensus.workspace = true
+quai-rpc.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tokio = { workspace = true, optional = true }
+
+[dev-dependencies]
+quai-crypto.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+
+[lints]
+workspace = true

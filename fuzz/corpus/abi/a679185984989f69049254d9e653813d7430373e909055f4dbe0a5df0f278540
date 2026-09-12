@@ -1,0 +1,1 @@
+{"types": {"Data": [{"name": "text", "type": "string"}, {"name": "raw", "type": "bytes"}, {"name": "enabled", "type": "bool"}, {"name": "disabled", "type": "bool"}]}, "primaryType": "Data", "domain": {}, "message": {"text": "NUL\u0000, e\u0301 \u2260 \u00e9; \ud83e\udd86", "raw": "0x0001ff", "enabled": true, "disabled": false}}

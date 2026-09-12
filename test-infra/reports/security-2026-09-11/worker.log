@@ -1,0 +1,19 @@
+   Compiling quai-provider v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-provider)
+   Compiling quai-keystore v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-keystore)
+   Compiling quai-browser v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-browser)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.78s
+     Running tests/worker.rs (target/wasm32-unknown-unknown/debug/deps/worker-64784f32cae56402.wasm)
+Set timeout to 90 seconds...
+Running headless tests in Chrome on `http://127.0.0.1:46103/`
+Try find `webdriver.json` for configure browser's capabilities:
+Ok
+Loading Wasm module...
+running 5 tests
+test worker_provider_composition_checks_real_fetch_chain_identity ... ok
+test worker_legacy_keystore_decryption_checks_mnemonic_ownership ... ok
+test worker_hd_derivation_and_qi_schnorr_use_real_browser_crypto ... ok
+test worker_fetch_and_timer_require_no_window_or_tokio ... ok
+test worker_entropy_uses_web_crypto_without_window ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 filtered out; finished in 2.56s
+

@@ -1,0 +1,102 @@
+{
+  "checkpointHash": "0x0000114070b1693aa925d069eb8b112ab1479ac4597cd3c6d4a4fdd4e923616d",
+  "checkpointHeight": 4,
+  "feeQits": "56",
+  "hash": "0x00cf00f60caf9938d15cd5981a36b13a9a0a6bc392e452a6a942a9fa69888d4e",
+  "inputCount": 1,
+  "observedAddresses": 58,
+  "outputs": [
+    {
+      "address": "0x008bF85b805a4e8E4fcfd5cC3A8289D938Aa4bf6",
+      "denomination": 6,
+      "qits": 1000
+    },
+    {
+      "address": "0x00FfF9C8c54c09Eb1D0FA07749CBF38ee08c4357",
+      "denomination": 4,
+      "qits": 100
+    },
+    {
+      "address": "0x009486247A69A10681EE6247fe4656A7A85a0CcB",
+      "denomination": 4,
+      "qits": 100
+    },
+    {
+      "address": "0x0089542FD38F4fC8768b48F7Ce39Ef1F5AAe2eA8",
+      "denomination": 2,
+      "qits": 10
+    },
+    {
+      "address": "0x00eFAfb80Fd36967B86d6faB588c8f842E506173",
+      "denomination": 2,
+      "qits": 10
+    },
+    {
+      "address": "0x00AaB9CF9346BF4d4f6976ff32cC608A8A007dCb",
+      "denomination": 2,
+      "qits": 10
+    },
+    {
+      "address": "0x00D438AfFe25bA93f4C4DE48eDa9A35d431fc81C",
+      "denomination": 0,
+      "qits": 1
+    },
+    {
+      "address": "0x009758bE83DdbA29297772C4AdC7c96d39367429",
+      "denomination": 0,
+      "qits": 1
+    },
+    {
+      "address": "0x00C167bE7ee1B5B5BB2003136cE75F9B8E5EBF21",
+      "denomination": 0,
+      "qits": 1
+    },
+    {
+      "address": "0x00db903F1Ad6b7B2137BbCb8B776c302c3a7a4ac",
+      "denomination": 0,
+      "qits": 1
+    },
+    {
+      "address": "0x00FE930EBbC77D7A2ec5e795b5726A382989ec7d",
+      "denomination": 7,
+      "qits": 5000
+    },
+    {
+      "address": "0x00d4B83077792BE6bf5412fAfEd5c405ae0c762c",
+      "denomination": 6,
+      "qits": 1000
+    },
+    {
+      "address": "0x00d802ac3Fb2b488537C457115DD0Bb60dc83Db2",
+      "denomination": 6,
+      "qits": 1000
+    },
+    {
+      "address": "0x00D6beaca0149b566AA55C6994Cc973aEbd50082",
+      "denomination": 6,
+      "qits": 1000
+    },
+    {
+      "address": "0x00CA4a9B590EC4d152D7131708ed363dBC3ae3AD",
+      "denomination": 5,
+      "qits": 500
+    },
+    {
+      "address": "0x00fb3378D593489eDcE21F2Ec9783ff7652Ac60f",
+      "denomination": 4,
+      "qits": 100
+    },
+    {
+      "address": "0x00FD9D8067F999e1f8D782fbc9459Fb8473f7B5A",
+      "denomination": 4,
+      "qits": 100
+    },
+    {
+      "address": "0x00812194b0c2567c42fFBDEB318F832b63f237F9",
+      "denomination": 2,
+      "qits": 10
+    }
+  ],
+  "recipientOutputs": 10,
+  "signedBytes": "0x080232003a0205397a4d0a4b0a260a220a2000a000b1ec84c766c61c5ec9b58ae6beed15b5a384c7540084a60cec1700c7901000122103e87b87d8578a502342f77f5f8c5bfd9ce9752154873c1ec5f90e5793689d6ca68201f8030a1a08061214008bf85b805a4e8e4fcfd5cc3a8289d938aa4bf61a000a1a0804121400fff9c8c54c09eb1d0fa07749cbf38ee08c43571a000a1a08041214009486247a69a10681ee6247fe4656a7a85a0ccb1a000a1a080212140089542fd38f4fc8768b48f7ce39ef1f5aae2ea81a000a1a0802121400efafb80fd36967b86d6fab588c8f842e5061731a000a1a0802121400aab9cf9346bf4d4f6976ff32cc608a8a007dcb1a000a1a0800121400d438affe25ba93f4c4de48eda9a35d431fc81c1a000a1a08001214009758be83ddba29297772c4adc7c96d393674291a000a1a0800121400c167be7ee1b5b5bb2003136ce75f9b8e5ebf211a000a1a0800121400db903f1ad6b7b2137bbcb8b776c302c3a7a4ac1a000a1a0807121400fe930ebbc77d7a2ec5e795b5726a382989ec7d1a000a1a0806121400d4b83077792be6bf5412fafed5c405ae0c762c1a000a1a0806121400d802ac3fb2b488537c457115dd0bb60dc83db21a000a1a0806121400d6beaca0149b566aa55c6994cc973aebd500821a000a1a0805121400ca4a9b590ec4d152d7131708ed363dbc3ae3ad1a000a1a0804121400fb3378d593489edce21f2ec9783ff7652ac60f1a000a1a0804121400fd9d8067f999e1f8d782fbc9459fb8473f7b5a1a000a1a0802121400812194b0c2567c42ffbdeb318f832b63f237f91a008a0140c2a27c36592cea5a3176246673c93d5923f51535ab91087a85e6d37bcf10ca38cdb22612818ef2c57db8725decfb192fa573088247f725f6e7b1fff1c523571d"
+}

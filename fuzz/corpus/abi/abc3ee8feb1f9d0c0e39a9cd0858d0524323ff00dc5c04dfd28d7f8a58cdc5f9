@@ -1,0 +1,1 @@
+{"types": {"Numbers": [{"name": "minimum", "type": "int88"}, {"name": "maximum", "type": "int88"}, {"name": "unsigned", "type": "uint88"}, {"name": "zero", "type": "uint88"}]}, "primaryType": "Numbers", "domain": {}, "message": {"minimum": "-154742504910672534362390528", "maximum": "154742504910672534362390527", "unsigned": "309485009821345068724781055", "zero": 0}}

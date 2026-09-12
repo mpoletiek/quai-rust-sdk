@@ -1,0 +1,1 @@
+{"goog:chromeOptions":{"binary":"/usr/bin/chromium","args":["--headless=new","--disable-dev-shm-usage"]}}

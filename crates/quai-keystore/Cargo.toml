@@ -1,0 +1,30 @@
+[package]
+name = "quai-keystore"
+description = "Bounded legacy JSON keystore interchange for Quai wallets"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+quai-primitives.workspace = true
+quai-crypto.workspace = true
+quai-wallet.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+aes = { version = "0.9.3", features = ["zeroize"] }
+ctr = { version = "0.10.1", features = ["zeroize"] }
+scrypt = { version = "0.12.0", default-features = false }
+pbkdf2 = { version = "0.13.0", features = ["sha2"] }
+subtle = "2.6"
+zeroize = "1.8"
+unicode-normalization = "0.1.24"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+getrandom = "0.4.3"
+
+[lints]
+workspace = true

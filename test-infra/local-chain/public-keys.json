@@ -1,0 +1,12 @@
+{
+  "warning": "PUBLIC DISPOSABLE DEVCHAIN FIXTURES. Never fund on public networks.",
+  "chainId": 1337,
+  "quai": {
+    "secret": "0x0000000000000000000000000000000000000000000000000000000000000325",
+    "address": "0x0049cda3305ccb9cb23e7ce2528cef555e9a5b32"
+  },
+  "qi": {
+    "secret": "0x0000000000000000000000000000000000000000000000000000000000000082",
+    "address": "0x00edf2d16afbc028fb1e879559b07997af79539f"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "profile_version": 1,
+  "name": "local-direct-cyprus1",
+  "status": "qualification-pending-no-running-node",
+  "chain_id": 1337,
+  "zone": [0, 0],
+  "use_pathing": false,
+  "http_url": "http://127.0.0.1:9200",
+  "ws_url": "ws://127.0.0.1:8200",
+  "candidate_node_commit": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "verified_node_commit": null,
+  "genesis_hash": null,
+  "snapshot_sha256": null,
+  "patch_sha256": null,
+  "known_funded_test_accounts": [],
+  "expected_qi_outpoint": null,
+  "address_index_verified": false,
+  "transaction_acceptance_verified": false,
+  "ws_verified": false
+}

@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "oracle": "pinned-go-quai-wire-and-signature",
+  "pinnedGoCommit": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "goVersion": "go1.26.5-X:nodwarf5",
+  "fixtureReference": "quais@1.0.0-alpha.57",
+  "fixtureSha256": "4ea9412cc6a8c5168dda0577cb355474296e911f497fe5da88e674fe5d9c3c02",
+  "nodeAcceptance": false,
+  "results": [
+    {
+      "id": "quai-0",
+      "kind": "quai",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "senderMatch": true
+    },
+    {
+      "id": "quai-1",
+      "kind": "quai",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "senderMatch": true
+    },
+    {
+      "id": "quai-2",
+      "kind": "quai",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "senderMatch": true
+    },
+    {
+      "id": "quai-3",
+      "kind": "quai",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "senderMatch": true
+    },
+    {
+      "id": "quai-4",
+      "kind": "quai",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "senderMatch": true
+    },
+    {
+      "id": "quai-5",
+      "kind": "quai",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "senderMatch": true
+    },
+    {
+      "id": "quai-6",
+      "kind": "quai",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "senderMatch": true
+    },
+    {
+      "id": "quai-7",
+      "kind": "quai",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "senderMatch": true
+    },
+    {
+      "id": "qi-0",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "qi-1",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "knownQiDataLengthPolicyFailure": true,
+      "note": "Wire/signature case only: data length violates pinned ProcessQiTx/ValidateQiTxInputs policy; those stateful functions are not invoked."
+    },
+    {
+      "id": "qi-2",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true,
+      "knownQiDataLengthPolicyFailure": true,
+      "note": "Wire/signature case only: data length violates pinned ProcessQiTx/ValidateQiTxInputs policy; those stateful functions are not invoked."
+    },
+    {
+      "id": "qi-multi-0",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "qi-multi-1",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "qi-multi-2",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    }
+  ],
+  "aggregates": [
+    {
+      "id": "ordered-0",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    },
+    {
+      "id": "ordered-1",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    },
+    {
+      "id": "ordered-2",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    },
+    {
+      "id": "ordered-3",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    },
+    {
+      "id": "ordered-4",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    },
+    {
+      "id": "ordered-5",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    },
+    {
+      "id": "ordered-6",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    },
+    {
+      "id": "ordered-7",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    },
+    {
+      "id": "ordered-8",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    },
+    {
+      "id": "ordered-9",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    },
+    {
+      "id": "ordered-10",
+      "orderedPublicKeyMatch": true,
+      "jsSignatureVerified": true,
+      "rustSignatureVerified": true
+    }
+  ],
+  "aggregateFixtureSha256": "c0922ad2b59c6a9659addc0a48c03199f94ca3cde97d4001ccb8c61a63af60e6",
+  "sourceClean": true,
+  "sourceCommitVerified": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "cgoEnabled": true,
+  "contractRegression": {
+    "fixtureSha256": "42428153117c2f51208b31fb387b646858bbdee120b0fe85a01f44247cc133b8",
+    "passed": true,
+    "test": "TestExactContractAddresses",
+    "cases": 30,
+    "legacyLeadingZeroDivergences": 18
+  }
+}

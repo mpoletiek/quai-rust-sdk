@@ -1,0 +1,77 @@
+{
+  "avgTxFees": "0x0",
+  "baseFeePerGas": "0x1",
+  "conversionFlowAmount": "0x21e19e0c9bab2400000",
+  "efficiencyScore": "0x0",
+  "etxEligibleSlices": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "etxRollupRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+  "etxSetRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+  "evmRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+  "exchangeRate": "0x3116d1ae5368e00",
+  "expansionNumber": "0x0",
+  "extraData": "0x501969646146821623139bbe29fd621de6817cbc92ff37e47bce280926cfa1b7bc36f015c658d8140601",
+  "gasLimit": "0xb71b00",
+  "gasUsed": "0x0",
+  "interlinkRootHash": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+  "kQuaiDiscount": "0x64",
+  "manifestHash": [
+    "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+    "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+    "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+  ],
+  "minerDifficulty": "0x1dcd6501",
+  "number": [
+    "0x0",
+    "0x0"
+  ],
+  "outboundEtxsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+  "parentDeltaEntropy": [
+    "0x0",
+    "0x0",
+    "0x0"
+  ],
+  "parentEntropy": [
+    "0x0",
+    "0x0",
+    "0x0"
+  ],
+  "parentHash": [
+    "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "0x0000000000000000000000000000000000000000000000000000000000000000"
+  ],
+  "parentUncledDeltaEntropy": [
+    "0x0",
+    "0x0",
+    "0x0"
+  ],
+  "primeStateRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+  "primeTerminusHash": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+  "quaiStateSize": "0x0",
+  "receiptsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+  "regionStateRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+  "size": "0x302",
+  "stateLimit": "0x4c4b40",
+  "stateUsed": "0x0",
+  "thresholdCount": "0x0",
+  "totalFees": "0x0",
+  "transactionsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+  "uncleHash": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+  "uncledEntropy": "0x0",
+  "utxoRoot": "0x544eb3142c000f0ad2c76ac41f4222abbababed830eeafee4b6dc56b52d5cac0",
+  "woHeader": {
+    "data": "0x",
+    "difficulty": "0x1dcd6501",
+    "hash": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+    "headerHash": "0x93e479e078bf380b2bf5e322758828487774aca6153bb9650f1a081c8c38c362",
+    "location": "0x",
+    "lock": "0x0",
+    "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "nonce": "0x0622426243665537",
+    "number": "0x0",
+    "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "primaryCoinbase": "0x0000000000000000000000000000000000000000",
+    "primeTerminusNumber": "0x0",
+    "timestamp": "0x0",
+    "txHash": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+  }
+}

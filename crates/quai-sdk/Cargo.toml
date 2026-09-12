@@ -1,0 +1,50 @@
+[package]
+name = "quai-sdk"
+description = "Rust SDK for Quai Network — development foundation"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[features]
+default = ["http", "wallet"]
+http = ["quai-rpc/http", "quai-provider/http"]
+wallet = ["dep:quai-wallet", "dep:quai-crypto", "dep:quai-consensus", "dep:quai-signer"]
+ws = ["quai-rpc/ws"]
+sqlite = ["wallet", "quai-wallet/sqlite"]
+abi = ["dep:quai-abi", "dep:quai-consensus"]
+browser = ["dep:quai-browser"]
+payments = ["dep:quai-payments"]
+keystore = ["dep:quai-keystore"]
+
+[dependencies]
+quai-primitives.workspace = true
+quai-rpc.workspace = true
+quai-provider.workspace = true
+quai-wallet = { workspace = true, optional = true }
+quai-crypto = { workspace = true, optional = true }
+quai-consensus = { workspace = true, optional = true }
+quai-signer = { workspace = true, optional = true }
+quai-abi = { workspace = true, optional = true }
+quai-browser = { workspace = true, optional = true }
+quai-payments = { workspace = true, optional = true }
+quai-keystore = { workspace = true, optional = true }
+thiserror.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+serde_json.workspace = true
+
+[[example]]
+name = "read_network"
+required-features = ["http"]
+
+[[example]]
+name = "offline_wallet"
+required-features = ["wallet"]
+
+[lints]
+workspace = true

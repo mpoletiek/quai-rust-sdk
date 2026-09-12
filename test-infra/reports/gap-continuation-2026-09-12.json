@@ -1,0 +1,35 @@
+{
+  "scope": "Gap continuation: imported payment-account backup v3, specialized fees, portable API inventory and explicit confirmed account preflight",
+  "tests": {
+    "native_all_features": {
+      "passed": 279,
+      "failed": 0,
+      "ignored": 4,
+      "exit_code": 0
+    },
+    "native_no_default": {
+      "passed": 178,
+      "failed": 0,
+      "ignored": 0,
+      "exit_code": 0
+    },
+    "account_policy": {
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0,
+      "exit_code": 0
+    }
+  },
+  "independent_special_fee": "test-infra/go-oracle/SPECIAL-FEE-RESULTS.json",
+  "baseline_ci": "https://github.com/mpoletiek/quai-rust-sdk/actions/runs/34667021753",
+  "baseline_ci_scope": "Linux/macOS/Windows, browser/worker, fuzz-smoke and advisories passed; API inventory failed due to absolute checkout paths, corrected in this continuation.",
+  "confirmed_account_acceptance": {
+    "evidence": "test-infra/local-chain/confirmed-account-evidence",
+    "genesis": "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee",
+    "chain_id": 1337,
+    "scope": "Existing explicitly patched isolated development chain, public test keys; no mainnet transactions",
+    "transfer_and_deployment_height": 6,
+    "runtime_code": "0x602a60005260206000f3",
+    "passed": true
+  }
+}

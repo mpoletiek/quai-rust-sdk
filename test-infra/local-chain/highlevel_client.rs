@@ -3,7 +3,7 @@ use quai_sdk::{
     BlockTag, Endpoint, HttpConfig, HttpTransport, Provider, QiAddress, QuaiAddress, Routing, U256,
     Zone,
     abi::AbiInterface,
-    accounts::{AccountIntent, AccountSession, FeePolicy},
+    accounts::{AccountIntent, AccountSession, AccountObservationPolicy, FeePolicy},
     consensus::{
         Denomination, OutPoint, QiInput, QiOutput, QiTransaction, SignedQiTransaction,
         SignedQuaiTransaction,
@@ -247,7 +247,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 max_total_fee: U256::from(10_000_000_000_000_000_000_000u128),
                 gas_margin_bps: 1000,
             };
-            let mut session = AccountSession::new(&provider, &signer, &mut store)?;
+            let mut session = AccountSession::new(&provider, &signer, &mut store)?
+                .with_observation_policy(AccountObservationPolicy::PinnedLatest);
             let prepared = session
                 .prepare(
                     account_id,

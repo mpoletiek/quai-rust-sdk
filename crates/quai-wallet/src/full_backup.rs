@@ -49,7 +49,7 @@ pub enum WalletBackupError {
 }
 type Result<T> = std::result::Result<T, WalletBackupError>;
 
-/// Supported explicit origin kind; public-only/account-level xprv origins are excluded.
+/// Supported explicit secret origin kind; public-only ownership is excluded.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum BackupOriginKind {
     /// Original 16..64-byte seed, including an already-applied BIP39 passphrase.
@@ -58,11 +58,17 @@ pub enum BackupOriginKind {
     MasterXprv,
     /// Standalone secp256k1 scalar, with no claimed HD ancestry.
     ImportedPrivateKey,
+    /// A depth-three BIP47 account with explicit asserted m/47'/969' ancestry.
+    PaymentAccountXprv,
 }
 enum OriginMaterial {
     Seed(Zeroizing<Vec<u8>>),
     Master(ExtendedPrivateKey),
     Imported(SecretBytes),
+    PaymentAccount {
+        account: u32,
+        key: ExtendedPrivateKey,
+    },
 }
 /// Owned, zeroizing/redacted secret origin. No Clone, Display or implicit serialization.
 pub struct BackupOrigin(OriginMaterial);
@@ -97,7 +103,9 @@ impl BackupOrigin {
             OriginMaterial::Master(master) => {
                 master.export().map_err(|_| WalletBackupError::Resources)
             }
-            OriginMaterial::Imported(_) => Err(WalletBackupError::Unsupported),
+            OriginMaterial::Imported(_) | OriginMaterial::PaymentAccount { .. } => {
+                Err(WalletBackupError::Unsupported)
+            }
         }
     }
     /// Import a master xprv. Non-master xprvs are explicitly unsupported in v1.
@@ -109,6 +117,27 @@ impl BackupOrigin {
         }
         Ok(Self(OriginMaterial::Master(key)))
     }
+    /// Preserve an imported depth-three BIP47 payment account in QUAIWALT v3.
+    /// Validates the hardened account index but cannot prove omitted ancestors;
+    /// the caller asserts m/47'/969'. Never treated as a BIP44 master origin.
+    pub fn from_payment_account_xprv(encoded: &str, account: u32) -> Result<Self> {
+        quai_payments::PrivatePaymentCode::from_account_xprv(encoded, account)
+            .map_err(|_| WalletBackupError::InvalidInput)?;
+        let key =
+            ExtendedPrivateKey::import(encoded).map_err(|_| WalletBackupError::InvalidInput)?;
+        Ok(Self(OriginMaterial::PaymentAccount { account, key }))
+    }
+    /// Export this exact payment account with its asserted account index. Other
+    /// origin types return Unsupported instead of silently narrowing a master.
+    pub fn export_payment_account_xprv(&self) -> Result<(u32, crate::SecretString)> {
+        match &self.0 {
+            OriginMaterial::PaymentAccount { account, key } => Ok((
+                *account,
+                key.export().map_err(|_| WalletBackupError::Resources)?,
+            )),
+            _ => Err(WalletBackupError::Unsupported),
+        }
+    }
     /// Explicitly copy/export a standalone key into guarded backup ownership.
     pub fn from_private_key(key: &SecretKey) -> Self {
         Self(OriginMaterial::Imported(key.export_bytes()))
@@ -119,6 +148,7 @@ impl BackupOrigin {
             OriginMaterial::Seed(_) => BackupOriginKind::Seed,
             OriginMaterial::Master(_) => BackupOriginKind::MasterXprv,
             OriginMaterial::Imported(_) => BackupOriginKind::ImportedPrivateKey,
+            OriginMaterial::PaymentAccount { .. } => BackupOriginKind::PaymentAccountXprv,
         }
     }
     /// Explicitly inspect exact preserved seed bytes; other origins return None.
@@ -137,7 +167,9 @@ impl BackupOrigin {
                 ExtendedPrivateKey::from_seed(seed).and_then(|master| master.derive_child(44, true))
             }
             OriginMaterial::Master(master) => master.derive_child(44, true),
-            OriginMaterial::Imported(_) => return Err(WalletBackupError::Ownership),
+            OriginMaterial::Imported(_) | OriginMaterial::PaymentAccount { .. } => {
+                return Err(WalletBackupError::Ownership);
+            }
         }
         .map_err(|_| WalletBackupError::Ownership)?;
         purpose
@@ -344,6 +376,9 @@ impl WalletBackup {
                 );
                 continue;
             }
+            if matches!(&origin.0, OriginMaterial::PaymentAccount { .. }) {
+                continue;
+            }
             for &(coin, account) in &accounts {
                 public_accounts
                     .entry((coin, account))
@@ -538,7 +573,7 @@ impl WalletBackup {
     }
     fn encode(&self) -> Result<Zeroizing<Vec<u8>>> {
         let mut writer = Writer::new()?;
-        writer.u32(u32::from(self.version() == 2))?; // mandatory extension bitmap
+        writer.u32(u32::from(self.version() >= 2))?; // mandatory extension bitmap
         writer.u16(self.origins.len() as u16)?;
         for origin in &self.origins {
             match &origin.0 {
@@ -554,6 +589,13 @@ impl WalletBackup {
                 OriginMaterial::Imported(bytes) => {
                     writer.u8(3)?;
                     writer.short(&bytes[..])?;
+                }
+                OriginMaterial::PaymentAccount { account, key } => {
+                    writer.u8(4)?;
+                    let encoded = key.export().map_err(|_| WalletBackupError::Resources)?;
+                    let mut payload = Zeroizing::new(account.to_be_bytes().to_vec());
+                    payload.extend_from_slice(encoded.expose().as_bytes());
+                    writer.short(&payload)?;
                 }
             }
         }
@@ -641,7 +683,7 @@ impl WalletBackup {
     }
     fn decode_version(plaintext: &[u8], version: u8) -> Result<Self> {
         let mut reader = Reader(plaintext, MAX_RECORDS);
-        if reader.u32()? != u32::from(version == 2) || !(1..=2).contains(&version) {
+        if reader.u32()? != u32::from(version >= 2) || !(1..=3).contains(&version) {
             return Err(WalletBackupError::Unsupported);
         }
         let count = usize::from(reader.u16()?);
@@ -651,7 +693,7 @@ impl WalletBackup {
         let mut origins = Vec::new();
         for _ in 0..count {
             let kind = reader.u8()?;
-            let bytes = reader.short(112)?;
+            let bytes = reader.short(116)?;
             origins.push(match kind {
                 1 => BackupOrigin::from_seed(bytes)?,
                 2 => BackupOrigin::from_master_xprv(
@@ -663,6 +705,11 @@ impl WalletBackup {
                         SecretKey::from_bytes(&raw).map_err(|_| WalletBackupError::InvalidInput)?;
                     BackupOrigin::from_private_key(&key)
                 }
+                4 if version >= 3 && bytes.len() >= 4 => BackupOrigin::from_payment_account_xprv(
+                    std::str::from_utf8(&bytes[4..])
+                        .map_err(|_| WalletBackupError::InvalidInput)?,
+                    u32::from_be_bytes(fixed(&bytes[..4])?),
+                )?,
                 _ => return Err(WalletBackupError::Unsupported),
             });
         }
@@ -873,7 +920,7 @@ fn header(bytes: &[u8]) -> Result<(BackupKdf, usize)> {
     if bytes.len() < HEADER + 16
         || bytes.len() > HEADER + MAX_PLAINTEXT + 16
         || &bytes[..8] != MAGIC
-        || !(1..=2).contains(&bytes[8])
+        || !(1..=3).contains(&bytes[8])
         || bytes[9..12] != [1, 1, 0]
     {
         return Err(WalletBackupError::UnlockFailed);

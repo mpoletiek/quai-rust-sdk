@@ -20,6 +20,16 @@ impl BackupOrigin {
                 account,
             )
             .map_err(|_| WalletBackupError::InvalidInput),
+            OriginMaterial::PaymentAccount {
+                account: stored,
+                key,
+            } if account == *stored => PrivatePaymentCode::from_account_xprv(
+                key.export()
+                    .map_err(|_| WalletBackupError::Resources)?
+                    .expose(),
+                account,
+            )
+            .map_err(|_| WalletBackupError::InvalidInput),
             _ => Err(WalletBackupError::Unsupported),
         }
     }
@@ -49,7 +59,8 @@ impl WalletBackup {
                 if matches!(
                     &origin.0,
                     OriginMaterial::Seed(_) | OriginMaterial::Master(_)
-                ) {
+                ) || matches!(&origin.0, OriginMaterial::PaymentAccount { account, .. } if *account == stored.account)
+                {
                     let owner = origin.payment_code(stored.account)?;
                     if owner.public_code().to_bytes() == stored.local {
                         matched = Some(owner);
@@ -116,7 +127,13 @@ impl WalletBackup {
         Ok((owners, owned))
     }
     pub(super) fn version(&self) -> u8 {
-        if self.state.channels.is_empty() && self.state.exposures.is_empty() {
+        if self
+            .origins
+            .iter()
+            .any(|origin| matches!(&origin.0, OriginMaterial::PaymentAccount { .. }))
+        {
+            3
+        } else if self.state.channels.is_empty() && self.state.exposures.is_empty() {
             1
         } else {
             2

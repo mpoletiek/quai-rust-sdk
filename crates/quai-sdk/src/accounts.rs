@@ -16,6 +16,18 @@ use quai_wallet::storage::{
 };
 use thiserror::Error;
 
+/// Explicit state source for account preflight. No automatic fallback occurs.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum AccountObservationPolicy {
+    /// Observe the node's pending state; propagate unsupported-RPC errors.
+    #[default]
+    Pending,
+    /// Pin all nonce, balance and simulation reads to a sampled latest height and
+    /// recheck its hash before returning. This excludes transactions in the pool;
+    /// durable local nonce claims still apply. Estimates remain advisory.
+    PinnedLatest,
+}
+
 /// Application-specified limits; there is no implicit unlimited-fee default.
 #[derive(Clone, Copy, Debug)]
 pub struct FeePolicy {
@@ -66,9 +78,12 @@ pub enum AccountError {
     /// Checked arithmetic overflow or a caller fee limit was exceeded.
     #[error("account transaction exceeds the explicit fee policy")]
     FeeLimit,
-    /// Observed pending balance does not cover value and maximum fee.
-    #[error("observed pending balance does not cover value and maximum fee")]
+    /// Observed balance does not cover value and maximum fee.
+    #[error("observed balance does not cover value and maximum fee")]
     InsufficientBalance,
+    /// The sampled confirmed head changed during preparation.
+    #[error("account observation head changed during preparation")]
+    ObservationChanged,
     /// The signer returned bytes differing from the exact reviewed payload.
     #[error("signer changed the authorized transaction")]
     PayloadMismatch,
@@ -134,6 +149,7 @@ pub struct AccountSession<'a, T, S> {
     provider: &'a Provider<T>,
     signer: &'a S,
     store: &'a mut SqliteStore,
+    observation_policy: AccountObservationPolicy,
 }
 impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
     /// Prepare a same-zone native Quai-to-Qi conversion with exact slippage.
@@ -168,9 +184,10 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         quai_consensus::QuaiToQiTransaction::new(transaction.clone())
             .map_err(|_| AccountError::InvalidOperation)?;
         self.verify_network().await?;
+        let observation = self.observation().await?;
         let pending = self
             .provider
-            .transaction_count(sender, BlockTag::Pending)
+            .transaction_count(sender, observation.0)
             .await?;
         transaction.gas_price = self.provider.gas_price(sender.zone()).await?;
         if transaction.gas_price > policy.max_gas_price {
@@ -179,12 +196,18 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         // Estimate the pending nonce first; repeat against the actual reserved
         // nonce when concurrent operations advanced the durable cursor.
         transaction.nonce = pending;
-        let (mut gas, mut fee) = self.quote_conversion(sender, &transaction, policy).await?;
+        let (mut gas, mut fee) = self
+            .quote_conversion(sender, &transaction, policy, observation.0)
+            .await?;
+        self.verify_observation(observation).await?;
         transaction.nonce = self.store.reserve_nonce(id, sender, pending)?;
         if transaction.nonce != pending {
-            (gas, fee) = self.quote_conversion(sender, &transaction, policy).await?;
+            (gas, fee) = self
+                .quote_conversion(sender, &transaction, policy, observation.0)
+                .await?;
         }
         transaction.gas_limit = gas;
+        self.verify_observation(observation).await?;
         let digest = transaction
             .signing_digest()
             .map_err(|_| AccountError::InvalidOperation)?;
@@ -203,12 +226,13 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         sender: QuaiAddress,
         transaction: &QuaiTransaction,
         policy: FeePolicy,
+        block: BlockTag,
     ) -> Result<(u64, U256), AccountError> {
         let typed = quai_consensus::QuaiToQiTransaction::new(transaction.clone())
             .map_err(|_| AccountError::InvalidOperation)?;
         let estimate = self
             .provider
-            .estimate_quai_conversion_gas(sender, &typed, BlockTag::Pending)
+            .estimate_quai_conversion_gas(sender, &typed, block)
             .await?;
         let gas =
             (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);
@@ -226,7 +250,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         if fee
             .checked_add(transaction.value)
             .ok_or(AccountError::FeeLimit)?
-            > self.provider.balance(sender, BlockTag::Pending).await?
+            > self.provider.balance(sender, block).await?
         {
             return Err(AccountError::InsufficientBalance);
         }
@@ -249,7 +273,46 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
             provider,
             signer,
             store,
+            observation_policy: AccountObservationPolicy::Pending,
         })
+    }
+
+    /// Select an explicit preflight state source, including for conversions and deployments.
+    pub fn with_observation_policy(mut self, policy: AccountObservationPolicy) -> Self {
+        self.observation_policy = policy;
+        self
+    }
+    async fn observation(&self) -> Result<(BlockTag, Option<Hash32>), AccountError> {
+        match self.observation_policy {
+            AccountObservationPolicy::Pending => Ok((BlockTag::Pending, None)),
+            AccountObservationPolicy::PinnedLatest => {
+                let header = self
+                    .provider
+                    .latest_header(self.store.scope().zone)
+                    .await?
+                    .ok_or(AccountError::ObservationChanged)?;
+                Ok((
+                    BlockTag::Number(U256::from(header.number)),
+                    Some(header.hash),
+                ))
+            }
+        }
+    }
+    async fn verify_observation(
+        &self,
+        observation: (BlockTag, Option<Hash32>),
+    ) -> Result<(), AccountError> {
+        if let Some(hash) = observation.1 {
+            let latest = self
+                .provider
+                .latest_header(self.store.scope().zone)
+                .await?
+                .ok_or(AccountError::ObservationChanged)?;
+            if latest.hash != hash || observation.0 != BlockTag::Number(U256::from(latest.number)) {
+                return Err(AccountError::ObservationChanged);
+            }
+        }
+        Ok(())
     }
 
     async fn verify_network(&self) -> Result<(), AccountError> {
@@ -273,10 +336,12 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         let sender = QuaiAddress::try_from(self.signer.address())
             .map_err(|_| AccountError::IdentityMismatch)?;
         self.verify_network().await?;
+        let observation = self.observation().await?;
         let pending = self
             .provider
-            .transaction_count(sender, BlockTag::Pending)
+            .transaction_count(sender, observation.0)
             .await?;
+        self.verify_observation(observation).await?;
         Ok(self.store.reserve_nonce(id, sender, pending)?)
     }
 
@@ -316,9 +381,10 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
             .unsigned_bytes()
             .map_err(|_| AccountError::InvalidOperation)?;
         self.verify_network().await?;
+        let observation = self.observation().await?;
         if self
             .provider
-            .transaction_count(sender, BlockTag::Pending)
+            .transaction_count(sender, observation.0)
             .await?
             > transaction.nonce
         {
@@ -345,10 +411,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
                 })
                 .collect(),
         };
-        let estimate = self
-            .provider
-            .estimate_gas(&request, BlockTag::Pending)
-            .await?;
+        let estimate = self.provider.estimate_gas(&request, observation.0).await?;
         let gas =
             (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);
         if gas == 0 || gas > u128::from(policy.max_gas) {
@@ -364,11 +427,12 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         let debit = fee
             .checked_add(transaction.value)
             .ok_or(AccountError::FeeLimit)?;
-        if debit > self.provider.balance(sender, BlockTag::Pending).await? {
+        if debit > self.provider.balance(sender, observation.0).await? {
             return Err(AccountError::InsufficientBalance);
         }
         transaction.gas_price = gas_price;
         transaction.gas_limit = gas;
+        self.verify_observation(observation).await?;
         let digest = transaction
             .signing_digest()
             .map_err(|_| AccountError::InvalidOperation)?;
@@ -437,9 +501,10 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
             .unsigned_bytes()
             .map_err(|_| AccountError::InvalidOperation)?;
         self.verify_network().await?;
+        let observation = self.observation().await?;
         let pending_nonce = self
             .provider
-            .transaction_count(sender, BlockTag::Pending)
+            .transaction_count(sender, observation.0)
             .await?;
         let gas_price = self.provider.gas_price(sender.zone()).await?;
         if gas_price > policy.max_gas_price {
@@ -481,7 +546,8 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
                 })
                 .collect(),
         };
-        let (mut gas, mut fee) = self.quote_fee(&request, policy).await?;
+        let (mut gas, mut fee) = self.quote_fee(&request, policy, observation.0).await?;
+        self.verify_observation(observation).await?;
         transaction.nonce = match reserved_nonce {
             Some(nonce) => nonce,
             None => self.store.reserve_nonce(id, sender, pending_nonce)?,
@@ -491,10 +557,11 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
             // the node's pending observation. Never authorize the unestimated nonce.
             let mut actual = request;
             actual.nonce = Some(transaction.nonce);
-            (gas, fee) = self.quote_fee(&actual, policy).await?;
+            (gas, fee) = self.quote_fee(&actual, policy, observation.0).await?;
         }
         transaction.gas_price = gas_price;
         transaction.gas_limit = gas;
+        self.verify_observation(observation).await?;
         let digest = transaction
             .signing_digest()
             .map_err(|_| AccountError::InvalidOperation)?;
@@ -513,11 +580,9 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         &self,
         request: &CallRequest,
         policy: FeePolicy,
+        block: BlockTag,
     ) -> Result<(u64, U256), AccountError> {
-        let estimate = self
-            .provider
-            .estimate_gas(request, BlockTag::Pending)
-            .await?;
+        let estimate = self.provider.estimate_gas(request, block).await?;
         let gas =
             (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);
         if gas == 0 || gas > u128::from(policy.max_gas) {
@@ -535,12 +600,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         let maximum_debit = fee
             .checked_add(request.value.unwrap_or(U256::ZERO))
             .ok_or(AccountError::FeeLimit)?;
-        if maximum_debit
-            > self
-                .provider
-                .balance(request.from, BlockTag::Pending)
-                .await?
-        {
+        if maximum_debit > self.provider.balance(request.from, block).await? {
             return Err(AccountError::InsufficientBalance);
         }
         Ok((gas, fee))

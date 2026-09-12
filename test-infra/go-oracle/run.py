@@ -85,6 +85,13 @@ def main():
             report["sourceClean"] = True
             report["sourceCommitVerified"] = actual
             report["cgoEnabled"] = True
+            if args.test:
+                report["specialFeeRegression"] = {
+                    "testSourceSha256": hashlib.sha256((HERE / "special_fee_test.go").read_bytes()).hexdigest(),
+                    "passed": True,
+                    "tests": ["TestSpecialFeeGasBound", "TestShaAnchoredFeeRatesIgnoreDifficultyArgument"],
+                    "scope": "Pinned function tests; not funded chain acceptance",
+                }
             if contracts:
                 report["contractRegression"] = {
                     "fixtureSha256": hashlib.sha256(contracts.read_bytes()).hexdigest(),

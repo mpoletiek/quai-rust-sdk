@@ -66,3 +66,14 @@ failure silently chooses another nonce or changes already reviewed init code.
 Gas estimates and pending balances remain node observations, not acceptance or
 balance reservations. Appended grind suffixes can affect custom init code; inspect
 and simulate the actual final bytes.
+
+## Explicit confirmed-state preparation
+
+`AccountSession::with_observation_policy(AccountObservationPolicy::PinnedLatest)`
+pins nonce, balance and gas simulation to one sampled numeric block height and
+rechecks the latest hash before reservation and before returning a prepared payload.
+This supports nodes whose pending-state RPC is unavailable. The default remains
+`Pending`; errors never trigger silent fallback. Confirmed observations exclude
+mempool changes and do not reserve balance. All modes retain durable nonce claims,
+exact payload review and signed-byte recovery. A head change after a nonce was
+reserved leaves that unsigned reservation available for explicit recovery.

@@ -750,3 +750,80 @@ fn signed_specialized_qi_backup_restores_exact_payload_and_claims() {
         assert!(restored.release_unsigned(id(80)).is_err());
     }
 }
+
+#[test]
+fn imported_payment_account_origin_v3_roundtrips_and_cannot_be_downgraded() {
+    use quai_payments::{PaymentChannel, PaymentDirection};
+    let account = ExtendedPrivateKey::from_seed(&[4; 32])
+        .unwrap()
+        .derive_child(47, true)
+        .unwrap()
+        .derive_child(969, true)
+        .unwrap()
+        .derive_child(7, true)
+        .unwrap();
+    let encoded = account.export().unwrap();
+    let origin = BackupOrigin::from_payment_account_xprv(encoded.expose(), 7).unwrap();
+    assert_eq!(origin.kind(), BackupOriginKind::PaymentAccountXprv);
+    assert!(origin.export_master_xprv().is_err());
+    assert!(origin.account_public(CoinType::Qi, 7).is_err());
+    assert!(BackupOrigin::from_payment_account_xprv(encoded.expose(), 8).is_err());
+    let owner = origin.payment_code(7).unwrap();
+    let peer = quai_payments::PrivatePaymentCode::from_seed(&[5; 32], 0).unwrap();
+    let db = Database::new();
+    let mut store = db.open();
+    store
+        .import_payment_channel(
+            &owner,
+            &PaymentChannel::new(&owner, peer.public_code().clone()),
+            None,
+        )
+        .unwrap();
+    let allocation = store
+        .allocate_payment_address(
+            &owner,
+            peer.public_code(),
+            PaymentDirection::Receive,
+            10000,
+            || false,
+        )
+        .unwrap();
+    let backup = WalletBackup::capture(&mut store, vec![origin]).unwrap();
+    assert_eq!(backup.version(), 3);
+    let plaintext = backup.encode().unwrap();
+    assert!(WalletBackup::decode_version(&plaintext, 2).is_err());
+    let restored = WalletBackup::decode_version(&plaintext, 3).unwrap();
+    let (index, exported) = restored.origins()[0].export_payment_account_xprv().unwrap();
+    assert_eq!(index, 7);
+    assert!(exported.expose() == encoded.expose());
+    assert_eq!(
+        restored.origins()[0].payment_code(7).unwrap().public_code(),
+        owner.public_code()
+    );
+    let target = Database::new();
+    let mut target = target.open();
+    restored.restore(&mut target).unwrap();
+    assert_eq!(
+        target
+            .payment_addresses(&owner, peer.public_code(), PaymentDirection::Receive)
+            .unwrap()[0]
+            .address,
+        allocation.found.address
+    );
+    let envelope = backup
+        .encrypt(b"public test password", BackupKdf::default())
+        .unwrap();
+    assert_eq!(envelope.as_bytes()[8], 3);
+    assert_eq!(
+        envelope.decrypt(b"public test password").unwrap().version(),
+        3
+    );
+    let mut downgraded = envelope.as_bytes().to_vec();
+    downgraded[8] = 2;
+    assert!(
+        EncryptedWalletBackup::from_bytes(&downgraded)
+            .unwrap()
+            .decrypt(b"public test password")
+            .is_err()
+    );
+}

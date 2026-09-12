@@ -17260,7 +17260,7 @@
       "subpath": ".",
       "exportedName": "quais",
       "target": {
-        "name": "\"/home/mpoletiek/Devspace/quai-rust-sdk/compatibility/node_modules/quais/lib/esm/quais\"",
+        "name": "\"quais/lib/esm/quais\"",
         "kind": "SourceFile",
         "declarations": [
           {
@@ -17268,7 +17268,7 @@
             "line": 1
           }
         ],
-        "type": "typeof import(\"/home/mpoletiek/Devspace/quai-rust-sdk/compatibility/node_modules/quais/lib/esm/quais\")"
+        "type": "typeof import(\"quais/lib/esm/quais\")"
       }
     },
     {

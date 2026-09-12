@@ -39,8 +39,26 @@ impl Transport for Mock {
             .lock()
             .unwrap()
             .push((method.to_owned(), params.clone()));
+        let mode = self.mode.load(Ordering::SeqCst);
+        if mode >= 5
+            && params
+                .as_array()
+                .is_some_and(|v| v.iter().any(|p| p == "pending"))
+        {
+            return Err(RpcError::Timeout);
+        }
         Ok(match method {
             "quai_chainId" => json!("0x3a98"),
+            "quai_getHeaderByNumber" if mode >= 5 && params[0] != "0x0" => {
+                let changed = mode == 6
+                    && self
+                        .calls
+                        .lock()
+                        .unwrap()
+                        .iter()
+                        .any(|(m, _)| m == "quai_getBalance");
+                json!({"woHeader":{"hash": if changed {format!("0x{}","22".repeat(32))} else {format!("0x{}","11".repeat(32))},"number":"0x10","location":"0x0000","parentHash":GENESIS,"primeTerminusNumber":"0x10"},"gasLimit":"0x100000","stateLimit":"0x100000"})
+            }
             "quai_getHeaderByNumber" => {
                 json!({"woHeader":{"hash":GENESIS,"number":"0x0","location":"0x","parentHash":format!("0x{}","00".repeat(32))}})
             }
@@ -54,7 +72,7 @@ impl Transport for Mock {
                 }
             }
             "quai_getBalance" => {
-                if self.mode.load(Ordering::SeqCst) == 4 {
+                if self.mode.load(Ordering::SeqCst) >= 4 {
                     json!("0xffffffffffffffffffffffff")
                 } else {
                     json!("0xffffffffffff")
@@ -272,7 +290,10 @@ async fn deployment_reserves_before_grinding_and_estimates_exact_nonce_code_and_
     use quai_sdk::abi::AbiInterface;
     use quai_sdk::contracts::{DeploymentSearch, prepare_deployment};
     let (_directory, mock, provider, signer, mut store) = setup();
-    let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
+    mock.mode.store(5, Ordering::SeqCst);
+    let mut session = AccountSession::new(&provider, &signer, &mut store)
+        .unwrap()
+        .with_observation_policy(quai_sdk::accounts::AccountObservationPolicy::PinnedLatest);
     assert_eq!(
         session
             .reserve_deployment_nonce(ReservationId([20; 16]))
@@ -564,4 +585,57 @@ async fn released_unsigned_nonce_can_be_explicitly_repaired_without_rewinding_cu
             .unwrap(),
         5
     );
+}
+
+#[tokio::test]
+async fn explicit_confirmed_observations_pin_every_state_read_and_reject_head_changes() {
+    use quai_sdk::accounts::AccountObservationPolicy;
+    for mode in [5, 6] {
+        for conversion in [false, true] {
+            let (_directory, mock, provider, signer, mut store) = setup();
+            mock.mode.store(mode, Ordering::SeqCst);
+            let id = ReservationId([80; 16]);
+            // Unsupported pending observations propagate and do not silently change policy.
+            let result = AccountSession::new(&provider, &signer, &mut store)
+                .unwrap()
+                .prepare(id, intent(), policy())
+                .await;
+            assert!(matches!(result, Err(AccountError::Provider(_))));
+            assert!(store.reservation(id).unwrap().is_none());
+            mock.calls.lock().unwrap().clear();
+            let mut session = AccountSession::new(&provider, &signer, &mut store)
+                .unwrap()
+                .with_observation_policy(AccountObservationPolicy::PinnedLatest);
+            let result = if conversion {
+                session
+                    .prepare_conversion(
+                        id,
+                        "0x0080000000000000000000000000000000000001"
+                            .parse()
+                            .unwrap(),
+                        U256::from(10_000_000_000_000_000_000u64),
+                        quai_sdk::consensus::ConversionSlippage::new(100).unwrap(),
+                        policy(),
+                    )
+                    .await
+            } else {
+                session.prepare(id, intent(), policy()).await
+            };
+            if mode == 6 {
+                assert!(matches!(result, Err(AccountError::ObservationChanged)));
+                assert!(store.reservation(id).unwrap().is_none());
+            } else {
+                let prepared = result.unwrap();
+                session.sign(&prepared).unwrap();
+            }
+            for (method, params) in mock.calls.lock().unwrap().iter() {
+                if matches!(
+                    method.as_str(),
+                    "quai_getTransactionCount" | "quai_estimateGas" | "quai_getBalance"
+                ) {
+                    assert_eq!(params[1], "0x10");
+                }
+            }
+        }
+    }
 }

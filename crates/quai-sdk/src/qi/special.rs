@@ -1,5 +1,12 @@
 //! Durable specialized Qi operations with an explicitly authorized fee.
 use super::*;
+use quai_provider::{QiFeeProfile, QiFeeQuote};
+
+#[derive(Clone, Copy)]
+enum FeeMode {
+    Explicit(U256),
+    Estimated(QiFeeProfile),
+}
 use quai_consensus::{
     QiConversionIntent, QiConversionTransaction, QiWrappingIntent, QiWrappingTransaction,
     SignedQiOperation,
@@ -45,6 +52,7 @@ pub struct PreparedQiOperation {
     id: ReservationId,
     transaction: QiSpecialTransaction,
     fee: U256,
+    quote: Option<QiFeeQuote>,
 }
 impl PreparedQiOperation {
     /// Durable reservation for recovery and explicit broadcast.
@@ -54,6 +62,10 @@ impl PreparedQiOperation {
     /// Frozen operation for user review.
     pub fn transaction(&self) -> &QiSpecialTransaction {
         &self.transaction
+    }
+    /// Last advisory quote used for bounded automatic fee convergence.
+    pub fn fee_quote(&self) -> Option<QiFeeQuote> {
+        self.quote
     }
     /// Authorized fee in Qits according to the refreshed input observations.
     pub fn fee(&self) -> U256 {
@@ -75,8 +87,55 @@ impl<T: Transport> QiSession<'_, T> {
         policy: QiPolicy,
         change: QiChangePool,
     ) -> Result<PreparedQiOperation, QiError> {
+        self.prepare_special_inner(
+            id,
+            amount,
+            intent,
+            FeeMode::Explicit(explicit_fee),
+            policy,
+            change,
+        )
+        .await
+    }
+    /// Prepare with bounded fee convergence for an explicitly selected node profile.
+    /// Each quote covers the exact selected shape; no inputs are reserved on failure.
+    pub async fn prepare_special_estimated(
+        &mut self,
+        id: ReservationId,
+        amount: U256,
+        intent: QiSpecialIntent,
+        profile: QiFeeProfile,
+        policy: QiPolicy,
+        change: QiChangePool,
+    ) -> Result<PreparedQiOperation, QiError> {
+        self.prepare_special_inner(
+            id,
+            amount,
+            intent,
+            FeeMode::Estimated(profile),
+            policy,
+            change,
+        )
+        .await
+    }
+    async fn prepare_special_inner(
+        &mut self,
+        id: ReservationId,
+        amount: U256,
+        intent: QiSpecialIntent,
+        mode: FeeMode,
+        policy: QiPolicy,
+        change: QiChangePool,
+    ) -> Result<PreparedQiOperation, QiError> {
+        let (mut fee, rounds) = match mode {
+            FeeMode::Explicit(fee) => (fee, 1),
+            FeeMode::Estimated(_) if (1..=32).contains(&policy.max_fee_rounds) => {
+                (policy.initial_fee, policy.max_fee_rounds)
+            }
+            FeeMode::Estimated(_) => return Err(QiError::InvalidPolicy),
+        };
         if amount == U256::ZERO
-            || explicit_fee > policy.max_fee
+            || fee > policy.max_fee
             || !(1..=1024).contains(&policy.max_inputs)
             || !(1..=1024).contains(&policy.max_outputs)
         {
@@ -113,88 +172,109 @@ impl<T: Transport> QiSession<'_, T> {
         let height = self
             .candidate_height(snapshot.generation, checkpoint, policy.max_snapshot_age)
             .await?;
-        let selection = select_fewest(
-            &snapshot.coins,
-            &SelectionRequest {
-                zone: scope.zone,
-                candidate_height: height,
-                target: amount,
-                fee: explicit_fee,
-                max_fee: policy.max_fee,
-                max_inputs: policy.max_inputs,
-                max_outputs: policy.max_outputs,
-            },
-        )?;
-        if selection.change_outputs.len() > change.addresses.len() {
-            return Err(QiError::InsufficientChange);
-        }
-        let mut inputs = Vec::with_capacity(selection.inputs.len());
-        for coin in &selection.inputs {
-            let address = metadata
-                .get(&coin.address.address())
-                .ok_or(QiError::IdentityMismatch)?;
-            let key = self.key_for(address)?;
-            inputs.push(QiInput {
-                previous_output: coin.outpoint,
-                public_key: key.public_key(),
+        for _ in 0..rounds {
+            let selection = select_fewest(
+                &snapshot.coins,
+                &SelectionRequest {
+                    zone: scope.zone,
+                    candidate_height: height,
+                    target: amount,
+                    fee,
+                    max_fee: policy.max_fee,
+                    max_inputs: policy.max_inputs,
+                    max_outputs: policy.max_outputs,
+                },
+            )?;
+            if selection.change_outputs.len() > change.addresses.len() {
+                return Err(QiError::InsufficientChange);
+            }
+            let mut inputs = Vec::with_capacity(selection.inputs.len());
+            for coin in &selection.inputs {
+                let address = metadata
+                    .get(&coin.address.address())
+                    .ok_or(QiError::IdentityMismatch)?;
+                let key = self.key_for(address)?;
+                inputs.push(QiInput {
+                    previous_output: coin.outpoint,
+                    public_key: key.public_key(),
+                });
+            }
+            let outputs = selection
+                .change_outputs
+                .iter()
+                .zip(&change.addresses)
+                .map(|(denomination, address)| QiOutput {
+                    denomination: *denomination,
+                    address: address.address(),
+                })
+                .collect();
+            let transaction = match intent {
+                QiSpecialIntent::Conversion(intent) => {
+                    QiSpecialTransaction::Conversion(QiConversionTransaction::new(
+                        scope.chain_id,
+                        inputs,
+                        selection.spend_outputs,
+                        outputs,
+                        intent,
+                    )?)
+                }
+                QiSpecialIntent::Wrapping(intent) => {
+                    QiSpecialTransaction::Wrapping(QiWrappingTransaction::new(
+                        scope.chain_id,
+                        inputs,
+                        selection.spend_outputs,
+                        outputs,
+                        intent,
+                    )?)
+                }
+            };
+            transaction.signing_digest()?;
+            let quote = match mode {
+                FeeMode::Explicit(_) => None,
+                FeeMode::Estimated(profile) => {
+                    let quote = self
+                        .provider
+                        .estimate_qi_special_fee(transaction.transaction(), profile)
+                        .await?;
+                    if quote.qits > policy.max_fee {
+                        return Err(SelectionError::FeeBudgetExceeded.into());
+                    }
+                    if quote.qits > fee {
+                        fee = quote.qits;
+                        continue;
+                    }
+                    Some(quote)
+                }
+            };
+            let final_height = self
+                .candidate_height(snapshot.generation, checkpoint, policy.max_snapshot_age)
+                .await?;
+            if selection.inputs.iter().any(|coin| {
+                coin.unlock_height > final_height
+                    || coin.expires_at.is_some_and(|end| final_height >= end)
+            }) {
+                return Err(QiError::StaleSnapshot);
+            }
+            self.store.reserve_qi(
+                id,
+                snapshot.generation,
+                final_height,
+                &selection
+                    .inputs
+                    .iter()
+                    .map(|coin| coin.outpoint)
+                    .collect::<Vec<_>>(),
+            )?;
+            return Ok(PreparedQiOperation {
+                instance: self.store.instance(),
+                scope,
+                id,
+                transaction,
+                fee,
+                quote,
             });
         }
-        let outputs = selection
-            .change_outputs
-            .iter()
-            .zip(&change.addresses)
-            .map(|(denomination, address)| QiOutput {
-                denomination: *denomination,
-                address: address.address(),
-            })
-            .collect();
-        let transaction = match intent {
-            QiSpecialIntent::Conversion(intent) => {
-                QiSpecialTransaction::Conversion(QiConversionTransaction::new(
-                    scope.chain_id,
-                    inputs,
-                    selection.spend_outputs,
-                    outputs,
-                    intent,
-                )?)
-            }
-            QiSpecialIntent::Wrapping(intent) => {
-                QiSpecialTransaction::Wrapping(QiWrappingTransaction::new(
-                    scope.chain_id,
-                    inputs,
-                    selection.spend_outputs,
-                    outputs,
-                    intent,
-                )?)
-            }
-        };
-        transaction.signing_digest()?;
-        let final_height = self
-            .candidate_height(snapshot.generation, checkpoint, policy.max_snapshot_age)
-            .await?;
-        if selection.inputs.iter().any(|coin| {
-            coin.unlock_height > final_height
-                || coin.expires_at.is_some_and(|end| final_height >= end)
-        }) {
-            return Err(QiError::StaleSnapshot);
-        }
-        self.store.reserve_qi(
-            id,
-            snapshot.generation,
-            final_height,
-            &selection
-                .inputs
-                .iter()
-                .map(|coin| coin.outpoint)
-                .collect::<Vec<_>>(),
-        )?;
-        Ok(PreparedQiOperation {
-            instance: self.store.instance(),
-            scope,
-            id,
-            transaction,
-            fee: explicit_fee,
-        })
+        Err(SelectionError::FeeDidNotConverge.into())
     }
     /// Sign a frozen specialized operation and persist its verified bytes before
     /// returning. `broadcast(reservation_id)` recovers/submits the exact operation.

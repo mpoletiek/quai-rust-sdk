@@ -80,9 +80,12 @@ selector's willingness to accept a fee shortfall.
 `PrivatePaymentCode` supports effective seeds, depth-zero master xprvs, and
 explicit depth-three payment-account xprvs. Account xprv import validates depth
 and account child but cannot prove the omitted ancestor path; the caller asserts
-`m/47'/969'`. Full native backups cover seed/master payment origins. Standalone
-account-xprv origins require a separate backup policy and are rejected by that
-full-wallet format.
+`m/47'/969'`. Full native backups cover seed/master payment origins and imported payment-account
+xprvs. `BackupOrigin::from_payment_account_xprv` stores the asserted account index
+and guarded key in authenticated QUAIWALT v3. Restore verifies every channel and
+receive exposure; the origin cannot derive BIP44 accounts or other payment accounts.
+Existing v1/v2 backups remain readable. A v3 backup cannot be downgraded by changing
+its version header.
 
 Exchange public codes out of band and register an owner-validated `PaymentChannel`
 using `SqliteStore::import_payment_channel`. `payment_channels::payment_intent`
@@ -115,14 +118,26 @@ Controller-discounted estimates are not guaranteed settlement amounts.
 
 `AccountSession::prepare_conversion` prepares Quai-to-Qi with explicit slippage,
 exact conversion simulation, balance/fee limits, durable nonce claims, and the
-usual frozen sign/broadcast stages. Pending-state RPC failures propagate; there
-is no silent substitution of latest balance/nonce observations.
+usual frozen sign/broadcast stages. The default pending-state policy propagates
+RPC failures. Select `AccountObservationPolicy::PinnedLatest` explicitly on nodes
+that lack working pending-state reads. Nonce, balance and simulation then share
+one numeric block selector, with head rechecks before reservation and return.
+This excludes mempool effects; the durable local nonce cursor still prevents local
+nonce reuse. Transfers, conversions and deployments use the same selected policy.
 
 `QiSession::prepare_special` accepts `QiSpecialIntent::Conversion` with destination,
 refund, slippage and an **explicit authorized fee in Qits**. The ordinary node fee
 estimator drops specialized data and is unsuitable for this operation.
-`estimate_qi_conversion_fee` remains an explicit capability error; caller-provided
-fees do not imply a qualified automatic quote. `sign_special` commits the exact
+`estimate_qi_conversion_fee` remains an explicit capability error without a selected
+node profile. `prepare_special_estimated` uses `QiFeeProfile::V056ShaAnchored` for
+known go-quai v0.56.0 nodes at/after prime 1,755,000. It quotes the exact selected
+shape, applies UTXO gas scaling plus one 100,000-gas special ETX charge, the node
+estimator’s 20% base-fee margin, and round-up conversion into Qits. Earlier fork
+state, inconsistent rates, changing sampled heads, fee-budget overflow, and
+nonconvergence fail before input reservation. `fee_quote()` retains the final
+advisory quote. Selecting a profile is a caller assertion of node rules, not
+software attestation; fees can still change before inclusion. The same planner
+supports native Qi wrapping. `sign_special` commits the exact
 verified conversion; normal session broadcast recovers the persisted operation.
 
 Use `ConversionReference` / `observe_conversion` for bounded origin, changed-hash

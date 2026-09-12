@@ -31,3 +31,15 @@ The SDK did not silently replace pending observations with latest state. Therefo
 The tested sequence was `init-fund`, one mined block, `account-prepare` (failed safely), `qi-prepare`, process exit, `qi-broadcast`, one mined block, and `verify-qi`. `account-broadcast` and full `verify` were not run because account preparation failed. The source contains the intended account deployment workflow for review, without labeling it live-qualified.
 
 All owned disposable node processes were gracefully stopped after the test. Ordinary and conversion data and funded snapshots remain preserved. Remaining limits include production discovery/index trust, independent security review, unmodified mature-node qualification, fee changes between signing and inclusion, crash during writes/import, and reorganization/reconciliation testing.
+
+## September 12: confirmed-state account workflow passed
+
+The SDK now exposes `AccountObservationPolicy::PinnedLatest`. The updated
+`highlevel_client.rs` explicitly selects it for account preparation. Against the
+same isolated development genesis, transfer and deployment preparation, persisted
+signatures, restart broadcast, canonical success receipts at height 6, and stored
+runtime `602a60005260206000f3` all passed. The full verifier also rechecked the prior
+Qi payment. Evidence is in [confirmed-account-evidence](confirmed-account-evidence/).
+The original pending-RPC failure evidence remains unchanged. This run did not patch
+the pending RPC or qualify an unmodified mature node; it exercised an explicit SDK
+state policy on the existing documented development profile.

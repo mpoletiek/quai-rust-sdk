@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import { portableInventory } from './inventory-paths.mjs';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -86,5 +87,5 @@ const result = {
 };
 const syntactic = program.getSyntacticDiagnostics();
 if (syntactic.length) throw new Error(`Reference has ${syntactic.length} syntax diagnostics`);
-writeFileSync(new URL('../api-inventory.json', import.meta.url), `${JSON.stringify(result, null, 2)}\n`);
+writeFileSync(new URL('../api-inventory.json', import.meta.url), `${JSON.stringify(portableInventory(result, base), null, 2)}\n`);
 console.log(JSON.stringify(result.counts));

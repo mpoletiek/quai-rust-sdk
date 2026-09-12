@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "reference": "quais@1.0.0-alpha.57",
-  "inventorySha256": "6b2685ffb67075dea853bc2ddaf3663e4c8a57338d595923904a48ec82115398",
+  "inventorySha256": "5c3a6b2dd117be0769f100365c564076882f5a740db9604e217d3c094046e9c9",
   "scope": "Every inventoried export and public class member; declaration tracking must be supplemented by semantic, overload, node, security and platform acceptance. Implemented does not mean release-qualified.",
   "entries": [
     {

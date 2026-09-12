@@ -51,8 +51,11 @@ impl Transport for Mock {
                 json!({"woHeader":{"hash": if mode == 4 { CHECKPOINT } else { GENESIS }, "number":"0x0","location":"0x","parentHash":format!("0x{}","00".repeat(32))}})
             }
             "quai_getHeaderByNumber" => {
-                json!({"woHeader":{"hash":if mode==5 {GENESIS} else {CHECKPOINT}, "number": if params[0]=="latest" && mode==6 {"0x11"} else {"0x10"},"location":"0x0000","parentHash":GENESIS,"primeTerminusNumber":"0x10"},"gasLimit":"0x100000","stateLimit":"0x100000"})
+                json!({"woHeader":{"hash":if mode==5 {GENESIS} else {CHECKPOINT}, "number": if params[0]=="latest" && mode==6 {"0x11"} else {"0x10"},"location":"0x0000","parentHash":GENESIS,"primeTerminusNumber": if mode==8 {"0x1ac778"} else {"0x10"}},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
             }
+            "quai_getLatestUTXOSetSize" => json!("0x1"),
+            "quai_quaiToQi" => json!("0x5"),
+            "quai_qiToQuai" => json!("0xffffffffff"),
             "quai_estimateFeeForQi" => {
                 if mode == 7 {
                     self.mode.store(6, Ordering::SeqCst);
@@ -1164,4 +1167,76 @@ async fn sweeps_and_cross_zone_transfers_use_durable_exact_payloads() {
     );
     session.sign(&prepared).unwrap();
     session.broadcast(id(94)).await.unwrap();
+}
+
+#[tokio::test]
+async fn specialized_estimates_converge_before_claims_and_enforce_budget_and_rounds() {
+    use quai_sdk::consensus::QiWrappingIntent;
+    use quai_sdk::provider::QiFeeProfile;
+    use quai_sdk::qi::QiSpecialIntent;
+    for failure in 0..=3 {
+        let mut env = setup();
+        env.mock.mode.store(8, Ordering::SeqCst);
+        let change = pool(&mut env, 0);
+        refresh(&mut env);
+        let mut limits = policy();
+        limits.initial_fee = U256::ZERO;
+        if failure == 1 {
+            limits.max_fee = U256::from(4);
+        }
+        if failure == 2 {
+            limits.max_fee_rounds = 1;
+        }
+        if failure == 3 {
+            env.mock.mode.store(0, Ordering::SeqCst);
+        }
+        let intent = QiSpecialIntent::Wrapping(QiWrappingIntent {
+            destination: "0x0000000000000000000000000000000000000001"
+                .parse()
+                .unwrap(),
+            owner_contract: "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+                .parse()
+                .unwrap(),
+        });
+        let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+        let result = session
+            .prepare_special_estimated(
+                id(92),
+                U256::from(5),
+                intent,
+                QiFeeProfile::V056ShaAnchored,
+                limits,
+                change,
+            )
+            .await;
+        match failure {
+            0 => {
+                let prepared = result.unwrap();
+                assert_eq!(prepared.fee(), U256::from(5));
+                assert_eq!(prepared.fee_quote().unwrap().qits, U256::from(5));
+                assert_eq!(prepared.transaction().transaction().inputs.len(), 2);
+                assert_eq!(count_calls(&env.mock, "quai_quaiToQi"), 2);
+                session.sign_special(&prepared).unwrap();
+            }
+            1 => assert!(matches!(
+                result,
+                Err(QiError::Selection(SelectionError::FeeBudgetExceeded))
+            )),
+            2 => assert!(matches!(
+                result,
+                Err(QiError::Selection(SelectionError::FeeDidNotConverge))
+            )),
+            3 => assert!(matches!(
+                result,
+                Err(QiError::Provider(
+                    quai_sdk::provider::ProviderError::ConversionFeeEstimationUnavailable
+                ))
+            )),
+            _ => unreachable!(),
+        }
+        if failure != 0 {
+            assert!(env.store.reservation(id(92)).unwrap().is_none());
+        }
+        assert_eq!(count_calls(&env.mock, "quai_estimateFeeForQi"), 0);
+    }
 }

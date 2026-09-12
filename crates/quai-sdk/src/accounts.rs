@@ -136,6 +136,102 @@ pub struct AccountSession<'a, T, S> {
     store: &'a mut SqliteStore,
 }
 impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
+    /// Prepare a same-zone native Quai-to-Qi conversion with exact slippage.
+    /// Estimation failure after reservation retains an unsigned nonce for recovery.
+    /// Existing `sign` and `broadcast` persist and submit the frozen conversion.
+    pub async fn prepare_conversion(
+        &mut self,
+        id: ReservationId,
+        destination: quai_primitives::QiAddress,
+        value: U256,
+        slippage: quai_consensus::ConversionSlippage,
+        policy: FeePolicy,
+    ) -> Result<PreparedAccountTransaction, AccountError> {
+        let sender = QuaiAddress::try_from(self.signer.address())
+            .map_err(|_| AccountError::IdentityMismatch)?;
+        if destination.zone() != sender.zone()
+            || policy.max_gas == 0
+            || policy.gas_margin_bps > 10_000
+        {
+            return Err(AccountError::InvalidOperation);
+        }
+        let mut transaction = QuaiTransaction {
+            chain_id: self.store.scope().chain_id,
+            nonce: 0,
+            to: Some(destination.address()),
+            value,
+            gas_limit: policy.max_gas,
+            gas_price: U256::ZERO,
+            data: slippage.to_be_bytes().to_vec(),
+            access_list: vec![],
+        };
+        quai_consensus::QuaiToQiTransaction::new(transaction.clone())
+            .map_err(|_| AccountError::InvalidOperation)?;
+        self.verify_network().await?;
+        let pending = self
+            .provider
+            .transaction_count(sender, BlockTag::Pending)
+            .await?;
+        transaction.gas_price = self.provider.gas_price(sender.zone()).await?;
+        if transaction.gas_price > policy.max_gas_price {
+            return Err(AccountError::FeeLimit);
+        }
+        // Estimate the pending nonce first; repeat against the actual reserved
+        // nonce when concurrent operations advanced the durable cursor.
+        transaction.nonce = pending;
+        let (mut gas, mut fee) = self.quote_conversion(sender, &transaction, policy).await?;
+        transaction.nonce = self.store.reserve_nonce(id, sender, pending)?;
+        if transaction.nonce != pending {
+            (gas, fee) = self.quote_conversion(sender, &transaction, policy).await?;
+        }
+        transaction.gas_limit = gas;
+        let digest = transaction
+            .signing_digest()
+            .map_err(|_| AccountError::InvalidOperation)?;
+        Ok(PreparedAccountTransaction {
+            instance: self.store.instance(),
+            id,
+            sender,
+            genesis: self.store.scope().genesis,
+            transaction,
+            maximum_fee: fee,
+            digest,
+        })
+    }
+    async fn quote_conversion(
+        &self,
+        sender: QuaiAddress,
+        transaction: &QuaiTransaction,
+        policy: FeePolicy,
+    ) -> Result<(u64, U256), AccountError> {
+        let typed = quai_consensus::QuaiToQiTransaction::new(transaction.clone())
+            .map_err(|_| AccountError::InvalidOperation)?;
+        let estimate = self
+            .provider
+            .estimate_quai_conversion_gas(sender, &typed, BlockTag::Pending)
+            .await?;
+        let gas =
+            (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);
+        if gas == 0 || gas > u128::from(policy.max_gas) {
+            return Err(AccountError::FeeLimit);
+        }
+        let gas = gas as u64;
+        let fee = transaction
+            .gas_price
+            .checked_mul(U256::from(gas))
+            .ok_or(AccountError::FeeLimit)?;
+        if fee > policy.max_total_fee {
+            return Err(AccountError::FeeLimit);
+        }
+        if fee
+            .checked_add(transaction.value)
+            .ok_or(AccountError::FeeLimit)?
+            > self.provider.balance(sender, BlockTag::Pending).await?
+        {
+            return Err(AccountError::InsufficientBalance);
+        }
+        Ok((gas, fee))
+    }
     /// Bind handles without network access. The sender must already be registered
     /// in storage through validated public-key metadata.
     pub fn new(
@@ -298,6 +394,26 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         intent: AccountIntent,
         policy: FeePolicy,
     ) -> Result<PreparedAccountTransaction, AccountError> {
+        self.prepare_account(id, intent, policy, false).await
+    }
+    /// Prepare an existing unsigned nonce after restart or failed estimation.
+    /// Explicitly reopen a released nonce in storage first. A zero-value self
+    /// transfer can fill a gap; the resulting payload still requires review/sign.
+    pub async fn prepare_reserved(
+        &mut self,
+        id: ReservationId,
+        intent: AccountIntent,
+        policy: FeePolicy,
+    ) -> Result<PreparedAccountTransaction, AccountError> {
+        self.prepare_account(id, intent, policy, true).await
+    }
+    async fn prepare_account(
+        &mut self,
+        id: ReservationId,
+        intent: AccountIntent,
+        policy: FeePolicy,
+        reuse: bool,
+    ) -> Result<PreparedAccountTransaction, AccountError> {
         let sender = QuaiAddress::try_from(self.signer.address())
             .map_err(|_| AccountError::IdentityMismatch)?;
         if intent.to.zone() != sender.zone() {
@@ -329,13 +445,32 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         if gas_price > policy.max_gas_price {
             return Err(AccountError::FeeLimit);
         }
+        let reserved_nonce = if reuse {
+            if self
+                .store
+                .reservation(id)?
+                .is_none_or(|record| record.state != ReservationState::Reserved)
+            {
+                return Err(AccountError::InvalidOperation);
+            }
+            let (owner, nonce) = self
+                .store
+                .reserved_nonce(id)?
+                .ok_or(AccountError::InvalidOperation)?;
+            if owner != sender || nonce < pending_nonce {
+                return Err(AccountError::InvalidOperation);
+            }
+            Some(nonce)
+        } else {
+            None
+        };
         let request = CallRequest {
             from: sender,
             to: Some(intent.to),
             gas: Some(policy.max_gas),
             gas_price: Some(gas_price),
             value: Some(intent.value),
-            nonce: Some(pending_nonce),
+            nonce: Some(reserved_nonce.unwrap_or(pending_nonce)),
             input: intent.data,
             access_list: transaction
                 .access_list
@@ -347,8 +482,11 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
                 .collect(),
         };
         let (mut gas, mut fee) = self.quote_fee(&request, policy).await?;
-        transaction.nonce = self.store.reserve_nonce(id, sender, pending_nonce)?;
-        if transaction.nonce != pending_nonce {
+        transaction.nonce = match reserved_nonce {
+            Some(nonce) => nonce,
+            None => self.store.reserve_nonce(id, sender, pending_nonce)?,
+        };
+        if !reuse && transaction.nonce != pending_nonce {
             // Another reservation or a restart may advance the durable cursor beyond
             // the node's pending observation. Never authorize the unestimated nonce.
             let mut actual = request;

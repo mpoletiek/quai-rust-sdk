@@ -48,3 +48,15 @@ required-features = ["wallet"]
 
 [lints]
 workspace = true
+
+[[example]]
+name = "qi_scan"
+required-features = ["http", "sqlite"]
+
+[[example]]
+name = "wrapper_intents"
+required-features = ["http", "abi"]
+
+[[example]]
+name = "payment_codes"
+required-features = ["payments"]

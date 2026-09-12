@@ -169,6 +169,44 @@ impl PrivatePaymentCode {
                 )
                 .map_err(|_| PaymentError::Derivation)?;
         }
+        Self::from_account_root(root, account)
+    }
+    /// Import a canonical depth-zero xprv and derive m/47'/969'/account'.
+    /// The caller owns and must protect the input string; errors redact it.
+    pub fn from_master_xprv(encoded: &str, account: u32) -> Result<Self, PaymentError> {
+        let mut root = parse_xprv(encoded)?;
+        let attrs = root.attrs();
+        if attrs.depth != 0
+            || attrs.child_number.0 != 0
+            || attrs.parent_fingerprint != [0; 4]
+            || account >= HARDENED_INDEX
+        {
+            return Err(PaymentError::InvalidIndex);
+        }
+        for index in [47, QUAI_PAYMENT_COIN, account] {
+            root = root
+                .derive_child(
+                    ChildNumber::new(index, true).map_err(|_| PaymentError::InvalidIndex)?,
+                )
+                .map_err(|_| PaymentError::Derivation)?;
+        }
+        Self::from_account_root(root, account)
+    }
+    /// Import a depth-three hardened payment-account xprv. The serialized key
+    /// cannot prove its ancestors: the caller explicitly asserts m/47'/969'.
+    /// Preserve this account origin separately; full wallet backups accept seed
+    /// and master-xprv payment origins, not standalone account-xprv origins.
+    pub fn from_account_xprv(encoded: &str, account: u32) -> Result<Self, PaymentError> {
+        let root = parse_xprv(encoded)?;
+        if account >= HARDENED_INDEX
+            || root.attrs().depth != 3
+            || root.attrs().child_number.0 != account + HARDENED_INDEX
+        {
+            return Err(PaymentError::InvalidIndex);
+        }
+        Self::from_account_root(root, account)
+    }
+    fn from_account_root(root: XPrv, account: u32) -> Result<Self, PaymentError> {
         let public = root.public_key();
         let mut bytes = [0; 80];
         bytes[0] = 1;
@@ -254,6 +292,17 @@ fn child(index: u32) -> Result<ChildNumber, PaymentError> {
 fn secret(node: &XPrv) -> Result<SecretKey, PaymentError> {
     let bytes = Zeroizing::new(node.to_bytes());
     SecretKey::from_bytes(&bytes).map_err(|_| PaymentError::Derivation)
+}
+
+fn parse_xprv(encoded: &str) -> Result<XPrv, PaymentError> {
+    if encoded.len() > ExtendedKey::MAX_BASE58_SIZE {
+        return Err(PaymentError::Derivation);
+    }
+    let extended = ExtendedKey::from_str(encoded).map_err(|_| PaymentError::Derivation)?;
+    if extended.prefix != Prefix::XPRV {
+        return Err(PaymentError::Derivation);
+    }
+    XPrv::try_from(extended).map_err(|_| PaymentError::Derivation)
 }
 
 #[cfg(test)]

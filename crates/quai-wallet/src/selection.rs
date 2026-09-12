@@ -82,6 +82,107 @@ pub enum SelectionError {
     EstimationFailed,
 }
 
+/// Output policy for spending every eligible coin in a bounded snapshot.
+#[derive(Clone, Copy, Debug)]
+pub enum SweepMode {
+    /// Preserve input denomination capacity, valid at any Qi position in a block.
+    PreserveDenominations,
+    /// Combine denominations, requiring the node's first-Qi-transaction block
+    /// exception. Mempool acceptance does not guarantee eligible block placement.
+    Aggregate {
+        /// Largest output denomination permitted by the caller.
+        maximum: Denomination,
+    },
+}
+
+/// Spend every eligible, unreserved coin with no change. `request.target` must
+/// be zero; output value is total minus the explicit fee. Exceeding an input
+/// bound fails instead of silently leaving coins behind. Aggregation must reduce
+/// output count and may need a node capable of arranging first-Qi block placement.
+pub fn select_sweep(
+    coins: &[CandidateCoin],
+    request: &SelectionRequest,
+    mode: SweepMode,
+) -> Result<CoinSelection, SelectionError> {
+    if request.target != U256::ZERO
+        || request.fee > request.max_fee
+        || !(1..=4096).contains(&request.max_inputs)
+        || !(1..=4096).contains(&request.max_outputs)
+    {
+        return Err(SelectionError::InvalidRequest);
+    }
+    if coins.len() > 100_000 {
+        return Err(SelectionError::LimitExceeded);
+    }
+    let mut seen = BTreeSet::new();
+    let mut inputs = Vec::new();
+    let mut capacity = [0u64; 15];
+    let mut total = U256::ZERO;
+    for coin in coins {
+        let hash = coin.outpoint.transaction_hash.bytes();
+        if !seen.insert(coin.outpoint)
+            || hash[2] != coin.address.zone().byte()
+            || hash[3] & 0x80 == 0
+        {
+            return Err(SelectionError::InvalidCoin);
+        }
+        if coin.address.zone() != request.zone
+            || coin.reserved
+            || coin.unlock_height > request.candidate_height
+            || coin
+                .expires_at
+                .is_some_and(|end| request.candidate_height >= end)
+        {
+            continue;
+        }
+        if inputs.len() == request.max_inputs {
+            return Err(SelectionError::LimitExceeded);
+        }
+        capacity[usize::from(coin.denomination.index())] += 1;
+        total = total
+            .checked_add(U256::from(coin.denomination.value()))
+            .ok_or(SelectionError::Overflow)?;
+        inputs.push(coin.clone());
+    }
+    if total <= request.fee {
+        return Err(SelectionError::InsufficientFunds);
+    }
+    let value = total - request.fee;
+    let spend_outputs = match mode {
+        SweepMode::PreserveDenominations => {
+            denominate_available(value, &mut capacity, request.max_outputs)?
+        }
+        SweepMode::Aggregate { maximum } => {
+            let mut remaining = value;
+            let mut outputs = Vec::new();
+            for i in (0..=maximum.index()).rev() {
+                let denomination = Denomination::new(i).map_err(|_| SelectionError::InvalidCoin)?;
+                let unit = U256::from(denomination.value());
+                let count = remaining / unit;
+                if count > U256::from(request.max_outputs - outputs.len()) {
+                    return Err(SelectionError::LimitExceeded);
+                }
+                outputs.extend(std::iter::repeat_n(denomination, count.to::<usize>()));
+                remaining %= unit;
+            }
+            if outputs.len() >= inputs.len() {
+                return Err(SelectionError::InvalidRequest);
+            }
+            outputs
+        }
+    };
+    if inputs.len() * 3 + spend_outputs.len() + 3 > MAX_TRANSACTION_MESSAGES {
+        return Err(SelectionError::LimitExceeded);
+    }
+    Ok(CoinSelection {
+        inputs,
+        spend_outputs,
+        change_outputs: vec![],
+        input_value: total,
+        fee: request.fee,
+    })
+}
+
 /// Match the reference's fewest-input policy: smallest sufficient single coin,
 /// otherwise descending-value greedy inputs. No exponential subset search.
 pub fn select_fewest(
@@ -154,15 +255,14 @@ pub fn select_fewest(
     if total < required {
         return Err(SelectionError::InsufficientFunds);
     }
-    let maximum = chosen
-        .iter()
-        .map(|c| c.denomination)
-        .max()
-        .ok_or(SelectionError::InsufficientFunds)?;
-    let spend_outputs = denominate(request.target, maximum, request.max_outputs)?;
-    let change_outputs = denominate(
+    let mut capacity = [0u64; 15];
+    for coin in &chosen {
+        capacity[usize::from(coin.denomination.index())] += 1;
+    }
+    let spend_outputs = denominate_available(request.target, &mut capacity, request.max_outputs)?;
+    let change_outputs = denominate_available(
         total - required,
-        maximum,
+        &mut capacity,
         request.max_outputs - spend_outputs.len(),
     )?;
     if chosen.len() * 3 + spend_outputs.len() + change_outputs.len() + 3 > MAX_TRANSACTION_MESSAGES
@@ -178,25 +278,44 @@ pub fn select_fewest(
     })
 }
 
-fn denominate(
+// Ordinary transactions may split denominations, but cannot combine smaller
+// inputs into larger outputs. Consume a shared inventory for recipient + change.
+// Borrow only the coins needed from larger denominations, preserving large change.
+fn denominate_available(
     mut value: U256,
-    maximum: Denomination,
+    capacity: &mut [u64; 15],
     max_outputs: usize,
 ) -> Result<Vec<Denomination>, SelectionError> {
     let mut result = Vec::new();
-    for i in (0..=maximum.index()).rev() {
-        let d = Denomination::new(i).map_err(|_| SelectionError::InvalidCoin)?;
-        let unit = U256::from(d.value());
-        let count = value / unit;
-        if count > U256::from(max_outputs - result.len()) {
-            return Err(SelectionError::LimitExceeded);
+    for i in (0..15).rev() {
+        let denomination = Denomination::new(i as u8).map_err(|_| SelectionError::InvalidCoin)?;
+        let unit = U256::from(denomination.value());
+        while value >= unit {
+            let Some(source) = (i..15).find(|&j| capacity[j] > 0) else {
+                break;
+            };
+            if result.len() == max_outputs {
+                return Err(SelectionError::LimitExceeded);
+            }
+            for j in (i + 1..=source).rev() {
+                capacity[j] -= 1;
+                let larger = Denomination::new(j as u8)
+                    .map_err(|_| SelectionError::InvalidCoin)?
+                    .value();
+                let smaller = Denomination::new((j - 1) as u8)
+                    .map_err(|_| SelectionError::InvalidCoin)?
+                    .value();
+                capacity[j - 1] = capacity[j - 1]
+                    .checked_add(larger / smaller)
+                    .ok_or(SelectionError::Overflow)?;
+            }
+            capacity[i] -= 1;
+            value -= unit;
+            result.push(denomination);
         }
-        let count = count.to::<usize>();
-        result.extend(std::iter::repeat_n(d, count));
-        value %= unit;
     }
     if value != U256::ZERO {
-        return Err(SelectionError::InvalidCoin);
+        return Err(SelectionError::InsufficientFunds);
     }
     Ok(result)
 }

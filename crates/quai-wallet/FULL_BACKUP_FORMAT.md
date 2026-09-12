@@ -17,8 +17,8 @@ Do not describe it as a complete backup of an application that owns such state.
 | Imported or generated standalone private key | Exact scalar through guarded `SecretBytes` | Validate public ownership; recover guarded `SecretKey` |
 | Account/coin-level xprv | Unsupported | Reject; never reinterpret as a master |
 | Watch-only/public-only ownership | Unsupported in this encrypted spending-backup API | Every included HD/imported public record must have a supplied secret owner |
-| SQLite-registered BIP47 channels backed by supplied effective seeds | v2 preserves all owner/peer/account identities, eighteen cursors, burned exposure ranges and public destinations | Re-derive m/47'/969'/account'; validate exact owner, peer and every receive/send point |
-| Payment accounts from imported private payment nodes or master xprv | Unsupported | Seed origin is currently required for channel ownership |
+| SQLite-registered BIP47 channels backed by supplied seeds or master xprvs | v2 preserves all owner/peer/account identities, eighteen cursors, burned exposure ranges and public destinations | Re-derive m/47'/969'/account'; validate exact owner, peer and every receive/send point |
+| Standalone account-level private payment nodes | Unsupported | Preserve separately; never reinterpret as a seed/master |
 | External application-held payment channels | Not inventoried | Explicitly register/import into this database before capture, or back up separately |
 
 A seed origin can cover both coin types and all included accounts/zones. A backup
@@ -33,7 +33,8 @@ transaction. It retains chain/genesis/zone identity, immutable public address an
 HD-origin metadata, account xpub bindings, burned receive/change derivation bounds,
 account nonce cursors, operation IDs and states, held Qi claims and their owners,
 account nonce allocations, caller-observed inclusion metadata and canonical signed
-payload bytes when available. Released operation IDs remain consumed. Schema v2 also
+payload bytes when available, including verified ordinary Qi, conversions and
+wrapping. Older SDKs without specialized decoding will reject those operations. Released operation IDs remain consumed. Schema v2 also
 captures every registered payment channel and public exposure in that same transaction.
 
 Capture rejects unknown native database tables or columns. This catches unsupported
@@ -49,7 +50,7 @@ public key and address; imported-key proof matches the full public key. Cursor
 xpubs must match a derived account. Signed bytes are re-decoded and their signatures,
 chain identity, sender/nonce or exact Qi input/owner set and transaction hash checked.
 Public fields cannot substitute for possession of the corresponding backup secret.
-For v2, every channel must match a supplied seed-derived private payment owner.
+For v2, every channel must match a supplied seed/master-derived private payment owner.
 Every exposure is re-derived using its exact peer, direction, zone and child index;
 its burned range must contain that index and not exceed the stored channel cursor.
 Only verified receive exposures can prove ownership of corresponding imported-public
@@ -73,7 +74,8 @@ reports new generations and signed/hash-only operations from the backup that rem
 held for reconciliation. Existing target operations may have additional outstanding
 reconciliation requirements. Block inclusion observations are not treated as finality
 proofs. A hash-only signed operation remains reserved but lacks bytes for rebroadcast.
-Verified release/replacement/reorg reconciliation is still a separate missing layer.
+The facade reconciles canonical origin inclusion without releasing signed claims.
+Signed replacement graphs and automatic terminal release remain unimplemented.
 
 ## Binary envelope
 

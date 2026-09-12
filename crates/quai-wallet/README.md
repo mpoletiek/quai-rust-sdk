@@ -112,7 +112,10 @@ conformance tests, not node qualification or a security audit of the wallet.
 
 Native authenticated database-state backup with explicit seed/master-xprv/imported-key
 owners is documented in [FULL_BACKUP_FORMAT.md](FULL_BACKUP_FORMAT.md). It includes
-burned ranges, retained claims and SQLite-registered seed-owned BIP47 channels,
+burned ranges, retained claims and SQLite-registered seed/master-owned BIP47 channels,
 invalidates snapshots on restore, and excludes external application-held channels
 and other uninventoried state. The `sqlite` feature enables durable payment cursors
 and ownership-verified QUAIWALT v2 channel backups; legacy v1 decoding is preserved.
+
+Current gap-50 Qi RPC discovery, mixed-origin sessions, payment channel orchestration,
+sweep/aggregation and recovery are described in the [facade workflow guide](../../docs/WALLET_WORKFLOWS.md).

@@ -165,3 +165,67 @@ fn fee_convergence_uses_final_shape_and_respects_authorized_budget() {
         Err(SelectionError::FeeDidNotConverge)
     );
 }
+
+#[test]
+fn output_capacity_cannot_combine_small_coins_in_ordinary_transfers() {
+    let selected = select_fewest(&[coin(0, 2), coin(1, 1), coin(2, 1)], &request(20, 0)).unwrap();
+    assert_eq!(
+        selected
+            .spend_outputs
+            .iter()
+            .map(|d| d.value())
+            .collect::<Vec<_>>(),
+        [10, 5, 5]
+    );
+    for target in 1..20 {
+        let selected =
+            select_fewest(&[coin(0, 2), coin(1, 1), coin(2, 1)], &request(target, 1)).unwrap();
+        let input: u64 = selected
+            .inputs
+            .iter()
+            .filter(|c| c.denomination.value() >= 10)
+            .map(|c| c.denomination.value())
+            .sum();
+        let output: u64 = selected
+            .spend_outputs
+            .iter()
+            .chain(&selected.change_outputs)
+            .filter(|d| d.value() >= 10)
+            .map(|d| d.value())
+            .sum();
+        assert!(output <= input);
+        assert_eq!(
+            selected
+                .spend_outputs
+                .iter()
+                .map(|d| d.value())
+                .sum::<u64>(),
+            target
+        );
+    }
+}
+#[test]
+fn sweep_limits_locks_fee_and_aggregation_are_explicit() {
+    use quai_wallet::{SweepMode, select_sweep};
+    let mut req = request(0, 0);
+    let mut locked = coin(2, 6);
+    locked.unlock_height = U256::from(101);
+    let coins = [coin(0, 1), coin(1, 1), locked];
+    let preserved = select_sweep(&coins, &req, SweepMode::PreserveDenominations).unwrap();
+    assert_eq!(preserved.inputs.len(), 2);
+    assert_eq!(preserved.spend_outputs.len(), 2);
+    let aggregate = select_sweep(
+        &coins,
+        &req,
+        SweepMode::Aggregate {
+            maximum: Denomination::new(14).unwrap(),
+        },
+    )
+    .unwrap();
+    assert_eq!(aggregate.spend_outputs[0].value(), 10);
+    req.max_inputs = 1;
+    assert!(select_sweep(&coins, &req, SweepMode::PreserveDenominations).is_err());
+    req.max_inputs = 100;
+    req.fee = U256::from(10);
+    assert!(select_sweep(&coins, &req, SweepMode::PreserveDenominations).is_err());
+}

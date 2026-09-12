@@ -5,8 +5,16 @@ pub mod accounts;
 pub mod contracts;
 #[cfg(all(feature = "wallet", not(target_arch = "wasm32")))]
 pub mod discovery;
+#[cfg(all(feature = "sqlite", feature = "payments", not(target_arch = "wasm32")))]
+pub mod payment_channels;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod qi;
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+pub mod qi_discovery;
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+pub mod recovery;
+#[cfg(feature = "abi")]
+pub mod wrappers;
 #[cfg(feature = "abi")]
 pub use quai_abi as abi;
 #[cfg(feature = "browser")]

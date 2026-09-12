@@ -8,7 +8,8 @@ and browser adapters.
 **Development status:** `0.1.0-alpha.1`, with breaking changes expected. This
 project is not feature complete or production-qualified for real-fund custody.
 The repository is MIT licensed; crates.io publication remains disabled.
-See [implementation status](IMPLEMENTATION_STATUS.md), [wallet gaps](docs/WALLET_GAPS.md)
+See [implementation status](IMPLEMENTATION_STATUS.md),
+[feature completeness review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md), [wallet gaps](docs/WALLET_GAPS.md)
 and the [security review](docs/SECURITY_REVIEW_2026-09-11.md) before integrating it.
 
 ## Getting started
@@ -101,7 +102,7 @@ The facade crate is named **`quai-sdk`**. Its default features are `http` and `w
 | `ws` | Native WebSocket transport and subscriptions |
 | `sqlite` | Native durable wallet state and account/Qi session workflows; includes `wallet` |
 | `abi` | ABI/EIP-712 support and contract, token, event and deployment helpers |
-| `payments` | BIP47 payment codes and channel address derivation |
+| `payments` | BIP47 codes and derivation; with `sqlite`, channel scan and send preparation |
 | `keystore` | Legacy v3 JSON keystore import and native export |
 | `browser` | Wasm Fetch and injected-wallet adapters |
 
@@ -140,6 +141,7 @@ signed bytes, then submit those exact bytes. A timeout or cancellation may happe
 after the node receives a transaction: signed reservations remain held for recovery.
 Unsigned prepared objects are bound to the exact open wallet-store handle.
 
+- [Current wallet workflows](docs/WALLET_WORKFLOWS.md): gap-50 Qi scans, payment codes, mixed-origin sends, conversions, wrappers, sweep and recovery.
 - [Account workflow](docs/account-workflow.md): nonce reservation, fee limits, deployment and restart behavior.
 - [Qi workflow](docs/qi-transactions.md): change allocation, qualified discovery, bounded fee convergence and input claims.
 - [Conversion support](docs/conversions.md): signed intents, correlation, refunds and unverified spendability.

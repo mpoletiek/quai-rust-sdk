@@ -1,10 +1,13 @@
 # Wallet SDK gaps and completion criteria
 
-Updated 2026-09-11 after validating the user-supplied LAN mainnet node.
+Updated 2026-09-12 after reviewing public APIs, tests and pinned reference source.
+See the [feature completeness review](FEATURE_COMPLETENESS_REVIEW_2026-09-12.md)
+for evidence, priorities and acceptance criteria FC01–FC12. Node observations
+below retain their original 2026-09-11 qualification boundary.
 
 **The target is a feature-complete SDK for both Quai and Qi wallet applications.**
-Keys, HD derivation, offline signing, seed backup, ordinary Qi selection, typed
-wallet reads and durable state are implemented. End-to-end recovery, remaining
+Keys, HD derivation, current gap-50 Qi discovery, mixed-origin signing, payment
+channels, conversion sessions, wrapping adapters and durable state are implemented. End-to-end recovery, remaining
 protocol operations and release qualification are unfinished.
 
 The [audited plan](../QUAI_RUST_SDK_PLAN.md) remains the complete specification.
@@ -18,20 +21,25 @@ counts are not a defensible percentage of engineering or security completion.
 |---|---|---|
 | Addresses/amounts | Checksums, public-key address/recovery, exact decimals and contract prediction | Remaining byte/encoding/fixed-number utilities; higher-level deployment lifecycle |
 | Keys/identity | OS key entropy, ECDSA/Schnorr/ordered local aggregation, all BIP39 wordlists/passphrases, BIP32 | Broader browser/platform qualification and independent security review |
-| Quai wallets | Local/watch-only signing, coin 994 HD/grinding, message/typed data; durable prepared account workflow | Imported-wallet lifecycle, gap repair/replacement reconciliation, funded Orchard workflows |
+| Quai wallets | Local/watch-only and HD signing, durable account/conversion sessions, master-xprv restore and unsigned nonce-gap repair | Signed replacement lifecycle and funded Orchard workflows |
 | Quai transactions | Canonical protobuf, nonce claims, offline signing, exact stored broadcast, confirmation polling | Stateful replacement/drop/reorg reconciliation, ETX lifecycle, full supported extensions |
-| Qi wallets | Coin 969 HD/watch-only, receive/change derivation and explicit indices | History-aware discovery/deep scan/sync and atomic exposed-index allocation in progress; history and reorg recovery |
-| Qi transactions | Outpoints/denominations, strict ordinary wire/signatures, multi-input local MuSig, selection/fee loop | Integrated selection/change/reservation/send in progress; trim profiles and unmodified/testnet acceptance |
-| Payment codes/conversion | BIP47 codes, owned channel metadata and exact JS/independent derivation vectors | Seed-owned durable channels/backups pass; imported private payment origins, Quai↔Qi conversion, wrapping/redemption, slippage/refund/maturity/recovery |
-| Backup/persistence | Authenticated seed and full-wallet native backups; seed/master/imported-key origins, monotonic claims/cursors, signed bytes and checkpoint invalidation | Expanded payment-key origins, broader JS keystore interchange, browser persistence and complete reorg recovery |
-| Wallet RPC | Typed headers/genesis/transactions/ETXs/receipts/calls/outpoints, nonce/fees, exact broadcast | Remaining full RPCs, batches/custom authentication, conversion methods, capability/fork profiles |
+| Qi wallets | HD/watch-only derivation, current gap-50 receive/change scan, deep ranges, imported/channel refresh, exact balance buckets and atomic exposure allocation | Fully historical recovery and ancestry replay; latest-only RPC limits remain explicit (FC01/03) |
+| Qi transactions | Mixed HD/imported/BIP47 signing, exact fee preparation, full denomination capacity, sweep/explicit aggregation, cross-zone Qi preparation and durable recovery | Qualified block placement for aggregation, trim profiles and funded unmodified/testnet acceptance (FC02/08) |
+| Payment codes | BIP47 seed/master/account-xprv identities, registered send-to-code and receive gap/deep scan, mixed-origin spending, authenticated seed/master channel backup | Notification/code-exchange discovery and account-xprv full-backup support (FC07) |
+| Quai↔Qi conversions | Explicit types, typed quotes/calculation, durable prepared sessions, signed backup/recovery and bounded conversion/refund ETX correlation | Automatic specialized fees and independently attributed maturity/reorg settlement (FC04) |
+| Qi wrapping/redemption | Native 20-byte wire/signing, durable sessions, WQI backing/claim/ERC-20/redemption adapter and dust/gas guards | Qualified automatic fees, persistent redemption ETXs and mature output acceptance (FC05) |
+| Wrapped Quai | Confirmed address constants, deposit/withdraw adapter, ERC-20 operations and runnable offline example; mainnet code presence observed | Orchard access (HTTP 403), implementation qualification and funded deposit/withdraw acceptance (FC06) |
+| Backup/persistence | Authenticated native seed/master/imported-key backups, seed/master payment channels, exact signed conversion/wrapping bytes, monotonic claims/cursors and inclusion invalidation | Account-level payment-xprv origins, browser persistence and comprehensive replacement/reorg lifecycle |
+| Wallet RPC | Existing typed reads plus conversion rates/calculation, specialized account estimation, wrapped deposits, bounded multi-address outpoints and strict inclusive delta queries | Remaining RPC mapping, supported automatic specialized fees and verified historical index profiles |
 | Live wallet state | Native WS tested on LAN/Orchard, bounded subscriptions and explicit termination, canonical receipt polling | Reconnect/backfill, complete pending/replaced/dropped/reorg state machine and cross-zone tracking |
-| Contracts/dapps | Bounded ABI/EIP-712, ERC-20 calls/intents, events, CREATE grinding with required access list, verified injected message/typed signatures | Integrated deployment/send tracking, real injected-extension qualification and broader dapp workflows |
+| Contracts/dapps | Bounded ABI/EIP-712, ERC-20 calls/intents, events, durable account deployment preparation with CREATE grinding/access list, verified injected message/typed signatures | Deployment/code confirmation and reorg tracking, high-level account node compatibility, real injected-extension qualification and broader dapp workflows |
 | Platforms/release | Linux native tests, JS+Go differential oracles, real reads/subscriptions | Real Chromium Fetch/injected/HD-signing worker tests pass; Windows/macOS, unmodified/testnet acceptance, fuzz/fault/reorg/soak, benchmarks, security review and packaging |
 
 History must report the limits of the connected node or required indexer. A
 current outpoint query cannot establish historical address use or recover fully
 spent gaps. Missing history/index capabilities must not look like full recovery.
+
+See [wallet workflows](WALLET_WORKFLOWS.md) for public APIs and runnable examples.
 
 ## Wallet acceptance gates
 
@@ -99,18 +107,19 @@ transactions with documented patches; it still needs broader double-spend,
 fault, reorg and crash-recovery qualification. See [harness evidence](../test-infra/local-chain/README.md). A mature mainnet node does not replace that
 environment. No mainnet transaction or wallet mutation was performed.
 
-## Implementation order
+## Remaining implementation order
 
-1. Retain the LAN profile, expand identity/capability checks, and create the
-   per-behavior tracker. Complete browser feasibility alongside native work.
-2. Freeze consensus codecs/preimages and crypto vectors; implement safe keys,
-   mnemonic/HD derivation and message signing for both ledgers.
-3. Deliver an end-to-end Quai wallet with secure backup, nonce management,
-   signing/send/tracking and contracts/tokens, qualified on testnet.
-4. Deliver Qi signing/selection, durable UTXO recovery, payment codes and
-   conversion, including multi-input and restart/reorg acceptance tests.
-5. Complete provider/WS/browser parity, all reference examples, cross-platform
-   and security/performance gates; reconcile every tracker row before beta.
+1. Supply production Qi discovery and common durable transaction/reorg
+   reconciliation (FC01/03).
+2. Extend Qi signing origins and complete payment-channel receive/send/spend
+   workflows (FC02/07).
+3. Complete qualified conversion quotes/fees, durable sessions and settlement
+   tracking (FC04).
+4. Add Qi wrapping/redemption and supported wrapped Quai contract workflows
+   (FC05/06).
+5. Close consolidation/cross-zone, account, provider/WS/browser, examples and
+   declaration mapping gaps; complete independent release qualification
+   (FC08–12).
 
 Existing passing tests cover the implemented foundation, not missing wallet
 behavior. See [implementation status](../IMPLEMENTATION_STATUS.md) and the

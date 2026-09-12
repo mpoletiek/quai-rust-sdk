@@ -11,6 +11,7 @@ use std::collections::BTreeSet;
 pub(crate) enum QiMode {
     Ordinary,
     Conversion,
+    Wrapping,
 }
 
 /// Validated Qi denomination index. Amounts are in Qits (1/1000 Qi).
@@ -104,6 +105,16 @@ impl QiTransaction {
         }
         let first = self.inputs[0].previous_output.transaction_hash.bytes();
         let origin = Zone::from_byte(first[2]).map_err(|_| TransactionError::InvalidScope)?;
+        if mode == QiMode::Wrapping {
+            let owner = quai_primitives::QuaiAddress::try_from(
+                Address::try_from(self.data.as_slice())
+                    .map_err(|_| TransactionError::InvalidScope)?,
+            )
+            .map_err(|_| TransactionError::InvalidScope)?;
+            if self.chain_id == U256::ZERO || owner.zone() != origin {
+                return Err(TransactionError::InvalidScope);
+            }
+        }
         if mode == QiMode::Conversion {
             if self.chain_id == U256::ZERO || self.data.len() != 22 {
                 return Err(TransactionError::InvalidField("conversion chain or data"));
@@ -138,7 +149,7 @@ impl QiTransaction {
                 .zone()
                 .map_err(|_| TransactionError::InvalidScope)?;
             if output.address.ledger() == Ledger::Quai {
-                if mode != QiMode::Conversion {
+                if mode == QiMode::Ordinary {
                     return Err(TransactionError::InvalidField(
                         "conversion requires explicit builder",
                     ));
@@ -154,14 +165,14 @@ impl QiTransaction {
                 conversion_destination = Some(output.address);
                 continue;
             }
-            if mode == QiMode::Conversion && zone != origin {
+            if mode != QiMode::Ordinary && zone != origin {
                 return Err(TransactionError::InvalidScope);
             }
             if !addresses.insert(output.address) {
                 return Err(TransactionError::InvalidField("reused output address"));
             }
         }
-        if mode == QiMode::Conversion && conversion_destination.is_none() {
+        if mode != QiMode::Ordinary && conversion_destination.is_none() {
             return Err(TransactionError::InvalidField("missing conversion output"));
         }
         Ok(origin)

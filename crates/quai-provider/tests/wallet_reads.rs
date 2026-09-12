@@ -474,3 +474,117 @@ async fn outpoint_index_results_validate_duplicates_bounds_and_locks() {
         assert!(mock.provider(9).outpoints(qi).await.is_err());
     }
 }
+
+#[tokio::test]
+async fn typed_conversion_quotes_preserve_units_selectors_and_missing_data() {
+    let mock = Mock::read(
+        "quai_qiToQuai",
+        json!(["0x3e8", "0x10"]),
+        json!("0x10000000000000000"),
+        9,
+    );
+    let quote = mock
+        .provider(9)
+        .qi_to_quai(
+            Zone::Cyprus1,
+            U256::from(1000),
+            BlockTag::Number(U256::from(16)),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(quote, U256::from(1) << 64);
+    mock.drained();
+    let mock = Mock::read("quai_quaiToQi", json!(["0x1", "latest"]), Value::Null, 9);
+    assert!(
+        mock.provider(9)
+            .quai_to_qi(Zone::Cyprus1, U256::from(1), BlockTag::Latest)
+            .await
+            .unwrap()
+            .is_none()
+    );
+    mock.drained();
+    let from = ADDRESS.parse().unwrap();
+    let to = QI.parse().unwrap();
+    let mock = Mock::read(
+        "quai_calculateConversionAmount",
+        json!([{"from":ADDRESS,"to":QI,"value":"0x2a"}]),
+        json!("0x3"),
+        9,
+    );
+    assert_eq!(
+        mock.provider(9)
+            .calculate_conversion_amount(from, to, U256::from(42))
+            .await
+            .unwrap(),
+        U256::from(3)
+    );
+    mock.drained();
+    assert!(
+        Mock::default()
+            .provider(9)
+            .calculate_conversion_amount(from, from, U256::from(1))
+            .await
+            .is_err()
+    );
+}
+
+#[tokio::test]
+async fn wrapped_qi_protocol_deposit_and_delta_queries_have_strict_identity_and_bounds() {
+    let owner = "0x002b2596EcF05C93a31ff916E8b456DF6C77c750";
+    let mock = Mock::read(
+        "quai_getWrappedQiDeposit",
+        json!([owner, ADDRESS, "latest"]),
+        json!("0x3e8"),
+        9,
+    );
+    assert_eq!(
+        mock.provider(9)
+            .wrapped_qi_deposit(
+                owner.parse().unwrap(),
+                ADDRESS.parse().unwrap(),
+                BlockTag::Latest
+            )
+            .await
+            .unwrap(),
+        U256::from(1000)
+    );
+    mock.drained();
+    let hash: Hash32 = HASH.parse().unwrap();
+    let address: QiAddress = QI.parse().unwrap();
+    let response = json!({QI:{"created":{HASH:[{"index":"0x0","denomination":"0x2","lock":"0x10"}]},"deleted":{}}});
+    let mock = Mock::read(
+        "quai_getOutpointDeltasForAddressesInRange",
+        json!([[QI], HASH, HASH]),
+        response,
+        9,
+    );
+    let changes = mock
+        .provider(9)
+        .outpoint_deltas(Zone::Cyprus1, &[address], hash, hash)
+        .await
+        .unwrap();
+    assert_eq!(changes[&address].created[0].outpoint.tx_hash, hash);
+    assert_eq!(changes[&address].created[0].lock, U256::from(16));
+    mock.drained();
+    assert!(
+        Mock::default()
+            .provider(9)
+            .outpoint_deltas(Zone::Cyprus1, &[address, address], hash, hash)
+            .await
+            .is_err()
+    );
+    let mock = Mock::read(
+        "quai_getOutpointDeltasForAddressesInRange",
+        json!([[QI], HASH, HASH]),
+        json!({}),
+        9,
+    );
+    assert!(
+        mock.provider(9)
+            .outpoint_deltas(Zone::Cyprus1, &[address], hash, hash)
+            .await
+            .is_err()
+    );
+    mock.drained();
+}

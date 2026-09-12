@@ -13,7 +13,8 @@
     "generate": "npm run fixtures && npm run inventory && node scripts/generate-transactions.mjs && node scripts/generate-selection.mjs && node scripts/generate-amounts.mjs && node scripts/generate-keystore.mjs",
     "parity": "node scripts/parity.mjs",
     "test": "node --test scripts/*.test.mjs",
-    "oracle": "node scripts/oracle.mjs"
+    "oracle": "node scripts/oracle.mjs",
+    "wrapping": "node scripts/generate-wrapping.mjs"
   },
   "devDependencies": {
     "quais": "1.0.0-alpha.57",

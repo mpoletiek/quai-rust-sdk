@@ -1,6 +1,6 @@
 //! Deterministic orchestration tests using real WAL storage and no network transport.
 #![cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
-use quai_sdk::consensus::{Denomination, OutPoint, SignedQiTransaction};
+use quai_sdk::consensus::{Denomination, OutPoint};
 use quai_sdk::provider::RpcData;
 use quai_sdk::qi::{QiChangePool, QiError, QiIntent, QiPolicy, QiSession};
 use quai_sdk::rpc::{RpcError, Transport};
@@ -28,6 +28,7 @@ struct Mock {
     mode: Arc<AtomicU8>,
     send_started: Arc<tokio::sync::Notify>,
     invalidate: Arc<Mutex<Option<(std::path::PathBuf, NetworkScope)>>>,
+    outpoints: Arc<Mutex<std::collections::BTreeMap<String, Value>>>,
 }
 impl Transport for Mock {
     async fn request(&self, _: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
@@ -38,6 +39,14 @@ impl Transport for Mock {
         let mode = self.mode.load(Ordering::SeqCst);
         Ok(match method {
             "quai_chainId" => json!("0x3a98"),
+            "quai_getTransactionReceipt" | "quai_getTransactionByHash" => Value::Null,
+            "quai_getOutpointsByAddress" => self
+                .outpoints
+                .lock()
+                .unwrap()
+                .get(params[0].as_str().unwrap())
+                .cloned()
+                .unwrap_or(json!([])),
             "quai_getHeaderByNumber" if params[0] == "0x0" => {
                 json!({"woHeader":{"hash": if mode == 4 { CHECKPOINT } else { GENESIS }, "number":"0x0","location":"0x","parentHash":format!("0x{}","00".repeat(32))}})
             }
@@ -71,7 +80,7 @@ impl Transport for Mock {
                 }
                 let bytes: RpcData = params[0].as_str().unwrap().parse().unwrap();
                 json!(
-                    SignedQiTransaction::decode(bytes.bytes())
+                    quai_sdk::consensus::SignedQiOperation::decode(bytes.bytes())
                         .unwrap()
                         .hash()
                         .unwrap()
@@ -726,4 +735,433 @@ async fn prepared_qi_cannot_cross_identical_stores_or_reopened_handles() {
         reopened.reservation(id(41)).unwrap().unwrap().state,
         ReservationState::Reserved
     );
+}
+
+#[cfg(feature = "payments")]
+#[tokio::test]
+async fn imported_and_payment_receive_inputs_are_spent_with_hd_inputs() {
+    use quai_sdk::payments::{PaymentChannel, PaymentDirection, PrivatePaymentCode};
+    use quai_sdk::wallet::qi_keys::QiKeyring;
+    let mut env = setup();
+    let change = pool(&mut env, 0);
+    let mut scalar = [0u8; 32];
+    scalar[31] = 130;
+    let imported = quai_sdk::crypto::SecretKey::from_bytes(&scalar).unwrap();
+    let public = PublicAddress::imported(&imported.public_key()).unwrap();
+    let generation = env.store.snapshot().unwrap().generation;
+    env.store
+        .import_metadata(generation, std::slice::from_ref(&public))
+        .unwrap();
+    let owner = PrivatePaymentCode::from_seed(&[1; 32], 0).unwrap();
+    let peer = PrivatePaymentCode::from_seed(&[2; 32], 0)
+        .unwrap()
+        .public_code()
+        .clone();
+    let channel = PaymentChannel::new(&owner, peer.clone());
+    env.store
+        .import_payment_channel(&owner, &channel, None)
+        .unwrap();
+    let payment = env
+        .store
+        .allocate_payment_address(&owner, &peer, PaymentDirection::Receive, 10_000, || false)
+        .unwrap();
+    refresh(&mut env);
+    let mut snapshot = env.store.snapshot().unwrap();
+    for (index, address) in [public.address(), payment.found.address.address()]
+        .into_iter()
+        .enumerate()
+    {
+        let mut hash = [0; 32];
+        hash[3] = 0x80;
+        hash[31] = 100 + index as u8;
+        snapshot.coins.push(CandidateCoin {
+            outpoint: OutPoint {
+                transaction_hash: hash.into(),
+                index: 0,
+            },
+            address: address.try_into().unwrap(),
+            denomination: Denomination::new(1).unwrap(),
+            unlock_height: U256::ZERO,
+            expires_at: None,
+            reserved: false,
+        });
+    }
+    env.store.replace_snapshot(&snapshot).unwrap();
+    let mut keys = QiKeyring::new(Some(&env.wallet)).unwrap();
+    keys.import(imported).unwrap();
+    assert_eq!(
+        keys.load_payment_channel(&env.store, &owner, &peer)
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        keys.load_payment_channel(&env.store, &owner, &peer)
+            .unwrap(),
+        0
+    );
+    let mut send = intent();
+    send.amount = U256::from(15);
+    send.destinations.push(
+        "0x0080000000000000000000000000000000000002"
+            .parse()
+            .unwrap(),
+    );
+    send.destinations.push(
+        "0x0080000000000000000000000000000000000003"
+            .parse()
+            .unwrap(),
+    );
+    let mut session = QiSession::with_keys(&env.provider, &keys, &mut env.store);
+    let prepared = session
+        .prepare(id(90), send, policy(), change)
+        .await
+        .unwrap();
+    assert_eq!(prepared.transaction().inputs.len(), 4);
+    let signed = session.sign(&prepared).unwrap();
+    let expected = signed.hash().unwrap();
+    assert_eq!(
+        session.broadcast(id(90)).await.unwrap().transaction_hash,
+        expected
+    );
+    drop(keys);
+    let mut reopened = SqliteStore::open(&env.path, env.store.scope()).unwrap();
+    assert_eq!(
+        reopened.signed_payload(id(90)).unwrap().unwrap(),
+        signed.signed_bytes().unwrap()
+    );
+}
+
+#[tokio::test]
+async fn specialized_operations_keep_exact_bytes_and_claims_across_restart() {
+    use quai_sdk::consensus::{
+        ConversionSlippage, QiConversionIntent, QiWrappingIntent, SignedQiOperation,
+    };
+    use quai_sdk::qi::QiSpecialIntent;
+    for wrapping in [false, true] {
+        let mut env = setup();
+        let change = pool(&mut env, 0);
+        refresh(&mut env);
+        let destination = "0x0000000000000000000000000000000000000001"
+            .parse()
+            .unwrap();
+        let intent = if wrapping {
+            QiSpecialIntent::Wrapping(QiWrappingIntent {
+                destination,
+                owner_contract: "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+                    .parse()
+                    .unwrap(),
+            })
+        } else {
+            QiSpecialIntent::Conversion(QiConversionIntent {
+                destination,
+                refund: "0x0080000000000000000000000000000000000001"
+                    .parse()
+                    .unwrap(),
+                slippage: ConversionSlippage::new(100).unwrap(),
+            })
+        };
+        let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+        let prepared = session
+            .prepare_special(
+                id(91),
+                U256::from(5),
+                intent,
+                U256::from(5),
+                policy(),
+                change,
+            )
+            .await
+            .unwrap();
+        let signed = session.sign_special(&prepared).unwrap();
+        assert_eq!(
+            signed.transaction().data.len(),
+            if wrapping { 20 } else { 22 }
+        );
+        let bytes = signed.signed_bytes().unwrap();
+        let mut reopened = SqliteStore::open(&env.path, env.store.scope()).unwrap();
+        assert_eq!(reopened.signed_payload(id(91)).unwrap().unwrap(), bytes);
+        assert!(reopened.release_unsigned(id(91)).is_err());
+        assert_eq!(
+            SignedQiOperation::decode(&bytes).unwrap().hash().unwrap(),
+            signed.hash().unwrap()
+        );
+        let mut recovered = QiSession::new(&env.provider, &env.wallet, &mut reopened).unwrap();
+        assert_eq!(
+            recovered.broadcast(id(91)).await.unwrap().transaction_hash,
+            signed.hash().unwrap()
+        );
+    }
+}
+
+#[tokio::test]
+async fn current_gap_scan_and_refresh_queries_stored_addresses_and_preserves_claims() {
+    use quai_sdk::qi_discovery::{DEFAULT_QI_GAP, QiScanOptions, refresh_qi, scan_and_refresh_qi};
+    use quai_sdk::wallet::discovery::{IndexRange, ScanStop};
+    assert_eq!(QiScanOptions::default().gap_limit, Some(DEFAULT_QI_GAP));
+    assert_eq!(DEFAULT_QI_GAP, 50);
+    let mut env = setup();
+    let _change = pool(&mut env, 1);
+    let stored = env.store.addresses().unwrap();
+    let funded = stored.last().unwrap().address().to_string();
+    env.mock.outpoints.lock().unwrap().insert(funded,json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x2","lock":"0x20"}]));
+    let account = env.wallet.account_public(0).unwrap();
+    let options = QiScanOptions {
+        receive: IndexRange {
+            start: 0,
+            end: 100_000,
+        },
+        change: IndexRange {
+            start: 0,
+            end: 100_000,
+        },
+        gap_limit: Some(2),
+        max_addresses: 20,
+    };
+    let report = scan_and_refresh_qi(&env.provider, &mut env.store, &account, &options, || false)
+        .await
+        .unwrap();
+    assert_eq!(report.stopped, [ScanStop::GapLimit; 2]);
+    let snapshot = env.store.snapshot().unwrap();
+    assert_eq!(snapshot.coins.len(), 1);
+    assert_eq!(snapshot.coins[0].denomination.value(), 10);
+    assert_eq!(snapshot.coins[0].unlock_height, U256::from(32));
+    let balance = quai_sdk::qi_discovery::qi_balance(&mut env.store, U256::from(31)).unwrap();
+    assert_eq!(balance.total, U256::from(10));
+    assert_eq!(balance.locked, U256::from(10));
+    assert_eq!(balance.spendable, U256::ZERO);
+    assert_eq!(
+        quai_sdk::qi_discovery::qi_balance(&mut env.store, U256::from(32))
+            .unwrap()
+            .spendable,
+        U256::from(10)
+    );
+    assert!(snapshot.checkpoint.is_some());
+    assert!(
+        refresh_qi(&env.provider, &mut env.store, 100, || true)
+            .await
+            .is_err()
+    );
+    assert_eq!(
+        env.store.snapshot().unwrap().generation,
+        snapshot.generation
+    );
+}
+
+#[tokio::test]
+async fn reorg_invalidates_inclusion_but_never_releases_signed_claims() {
+    use quai_sdk::recovery::{OperationObservation, reconcile_operation};
+    let mut env = setup();
+    let change = pool(&mut env, 0);
+    refresh(&mut env);
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let prepared = session
+        .prepare(id(92), intent(), policy(), change)
+        .await
+        .unwrap();
+    let signed = session.sign(&prepared).unwrap();
+    let included = Checkpoint {
+        hash: CHECKPOINT.parse().unwrap(),
+        height: U256::from(16),
+    };
+    env.store
+        .observe_inclusion(id(92), signed.hash().unwrap(), included)
+        .unwrap();
+    assert!(
+        env.store
+            .invalidate_inclusion(
+                id(92),
+                Checkpoint {
+                    height: U256::from(15),
+                    ..included
+                }
+            )
+            .is_err()
+    );
+    env.mock.mode.store(5, Ordering::SeqCst);
+    assert!(matches!(
+        reconcile_operation(&env.provider, &mut env.store, id(92))
+            .await
+            .unwrap(),
+        OperationObservation::Reorganized
+    ));
+    assert_eq!(
+        env.store.reservation(id(92)).unwrap().unwrap().state,
+        ReservationState::Submitted
+    );
+    assert_eq!(env.store.reserved_outpoints(id(92)).unwrap().len(), 2);
+    assert_eq!(
+        env.store.signed_payload(id(92)).unwrap().unwrap(),
+        signed.signed_bytes().unwrap()
+    );
+    assert!(matches!(
+        reconcile_operation(&env.provider, &mut env.store, id(92))
+            .await
+            .unwrap(),
+        OperationObservation::NotObserved
+    ));
+    assert!(env.store.release_unsigned(id(92)).is_err());
+}
+
+#[cfg(feature = "payments")]
+#[tokio::test]
+async fn payment_scan_imports_matching_receive_children_and_is_idempotent() {
+    use quai_sdk::payment_channels::{PaymentScanOptions, payment_intent, scan_payment_channel};
+    use quai_sdk::payments::{PaymentChannel, PaymentDirection, PaymentSearch, PrivatePaymentCode};
+    use quai_sdk::wallet::qi_keys::{QiKeyResolver, QiKeyring};
+    let mut env = setup();
+    let owner = PrivatePaymentCode::from_seed(&[1; 32], 0).unwrap();
+    let sender = PrivatePaymentCode::from_seed(&[2; 32], 0).unwrap();
+    let peer = sender.public_code();
+    env.store
+        .import_payment_channel(&owner, &PaymentChannel::new(&owner, peer.clone()), None)
+        .unwrap();
+    let found = owner
+        .search(
+            peer,
+            PaymentDirection::Receive,
+            PaymentSearch {
+                zone: Zone::Cyprus1,
+                start_index: 0,
+                max_attempts: 10_000,
+            },
+            || false,
+        )
+        .unwrap();
+    assert_eq!(
+        sender
+            .send_public_key(owner.public_code(), found.index)
+            .unwrap(),
+        found.public_key
+    );
+    env.mock.outpoints.lock().unwrap().insert(found.address.to_string(),json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x6","lock":"0x0"}]));
+    let options = PaymentScanOptions {
+        gap_limit: Some(2),
+        ..Default::default()
+    };
+    let first = scan_payment_channel(
+        &env.provider,
+        &mut env.store,
+        &owner,
+        peer,
+        &options,
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(first.indexes.len(), 3);
+    let second = scan_payment_channel(
+        &env.provider,
+        &mut env.store,
+        &owner,
+        peer,
+        &options,
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(first.indexes, second.indexes);
+    let mut keys = QiKeyring::new(None).unwrap();
+    assert_eq!(
+        keys.load_payment_channel(&env.store, &owner, peer).unwrap(),
+        3
+    );
+    let metadata = env
+        .store
+        .addresses()
+        .unwrap()
+        .into_iter()
+        .find(|address| address.address() == found.address.address())
+        .unwrap();
+    assert_eq!(
+        keys.resolve(&metadata).unwrap().public_key(),
+        found.public_key
+    );
+    let wrong = PrivatePaymentCode::from_seed(&[3; 32], 0).unwrap();
+    assert!(
+        env.store
+            .import_payment_receive_indexes(&wrong, peer, &first.indexes)
+            .is_err()
+    );
+    let intent = payment_intent(
+        &mut env.store,
+        &owner,
+        peer,
+        U256::from(5),
+        2,
+        10_000,
+        || false,
+    )
+    .unwrap();
+    assert_ne!(intent.destinations[0], intent.destinations[1]);
+    assert_eq!(
+        env.store
+            .payment_addresses(&owner, peer, PaymentDirection::Send)
+            .unwrap()
+            .len(),
+        2
+    );
+    assert_eq!(env.store.snapshot().unwrap().coins.len(), 1);
+}
+
+#[tokio::test]
+async fn sweeps_and_cross_zone_transfers_use_durable_exact_payloads() {
+    use quai_sdk::wallet::SweepMode;
+    for aggregate in [false, true] {
+        let mut env = setup();
+        let outputs = pool(&mut env, 8);
+        refresh(&mut env);
+        env.mock.fees.lock().unwrap().clear();
+        env.mock.fees.lock().unwrap().push_back(0);
+        let mode = if aggregate {
+            SweepMode::Aggregate {
+                maximum: Denomination::new(14).unwrap(),
+            }
+        } else {
+            SweepMode::PreserveDenominations
+        };
+        let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+        let prepared = session
+            .prepare_sweep(
+                id(93),
+                mode,
+                QiPolicy {
+                    initial_fee: U256::ZERO,
+                    ..policy()
+                },
+                outputs,
+            )
+            .await
+            .unwrap();
+        assert_eq!(prepared.transaction().inputs.len(), 2);
+        assert_eq!(
+            prepared.transaction().outputs.len(),
+            if aggregate { 1 } else { 2 }
+        );
+        assert_eq!(prepared.fee(), U256::ZERO);
+        let signed = session.sign(&prepared).unwrap();
+        assert_eq!(
+            session.broadcast(id(93)).await.unwrap().transaction_hash,
+            signed.hash().unwrap()
+        );
+    }
+    let mut env = setup();
+    let change = pool(&mut env, 0);
+    refresh(&mut env);
+    let mut send = intent();
+    send.destinations = vec![
+        "0x0180000000000000000000000000000000000001"
+            .parse()
+            .unwrap(),
+    ];
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let prepared = session
+        .prepare_cross_zone(id(94), send, policy(), change)
+        .await
+        .unwrap();
+    assert_eq!(
+        prepared.transaction().outputs[0].address.zone().unwrap(),
+        Zone::Cyprus2
+    );
+    session.sign(&prepared).unwrap();
+    session.broadcast(id(94)).await.unwrap();
 }

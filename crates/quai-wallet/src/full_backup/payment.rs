@@ -7,12 +7,19 @@ use quai_payments::{PaymentCode, PaymentDirection, PrivatePaymentCode};
 
 type PaymentProof = (Vec<PrivatePaymentCode>, BTreeSet<([u8; 65], [u8; 33])>);
 impl BackupOrigin {
-    /// Derive a BIP47 owner from its effective seed. Master-xprv and standalone-key
-    /// origins do not currently support payment-account recovery.
+    /// Derive a BIP47 owner from its effective seed or master xprv. Standalone
+    /// scalars have no payment-account ancestry.
     pub fn payment_code(&self, account: u32) -> Result<PrivatePaymentCode> {
         match &self.0 {
             OriginMaterial::Seed(seed) => PrivatePaymentCode::from_seed(seed, account)
                 .map_err(|_| WalletBackupError::InvalidInput),
+            OriginMaterial::Master(root) => PrivatePaymentCode::from_master_xprv(
+                root.export()
+                    .map_err(|_| WalletBackupError::InvalidInput)?
+                    .expose(),
+                account,
+            )
+            .map_err(|_| WalletBackupError::InvalidInput),
             _ => Err(WalletBackupError::Unsupported),
         }
     }
@@ -39,7 +46,10 @@ impl WalletBackup {
             }
             let mut matched = None;
             for origin in &self.origins {
-                if let OriginMaterial::Seed(_) = &origin.0 {
+                if matches!(
+                    &origin.0,
+                    OriginMaterial::Seed(_) | OriginMaterial::Master(_)
+                ) {
                     let owner = origin.payment_code(stored.account)?;
                     if owner.public_code().to_bytes() == stored.local {
                         matched = Some(owner);

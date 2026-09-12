@@ -1005,6 +1005,18 @@ impl SqliteStore {
         id: ReservationId,
         signed: &SignedQiTransaction,
     ) -> Result<()> {
+        self.commit_signed_qi_operation(
+            id,
+            &quai_consensus::SignedQiOperation::Transfer(signed.clone()),
+        )
+    }
+    /// Persist a verified ordinary, conversion or wrapping payload against its
+    /// exact Qi claims. Backups and restart validation preserve its operation type.
+    pub fn commit_signed_qi_operation(
+        &mut self,
+        id: ReservationId,
+        signed: &quai_consensus::SignedQiOperation,
+    ) -> Result<()> {
         let payload = signed.signed_bytes().map_err(|_| StorageError::Invalid)?;
         let hash = signed.hash().map_err(|_| StorageError::Invalid)?;
         if signed.transaction().chain_id != self.scope.chain_id
@@ -1015,7 +1027,7 @@ impl SqliteStore {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        validate_qi_claim(&tx, &self.key, id, signed)?;
+        validate_qi_claim(&tx, &self.key, id, signed.transaction())?;
         commit_payload(&tx, &self.key, id, hash, 0, &payload)?;
         tx.commit()?;
         Ok(())
@@ -1097,6 +1109,47 @@ impl SqliteStore {
         tx.commit()?;
         Ok(())
     }
+    /// Remove a previously recorded inclusion after its canonicality is lost.
+    /// Compare the exact old observation under the writer lock; retain signed
+    /// bytes, input/nonce claims and cursors. No funds are made reusable.
+    pub fn invalidate_inclusion(&mut self, id: ReservationId, expected: Checkpoint) -> Result<()> {
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let old = reservation_read(&tx, &self.key, id)?.ok_or(StorageError::Transition)?;
+        if old.state != ReservationState::Confirmed || old.inclusion != Some(expected) {
+            return Err(StorageError::StaleSnapshot);
+        }
+        tx.execute("UPDATE reservations SET state=2,block_hash=NULL,block_height=NULL WHERE scope=?1 AND id=?2", params![&self.key[..], &id.0[..]])?;
+        tx.commit()?;
+        Ok(())
+    }
+    /// Reopen an explicitly released, never-signed account nonce for gap repair.
+    /// Retains the original operation and nonce claim; no cursor rewinds or
+    /// arbitrary nonce takeover. Signed operations are never eligible.
+    pub fn reopen_unsigned_nonce(&mut self, id: ReservationId) -> Result<()> {
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let old = reservation_read(&tx, &self.key, id)?.ok_or(StorageError::Transition)?;
+        if old.state != ReservationState::Released || old.transaction.is_some() {
+            return Err(StorageError::Transition);
+        }
+        let count: i64 = tx.query_row(
+            "SELECT count(*) FROM nonce_claims WHERE scope=?1 AND operation=?2",
+            params![&self.key[..], &id.0[..]],
+            |row| row.get(0),
+        )?;
+        if count != 1 {
+            return Err(StorageError::Transition);
+        }
+        tx.execute(
+            "UPDATE reservations SET state=0 WHERE scope=?1 AND id=?2",
+            params![&self.key[..], &id.0[..]],
+        )?;
+        tx.commit()?;
+        Ok(())
+    }
     /// Explicitly cancel an unsigned, unexposed reservation. Signed/submitted/
     /// confirmed operations cannot be released, including after snapshot invalidation.
     /// Account nonce cursors never rewind; applications must handle any nonce gap.
@@ -1153,12 +1206,13 @@ fn signed_payload_read(
         validate_quai_claim(connection, key, id, &signed)?;
         signed.hash().map_err(|_| StorageError::Invalid)?
     } else if kind == 0 {
-        let signed = SignedQiTransaction::decode(&payload).map_err(|_| StorageError::Invalid)?;
+        let signed = quai_consensus::SignedQiOperation::decode(&payload)
+            .map_err(|_| StorageError::Invalid)?;
         let hash = signed.hash().map_err(|_| StorageError::Invalid)?;
         if signed.transaction().chain_id != scope.chain_id || hash.bytes()[0] != scope.zone.byte() {
             return Err(StorageError::Invalid);
         }
-        validate_qi_claim(connection, key, id, &signed)?;
+        validate_qi_claim(connection, key, id, signed.transaction())?;
         hash
     } else {
         return Err(StorageError::Invalid);
@@ -1243,17 +1297,17 @@ fn validate_qi_claim(
     connection: &Connection,
     key: &[u8],
     id: ReservationId,
-    signed: &SignedQiTransaction,
+    transaction: &quai_consensus::QiTransaction,
 ) -> Result<()> {
     let count: i64 = connection.query_row(
         "SELECT count(*) FROM qi_claims WHERE scope=?1 AND operation=?2",
         params![key, &id.0[..]],
         |r| r.get(0),
     )?;
-    if count as usize != signed.transaction().inputs.len() || count == 0 {
+    if count as usize != transaction.inputs.len() || count == 0 {
         return Err(StorageError::Conflict);
     }
-    for input in &signed.transaction().inputs {
+    for input in &transaction.inputs {
         let owner: Option<Vec<u8>> = connection.query_row("SELECT address FROM qi_claims WHERE scope=?1 AND operation=?2 AND tx_hash=?3 AND output_index=?4", params![key,&id.0[..],&input.previous_output.transaction_hash.bytes()[..],input.previous_output.index], |r|r.get(0)).optional()?;
         if owner.as_deref() != Some(&input.public_key.address().bytes()[..]) {
             return Err(StorageError::Conflict);

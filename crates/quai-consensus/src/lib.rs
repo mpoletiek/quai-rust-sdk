@@ -1,5 +1,9 @@
 //! Quai-native transaction encoding and signing; never Ethereum transaction envelopes.
 mod conversion;
+mod qi_operation;
+mod wrapping;
+pub use qi_operation::SignedQiOperation;
+pub use wrapping::{QiWrappingIntent, QiWrappingTransaction, SignedQiWrappingTransaction};
 mod proto;
 mod qi;
 mod quai;

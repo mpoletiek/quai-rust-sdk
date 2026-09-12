@@ -79,6 +79,102 @@ impl StoredPaymentChannel {
     }
 }
 impl SqliteStore {
+    /// Register receive children found by a bounded recovery scan. Derives and
+    /// checks ownership locally, retains existing burned intervals, and advances
+    /// the receive cursor monotonically. No untrusted public point is accepted.
+    /// Adding addresses invalidates the coin snapshot; refresh before spending.
+    pub fn import_payment_receive_indexes(
+        &mut self,
+        owner: &PrivatePaymentCode,
+        peer: &PaymentCode,
+        indexes: &[u32],
+    ) -> Result<()> {
+        if indexes.len() > 1024 || indexes.iter().collect::<BTreeSet<_>>().len() != indexes.len() {
+            return Err(StorageError::Invalid);
+        }
+        let mut derived = Vec::with_capacity(indexes.len());
+        for &index in indexes {
+            let public = owner
+                .receive_public_key(peer, index)
+                .map_err(|_| StorageError::Invalid)?;
+            let address =
+                QiAddress::try_from(public.address()).map_err(|_| StorageError::Invalid)?;
+            if address.zone() != self.scope.zone {
+                return Err(StorageError::Invalid);
+            }
+            derived.push((index, public, address));
+        }
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let mut stored =
+            read_channel(&tx, &self.key[..64], owner, peer)?.ok_or(StorageError::Invalid)?;
+        let mut end = cursor_value(
+            stored
+                .channel
+                .next_index(PaymentDirection::Receive, self.scope.zone),
+        );
+        for (index, public_key, address) in derived {
+            end = end.max(index + 1);
+            let old: Option<(u32, u32)> = tx.query_row(
+                "SELECT range_start,range_end FROM payment_exposures WHERE network=?1 AND local_code=?2 AND peer_code=?3 AND account=?4 AND direction=1 AND zone=?5 AND child_index=?6",
+                params![&self.key[..64], &owner.public_code().to_bytes()[..], &peer.to_bytes()[..], owner.account(), self.scope.zone.byte(), index],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            ).optional()?;
+            let (start, stop) = old.unwrap_or((index, index + 1));
+            insert_exposure(
+                &tx,
+                &StoredPaymentExposure {
+                    network: array(&self.key[..64])?,
+                    local: owner.public_code().to_bytes(),
+                    peer: peer.to_bytes(),
+                    account: owner.account(),
+                    record: PaymentAddressRecord {
+                        direction: PaymentDirection::Receive,
+                        zone: self.scope.zone,
+                        index,
+                        address,
+                        public_key,
+                        burned: crate::discovery::IndexRange { start, end: stop },
+                    },
+                },
+                true,
+            )?;
+            insert_address(
+                &tx,
+                &self.key,
+                self.scope,
+                &PublicAddress::imported(&public_key)?,
+            )?;
+        }
+        let count: i64 = tx.query_row(
+            "SELECT count(*) FROM addresses WHERE scope=?1",
+            [&self.key[..]],
+            |row| row.get(0),
+        )?;
+        if count > MAX_COINS as i64 {
+            return Err(StorageError::Invalid);
+        }
+        stored
+            .channel
+            .advance_cursor(
+                owner,
+                PaymentDirection::Receive,
+                self.scope.zone,
+                if end == 1 << 31 { None } else { Some(end) },
+            )
+            .map_err(|_| StorageError::Invalid)?;
+        let generation = stored
+            .generation
+            .checked_add(1)
+            .ok_or(StorageError::Overflow)?;
+        write_channel(&tx, &self.key[..64], &stored.channel, generation)?;
+        let old = checkpoint_read(&tx, &self.key)?.0;
+        let next = next_generation(&tx, &self.key, old as u64)?;
+        clear_snapshot(&tx, &self.key, next)?;
+        tx.commit()?;
+        Ok(())
+    }
     /// Load a channel for the bound chain/genesis. Its eighteen cursors cover all zones.
     /// The private owner is required to validate metadata ownership before use.
     pub fn payment_channel(

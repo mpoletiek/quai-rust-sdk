@@ -2,22 +2,26 @@
 //!
 //! Allocate change first, refresh qualified discovery, prepare, review, sign, then
 //! explicitly broadcast. This module does not turn latest-only RPC observations
-//! into a pinned UTXO snapshot. Only local BIP44 Qi keys and same-zone Qi outputs
-//! are supported; payment-code keys and conversions require separate workflows.
+//! into a pinned UTXO snapshot. Explicit local key resolvers support BIP44,
+//! imported and registered payment receive keys; conversions use separate types.
 use quai_consensus::{QiInput, QiOutput, QiTransaction, SignedQiTransaction, TransactionError};
 use quai_crypto::{PublicKey, SecretKey};
 use quai_primitives::{Address, Hash32, QiAddress};
 use quai_provider::{BroadcastError, BroadcastResult, Provider, ProviderError};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::Checkpoint;
+use quai_wallet::qi_keys::QiKeyResolver;
 use quai_wallet::storage::{
-    KeyOrigin, NetworkScope, PublicAddress, ReservationId, ReservationState, SqliteStore,
-    StorageError, StoreInstance,
+    NetworkScope, PublicAddress, ReservationId, ReservationState, SqliteStore, StorageError,
+    StoreInstance,
 };
 use quai_wallet::{AccountPublic, CoinType, HdWallet, WalletError};
 use quai_wallet::{SelectionError, SelectionRequest, select_fewest};
 use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
+mod special;
+mod sweep;
+pub use special::{PreparedQiOperation, QiSpecialIntent, QiSpecialTransaction};
 
 /// Explicit limits for bounded selection and network fee convergence.
 #[derive(Clone, Copy, Debug)]
@@ -46,7 +50,7 @@ pub struct QiPolicy {
 pub struct QiIntent {
     /// Positive exact recipient amount in Qits.
     pub amount: U256,
-    /// Up to 1024 distinct same-zone Qi recipient addresses.
+    /// Up to 1024 distinct Qi recipient addresses; cross-zone preparation is explicit.
     pub destinations: Vec<QiAddress>,
 }
 
@@ -198,12 +202,12 @@ impl PreparedQiTransaction {
 /// explicit authorization to submit previously signed bytes to that network.
 pub struct QiSession<'a, T> {
     provider: &'a Provider<T>,
-    wallet: &'a HdWallet,
+    wallet: &'a dyn QiKeyResolver,
     store: &'a mut SqliteStore,
 }
 impl<'a, T: Transport> QiSession<'a, T> {
     /// Bind a local Qi HD wallet. Ownership of every selected input/change key is
-    /// checked before reservation; imported keys are outside this workflow.
+    /// checked before reservation. Use `with_keys` for mixed local origins.
     pub fn new(
         provider: &'a Provider<T>,
         wallet: &'a HdWallet,
@@ -218,6 +222,19 @@ impl<'a, T: Transport> QiSession<'a, T> {
             store,
         })
     }
+    /// Bind an explicit local resolver, including `QiKeyring` for imported and
+    /// BIP47 receive keys. Every resolved public key is independently checked.
+    pub fn with_keys(
+        provider: &'a Provider<T>,
+        keys: &'a dyn QiKeyResolver,
+        store: &'a mut SqliteStore,
+    ) -> Self {
+        Self {
+            provider,
+            wallet: keys,
+            store,
+        }
+    }
     async fn verify_network(&self) -> Result<(), QiError> {
         let scope = self.store.scope();
         if self.provider.chain_id(scope.zone.into()).await? != scope.chain_id
@@ -228,20 +245,13 @@ impl<'a, T: Transport> QiSession<'a, T> {
         Ok(())
     }
     fn key_for(&self, metadata: &PublicAddress) -> Result<SecretKey, QiError> {
-        let KeyOrigin::Bip44 {
-            coin: CoinType::Qi,
-            account,
-            change,
-            index,
-        } = metadata.origin()
-        else {
-            return Err(QiError::IdentityMismatch);
-        };
         let key = self
             .wallet
-            .derive_key(account, change, index)?
-            .secret_key()?;
-        if key.public_key().to_compressed() != *metadata.public_key() {
+            .resolve(metadata)
+            .map_err(|_| QiError::IdentityMismatch)?;
+        if key.public_key().to_compressed() != *metadata.public_key()
+            || key.public_key().address() != metadata.address()
+        {
             return Err(QiError::IdentityMismatch);
         }
         Ok(key)
@@ -295,6 +305,39 @@ impl<'a, T: Transport> QiSession<'a, T> {
         policy: QiPolicy,
         change: QiChangePool,
     ) -> Result<PreparedQiTransaction, QiError> {
+        self.prepare_transfer(id, intent, policy, change, false)
+            .await
+    }
+    /// Prepare a Qi transfer to another single destination zone. Origin fees
+    /// include the exact cross-zone output shape; destination ETX execution and
+    /// maturity must be observed separately. No destination success is implied.
+    pub async fn prepare_cross_zone(
+        &mut self,
+        id: ReservationId,
+        intent: QiIntent,
+        policy: QiPolicy,
+        change: QiChangePool,
+    ) -> Result<PreparedQiTransaction, QiError> {
+        if intent.destinations.first().is_none_or(|first| {
+            first.zone() == self.store.scope().zone
+                || intent
+                    .destinations
+                    .iter()
+                    .any(|address| address.zone() != first.zone())
+        }) {
+            return Err(QiError::IdentityMismatch);
+        }
+        self.prepare_transfer(id, intent, policy, change, true)
+            .await
+    }
+    async fn prepare_transfer(
+        &mut self,
+        id: ReservationId,
+        intent: QiIntent,
+        policy: QiPolicy,
+        change: QiChangePool,
+        cross_zone: bool,
+    ) -> Result<PreparedQiTransaction, QiError> {
         if !(1..=1024).contains(&policy.max_inputs)
             || !(1..=1024).contains(&policy.max_outputs)
             || !(1..=32).contains(&policy.max_fee_rounds)
@@ -325,7 +368,9 @@ impl<'a, T: Transport> QiSession<'a, T> {
             .collect();
         let mut seen = BTreeSet::new();
         for destination in &intent.destinations {
-            if destination.zone() != scope.zone || !seen.insert(destination.address()) {
+            if (!cross_zone && destination.zone() != scope.zone)
+                || !seen.insert(destination.address())
+            {
                 return Err(QiError::IdentityMismatch);
             }
         }
@@ -510,7 +555,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
             .store
             .signed_payload(id)?
             .ok_or(QiError::MissingSignedPayload)?;
-        let signed = SignedQiTransaction::decode(&bytes)?;
+        let signed = quai_consensus::SignedQiOperation::decode(&bytes)?;
         let metadata: BTreeMap<_, _> = self
             .store
             .addresses()?
@@ -526,6 +571,16 @@ impl<'a, T: Transport> QiSession<'a, T> {
         }
         self.verify_network().await?;
         self.store.mark_submitted(id)?;
-        Ok(self.provider.broadcast_qi(&signed).await?)
+        Ok(match &signed {
+            quai_consensus::SignedQiOperation::Transfer(tx) => {
+                self.provider.broadcast_qi(tx).await?
+            }
+            quai_consensus::SignedQiOperation::Conversion(tx) => {
+                self.provider.broadcast_qi_conversion(tx).await?
+            }
+            quai_consensus::SignedQiOperation::Wrapping(tx) => {
+                self.provider.broadcast_qi_wrapping(tx).await?
+            }
+        })
     }
 }

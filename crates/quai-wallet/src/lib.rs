@@ -12,11 +12,14 @@ pub mod discovery;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod full_backup;
 mod hd;
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+pub mod qi_keys;
 mod selection;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod storage;
 pub use selection::{
-    CandidateCoin, CoinSelection, SelectionError, SelectionRequest, select_fewest, select_with_fee,
+    CandidateCoin, CoinSelection, SelectionError, SelectionRequest, SweepMode, select_fewest,
+    select_sweep, select_with_fee,
 };
 mod mnemonic;
 

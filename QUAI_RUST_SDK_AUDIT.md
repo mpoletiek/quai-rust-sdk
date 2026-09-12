@@ -1,5 +1,11 @@
 # Quai Rust SDK plan audit
 
+This is the historical pre-implementation plan audit from 2026-09-11. Its
+statements about no Rust implementation describe that point in time. For the
+current code review and remaining features, see the
+[2026-09-12 completeness review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md)
+and [implementation status](IMPLEMENTATION_STATUS.md).
+
 ## Verdict
 
 The original plan had a sound architecture and release structure, but it was not sufficiently specific about several behaviors that can cause incorrect signing, lost wallet recovery state, secret disclosure, or misleading test qualification. The audit identified **nine high-priority planning gaps and five medium-priority gaps**. The [revised plan](QUAI_RUST_SDK_PLAN.md) addresses all fourteen as requirements, tests or feasibility gates.

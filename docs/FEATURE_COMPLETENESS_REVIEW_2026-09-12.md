@@ -1,0 +1,86 @@
+# Feature completeness review and implementation — 2026-09-12
+
+The requested Qi discovery, mixed-origin spending, payment-code workflows,
+conversion preparation and WQI/WQUAI operations now have public implementations.
+The SDK is **not yet feature complete or release-qualified** across the entire
+reference inventory. The table below separates work delivered in this change
+from remaining work; no gate is closed merely by having a signing primitive.
+
+Baseline: repository `74bb103929c83abf83445882ac939de2a70288b6`,
+`quais@1.0.0-alpha.57` (inspected source
+`94e32c7eb9960de36054135c40a341c44c84f922`), go-quai v0.56.0
+`f3f345c877300c044e3e0081a48bf3cf786fb9cc`. Published source hashes and locked
+reference identity remain the compatibility boundary. The declaration tracker
+retains all 3,928 rows; repeated exports/inherited members make row counts an
+unsuitable completion percentage.
+
+## Findings and delivered changes
+
+| ID | Delivered | Remaining acceptance or implementation |
+| --- | --- | --- |
+| FC01 Qi discovery | Node-backed receive/change scan; default gap 50 matching addresses; explicit deep ranges/continuations; all persisted HD/imported/payment addresses refreshed; locks, balances, canonicality sampling, generation checks and claim retention | Latest-only RPC cannot prove fully spent historical gaps or an atomic historical snapshot. Full historical ancestor replay and qualified history coverage remain separate |
+| FC02 signing origins | `QiKeyResolver` and bounded `QiKeyring`; independently checked HD/imported/BIP47 receive keys; mixed-input session signing | Hardware/distributed custody remains outside current local-key scope; watch-only metadata never grants signing authority |
+| FC03 durable lifecycle | Unified persisted signed Qi operation types, restart/rebroadcast, exact canonical inclusion reconciliation, reorg invalidation, unsigned nonce recovery and explicit gap repair | Replacement graphs, automatic terminal claim release, comprehensive reorg/backfill engine and fault/soak qualification remain open; absence never authorizes claim reuse |
+| FC04 conversions | Exact provider rates/calculation, dedicated Quai conversion simulation, durable Quai-to-Qi preparation, Qi-to-Quai preparation with explicit fee/slippage/refund; specialized payload backup and recovery | Qualified automatic Qi conversion fees and persistent destination/refund maturity attribution remain open. Pending-state node compatibility and funded acceptance remain gates |
+| FC05 Qi wrapping/redemption | Typed 20-byte native wrapping; single/ordered multi-key signing; durable prepare/sign/recover/broadcast; WQI protocol backing, claim, ERC-20 adapter and redemption; exact atom/Qit scaling and dust/gas rejection | Automatic wrapping fee estimates, persistent subtype-4/6 settlement attribution and funded wrap/claim/redeem/unlock/spend tests remain open |
+| FC06 Wrapped Quai | Explicit user-confirmed deployment constants, payable deposit/withdraw and ERC-20 adapter; offline runnable example; mainnet runtime-code presence observed | Orchard returned HTTP 403. Contract audit/implementation verification and funded balance/revert/withdraw acceptance remain open |
+| FC07 payment channels | Registered send-to-code allocation, receive gap/deep scanning and ownership import, keyring integration; seed/master/account-xprv constructors; full-backup master-xprv channel ownership | Notification discovery/code exchange not implemented. Account-level payment-xprv full backup remains unsupported and explicitly rejected |
+| FC08 sweep/cross-zone | Exact sweep, explicit denomination aggregation, durable owned output pools; explicit cross-zone Qi preparation with exact-shape fee request | Aggregation requires first-Qi block placement on pinned node. Funded node/destination/reorg qualification and cross-zone account orchestration remain open |
+| FC09 account/wallet lifecycle | Existing creation/import/backup/deployment APIs plus master-xprv HD restore, unsigned restart preparation and nonce-gap repair | Full signed replacement lifecycle, deployment/code acceptance and unmodified supported-node pending-state compatibility remain open |
+| FC10 provider/browser | Typed conversion/wrapper reads, bounded multi-address outpoints and inclusive delta queries, existing native WS/browser adapters preserved | Remaining reference RPC mapping, integrated WS reconnect/backfill, browser persistence/account-change handling and real extension interoperability remain open |
+| FC11 usability/parity | Three new runnable examples, workflow guide, updated semantic mappings with tests/deviations; JS wrapping regeneration wired into CI | Full declaration/overload reconciliation and additional end-to-end examples remain open; rows are not blanket marked complete |
+| FC12 release qualification | Existing qualification gates retained; new independent Go wrapping evidence and native workflow tests | Funded testnet, unmodified-node operations, sustained fuzz/fault/soak, actual macOS/Windows/extension runs, specialist review and release/package gates remain open |
+
+Address derivation and payment-code cryptography were already implemented before
+this change; the principal gaps were integration and recovery. Both coin types,
+accounts, receive/change, zone grinding and explicit child derivation are covered.
+
+The ordinary selector had an additional issue: restricting outputs to the largest
+input denomination did not preserve the full input inventory. It now shares
+available denomination capacity across recipient and change outputs, allowing
+splitting without combining smaller inputs. All 69 existing JS selection cases
+still pass; the added regression checks a 10+5+5 input set cannot become ordinary
+10+10 outputs. Aggregation is an explicit different policy.
+
+## User decisions reflected in the implementation
+
+Ordinary Qi use does not require an external indexer. Current outpoint gap scanning
+with default 50 is provided directly, with explicit deep-scan ranges and honest
+history limitations. Allocation metadata and known addresses are retained because
+wallets rarely reuse addresses and this SDK burns bounded raw ranges on allocation.
+
+Both networks use the confirmed Cyprus-1 addresses:
+
+- WQI: `0x002b2596EcF05C93a31ff916E8b456DF6C77c750`
+- WQUAI: `0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB`
+
+The [workflow guide](WALLET_WORKFLOWS.md) documents public APIs, units, sequencing,
+examples, supported origins and node-specific constraints. Historical
+[local-chain evidence](../test-infra/local-chain/README.md) retains its original
+patched/unmodified boundary; this change does not reinterpret it as qualification
+for new wrapping or cross-zone workflows.
+
+## Validation
+
+- Native workspace all-features tests passed; exact summary retained in
+  [implementation status](../IMPLEMENTATION_STATUS.md). Targeted SDK tests were
+  rerun after the final balance/example additions.
+- Four independent wrapping fixtures match JS and Rust; the pinned Go oracle
+  verifies protobuf, signing digest, signed bytes, transaction hash and signature
+  for all four. [Retained report](../test-infra/go-oracle/WRAPPING-RESULTS.json).
+- Four wrapper ABI calls match JS, with separate native-value, atom/Qit rounding,
+  overflow, zone, trim-loss and destination-gas regressions.
+- New regressions cover mixed key origins, channel scans/idempotent recovery,
+  conversion nonce preparation, specialized restart and full backup, reorg claim
+  retention, unsigned nonce-gap repair, sweep and cross-zone payloads.
+- [Read-only deployment observation](../test-infra/reports/wrapper-deployments-2026-09-12.json):
+  chain ID 9 mainnet reports 7,255 bytes for WQI and 2,029 bytes for WQUAI;
+  Orchard returned HTTP 403. No transaction was submitted during those probes.
+
+The source-only JS `deepScan` and `setAddressStatus` remain absent from the pinned
+compiled ESM/declarations. Rust deep scanning is an explicit supported operation;
+source-only methods are not silently added to the published declaration baseline.
+
+Feature completeness requires implementation plus demonstrated behavior for each
+in-scope workflow. The outstanding items above remain tracked rather than being
+hidden behind generic signing, ABI support or passing offline tests.

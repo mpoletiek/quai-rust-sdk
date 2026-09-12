@@ -12,7 +12,9 @@ pub use conversion_tracking::{
 };
 mod logs;
 mod qi;
+mod wallet_rpc;
 pub use logs::{LogFilter, LogRange, TopicMatch};
+pub use wallet_rpc::OutpointDeltas;
 mod submission;
 mod types;
 #[cfg(all(feature = "polling", not(target_arch = "wasm32")))]

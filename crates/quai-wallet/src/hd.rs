@@ -263,6 +263,21 @@ impl HdWallet {
             .derive_child(coin.number(), true)?;
         Ok(Self { root, coin })
     }
+    /// Restore BIP44 derivation from a canonical depth-zero master xprv.
+    /// Caller-owned encoded secret buffers remain the caller's responsibility.
+    pub fn from_master_xprv(encoded: &str, coin: CoinType) -> Result<Self, WalletError> {
+        let master = ExtendedPrivateKey::import(encoded)?;
+        if master.0.attrs().depth != 0
+            || master.0.attrs().child_number.0 != 0
+            || master.0.attrs().parent_fingerprint != [0; 4]
+        {
+            return Err(WalletError::InvalidExtendedKey);
+        }
+        let root = master
+            .derive_child(44, true)?
+            .derive_child(coin.number(), true)?;
+        Ok(Self { root, coin })
+    }
     /// Coin-level xpub, equivalent to quais.js HD wallet xPub(). It cannot derive hardened accounts.
     pub fn root_public_key(&self) -> ExtendedPublicKey {
         self.root.public_key()

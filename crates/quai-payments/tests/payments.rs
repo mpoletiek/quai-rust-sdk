@@ -362,3 +362,25 @@ fn channel_cancellation_progress_and_exhausted_cursor_survive_backup() {
         })
     );
 }
+
+#[test]
+fn payment_master_and_account_xprv_match_seed_and_reject_wrong_depth() {
+    use bip32::{ChildNumber, Prefix, XPrv};
+    let root = XPrv::new([1u8; 32]).unwrap();
+    let encoded = root.to_string(Prefix::XPRV);
+    let seed = PrivatePaymentCode::from_seed(&[1; 32], 2).unwrap();
+    let master = PrivatePaymentCode::from_master_xprv(&encoded, 2).unwrap();
+    assert_eq!(seed.public_code(), master.public_code());
+    let mut account = root;
+    for index in [47, 969, 2] {
+        account = account
+            .derive_child(ChildNumber::new(index, true).unwrap())
+            .unwrap();
+    }
+    let imported =
+        PrivatePaymentCode::from_account_xprv(&account.to_string(Prefix::XPRV), 2).unwrap();
+    assert_eq!(seed.public_code(), imported.public_code());
+    assert!(PrivatePaymentCode::from_master_xprv(&account.to_string(Prefix::XPRV), 2).is_err());
+    assert!(PrivatePaymentCode::from_account_xprv(&encoded, 2).is_err());
+    assert!(PrivatePaymentCode::from_account_xprv(&account.to_string(Prefix::XPRV), 3).is_err());
+}

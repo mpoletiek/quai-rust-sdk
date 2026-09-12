@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-12",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "featureComplete": false,
+  "releaseQualified": false,
+  "checks": {
+    "nativeAllFeatures": {
+      "command": "cargo test --workspace --all-features --locked --offline",
+      "passedIncludingSubprocessChecks": 274,
+      "ignoredLiveTests": 4
+    },
+    "nativeNoDefaultFeatures": {
+      "command": "cargo test --workspace --no-default-features --locked --offline",
+      "passedIncludingSubprocessChecks": 175,
+      "ignoredLiveTests": 0
+    },
+    "facadeAfterBalanceChanges": {
+      "command": "cargo test -p quai-sdk --all-features --locked --offline",
+      "passedIncludingSubprocessChecks": 39,
+      "ignoredLiveTests": 0
+    },
+    "clippy": {
+      "passed": true,
+      "warningsAreErrors": true
+    },
+    "doc": {
+      "passed": true,
+      "warningsAreErrors": true
+    },
+    "wasm": {
+      "passed": false,
+      "reason": "wasm32-unknown-unknown target not installed; rustup unavailable in this environment. CI configuration retains installation and browser check."
+    },
+    "javascript": {
+      "referenceSourceHashesVerified": 153,
+      "npmTestFilesPassed": 2,
+      "declarationRows": 3928,
+      "statuses": {
+        "implemented": 30,
+        "partial": 152,
+        "deviation": 47,
+        "pending": 3699
+      },
+      "wrappingFixturesRegeneratedIdentically": true
+    },
+    "offlineExamples": [
+      "wrapper_intents",
+      "payment_codes"
+    ]
+  },
+  "independentWrappingOracle": "test-infra/go-oracle/WRAPPING-RESULTS.json",
+  "deploymentObservations": "test-infra/reports/wrapper-deployments-2026-09-12.json"
+}

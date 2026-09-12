@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "observations": [
+    {
+      "network": "mainnet",
+      "endpoint": "http://10.0.0.12:9200",
+      "expectedChainId": 9,
+      "observedAt": "2026-09-12T18:10:56.590728+00:00",
+      "transactionSubmission": false,
+      "chainId": 9,
+      "contracts": {
+        "WQI": {
+          "address": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+          "codeBytes": 7255,
+          "runtimeSha256": "bc933c0661d3995cdcf53db5bf0424778a2b35b11a8c5a08999f53d33cf08df2"
+        },
+        "WQUAI": {
+          "address": "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB",
+          "codeBytes": 2029,
+          "runtimeSha256": "b55a87a8bbabbb5ffd44c6e17f7273c9c22fea6a47a03d58a49b45160bcbc3f6"
+        }
+      }
+    },
+    {
+      "network": "orchard",
+      "endpoint": "https://orchard.rpc.quai.network/cyprus1",
+      "expectedChainId": 15000,
+      "observedAt": "2026-09-12T18:10:56.591925+00:00",
+      "transactionSubmission": false,
+      "error": "HTTPError: HTTP Error 403: Forbidden"
+    }
+  ]
+}

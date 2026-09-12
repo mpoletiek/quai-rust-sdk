@@ -72,6 +72,26 @@ impl BroadcastError {
 }
 
 impl<T: Transport> Provider<T> {
+    /// Submit an explicitly verified Qi wrapping transaction exactly once.
+    /// Callers must persist its bytes before exposing them to the network.
+    pub async fn broadcast_qi_wrapping(
+        &self,
+        signed: &quai_consensus::SignedQiWrappingTransaction,
+    ) -> Result<BroadcastResult, BroadcastError> {
+        let actual = signed.transaction().chain_id();
+        if actual != self.expected_chain_id {
+            return Err(BroadcastError::Preflight(ProviderError::ChainMismatch {
+                expected: self.expected_chain_id,
+                actual,
+            }));
+        }
+        self.submit_signed_bytes(
+            signed.transaction().origin_zone(),
+            signed.hash().map_err(BroadcastError::Encoding)?,
+            signed.signed_bytes().map_err(BroadcastError::Encoding)?,
+        )
+        .await
+    }
     /// Submit exactly one canonical signed Quai transaction, with no automatic retry.
     ///
     /// Chain identity is checked locally before any RPC, then at the sender's routed

@@ -1,5 +1,10 @@
 # Explicit conversion transaction types
 
+**September 12 update:** See [current wallet workflows](WALLET_WORKFLOWS.md) for
+the added node-backed Qi scanner, mixed-origin sessions, conversion/wrapping
+preparation and recovery APIs. Historical evidence and limitations below retain
+their original scope; the newer guide describes the additional implementations.
+
 `quai-consensus` exposes separate conversion types. They validate the static wire and signature rules of pinned go-quai `f3f345c877300c044e3e0081a48bf3cf786fb9cc`. They do not prove input existence, value conservation, conversion activation, current exchange rates, fee sufficiency, refund execution or destination settlement. Ordinary Qi signing and submission continue to accept only ordinary empty-data transfers.
 
 ## Qi to Quai

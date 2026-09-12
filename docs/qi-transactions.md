@@ -1,5 +1,10 @@
 # Ordinary Qi transaction sessions
 
+**September 12 update:** See [current wallet workflows](WALLET_WORKFLOWS.md) for
+the added node-backed Qi scanner, mixed-origin sessions, conversion/wrapping
+preparation and recovery APIs. Historical evidence and limitations below retain
+their original scope; the newer guide describes the additional implementations.
+
 `quai_sdk::qi` is available on native targets with the `sqlite` feature. It composes deterministic denomination selection, exact provider fee estimation, local BIP44 Qi keys, ordered multi-input Schnorr signing, and SQLite input claims. The caller selects a chain ID, trusted genesis hash and zone. The library does not hardcode a test network; this workflow's tests use a mock transport and never submit to a live node.
 
 The supported operation is an ordinary same-zone Qi payment with empty transaction data. Imported private keys, BIP47-derived inputs, conversions, distributed signing, chain proofs and automatic discovery are outside this session. Base consensus and other crates expose separate capabilities; this session does not silently reinterpret those operations.

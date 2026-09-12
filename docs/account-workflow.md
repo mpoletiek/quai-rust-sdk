@@ -1,5 +1,10 @@
 # Native account workflow
 
+**September 12 update:** See [current wallet workflows](WALLET_WORKFLOWS.md) for
+the added node-backed Qi scanner, mixed-origin sessions, conversion/wrapping
+preparation and recovery APIs. Historical evidence and limitations below retain
+their original scope; the newer guide describes the additional implementations.
+
 `quai_sdk::accounts` (feature `sqlite`) joins a `Provider`, a synchronous local
 `Signer` and a scoped `SqliteStore`. Register validated public-key metadata in the
 store first. `NetworkScope` must use a trusted chain ID, genesis hash and zone.

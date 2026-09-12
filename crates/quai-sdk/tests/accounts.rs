@@ -53,7 +53,13 @@ impl Transport for Mock {
                     json!("0x5208")
                 }
             }
-            "quai_getBalance" => json!("0xffffffffffff"),
+            "quai_getBalance" => {
+                if self.mode.load(Ordering::SeqCst) == 4 {
+                    json!("0xffffffffffffffffffffffff")
+                } else {
+                    json!("0xffffffffffff")
+                }
+            }
             "quai_sendRawTransaction" => {
                 match self.mode.load(Ordering::SeqCst) {
                     1 => return Err(RpcError::Timeout),
@@ -472,5 +478,90 @@ async fn prepared_account_cannot_cross_identical_stores_or_reopened_handles() {
     assert_eq!(
         reopened.reservation(id).unwrap().unwrap().state,
         ReservationState::Reserved
+    );
+}
+
+#[tokio::test]
+async fn conversion_freezes_slippage_and_recovers_signed_nonce() {
+    use quai_sdk::consensus::{ConversionSlippage, QuaiToQiTransaction};
+    let (directory, mock, provider, signer, mut store) = setup();
+    mock.mode.store(4, Ordering::SeqCst);
+    let id = ReservationId([70; 16]);
+    let destination = "0x0080000000000000000000000000000000000001"
+        .parse()
+        .unwrap();
+    let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
+    let prepared = session
+        .prepare_conversion(
+            id,
+            destination,
+            U256::from(10_000_000_000_000_000_000u64),
+            ConversionSlippage::new(100).unwrap(),
+            policy(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(prepared.transaction().nonce, 4);
+    assert_eq!(prepared.transaction().data, [0, 100]);
+    QuaiToQiTransaction::new(prepared.transaction().clone()).unwrap();
+    let signed = session.sign(&prepared).unwrap();
+    let mut reopened = SqliteStore::open(directory.0.join("wallet.sqlite"), store.scope()).unwrap();
+    assert_eq!(
+        reopened.signed_payload(id).unwrap().unwrap(),
+        signed.signed_bytes().unwrap()
+    );
+    AccountSession::new(&provider, &signer, &mut reopened)
+        .unwrap()
+        .broadcast(id)
+        .await
+        .unwrap();
+    let calls = mock.calls.lock().unwrap();
+    let estimate = &calls
+        .iter()
+        .find(|(method, _)| method == "quai_estimateGas")
+        .unwrap()
+        .1;
+    assert_eq!(estimate[0]["input"], "0x0064");
+    assert_eq!(estimate[0]["to"], destination.to_string());
+    assert_eq!(estimate[1], "pending");
+}
+
+#[tokio::test]
+async fn released_unsigned_nonce_can_be_explicitly_repaired_without_rewinding_cursor() {
+    let (_directory, _mock, provider, signer, mut store) = setup();
+    let id = ReservationId([71; 16]);
+    let sender = signer.address().try_into().unwrap();
+    assert_eq!(store.reserve_nonce(id, sender, 4).unwrap(), 4);
+    store.release_unsigned(id).unwrap();
+    assert!(
+        AccountSession::new(&provider, &signer, &mut store)
+            .unwrap()
+            .prepare_reserved(id, intent(), policy())
+            .await
+            .is_err()
+    );
+    store.reopen_unsigned_nonce(id).unwrap();
+    let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
+    let prepared = session
+        .prepare_reserved(
+            id,
+            AccountIntent {
+                to: sender,
+                value: U256::ZERO,
+                data: RpcData::default(),
+                access_list: vec![],
+            },
+            policy(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(prepared.transaction().nonce, 4);
+    session.sign(&prepared).unwrap();
+    assert!(store.reopen_unsigned_nonce(id).is_err());
+    assert_eq!(
+        store
+            .reserve_nonce(ReservationId([72; 16]), sender, 4)
+            .unwrap(),
+        5
     );
 }

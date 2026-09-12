@@ -93,7 +93,7 @@ wallet's backup policy even though it contains no private keys.
 Ownership validation does not authenticate imported cursor history, prevent
 backup rollback, prove that an index was unused, or verify the intended identity
 of a peer. Those guarantees require the wallet's authenticated storage and
-application policy. Restoring a channel requires its original owner seed/account;
+application policy. Restoring a channel requires its original owner seed/master/account;
 public metadata alone cannot derive receiving secrets.
 
 ## Validation and reproduction
@@ -125,3 +125,10 @@ privacy or production wallet safety. Version-two/Bitmessage features, blinded
 notification construction, notification transaction parsing, discovery/gap
 status management, persistent spend reservations and network integration remain
 separate work. No browser runtime qualification is claimed for this crate yet.
+
+`from_master_xprv` derives the same payment identity as its original seed.
+`from_account_xprv` validates depth/account while explicitly trusting the omitted
+ancestry; standalone account origins are not supported by full-wallet backup.
+The [facade workflow guide](../../docs/WALLET_WORKFLOWS.md) covers registered
+channel send destinations, current receive scanning and spending through a
+verified local keyring. Those network/storage workflows live outside this crate.

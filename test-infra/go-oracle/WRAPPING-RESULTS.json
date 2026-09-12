@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "oracle": "pinned-go-quai-wire-and-signature",
+  "pinnedGoCommit": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "goVersion": "go1.26.5-X:nodwarf5",
+  "fixtureReference": "quais@1.0.0-alpha.57",
+  "fixtureSha256": "597f658a403653a56c56a912cc0c26660a6e9bd0fddc5ff0da119db57089b372",
+  "nodeAcceptance": false,
+  "results": [
+    {
+      "id": "wrapping-0",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "wrapping-1",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "wrapping-2",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    },
+    {
+      "id": "wrapping-3",
+      "kind": "qi",
+      "goProtoDecode": true,
+      "signingBytesMatch": true,
+      "signingDigestMatch": true,
+      "signedBytesMatch": true,
+      "transactionHashMatch": true,
+      "signatureVerified": true
+    }
+  ],
+  "sourceClean": true,
+  "sourceCommitVerified": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "cgoEnabled": true
+}

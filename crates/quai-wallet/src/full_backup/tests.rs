@@ -603,7 +603,7 @@ fn authenticated_registered_channels_restore_ownership_and_never_rewind() {
                 .unwrap()
             ]
         )
-        .is_err()
+        .is_ok()
     );
 }
 
@@ -672,4 +672,81 @@ fn independent_v2_channel_vector_authenticates_and_matches_legacy_key_derivation
             .unwrap_err(),
         WalletBackupError::UnlockFailed
     );
+}
+
+#[test]
+fn signed_specialized_qi_backup_restores_exact_payload_and_claims() {
+    use quai_consensus::{
+        ConversionSlippage, QiConversionIntent, QiConversionTransaction, QiInput, QiWrappingIntent,
+        QiWrappingTransaction, SignedQiOperation,
+    };
+    for wrapping in [false, true] {
+        let db = Database::new();
+        let mut store = db.open();
+        populate(&mut store);
+        let snapshot = store.snapshot().unwrap();
+        let coin = &snapshot.coins[0];
+        store
+            .reserve_qi(id(80), snapshot.generation, U256::from(6), &[coin.outpoint])
+            .unwrap();
+        let key = key_for(&fixture_accounts()[0]);
+        let inputs = vec![QiInput {
+            previous_output: coin.outpoint,
+            public_key: key.public_key(),
+        }];
+        let destination = fixture_accounts()[1].address().try_into().unwrap();
+        let signed = if wrapping {
+            SignedQiOperation::Wrapping(
+                QiWrappingTransaction::new(
+                    scope().chain_id,
+                    inputs,
+                    vec![Denomination::new(1).unwrap()],
+                    vec![],
+                    QiWrappingIntent {
+                        destination,
+                        owner_contract: "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+                            .parse()
+                            .unwrap(),
+                    },
+                )
+                .unwrap()
+                .sign_single(&key)
+                .unwrap(),
+            )
+        } else {
+            SignedQiOperation::Conversion(
+                QiConversionTransaction::new(
+                    scope().chain_id,
+                    inputs,
+                    vec![Denomination::new(1).unwrap()],
+                    vec![],
+                    QiConversionIntent {
+                        destination,
+                        refund: "0x0080000000000000000000000000000000000001"
+                            .parse()
+                            .unwrap(),
+                        slippage: ConversionSlippage::new(100).unwrap(),
+                    },
+                )
+                .unwrap()
+                .sign_single(&key)
+                .unwrap(),
+            )
+        };
+        store.commit_signed_qi_operation(id(80), &signed).unwrap();
+        let backup = WalletBackup::capture(&mut store, vec![seed_origin()]).unwrap();
+        let decoded = WalletBackup::decode(&backup.encode().unwrap()).unwrap();
+        let target = Database::new();
+        let mut restored = target.open();
+        decoded.restore(&mut restored).unwrap();
+        assert_eq!(
+            restored.signed_payload(id(80)).unwrap().unwrap(),
+            signed.signed_bytes().unwrap()
+        );
+        assert_eq!(
+            restored.reserved_outpoints(id(80)).unwrap(),
+            vec![coin.outpoint]
+        );
+        assert!(restored.release_unsigned(id(80)).is_err());
+    }
 }

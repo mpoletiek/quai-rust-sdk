@@ -516,7 +516,7 @@ impl WalletBackup {
                             return Err(WalletBackupError::InvalidInput);
                         }
                     } else {
-                        let signed = quai_consensus::SignedQiTransaction::decode(payload)
+                        let signed = quai_consensus::SignedQiOperation::decode(payload)
                             .map_err(|_| WalletBackupError::InvalidInput)?;
                         let inputs: BTreeSet<_> = signed
                             .transaction()

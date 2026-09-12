@@ -489,12 +489,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:AbstractProvider:instance:call",
@@ -821,12 +827,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:AbstractProvider:instance:getOutpointsByAddress",
@@ -837,12 +849,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:AbstractProvider:instance:getPendingHeader",
@@ -3195,12 +3213,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:BrowserProvider:instance:call",
@@ -3527,12 +3551,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:BrowserProvider:instance:getOutpointsByAddress",
@@ -3543,12 +3573,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:BrowserProvider:instance:getPendingHeader",
@@ -12949,12 +12985,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:call",
@@ -13281,12 +13323,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:getOutpointsByAddress",
@@ -13297,12 +13345,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:getPendingHeader",
@@ -14473,12 +14527,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:JsonRpcProvider:instance:call",
@@ -14805,12 +14865,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:JsonRpcProvider:instance:getOutpointsByAddress",
@@ -14821,12 +14887,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:JsonRpcProvider:instance:getPendingHeader",
@@ -17930,12 +18002,18 @@
         "(zone: Zone, options?: QiTransactionOptions, maxDenominationAggregate?: number, maxDenominationOutput?: number, onProgress?: ProgressCallback): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi::QiSession::prepare_sweep"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit SweepMode::Aggregate; rejects nonreducing or underfunded results. Pinned node requires first-Qi block placement, not guaranteed by preparation."
     },
     {
       "id": ".:QiHDWallet:instance:channelIsOpen",
@@ -17946,12 +18024,18 @@
         "(paymentCode: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::payment_channel"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/payment.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Requires private owner to validate persisted public channel metadata."
     },
     {
       "id": ".:QiHDWallet:instance:connect",
@@ -17978,12 +18062,18 @@
         "(destinationAddress: string, amount: bigint, options?: QiTransactionOptions): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi::QiSession::prepare_special"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit slippage/refund and caller-authorized Qit fee. Automatic specialized fee estimation and destination maturity remain unqualified."
     },
     {
       "id": ".:QiHDWallet:instance:getAddressesForAccount",
@@ -18154,12 +18244,18 @@
         "(account: number, zone: Zone, useReactNative?: boolean): Promise<QiAddressInfo>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::allocate_address"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/tests.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Durable allocation burns bounded raw ranges before exposure; does not reuse trailing skipped indexes."
     },
     {
       "id": ".:QiHDWallet:instance:getNextAddressSync",
@@ -18170,12 +18266,18 @@
         "(account: number, zone: Zone): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::allocate_address"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/tests.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Synchronous storage allocation; explicit branch and bounds."
     },
     {
       "id": ".:QiHDWallet:instance:getNextChangeAddress",
@@ -18186,12 +18288,18 @@
         "(account: number, zone: Zone): Promise<QiAddressInfo>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi::QiChangePool::allocate"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Opaque durable change pools allocated before refresh."
     },
     {
       "id": ".:QiHDWallet:instance:getNextChangeAddressSync",
@@ -18202,12 +18310,18 @@
         "(account: number, zone: Zone): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi::QiChangePool::allocate"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Synchronous bounded allocation with burned intervals."
     },
     {
       "id": ".:QiHDWallet:instance:getNextReceiveAddress",
@@ -18218,12 +18332,18 @@
         "(senderPaymentCode: string, zone: Zone, account?: number): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::allocate_payment_address"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/payment.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Owner-checked registered channel, explicit receive direction and durable burned ranges."
     },
     {
       "id": ".:QiHDWallet:instance:getNextSendAddress",
@@ -18234,12 +18354,18 @@
         "(receiverPaymentCode: string, zone: Zone, account?: number): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::payment_channels::payment_intent"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Registered peer and explicit number of fresh denomination destinations; no implicit code exchange or notification."
     },
     {
       "id": ".:QiHDWallet:instance:getOutpoints",
@@ -18250,12 +18376,18 @@
         "(zone: Zone): OutpointInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::snapshot"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Stored current coin observations preserve locks and reservations; refresh is explicit."
     },
     {
       "id": ".:QiHDWallet:instance:getPaymentChannelAddressesForZone",
@@ -18266,12 +18398,18 @@
         "(paymentCode: string, zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::payment_addresses"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Returns owned channel exposures for explicit filtering by zone and direction."
     },
     {
       "id": ".:QiHDWallet:instance:getPaymentCode",
@@ -18305,12 +18443,18 @@
         "(address: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::qi_keys::QiKeyResolver::resolve"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Returns a guarded local key only for verified public metadata."
     },
     {
       "id": ".:QiHDWallet:instance:getSpendableBalance",
@@ -18353,12 +18497,18 @@
         "(privateKey: string): Promise<QiAddressInfo>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::qi_keys::QiKeyring::import"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit memory keyring plus separately persisted public metadata and authenticated origin backup."
     },
     {
       "id": ".:QiHDWallet:instance:openChannel",
@@ -18370,18 +18520,17 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_payments::PaymentChannel::new",
-        "quai_payments::PaymentChannel::from_json"
+        "quai_wallet::storage::SqliteStore::import_payment_channel"
       ],
-      "feature": "payments",
+      "feature": "sqlite,wallet,payments",
       "status": "partial",
       "test_ids": [
-        "crates/quai-payments/tests/payments.rs"
+        "crates/quai-wallet/src/full_backup/tests.rs"
       ],
       "docs": [
-        "crates/quai-payments/README.md"
+        "docs/WALLET_WORKFLOWS.md"
       ],
-      "deviation": "Owned public channel metadata and bounded derivation qualified; durable integration is being separately tested, no notification/discovery claim."
+      "deviation": "Owner-validated channel import and authenticated seed/master-xprv recovery; no implicit counterparty exchange."
     },
     {
       "id": ".:QiHDWallet:instance:openChannels",
@@ -18406,12 +18555,18 @@
         "(zone: Zone, account?: number): Promise<void>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi_discovery::scan_and_refresh_qi"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Current outpoint gap defaults to 50 matching addresses on each branch; explicit raw ranges support deep recovery. Does not claim full historical recovery."
     },
     {
       "id": ".:QiHDWallet:instance:sendTransaction",
@@ -18422,12 +18577,18 @@
         "(recipientPaymentCode: string, amount: bigint, originZone: Zone, destinationZone: Zone, options?: QiTransactionOptions): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi::QiSession"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Separate prepare/review/sign/broadcast. Mixed HD/imported/channel origins, same-zone and explicit cross-zone; destination settlement tracked separately."
     },
     {
       "id": ".:QiHDWallet:instance:serialize",
@@ -18502,12 +18663,18 @@
         "(zone: Zone, account?: number, onOutpointsCreated?: OutpointsCallback, onOutpointsDeleted?: OutpointsCallback): Promise<void>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi_discovery::refresh_qi"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Refreshes every persisted Qi origin. Latest-only observations with matched head samples are not an atomic historical snapshot."
     },
     {
       "id": ".:QiHDWallet:instance:xPub",
@@ -18518,12 +18685,18 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::root_public_key"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Coin-level BIP44 public root; account roots are separately exposed."
     },
     {
       "id": ".:QiHDWallet:static:createRandom",
@@ -22815,12 +22988,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:SocketProvider:instance:call",
@@ -23147,12 +23326,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:SocketProvider:instance:getOutpointsByAddress",
@@ -23163,12 +23348,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:SocketProvider:instance:getPendingHeader",
@@ -29165,12 +29356,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:WebSocketProvider:instance:call",
@@ -29513,12 +29710,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:WebSocketProvider:instance:getOutpointsByAddress",
@@ -29529,12 +29732,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": ".:WebSocketProvider:instance:getPendingHeader",
@@ -41443,12 +41652,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:AbstractProvider:instance:call",
@@ -41775,12 +41990,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:AbstractProvider:instance:getOutpointsByAddress",
@@ -41791,12 +42012,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:AbstractProvider:instance:getPendingHeader",
@@ -43186,12 +43413,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:BrowserProvider:instance:call",
@@ -43518,12 +43751,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:BrowserProvider:instance:getOutpointsByAddress",
@@ -43534,12 +43773,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:BrowserProvider:instance:getPendingHeader",
@@ -44800,12 +45045,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:call",
@@ -45132,12 +45383,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:getOutpointsByAddress",
@@ -45148,12 +45405,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:getPendingHeader",
@@ -46324,12 +46587,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:call",
@@ -46656,12 +46925,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:getOutpointsByAddress",
@@ -46672,12 +46947,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:getPendingHeader",
@@ -49898,12 +50179,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:SocketProvider:instance:call",
@@ -50230,12 +50517,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:SocketProvider:instance:getOutpointsByAddress",
@@ -50246,12 +50539,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:SocketProvider:instance:getPendingHeader",
@@ -52182,12 +52481,18 @@
         "(fromOrArgs: string | ConversionTransactionRequest, to?: string, value?: BigNumberish): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::calculate_conversion_amount"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:WebSocketProvider:instance:call",
@@ -52530,12 +52835,18 @@
         "(addresses: string[], startHash: string, endHash?: string): Promise<OutpointDeltas>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoint_deltas"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:WebSocketProvider:instance:getOutpointsByAddress",
@@ -52546,12 +52857,18 @@
         "(address: AddressLike): Promise<Outpoint[]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Typed, bounded and chain-checked transport-generic Rust method. Node index/history and current quote limits are explicit; not a JavaScript class hierarchy clone."
     },
     {
       "id": "./providers:WebSocketProvider:instance:getPendingHeader",
@@ -59600,12 +59917,18 @@
         "(zone: Zone, options?: QiTransactionOptions, maxDenominationAggregate?: number, maxDenominationOutput?: number, onProgress?: ProgressCallback): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi::QiSession::prepare_sweep"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit SweepMode::Aggregate; rejects nonreducing or underfunded results. Pinned node requires first-Qi block placement, not guaranteed by preparation."
     },
     {
       "id": "./wallet:QiHDWallet:instance:channelIsOpen",
@@ -59616,12 +59939,18 @@
         "(paymentCode: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::payment_channel"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/payment.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Requires private owner to validate persisted public channel metadata."
     },
     {
       "id": "./wallet:QiHDWallet:instance:connect",
@@ -59648,12 +59977,18 @@
         "(destinationAddress: string, amount: bigint, options?: QiTransactionOptions): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi::QiSession::prepare_special"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit slippage/refund and caller-authorized Qit fee. Automatic specialized fee estimation and destination maturity remain unqualified."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getAddressesForAccount",
@@ -59824,12 +60159,18 @@
         "(account: number, zone: Zone, useReactNative?: boolean): Promise<QiAddressInfo>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::allocate_address"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/tests.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Durable allocation burns bounded raw ranges before exposure; does not reuse trailing skipped indexes."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextAddressSync",
@@ -59840,12 +60181,18 @@
         "(account: number, zone: Zone): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::allocate_address"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/tests.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Synchronous storage allocation; explicit branch and bounds."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextChangeAddress",
@@ -59856,12 +60203,18 @@
         "(account: number, zone: Zone): Promise<QiAddressInfo>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi::QiChangePool::allocate"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Opaque durable change pools allocated before refresh."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextChangeAddressSync",
@@ -59872,12 +60225,18 @@
         "(account: number, zone: Zone): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi::QiChangePool::allocate"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Synchronous bounded allocation with burned intervals."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextReceiveAddress",
@@ -59888,12 +60247,18 @@
         "(senderPaymentCode: string, zone: Zone, account?: number): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::allocate_payment_address"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/payment.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Owner-checked registered channel, explicit receive direction and durable burned ranges."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextSendAddress",
@@ -59904,12 +60269,18 @@
         "(receiverPaymentCode: string, zone: Zone, account?: number): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::payment_channels::payment_intent"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Registered peer and explicit number of fresh denomination destinations; no implicit code exchange or notification."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getOutpoints",
@@ -59920,12 +60291,18 @@
         "(zone: Zone): OutpointInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::snapshot"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Stored current coin observations preserve locks and reservations; refresh is explicit."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getPaymentChannelAddressesForZone",
@@ -59936,12 +60313,18 @@
         "(paymentCode: string, zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::payment_addresses"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Returns owned channel exposures for explicit filtering by zone and direction."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getPaymentCode",
@@ -59975,12 +60358,18 @@
         "(address: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::qi_keys::QiKeyResolver::resolve"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Returns a guarded local key only for verified public metadata."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getSpendableBalance",
@@ -60023,12 +60412,18 @@
         "(privateKey: string): Promise<QiAddressInfo>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::qi_keys::QiKeyring::import"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit memory keyring plus separately persisted public metadata and authenticated origin backup."
     },
     {
       "id": "./wallet:QiHDWallet:instance:openChannel",
@@ -60040,18 +60435,17 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_payments::PaymentChannel::new",
-        "quai_payments::PaymentChannel::from_json"
+        "quai_wallet::storage::SqliteStore::import_payment_channel"
       ],
-      "feature": "payments",
+      "feature": "sqlite,wallet,payments",
       "status": "partial",
       "test_ids": [
-        "crates/quai-payments/tests/payments.rs"
+        "crates/quai-wallet/src/full_backup/tests.rs"
       ],
       "docs": [
-        "crates/quai-payments/README.md"
+        "docs/WALLET_WORKFLOWS.md"
       ],
-      "deviation": "Owned public channel metadata and bounded derivation qualified; durable integration is being separately tested, no notification/discovery claim."
+      "deviation": "Owner-validated channel import and authenticated seed/master-xprv recovery; no implicit counterparty exchange."
     },
     {
       "id": "./wallet:QiHDWallet:instance:openChannels",
@@ -60076,12 +60470,18 @@
         "(zone: Zone, account?: number): Promise<void>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi_discovery::scan_and_refresh_qi"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Current outpoint gap defaults to 50 matching addresses on each branch; explicit raw ranges support deep recovery. Does not claim full historical recovery."
     },
     {
       "id": "./wallet:QiHDWallet:instance:sendTransaction",
@@ -60092,12 +60492,18 @@
         "(recipientPaymentCode: string, amount: bigint, originZone: Zone, destinationZone: Zone, options?: QiTransactionOptions): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi::QiSession"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Separate prepare/review/sign/broadcast. Mixed HD/imported/channel origins, same-zone and explicit cross-zone; destination settlement tracked separately."
     },
     {
       "id": "./wallet:QiHDWallet:instance:serialize",
@@ -60172,12 +60578,18 @@
         "(zone: Zone, account?: number, onOutpointsCreated?: OutpointsCallback, onOutpointsDeleted?: OutpointsCallback): Promise<void>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi_discovery::refresh_qi"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Refreshes every persisted Qi origin. Latest-only observations with matched head samples are not an atomic historical snapshot."
     },
     {
       "id": "./wallet:QiHDWallet:instance:xPub",
@@ -60188,12 +60600,18 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::root_public_key"
+      ],
+      "feature": "sqlite,wallet,payments",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Coin-level BIP44 public root; account roots are separately exposed."
     },
     {
       "id": "./wallet:QiHDWallet:static:createRandom",

@@ -511,8 +511,8 @@ Portable account transaction custody now retains nonce gaps, exact signed roots
 and fee-only candidate families without SQLite. The browser adapter commits nonces
 before returning and local signatures before exposure, with cross-tab CAS and
 explicit revision fencing around canonical observations. Backup initialization
-retains authenticated native account custody; live backup merge, Qi claims and
-complete browser session orchestration remain open.
+retains authenticated native account custody. Account-only capture and live merge
+are also portable; Qi claims and complete browser session orchestration remain open.
 [Workflow and bounds](docs/BROWSER_ACCOUNT_CUSTODY.md).
 
 The Orchard read-only tests passed again on 2026-09-13. Its gateway reports
@@ -521,3 +521,15 @@ WQUAI address returned empty code. The faucet hostname still failed DNS resoluti
 from this environment. These observations do not qualify funded operations or
 the pinned v0.56 protocol profile.
 [Retained read-only evidence](test-infra/reports/orchard-read-recheck-2026-09-13.json).
+
+
+Account-only backup capture and conservative live restore are now portable.
+Exact owned metadata/private origins are proved before encryption; root and
+replacement bytes restore into browser journals and native SQLite. Browser merges
+retain live IDs, nonce floors and all signed candidates, reject conflicting claims
+atomically, and invalidate stale inclusion. Full browser wallet capture across
+account, HD/payment allocation and Qi state remains separate work.
+
+[Account backup validation](test-infra/reports/browser-account-backup-2026-09-13.json)
+retains six native tests including SQLite restore, eight actual worker tests and
+a bounded sanitizer campaign, with the account-only capture boundary explicit.

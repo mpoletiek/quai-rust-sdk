@@ -11,7 +11,11 @@ passed both read-only SDK tests. The gateway now reports
 address returned empty code. Funded acceptance and faucet access remain open.
 [Browser account custody](BROWSER_ACCOUNT_CUSTODY.md) now retains nonce claims,
 signed candidates and revision-fenced inclusion, alongside the existing address
-allocators; live backup merge and Qi custody remain incomplete.
+allocators. Qi custody and complete browser wallet capture remain incomplete.
+
+Account-only authenticated backup capture and monotonic live journal merge are
+now implemented. Complete browser wallet capture across all journals and Qi
+custody still require integration; see the workflow's explicit capture boundary.
 
 **The target is a feature-complete SDK for both Quai and Qi wallet applications.**
 Keys, HD derivation, current gap-50 Qi discovery, mixed-origin signing, payment

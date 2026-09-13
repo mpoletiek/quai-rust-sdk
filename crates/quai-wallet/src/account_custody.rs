@@ -46,6 +46,18 @@ pub struct AccountOperationBook {
     next_nonce: u64,
     operations: BTreeMap<[u8; 16], AccountOperation>,
 }
+/// Result of a conservative authenticated backup union; no claim is released.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct AccountMergeReport {
+    /// Newly retained IDs; existing IDs are never removed or reassigned.
+    pub operations_added: usize,
+    /// Newly retained replacement edges across all operations.
+    pub candidates_added: usize,
+    /// Live inclusion observations discarded for fresh canonical reconciliation.
+    pub invalidated_inclusions: usize,
+    /// Maximum retained next-nonce floor after the merge.
+    pub next_nonce: u64,
+}
 impl AccountOperationBook {
     /// Start a never-written book with an explicit prior nonce floor. A remote
     /// pending nonce alone cannot recover previously exposed local transactions.
@@ -78,6 +90,10 @@ impl AccountOperationBook {
     /// Exact account whose nonces are held.
     pub fn address(&self) -> QuaiAddress {
         self.address
+    }
+    /// Exact compressed public-key identity; this does not expose signing material.
+    pub fn owner(&self) -> PublicKey {
+        self.owner
     }
     /// Next nonce floor; `u64::MAX` denotes exhausted allocation.
     pub fn next_nonce(&self) -> u64 {
@@ -316,6 +332,72 @@ impl AccountOperationBook {
         book.validate()?;
         book.export_state()?;
         Ok(book)
+    }
+    /// Atomically union authenticated account custody without dropping IDs, signed
+    /// bytes, candidates or nonce floors. Unsigned backup states never release or
+    /// reopen a live operation; signed evidence always preserves a held claim.
+    /// Conflicting nonce assignments, root bytes/hashes or candidate families reject
+    /// the entire merge. Successful merges invalidate every live inclusion.
+    pub fn merge_backup(
+        &mut self,
+        backup: &crate::full_backup::WalletBackup,
+    ) -> Result<AccountMergeReport> {
+        let incoming = Self::from_backup(backup, self.scope, self.owner)?;
+        let mut candidate = self.clone();
+        let mut report = AccountMergeReport {
+            operations_added: 0,
+            candidates_added: 0,
+            invalidated_inclusions: 0,
+            next_nonce: self.next_nonce.max(incoming.next_nonce),
+        };
+        candidate.next_nonce = report.next_nonce;
+        for source in incoming.operations.values() {
+            let Some(live) = candidate.operations.get_mut(&source.id.0) else {
+                report.operations_added += 1;
+                report.candidates_added += source.replacements.len();
+                candidate.operations.insert(source.id.0, source.clone());
+                continue;
+            };
+            if live.nonce != source.nonce
+                || matches!((live.transaction, source.transaction), (Some(a), Some(b)) if a != b)
+                || matches!((&live.payload, &source.payload), (Some(a), Some(b)) if a != b)
+            {
+                return Err(StorageError::Conflict);
+            }
+            live.transaction = live.transaction.or(source.transaction);
+            if live.payload.is_none() {
+                live.payload = source.payload.clone();
+            }
+            for edge in &source.replacements {
+                if !live.replacements.contains(edge) {
+                    live.replacements.push(edge.clone());
+                    report.candidates_added += 1;
+                }
+            }
+            if live.transaction.is_some() {
+                live.state = if matches!(
+                    live.state,
+                    ReservationState::Submitted | ReservationState::Confirmed
+                ) || source.state == ReservationState::Submitted
+                {
+                    ReservationState::Submitted
+                } else {
+                    ReservationState::Signed
+                };
+            }
+        }
+        for op in candidate.operations.values_mut() {
+            if op.inclusion.take().is_some() {
+                report.invalidated_inclusions += 1;
+            }
+            if op.state == ReservationState::Confirmed {
+                op.state = ReservationState::Submitted;
+            }
+        }
+        candidate.validate()?;
+        candidate.export_state()?;
+        *self = candidate;
+        Ok(report)
     }
     fn validate(&self) -> Result<()> {
         if self.operations.len() > MAX_ACCOUNT_OPERATIONS {

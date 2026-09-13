@@ -5,7 +5,8 @@ use quai_crypto::PublicKey;
 use quai_primitives::Hash32;
 use quai_signer::{Signer, SignerError};
 use quai_wallet::account_custody::{
-    AccountOperationBook, MAX_ACCOUNT_CUSTODY_BYTES, ReservationId, ReservationState,
+    AccountMergeReport, AccountOperationBook, MAX_ACCOUNT_CUSTODY_BYTES, ReservationId,
+    ReservationState,
 };
 use quai_wallet::discovery::{Checkpoint, NetworkScope};
 use quai_wallet::metadata::StorageError;
@@ -87,6 +88,18 @@ impl BrowserAccountBook {
             .store
             .compare_exchange(None, Some(&book.export_state()?))
             .await?)
+    }
+    /// Union authenticated custody with live state under one CAS. A concurrent
+    /// writer conflicts; no newer nonce/candidate is overwritten by a stale backup.
+    /// Successful merge invalidates live inclusion observations for reconciliation.
+    pub async fn merge_backup(
+        &self,
+        backup: &quai_wallet::full_backup::WalletBackup,
+    ) -> Result<AccountMergeReport, BrowserAccountError> {
+        let mut snapshot = self.snapshot().await?;
+        let report = snapshot.book.merge_backup(backup)?;
+        self.write(&snapshot).await?;
+        Ok(report)
     }
     /// Revalidate all persisted signatures, claims and candidate edges on every read.
     pub async fn snapshot(&self) -> Result<BrowserAccountSnapshot, BrowserAccountError> {

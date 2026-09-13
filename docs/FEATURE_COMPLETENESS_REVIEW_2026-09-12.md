@@ -88,8 +88,8 @@ hidden behind generic signing, ABI support or passing offline tests.
 
 Account custody now has a portable journal and browser CAS adapter, with native
 and actual worker tests for signature-before-return persistence, competing nonce
-allocations, cancellation and stale canonical observations. Live backup merge and
-Qi custody remain open. See [the account workflow](BROWSER_ACCOUNT_CUSTODY.md) and
+allocations, cancellation and stale canonical observations. Account-only backup capture and live merge now preserve custody;
+complete browser wallet capture and Qi custody remain open. See [the account workflow](BROWSER_ACCOUNT_CUSTODY.md) and
 [retained validation](../test-infra/reports/browser-account-custody-2026-09-13.json).
 
 The latest [Orchard read-only recheck](../test-infra/reports/orchard-read-recheck-2026-09-13.json)

@@ -217,8 +217,9 @@ impl BackupOrigin {
             .map_err(|_| WalletBackupError::Ownership)
     }
 }
-/// Complete supported public state and its explicit secret owners. Native capture
-/// includes every network/zone scope in the selected database, not just its bound scope.
+/// Captured public state and its explicit secret owners. Native capture includes
+/// every network/zone scope in the selected database, not just its bound scope;
+/// portable account capture includes only the explicitly selected account journal.
 /// UTXO snapshots/checkpoints are intentionally invalidated during restore.
 pub struct WalletBackup {
     origins: Vec<BackupOrigin>,
@@ -245,6 +246,59 @@ pub struct RestoreReport {
     pub reconciliation_required: bool,
 }
 impl WalletBackup {
+    /// Capture one portable account custody journal and prove its exact public
+    /// metadata against explicit private origins. This is an account-only backup:
+    /// it does not capture HD/payment allocation journals, other accounts, Qi
+    /// claims or browser database state. Back up those independently until using
+    /// a complete wallet capture. Inclusion is omitted for fresh reconciliation.
+    pub fn capture_account_custody(
+        book: &crate::account_custody::AccountOperationBook,
+        address: PublicAddress,
+        origins: Vec<BackupOrigin>,
+    ) -> Result<Self> {
+        if address.address() != book.address().address()
+            || *address.public_key() != book.owner().to_compressed()
+        {
+            return Err(WalletBackupError::Ownership);
+        }
+        let operations = book
+            .operations()
+            .map(|op| OperationState {
+                record: Reservation {
+                    id: op.id,
+                    state: if op.state == ReservationState::Confirmed {
+                        ReservationState::Submitted
+                    } else {
+                        op.state
+                    },
+                    transaction: op.transaction,
+                    inclusion: None,
+                },
+                kind: 1,
+                qi: vec![],
+                nonce: Some((book.address(), op.nonce)),
+                payload: op.payload.clone(),
+                replacements: op.replacements.clone(),
+            })
+            .collect();
+        let state = PublicWalletState {
+            scopes: vec![ScopeState {
+                scope: book.scope(),
+                addresses: vec![address],
+                derivation: vec![],
+                nonces: vec![NonceState {
+                    address: book.address(),
+                    next_nonce: book.next_nonce(),
+                }],
+                operations,
+            }],
+            channels: vec![],
+            exposures: vec![],
+        };
+        let backup = Self { origins, state };
+        backup.validate()?;
+        Ok(backup)
+    }
     /// Capture all database scopes atomically. Every HD/imported address and bound
     /// account xpub must be proved by one of the explicit supplied secret origins.
     #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]

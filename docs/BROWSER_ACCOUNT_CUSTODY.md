@@ -51,11 +51,28 @@ signed transaction and 16 MiB for the entire journal. Exhaustion fails without
 discarding existing custody. Released IDs still count toward capacity.
 
 Authenticated native v4 backup import preserves root/candidate bytes and nonce
-floors, including hash-only claims, and invalidates historical inclusion. It only
-initializes a new journal. Monotonic merge into a live browser wallet, Qi outpoint
-custody and complete browser prepare/fee/recovery orchestration remain separate
-work. IndexedDB records are public application state, not authenticated against
-malicious replacement or rollback by code with the same browser origin.
+floors, including hash-only claims, and invalidates historical inclusion.
+`merge_backup` also unions account custody into an existing live journal under
+one CAS. It retains absent live IDs and all signed candidates, takes the maximum
+nonce floor, and rejects conflicting ID/nonce/root assignments or bounds without
+changing live state. An unsigned backup never releases or reopens a live operation;
+authenticated signed evidence preserves the claim even if an old live record was
+unsigned. Matching hash-only custody can gain canonical signed bytes. Every
+successful merge discards live inclusion for fresh canonical reconciliation.
+
+`WalletBackup::capture_account_custody` captures a detached journal snapshot with
+explicit owned public metadata and secret origins, after proving their exact
+derivation. Its existing encryption API produces an authenticated envelope which
+can initialize or merge browser account custody and restore native SQLite custody.
+This is an **account-only backup**: HD/payment allocation journals, other accounts,
+Qi outpoints and other browser state are not captured. Inclusion is deliberately
+omitted. Keep those other journals/backups independently; this method does not
+claim to capture a complete browser wallet. A browser snapshot revision identifies
+when the account capture was read; later writes may require a newer backup.
+
+Qi outpoint custody and complete browser prepare/fee/recovery orchestration remain
+separate work. IndexedDB records are public application state, not authenticated
+against malicious replacement or rollback by code with the same browser origin.
 
 Tests use public toy identities which must never be funded. Eight independent
 Node encodings use pinned quais.js signatures; native and actual worker tests

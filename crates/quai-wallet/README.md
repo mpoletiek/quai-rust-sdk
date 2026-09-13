@@ -13,7 +13,7 @@ Implemented behavior:
 - All ten pinned quais.js wordlists, including Portuguese, with validated
   entropy/word/checksum conversion and NFKD mnemonic/passphrase normalization.
 - BIP32 master keys for all seed lengths from 16 through 64 bytes, xprv/xpub
-  import/export, exact hardened/nonhardened children, and absolute master paths.
+  import/export, exact hardened/nonhardened children, absolute master paths, and bounded relative subtree paths.
 - BIP44 roots `m/44'/994'` and `m/44'/969'`, hardened accounts, external/change
   branches, and nonhardened address indexes.
 - Bounded zone-and-ledger search with cooperative cancellation, actual child
@@ -119,3 +119,27 @@ and ownership-verified QUAIWALT v2 channel backups; legacy v1 decoding is preser
 
 Current gap-50 Qi RPC discovery, mixed-origin sessions, payment channel orchestration,
 sweep/aggregation and recovery are described in the [facade workflow guide](../../docs/WALLET_WORKFLOWS.md).
+
+## Extended key metadata and subtree paths
+
+`ExtendedPrivateKey::metadata()` and `ExtendedPublicKey::metadata()` return the
+same `ExtendedKeyMetadata`: depth, serialized child number (including the
+hardened bit), node/parent fingerprints and chain code. `child_index()` removes
+the hardened bit; `is_hardened()` reports it. Diagnostics redact these values.
+Fingerprints are four-byte routing hints and cannot authenticate ancestry.
+Full paths are not recoverable from xpub/xprv bytes; callers retain their origin
+path, while `DerivedAddress::path()` formats known BIP44 address origins.
+
+`derive_path("m/...")` requires a master node. On an imported account or other
+subtree use `derive_relative_path("0/7")`, or an exact `derive_child`. Relative
+paths must be nonempty without a leading slash or `m`; the complete path and
+remaining BIP32 depth budget are checked before derivation. Public derivation
+rejects any hardened step. The APIs preserve exact indices and return errors
+for invalid children rather than silently skipping them. These explicit APIs
+replace the reference's single absolute/relative `derivePath` entry point.
+
+The pinned metadata generator covers 40 master, leaf and hardened-node cases,
+including hardened index 2^31-1, across all supported seed lengths in the existing
+reference fixtures. Tests compare private/public/imported metadata, relative
+subtree results and parent fingerprints, plus malformed paths and depth 255.
+Run `node compatibility/scripts/generate-key-metadata.mjs` to reproduce vectors.

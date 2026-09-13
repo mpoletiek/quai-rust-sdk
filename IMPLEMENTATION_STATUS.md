@@ -221,3 +221,11 @@ conflicting/empty code. Twelve factory cases and the offline deployment example
 pass; the new artifact parser path completed 2,034,432 sanitizer fuzz executions
 without failure. Library linking and runtime/immutable fixups remain explicit
 application work, as in the pinned factory's bytecode requirements.
+
+
+Extended private/public keys expose matching BIP32 metadata with redacted
+diagnostics, and imported subtree keys support bounded relative paths. Forty
+pinned JS cases cover chain codes/fingerprints/raw hardened child numbers and
+import round trips; relative account derivation agrees with pinned leaf xpubs.
+All 11 wallet reference tests and strict native/wasm clippy passed. Forty-four
+HD declaration rows now link these APIs and explicit path/secret differences.

@@ -11202,12 +11202,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:connect",
@@ -11248,12 +11255,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:deriveChild",
@@ -11264,12 +11278,18 @@
         "(_index: Numeric): HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::derive_child"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit master-only derive_path and nonempty derive_relative_path; exact child index with separate hardened flag; invalid children return errors. One portable Rust implementation replaces runtime-specific variants."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:derivePath",
@@ -11280,12 +11300,18 @@
         "(path: string): HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::derive_relative_path"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit master-only derive_path and nonempty derive_relative_path; exact child index with separate hardened flag; invalid children return errors. One portable Rust implementation replaces runtime-specific variants."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:estimateGas",
@@ -11310,12 +11336,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::export"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Canonical xprv/xpub only; private export is a redacted zeroizing SecretString requiring explicit access."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:fingerprint",
@@ -11324,12 +11356,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:getAddress",
@@ -11372,12 +11411,19 @@
         "(): this is { path: string; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::DerivedAddress::path",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Generic extended keys do not retain full origin paths, which cannot be recovered from imported BIP32 encodings. Applications retain trusted ancestry; DerivedAddress has explicit BIP44 origin metadata."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:index",
@@ -11386,12 +11432,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:parentFingerprint",
@@ -11400,12 +11453,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:path",
@@ -11414,12 +11474,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::DerivedAddress::path",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Generic extended keys do not retain full origin paths, which cannot be recovered from imported BIP32 encodings. Applications retain trusted ancestry; DerivedAddress has explicit BIP44 origin metadata."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:populateCall",
@@ -11653,12 +11720,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": ".:HDNodeWallet:instance:connect",
@@ -11699,12 +11773,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": ".:HDNodeWallet:instance:deriveChild",
@@ -11715,12 +11796,18 @@
         "(_index: Numeric): HDNodeWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::derive_child"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit master-only derive_path and nonempty derive_relative_path; exact child index with separate hardened flag; invalid children return errors. One portable Rust implementation replaces runtime-specific variants."
     },
     {
       "id": ".:HDNodeWallet:instance:deriveChildReactNative",
@@ -11731,12 +11818,18 @@
         "(_index: Numeric): Promise<HDNodeWallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::derive_child"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit master-only derive_path and nonempty derive_relative_path; exact child index with separate hardened flag; invalid children return errors. One portable Rust implementation replaces runtime-specific variants."
     },
     {
       "id": ".:HDNodeWallet:instance:derivePath",
@@ -11747,12 +11840,18 @@
         "(path: string): HDNodeWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::derive_relative_path"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit master-only derive_path and nonempty derive_relative_path; exact child index with separate hardened flag; invalid children return errors. One portable Rust implementation replaces runtime-specific variants."
     },
     {
       "id": ".:HDNodeWallet:instance:encrypt",
@@ -11809,12 +11908,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::export"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Canonical xprv/xpub only; private export is a redacted zeroizing SecretString requiring explicit access."
     },
     {
       "id": ".:HDNodeWallet:instance:fingerprint",
@@ -11823,12 +11928,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": ".:HDNodeWallet:instance:getAddress",
@@ -11871,12 +11983,19 @@
         "(): this is { path: string; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::DerivedAddress::path",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Generic extended keys do not retain full origin paths, which cannot be recovered from imported BIP32 encodings. Applications retain trusted ancestry; DerivedAddress has explicit BIP44 origin metadata."
     },
     {
       "id": ".:HDNodeWallet:instance:index",
@@ -11885,12 +12004,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": ".:HDNodeWallet:instance:mnemonic",
@@ -11915,12 +12041,18 @@
         "(): HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::public_key"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Strips the private scalar while retaining all BIP32 public metadata."
     },
     {
       "id": ".:HDNodeWallet:instance:parentFingerprint",
@@ -11929,12 +12061,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": ".:HDNodeWallet:instance:path",
@@ -11943,12 +12082,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::DerivedAddress::path",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Generic extended keys do not retain full origin paths, which cannot be recovered from imported BIP32 encodings. Applications retain trusted ancestry; DerivedAddress has explicit BIP44 origin metadata."
     },
     {
       "id": ".:HDNodeWallet:instance:populateCall",
@@ -62396,12 +62542,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:connect",
@@ -62442,12 +62595,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:deriveChild",
@@ -62458,12 +62618,18 @@
         "(_index: Numeric): HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::derive_child"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit master-only derive_path and nonempty derive_relative_path; exact child index with separate hardened flag; invalid children return errors. One portable Rust implementation replaces runtime-specific variants."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:derivePath",
@@ -62474,12 +62640,18 @@
         "(path: string): HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::derive_relative_path"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit master-only derive_path and nonempty derive_relative_path; exact child index with separate hardened flag; invalid children return errors. One portable Rust implementation replaces runtime-specific variants."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:estimateGas",
@@ -62504,12 +62676,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::export"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Canonical xprv/xpub only; private export is a redacted zeroizing SecretString requiring explicit access."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:fingerprint",
@@ -62518,12 +62696,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:getAddress",
@@ -62566,12 +62751,19 @@
         "(): this is { path: string; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::DerivedAddress::path",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Generic extended keys do not retain full origin paths, which cannot be recovered from imported BIP32 encodings. Applications retain trusted ancestry; DerivedAddress has explicit BIP44 origin metadata."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:index",
@@ -62580,12 +62772,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:parentFingerprint",
@@ -62594,12 +62793,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPublicKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:path",
@@ -62608,12 +62814,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::DerivedAddress::path",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Generic extended keys do not retain full origin paths, which cannot be recovered from imported BIP32 encodings. Applications retain trusted ancestry; DerivedAddress has explicit BIP44 origin metadata."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:populateCall",
@@ -62847,12 +63060,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:connect",
@@ -62893,12 +63113,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:deriveChild",
@@ -62909,12 +63136,18 @@
         "(_index: Numeric): HDNodeWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::derive_child"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit master-only derive_path and nonempty derive_relative_path; exact child index with separate hardened flag; invalid children return errors. One portable Rust implementation replaces runtime-specific variants."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:deriveChildReactNative",
@@ -62925,12 +63158,18 @@
         "(_index: Numeric): Promise<HDNodeWallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::derive_child"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit master-only derive_path and nonempty derive_relative_path; exact child index with separate hardened flag; invalid children return errors. One portable Rust implementation replaces runtime-specific variants."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:derivePath",
@@ -62941,12 +63180,18 @@
         "(path: string): HDNodeWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::derive_relative_path"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit master-only derive_path and nonempty derive_relative_path; exact child index with separate hardened flag; invalid children return errors. One portable Rust implementation replaces runtime-specific variants."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:encrypt",
@@ -63003,12 +63248,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::export"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Canonical xprv/xpub only; private export is a redacted zeroizing SecretString requiring explicit access."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:fingerprint",
@@ -63017,12 +63268,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:getAddress",
@@ -63065,12 +63323,19 @@
         "(): this is { path: string; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::DerivedAddress::path",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Generic extended keys do not retain full origin paths, which cannot be recovered from imported BIP32 encodings. Applications retain trusted ancestry; DerivedAddress has explicit BIP44 origin metadata."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:index",
@@ -63079,12 +63344,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:mnemonic",
@@ -63109,12 +63381,18 @@
         "(): HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::public_key"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Strips the private scalar while retaining all BIP32 public metadata."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:parentFingerprint",
@@ -63123,12 +63401,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::metadata",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Public BIP32 metadata uses fixed-width byte arrays and a raw child number including the hardened bit; diagnostics redact wallet metadata."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:path",
@@ -63137,12 +63422,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::DerivedAddress::path",
+        "quai_wallet::ExtendedKeyMetadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Generic extended keys do not retain full origin paths, which cannot be recovered from imported BIP32 encodings. Applications retain trusted ancestry; DerivedAddress has explicit BIP44 origin metadata."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:populateCall",

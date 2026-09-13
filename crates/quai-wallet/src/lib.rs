@@ -26,8 +26,8 @@ mod mnemonic;
 pub use backup::{BackupError, BackupKdf, EncryptedSeedBackup, SeedBackup};
 
 pub use hd::{
-    AccountPublic, CoinType, DerivedAddress, ExtendedPrivateKey, ExtendedPublicKey, HdWallet,
-    Search, SearchResult,
+    AccountPublic, CoinType, DerivedAddress, ExtendedKeyMetadata, ExtendedPrivateKey,
+    ExtendedPublicKey, HdWallet, Search, SearchResult,
 };
 pub use mnemonic::{Language, Mnemonic, SecretString, Seed};
 use thiserror::Error;

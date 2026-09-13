@@ -422,3 +422,109 @@ fn search_cancels_and_resumes_without_overflow_or_silent_index_changes() {
         "0x00AA16b5AF6Bc831D200917005898b9645e717Bd"
     );
 }
+
+#[test]
+fn extended_metadata_matches_quais_and_survives_import() {
+    let fixtures: Value = serde_json::from_str(include_str!(
+        "../../../compatibility/fixtures/key-metadata.json"
+    ))
+    .unwrap();
+    for v in fixtures["vectors"].as_array().unwrap() {
+        let node = ExtendedPrivateKey::from_seed(&unhex(text(v, "seed")))
+            .unwrap()
+            .derive_path(text(v, "path"))
+            .unwrap();
+        let metadata = node.metadata();
+        assert_eq!(metadata, node.public_key().metadata());
+        assert_eq!(
+            metadata,
+            ExtendedPublicKey::import(text(v, "xpub"))
+                .unwrap()
+                .metadata()
+        );
+        assert_eq!(
+            metadata,
+            ExtendedPrivateKey::import(node.export().unwrap().expose())
+                .unwrap()
+                .metadata()
+        );
+        assert_eq!(u32::from(metadata.depth), number(v, "depth"));
+        assert_eq!(metadata.child_number, number(v, "index"));
+        assert_eq!(hex(&metadata.fingerprint), text(v, "fingerprint"));
+        assert_eq!(
+            hex(&metadata.parent_fingerprint),
+            text(v, "parentFingerprint")
+        );
+        assert_eq!(hex(&metadata.chain_code), text(v, "chainCode"));
+        assert_eq!(metadata.is_hardened(), text(v, "path").ends_with("'"));
+        assert_eq!(metadata.child_index(), metadata.child_number & 0x7fff_ffff);
+        assert_eq!(format!("{metadata:?}"), "ExtendedKeyMetadata([REDACTED])");
+        let child = node.derive_child(7, false).unwrap();
+        assert_eq!(child.metadata().parent_fingerprint, metadata.fingerprint);
+        assert_eq!(
+            child.metadata(),
+            node.public_key().derive_child(7, false).unwrap().metadata()
+        );
+    }
+}
+
+#[test]
+fn relative_paths_match_reference_subtrees_and_check_depth_before_deriving() {
+    for v in fixture()["extended"].as_array().unwrap() {
+        if text(v, "path") != "m/44'/994'/0'/0/0" {
+            continue;
+        }
+        let master = ExtendedPrivateKey::from_seed(&unhex(text(v, "seed"))).unwrap();
+        let account = master.derive_relative_path("44'/994'/0'").unwrap();
+        assert_eq!(
+            account
+                .derive_relative_path("0/0")
+                .unwrap()
+                .public_key()
+                .export(),
+            text(v, "xpub")
+        );
+        assert_eq!(
+            account
+                .public_key()
+                .derive_relative_path("0/0")
+                .unwrap()
+                .export(),
+            text(v, "xpub")
+        );
+        assert_eq!(
+            account
+                .public_key()
+                .derive_relative_path("0/0'")
+                .unwrap_err(),
+            WalletError::HardenedPublicChild
+        );
+        for path in ["", "m", "m/0", "/0", "0//1", "-1", "2147483648", "0/", " 0"] {
+            assert!(account.derive_relative_path(path).is_err(), "{path}");
+            assert!(
+                account.public_key().derive_relative_path(path).is_err(),
+                "{path}"
+            );
+        }
+    }
+    let master = ExtendedPrivateKey::from_seed(&[1; 16]).unwrap();
+    let path = vec!["0"; 255].join("/");
+    let deepest = master.derive_relative_path(&path).unwrap();
+    assert_eq!(deepest.depth(), 255);
+    assert_eq!(
+        deepest.derive_relative_path("0").unwrap_err(),
+        WalletError::InvalidPath
+    );
+    assert_eq!(
+        deepest.public_key().derive_relative_path("0").unwrap_err(),
+        WalletError::InvalidPath
+    );
+    assert_eq!(
+        master.derive_relative_path(&(path + "/0")).unwrap_err(),
+        WalletError::InvalidPath
+    );
+    assert_eq!(
+        master.derive_relative_path(&"0/".repeat(2048)).unwrap_err(),
+        WalletError::InvalidPath
+    );
+}

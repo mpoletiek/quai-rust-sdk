@@ -9,6 +9,37 @@ use zeroize::{Zeroize, Zeroizing};
 
 const HARDENED: u32 = 1 << 31;
 
+/// Public BIP32 derivation metadata. Sharing chain information reduces wallet privacy.
+/// A four-byte fingerprint is a routing hint, not proof of key ownership.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct ExtendedKeyMetadata {
+    /// Master depth is zero.
+    pub depth: u8,
+    /// Serialized child number, including the high hardened bit.
+    pub child_number: u32,
+    /// First four bytes of HASH160 of this node's compressed public key.
+    pub fingerprint: [u8; 4],
+    /// Parent fingerprint; zero for the master node.
+    pub parent_fingerprint: [u8; 4],
+    /// BIP32 public derivation chain code.
+    pub chain_code: [u8; 32],
+}
+impl ExtendedKeyMetadata {
+    /// Child index with the hardened bit removed.
+    pub const fn child_index(&self) -> u32 {
+        self.child_number & !HARDENED
+    }
+    /// Whether this node was derived as a hardened child.
+    pub const fn is_hardened(&self) -> bool {
+        self.child_number & HARDENED != 0
+    }
+}
+impl fmt::Debug for ExtendedKeyMetadata {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("ExtendedKeyMetadata([REDACTED])")
+    }
+}
+
 /// BIP44 coin types from the pinned Quai SDK.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CoinType {
@@ -43,6 +74,16 @@ fn master_path(depth: u8, path: &str) -> Result<DerivationPath, WalletError> {
     }
     let path: DerivationPath = path.parse().map_err(|_| WalletError::InvalidPath)?;
     if path.iter().count() > 255 {
+        return Err(WalletError::InvalidPath);
+    }
+    Ok(path)
+}
+fn relative_path(depth: u8, path: &str) -> Result<DerivationPath, WalletError> {
+    if path.is_empty() || path.len() > 4094 || path.starts_with(['m', '/']) {
+        return Err(WalletError::InvalidPath);
+    }
+    let path = master_path(0, &format!("m/{path}"))?;
+    if path.iter().count() + usize::from(depth) > 255 {
         return Err(WalletError::InvalidPath);
     }
     Ok(path)
@@ -174,9 +215,25 @@ impl ExtendedPrivateKey {
         Ok(node)
     }
 
+    /// Derive a nonempty relative path (for example `0/7`) from any node.
+    /// Absolute prefixes are rejected; the entire path/depth is checked first.
+    pub fn derive_relative_path(&self, path: &str) -> Result<Self, WalletError> {
+        let path = relative_path(self.depth(), path)?;
+        let mut node = Self(self.0.clone());
+        for index in path.iter() {
+            node = node.derive_child(index.index(), index.is_hardened())?;
+        }
+        Ok(node)
+    }
+
     /// BIP32 derivation depth (master is zero).
     pub fn depth(&self) -> u8 {
         self.0.attrs().depth
+    }
+
+    /// Public node metadata, identical before and after stripping the private scalar.
+    pub fn metadata(&self) -> ExtendedKeyMetadata {
+        self.public_key().metadata()
     }
 }
 
@@ -224,9 +281,34 @@ impl ExtendedPublicKey {
         }
         Ok(node)
     }
+
+    /// Derive a nonempty relative path from a subtree xpub; hardened steps fail.
+    pub fn derive_relative_path(&self, path: &str) -> Result<Self, WalletError> {
+        let path = relative_path(self.depth(), path)?;
+        if path.iter().any(|index| index.is_hardened()) {
+            return Err(WalletError::HardenedPublicChild);
+        }
+        let mut node = self.clone();
+        for index in path.iter() {
+            node = node.derive_child(index.index(), false)?;
+        }
+        Ok(node)
+    }
     /// BIP32 derivation depth.
     pub fn depth(&self) -> u8 {
         self.0.attrs().depth
+    }
+
+    /// Public metadata retained by xpub export/import. Full ancestry paths are not encoded.
+    pub fn metadata(&self) -> ExtendedKeyMetadata {
+        let attrs = self.0.attrs();
+        ExtendedKeyMetadata {
+            depth: attrs.depth,
+            child_number: attrs.child_number.0,
+            fingerprint: self.0.fingerprint(),
+            parent_fingerprint: attrs.parent_fingerprint,
+            chain_code: attrs.chain_code,
+        }
     }
 }
 

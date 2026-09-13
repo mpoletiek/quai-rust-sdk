@@ -1,0 +1,12 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "metadataVectors": 40,
+  "walletReferenceTests": {
+    "passed": 11,
+    "failed": 0
+  },
+  "strictNativeClippy": "passed",
+  "strictWasmClippy": "passed",
+  "parityRowsReconciled": 44,
+  "qualification": "Offline derivation compatibility; not a security review or ancestry authentication."
+}

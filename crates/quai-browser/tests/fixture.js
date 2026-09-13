@@ -1,8 +1,13 @@
 export function fixtureProvider(mode) {
     const calls = [];
     let pending;
+    const listeners = new Map();
     return {
         calls,
+        on(event, fn) { if (!listeners.has(event)) listeners.set(event, new Set()); listeners.get(event).add(fn); },
+        removeListener(event, fn) { listeners.get(event)?.delete(fn); },
+        emit(event) { for (const fn of listeners.get(event) || []) fn(); },
+        listenerCount() { return [...listeners.values()].reduce((n, set) => n + set.size, 0); },
         signature: "0x" + "11".repeat(64) + "1b",
         finish(value) { pending?.(value); },
         async request(payload) {
@@ -11,6 +16,8 @@ export function fixtureProvider(mode) {
             if (mode === 'denied') throw { code: 4001, message: 'SECRET_PROVIDER_DATA', data: { secret: true } };
             if (payload.method === 'quai_chainId') return mode === 'wrong_chain' ? '0x9' : '0x3a98';
             if (payload.method === 'quai_requestAccounts' || payload.method === 'quai_accounts') return mode === 'unavailable' ? [] : ['0x0049cda3305ccb9cb23e7ce2528cef555e9a5b32'];
+            if (payload.method === 'personal_sign' && mode === 'change_during_sign') this.emit('accountsChanged');
+            if (payload.method === 'quai_signTypedData_v4' && mode === 'change_during_sign') this.emit('chainChanged');
             if (payload.method === 'personal_sign') return mode === 'unicode_signature' ? '0x' + '11'.repeat(63) + 'éé' : this.signature;
             if (payload.method === 'quai_signTypedData_v4') return this.signature;
             if (mode === 'oversize') return 'x'.repeat(10000);
@@ -24,3 +31,6 @@ export function callJson(provider, index) { return JSON.stringify(provider.calls
 export function finishProvider(provider) { provider.finish('0x3a98'); }
 
 export function setSignature(provider, signature) { provider.signature = signature; }
+
+export function listenerCount(provider) { return provider.listenerCount(); }
+export function emitContextChange(provider, event) { provider.emit(event); }

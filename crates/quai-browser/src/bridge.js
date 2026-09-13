@@ -141,3 +141,29 @@ export function randomBytes(length) {
     if (!globalThis.isSecureContext || !globalThis.crypto?.getRandomValues || length > 65536) throw failure('entropy');
     return globalThis.crypto.getRandomValues(new Uint8Array(length));
 }
+
+// One listener set per adapter family. Event data is deliberately not retained.
+export function watchProvider(provider) {
+    const watch = { provider, revision: 0, supported: false, closed: false, events: [] };
+    if (typeof provider.on !== 'function' || typeof provider.removeListener !== 'function') return watch;
+    const changed = () => { watch.revision = Math.min(0xffffffff, watch.revision + 1); };
+    try {
+        for (const event of ['chainChanged', 'accountsChanged', 'disconnect']) {
+            watch.events.push([event, changed]);
+            provider.on(event, changed);
+        }
+        watch.supported = true;
+        return watch;
+    } catch (_) { closeProviderWatch(watch); throw failure('invalid'); }
+}
+export function providerRevision(watch) { return watch.revision; }
+export function providerEventsSupported(watch) { return watch.supported; }
+export function providerChanged(watch, revision) { return watch.closed || watch.revision === 0xffffffff || watch.revision !== revision; }
+export function closeProviderWatch(watch) {
+    if (watch.closed) return;
+    watch.closed = true;
+    for (const [event, listener] of watch.events) {
+        try { watch.provider.removeListener(event, listener); } catch (_) {}
+    }
+    watch.events.length = 0;
+}

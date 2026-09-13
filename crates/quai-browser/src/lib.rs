@@ -77,6 +77,9 @@ pub enum BrowserError {
     /// The injected wallet reports another network.
     #[error("injected provider chain ID mismatch")]
     ChainMismatch,
+    /// Accounts, chain or connection changed while an operation was awaiting the wallet.
+    #[error("injected provider context changed during request")]
+    ContextChanged,
     /// Wallet result or message/address request has an invalid shape.
     #[error("invalid injected provider result or request")]
     InvalidResult,
@@ -117,6 +120,13 @@ fn read_method(method: &str) -> bool {
             | "quai_getBlockByHash"
             | "quai_getLogs"
             | "quai_listRunningChains"
+            | "quai_getOutpointDeltasForAddressesInRange"
+            | "quai_getLatestUTXOSetSize"
+            | "quai_qiToQuai"
+            | "quai_quaiToQi"
+            | "quai_calculateConversionAmount"
+            | "quai_getWrappedQiDeposit"
+            | "quai_getLockedBalance"
             | "quai_accounts"
     )
 }

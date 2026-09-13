@@ -13,6 +13,10 @@ wasm_bindgen_test_configure!(run_in_browser);
 extern "C" {
     #[wasm_bindgen(js_name=fixtureProvider)]
     fn fixture_provider(mode: &str) -> JsValue;
+    #[wasm_bindgen(js_name=listenerCount)]
+    fn listener_count(provider: &JsValue) -> usize;
+    #[wasm_bindgen(js_name=emitContextChange)]
+    fn emit_context_change(provider: &JsValue, event: &str);
     #[wasm_bindgen(js_name=callCount)]
     fn call_count(provider: &JsValue) -> usize;
     #[wasm_bindgen(js_name=callJson)]
@@ -178,7 +182,7 @@ async fn explicit_accounts_and_personal_sign_use_exact_wallet_arguments() {
     let signature = provider.personal_sign(address, b"hello").await.unwrap();
     assert_eq!(signature, expected);
     assert_eq!(
-        serde_json::from_str::<serde_json::Value>(&call_json(&value, 4)).unwrap(),
+        serde_json::from_str::<serde_json::Value>(&call_json(&value, 5)).unwrap(),
         json!({"method":"personal_sign","params":["0x68656c6c6f","0x0049cda3305ccb9cb23e7ce2528cef555e9a5b32"],"shard":"0x00"})
     );
 }
@@ -331,4 +335,30 @@ async fn injected_signatures_verify_exact_message_account_and_typed_domain() {
             .await,
         Err(BrowserError::InvalidResult)
     ));
+}
+
+#[wasm_bindgen_test(async)]
+async fn account_chain_and_disconnect_events_invalidate_pending_signatures_and_cleanup() {
+    let (provider, value) = injected("change_during_sign", BrowserConfig::default());
+    assert!(provider.monitors_context_events());
+    assert_eq!(listener_count(&value), 3);
+    let address: QuaiAddress = "0x0049cda3305ccb9cb23e7ce2528cef555e9a5b32"
+        .parse()
+        .unwrap();
+    install_signature(
+        &value,
+        public_fixture_signature(&quai_crypto::hash_message(b"hello")),
+    );
+    assert!(matches!(
+        provider.personal_sign(address, b"hello").await,
+        Err(BrowserError::ContextChanged)
+    ));
+    assert_eq!(provider.context_revision(), 1);
+    let clone = provider.clone();
+    emit_context_change(&value, "disconnect");
+    assert_eq!(clone.context_revision(), 2);
+    drop(provider);
+    assert_eq!(listener_count(&value), 3);
+    drop(clone);
+    assert_eq!(listener_count(&value), 0);
 }

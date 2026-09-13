@@ -8,6 +8,16 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(module = "/src/bridge.js")]
 extern "C" {
+    #[wasm_bindgen(catch, js_name = watchProvider)]
+    fn watch_provider(provider: &JsValue) -> Result<JsValue, JsValue>;
+    #[wasm_bindgen(js_name = providerRevision)]
+    fn provider_revision(watch: &JsValue) -> u32;
+    #[wasm_bindgen(js_name = providerEventsSupported)]
+    fn provider_events_supported(watch: &JsValue) -> bool;
+    #[wasm_bindgen(js_name = providerChanged)]
+    fn provider_changed(watch: &JsValue, revision: u32) -> bool;
+    #[wasm_bindgen(js_name = closeProviderWatch)]
+    fn close_provider_watch(watch: &JsValue);
     #[wasm_bindgen(catch, js_name = newAbort)]
     fn new_abort() -> Result<JsValue, JsValue>;
     #[wasm_bindgen(js_name = abort)]
@@ -36,6 +46,12 @@ extern "C" {
     ) -> Result<JsValue, JsValue>;
     #[wasm_bindgen(catch, js_name = randomBytes)]
     fn random_bytes(length: usize) -> Result<js_sys::Uint8Array, JsValue>;
+}
+struct ProviderWatch(JsValue);
+impl Drop for ProviderWatch {
+    fn drop(&mut self) {
+        close_provider_watch(&self.0);
+    }
 }
 struct AbortGuard(JsValue);
 impl AbortGuard {
@@ -86,6 +102,9 @@ fn rpc_error(error: BrowserError) -> RpcError {
         BrowserError::InvalidResult => RpcError::InvalidResponse("invalid browser result"),
         BrowserError::ChainMismatch => RpcError::InvalidResponse("injected chain ID mismatch"),
         BrowserError::Busy => RpcError::AtCapacity,
+        BrowserError::ContextChanged => {
+            RpcError::InvalidResponse("injected provider context changed")
+        }
         _ => RpcError::InvalidConfig,
     }
 }
@@ -182,6 +201,7 @@ impl Transport for BrowserFetchTransport {
 #[derive(Clone)]
 pub struct InjectedProvider {
     provider: JsValue,
+    watch: Rc<ProviderWatch>,
     endpoint: Endpoint,
     shard: Shard,
     expected_chain: U256,
@@ -211,14 +231,50 @@ impl InjectedProvider {
         if !validate_provider(&provider).map_err(|_| BrowserError::InvalidConfig)? {
             return Err(BrowserError::InvalidConfig);
         }
+        let watch = Rc::new(ProviderWatch(watch_provider(&provider).map_err(convert)?));
         Ok(Self {
             provider,
+            watch,
             endpoint,
             shard,
             expected_chain,
             config,
             active: Rc::new(Cell::new(0)),
         })
+    }
+    /// Monotonic account/chain/disconnect revision shared by adapter clones.
+    /// Applications can invalidate displayed balances and cached authorization on change.
+    pub fn context_revision(&self) -> u32 {
+        provider_revision(&self.watch.0)
+    }
+    /// Whether this provider exposes removable EIP-1193 event listeners.
+    pub fn monitors_context_events(&self) -> bool {
+        provider_events_supported(&self.watch.0)
+    }
+    async fn verify_context(
+        &self,
+        revision: u32,
+        account: Option<QuaiAddress>,
+    ) -> Result<(), BrowserError> {
+        if provider_changed(&self.watch.0, revision) {
+            return Err(BrowserError::ContextChanged);
+        }
+        if !self.monitors_context_events() {
+            // Request-only providers cannot report transient changes. Recheck their
+            // current chain and exposed account before releasing a result.
+            self.check_chain().await?;
+            if let Some(account) = account {
+                if !Self::accounts_from(self.raw("quai_accounts", json!([])).await?)?
+                    .contains(&account)
+                {
+                    return Err(BrowserError::AccountUnavailable);
+                }
+            }
+        }
+        if provider_changed(&self.watch.0, revision) {
+            return Err(BrowserError::ContextChanged);
+        }
+        Ok(())
     }
     async fn raw(&self, method: &str, params: Value) -> Result<Value, BrowserError> {
         let _permit = permit(&self.active, self.config.max_in_flight)?;
@@ -263,11 +319,17 @@ impl InjectedProvider {
         if !read_method(method) {
             return Err(BrowserError::AuthorizationRequired);
         }
+        let revision = self.context_revision();
         let chain = self.check_chain().await?;
         if method == "quai_chainId" {
+            if provider_changed(&self.watch.0, revision) {
+                return Err(BrowserError::ContextChanged);
+            }
             return Ok(chain);
         }
-        self.raw(method, params).await
+        let result = self.raw(method, params).await?;
+        self.verify_context(revision, None).await?;
+        Ok(result)
     }
     fn accounts_from(value: Value) -> Result<Vec<QuaiAddress>, BrowserError> {
         let values = value
@@ -292,12 +354,17 @@ impl InjectedProvider {
     /// User rejection preserves numeric EIP-1193 code 4001. No retry occurs.
     pub async fn request_accounts(&self) -> Result<Vec<QuaiAddress>, BrowserError> {
         self.check_chain().await?;
-        Self::accounts_from(self.raw("quai_requestAccounts", json!([])).await?)
+        let accounts = Self::accounts_from(self.raw("quai_requestAccounts", json!([])).await?)?;
+        self.check_chain().await?;
+        Ok(accounts)
     }
     /// Read accounts already exposed by the wallet; never requests additional permission.
     pub async fn accounts(&self) -> Result<Vec<QuaiAddress>, BrowserError> {
+        let revision = self.context_revision();
         self.check_chain().await?;
-        Self::accounts_from(self.raw("quai_accounts", json!([])).await?)
+        let accounts = Self::accounts_from(self.raw("quai_accounts", json!([])).await?)?;
+        self.verify_context(revision, None).await?;
+        Ok(accounts)
     }
     /// Explicitly ask the wallet to sign these bytes with personal_sign.
     ///
@@ -315,6 +382,7 @@ impl InjectedProvider {
         {
             return Err(BrowserError::InvalidConfig);
         }
+        let revision = self.context_revision();
         self.check_chain().await?;
         if !Self::accounts_from(self.raw("quai_accounts", json!([])).await?)?.contains(&address) {
             return Err(BrowserError::AccountUnavailable);
@@ -326,12 +394,16 @@ impl InjectedProvider {
             hex.push(DIGITS[(byte >> 4) as usize] as char);
             hex.push(DIGITS[(byte & 15) as usize] as char)
         }
+        if provider_changed(&self.watch.0, revision) {
+            return Err(BrowserError::ContextChanged);
+        }
         let value = self
             .raw(
                 "personal_sign",
                 json!([hex, address.to_string().to_ascii_lowercase()]),
             )
             .await?;
+        self.verify_context(revision, Some(address)).await?;
         Self::verified_signature(value, address, &hash_message(message))
     }
     /// Explicitly request EIP-712 v4 signing after domain, chain and account checks.
@@ -352,9 +424,13 @@ impl InjectedProvider {
         let document = data
             .to_rpc_json()
             .map_err(|_| BrowserError::InvalidResult)?;
+        let revision = self.context_revision();
         self.check_chain().await?;
         if !Self::accounts_from(self.raw("quai_accounts", json!([])).await?)?.contains(&address) {
             return Err(BrowserError::AccountUnavailable);
+        }
+        if provider_changed(&self.watch.0, revision) {
+            return Err(BrowserError::ContextChanged);
         }
         let result = self
             .raw(
@@ -362,6 +438,7 @@ impl InjectedProvider {
                 json!([address.to_string().to_ascii_lowercase(), document]),
             )
             .await?;
+        self.verify_context(revision, Some(address)).await?;
         Self::verified_signature(result, address, data.signing_hash().bytes())
     }
     fn verified_signature(

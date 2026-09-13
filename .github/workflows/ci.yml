@@ -40,6 +40,7 @@ jobs:
       - run: npm ci --prefix compatibility --ignore-scripts
       - run: npm run verify --prefix compatibility
       - run: npm test --prefix compatibility
+      - run: node --test crates/quai-browser/tests/bridge.test.mjs
       - run: npm run generate --prefix compatibility
       - run: npm run wrapping --prefix compatibility
       - run: git diff --exit-code -- crates/quai-consensus/tests/wrapping-vectors.json crates/quai-sdk/tests/wrapper-calls.json

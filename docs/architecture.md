@@ -99,3 +99,15 @@ full-cost backup tests cover implemented boundaries. They do not replace funded
 acceptance, reorg/crash/fault testing, fuzzing, performance measurement, real
 browser/macOS/Windows execution or independent protocol/security review.
 All crate publication flags remain disabled while these gates are open.
+
+### Injected wallet context changes
+
+`InjectedProvider` passively monitors `chainChanged`, `accountsChanged` and
+`disconnect` when the selected provider supports removable EIP-1193 listeners.
+`context_revision()` lets applications invalidate their cached display and account
+state. Adapter clones share one listener set; the last drop removes it. Reads and
+signatures that span a context change return `ContextChanged`. No signature request
+is retried. Providers exposing only `request` instead receive post-response chain
+and account checks, with `monitors_context_events()` explicitly reporting false;
+transient changes cannot be detected without event support. Account-access requests
+allow the expected permission-driven account change and recheck the chain afterward.

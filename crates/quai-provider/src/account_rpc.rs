@@ -121,6 +121,38 @@ fn bound(max_entries: usize) -> Result<(), ProviderError> {
     Ok(())
 }
 impl<T: Transport> Provider<T> {
+    /// List already exposed remote Quai accounts in their reported order. This
+    /// passive RPC never requests wallet permission or proves key ownership.
+    /// The explicit 1..1024 budget rejects oversized, duplicate, malformed or Qi
+    /// account responses. Addresses may span zones; bind a signer explicitly.
+    pub async fn accounts(
+        &self,
+        zone: Zone,
+        max_accounts: usize,
+    ) -> Result<Vec<QuaiAddress>, ProviderError> {
+        if !(1..=1024).contains(&max_accounts) {
+            return Err(ProviderError::InvalidRequest("invalid account list budget"));
+        }
+        let value = self.read(zone.into(), "quai_accounts", json!([])).await?;
+        let values = value
+            .as_array()
+            .filter(|a| a.len() <= max_accounts)
+            .ok_or(ProviderError::InvalidResult("invalid account list"))?;
+        let mut seen = BTreeSet::new();
+        let mut accounts = Vec::with_capacity(values.len());
+        for value in values {
+            let address = value
+                .as_str()
+                .filter(|s| s.len() == 42)
+                .and_then(|s| s.parse::<QuaiAddress>().ok())
+                .ok_or(ProviderError::InvalidResult("invalid exposed account"))?;
+            if !seen.insert(address) {
+                return Err(ProviderError::InvalidResult("duplicate exposed account"));
+            }
+            accounts.push(address);
+        }
+        Ok(accounts)
+    }
     /// Generate an ordered access list at an explicit block selector. VM errors
     /// fail instead of returning a seemingly usable partial access declaration.
     pub async fn create_access_list(

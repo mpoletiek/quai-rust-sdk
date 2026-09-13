@@ -91,11 +91,13 @@ impl Transport for Mock {
             let mut s = self.state();
             s.calls.push((method.into(), params));
             match method {
-                "quai_chainId" => Some(Ok(json!(if s.mode == 2 && s.dispatched > 0 {
-                    "0xa"
-                } else {
-                    "0x9"
-                }))),
+                "quai_chainId" => Some(Ok(json!(
+                    if s.mode == 11 || (s.mode == 2 && s.dispatched > 0) {
+                        "0xa"
+                    } else {
+                        "0x9"
+                    }
+                ))),
                 "quai_getHeaderByNumber" => Some(Ok(
                     json!({"woHeader":{"hash":if s.mode==3 && s.dispatched>0 {Hash32::from_bytes([2;32])}else{scope().genesis}.to_string(),"number":"0x0","location":"0x","parentHash":Hash32::ZERO.to_string()}}),
                 )),
@@ -105,6 +107,10 @@ impl Transport for Mock {
                     5 => json!([address().to_string(), address().to_string()]),
                     6 => json!([key(130).public_key().address().to_string()]),
                     7 => json!(vec![address().to_string(); 1025]),
+                    10 => json!([
+                        address().to_string(),
+                        "0x0000000000000000000000000000000000000000"
+                    ]),
                     _ => json!([address().to_string()]),
                 })),
                 "quai_getTransactionByHash" => Some(Ok(s.observed.clone())),
@@ -393,4 +399,77 @@ async fn sends_require_independent_observation_and_retain_hash_after_context_fai
         let (signer, _) = setup(0, reply);
         assert!(signer.send_transaction(&tx()).await.unwrap_err().dispatched);
     }
+}
+
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn passive_account_listing_preserves_order_and_never_requests_access_or_signing() {
+    let (ordered, _) = setup(10, Value::Null);
+    assert_eq!(
+        ordered.provider().accounts(Zone::Cyprus1, 2).await.unwrap(),
+        vec![
+            address(),
+            "0x0000000000000000000000000000000000000000"
+                .parse()
+                .unwrap()
+        ]
+    );
+    assert!(ordered.provider().accounts(Zone::Cyprus1, 1).await.is_err());
+    let (wrong_chain, calls) = setup(11, Value::Null);
+    assert!(
+        wrong_chain
+            .provider()
+            .accounts(Zone::Cyprus1, 2)
+            .await
+            .is_err()
+    );
+    assert!(
+        !calls
+            .state()
+            .calls
+            .iter()
+            .any(|(method, _)| method == "quai_accounts")
+    );
+    let (signer, mock) = setup(0, Value::Null);
+    assert_eq!(
+        signer.provider().accounts(Zone::Cyprus1, 1).await.unwrap(),
+        vec![address()]
+    );
+    assert_eq!(mock.state().dispatched, 0);
+    assert!(
+        !mock
+            .state()
+            .calls
+            .iter()
+            .any(|(method, _)| method == "quai_requestAccounts")
+    );
+    for budget in [0, 1025] {
+        assert!(
+            signer
+                .provider()
+                .accounts(Zone::Cyprus1, budget)
+                .await
+                .is_err()
+        );
+    }
+    for mode in [5, 6, 7] {
+        let (signer, mock) = setup(mode, Value::Null);
+        assert!(
+            signer
+                .provider()
+                .accounts(Zone::Cyprus1, 1024)
+                .await
+                .is_err()
+        );
+        assert_eq!(mock.state().dispatched, 0);
+    }
+    let (signer, _) = setup(1, Value::Null);
+    assert!(
+        signer
+            .provider()
+            .accounts(Zone::Cyprus1, 1)
+            .await
+            .unwrap()
+            .is_empty()
+    );
 }

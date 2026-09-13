@@ -99,6 +99,7 @@ async fn handshake_preserves_path_and_query_and_checks_endpoint_identity() {
     let client = WsTransport::connect(endpoint.clone(), WsConfig::default())
         .await
         .unwrap();
+    assert!(client.is_open());
     assert!(!format!("{client:?}").contains("PUBLIC_FIXTURE"));
     let other = Endpoint::parse("ws://127.0.0.1:1/other").unwrap();
     assert!(matches!(
@@ -119,6 +120,7 @@ async fn handshake_preserves_path_and_query_and_checks_endpoint_identity() {
         "0x9"
     );
     client.shutdown().await.unwrap();
+    assert!(!client.is_open());
     task.await.unwrap();
 }
 #[tokio::test]

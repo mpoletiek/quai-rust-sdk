@@ -304,6 +304,12 @@ struct Command {
 }
 
 impl WsTransport {
+    /// Whether this local session has completed its handshake and has not
+    /// requested shutdown or observed closure. A remote disconnect may not yet
+    /// have been detected; this is not a network or subscription continuity proof.
+    pub fn is_open(&self) -> bool {
+        !*self.inner.shutdown.borrow() && self.inner.closed.borrow().is_none()
+    }
     /// Connect to the exact WS(S) endpoint with verified TLS and no redirects or proxies.
     pub async fn connect(endpoint: Endpoint, config: WsConfig) -> Result<Self, RpcError> {
         config.validate()?;

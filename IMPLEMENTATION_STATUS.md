@@ -850,3 +850,18 @@ regressions pass. Response parser/export fuzzing completed 1,093,559 executions
 with AddressSanitizer active and no failure. See [the response guide](docs/RESPONSE_PARITY.md).
 The review reconciles 272 declarations; counts are 66 implemented, 1,670 deviation,
 126 partial and 2,066 pending. The broader behavioral audit remains unfinished.
+
+## 2026-09-13: provider accounts, bounded local events and lifecycle review
+
+Added passive ordered remote-account discovery, native WebSocket observed open
+state and a portable `EventHub` with typed keys, one-shot listeners, atomic capacity
+checks, explicit buffered/dropping pause, listener removal and terminal close.
+Transport subscriptions and executor scheduling remain explicit application choices.
+
+Five event tests and eight account/signer tests pass on native and Chromium workers;
+13 native WebSocket regressions pass with one existing live test ignored. Four
+published-source lifecycle tests, strict native/Wasm Clippy, warnings-denied docs
+and all extracted package checks pass. See [the provider guide](docs/PROVIDER_PARITY.md).
+702 declarations are reconciled; counts are 66 implemented, 2,372 deviation,
+64 partial and 1,426 pending. ABI/reflection and remaining response/utility family
+review continue; these counts are not a feature-completion percentage.

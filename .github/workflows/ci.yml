@@ -111,6 +111,7 @@ jobs:
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-legacy-wallets
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-rpc-signer
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-response-views
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-provider-events
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-address-book
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-worker
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-contract-code

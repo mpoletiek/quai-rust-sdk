@@ -809,3 +809,20 @@ With feature `abi`, `contracts::decode_receipt_logs` preserves decoded, unknown
 and malformed logs in order; `Contract::receipt_logs` restricts interpretation to
 its bound emitter. See [response API and parity details](docs/RESPONSE_PARITY.md)
 for limits, field mappings, canonicality and published lookup defects.
+
+## Passive accounts and portable event delivery
+
+`Provider::accounts(zone, max_accounts)` lists already exposed remote Quai accounts
+without prompting for access. It preserves order and rejects duplicate, malformed,
+wrong-ledger or oversized responses. Select a concrete account and trusted network
+scope explicitly before constructing a remote signer.
+
+`provider::event_hub::EventHub<K, E>` supplies bounded typed local `on`, `once`,
+`emit`, `poll`, listener inspection/removal, pause/resume and close operations.
+Applications explicitly feed transport notifications or canonical head updates.
+Capacity failures leave all queues unchanged; no silent eviction or automatic
+network subscription occurs. Limits count queued items, so bound payload sizes
+and share large values with `Arc`/`Rc` as appropriate. Native WebSocket `is_open`
+reports observed local session state, matching the browser socket convenience.
+See [provider lifecycle and parity](docs/PROVIDER_PARITY.md) for API usage and the
+mapping of JS initialization, callbacks, options and transport internals.

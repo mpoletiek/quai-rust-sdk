@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 1670 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 126 | A mapping exists with unfinished behavior or scope |
-| `pending` | 2066 | No completed row-level reconciliation; not proof of absence |
+| `deviation` | 2372 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 64 | A mapping exists with unfinished behavior or scope |
+| `pending` | 1426 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -234,12 +234,6 @@ root/subpath exports account for much of the volume.
 <!-- parity-family-table:start -->
 | Export family | Pending | Partial | Implemented | Deviation |
 | --- | ---: | ---: | ---: | ---: |
-| `WebSocketProvider` | 118 | 10 | 0 | 74 |
-| `SocketProvider` | 114 | 10 | 0 | 68 |
-| `JsonRpcProvider` | 110 | 10 | 0 | 68 |
-| `BrowserProvider` | 106 | 12 | 0 | 70 |
-| `JsonRpcApiProvider` | 108 | 10 | 0 | 68 |
-| `AbstractProvider` | 84 | 10 | 0 | 68 |
 | `Result` | 88 | 0 | 0 | 0 |
 | `FetchRequest` | 64 | 0 | 0 | 0 |
 | `QuaiTransaction` | 46 | 10 | 0 | 0 |
@@ -480,3 +474,15 @@ fees, normalized JSON exports and receipt log views that retain decoding errors.
 The published prefetched async hash lookup skips matching entries; Rust does not
 reproduce that defect. The published receipt-result helper has no JSON-RPC backend
 implementation. No archive execution data or finality is inferred.
+
+## Provider family lifecycle reconciliation
+
+Reviewed 702 previously pending/partial rows across the six main provider classes.
+[The provider review](docs/PROVIDER_PARITY.md) documents explicit routing,
+initialization futures, request/error normalization, detached responses, remote
+account selection, bounded subscriptions and local event delivery. New APIs add
+passive account listing, native WebSocket state inspection and a portable bounded
+`EventHub`. JS batch scheduling, callback execution, implicit reconnect and mutable
+promise resolvers are replaced by explicit Rust transport/runtime composition.
+Local buffering is supported even though published socket subscribers reject it.
+No transaction is resubmitted or nonce released by connection/event recovery.

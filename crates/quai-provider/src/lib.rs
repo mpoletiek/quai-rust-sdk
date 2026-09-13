@@ -26,6 +26,8 @@ pub use qi_credit::QiCreditObservation;
 mod external_tracking;
 pub use external_tracking::{ExternalObservation, ExternalReference};
 mod account_rpc;
+/// Runtime-independent bounded local event registration and delivery.
+pub mod event_hub;
 pub use account_rpc::{AccessListEstimate, PoolInspection, PoolStatus, PoolTransaction};
 mod conversion_tracking;
 pub use conversion_tracking::{

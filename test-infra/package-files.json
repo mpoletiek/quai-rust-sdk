@@ -300,6 +300,10 @@
     {
       "source": "crates/quai-provider/tests/fixtures/lan-mainnet.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-provider/tests/fixtures/lan-mainnet.json"
+    },
+    {
+      "source": "compatibility/fixtures/provider-basics.json",
+      "destination": "crates/quai-provider/tests/fixtures/provider-basics.json"
     }
   ]
 }

@@ -496,3 +496,12 @@ Cancellation drops active reads and clears timers; actual Fetch permit cleanup,
 non-Send worker transports, reorgs and stalled reads are covered by nine worker
 tests. Confirmation depth remains an observation, not finality or authorization
 to release signed claims. [Retained evidence](test-infra/reports/browser-receipt-wait-2026-09-13.json).
+
+
+A [provider declaration review](docs/PROVIDER_PARITY_REVIEW_2026-09-13.md) reconciles
+144 inherited rows against existing typed APIs, explicit
+normalization/routing differences and two pinned unsupported operations. The
+inventory retains all 3,928 rows. Offline prototype probes and Rust comparisons
+cover RPC mappings without constructing or connecting JavaScript providers;
+existing fee/submission tests retain their separate scope. This is evidence-based
+mapping work, not 144 newly implemented features or overall completeness.

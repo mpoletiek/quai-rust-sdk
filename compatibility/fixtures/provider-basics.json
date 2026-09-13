@@ -1,0 +1,451 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "networkAccess": false,
+  "note": "RPC mapping and unsupported-action results from pinned prototypes without provider initialization. Empty Qi and 0x00 broadcast are mapping-only sentinels, never valid transactions or submitted payloads.",
+  "rpcActions": [
+    {
+      "action": {
+        "method": "chainId"
+      },
+      "rpc": {
+        "method": "quai_chainId",
+        "args": []
+      }
+    },
+    {
+      "action": {
+        "method": "getBlockNumber"
+      },
+      "rpc": {
+        "method": "quai_blockNumber",
+        "args": []
+      }
+    },
+    {
+      "action": {
+        "method": "getGasPrice",
+        "zone": "0x00",
+        "txType": true
+      },
+      "rpc": {
+        "method": "quai_gasPrice",
+        "args": []
+      }
+    },
+    {
+      "action": {
+        "method": "getRunningLocations"
+      },
+      "rpc": {
+        "method": "quai_listRunningChains",
+        "args": []
+      }
+    },
+    {
+      "action": {
+        "method": "estimateFeeForQi",
+        "transaction": {
+          "txType": 2,
+          "txIn": [],
+          "txOut": []
+        }
+      },
+      "rpc": {
+        "method": "quai_estimateFeeForQi",
+        "args": [
+          {
+            "txType": 2,
+            "txIn": [],
+            "txOut": []
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "method": "broadcastTransaction",
+        "signedTransaction": "0x00"
+      },
+      "rpc": {
+        "method": "quai_sendRawTransaction",
+        "args": [
+          "0x00"
+        ]
+      }
+    }
+  ],
+  "unsupported": [
+    {
+      "method": "waitForBlock",
+      "code": "NOT_IMPLEMENTED",
+      "operation": "waitForBlock"
+    },
+    {
+      "method": "getTransactionResult",
+      "code": "UNSUPPORTED_OPERATION",
+      "operation": "getTransactionResult"
+    }
+  ],
+  "inheritance": [
+    {
+      "class": "AbstractProvider",
+      "method": "getBlockNumber",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "getFeeData",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "getNetwork",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "getRunningLocations",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "estimateFeeForQi",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "broadcastTransaction",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "zoneFromAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "_getAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "_getBlockTag",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "validateUrl",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "waitForBlock",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "AbstractProvider",
+      "method": "getTransactionResult",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "getBlockNumber",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "getFeeData",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "getNetwork",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "getRunningLocations",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "estimateFeeForQi",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "broadcastTransaction",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "zoneFromAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "_getAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "_getBlockTag",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "validateUrl",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "waitForBlock",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "BrowserProvider",
+      "method": "getTransactionResult",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "getBlockNumber",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "getFeeData",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "getNetwork",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "getRunningLocations",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "estimateFeeForQi",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "broadcastTransaction",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "zoneFromAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "_getAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "_getBlockTag",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "validateUrl",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "waitForBlock",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcApiProvider",
+      "method": "getTransactionResult",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "getBlockNumber",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "getFeeData",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "getNetwork",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "getRunningLocations",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "estimateFeeForQi",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "broadcastTransaction",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "zoneFromAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "_getAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "_getBlockTag",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "validateUrl",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "waitForBlock",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "JsonRpcProvider",
+      "method": "getTransactionResult",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "getBlockNumber",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "getFeeData",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "getNetwork",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "getRunningLocations",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "estimateFeeForQi",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "broadcastTransaction",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "zoneFromAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "_getAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "_getBlockTag",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "validateUrl",
+      "definedOn": "SocketProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "waitForBlock",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "SocketProvider",
+      "method": "getTransactionResult",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "getBlockNumber",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "getFeeData",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "getNetwork",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "getRunningLocations",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "estimateFeeForQi",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "broadcastTransaction",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "zoneFromAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "_getAddress",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "_getBlockTag",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "validateUrl",
+      "definedOn": "SocketProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "waitForBlock",
+      "definedOn": "AbstractProvider"
+    },
+    {
+      "class": "WebSocketProvider",
+      "method": "getTransactionResult",
+      "definedOn": "AbstractProvider"
+    }
+  ]
+}

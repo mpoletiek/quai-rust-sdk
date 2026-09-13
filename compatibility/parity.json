@@ -214,12 +214,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": ".:AbstractProvider:instance:_getBlockTag",
@@ -230,12 +239,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": ".:AbstractProvider:instance:_getFilter",
@@ -480,12 +498,23 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
     {
       "id": ".:AbstractProvider:instance:calculateConversionAmount",
@@ -622,12 +651,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": ".:AbstractProvider:instance:estimateGas",
@@ -750,12 +787,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": ".:AbstractProvider:instance:getCode",
@@ -788,12 +832,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": ".:AbstractProvider:instance:getLatestQiToQuaiRate",
@@ -892,12 +945,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": ".:AbstractProvider:instance:getOutpointDeltas",
@@ -1062,12 +1124,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": ".:AbstractProvider:instance:getStorage",
@@ -1167,11 +1236,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": ".:AbstractProvider:instance:getTxPoolContent",
@@ -1506,12 +1579,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": ".:AbstractProvider:instance:waitForBlock",
@@ -1523,11 +1604,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": ".:AbstractProvider:instance:waitForTransaction",
@@ -1565,12 +1650,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": ".:AbstractProvider:instance:zoneFromHash",
@@ -3046,12 +3140,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": ".:BrowserProvider:instance:_getBlockTag",
@@ -3062,12 +3165,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": ".:BrowserProvider:instance:_getFilter",
@@ -3397,15 +3509,19 @@
         "quai_provider::Provider::broadcast_qi_conversion",
         "quai_provider::Provider::broadcast_qi_wrapping"
       ],
-      "feature": "browser",
+      "feature": "provider and selected native/browser transport",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs",
         "crates/quai-browser/tests/support/injected_transaction.rs"
       ],
       "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md",
         "crates/quai-browser/README.md"
       ],
-      "deviation": "Explicit opt-in transport validates canonical signed bytes and origin/chain; typed Provider checks exact acknowledgement and retains local identity on ambiguous failures. No implicit retry or transaction-response object with bound provider methods."
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission. Injected providers additionally require explicit signed_submission_transport opt-in; their generic transport remains read-only."
     },
     {
       "id": ".:BrowserProvider:instance:calculateConversionAmount",
@@ -3542,12 +3658,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": ".:BrowserProvider:instance:estimateGas",
@@ -3670,12 +3794,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": ".:BrowserProvider:instance:getCode",
@@ -3708,12 +3839,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": ".:BrowserProvider:instance:getLatestQiToQuaiRate",
@@ -3812,12 +3952,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": ".:BrowserProvider:instance:getOutpointDeltas",
@@ -4030,12 +4179,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": ".:BrowserProvider:instance:getSigner",
@@ -4158,11 +4314,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": ".:BrowserProvider:instance:getTxPoolContent",
@@ -4559,12 +4719,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": ".:BrowserProvider:instance:waitForBlock",
@@ -4576,11 +4744,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": ".:BrowserProvider:instance:waitForTransaction",
@@ -4618,12 +4790,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": ".:BrowserProvider:instance:zoneFromHash",
@@ -13899,12 +14080,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:_getBlockTag",
@@ -13915,12 +14105,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:_getFilter",
@@ -14243,12 +14442,23 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:calculateConversionAmount",
@@ -14385,12 +14595,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:estimateGas",
@@ -14513,12 +14731,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:getCode",
@@ -14551,12 +14776,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:getLatestQiToQuaiRate",
@@ -14655,12 +14889,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:getOutpointDeltas",
@@ -14873,12 +15116,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:getSigner",
@@ -14994,11 +15244,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:getTxPoolContent",
@@ -15379,12 +15633,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:waitForBlock",
@@ -15396,11 +15658,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:waitForTransaction",
@@ -15438,12 +15704,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:zoneFromHash",
@@ -15576,12 +15851,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": ".:JsonRpcProvider:instance:_getBlockTag",
@@ -15592,12 +15876,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": ".:JsonRpcProvider:instance:_getConnection",
@@ -15936,12 +16229,23 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
     {
       "id": ".:JsonRpcProvider:instance:calculateConversionAmount",
@@ -16078,12 +16382,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": ".:JsonRpcProvider:instance:estimateGas",
@@ -16206,12 +16518,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": ".:JsonRpcProvider:instance:getCode",
@@ -16244,12 +16563,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": ".:JsonRpcProvider:instance:getLatestQiToQuaiRate",
@@ -16348,12 +16676,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": ".:JsonRpcProvider:instance:getOutpointDeltas",
@@ -16566,12 +16903,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": ".:JsonRpcProvider:instance:getSigner",
@@ -16687,11 +17031,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": ".:JsonRpcProvider:instance:getTxPoolContent",
@@ -17072,12 +17420,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": ".:JsonRpcProvider:instance:waitForBlock",
@@ -17089,11 +17445,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": ".:JsonRpcProvider:instance:waitForTransaction",
@@ -17131,12 +17491,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": ".:JsonRpcProvider:instance:zoneFromHash",
@@ -24494,12 +24863,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": ".:SocketProvider:instance:_getBlockTag",
@@ -24510,12 +24888,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": ".:SocketProvider:instance:_getFilter",
@@ -24886,12 +25273,23 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
     {
       "id": ".:SocketProvider:instance:calculateConversionAmount",
@@ -25028,12 +25426,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": ".:SocketProvider:instance:estimateGas",
@@ -25156,12 +25562,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": ".:SocketProvider:instance:getCode",
@@ -25194,12 +25607,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": ".:SocketProvider:instance:getLatestQiToQuaiRate",
@@ -25298,12 +25720,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": ".:SocketProvider:instance:getOutpointDeltas",
@@ -25516,12 +25947,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": ".:SocketProvider:instance:getSigner",
@@ -25637,11 +26075,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": ".:SocketProvider:instance:getTxPoolContent",
@@ -26022,12 +26464,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": ".:SocketProvider:instance:waitForBlock",
@@ -26039,11 +26489,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": ".:SocketProvider:instance:waitForTransaction",
@@ -26081,12 +26535,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": ".:SocketProvider:instance:zoneFromHash",
@@ -31885,12 +32348,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": ".:WebSocketProvider:instance:_getBlockTag",
@@ -31901,12 +32373,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": ".:WebSocketProvider:instance:_getFilter",
@@ -32277,12 +32758,23 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
     {
       "id": ".:WebSocketProvider:instance:calculateConversionAmount",
@@ -32442,12 +32934,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": ".:WebSocketProvider:instance:estimateGas",
@@ -32570,12 +33070,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": ".:WebSocketProvider:instance:getCode",
@@ -32608,12 +33115,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": ".:WebSocketProvider:instance:getLatestQiToQuaiRate",
@@ -32712,12 +33228,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": ".:WebSocketProvider:instance:getOutpointDeltas",
@@ -32930,12 +33455,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": ".:WebSocketProvider:instance:getSigner",
@@ -33051,11 +33583,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": ".:WebSocketProvider:instance:getTxPoolContent",
@@ -33466,12 +34002,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": ".:WebSocketProvider:instance:waitForBlock",
@@ -33483,11 +34027,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": ".:WebSocketProvider:instance:waitForTransaction",
@@ -33562,12 +34110,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": ".:WebSocketProvider:instance:zoneFromHash",
@@ -45859,12 +46416,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": "./providers:AbstractProvider:instance:_getBlockTag",
@@ -45875,12 +46441,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": "./providers:AbstractProvider:instance:_getFilter",
@@ -46125,12 +46700,23 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
     {
       "id": "./providers:AbstractProvider:instance:calculateConversionAmount",
@@ -46267,12 +46853,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": "./providers:AbstractProvider:instance:estimateGas",
@@ -46395,12 +46989,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": "./providers:AbstractProvider:instance:getCode",
@@ -46433,12 +47034,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": "./providers:AbstractProvider:instance:getLatestQiToQuaiRate",
@@ -46537,12 +47147,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": "./providers:AbstractProvider:instance:getOutpointDeltas",
@@ -46707,12 +47326,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": "./providers:AbstractProvider:instance:getStorage",
@@ -46812,11 +47438,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": "./providers:AbstractProvider:instance:getTxPoolContent",
@@ -47151,12 +47781,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": "./providers:AbstractProvider:instance:waitForBlock",
@@ -47168,11 +47806,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": "./providers:AbstractProvider:instance:waitForTransaction",
@@ -47210,12 +47852,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": "./providers:AbstractProvider:instance:zoneFromHash",
@@ -47693,12 +48344,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": "./providers:BrowserProvider:instance:_getBlockTag",
@@ -47709,12 +48369,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": "./providers:BrowserProvider:instance:_getFilter",
@@ -48044,15 +48713,19 @@
         "quai_provider::Provider::broadcast_qi_conversion",
         "quai_provider::Provider::broadcast_qi_wrapping"
       ],
-      "feature": "browser",
+      "feature": "provider and selected native/browser transport",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs",
         "crates/quai-browser/tests/support/injected_transaction.rs"
       ],
       "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md",
         "crates/quai-browser/README.md"
       ],
-      "deviation": "Explicit opt-in transport validates canonical signed bytes and origin/chain; typed Provider checks exact acknowledgement and retains local identity on ambiguous failures. No implicit retry or transaction-response object with bound provider methods."
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission. Injected providers additionally require explicit signed_submission_transport opt-in; their generic transport remains read-only."
     },
     {
       "id": "./providers:BrowserProvider:instance:calculateConversionAmount",
@@ -48189,12 +48862,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": "./providers:BrowserProvider:instance:estimateGas",
@@ -48317,12 +48998,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": "./providers:BrowserProvider:instance:getCode",
@@ -48355,12 +49043,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": "./providers:BrowserProvider:instance:getLatestQiToQuaiRate",
@@ -48459,12 +49156,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": "./providers:BrowserProvider:instance:getOutpointDeltas",
@@ -48677,12 +49383,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": "./providers:BrowserProvider:instance:getSigner",
@@ -48805,11 +49518,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": "./providers:BrowserProvider:instance:getTxPoolContent",
@@ -49206,12 +49923,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": "./providers:BrowserProvider:instance:waitForBlock",
@@ -49223,11 +49948,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": "./providers:BrowserProvider:instance:waitForTransaction",
@@ -49265,12 +49994,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": "./providers:BrowserProvider:instance:zoneFromHash",
@@ -49493,12 +50231,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:_getBlockTag",
@@ -49509,12 +50256,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:_getFilter",
@@ -49837,12 +50593,23 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:calculateConversionAmount",
@@ -49979,12 +50746,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:estimateGas",
@@ -50107,12 +50882,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:getCode",
@@ -50145,12 +50927,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:getLatestQiToQuaiRate",
@@ -50249,12 +51040,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:getOutpointDeltas",
@@ -50467,12 +51267,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:getSigner",
@@ -50588,11 +51395,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:getTxPoolContent",
@@ -50973,12 +51784,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:waitForBlock",
@@ -50990,11 +51809,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:waitForTransaction",
@@ -51032,12 +51855,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:zoneFromHash",
@@ -51170,12 +52002,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:_getBlockTag",
@@ -51186,12 +52027,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:_getConnection",
@@ -51530,12 +52380,23 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:calculateConversionAmount",
@@ -51672,12 +52533,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:estimateGas",
@@ -51800,12 +52669,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:getCode",
@@ -51838,12 +52714,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:getLatestQiToQuaiRate",
@@ -51942,12 +52827,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:getOutpointDeltas",
@@ -52160,12 +53054,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:getSigner",
@@ -52281,11 +53182,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:getTxPoolContent",
@@ -52666,12 +53571,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:waitForBlock",
@@ -52683,11 +53596,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:waitForTransaction",
@@ -52725,12 +53642,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:zoneFromHash",
@@ -54913,12 +55839,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": "./providers:SocketProvider:instance:_getBlockTag",
@@ -54929,12 +55864,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": "./providers:SocketProvider:instance:_getFilter",
@@ -55305,12 +56249,23 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
     {
       "id": "./providers:SocketProvider:instance:calculateConversionAmount",
@@ -55447,12 +56402,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": "./providers:SocketProvider:instance:estimateGas",
@@ -55575,12 +56538,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": "./providers:SocketProvider:instance:getCode",
@@ -55613,12 +56583,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": "./providers:SocketProvider:instance:getLatestQiToQuaiRate",
@@ -55717,12 +56696,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": "./providers:SocketProvider:instance:getOutpointDeltas",
@@ -55935,12 +56923,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": "./providers:SocketProvider:instance:getSigner",
@@ -56056,11 +57051,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": "./providers:SocketProvider:instance:getTxPoolContent",
@@ -56441,12 +57440,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": "./providers:SocketProvider:instance:waitForBlock",
@@ -56458,11 +57465,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": "./providers:SocketProvider:instance:waitForTransaction",
@@ -56500,12 +57511,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": "./providers:SocketProvider:instance:zoneFromHash",
@@ -57375,12 +58395,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
     {
       "id": "./providers:WebSocketProvider:instance:_getBlockTag",
@@ -57391,12 +58420,21 @@
         "(shard: Shard, blockTag?: BlockTag): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::BlockTag",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
     {
       "id": "./providers:WebSocketProvider:instance:_getFilter",
@@ -57767,12 +58805,23 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/submission.rs",
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/conversions.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
     {
       "id": "./providers:WebSocketProvider:instance:calculateConversionAmount",
@@ -57932,12 +58981,20 @@
         "(_tx: QiPerformActionTransaction): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_qi_fee",
+        "quai_provider::Provider::estimate_qi_special_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/qi.rs",
+        "crates/quai-provider/tests/qi_special_fee.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
     {
       "id": "./providers:WebSocketProvider:instance:estimateGas",
@@ -58060,12 +59117,19 @@
         "(shard: Shard): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::block_number"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
     {
       "id": "./providers:WebSocketProvider:instance:getCode",
@@ -58098,12 +59162,21 @@
         "(zone?: Zone, txType?: boolean): Promise<FeeData>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::gas_price",
+        "quai_provider::Provider::estimate_qi_fee"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
     {
       "id": "./providers:WebSocketProvider:instance:getLatestQiToQuaiRate",
@@ -58202,12 +59275,21 @@
         "(): Promise<Network>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::chain_id",
+        "quai_provider::Provider::genesis_hash"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
     {
       "id": "./providers:WebSocketProvider:instance:getOutpointDeltas",
@@ -58420,12 +59502,19 @@
         "(shard?: Shard): Promise<number[][]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::running_zones"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/basic_reference.rs",
+        "crates/quai-provider/tests/provider.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
     {
       "id": "./providers:WebSocketProvider:instance:getSigner",
@@ -58541,11 +59630,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
     {
       "id": "./providers:WebSocketProvider:instance:getTxPoolContent",
@@ -58956,12 +60049,20 @@
         "(url: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::Endpoint::parse",
+        "quai_rpc::Routing"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-rpc/tests/routing_differential.rs",
+        "crates/quai-rpc/src/routing.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
     {
       "id": "./providers:WebSocketProvider:instance:waitForBlock",
@@ -58973,11 +60074,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/provider-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
     {
       "id": "./providers:WebSocketProvider:instance:waitForTransaction",
@@ -59052,12 +60157,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::zone",
+        "quai_primitives::QuaiAddress::zone",
+        "quai_primitives::QiAddress::zone"
+      ],
+      "feature": "provider and selected native/browser transport",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+      ],
+      "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
     {
       "id": "./providers:WebSocketProvider:instance:zoneFromHash",

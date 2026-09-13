@@ -347,3 +347,12 @@ See [browser lifecycle documentation](crates/quai-browser/README.md#websocket) a
 This closes the browser WebSocket transport gap; complete persistent browser wallet
 integration, real extension testing and browser reconnect/head-following orchestration
 remain separate work.
+
+## Whole-sequence ABI defaults
+
+`AbiCoder::default_values` completes the reference parameter-list default operation
+with aggregate field, value-node, text and encoding limits checked before nested
+allocation. All 107 pinned JS default sequences match after the documented integer
+representation normalization, including their exact encoded bytes. Empty tuples,
+zero-length arrays and aggregate limits have separate regressions. The single-value
+constructor uses the same bounded implementation.

@@ -79,12 +79,19 @@
         "(types: ReadonlyArray<string | ParamType>): Result"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiCoder::default_values"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs#sequence_defaults_match_pinned_reference_values_and_encoding",
+        "crates/quai-abi/tests/typed_values.rs#sequence_defaults_share_field_node_text_and_encoding_budgets"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Type-correct positional defaults match reference encoding; integer defaults use exact decimal strings instead of JS numeric zero. Shared field/node/text/encoding budgets reject oversized sequences before allocating nested values; no named Result properties."
     },
     {
       "id": ".:AbiCoder:static:_setDefaultMaxInflation",
@@ -33404,12 +33411,19 @@
         "(types: ReadonlyArray<string | ParamType>): Result"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiCoder::default_values"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs#sequence_defaults_match_pinned_reference_values_and_encoding",
+        "crates/quai-abi/tests/typed_values.rs#sequence_defaults_share_field_node_text_and_encoding_budgets"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Type-correct positional defaults match reference encoding; integer defaults use exact decimal strings instead of JS numeric zero. Shared field/node/text/encoding budgets reject oversized sequences before allocating nested values; no named Result properties."
     },
     {
       "id": "./abi:AbiCoder:static:_setDefaultMaxInflation",

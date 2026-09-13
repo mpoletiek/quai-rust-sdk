@@ -26,15 +26,7 @@ impl AbiValue {
     /// Construct the type-correct zero/empty default, with bounds checked before
     /// allocating nested arrays or strings. Dynamic arrays default to empty.
     pub fn default_for(ty: AbiType) -> Result<Self, AbiError> {
-        default_text_size(&ty)?;
-        let body = default_body_size(&ty)?;
-        if body
-            .checked_add(if ty.dynamic { 32 } else { 0 })
-            .is_none_or(|n| n > MAX_DATA_BYTES)
-        {
-            return Err(AbiError::Limit);
-        }
-        let value = default_value(&ty);
+        let value = default_values(std::slice::from_ref(&ty))?.remove(0);
         Self::new(ty, value)
     }
     /// Borrow the validated Solidity type.
@@ -115,6 +107,24 @@ impl AbiType {
             None
         }
     }
+}
+pub(crate) fn default_values(types: &[AbiType]) -> Result<Vec<Value>, AbiError> {
+    crate::codec::sequence_limit(types)?;
+    let mut text = 0usize;
+    let mut encoded = 0usize;
+    for ty in types {
+        text = text
+            .checked_add(default_text_size(ty)?)
+            .ok_or(AbiError::Limit)?;
+        encoded = encoded
+            .checked_add(default_body_size(ty)?)
+            .and_then(|n| n.checked_add(if ty.dynamic { 32 } else { 0 }))
+            .ok_or(AbiError::Limit)?;
+        if text > MAX_DATA_BYTES || encoded > MAX_DATA_BYTES {
+            return Err(AbiError::Limit);
+        }
+    }
+    Ok(types.iter().map(default_value).collect())
 }
 fn default_text_size(ty: &AbiType) -> Result<usize, AbiError> {
     let size = match &ty.kind {

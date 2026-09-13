@@ -294,3 +294,19 @@ connect to that phase directly. Debug reports only creation byte count.
 Twelve reference factory cases compare exact pre-grinding constructor payloads.
 Tests also cover explicit compiler-output selection, duplicate nested/ignored
 fields, missing contracts, resource limits, malformed hex and argument arity.
+
+## Parameter defaults
+
+`AbiCoder::default_values(&types)` returns the zero/empty values for a complete
+parameter list. Fixed arrays and tuples retain their shape; dynamic arrays are
+empty, bytes are hex strings, addresses are the zero address and integers are
+exact decimal strings (`"0"`). The pinned JS `AbiCoder.getDefaultValue` returns
+numeric zero; Rust keeps the same representation used by its decoder. Tuple
+results are positional vectors rather than JS named-property `Result` objects.
+
+Field count, visited value nodes, total string bytes and total ABI encoding size
+are checked across the whole sequence before allocating nested values. This also
+bounds repeated empty tuples, whose ABI encoding consumes zero bytes. The shared
+single-value constructor remains `AbiValue::default_for`. Tests compare 107 pinned
+JS default sequences and their complete encoded bytes, plus independent aggregate
+budget boundaries.

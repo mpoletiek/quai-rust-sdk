@@ -1,0 +1,24 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "a838a6e5776ae2c9c604b97a1e7ed316127ba962",
+  "testedWorkingTree": true,
+  "reference": "quais@1.0.0-alpha.57",
+  "defaultSequences": 107,
+  "abiCrateTests": 27,
+  "nativeClippyWarningsDenied": "passed",
+  "wasmClippyAllTargetsWarningsDenied": "passed",
+  "rustdocWarningsDenied": "passed",
+  "fuzz": {
+    "target": "abi",
+    "sanitizer": "AddressSanitizer",
+    "executions": 688504,
+    "seconds": 121,
+    "rssLimitMiB": 1024,
+    "inputTimeoutSeconds": 5,
+    "maxInputBytes": 65536,
+    "seed": 20260913,
+    "crashes": 0,
+    "binarySha256": "fd4bfcdf3a62b6ebf862312010bda9d08de9038a939a293b339db752228d7afc"
+  },
+  "qualification": "Bounded sequence defaults, reference vectors and parser fuzzing; not security/release certification."
+}

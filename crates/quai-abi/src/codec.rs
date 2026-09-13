@@ -11,6 +11,13 @@ use serde_json::Value;
 /// Decode rejects aliases, gaps, trailing bytes and noncanonical primitive words.
 pub struct AbiCoder;
 impl AbiCoder {
+    /// Create zero/empty defaults for an entire parameter sequence. Integer
+    /// defaults are decimal strings, dynamic arrays are empty and tuple values
+    /// are positional arrays. Shared field, node, text and encoded-byte limits
+    /// are checked before allocating any nested default values.
+    pub fn default_values(types: &[AbiType]) -> Result<Vec<Value>, AbiError> {
+        crate::typed_value::default_values(types)
+    }
     /// Encode one parameter sequence after validating values and measuring the
     /// entire bounded output; the output buffer is allocated once.
     pub fn encode(types: &[AbiType], values: &[Value]) -> Result<Vec<u8>, AbiError> {
@@ -49,7 +56,7 @@ pub(crate) fn validate(types: &[AbiType], values: &[Value]) -> Result<usize, Abi
     preflight_values(values)?;
     measure_sequence(Sequence::Fields(types), values, 0)
 }
-fn sequence_limit(types: &[AbiType]) -> Result<(), AbiError> {
+pub(crate) fn sequence_limit(types: &[AbiType]) -> Result<(), AbiError> {
     if types.len() > MAX_FIELDS {
         return Err(AbiError::Limit);
     }

@@ -150,3 +150,86 @@ fn defaults_preflight_text_and_encoding_budgets_and_coercions_are_rejected() {
         assert!(AbiValue::new(ty.parse().unwrap(), value).is_err());
     }
 }
+
+#[test]
+fn sequence_defaults_match_pinned_reference_values_and_encoding() {
+    // JS defaults use numeric zero; the Rust codec consistently represents
+    // every integer as an exact decimal string, including nested defaults.
+    fn normalize(value: &Value) -> Value {
+        match value {
+            Value::Number(n) => json!(n.to_string()),
+            Value::Array(a) => Value::Array(a.iter().map(normalize).collect()),
+            _ => value.clone(),
+        }
+    }
+    for v in fixture()["defaults"].as_array().unwrap() {
+        let types: Vec<AbiType> = v["types"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|t| t.as_str().unwrap().parse().unwrap())
+            .collect();
+        let values = AbiCoder::default_values(&types).unwrap();
+        assert_eq!(json!(values), normalize(&v["values"]), "{v}");
+        assert_eq!(
+            AbiCoder::encode(&types, &values).unwrap(),
+            bytes(v["encoded"].as_str().unwrap()),
+            "{v}"
+        );
+        assert_eq!(
+            AbiCoder::decode(&types, &bytes(v["encoded"].as_str().unwrap())).unwrap(),
+            values
+        );
+    }
+}
+
+#[test]
+fn sequence_defaults_share_field_node_text_and_encoding_budgets() {
+    let bool_ty: AbiType = "bool".parse().unwrap();
+    assert_eq!(
+        AbiCoder::default_values(&vec![bool_ty.clone(); 1024])
+            .unwrap()
+            .len(),
+        1024
+    );
+    assert_eq!(
+        AbiCoder::default_values(&vec![bool_ty.clone(); 1025]),
+        Err(AbiError::Limit)
+    );
+    let half: AbiType = "bool[16383]".parse().unwrap();
+    let types = [half.clone(), half.clone()];
+    let values = AbiCoder::default_values(&types).unwrap();
+    assert_eq!(AbiCoder::encode(&types, &values).unwrap().len(), 32766 * 32);
+    assert_eq!(
+        AbiCoder::default_values(&[half.clone(), half, bool_ty]),
+        Err(AbiError::Limit)
+    );
+    // Each input fits by itself; the combined strings exceed 1 MiB while nodes
+    // and ABI bytes still fit. No per-type budget multiplication is permitted.
+    let text: AbiType = "bytes32[8192]".parse().unwrap();
+    assert!(AbiValue::default_for(text.clone()).is_ok());
+    assert_eq!(
+        AbiCoder::default_values(&[text.clone(), text]),
+        Err(AbiError::Limit)
+    );
+    // Empty string content consumes no text budget, but offsets and lengths
+    // together exceed the independent ABI output budget.
+    let dynamic: AbiType = "string[9000]".parse().unwrap();
+    assert!(AbiValue::default_for(dynamic.clone()).is_ok());
+    assert_eq!(
+        AbiCoder::default_values(&[dynamic.clone(), dynamic]),
+        Err(AbiError::Limit)
+    );
+    let empty: AbiType = "()[32767]".parse().unwrap();
+    assert_eq!(
+        AbiCoder::default_values(std::slice::from_ref(&empty)).unwrap()[0]
+            .as_array()
+            .unwrap()
+            .len(),
+        32767
+    );
+    assert_eq!(
+        AbiCoder::default_values(&[empty.clone(), empty]),
+        Err(AbiError::Limit)
+    );
+}

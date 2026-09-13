@@ -426,7 +426,7 @@ fn search_cancels_and_resumes_without_overflow_or_silent_index_changes() {
 #[test]
 fn extended_metadata_matches_quais_and_survives_import() {
     let fixtures: Value = serde_json::from_str(include_str!(
-        "../../../compatibility/fixtures/key-metadata.json"
+        "fixtures/shared/compatibility/fixtures/key-metadata.json"
     ))
     .unwrap();
     for v in fixtures["vectors"].as_array().unwrap() {

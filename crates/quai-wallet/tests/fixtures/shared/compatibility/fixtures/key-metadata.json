@@ -1,0 +1,406 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "publicTestFixturesOnly": true,
+  "vectors": [
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f",
+      "xpub": "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8",
+      "path": "m",
+      "depth": 0,
+      "index": 0,
+      "fingerprint": "0x3442193e",
+      "parentFingerprint": "0x00000000",
+      "chainCode": "0x873dff81c02f525623fd1fe5167eac3a55a049de3d314bb42ee227ffed37d508"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f",
+      "xpub": "xpub6H1LXWLaKsWFhvm6RVpEL9P4KfRZSW7abD2ttkWP3SSQvnyA8FSVqNTEcYFgJS2UaFcxupHiYkro49S8yGasTvXEYBVPamhGW6cFJodrTHy",
+      "path": "m/0'/1/2'/2/1000000000",
+      "depth": 5,
+      "index": 1000000000,
+      "fingerprint": "0xd69aa102",
+      "parentFingerprint": "0xd880d7d8",
+      "chainCode": "0xc783e67b921d2beb8f6b389cc646d7263b4145701dadd2161548a8b078e65e9e"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f",
+      "xpub": "xpub6GE4kaT1q85PfbTDqGtYPfmmi3iEfrfwg2AUNzMtS9jDqvsPG7wK2etww7Red6S3WYuU3kFh3pwLadoUiCFedi4u6ov8BidTYmigntAv4Dv",
+      "path": "m/44'/994'/0'/0/0",
+      "depth": 5,
+      "index": 0,
+      "fingerprint": "0xdabc6d97",
+      "parentFingerprint": "0x6e4ef6af",
+      "chainCode": "0x337ebf999804aee687b89f92389d351accb508053885ae881d7b613366b59e37"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f10",
+      "xpub": "xpub661MyMwAqRbcGAhf4GMFssMnQkZwHsz21jYNJ4UZVwUoFKRjvPJEddSkDBYhPCg2oV7zDU4w33xBwLhoqPhsa7rAmXowm2Kd7j1TnoqcCde",
+      "path": "m",
+      "depth": 0,
+      "index": 0,
+      "fingerprint": "0x52405f5e",
+      "parentFingerprint": "0x00000000",
+      "chainCode": "0xa33f82878683c1c6233e2ca54632e5f90c99985ebb06688e47108516f54b5676"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f10",
+      "xpub": "xpub6H8jKkQ6uvoRiG31M3SDrVc62g5Cgzj7Z9DiCaUKnMWuGUBAGvc6mrXJxkgbdMVhsr8DkCCM7YqaRivGPRgdXxCbSWoLGmFxGfoXrY331Uq",
+      "path": "m/0'/1/2'/2/1000000000",
+      "depth": 5,
+      "index": 1000000000,
+      "fingerprint": "0xf19a670d",
+      "parentFingerprint": "0xe9d8620f",
+      "chainCode": "0x2f02b9103be01d2dae4e47d7a2b0ecc63b8789844bef5067f948059574ba1e02"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f10",
+      "xpub": "xpub6G6uey5VbUBZ24V7RAa3E9Xbpjs7BhPQtdjx9VdhRH1m5RYrheosGMw8bihESHDb1KzoHx493qTn5W8RBUKsT1WWXsEzRy1m8cRayqTn6fZ",
+      "path": "m/44'/994'/0'/0/0",
+      "depth": 5,
+      "index": 0,
+      "fingerprint": "0x1d77abc5",
+      "parentFingerprint": "0x5d8545a6",
+      "chainCode": "0x38b4d2d1caa27108a4cbe393accf8f2f350b9769c2556a1dddfbe788c3caf395"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f10111213",
+      "xpub": "xpub661MyMwAqRbcG1nFbS1qrxzQ9wvrFcQof7AmDkFc3WLhbmg6wiXAoVVahMFuZtSEa21vsrnPf1vCFvFCoGMUjVnYMLiHCRU61TgW9WDuz5A",
+      "path": "m",
+      "depth": 0,
+      "index": 0,
+      "fingerprint": "0x8fdf5f3b",
+      "parentFingerprint": "0x00000000",
+      "chainCode": "0x93ccadbaad1134817419d5dc8fcb44799e4ea2a2a9d6370d232c3dc42135aaca"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f10111213",
+      "xpub": "xpub6GZdohGHfoYrbPvHNWuMbdkcD2KJTM6bLkWAcprHgyrAMdK2Hhghyi5M1c2cvg46v8W5t97BotdCzAWJ5CbUoqbNSiNqZhbxRRt1vCVvwBr",
+      "path": "m/0'/1/2'/2/1000000000",
+      "depth": 5,
+      "index": 1000000000,
+      "fingerprint": "0xd27b3d76",
+      "parentFingerprint": "0x9c36b574",
+      "chainCode": "0x5fdbd4ba4dea1f65d12fee15f6d95cc545e184a0b7bda62bce24c218a378f66b"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f10111213",
+      "xpub": "xpub6FTREWPD2CbaMgRawNFQazi7eVenEu7SExZQ5MLEgKPPR17ot9hbEgo92woCjixut8u3B1agmzS66fP6eQeon8yQCvn7zSEM9iTqFM8m1wt",
+      "path": "m/44'/994'/0'/0/0",
+      "depth": 5,
+      "index": 0,
+      "fingerprint": "0x2c40b5cf",
+      "parentFingerprint": "0x05947622",
+      "chainCode": "0xf23c452ddbe0ea73500148d90eff06ad3b543feddb82417cf0a7494def2505cf"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e",
+      "xpub": "xpub661MyMwAqRbcFKj2pCBUCBDQmW5kooRn2dwvk4n1f9Zqw4pwDRFjzgr4m4gPvFjHGhGs7RgkNgV7jJbaT2DyubJKszQ3v9HSneDJssCPo9S",
+      "path": "m",
+      "depth": 0,
+      "index": 0,
+      "fingerprint": "0x6e9bfc03",
+      "parentFingerprint": "0x00000000",
+      "chainCode": "0x4e6eebac1f4734843dfe36f8e60210da820f1c9dee76ace6520d20aad07476a7"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e",
+      "xpub": "xpub6G7Nwa3y9YKj5mpqVnJ2DgeNtuiuWBAxzZUxv1GScwY9uuRxj3jBi7Wxz4BC3hNRqqEtf7a7JJdzwhG14hwFrGGYP1KRTuo79Z2wrYYeKPJ",
+      "path": "m/0'/1/2'/2/1000000000",
+      "depth": 5,
+      "index": 1000000000,
+      "fingerprint": "0xa602464f",
+      "parentFingerprint": "0x5e9fc78f",
+      "chainCode": "0xd1d9f8b019597ae61b17945b9e4fccac74ca939a792b5631504ed48f43a6d918"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e",
+      "xpub": "xpub6GPaTK7DzL3hNVbj8AptPHZ385EnBWVoaWERsAvpoLAa1uHAzBYF25e9HPUv3UngvyuKdAbDPUEQiVS62WckR6QRHQ1uJC2U453qaKihU5h",
+      "path": "m/44'/994'/0'/0/0",
+      "depth": 5,
+      "index": 0,
+      "fingerprint": "0xc1f435ea",
+      "parentFingerprint": "0x849eff50",
+      "chainCode": "0xf7298f8c5629123484cd0db72db37cd72e9e6974c33bf1e8637af7e117176b5a"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "xpub": "xpub661MyMwAqRbcFiyme9xRZe855HWfYxvTcYoWpX1E8ZW8DGu35DbthdTxz222XRihFsxrdH4BCEe32DBRyKEerW8CUMAB8FDziiNyDG4ecgT",
+      "path": "m",
+      "depth": 0,
+      "index": 0,
+      "fingerprint": "0x5a3469b6",
+      "parentFingerprint": "0x00000000",
+      "chainCode": "0x76b421d62999fb62022cc8f01200bb31a169daf72673eba7e58442b8b67cbfc9"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "xpub": "xpub6Fy4EebZbew1Jethu8EFX2JLsjFWG59FdousNJ2ErRqk2zW5q75gBnZstRpQD2fLD4ZZrPRf5mrpA6qfxX2Hy6X6u8mcRzJUCmWC4e9npDy",
+      "path": "m/0'/1/2'/2/1000000000",
+      "depth": 5,
+      "index": 1000000000,
+      "fingerprint": "0x77b70d31",
+      "parentFingerprint": "0x4b1a1a1f",
+      "chainCode": "0x9f4b7394a2bc28bb9fc75efa61ac457c67e2af5a908c60445403a68309cb44a8"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "xpub": "xpub6FSVaot2gGGZK5bs2GYhhh8RBYPLAsAqsAcC4GzaSz65oMjgiaoCWPgg33p6Jzc6vbCPgkyoEtfU3kqChnqeWhYJBZyjwEAJQE58oMzJPdv",
+      "path": "m/44'/994'/0'/0/0",
+      "depth": 5,
+      "index": 0,
+      "fingerprint": "0xc9569629",
+      "parentFingerprint": "0x0368ff82",
+      "chainCode": "0x7e9a8be529b96e5842c9d51e8a66f11c0ad98f91214ffaa77d14be33eeb5b1fe"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+      "xpub": "xpub661MyMwAqRbcFnqbXUgawPYPnuCRLeyjXZqtFbqCCVocgBftXJ13UCiyFnwGep8vRRAKfmD3MmKWN1ovsVpS5FgMafAuXe47p2WeiA58VHE",
+      "path": "m",
+      "depth": 0,
+      "index": 0,
+      "fingerprint": "0x62bf4f68",
+      "parentFingerprint": "0x00000000",
+      "chainCode": "0x7d62f6f4e5d87c9697369bd4042eca80d99f55d903552ed882fc3227d3b41264"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+      "xpub": "xpub6FsDfP3wziV19BzWqaefGfCqibc5UbWW1ZJzqEdgbsJ9tRUoVHjsrfTwVsrqnzmTo2CrN7iyAwajfA5Hm2Q97awDQKxt621o328SFVMBDS4",
+      "path": "m/0'/1/2'/2/1000000000",
+      "depth": 5,
+      "index": 1000000000,
+      "fingerprint": "0x4400dcd1",
+      "parentFingerprint": "0x3d68b0c4",
+      "chainCode": "0xe32100fed8d8b38aa8cac1065927f894f3c6d19ce3df188c2f024e14f5208423"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+      "xpub": "xpub6GrcZGJguUiCmfuS7cyUWeUkXwBkNGZ94VL729ZpqXri5uPDgV6WbVoCRFuQHzMYCqawteS9mui3ukvTwhQF16QCvmLVdE4NBEsUtrxWzK3",
+      "path": "m/44'/994'/0'/0/0",
+      "depth": 5,
+      "index": 0,
+      "fingerprint": "0xd743125a",
+      "parentFingerprint": "0xc40a4d11",
+      "chainCode": "0xd40fce2ac55bdc377255bd0bc137a0879c6e7b16df547325de65a6bf8a3d4d63"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e",
+      "xpub": "xpub661MyMwAqRbcGDbXW3MGWcPsyLxAxxNiRFiNb5UskJ17CFBPu6JDSrdvsZQsjvn37obFNNDEQS9SgdNoxZN8J3oD9Qa9GDbo4432CwxcPyk",
+      "path": "m",
+      "depth": 0,
+      "index": 0,
+      "fingerprint": "0xa81af19b",
+      "parentFingerprint": "0x00000000",
+      "chainCode": "0xa842a3682ff891d99161cbc2f512b993b452d9dfa3029eea788db610484c4ce3"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e",
+      "xpub": "xpub6GP3JW4XhwTkcQz2NT43ifrZ9Jy9eXYSv1C9C6oQjbN2TguKoZGagj29Rk8sC6SZAnnDwKS2uu2gXa6ioPi7jy95Q6WrPtbNDJS9UwCD5hG",
+      "path": "m/0'/1/2'/2/1000000000",
+      "depth": 5,
+      "index": 1000000000,
+      "fingerprint": "0xa18583af",
+      "parentFingerprint": "0x835c7785",
+      "chainCode": "0xaeb2a57d74df7bf88f0a70d47b6ee7e01265a1bb3237f0920f1d45656af14aea"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e",
+      "xpub": "xpub6GYb8yg2tbYc5AREVw5tVhzch8r32nARewAV3FcjYq7zGvSwvdZFFFuf17hi5WCNwGpxfaqjzQHvuzNXJEkHNWkddpLpdvzrQc3HZyvoPKN",
+      "path": "m/44'/994'/0'/0/0",
+      "depth": 5,
+      "index": 0,
+      "fingerprint": "0xc9ac910c",
+      "parentFingerprint": "0x99c296db",
+      "chainCode": "0xcba7243eb7a507c422fdb2d4c2fffcab12212f7d39b80bfd545350b37dac00b9"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+      "xpub": "xpub661MyMwAqRbcGfcWxtZ8qv7JZur9jJJDG5FK8kquLBusvP8srTPJJF42ztmYTTap3YWc6FPxAn1U2dPvxPyZ1G5zDiXpaUnG7MB5UEasuGu",
+      "path": "m",
+      "depth": 0,
+      "index": 0,
+      "fingerprint": "0xdc2ca4b2",
+      "parentFingerprint": "0x00000000",
+      "chainCode": "0xd550c10bdf6867ad4eac65f60f8f7a3d4ef37e77a9502e10e594cc3e6b66aed0"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+      "xpub": "xpub6GQ5EnmynKTEvhy1vGfGxkQYnBCJN6ShgBgZ3xYsEoe9QNvetWDsiDQ6ZeeQDdbaHSctTULBKTvqWeZhgaSmPw6ETx7DUsX9AtqpMwXZrcY",
+      "path": "m/0'/1/2'/2/1000000000",
+      "depth": 5,
+      "index": 1000000000,
+      "fingerprint": "0x4612582b",
+      "parentFingerprint": "0x85c90333",
+      "chainCode": "0xcd90dae4326b30c43aa2e7d5722fdcce8c2be63749c1b0c0906c33d39fc5e116"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+      "xpub": "xpub6FSWSQd1hJJLnhsK1FDQKEK3xzwXvWZpZs53aEMH2gbnVuqhtPGrfWr9PjoN75dEPxzr78ap4nZpaELd5hbipuRjhgXP8PDu5ugQVhMwLdb",
+      "path": "m/44'/994'/0'/0/0",
+      "depth": 5,
+      "index": 0,
+      "fingerprint": "0x89b812bc",
+      "parentFingerprint": "0x0371da16",
+      "chainCode": "0xa2c48de52243a20171567853f9ba7931962e00c5e96cffb9d9fbe6d6236fce70"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f",
+      "xpub": "xpub68Gmy5EdvgibQVfPdqkBBCHxA5htiqg55crXYuXoQRKfDBFA1WEjWgP6LHhwBZeNK1VTsfTFUHCdrfp1bgwQ9xv5ski8PX9rL2dZXvgGDnw",
+      "path": "m/0'",
+      "depth": 1,
+      "index": 2147483648,
+      "fingerprint": "0x5c1bd648",
+      "parentFingerprint": "0x3442193e",
+      "chainCode": "0x47fdacbd0f1097043b78c63c20c34ef4ed9a111d980047ad16282c7ae6236141"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f",
+      "xpub": "xpub68Gmy5EnGMFZYsDVivNetbpvKTamYn942SaYR5BXMD8zFPm46MzxTZPyZH87vodeLm4BR9tmRhtF7pCiKi7J5CTFRBjSZ7JY75s8muoKRa7",
+      "path": "m/2147483647'",
+      "depth": 1,
+      "index": 4294967295,
+      "fingerprint": "0x5743c6f0",
+      "parentFingerprint": "0x3442193e",
+      "chainCode": "0x88396288edbeb57610c1d643a2c212757e797811e6d13522c7dd916c5dc88163"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f10",
+      "xpub": "xpub68VZafFuk72UuojzrFy9iie1RumvUfoHpW3f3fgUoaFChdTq1jX4u7EcEvS5NS6RnzerK1MuX4LfxVJ4gQVXGtj8w3tacbhNC4WheJZi2sU",
+      "path": "m/0'",
+      "depth": 1,
+      "index": 2147483648,
+      "fingerprint": "0xaeefdcba",
+      "parentFingerprint": "0x52405f5e",
+      "chainCode": "0x443c0034fa44314de8a1bb63e8b878d1dd5bf65fcf2a3781dcbe193872728ddf"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f10",
+      "xpub": "xpub68VZafG45mZT3AMRHQtJtjQTxUPJJmsKwzcod9MPm5pMobBufvHeDgaTPWPjwP4ntoTYGe8N9HxenNWiv6z5jkPTGDJhVAUziHyCAKcoMTz",
+      "path": "m/2147483647'",
+      "depth": 1,
+      "index": 4294967295,
+      "fingerprint": "0xa0cf38aa",
+      "parentFingerprint": "0x52405f5e",
+      "chainCode": "0x1e64ac6d45a19659f5e447d2d063beb6e279b561eabc9dae52ede35c6ac196c3"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f10111213",
+      "xpub": "xpub68wqDzbdhn9HbVsyvi69aA5PNx7EFjuVnWXS45ynkpK3h6ujZ9qcQYbaZL3dGC6T7otEsBS7tiM4fX7jCyFs8YphUgnbz4dvQQfLvsg1uJw",
+      "path": "m/0'",
+      "depth": 1,
+      "index": 2147483648,
+      "fingerprint": "0xf7c0e84a",
+      "parentFingerprint": "0x8fdf5f3b",
+      "chainCode": "0x55f35af61e513dc7f84951facc5869cd9cb9a8945473fc93eb40db624d188f03"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f10111213",
+      "xpub": "xpub68wqDzbn3SgFiWhjppsT5GLjNMXMqMwXyiqSyqQMT6sVgXAoyRnWnpHc6G1WNgKAcUs9WVDQnC4GYofHFfWBhAu1D1Ssazz4yLEEK3YrLLc",
+      "path": "m/2147483647'",
+      "depth": 1,
+      "index": 4294967295,
+      "fingerprint": "0x3a4a71a3",
+      "parentFingerprint": "0x8fdf5f3b",
+      "chainCode": "0x0dd7beb17f8256c220d53a9b719c557935a0dd60f2a1aea8851cc8c9951ee41a"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e",
+      "xpub": "xpub68hekuceV8k62j3hNJhBYvobh2czUSFo4Nz5wZ4RkrkLuLfmUiNNjwEKFT9K9NoB5tzHFTNrixktfzHXmuV2NVDKYgzFPENUNo8rkuGdZC6",
+      "path": "m/0'",
+      "depth": 1,
+      "index": 2147483648,
+      "fingerprint": "0x452b9fd2",
+      "parentFingerprint": "0x6e9bfc03",
+      "chainCode": "0x57198eeea4fa41d9897c40af43de01e89b25518518746bfa05088acdf1294773"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e",
+      "xpub": "xpub68hekucnpoH4A68MywDwM9SoVp9RGQkEZrCghDVMMnRwoefE42FqztS9vRYKaBiwtJjt95cNa73UhQmv4Uj7kNj82xWjoWT5vp8JqjmJ6Lm",
+      "path": "m/2147483647'",
+      "depth": 1,
+      "index": 4294967295,
+      "fingerprint": "0xcaa7b9e3",
+      "parentFingerprint": "0x6e9bfc03",
+      "chainCode": "0x32127a1a91de9f3db84404487d01982741e1db689ed7835870ba0d4ae6e34922"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "xpub": "xpub68YxEXmEhekdNyFqNX9ihpgbVQbGtwgFUn1Ldpo1D9oUZodDsiuD5Mrq16o9FPqRzXi9PgqoWuQAMUUXfvRPDttMXHuLVTp8QWwLoZ8bz88",
+      "path": "m/0'",
+      "depth": 1,
+      "index": 2147483648,
+      "fingerprint": "0x5191de3c",
+      "parentFingerprint": "0x5a3469b6",
+      "chainCode": "0x678ff2d077c09f0ccba628813dd8fcf2ab2e37df6cad84c4a6be9438011738bc"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "xpub": "xpub68YxEXmP3KHbXbwCLN6owwKvUiLgvS2R6tZ2hnL4idEQR9heFJGgYGcvxzDAJLTF4qoghiAzTU1CT9Vk5JtxKjiwJpiMoXs9pQDsA1dht5b",
+      "path": "m/2147483647'",
+      "depth": 1,
+      "index": 4294967295,
+      "fingerprint": "0xf6451350",
+      "parentFingerprint": "0x5a3469b6",
+      "chainCode": "0xc1fd0d83d67b4e68e6694bf173a56d447d965635deecdf07613aa6e27c9a84c4"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+      "xpub": "xpub68cbTVxC4uxp44Y4XFtfQEe3LVnrXPh3aNzfKwGK4uVRiLVFqkjgTNvvf7kvBeawx8zL7iNsXmJbfMh39iWvhCr9ovK3i5TL5AW9Qn9Tmah",
+      "path": "m/0'",
+      "depth": 1,
+      "index": 2147483648,
+      "fingerprint": "0x6a13d82b",
+      "parentFingerprint": "0x62bf4f68",
+      "chainCode": "0xf30b77cb6cde2be2ec759073d84dcf2f94167e08a745b4757763c65b930a7b23"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+      "xpub": "xpub68cbTVxLQaVnBaWvRgUm4TDEvG5RnQ5mXvypB6msiumXywp73n6e8H2TTm8oiZhNKXy5e9pRoSMUBXABCfY4SGgKFLUdUrJ1JY3ioy4GQbz",
+      "path": "m/2147483647'",
+      "depth": 1,
+      "index": 4294967295,
+      "fingerprint": "0xfb80ada6",
+      "parentFingerprint": "0x62bf4f68",
+      "chainCode": "0xdd6df851b51f7146a2c46ddd66112adcf878009dfcd801631c6db4d766c97744"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e",
+      "xpub": "xpub698AQKTKL8eYU7GKMiPTvEk7gRqwwYT7vvCB15wSvsTyvzHDurSsfUvRj8UmKDLDWfqiAUc8XbHWPanjDQYdN2qx37DHv2vL5mDp5THCgkA",
+      "path": "m/0'",
+      "depth": 1,
+      "index": 2147483648,
+      "fingerprint": "0x70ad3880",
+      "parentFingerprint": "0xa81af19b",
+      "chainCode": "0x768837d10a1ec3fd744273561d5c58dd150e05c42a1e55f2b88daf17fd72a22c"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e",
+      "xpub": "xpub698AQKTTfoBWb8VUJB2puZfLG3sFfHVQ9XyGrKVG78EBrywPq9yiy3VxsTFEJ6opXaDojGEceCTbqwxpDGRjrsMnFrnLg1dFUWNPRVcGEee",
+      "path": "m/2147483647'",
+      "depth": 1,
+      "index": 4294967295,
+      "fingerprint": "0xcb791ba6",
+      "parentFingerprint": "0xa81af19b",
+      "chainCode": "0x2f1f725ca43895d772c32139959904f2af036612f2acab01c9d3b9af943bafa7"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+      "xpub": "xpub69WMs7ernKaSNPbpoMhZ2K8KYk4yjVUr5gBmcA5aXjiph5x2vvqmFAD3Z7AEBgjf6VmENBfiKRqEqL7spAe4nrNgqHhfMeEys6wB9UCap1P",
+      "path": "m/0'",
+      "depth": 1,
+      "index": 2147483648,
+      "fingerprint": "0xe6a124c5",
+      "parentFingerprint": "0xdc2ca4b2",
+      "chainCode": "0x5d3d902238b0891ba10949a60262e1313d8ae12266052e37d74b054f49bff1dc"
+    },
+    {
+      "seed": "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+      "xpub": "xpub69WMs7f17z7QVjma1EthNxERexzCZWh7HH8yapscdHXpp2GGCdPqsu46ZGdCc5R6yYPcmLfgrxioa6n47cTotNLvkUbXXhM8EmhfD9gikAw",
+      "path": "m/2147483647'",
+      "depth": 1,
+      "index": 4294967295,
+      "fingerprint": "0xdf649703",
+      "parentFingerprint": "0xdc2ca4b2",
+      "chainCode": "0x36a1f9ddb3aa43dc3ac17933bc7fcb783339337d74e006affd7c24fcfdb9d0fc"
+    }
+  ]
+}

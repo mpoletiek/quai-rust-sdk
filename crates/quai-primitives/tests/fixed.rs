@@ -3,7 +3,10 @@ use quai_primitives::*;
 use ruint::aliases::{U256, U512};
 use serde_json::Value;
 fn fixture() -> Value {
-    serde_json::from_str(include_str!("../../../compatibility/fixtures/fixed.json")).unwrap()
+    serde_json::from_str(include_str!(
+        "fixtures/shared/compatibility/fixtures/fixed.json"
+    ))
+    .unwrap()
 }
 fn value(text: &str, format: &str) -> FixedPoint {
     FixedPoint::parse(text, format.parse().unwrap()).unwrap()

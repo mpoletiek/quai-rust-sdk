@@ -6,7 +6,7 @@ use serde_json::Value;
 #[test]
 fn address_operations_match_pinned_javascript_oracle() {
     let fixture: Value = serde_json::from_str(include_str!(
-        "../../../compatibility/fixtures/primitives.json"
+        "fixtures/shared/compatibility/fixtures/primitives.json"
     ))
     .expect("valid compatibility fixture");
     assert_eq!(fixture["schemaVersion"], 1);

@@ -3,7 +3,7 @@ use quai_abi::{AbiCoder, AbiError, AbiType, AbiValue};
 use serde_json::{Value, json};
 fn fixture() -> Value {
     serde_json::from_str(include_str!(
-        "../../../compatibility/fixtures/typed-values.json"
+        "fixtures/shared/compatibility/fixtures/typed-values.json"
     ))
     .unwrap()
 }

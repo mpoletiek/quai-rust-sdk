@@ -18,13 +18,13 @@ use std::{
 const GENESIS: &str = "0xff38a93744ee5aae738addc88da4f6b171528244e81d34aa4b25579fa3f44ed2";
 fn origin_fixture() -> Value {
     serde_json::from_str(include_str!(
-        "../../../test-infra/local-chain/conversion-origin-fixtures.json"
+        "fixtures/shared/test-infra/local-chain/conversion-origin-fixtures.json"
     ))
     .unwrap()
 }
 fn settlement_fixture() -> Value {
     serde_json::from_str(include_str!(
-        "../../../test-infra/local-chain/conversion-settlement-fixtures.json"
+        "fixtures/shared/test-infra/local-chain/conversion-settlement-fixtures.json"
     ))
     .unwrap()
 }
@@ -737,8 +737,10 @@ fn external_fixture(wrapping: bool) -> (Mock, quai_provider::ExternalReference) 
             "0x4242",
         )
     } else {
-        let calls: Value =
-            serde_json::from_str(include_str!("../../quai-sdk/tests/wrapper-calls.json")).unwrap();
+        let calls: Value = serde_json::from_str(include_str!(
+            "fixtures/shared/crates/quai-sdk/tests/wrapper-calls.json"
+        ))
+        .unwrap();
         let call = calls["calls"]
             .as_array()
             .unwrap()

@@ -1,0 +1,51 @@
+# Quai Rust SDK
+
+The SDK combines typed Quai RPC, exact amounts and addresses, Quai/Qi transaction
+signing, HD wallets, payment codes, ABI contracts and durable native wallet
+workflows. It follows the pinned `quais@1.0.0-alpha.57` reference with explicit
+Rust differences and node-version boundaries.
+
+```rust
+use quai_sdk::{QuaiAddress, Zone};
+
+let address: QuaiAddress = "0x002b2596EcF05C93a31ff916E8b456DF6C77c750".parse()?;
+assert_eq!(address.zone(), Zone::Cyprus1);
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+| Feature | Enables |
+| --- | --- |
+| Default | Native HTTP plus offline wallet/signing APIs |
+| `http` | Native HTTP provider transport |
+| `ws` | Native WebSocket subscriptions and head following |
+| `wallet` | BIP39/BIP32, exact Qi selection, consensus and local/watch-only signing |
+| `sqlite` | Native account/Qi sessions, gap-50 current discovery, durable candidates and recovery |
+| `abi` | ABI/EIP-712 values, artifacts, deployments and WQI/WQUAI adapters |
+| `payments` | BIP47 payment codes; native registered-channel workflows also require `sqlite` |
+| `keystore` | Bounded legacy JSON-keystore import/export |
+| `browser` | Wasm Fetch/injected-provider adapters and IndexedDB snapshots |
+
+Browser consumers use `default-features = false` and choose the portable features
+they need. SQLite sessions and native HTTP/WebSocket transports are target gated.
+The native examples include `offline_wallet`, `qi_scan`, `payment_codes`,
+`wrapper_intents`, `artifact_deployment`, `read_network`, `inspect_pool` and
+`inspect_blocks`; check each example's feature and endpoint requirements.
+
+Qi amounts use fixed denominations. Current discovery scans receive and change
+branches with a default gap of 50 matching addresses, with explicit deeper ranges.
+A latest-only outpoint RPC cannot establish fully spent historical address use.
+Recovery preserves signed candidates and nonce/input claims across ambiguous
+broadcasts and reorg observations. Confirmation counts do not prove finality or
+cross-zone destination settlement.
+
+This is an unpublished alpha SDK. The repository contains compatibility vectors,
+platform CI, extracted-package consumer tests and qualified node evidence;
+funded testnet acceptance, remaining API parity and independent security/release
+qualification are tracked in the implementation status.
+
+- [Workflow guide and runnable examples](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/WALLET_WORKFLOWS.md)
+- [Implementation status and remaining work](https://github.com/mpoletiek/quai-rust-sdk/blob/main/IMPLEMENTATION_STATUS.md)
+- [Reference parity tracker](https://github.com/mpoletiek/quai-rust-sdk/blob/main/compatibility/parity.json)
+
+License texts and third-party provenance accompany each crate. Test keys and
+mnemonics in examples are public fixtures and must never receive real funds.

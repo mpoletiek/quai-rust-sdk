@@ -44,6 +44,7 @@ jobs:
       - run: npm run generate --prefix compatibility
       - run: npm run wrapping --prefix compatibility
       - run: git diff --exit-code -- crates/quai-consensus/tests/wrapping-vectors.json crates/quai-sdk/tests/wrapper-calls.json
+      - run: python3 test-infra/sync_package_files.py --check
       - run: npm run parity --prefix compatibility
       - run: git diff --exit-code -- compatibility/api-inventory.json compatibility/fixtures/
       - run: python3 -m unittest discover -s test-infra/tests -v
@@ -111,3 +112,17 @@ jobs:
       - run: cargo audit --file fuzz/Cargo.lock
       - run: npm ci --prefix compatibility --ignore-scripts
       - run: npm audit --prefix compatibility --audit-level=low
+
+  packaged-consumer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install 1.97.1 --profile minimal
+      - run: cargo fetch --locked
+      - run: python3 test-infra/package_rehearsal.py --report "$RUNNER_TEMP/quai-package-rehearsal.json"
+      - name: Show package validation log on failure
+        if: failure()
+        run: tail -100 "$RUNNER_TEMP/quai-package-rehearsal.log"

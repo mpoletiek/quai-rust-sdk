@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "reference": "quais@1.0.0-alpha.57",
+  "scope": "Offline explicit-shard URL construction; does not exercise discovery, authentication, transport or node acceptance.",
+  "vectors": [
+    {
+      "id": "route-0",
+      "input": {
+        "url": "http://127.0.0.1:9002",
+        "usePathing": false,
+        "shard": "0x"
+      },
+      "expected": "http://127.0.0.1:9002"
+    },
+    {
+      "id": "route-1",
+      "input": {
+        "url": "http://127.0.0.1:9002",
+        "usePathing": false,
+        "shard": "0x0"
+      },
+      "expected": "http://127.0.0.1:9002"
+    },
+    {
+      "id": "route-2",
+      "input": {
+        "url": "http://127.0.0.1:9002",
+        "usePathing": false,
+        "shard": "0x00"
+      },
+      "expected": "http://127.0.0.1:9002"
+    },
+    {
+      "id": "route-3",
+      "input": {
+        "url": "http://127.0.0.1:9002",
+        "usePathing": false,
+        "shard": "0x22"
+      },
+      "expected": "http://127.0.0.1:9002"
+    },
+    {
+      "id": "route-4",
+      "input": {
+        "url": "https://example.invalid/rpc",
+        "usePathing": false,
+        "shard": "0x"
+      },
+      "expected": "https://example.invalid/rpc"
+    },
+    {
+      "id": "route-5",
+      "input": {
+        "url": "https://example.invalid/rpc",
+        "usePathing": false,
+        "shard": "0x0"
+      },
+      "expected": "https://example.invalid/rpc"
+    },
+    {
+      "id": "route-6",
+      "input": {
+        "url": "https://example.invalid/rpc",
+        "usePathing": false,
+        "shard": "0x00"
+      },
+      "expected": "https://example.invalid/rpc"
+    },
+    {
+      "id": "route-7",
+      "input": {
+        "url": "https://example.invalid/rpc",
+        "usePathing": false,
+        "shard": "0x22"
+      },
+      "expected": "https://example.invalid/rpc"
+    },
+    {
+      "id": "route-8",
+      "input": {
+        "url": "https://example.invalid/rpc/?key=public-fixture",
+        "usePathing": false,
+        "shard": "0x"
+      },
+      "expected": "https://example.invalid/rpc/?key=public-fixture"
+    },
+    {
+      "id": "route-9",
+      "input": {
+        "url": "https://example.invalid/rpc/?key=public-fixture",
+        "usePathing": false,
+        "shard": "0x0"
+      },
+      "expected": "https://example.invalid/rpc/?key=public-fixture"
+    },
+    {
+      "id": "route-10",
+      "input": {
+        "url": "https://example.invalid/rpc/?key=public-fixture",
+        "usePathing": false,
+        "shard": "0x00"
+      },
+      "expected": "https://example.invalid/rpc/?key=public-fixture"
+    },
+    {
+      "id": "route-11",
+      "input": {
+        "url": "https://example.invalid/rpc/?key=public-fixture",
+        "usePathing": false,
+        "shard": "0x22"
+      },
+      "expected": "https://example.invalid/rpc/?key=public-fixture"
+    },
+    {
+      "id": "route-12",
+      "input": {
+        "url": "http://127.0.0.1:9002",
+        "usePathing": true,
+        "shard": "0x"
+      },
+      "expected": "http://127.0.0.1:9002/prime"
+    },
+    {
+      "id": "route-13",
+      "input": {
+        "url": "http://127.0.0.1:9002",
+        "usePathing": true,
+        "shard": "0x0"
+      },
+      "expected": "http://127.0.0.1:9002/cyprus"
+    },
+    {
+      "id": "route-14",
+      "input": {
+        "url": "http://127.0.0.1:9002",
+        "usePathing": true,
+        "shard": "0x00"
+      },
+      "expected": "http://127.0.0.1:9002/cyprus1"
+    },
+    {
+      "id": "route-15",
+      "input": {
+        "url": "http://127.0.0.1:9002",
+        "usePathing": true,
+        "shard": "0x22"
+      },
+      "expected": "http://127.0.0.1:9002/hydra3"
+    },
+    {
+      "id": "route-16",
+      "input": {
+        "url": "https://example.invalid/rpc",
+        "usePathing": true,
+        "shard": "0x"
+      },
+      "expected": "https://example.invalid/rpc/prime"
+    },
+    {
+      "id": "route-17",
+      "input": {
+        "url": "https://example.invalid/rpc",
+        "usePathing": true,
+        "shard": "0x0"
+      },
+      "expected": "https://example.invalid/rpc/cyprus"
+    },
+    {
+      "id": "route-18",
+      "input": {
+        "url": "https://example.invalid/rpc",
+        "usePathing": true,
+        "shard": "0x00"
+      },
+      "expected": "https://example.invalid/rpc/cyprus1"
+    },
+    {
+      "id": "route-19",
+      "input": {
+        "url": "https://example.invalid/rpc",
+        "usePathing": true,
+        "shard": "0x22"
+      },
+      "expected": "https://example.invalid/rpc/hydra3"
+    },
+    {
+      "id": "route-20",
+      "input": {
+        "url": "https://example.invalid/rpc/?key=public-fixture",
+        "usePathing": true,
+        "shard": "0x"
+      },
+      "expected": "https://example.invalid/rpc/prime?key=public-fixture"
+    },
+    {
+      "id": "route-21",
+      "input": {
+        "url": "https://example.invalid/rpc/?key=public-fixture",
+        "usePathing": true,
+        "shard": "0x0"
+      },
+      "expected": "https://example.invalid/rpc/cyprus?key=public-fixture"
+    },
+    {
+      "id": "route-22",
+      "input": {
+        "url": "https://example.invalid/rpc/?key=public-fixture",
+        "usePathing": true,
+        "shard": "0x00"
+      },
+      "expected": "https://example.invalid/rpc/cyprus1?key=public-fixture"
+    },
+    {
+      "id": "route-23",
+      "input": {
+        "url": "https://example.invalid/rpc/?key=public-fixture",
+        "usePathing": true,
+        "shard": "0x22"
+      },
+      "expected": "https://example.invalid/rpc/hydra3?key=public-fixture"
+    },
+    {
+      "id": "route-custom-path",
+      "input": {
+        "url": "https://example.invalid/api",
+        "usePathing": true,
+        "shard": "0x00",
+        "shardPaths": {
+          "cyprus1": "/custom/zone"
+        }
+      },
+      "expected": "https://example.invalid/api/custom/zone"
+    }
+  ]
+}

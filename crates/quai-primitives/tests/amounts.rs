@@ -8,8 +8,10 @@ use serde_json::Value;
 
 #[test]
 fn signed_decimal_units_match_reference_and_chain_amounts_reject_negatives() {
-    let fixture: Value =
-        serde_json::from_str(include_str!("../../../compatibility/fixtures/amounts.json")).unwrap();
+    let fixture: Value = serde_json::from_str(include_str!(
+        "fixtures/shared/compatibility/fixtures/amounts.json"
+    ))
+    .unwrap();
     for vector in fixture["vectors"].as_array().unwrap() {
         let unit = Unit::new(vector["decimals"].as_u64().unwrap() as u8).unwrap();
         let actual = parse_signed_units(vector["input"].as_str().unwrap(), unit);
@@ -71,8 +73,10 @@ fn bytes(input: &str) -> Vec<u8> {
 
 #[test]
 fn contract_predictions_preserve_exact_code_and_record_legacy_difference() {
-    let fixture: Value =
-        serde_json::from_str(include_str!("../../../compatibility/fixtures/amounts.json")).unwrap();
+    let fixture: Value = serde_json::from_str(include_str!(
+        "fixtures/shared/compatibility/fixtures/amounts.json"
+    ))
+    .unwrap();
     let mut corrected = 0;
     for v in fixture["contracts"].as_array().unwrap() {
         let sender: Address = v["sender"].as_str().unwrap().parse().unwrap();

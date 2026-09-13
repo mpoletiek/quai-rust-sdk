@@ -13,7 +13,7 @@ fn bytes(s: &str) -> Vec<u8> {
 }
 fn fixtures() -> Vec<Value> {
     serde_json::from_str::<Value>(include_str!(
-        "../../../compatibility/fixtures/transactions.json"
+        "fixtures/shared/compatibility/fixtures/transactions.json"
     ))
     .unwrap()["vectors"]
         .as_array()

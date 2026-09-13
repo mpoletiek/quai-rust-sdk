@@ -58,3 +58,32 @@ for full findings. No mainnet transaction or wallet mutation was performed.
 ### Disposable funded chain
 
 Follow [the node harness specification](../docs/node-harness.md) to provision an owned mature, funded chain from the pinned source. First obtain or build a reproducible mature snapshot with known public test-key provenance and verified genesis/allocation identity. Record exact node build/configuration and patches; enable and prove address indexing using a known surviving Qi outpoint. Retain snapshot digest, preparation/reset times, head/fork context and expected account/UTXO inventory. Then qualify HTTP and WebSocket routes, sign and obtain receipts for account transfers and deployments, and obtain node acceptance for single/multiple-input Qi transactions and conversion vectors. This gate is still open; a read-only success cannot close it.
+
+
+## Cargo archive rehearsal
+
+Before publishing a new workspace, run:
+
+```sh
+cargo fetch --locked
+python3 test-infra/sync_package_files.py --check
+python3 test-infra/package_rehearsal.py --report /tmp/quai-package-rehearsal.json
+```
+
+The rehearsal does not publish or use network access. Cargo creates all 12
+archives with temporary workspace patches to resolve unpublished internal crates.
+A clean consumer then resolves SDK dependencies exclusively to the extracted
+archives and runs minimal/default/full feature tests. It also compiles every
+packaged native test/example target with all features, catching references to
+files that were accidentally left outside a crate. Normal registry dependencies
+must already be cached. The JSON report records package checksums, checkout
+identity/dirty state and each result; its sibling `.log` retains build output.
+The temporary extracted sources/build outputs are removed when the run ends.
+
+`package-files.json` inventories copies of public test fixtures and license
+notices needed by individual archives. Originals retain their existing generators
+and provenance. After intentional fixture or notice changes, run
+`python3 test-infra/sync_package_files.py`, review the copies, and commit both.
+CI regenerates reference vectors and checks these copies for byte equality.
+Nothing in this workflow enables crate publication (`publish = false` remains),
+authenticates a registry release, runs packaged test suites, or qualifies docs.rs.

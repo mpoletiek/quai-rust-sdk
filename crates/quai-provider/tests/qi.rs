@@ -34,7 +34,7 @@ fn provider(mock: &Mock, chain: u64) -> Provider<Mock> {
 }
 fn signed() -> SignedQiTransaction {
     let fixtures: Value = serde_json::from_str(include_str!(
-        "../../../compatibility/fixtures/transactions.json"
+        "fixtures/shared/compatibility/fixtures/transactions.json"
     ))
     .unwrap();
     let v = fixtures["vectors"]

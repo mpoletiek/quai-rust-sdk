@@ -35,9 +35,10 @@ struct Input {
 
 #[test]
 fn routes_match_all_pinned_javascript_vectors() {
-    let fixtures: Fixtures =
-        serde_json::from_str(include_str!("../../../compatibility/fixtures/routing.json"))
-            .expect("valid checked-in routing fixtures");
+    let fixtures: Fixtures = serde_json::from_str(include_str!(
+        "fixtures/shared/compatibility/fixtures/routing.json"
+    ))
+    .expect("valid checked-in routing fixtures");
     assert_eq!(fixtures.schema_version, 1);
     assert_eq!(fixtures.reference, "quais@1.0.0-alpha.57");
     assert!(!fixtures.vectors.is_empty());

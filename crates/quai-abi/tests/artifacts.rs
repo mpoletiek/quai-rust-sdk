@@ -4,7 +4,7 @@ use quai_primitives::get_bytes;
 use serde_json::{Value, json};
 fn fixture() -> Value {
     serde_json::from_str(include_str!(
-        "../../../compatibility/fixtures/artifacts.json"
+        "fixtures/shared/compatibility/fixtures/artifacts.json"
     ))
     .unwrap()
 }

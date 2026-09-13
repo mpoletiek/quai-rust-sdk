@@ -36,7 +36,7 @@ fn request(target: u64, fee: u64) -> SelectionRequest {
 #[test]
 fn all_69_fixed_fee_vectors_match_reference_input_and_output_order() {
     let file: Value = serde_json::from_str(include_str!(
-        "../../../compatibility/fixtures/selection.json"
+        "fixtures/shared/compatibility/fixtures/selection.json"
     ))
     .unwrap();
     assert_eq!(file["vectors"].as_array().unwrap().len(), 69);

@@ -140,7 +140,7 @@ fn worker_hd_derivation_and_qi_schnorr_use_real_browser_crypto() {
 fn worker_legacy_keystore_decryption_checks_mnemonic_ownership() {
     use quai_keystore::{KdfLimits, Keystore, KeystoreError, Password};
     let fixture: serde_json::Value = serde_json::from_str(include_str!(
-        "../../quai-keystore/tests/fixtures/keystores.json"
+        "fixtures/shared/crates/quai-keystore/tests/fixtures/keystores.json"
     ))
     .unwrap();
     let vector = fixture["vectors"]

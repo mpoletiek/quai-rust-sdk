@@ -240,3 +240,12 @@ writers, 33-member capacity, root receipt identity and confirmation-head changes
 The existing isolated block-7 replacement passed this API and database reopen
 without another transaction submission. This closes observation integration,
 not terminal claim release, irreversible finality or full ancestry replay.
+
+
+Local Cargo archive qualification now packages all 12 crates, runs a separate
+minimal/default/full consumer against extracted SDK sources, and checks every
+packaged native test/example target with all features. Public fixture references
+are crate-local and 56 mirrored fixture/license files are checked against their
+origins. An isolated CI job repeats the offline rehearsal after dependency fetch.
+No crate was published; registry bootstrap, release approval, docs.rs and
+independent security qualification remain separate gates.

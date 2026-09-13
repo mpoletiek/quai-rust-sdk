@@ -6,7 +6,7 @@ use serde_json::Value;
 #[test]
 fn encodings_match_published_reference_vectors_including_zeroes_and_signed_boundaries() {
     let fixture: Value = serde_json::from_str(include_str!(
-        "../../../compatibility/fixtures/encoding.json"
+        "fixtures/shared/compatibility/fixtures/encoding.json"
     ))
     .unwrap();
     for vector in fixture["bytes"].as_array().unwrap() {

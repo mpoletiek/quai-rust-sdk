@@ -86,7 +86,7 @@ async fn explicit_endpoint_ordinary_qi_fee() {
     )
     .unwrap();
     let fixtures: serde_json::Value = serde_json::from_str(include_str!(
-        "../../../compatibility/fixtures/transactions.json"
+        "fixtures/shared/compatibility/fixtures/transactions.json"
     ))
     .unwrap();
     let v = fixtures["vectors"]

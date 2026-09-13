@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "copies": [
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-abi/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-abi/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-abi/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "compatibility/fixtures/artifacts.json",
+      "destination": "crates/quai-abi/tests/fixtures/shared/compatibility/fixtures/artifacts.json"
+    },
+    {
+      "source": "compatibility/fixtures/typed-values.json",
+      "destination": "crates/quai-abi/tests/fixtures/shared/compatibility/fixtures/typed-values.json"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-browser/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-browser/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-browser/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "crates/quai-keystore/tests/fixtures/keystores.json",
+      "destination": "crates/quai-browser/tests/fixtures/shared/crates/quai-keystore/tests/fixtures/keystores.json"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-consensus/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-consensus/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-consensus/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "compatibility/fixtures/transactions.json",
+      "destination": "crates/quai-consensus/tests/fixtures/shared/compatibility/fixtures/transactions.json"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-crypto/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-crypto/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-crypto/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-keystore/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-keystore/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-keystore/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-payments/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-payments/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-payments/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-primitives/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-primitives/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-primitives/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "compatibility/fixtures/amounts.json",
+      "destination": "crates/quai-primitives/tests/fixtures/shared/compatibility/fixtures/amounts.json"
+    },
+    {
+      "source": "compatibility/fixtures/encoding.json",
+      "destination": "crates/quai-primitives/tests/fixtures/shared/compatibility/fixtures/encoding.json"
+    },
+    {
+      "source": "compatibility/fixtures/fixed.json",
+      "destination": "crates/quai-primitives/tests/fixtures/shared/compatibility/fixtures/fixed.json"
+    },
+    {
+      "source": "compatibility/fixtures/primitives.json",
+      "destination": "crates/quai-primitives/tests/fixtures/shared/compatibility/fixtures/primitives.json"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-provider/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-provider/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-provider/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "compatibility/fixtures/transactions.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/compatibility/fixtures/transactions.json"
+    },
+    {
+      "source": "crates/quai-consensus/tests/conversion-vectors.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/crates/quai-consensus/tests/conversion-vectors.json"
+    },
+    {
+      "source": "crates/quai-sdk/tests/wrapper-calls.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/crates/quai-sdk/tests/wrapper-calls.json"
+    },
+    {
+      "source": "test-infra/local-chain/confirmed-account-evidence/account-signed.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/test-infra/local-chain/confirmed-account-evidence/account-signed.json"
+    },
+    {
+      "source": "test-infra/local-chain/confirmed-account-evidence/deployment-signed.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/test-infra/local-chain/confirmed-account-evidence/deployment-signed.json"
+    },
+    {
+      "source": "test-infra/local-chain/confirmed-account-evidence/verify-rpc.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/test-infra/local-chain/confirmed-account-evidence/verify-rpc.json"
+    },
+    {
+      "source": "test-infra/local-chain/conversion-origin-fixtures.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/test-infra/local-chain/conversion-origin-fixtures.json"
+    },
+    {
+      "source": "test-infra/local-chain/conversion-settlement-fixtures.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/test-infra/local-chain/conversion-settlement-fixtures.json"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-rpc/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-rpc/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-rpc/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "compatibility/fixtures/routing.json",
+      "destination": "crates/quai-rpc/tests/fixtures/shared/compatibility/fixtures/routing.json"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-sdk/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-sdk/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-sdk/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "test-infra/local-chain/acceptance-fixtures.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/local-chain/acceptance-fixtures.json"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-signer/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-signer/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-signer/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "LICENSE",
+      "destination": "crates/quai-wallet/LICENSE"
+    },
+    {
+      "source": "crates/quai-primitives/tests/fixtures/LICENSE.quais-js",
+      "destination": "crates/quai-wallet/LICENSE.quais-js"
+    },
+    {
+      "source": "THIRD_PARTY_NOTICES.md",
+      "destination": "crates/quai-wallet/THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "source": "compatibility/fixtures/key-metadata.json",
+      "destination": "crates/quai-wallet/tests/fixtures/shared/compatibility/fixtures/key-metadata.json"
+    },
+    {
+      "source": "compatibility/fixtures/selection.json",
+      "destination": "crates/quai-wallet/tests/fixtures/shared/compatibility/fixtures/selection.json"
+    }
+  ]
+}

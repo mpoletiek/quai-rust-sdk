@@ -58,7 +58,7 @@ impl Transport for Mock {
 }
 fn signed() -> SignedQuaiTransaction {
     let vectors: Value = serde_json::from_str(include_str!(
-        "../../../compatibility/fixtures/transactions.json"
+        "fixtures/shared/compatibility/fixtures/transactions.json"
     ))
     .unwrap();
     let vector = vectors["vectors"]

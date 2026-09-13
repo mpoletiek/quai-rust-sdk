@@ -32,7 +32,7 @@ fn provider(mock: &Mock, chain: u64) -> Provider<Mock> {
 }
 fn signed() -> SignedQiConversionTransaction {
     let fixture: Value = serde_json::from_str(include_str!(
-        "../../quai-consensus/tests/conversion-vectors.json"
+        "fixtures/shared/crates/quai-consensus/tests/conversion-vectors.json"
     ))
     .unwrap();
     let bytes: RpcData = fixture["vectors"][4]["signed"]

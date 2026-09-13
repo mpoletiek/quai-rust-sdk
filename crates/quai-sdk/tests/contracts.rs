@@ -193,7 +193,7 @@ fn deployment_grinds_exact_code_and_includes_mandatory_created_address_access() 
 #[test]
 fn deployment_builder_matches_actual_local_node_accepted_fixture() {
     let fixture: Value = serde_json::from_str(include_str!(
-        "../../../test-infra/local-chain/acceptance-fixtures.json"
+        "fixtures/shared/test-infra/local-chain/acceptance-fixtures.json"
     ))
     .unwrap();
     let accepted = &fixture["deploymentTransaction"];

@@ -9,13 +9,13 @@ use serde_json::{Value, json};
 use std::sync::{Arc, Mutex};
 fn captured() -> Value {
     serde_json::from_str(include_str!(
-        "../../../test-infra/local-chain/confirmed-account-evidence/verify-rpc.json"
+        "fixtures/shared/test-infra/local-chain/confirmed-account-evidence/verify-rpc.json"
     ))
     .unwrap()
 }
 fn signed() -> SignedQuaiTransaction {
     let fixture: Value = serde_json::from_str(include_str!(
-        "../../../test-infra/local-chain/confirmed-account-evidence/deployment-signed.json"
+        "fixtures/shared/test-infra/local-chain/confirmed-account-evidence/deployment-signed.json"
     ))
     .unwrap();
     SignedQuaiTransaction::decode(&get_bytes(fixture["signedBytes"].as_str().unwrap()).unwrap())
@@ -234,7 +234,7 @@ async fn receipt_mismatches_reorgs_and_unavailable_state_fail_closed() {
     assert_eq!(mock.0.lock().unwrap().code_reads, 0);
     assert!(DeploymentReference::from_signed(Hash32::ZERO, &signed(), None).is_err());
     let fixture: Value = serde_json::from_str(include_str!(
-        "../../../test-infra/local-chain/confirmed-account-evidence/account-signed.json"
+        "fixtures/shared/test-infra/local-chain/confirmed-account-evidence/account-signed.json"
     ))
     .unwrap();
     let ordinary = SignedQuaiTransaction::decode(

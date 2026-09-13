@@ -57,7 +57,7 @@ impl Transport for Mock {
 }
 fn fixture() -> SignedQiConversionTransaction {
     let f: Value = serde_json::from_str(include_str!(
-        "../../quai-consensus/tests/conversion-vectors.json"
+        "fixtures/shared/crates/quai-consensus/tests/conversion-vectors.json"
     ))
     .unwrap();
     let bytes: RpcData = f["vectors"][4]["signed"].as_str().unwrap().parse().unwrap();

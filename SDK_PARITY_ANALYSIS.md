@@ -11,6 +11,52 @@ This document compares the checked-in implementation, rather than treating an
 API name, a passing synthetic test or a large declaration count as completion.
 [SDK documentation](SDK_DOCUMENTATION.md) explains the supported workflows.
 
+## Audit of this report
+
+Audited against implementation commit `f2f2326fb527614940fe396f67f63ec000a49814`.
+**The evidence does not support reading this SDK as mostly unimplemented.** There
+is substantial native implementation across the core wallet feature families.
+However, this report is not a completed behavioral audit and cannot substantiate
+a percentage-complete claim in either direction.
+
+The declaration ledger has fallen behind implementation. Specific examples:
+
+| Ledger observation at the audited commit | Implementation evidence | Audit conclusion |
+| --- | --- | --- |
+| `denominations` is pending | `Denomination::VALUES` and validated indices in [consensus](crates/quai-consensus/src/qi.rs); [denomination tests](crates/quai-consensus/tests/qi_vectors.rs) | Fixed denominations are implemented; the export mapping is unfinished |
+| `FewestCoinSelector.performSelection` is pending | `select_fewest` in [selection](crates/quai-wallet/src/selection.rs), with [69 reference selection vectors](crates/quai-wallet/tests/selection.rs) | Coin selection is implemented; class/configuration semantics still need explicit reconciliation |
+| `Wallet.signTransaction` is pending | `QuaiTransaction::sign` in [consensus](crates/quai-consensus/src/quai.rs), [signed reference vectors](crates/quai-consensus/tests/quai_vectors.rs), and [account sessions](crates/quai-sdk/src/accounts.rs) | Transaction signing exists; the JS wallet method's complete population/provider behavior is a separate mapping question |
+| `TransactionReceipt.hash`, `.status` and `.logs` are pending | `Receipt` has `transaction_hash`, typed `outcome` and `logs` in [provider types](crates/quai-provider/src/types.rs) | Receipt data is implemented with Rust representations; the entire JS receipt helper class is not thereby qualified |
+| 16 transaction property rows say specialized Qi is awaiting typed builders | Public conversion/wrapping types in [consensus exports](crates/quai-consensus/src/lib.rs), with [conversion](crates/quai-consensus/tests/conversions.rs) and [wrapping](crates/quai-consensus/tests/wrapping.rs) vectors | That rationale is stale. It has been corrected without promoting the rows to completed parity |
+
+Ignoring export subpaths, the 3,928 rows reduce to 2,023 distinct
+`(symbol, behavior, signatures)` keys. That still counts inherited class members,
+properties and aliases; it is not a count of independent application features.
+Likewise, the 62 `implemented` rows exclude working APIs classified as deliberate
+`deviation`, as well as working APIs whose mappings remain `pending` or `partial`.
+
+Three different completion questions must be answered separately:
+
+| Question | Supported assessment |
+| --- | --- |
+| Does useful core functionality exist? | Yes: native identity/derivation, current Qi discovery, selection/signing, payment channels, conversions, wrappers, contracts and durable recovery have implementations and tests |
+| Does every required published quais.js behavior have a tested Rust equivalent or justified difference? | Not established. The semantic review is unfinished, and complete browser session orchestration is a concrete integration gap |
+| Is the SDK production-qualified? | No. Funded unmodified-network acceptance and broader reliability/security/platform qualification remain open |
+
+The browser gap is visible in the [facade feature gates](crates/quai-sdk/src/lib.rs):
+`accounts`, `qi`, `recovery` and related full native sessions require native
+SQLite, while browser books expose custody/signing/allocation building blocks.
+Existing [reconciliation APIs](crates/quai-sdk/src/recovery.rs) must not be
+reported as wholly absent merely because automatic lifecycle application remains
+unfinished. Similarly, an unrun funded acceptance test is a qualification gap,
+not evidence that its transaction builder has not been implemented.
+
+The tables below remain a backlog and evidence index. Notification automation,
+permission conveniences and safe journal compaction are absent capabilities or
+Rust lifecycle concerns, not proven omissions from quais.js unless corresponding
+published reference behavior is identified. They should not silently become
+requirements for declaring reference parity.
+
 ## Reference and method
 
 The reference is the **published `quais@1.0.0-alpha.57` npm artifact**, locked in

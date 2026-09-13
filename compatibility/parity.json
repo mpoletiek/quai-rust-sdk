@@ -21117,12 +21117,14 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/qi_vectors.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
     },
     {
       "id": ".:QiTransaction:instance:hash",
@@ -21140,12 +21142,14 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/qi_vectors.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
     },
     {
       "id": ".:QiTransaction:instance:inferType",
@@ -21239,12 +21243,14 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/qi_vectors.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
     },
     {
       "id": ".:QiTransaction:instance:signature",
@@ -21364,12 +21370,14 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/qi_vectors.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
     },
     {
       "id": ".:QiTransaction:static:from",
@@ -22258,12 +22266,13 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/quai_vectors.rs"
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
     },
     {
       "id": ".:QuaiTransaction:instance:from",
@@ -22323,12 +22332,13 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/quai_vectors.rs"
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
     },
     {
       "id": ".:QuaiTransaction:instance:inferType",
@@ -22436,12 +22446,13 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/quai_vectors.rs"
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
     },
     {
       "id": ".:QuaiTransaction:instance:signature",
@@ -22547,12 +22558,13 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/quai_vectors.rs"
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
     },
     {
       "id": ".:QuaiTransaction:instance:value",
@@ -60894,12 +60906,14 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/qi_vectors.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
     },
     {
       "id": "./transaction:QiTransaction:instance:hash",
@@ -60917,12 +60931,14 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/qi_vectors.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
     },
     {
       "id": "./transaction:QiTransaction:instance:inferType",
@@ -61016,12 +61032,14 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/qi_vectors.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
     },
     {
       "id": "./transaction:QiTransaction:instance:signature",
@@ -61141,12 +61159,14 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/qi_vectors.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
     },
     {
       "id": "./transaction:QiTransaction:static:from",
@@ -61304,12 +61324,13 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/quai_vectors.rs"
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:from",
@@ -61369,12 +61390,13 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/quai_vectors.rs"
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:inferType",
@@ -61482,12 +61504,13 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/quai_vectors.rs"
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:signature",
@@ -61593,12 +61616,13 @@
       "feature": "consensus",
       "status": "partial",
       "test_ids": [
-        "crates/quai-consensus/tests/quai_vectors.rs"
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs"
       ],
       "docs": [
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Ordinary supported forms match JS+Go. Unsupported specialized forms fail explicitly; signed Qi nonempty data is rejected pending typed builders."
+      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:value",

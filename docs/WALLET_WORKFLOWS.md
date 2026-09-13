@@ -473,3 +473,11 @@ The pinned wallet's `getBalanceForZone`, `getLockedBalance` and
 height explicit and excludes locally claimed or expired coins from spendable
 funds. These observations neither include pending incoming transactions nor prove
 that a node will still accept an output when it is eventually submitted.
+
+The WQUAI adapter now has [funded isolated acceptance evidence](../test-infra/local-chain/wquai-evidence/README.md)
+for deployment of bytecode matching the observed mainnet runtime, followed by
+deposit, exact finite approval, transfer and withdrawal. It checks canonical
+receipts, exact token/native balances and gas fees, overdraw reverts and durable
+state after reopening. Only public toy-key development funds were used. Explorer
+bytecode is not verified source; this is separate from contract audit, unmodified
+node and funded Orchard qualification.

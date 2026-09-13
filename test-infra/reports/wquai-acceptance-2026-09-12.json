@@ -1,0 +1,233 @@
+{
+  "baseCommit": "5bc00d4",
+  "testedWorkingTree": true,
+  "scope": "WQUAI deposit/approval/transfer/withdrawal through durable SDK sessions",
+  "nodeProfile": "isolated patched go-quai v0.56.0 f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "chainId": 1337,
+  "genesis": "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee",
+  "sourceMainnetAddress": "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB",
+  "sourceVerified": false,
+  "runtimeSha256": "b55a87a8bbabbb5ffd44c6e17f7273c9c22fea6a47a03d58a49b45160bcbc3f6",
+  "creationSha256": "e670f177b98bb8bd4653a78f295308e31fe70e9ec30b396fd4bbb7d1be1518a8",
+  "isolatedContract": "0x001fe06012Ab36517842EFb946cb5fDC655Eb15f",
+  "operations": [
+    {
+      "allowance": "0",
+      "block": "0x00001e6baa516ff6a341b0b2a792cf18d7bbb1bc2aea1cfd6079d08d7689ccad",
+      "confirmations": 1,
+      "contract": "0x001fe06012Ab36517842EFb946cb5fDC655Eb15f",
+      "durableConfirmedAfterReopen": true,
+      "fee": "598677476914707862308",
+      "gasUsed": 508137,
+      "hash": "0x005d002db4581cfbf4903eb9ba8cf844fac2769cac917820a137ade5907d9cd8",
+      "height": "8",
+      "nativeBacking": "0",
+      "nativeBalanceDeltaChecked": true,
+      "operation": "deploy",
+      "overdrawSimulationReverted": true,
+      "ownerTokenBalance": "0",
+      "qualification": "isolated patched go-quai development profile; public toy-key funds; no mainnet transaction",
+      "recipientTokenBalance": "0",
+      "runtimeMatchesMainnetObservedBytes": true,
+      "sourceVerified": false
+    },
+    {
+      "allowance": "0",
+      "block": "0x000006b23721200df307bdde124785278c6082d2d851f7dc706b17fb234c116b",
+      "confirmations": 1,
+      "contract": "0x001fe06012Ab36517842EFb946cb5fDC655Eb15f",
+      "durableConfirmedAfterReopen": true,
+      "fee": "32230538602974006444",
+      "gasUsed": 27492,
+      "hash": "0x0014000dfb6597b06866684f2dfa21cf910a42c39424209cd83d0ea6a7cc0bce",
+      "height": "9",
+      "nativeBacking": "123456789",
+      "nativeBalanceDeltaChecked": true,
+      "operation": "deposit",
+      "overdrawSimulationReverted": true,
+      "ownerTokenBalance": "123456789",
+      "qualification": "isolated patched go-quai development profile; public toy-key funds; no mainnet transaction",
+      "recipientTokenBalance": "0",
+      "runtimeMatchesMainnetObservedBytes": true,
+      "sourceVerified": false
+    },
+    {
+      "allowance": "1000",
+      "block": "0x00001cbbb7039642de627b1392ee82ffc4df81ffadb51270b7f998c34caf5500",
+      "confirmations": 1,
+      "contract": "0x001fe06012Ab36517842EFb946cb5fDC655Eb15f",
+      "durableConfirmedAfterReopen": true,
+      "fee": "33429534164560377406",
+      "gasUsed": 28657,
+      "hash": "0x00390065a53bec39c2bbb0eb0501d4bcf88560efa91461a41093a6b17a5d5170",
+      "height": "10",
+      "nativeBacking": "123456789",
+      "nativeBalanceDeltaChecked": true,
+      "operation": "approve",
+      "overdrawSimulationReverted": true,
+      "ownerTokenBalance": "123456789",
+      "qualification": "isolated patched go-quai development profile; public toy-key funds; no mainnet transaction",
+      "recipientTokenBalance": "0",
+      "runtimeMatchesMainnetObservedBytes": true,
+      "sourceVerified": false
+    },
+    {
+      "allowance": "1000",
+      "block": "0x00001ca561b1d10742b0f92a88c9443795f8fc3415215f32817bb28631927daa",
+      "confirmations": 1,
+      "contract": "0x001fe06012Ab36517842EFb946cb5fDC655Eb15f",
+      "durableConfirmedAfterReopen": true,
+      "fee": "37083132974335979700",
+      "gasUsed": 31860,
+      "hash": "0x000f001ce7541ca692083b4dbb48bf3f2887b9e3690f68b8aa2b8faf7b04520b",
+      "height": "11",
+      "nativeBacking": "123456789",
+      "nativeBalanceDeltaChecked": true,
+      "operation": "transfer",
+      "overdrawSimulationReverted": true,
+      "ownerTokenBalance": "123433333",
+      "qualification": "isolated patched go-quai development profile; public toy-key funds; no mainnet transaction",
+      "recipientTokenBalance": "23456",
+      "runtimeMatchesMainnetObservedBytes": true,
+      "sourceVerified": false
+    },
+    {
+      "allowance": "1000",
+      "block": "0x000012bd4f2092d92e34760348417a38ce988df4fd264b9a124e14fccace083c",
+      "confirmations": 1,
+      "contract": "0x001fe06012Ab36517842EFb946cb5fDC655Eb15f",
+      "durableConfirmedAfterReopen": true,
+      "fee": "34358148263945056374",
+      "gasUsed": 29573,
+      "hash": "0x001800726dcff8274701b07acaa3dd79e6835bc18a275439d69e8d74bcd8b87e",
+      "height": "12",
+      "nativeBacking": "23456",
+      "nativeBalanceDeltaChecked": true,
+      "operation": "withdraw",
+      "overdrawSimulationReverted": true,
+      "ownerTokenBalance": "0",
+      "qualification": "isolated patched go-quai development profile; public toy-key funds; no mainnet transaction",
+      "recipientTokenBalance": "23456",
+      "runtimeMatchesMainnetObservedBytes": true,
+      "sourceVerified": false
+    }
+  ],
+  "files": [
+    {
+      "file": "wquai-approve-broadcast-rpc.json",
+      "sha256": "1a97d8366aadb1fa5b25772d97e1d16303afc0f479403cf3f0eb3314d3212c06"
+    },
+    {
+      "file": "wquai-approve-prepare-rpc.json",
+      "sha256": "a8040dce381647477cbd9a49bfac491c82e9a161e907959068559738e206a7ff"
+    },
+    {
+      "file": "wquai-approve-signed.json",
+      "sha256": "a7456912c06438f2d19045c3cc35c4d17a70f1bf383b8fd06c8cb711ab9f9e68"
+    },
+    {
+      "file": "wquai-approve-verified.json",
+      "sha256": "38d210159a37e8e5238205c2bc0958c78bd220bbb626d0770c1ca85e5eb79cc4"
+    },
+    {
+      "file": "wquai-approve-verify-rpc.json",
+      "sha256": "2dfd6e45ed6102840913db5ee39c211f2fc37d8b4cf7507a3b6892569ee678c2"
+    },
+    {
+      "file": "wquai-deploy-broadcast-rpc.json",
+      "sha256": "1b468cb03f7234faa5d538009c87d55bcffc1131f09da985fef3f5ba5cd6b314"
+    },
+    {
+      "file": "wquai-deploy-prepare-rpc.json",
+      "sha256": "2b9c4123d5f863a9258efa118f6fa334bd244b86388c039259d8e4306ce07193"
+    },
+    {
+      "file": "wquai-deploy-signed.json",
+      "sha256": "4d17e39d0c9f40e2939ce25295e6f36991f761eff705dbfd9aeb58af8b08cb46"
+    },
+    {
+      "file": "wquai-deploy-verified.json",
+      "sha256": "742ebc5417d4a6ce5bb6a37cd5b163d76182101113532bae4f444b1b9637c915"
+    },
+    {
+      "file": "wquai-deploy-verify-rpc.json",
+      "sha256": "680761ffdbabf0dce04f73947dfd5181421d7107e92bc9c3e0480f224b2faf7f"
+    },
+    {
+      "file": "wquai-deposit-broadcast-rpc.json",
+      "sha256": "cec955907d0943f2e94e8531acb885e8f0f214c9894afcd2f6f39ac2c5d4f002"
+    },
+    {
+      "file": "wquai-deposit-prepare-rpc.json",
+      "sha256": "e2a1446de8ed5ca149c7f33da1ea0641c9bf7f01aa33a64567fd7cd9f3a781fa"
+    },
+    {
+      "file": "wquai-deposit-signed.json",
+      "sha256": "5a5b50c93c2efb9f4b89ad268f2ad3a7e88a162aaa610a82b7aab1961fa1a571"
+    },
+    {
+      "file": "wquai-deposit-verified.json",
+      "sha256": "838d71b87df6cac9cba6fbc4906804865cc0999aeb9ebcb81094fcff05805eda"
+    },
+    {
+      "file": "wquai-deposit-verify-rpc.json",
+      "sha256": "cbbcdf2665799d5084f0b5fe3e384b274095084c91ba56b8b54bc881171624ad"
+    },
+    {
+      "file": "wquai-transfer-broadcast-rpc.json",
+      "sha256": "16f790c6b3de877cfbcea73273a8f9f7c1efbc2a677cc76de396e110156ad0f6"
+    },
+    {
+      "file": "wquai-transfer-prepare-rpc.json",
+      "sha256": "75425cf13c1f05121abfa94a3c1c5d29bfca22bdb6dbe870ed7a381209e238a4"
+    },
+    {
+      "file": "wquai-transfer-signed.json",
+      "sha256": "c3b1d3a5f4baf0f76f2d5333aff656fa2099db17f0d28806b55b24a427eba191"
+    },
+    {
+      "file": "wquai-transfer-verified.json",
+      "sha256": "e7b2c9406c5e6658b21fcd0aa9200304ea5ef01c99172e2d026aad3e545879e1"
+    },
+    {
+      "file": "wquai-transfer-verify-rpc.json",
+      "sha256": "d10ad0764edb14a29497d437ab6f08717795c13e5ea56be8bdf9395bbd4ed63c"
+    },
+    {
+      "file": "wquai-withdraw-broadcast-rpc.json",
+      "sha256": "4967f7f75be28d72acdb80afda7ce567c89352a3a50c258de0d0a49c04d7b54b"
+    },
+    {
+      "file": "wquai-withdraw-prepare-rpc.json",
+      "sha256": "20fc4567067b53d9d42705a9a64132883cd0445ef6a71ad4250f2d5cab9e4e86"
+    },
+    {
+      "file": "wquai-withdraw-signed.json",
+      "sha256": "792a5bafecc499427860e9f92720db04542b208473033ebcf57247abdef40eaa"
+    },
+    {
+      "file": "wquai-withdraw-verified.json",
+      "sha256": "d9957c3b8bc52b131b8770140cc680eb351e3bbf4fe7960f7aa626358e3adcc1"
+    },
+    {
+      "file": "wquai-withdraw-verify-rpc.json",
+      "sha256": "d10e87c4c645d1392d94be0bf4b8516161b189679a7a5d05859331a61dde6378"
+    }
+  ],
+  "mainnetTransactionsSubmitted": 0,
+  "limitations": [
+    "Source is unverified; matching observed runtime is not a contract audit",
+    "Development consensus/activation/allocation patches remain explicit",
+    "No funded Orchard or unmodified-node execution claim",
+    "Allowance spend via transferFrom, event replay and reorg scenarios remain separate"
+  ],
+  "validation": {
+    "harnessBuild": "passed",
+    "strictHarnessClippy": "passed",
+    "harnessPythonTests": 3,
+    "hashPinnedFetchHelper": "passed",
+    "fundedIsolatedOperations": 5,
+    "sdkImplementationChanged": false,
+    "finalReopenWithoutSubmission": "passed"
+  }
+}

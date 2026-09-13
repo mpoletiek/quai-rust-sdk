@@ -1,0 +1,20 @@
+{
+  "allowance": "0",
+  "block": "0x000006b23721200df307bdde124785278c6082d2d851f7dc706b17fb234c116b",
+  "confirmations": 1,
+  "contract": "0x001fe06012Ab36517842EFb946cb5fDC655Eb15f",
+  "durableConfirmedAfterReopen": true,
+  "fee": "32230538602974006444",
+  "gasUsed": 27492,
+  "hash": "0x0014000dfb6597b06866684f2dfa21cf910a42c39424209cd83d0ea6a7cc0bce",
+  "height": "9",
+  "nativeBacking": "123456789",
+  "nativeBalanceDeltaChecked": true,
+  "operation": "deposit",
+  "overdrawSimulationReverted": true,
+  "ownerTokenBalance": "123456789",
+  "qualification": "isolated patched go-quai development profile; public toy-key funds; no mainnet transaction",
+  "recipientTokenBalance": "0",
+  "runtimeMatchesMainnetObservedBytes": true,
+  "sourceVerified": false
+}

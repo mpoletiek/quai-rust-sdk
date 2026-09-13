@@ -27,6 +27,7 @@ use std::{
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
+mod wrapper_workflow;
 const GENESIS: &str = "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee";
 const ROOT: &str = "/tmp/quai-sdk-highlevel-wallets";
 fn key(n: u64) -> SecretKey {
@@ -295,7 +296,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             record["gas"] = json!(prepared.transaction().gas_limit);
             record["maximumFee"] = json!(prepared.maximum_fee().to_string());
             save("deployment-signed.json", record)?;
-            drop(session);
             assert_eq!(
                 store.reservation(account_id)?.unwrap().state,
                 ReservationState::Signed
@@ -404,7 +404,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             record["outputs"]=json!(prepared.transaction().outputs.iter().map(|o|json!({"address":o.address.to_string(),"denomination":o.denomination.index(),"qits":o.denomination.value()})).collect::<Vec<_>>());
             record["inputCount"] = json!(prepared.transaction().inputs.len());
             save("qi-signed.json", record)?;
-            drop(session);
             assert_eq!(
                 store.reservation(qi_id)?.unwrap().state,
                 ReservationState::Signed
@@ -560,6 +559,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 json!({"receipts":records,"runtime":runtime,"qiOutputAssertions":actual,"qualification":"isolated quiescent node only; no production pinned Qi source"}),
             )?;
         }
+        value if value.starts_with("wquai-") => wrapper_workflow::run(value, &provider, &signer, &account_path).await?,
         _ => return Err("unknown high-level mode".into()),
     }
     Ok(())

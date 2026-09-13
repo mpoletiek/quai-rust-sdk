@@ -305,3 +305,12 @@ wrong owners/networks, unchanged database generations and corrupted metadata.
 Qi balance regressions now cover HD receive/change, imported and payment receive
 origins together, mutually exclusive claim/lock/expiry buckets, restart and
 invalidated snapshots. Refresh remains an explicit separate operation.
+
+WQUAI deposit/approval/transfer/withdrawal now pass on the isolated development
+chain using deployed runtime bytes that exactly match the observed mainnet
+contract. Five canonical executions verify exact native fees/backing, token
+balances, finite allowance, overdraw rejection and database reopen. Signed bytes,
+RPC transcripts and checksummed evidence are retained in
+`test-infra/local-chain/wquai-evidence`. No verified source was available from the
+explorer and no mainnet transaction was submitted; contract review, funded
+Orchard and unmodified-node acceptance remain separate gates.

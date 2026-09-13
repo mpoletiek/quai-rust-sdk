@@ -424,3 +424,28 @@ The pinned published `QiHDWallet.setAddressUseChecker` installs mutable wallet
 state. Rust takes the checker per scan, so its scope and lifetime are explicit.
 Eight JS cases verify current-output short circuiting and callback errors;
 native database and real Chromium worker regressions cover integration.
+
+## Qi message signing
+
+`signer::Signer::sign_qi_message` uses the published Qi wallet's BIP340-over-Keccak
+format, returning a 64-byte `SchnorrSignature`. Pass raw bytes, or UTF-8 with
+`text.as_bytes()`. No personal-message prefix, chain ID or application domain is
+added. `signer::verify_qi_message` requires both the expected Qi address and its
+full public key; signatures have no recovery byte and x-only public keys cannot
+identify the address's Y parity.
+
+For registered native wallet origins, `qi::sign_message(resolver, metadata,
+message)` checks the resolver's full public key and address before signing.
+`HdWallet` and `QiKeyring` support HD, imported and loaded payment receive keys;
+public metadata alone never grants signing authority. Browser/local key users
+can call `LocalSigner::sign_qi_message` without SQLite. Watch-only signers reject
+this operation. The API performs no RPC or transaction-state mutation.
+
+```sh
+cargo run -p quai-sdk --example qi_message
+```
+
+This offline example uses an explicitly public toy key and emits a JSON message,
+public key and randomized signature for independent verification. Never fund its
+address. CI checks the output with the pinned JS Schnorr verifier; 16 JS wallet
+vectors exercise empty/Unicode/binary messages and both public-key parities.

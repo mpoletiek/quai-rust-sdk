@@ -43,7 +43,10 @@ The explicitly invoked wallet APIs are:
 
 Provider errors retain only a safe numeric code, including EIP-1193 user rejection 4001 and unsupported method 4200. Provider messages, data and request payloads never enter error strings. Injected results use a bounded JSON-only serializer that rejects cycles, accessors, custom prototypes, BigInt and unsafe integer numbers; chain/amount quantities remain hex strings. Memory already allocated by an injected provider is outside this adapter's control.
 
-Dropping or timing out an injected request ends this adapter's wait. EIP-1193 has no cancellation primitive that retracts a wallet approval dialog or operation. No account/signature request is retried automatically. Generic `quai_sendTransaction`/`quai_sendRawTransaction`, transaction signing, chain switching, permission enumeration/revocation, wallet discovery, and accounts/chain event listeners remain unimplemented in this slice.
+Dropping or timing out an injected request ends this adapter's wait. EIP-1193 has no cancellation primitive that retracts a wallet approval dialog or operation. No account/signature request is retried automatically. Generic `quai_sendTransaction`/`quai_sendRawTransaction`, transaction signing, chain switching, permission enumeration/revocation, and wallet discovery remain unimplemented. Passive account/chain/disconnect
+monitoring is available through `context_revision()` and
+`monitors_context_events()`. A changed context rejects an in-flight signature;
+providers without removable event listeners are rechecked explicitly.
 
 ## Browser boundaries
 
@@ -52,14 +55,14 @@ Dropping or timing out an injected request ends this adapter's wait. EIP-1193 ha
 | Entropy | `fill_random` explicitly calls secure-context Web Crypto, at most 65,536 bytes, and fails without it. No fallback PRNG or automatic key creation. |
 | Timers/cancellation | Native browser timers plus AbortController; no Tokio runtime. Suspended pages can delay timers. |
 | CPU work | No mining, address grinding, mnemonic derivation or heavy signing runs automatically. Applications must place expensive work in a dedicated worker with explicit progress/cancellation. The bridge uses `globalThis`; dedicated-worker tests verify Fetch, timeouts and entropy without Window or Tokio. Additional worker tests execute HD Qi grinding, BIP340 signing/verification, ECDSA recovery and OS-random key generation. This is a bounded runtime slice, not a general worker job/persistence API. |
-| Persistence | No localStorage, IndexedDB or browser key persistence. Native SQLite is not linked. Browser durable reservation semantics and encrypted IndexedDB storage require a separate implementation and review. |
+| Persistence | `BrowserSnapshotStore` stores opaque bytes using scoped, revision-checked IndexedDB transactions. Native SQLite is not linked. Applications own encryption, serialization and wallet reservation/state integration. |
 | Trust | The application chooses its origin, CSP and injected provider. Same-origin JS and wallet extensions remain privileged; this adapter cannot protect against a compromised application origin. |
 
 ## Verified tests and reproduction
 
 On 2026-09-11 the crate compiled with Rust 1.97.1 for `wasm32-unknown-unknown` and ran in actual headless Chromium through wasm-bindgen-test 0.3.78. Tests use a separate loopback HTTP server with CORS plus a synthetic injected wallet object; they do not load a real wallet extension. Signing uses already-public fixture scalars; entropy tests use ephemeral unfunded keys.
 
-Nine browser tests cover real Fetch path/query and ID validation, refused redirects, streamed oversize data, deadlines and future cancellation, concurrency capacity, exact injected shard and account/signing arguments, no automatic prompts, chain mismatch, user-rejection redaction, malformed/accessor results, unauthorized or wrong-zone signing, non-ASCII signatures, and secure entropy. Five dedicated-worker tests verify Fetch/provider composition, timeout, Web Crypto, HD Qi grinding, verified legacy-keystore decryption and native Rust crypto running inside WebAssembly without Window or Tokio. Two additional native tests exercise limits, permission allowlists, bounded JSON serialization and envelope validation.
+Browser tests cover real Fetch path/query and ID validation, refused redirects, streamed oversize data, deadlines and future cancellation, concurrency capacity, exact injected shard and account/signing arguments, no automatic prompts, chain mismatch, user-rejection redaction, malformed/accessor results, unauthorized or wrong-zone signing, non-ASCII signatures, and secure entropy. Five dedicated-worker tests verify Fetch/provider composition, timeout, Web Crypto, HD Qi grinding, verified legacy-keystore decryption and native Rust crypto running inside WebAssembly without Window or Tokio. Additional native tests exercise limits, permission allowlists, bounded JSON serialization and envelope validation.
 
 With Rust's wasm target, matching wasm-bindgen CLI 0.2.128 and Chromium/chromedriver installed:
 
@@ -69,10 +72,27 @@ cargo install wasm-bindgen-cli --version 0.2.128 --locked
 CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER=wasm-bindgen-test-runner \
   python3 crates/quai-browser/tests/run_browser.py
 # Repeat with --suite worker for the dedicated-worker runtime tests.
+# --suite sdk-worker exercises portable account/Qi discovery and Qi message signing.
 ```
 
 The runner creates and removes its own server, chooses an unused loopback port, and uses an isolated browser profile through chromedriver. `CHROMEDRIVER` and `WASM_BINDGEN_TEST_WEBDRIVER_JSON` can override browser setup. In this development environment, the matching official wasm standard library and prebuilt wasm-bindgen release tools were installed under `/tmp`; system Rust and browser profiles were untouched. Native tests and wasm clippy are separate commands; ordinary native `cargo test` does not execute browser tests.
 
-The browser bridge is packaged at `src/bridge.js` and imported through wasm-bindgen's module mechanism. Downstream wasm-bindgen packaging must copy its generated JS snippets alongside the wasm artifact. Browser-specific dependency code is target gated. Browser WS, real injected-wallet interoperability, remote-node browser CORS, general worker orchestration, Firefox/Safari, background-tab behavior and browser storage remain unverified.
+The browser bridge is packaged at `src/bridge.js` and imported through wasm-bindgen's module mechanism. Downstream wasm-bindgen packaging must copy its generated JS snippets alongside the wasm artifact. Browser-specific dependency code is target gated. Browser WS, real injected-wallet interoperability, remote-node browser CORS, general worker orchestration, Firefox/Safari, and background-tab behavior remain unverified. Scoped IndexedDB CAS,
+independent-tab conflicts and tombstones are tested; these checks do not establish
+complete wallet restore/reservation semantics.
 
 Sources: pinned quais.js `src/providers/provider-browser.ts` and `provider-jsonrpc.ts` define the Quai method names and shard extension; [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) defines the provider request/permission/error model. [wasm-bindgen browser testing](https://wasm-bindgen.github.io/wasm-bindgen/wasm-bindgen-test/browsers.html) describes the runtime harness, and [Fetch RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) documents browser credential, redirect and cancellation controls.
+
+## Scoped snapshots
+
+`BrowserSnapshotStore::open` requires an explicit database and scope (chain,
+genesis, zone and wallet identity). `read` returns opaque bytes plus their
+revision; `compare_exchange` writes only if the expected revision still matches.
+An empty payload preserves a tombstone revision so stale tabs cannot recreate
+deleted state. Clones share a handle, and dropping the last handle closes it.
+
+Records are bounded to 16 MiB and the database to 2,048 scope slots. The adapter
+does not encrypt bytes or interpret wallet state. Encrypt sensitive payloads
+before persistence and reconcile wallet claims in the application's state layer.
+Run `python3 crates/quai-browser/tests/run_storage.py` for real Chromium storage
+checks in addition to the wasm transport and worker suites.

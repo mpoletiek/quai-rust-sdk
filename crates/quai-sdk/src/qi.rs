@@ -115,6 +115,9 @@ impl QiChangePool {
 /// Planning failures do not release signed claims or retry submission.
 #[derive(Debug, Error)]
 pub enum QiError {
+    /// Qi message signature generation failed without exposing backend diagnostics.
+    #[error("Qi message signing failed")]
+    MessageSigning,
     /// An optional caller-owned address-use query failed; no remote text is kept.
     #[error("Qi address-use check failed")]
     UseCheckFailed,
@@ -592,3 +595,22 @@ mod replacements;
 pub use replacements::{
     PreparedQiReplacement, QiCandidateStatus, QiFamilyObservation, QiReplacementIntent,
 };
+
+/// Sign the pinned Qi message format using exact owned HD/imported/payment metadata.
+/// Independently checks the resolver's full public key and address before signing.
+/// This signs Keccak(message) with BIP340; it adds no chain or application domain,
+/// performs no RPC, and does not mutate the wallet or its transaction claims.
+pub fn sign_message(
+    resolver: &impl QiKeyResolver,
+    address: &PublicAddress,
+    message: &[u8],
+) -> Result<quai_crypto::SchnorrSignature, QiError> {
+    let key = resolver.resolve(address)?;
+    if key.public_key().to_compressed() != *address.public_key()
+        || key.public_key().address() != address.address()
+        || quai_primitives::QiAddress::try_from(address.address()).is_err()
+    {
+        return Err(QiError::IdentityMismatch);
+    }
+    quai_signer::sign_qi_message(&key, message).map_err(|_| QiError::MessageSigning)
+}

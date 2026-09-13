@@ -81,3 +81,7 @@ required-features = ["abi"]
 [[example]]
 name = "watch_qi"
 required-features = ["http", "wallet"]
+
+[[example]]
+name = "qi_message"
+required-features = ["wallet"]

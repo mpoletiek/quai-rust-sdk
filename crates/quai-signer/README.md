@@ -21,3 +21,16 @@ shows durable preparation, authorization, signing, broadcast and recovery.
 This crate remains unpublished; see the repository's
 [implementation status](https://github.com/mpoletiek/quai-rust-sdk/blob/main/IMPLEMENTATION_STATUS.md)
 for compatibility evidence and open qualification gates.
+
+`Signer::sign_qi_message` explicitly selects the pinned Qi wallet format: a
+64-byte BIP340 signature over Keccak of the supplied bytes, with fresh auxiliary
+entropy. It requires a Qi key and inserts no prefix or chain/application domain.
+UTF-8 callers pass `text.as_bytes()`; hex-looking text is still text unless the
+application decodes it first. `sign_message` retains its personal-message ECDSA
+behavior. Watch-only signers reject both formats.
+
+`verify_qi_message` requires the expected Qi address and its full SEC1 public key
+because BIP340 signatures cannot recover a public key, and x-only keys do not
+select address parity. `LocalSigner::public_key()` supplies this public identity.
+Native, worker and bidirectional pinned-JS checks cover the format; the application
+still owns message authorization and domain semantics.

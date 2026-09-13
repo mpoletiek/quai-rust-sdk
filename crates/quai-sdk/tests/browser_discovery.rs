@@ -199,3 +199,31 @@ async fn worker_qi_use_hint_accepts_thread_local_async_state() {
         U256::ZERO
     );
 }
+
+#[wasm_bindgen_test]
+fn worker_signs_and_verifies_qi_message_with_browser_auxiliary_entropy() {
+    use quai_sdk::crypto::SecretKey;
+    use quai_sdk::signer::{LocalSigner, Signer, verify_qi_message};
+    let mut scalar = [0; 32];
+    scalar[31] = 130;
+    let signer =
+        LocalSigner::new(SecretKey::from_bytes(&scalar).unwrap(), U256::from(15000)).unwrap();
+    let message = "Qi worker: café 🐬".as_bytes();
+    let signature = signer.sign_qi_message(message).unwrap();
+    verify_qi_message(
+        signer.address().try_into().unwrap(),
+        &signer.public_key(),
+        message,
+        &signature,
+    )
+    .unwrap();
+    assert!(
+        verify_qi_message(
+            signer.address().try_into().unwrap(),
+            &signer.public_key(),
+            b"changed",
+            &signature
+        )
+        .is_err()
+    );
+}

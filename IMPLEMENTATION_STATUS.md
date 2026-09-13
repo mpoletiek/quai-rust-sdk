@@ -84,9 +84,9 @@ no-default-features tests passed; all **39** facade tests passed after the final
 balance additions. JS reference verification, two npm regression files and the
 3,928-row parity check passed (30 implemented, 152 partial, 47 deviations, 3,699
 pending). These are evidence counts, not a completeness percentage. Strict
-Clippy and rustdoc checks passed. The local wasm rerun is
-blocked: the target is absent and this environment has no `rustup`; existing CI
-still installs the target and checks the browser feature combination.
+Clippy and rustdoc checks passed. That expansion initially lacked a local wasm toolchain. A later isolated
+toolchain now runs real Chromium browser/worker tests and wasm checks, recorded
+below and in the retained platform reports.
 
 ## Node qualification
 
@@ -110,22 +110,27 @@ required. The documented Orchard faucet hostname currently fails DNS here.
 ## Open gates
 
 See [wallet gaps](docs/WALLET_GAPS.md) for the complete capability matrix.
-Remaining work includes production Qi discovery, imported/BIP47 Qi spending,
-additional payment key-origin support, indexed history/reorg recovery,
-conversion quoting/fees and durable settlement reconciliation/claim policy,
-Qi wrapping/redemption, wrapped Quai contract workflows, consolidation/cross-zone
-orchestration, full wallet lifecycle, high-level account/deployment live qualification, remaining provider methods, browser
-persistence and injected-wallet lifecycle/interoperability.
+Current implementation gaps are complete application of canonical replay to
+wallet state, terminal signed-claim policy, per-operation Quai conversion maturity,
+remaining provider/browser workflows and declaration/overload reconciliation.
+Current gap-50 discovery, optional use hints, imported/BIP47 spending, payment
+key origins, conversions/fees/settlement observations, wrappers, candidate
+families, deployment observation and scoped IndexedDB snapshots are implemented.
+Latest-only outpoint RPC still cannot prove spent history or an atomic historical
+snapshot; default discovery does not require an indexer.
 
-Also outstanding: unmodified/funded Orchard acceptance, full fault/reorg/soak
-suites, sustained fuzzing and performance baselines, external specialist security review,
-license/SBOM review and advisory warning resolution, macOS/Windows/extension coverage and package-contained
-tests. See [local-chain evidence](test-infra/local-chain/README.md) for the exact
-patched acceptance boundary. The advisory report records its own lock hash and
-is historical whenever the workspace lock changes. No stable API or efficiency
-target is yet certified.
+Qualification still requires unmodified/funded Orchard acceptance, broader
+fault/reorg/soak and performance coverage, real injected-extension interoperability,
+external specialist security review, and release/SBOM/advisory closeout. Sustained
+bounded fuzz runs, macOS/Windows CI, and extracted-package consumer/test-target
+checks have passed within their retained evidence boundaries. Browser snapshots
+are an opaque atomic storage substrate; complete browser wallet reservations and
+restore integration remain unfinished. No crate has been published.
+See [local-chain evidence](test-infra/local-chain/README.md) for the patched
+acceptance boundary and retained reports for exact source identities. No stable
+API or efficiency target is yet certified.
 
-## Security review closeout
+## Historical internal security review closeout
 
 The [internal review](docs/SECURITY_REVIEW_2026-09-11.md) fixed four medium findings
 and hardened password normalization. All three bounded sanitizer fuzz targets passed
@@ -136,8 +141,11 @@ The [high-level live wallet evidence](test-infra/local-chain/HIGHLEVEL.md) verif
 Qi preparation, fee convergence, signed-byte persistence, process restart and exact
 inclusion/output accounting. Pending-state account RPCs crash on the pinned
 disposable node: preparation correctly stopped before reservations or signatures.
-This blocks high-level account/deployment live qualification. All owned disposable
-nodes were stopped after testing; mainnet remained read-only. Upstream scrypt
+At that baseline this blocked high-level account/deployment live qualification.
+Subsequent explicit confirmed-state preparation and deployment/code observation
+passed on the documented isolated profile. Nodes used for the original report
+were stopped after that run; subsequent harness runs have separate ownership.
+Mainnet remained read-only. Upstream scrypt
 workspace wiping and the other documented release gates remain unresolved.
 
 ## Qi candidates and destination tracking verification — 2026-09-12
@@ -274,3 +282,11 @@ can continue past a known spent address without fabricating coins or requiring
 an indexer. Eight differential cases, known-spent-gap and database-error
 regressions pass; all four dedicated SDK worker tests pass with a non-Send async
 callback. Default scans continue to use gap 50 without a callback.
+
+Qi message signing now has an explicit Schnorr-over-Keccak API, distinct from
+personal-message ECDSA. It supports owned native HD/imported/payment metadata
+and portable local signers, validates full public-key/address ownership, and
+rejects watch-only authorization. Sixteen published JS wallet cases verify in
+Rust; pinned JS verifies the offline Rust example and rejects a modified message.
+Actual Chromium worker signing obtains fresh auxiliary entropy and verifies the
+signature. No account, RPC, transaction claim or broadcast is changed by signing.

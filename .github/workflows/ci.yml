@@ -47,6 +47,11 @@ jobs:
       - run: python3 test-infra/sync_package_files.py --check
       - run: npm run parity --prefix compatibility
       - run: git diff --exit-code -- compatibility/api-inventory.json compatibility/fixtures/
+      - name: Verify Rust Qi message signing with the pinned JS backend
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal
+          cargo run -p quai-sdk --example qi_message --locked > "$RUNNER_TEMP/qi-message.json"
+          node compatibility/scripts/verify-qi-message.mjs "$RUNNER_TEMP/qi-message.json"
       - run: python3 -m unittest discover -s test-infra/tests -v
       - run: python3 -m unittest discover -s test-infra/local-chain -p 'test_*.py' -v
   browser:

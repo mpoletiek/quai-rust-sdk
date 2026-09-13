@@ -228,6 +228,10 @@
     {
       "source": "compatibility/fixtures/selection.json",
       "destination": "crates/quai-wallet/tests/fixtures/shared/compatibility/fixtures/selection.json"
+    },
+    {
+      "source": "compatibility/fixtures/qi-messages.json",
+      "destination": "crates/quai-signer/tests/fixtures/shared/compatibility/fixtures/qi-messages.json"
     }
   ]
 }

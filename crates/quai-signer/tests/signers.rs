@@ -124,3 +124,69 @@ fn typed_data_requires_explicit_chain_policy_and_cannot_escape_network() {
         );
     }
 }
+
+#[test]
+fn qi_messages_match_published_wallet_and_bind_full_public_key() {
+    use quai_crypto::{PublicKey, SchnorrSignature, keccak256};
+    use quai_primitives::QiAddress;
+    use quai_signer::verify_qi_message;
+    fn bytes(text: &str) -> Vec<u8> {
+        let text = text.strip_prefix("0x").unwrap();
+        (0..text.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&text[i..i + 2], 16).unwrap())
+            .collect()
+    }
+    let fixture: serde_json::Value = serde_json::from_str(include_str!(
+        "fixtures/shared/compatibility/fixtures/qi-messages.json"
+    ))
+    .unwrap();
+    for case in fixture["vectors"].as_array().unwrap() {
+        let secret: [u8; 32] = bytes(case["privateKey"].as_str().unwrap())
+            .try_into()
+            .unwrap();
+        let signer =
+            LocalSigner::new(SecretKey::from_bytes(&secret).unwrap(), U256::from(15000)).unwrap();
+        let address: QiAddress = case["address"].as_str().unwrap().parse().unwrap();
+        let public_key =
+            PublicKey::from_sec1_bytes(&bytes(case["publicKey"].as_str().unwrap())).unwrap();
+        assert_eq!(public_key, signer.public_key());
+        let message = bytes(case["message"].as_str().unwrap());
+        assert_eq!(
+            keccak256(&message).as_slice(),
+            bytes(case["digest"].as_str().unwrap())
+        );
+        let signature = SchnorrSignature::from_bytes(
+            &bytes(case["signature"].as_str().unwrap())
+                .try_into()
+                .unwrap(),
+        )
+        .unwrap();
+        verify_qi_message(address, &public_key, &message, &signature).unwrap();
+        let signed = signer.sign_qi_message(&message).unwrap();
+        verify_qi_message(address, &public_key, &message, &signed).unwrap();
+        let mut modified = message.clone();
+        modified.push(0);
+        assert!(verify_qi_message(address, &public_key, &modified, &signature).is_err());
+        assert!(
+            verify_qi_message(address, &public_key, &hash_message(&message), &signature).is_err()
+        );
+        // Negating a point preserves the x-only verifier, but changes its address.
+        let mut opposite = public_key.to_compressed();
+        opposite[0] ^= 1;
+        let opposite = PublicKey::from_sec1_bytes(&opposite).unwrap();
+        assert!(matches!(
+            verify_qi_message(address, &opposite, &message, &signature),
+            Err(SignerError::InvalidAddress)
+        ));
+        let watch = WatchOnlySigner::new(address.address(), U256::from(15000)).unwrap();
+        assert!(matches!(
+            watch.sign_qi_message(&message),
+            Err(SignerError::WatchOnly)
+        ));
+    }
+    assert!(matches!(
+        signer().sign_qi_message(b"hello"),
+        Err(SignerError::InvalidAddress)
+    ));
+}

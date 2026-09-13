@@ -1079,6 +1079,10 @@ async fn payment_scan_imports_matching_receive_children_and_is_idempotent() {
         keys.resolve(&metadata).unwrap().public_key(),
         found.public_key
     );
+    let message = b"Public payment-channel message fixture";
+    let signature = quai_sdk::qi::sign_message(&keys, &metadata, message).unwrap();
+    quai_sdk::signer::verify_qi_message(found.address, &found.public_key, message, &signature)
+        .unwrap();
     let wrong = PrivatePaymentCode::from_seed(&[3; 32], 0).unwrap();
     assert!(
         env.store
@@ -1865,4 +1869,61 @@ async fn native_use_hints_extend_gap_and_failed_checker_preserves_storage() {
     for address in report.addresses {
         assert!(env.store.addresses().unwrap().contains(&address));
     }
+}
+
+#[test]
+fn qi_message_resolver_checks_exact_hd_and_imported_ownership() {
+    use quai_sdk::crypto::SecretKey;
+    use quai_sdk::wallet::qi_keys::{QiKeyResolver, QiKeyring};
+    use quai_sdk::wallet::storage::StorageError;
+    let env = setup();
+    let account = env.wallet.account_public(0).unwrap();
+    let found = account
+        .search(
+            false,
+            Search {
+                zone: Zone::Cyprus1,
+                start_index: 0,
+                max_attempts: 100_000,
+            },
+            || false,
+        )
+        .unwrap();
+    let hd = PublicAddress::derive(&account, false, found.address.index).unwrap();
+    let message = "Qi authorization café 🐬".as_bytes();
+    let signature = quai_sdk::qi::sign_message(&env.wallet, &hd, message).unwrap();
+    let public_key = quai_sdk::crypto::PublicKey::from_sec1_bytes(hd.public_key()).unwrap();
+    quai_sdk::signer::verify_qi_message(
+        hd.address().try_into().unwrap(),
+        &public_key,
+        message,
+        &signature,
+    )
+    .unwrap();
+    let mut bytes = [0; 32];
+    bytes[31] = 130; // Public toy key.
+    let mut ring = QiKeyring::new(None).unwrap();
+    let imported = ring.import(SecretKey::from_bytes(&bytes).unwrap()).unwrap();
+    let signature = quai_sdk::qi::sign_message(&ring, &imported, message).unwrap();
+    let public_key = quai_sdk::crypto::PublicKey::from_sec1_bytes(imported.public_key()).unwrap();
+    quai_sdk::signer::verify_qi_message(
+        imported.address().try_into().unwrap(),
+        &public_key,
+        message,
+        &signature,
+    )
+    .unwrap();
+    assert!(quai_sdk::qi::sign_message(&ring, &hd, message).is_err());
+    struct WrongKey;
+    impl QiKeyResolver for WrongKey {
+        fn resolve(&self, _: &PublicAddress) -> Result<SecretKey, StorageError> {
+            let mut bytes = [0; 32];
+            bytes[31] = 130;
+            Ok(SecretKey::from_bytes(&bytes).unwrap())
+        }
+    }
+    assert!(matches!(
+        quai_sdk::qi::sign_message(&WrongKey, &hd, message),
+        Err(QiError::IdentityMismatch)
+    ));
 }

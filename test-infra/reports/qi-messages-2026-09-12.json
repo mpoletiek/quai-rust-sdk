@@ -1,0 +1,27 @@
+{
+  "scope": "Qi message signing and verification; native workspace plus portable browser integration",
+  "reference": "quais@1.0.0-alpha.57",
+  "baseCommit": "29bd165a2c484f5baf828b5d0838b6b9edf863cc",
+  "testedWorkingTree": true,
+  "nativeWorkspace": {
+    "reportedPasses": 341,
+    "failed": 0,
+    "ignored": 4
+  },
+  "browserSdkWorker": {
+    "passed": 5,
+    "failed": 0
+  },
+  "referenceCases": 16,
+  "reverseVerification": "Pinned JS verified the Rust qi_message example and rejected an altered message",
+  "nativeClippy": "passed",
+  "wasmClippy": "passed",
+  "rustdocWarningsDenied": "passed",
+  "fixturesSha256": "12179715385a49bf463c4df73fb891c33d149e1fa491192dd88500b5cadb9e2a",
+  "networkTransactionsSubmitted": 0,
+  "limitations": [
+    "Message format inserts no chain or application domain",
+    "Browser test uses Chromium, no injected wallet extension",
+    "Random signatures are verified, not compared for byte equality"
+  ]
+}

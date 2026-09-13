@@ -19730,11 +19730,24 @@
         "(address: string, message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_sdk::qi::sign_message",
+        "quai_signer::Signer::sign_qi_message",
+        "quai_signer::verify_qi_message"
+      ],
+      "feature": "qi-messages",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs#qi_messages_match_published_wallet_and_bind_full_public_key",
+        "crates/quai-sdk/tests/qi.rs#qi_message_resolver_checks_exact_hd_and_imported_ownership",
+        "crates/quai-sdk/tests/qi.rs#payment_scan_imports_matching_receive_children_and_is_idempotent",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_signs_and_verifies_qi_message_with_browser_auxiliary_entropy",
+        "compatibility/scripts/verify-qi-message.mjs"
+      ],
+      "docs": [
+        "crates/quai-signer/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
       "deviation": null
     },
     {
@@ -64760,11 +64773,24 @@
         "(address: string, message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_sdk::qi::sign_message",
+        "quai_signer::Signer::sign_qi_message",
+        "quai_signer::verify_qi_message"
+      ],
+      "feature": "qi-messages",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs#qi_messages_match_published_wallet_and_bind_full_public_key",
+        "crates/quai-sdk/tests/qi.rs#qi_message_resolver_checks_exact_hd_and_imported_ownership",
+        "crates/quai-sdk/tests/qi.rs#payment_scan_imports_matching_receive_children_and_is_idempotent",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_signs_and_verifies_qi_message_with_browser_auxiliary_entropy",
+        "compatibility/scripts/verify-qi-message.mjs"
+      ],
+      "docs": [
+        "crates/quai-signer/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
       "deviation": null
     },
     {

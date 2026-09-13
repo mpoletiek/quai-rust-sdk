@@ -156,3 +156,46 @@ async fn worker_qi_gap_scan_returns_fixed_denominations_and_reported_locks() {
         U256::from(10)
     );
 }
+
+#[wasm_bindgen_test(async)]
+async fn worker_qi_use_hint_accepts_thread_local_async_state() {
+    use quai_sdk::discovery::{QiDiscoveryOptions, discover_qi_with_use_checker};
+    use quai_sdk::wallet::discovery::ScanStop;
+    use std::{cell::Cell, rc::Rc};
+    let account = HdWallet::from_seed(&[1; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let calls = Rc::new(Cell::new(0));
+    let callback_calls = calls.clone();
+    let report = discover_qi_with_use_checker(
+        &provider("/qi-hints"),
+        scope(),
+        &account,
+        &QiDiscoveryOptions {
+            gap_limit: Some(1),
+            max_addresses: 4,
+            max_outpoints: 1,
+            ..Default::default()
+        },
+        || false,
+        move |actual_scope, _| {
+            let calls = callback_calls.clone();
+            async move {
+                assert_eq!(actual_scope, scope());
+                calls.set(calls.get() + 1);
+                Ok(calls.get() == 1)
+            }
+        },
+    )
+    .await
+    .unwrap();
+    assert_eq!(calls.get(), 3);
+    assert_eq!(report.addresses.len(), 3);
+    assert!(report.addresses[0].use_hint);
+    assert_eq!(report.stopped, [ScanStop::GapLimit; 2]);
+    assert_eq!(
+        report.balance_at(U256::from(100)).unwrap().total,
+        U256::ZERO
+    );
+}

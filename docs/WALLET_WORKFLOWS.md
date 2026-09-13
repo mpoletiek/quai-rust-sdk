@@ -402,3 +402,25 @@ cargo run -p quai-sdk --example watch_qi -- RPC_URL CHAIN_ID_HEX GENESIS_HASH ZO
 Supply the trusted network genesis and a depth-three Qi account xpub, with its
 correct account index. The example reports bounded coverage and exact Qit totals
 without printing the xpub, deriving private keys or submitting transactions.
+
+## Optional Qi address-use hints
+
+`discovery::discover_qi_with_use_checker` accepts an async callback receiving the
+explicit `NetworkScope` and Qi address. The callback runs only when current
+outpoints are empty. Return true for known use to reset the gap, false to count
+an empty address, or `QiDiscoveryError::UseCheckFailed` when the check is
+unavailable. A returned `use_hint` records why an empty address reset the gap;
+it adds no coins and does not certify complete historical recovery. Default
+`discover_qi` still requires no checker or indexer.
+
+Native `qi_discovery::scan_qi_with_use_checker` and
+`scan_and_refresh_qi_with_use_checker` offer the same gap behavior with `QiError`.
+A failed scan/checker leaves storage unchanged; after successful metadata import,
+refresh queries every known origin and preserves durable claims. Callbacks must
+bound their own I/O and should use known address history scoped to the supplied
+network. Browser callbacks may hold thread-local state and need no Tokio runtime.
+
+The pinned published `QiHDWallet.setAddressUseChecker` installs mutable wallet
+state. Rust takes the checker per scan, so its scope and lifetime are explicit.
+Eight JS cases verify current-output short circuiting and callback errors;
+native database and real Chromium worker regressions cover integration.

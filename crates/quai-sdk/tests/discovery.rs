@@ -351,3 +351,151 @@ async fn portable_qi_rejects_duplicate_outputs_limits_and_changed_heads() {
     assert_eq!(report.canonical, CanonicalStatus::Changed);
     assert!(report.balance_at(U256::from(101)).is_err());
 }
+
+#[tokio::test]
+async fn optional_qi_use_checker_matches_pinned_short_circuit_and_error_behavior() {
+    use quai_sdk::discovery::{
+        QiDiscoveryError, QiDiscoveryOptions, discover_qi, discover_qi_with_use_checker,
+    };
+    use quai_sdk::wallet::discovery::IndexRange;
+    let fixture: Value = serde_json::from_str(include_str!(
+        "fixtures/shared/compatibility/fixtures/qi-use-hints.json"
+    ))
+    .unwrap();
+    let account = HdWallet::from_seed(&[7; 32], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let first = account
+        .search(
+            false,
+            Search {
+                zone: Zone::Cyprus1,
+                start_index: 0,
+                max_attempts: 10000,
+            },
+            || false,
+        )
+        .unwrap()
+        .address;
+    let options = QiDiscoveryOptions {
+        receive: IndexRange {
+            start: first.index,
+            end: first.index + 1,
+        },
+        change: IndexRange { start: 0, end: 0 },
+        gap_limit: Some(1),
+        max_addresses: 1,
+        max_outpoints: 1,
+    };
+    for case in fixture["vectors"].as_array().unwrap() {
+        let mock = Mock::default();
+        if case["outputs"] == 1 {
+            mock.outputs.lock().unwrap().insert(first.address.to_string(),json!([{"txHash":format!("0x00000080{}","00".repeat(28)),"index":"0x0","denomination":"0x2","lock":"0x0"}]));
+        }
+        let source = provider(mock);
+        let calls = AtomicUsize::new(0);
+        let result = if case["checker"].is_null() {
+            discover_qi(&source, scope(), &account, &options, || false).await
+        } else {
+            discover_qi_with_use_checker(
+                &source,
+                scope(),
+                &account,
+                &options,
+                || false,
+                |network, address| {
+                    assert_eq!(network, scope());
+                    assert_eq!(address.address(), first.address);
+                    calls.fetch_add(1, Ordering::SeqCst);
+                    std::future::ready(if case["checker"] == "error" {
+                        Err(QiDiscoveryError::UseCheckFailed)
+                    } else {
+                        Ok(case["checker"] == true)
+                    })
+                },
+            )
+            .await
+        };
+        assert_eq!(
+            calls.load(Ordering::SeqCst),
+            case["calls"].as_u64().unwrap() as usize
+        );
+        if case["error"] == true {
+            assert!(matches!(result, Err(QiDiscoveryError::UseCheckFailed)));
+        } else {
+            let report = result.unwrap();
+            let address = &report.addresses[0];
+            assert_eq!(
+                !address.outputs.is_empty() || address.use_hint,
+                case["used"].as_bool().unwrap()
+            );
+            assert_eq!(
+                address.outputs.len(),
+                case["outputs"].as_u64().unwrap() as usize
+            );
+        }
+    }
+}
+#[tokio::test]
+async fn known_spent_address_hint_prevents_early_gap_stop_without_creating_coins() {
+    use quai_sdk::discovery::{QiDiscoveryOptions, discover_qi_with_use_checker};
+    use quai_sdk::wallet::discovery::{IndexRange, ScanStop};
+    let account = HdWallet::from_seed(&[7; 32], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let first = account
+        .search(
+            false,
+            Search {
+                zone: Zone::Cyprus1,
+                start_index: 0,
+                max_attempts: 10000,
+            },
+            || false,
+        )
+        .unwrap()
+        .address;
+    let second = account
+        .search(
+            false,
+            Search {
+                zone: Zone::Cyprus1,
+                start_index: first.index + 1,
+                max_attempts: 10000,
+            },
+            || false,
+        )
+        .unwrap()
+        .address;
+    let options = QiDiscoveryOptions {
+        receive: IndexRange {
+            start: first.index,
+            end: second.index + 1,
+        },
+        change: IndexRange { start: 0, end: 0 },
+        gap_limit: Some(1),
+        max_addresses: 2,
+        max_outpoints: 1,
+    };
+    let source = provider(Mock::default());
+    let report = discover_qi_with_use_checker(
+        &source,
+        scope(),
+        &account,
+        &options,
+        || false,
+        |_, address| std::future::ready(Ok(address.address() == first.address)),
+    )
+    .await
+    .unwrap();
+    assert_eq!(report.addresses.len(), 2);
+    assert!(report.addresses[0].use_hint);
+    assert!(!report.addresses[1].use_hint);
+    assert_eq!(report.stopped[0], ScanStop::GapLimit);
+    assert_eq!(
+        report.balance_at(U256::from(100)).unwrap().total,
+        U256::ZERO
+    );
+}

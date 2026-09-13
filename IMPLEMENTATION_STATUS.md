@@ -267,3 +267,10 @@ exactly 50 empty matching addresses on each branch; dedicated-worker tests cover
 a funded-address gap reset and lock boundary. `watch_qi` is a read-only native
 example requiring no SQLite store. Fully spent history, atomic historical
 snapshots and browser claim/state integration remain explicit separate limits.
+
+Optional Qi address-use callbacks now match the pinned published wallet's
+short-circuit/error behavior. Both portable discovery and native durable refresh
+can continue past a known spent address without fabricating coins or requiring
+an indexer. Eight differential cases, known-spent-gap and database-error
+regressions pass; all four dedicated SDK worker tests pass with a non-Send async
+callback. Default scans continue to use gap 50 without a callback.

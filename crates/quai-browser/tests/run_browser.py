@@ -23,7 +23,7 @@ class Fixture(http.server.BaseHTTPRequestHandler):
         if not 0 < length < 65536:
             self.send_error(400); return
         request = json.loads(self.rfile.read(length))
-        if self.path in ('/account', '/account-reorg', '/qi'):
+        if self.path in ('/account', '/account-reorg', '/qi', '/qi-hints'):
             result = self.account_result(request)
             if result is None:
                 self.send_error(400); return
@@ -53,6 +53,8 @@ class Fixture(http.server.BaseHTTPRequestHandler):
         if not isinstance(params, list): return None
         genesis = '0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b'
         if method == 'quai_chainId' and params == []: return '0x3a98'
+        if self.path == '/qi-hints' and method == 'quai_getOutpointsByAddress' and len(params) == 1:
+            return []
         if self.path == '/qi' and method == 'quai_getOutpointsByAddress' and len(params) == 1:
             count = getattr(self.server, 'qi_reads', 0)
             self.server.qi_reads = count + 1

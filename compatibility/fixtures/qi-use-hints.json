@@ -1,0 +1,61 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "vectors": [
+    {
+      "outputs": 0,
+      "checker": null,
+      "calls": 0,
+      "used": false,
+      "error": false
+    },
+    {
+      "outputs": 0,
+      "checker": false,
+      "calls": 1,
+      "used": false,
+      "error": false
+    },
+    {
+      "outputs": 0,
+      "checker": true,
+      "calls": 1,
+      "used": true,
+      "error": false
+    },
+    {
+      "outputs": 0,
+      "checker": "error",
+      "calls": 1,
+      "used": null,
+      "error": true
+    },
+    {
+      "outputs": 1,
+      "checker": null,
+      "calls": 0,
+      "used": true,
+      "error": false
+    },
+    {
+      "outputs": 1,
+      "checker": false,
+      "calls": 0,
+      "used": true,
+      "error": false
+    },
+    {
+      "outputs": 1,
+      "checker": true,
+      "calls": 0,
+      "used": true,
+      "error": false
+    },
+    {
+      "outputs": 1,
+      "checker": "error",
+      "calls": 0,
+      "used": true,
+      "error": false
+    }
+  ]
+}

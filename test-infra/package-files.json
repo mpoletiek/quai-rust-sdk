@@ -190,6 +190,10 @@
       "destination": "crates/quai-sdk/THIRD_PARTY_NOTICES.md"
     },
     {
+      "source": "compatibility/fixtures/qi-use-hints.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/qi-use-hints.json"
+    },
+    {
       "source": "test-infra/local-chain/acceptance-fixtures.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/local-chain/acceptance-fixtures.json"
     },

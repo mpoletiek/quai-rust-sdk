@@ -1,10 +1,12 @@
 //! Portable current-outpoint discovery; never advertises a historical or atomic snapshot.
 use quai_consensus::{Denomination, OutPoint};
+use quai_primitives::QiAddress;
 use quai_provider::{Provider, ProviderError};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{CanonicalStatus, Checkpoint, IndexRange, NetworkScope, ScanStop};
 use quai_wallet::{AccountPublic, CoinType, DerivedAddress, Search, WalletError};
 use std::collections::BTreeSet;
+use std::future::Future;
 
 /// Default consecutive empty matching addresses on each Qi branch.
 pub const DEFAULT_QI_GAP: u32 = 50;
@@ -56,6 +58,9 @@ pub struct CurrentQiAddress {
     pub derived: DerivedAddress,
     /// Outputs returned by this address's latest-only RPC query.
     pub outputs: Vec<CurrentQiOutput>,
+    /// Caller-supplied use hint for an address with no current outputs.
+    /// This affects gap counting and does not certify historical coverage.
+    pub use_hint: bool,
 }
 /// Bounded current-state discovery, without private keys or a storage backend.
 #[derive(Clone, Debug)]
@@ -105,6 +110,9 @@ pub enum QiDiscoveryError {
     /// Head unavailable, changed, unchecked, or too new for the requested balance height.
     #[error("Qi discovery head is unavailable or changed")]
     ObservationChanged,
+    /// An optional caller-owned address-use query failed.
+    #[error("Qi address-use check failed")]
+    UseCheckFailed,
     /// Provider observation failed.
     #[error(transparent)]
     Provider(#[from] ProviderError),
@@ -175,8 +183,32 @@ pub async fn discover_qi<T: Transport>(
     scope: NetworkScope,
     account: &AccountPublic,
     options: &QiDiscoveryOptions,
-    mut cancelled: impl FnMut() -> bool,
+    cancelled: impl FnMut() -> bool,
 ) -> Result<CurrentQiDiscovery, QiDiscoveryError> {
+    discover_qi_with_use_checker(provider, scope, account, options, cancelled, |_, _| {
+        std::future::ready(Ok(false))
+    })
+    .await
+}
+
+/// Current Qi discovery with an optional, explicitly scoped address-use hint.
+/// Called only when an address has no current outputs; true resets the gap but
+/// never fabricates a UTXO or an atomic/historical coverage claim. Errors propagate
+/// instead of treating an unavailable history service as unused. The caller must
+/// bound its callback's I/O, time and memory, including in browser workers.
+pub async fn discover_qi_with_use_checker<T, F, Fut>(
+    provider: &Provider<T>,
+    scope: NetworkScope,
+    account: &AccountPublic,
+    options: &QiDiscoveryOptions,
+    mut cancelled: impl FnMut() -> bool,
+    mut check_use: F,
+) -> Result<CurrentQiDiscovery, QiDiscoveryError>
+where
+    T: Transport,
+    F: FnMut(NetworkScope, QiAddress) -> Fut,
+    Fut: Future<Output = Result<bool, QiDiscoveryError>>,
+{
     if account.coin_type() != CoinType::Qi
         || scope.chain_id == U256::ZERO
         || scope.genesis.bytes() == &[0; 32]
@@ -271,11 +303,29 @@ pub async fn discover_qi<T: Transport>(
                     unlock_height: output.lock,
                 });
             }
-            gap = if outputs.is_empty() { gap + 1 } else { 0 };
+            let use_hint = if outputs.is_empty() {
+                check_use(
+                    scope,
+                    found
+                        .address
+                        .address
+                        .try_into()
+                        .map_err(|_| QiDiscoveryError::InvalidRequest)?,
+                )
+                .await?
+            } else {
+                false
+            };
+            gap = if outputs.is_empty() && !use_hint {
+                gap + 1
+            } else {
+                0
+            };
             report.next_index[branch] = found.next_index.unwrap_or(1 << 31);
             report.addresses.push(CurrentQiAddress {
                 derived: found.address,
                 outputs,
+                use_hint,
             });
             if options.gap_limit.is_some_and(|limit| gap >= limit) {
                 report.stopped[branch] = ScanStop::GapLimit;

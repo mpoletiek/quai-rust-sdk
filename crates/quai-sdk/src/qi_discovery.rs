@@ -9,6 +9,7 @@ use quai_wallet::discovery::{Checkpoint, IndexRange, NetworkScope, ScanStop};
 use quai_wallet::storage::{PublicAddress, Snapshot, SqliteStore};
 use quai_wallet::{AccountPublic, CandidateCoin, CoinType, Search, WalletError};
 use std::collections::BTreeSet;
+use std::future::Future;
 
 pub use crate::discovery::DEFAULT_QI_GAP;
 
@@ -117,8 +118,30 @@ pub async fn scan_qi<T: Transport>(
     scope: NetworkScope,
     account: &AccountPublic,
     options: &QiScanOptions,
-    mut cancelled: impl FnMut() -> bool,
+    cancelled: impl FnMut() -> bool,
 ) -> Result<QiScanReport, QiError> {
+    scan_qi_with_use_checker(provider, scope, account, options, cancelled, |_, _| {
+        std::future::ready(Ok(false))
+    })
+    .await
+}
+
+/// Scan with a caller-owned use hint for addresses without current outputs.
+/// A true hint resets the gap; errors abort without importing metadata. Hints
+/// never prove historical coverage. Bound callback I/O and retain known addresses.
+pub async fn scan_qi_with_use_checker<T, F, Fut>(
+    provider: &Provider<T>,
+    scope: NetworkScope,
+    account: &AccountPublic,
+    options: &QiScanOptions,
+    mut cancelled: impl FnMut() -> bool,
+    mut check_use: F,
+) -> Result<QiScanReport, QiError>
+where
+    T: Transport,
+    F: FnMut(NetworkScope, QiAddress) -> Fut,
+    Fut: Future<Output = Result<bool, QiError>>,
+{
     if account.coin_type() != CoinType::Qi
         || !(1..=100_000).contains(&options.max_addresses)
         || options.gap_limit.is_some_and(|n| n == 0 || n > 10_000)
@@ -176,7 +199,11 @@ pub async fn scan_qi<T: Transport>(
             let address =
                 QiAddress::try_from(metadata.address()).map_err(|_| QiError::IdentityMismatch)?;
             let outputs = provider.outpoints(address).await?;
-            gap = if outputs.is_empty() { gap + 1 } else { 0 };
+            gap = if outputs.is_empty() && !check_use(scope, address).await? {
+                gap + 1
+            } else {
+                0
+            };
             report.next_index[branch] = found.next_index.unwrap_or(1 << 31);
             report.addresses.push(metadata);
             if options.gap_limit.is_some_and(|limit| gap >= limit) {
@@ -290,9 +317,39 @@ pub async fn scan_and_refresh_qi<T: Transport>(
     store: &mut SqliteStore,
     account: &AccountPublic,
     options: &QiScanOptions,
-    mut cancelled: impl FnMut() -> bool,
+    cancelled: impl FnMut() -> bool,
 ) -> Result<QiScanReport, QiError> {
-    let report = scan_qi(provider, store.scope(), account, options, &mut cancelled).await?;
+    scan_and_refresh_qi_with_use_checker(provider, store, account, options, cancelled, |_, _| {
+        std::future::ready(Ok(false))
+    })
+    .await
+}
+
+/// Gap-scan with optional use hints, persist public metadata, then refresh all
+/// known origins. A failed checker leaves storage untouched. Refresh cancellation
+/// after metadata import leaves the checkpoint invalid, preserving claim safety.
+pub async fn scan_and_refresh_qi_with_use_checker<T, F, Fut>(
+    provider: &Provider<T>,
+    store: &mut SqliteStore,
+    account: &AccountPublic,
+    options: &QiScanOptions,
+    mut cancelled: impl FnMut() -> bool,
+    check_use: F,
+) -> Result<QiScanReport, QiError>
+where
+    T: Transport,
+    F: FnMut(NetworkScope, QiAddress) -> Fut,
+    Fut: Future<Output = Result<bool, QiError>>,
+{
+    let report = scan_qi_with_use_checker(
+        provider,
+        store.scope(),
+        account,
+        options,
+        &mut cancelled,
+        check_use,
+    )
+    .await?;
     if report.stopped.contains(&ScanStop::Cancelled) {
         return Err(QiError::Cancelled);
     }

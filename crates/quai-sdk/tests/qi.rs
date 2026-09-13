@@ -1811,3 +1811,58 @@ async fn recovery_rejects_a_quai_receipt_for_signed_qi_before_recording_inclusio
     assert_eq!(env.store.reserved_outpoints(id(97)).unwrap().len(), 2);
     assert!(env.store.release_unsigned(id(97)).is_err());
 }
+
+#[tokio::test]
+async fn native_use_hints_extend_gap_and_failed_checker_preserves_storage() {
+    use quai_sdk::qi_discovery::{QiScanOptions, scan_and_refresh_qi_with_use_checker};
+    use quai_sdk::wallet::discovery::{IndexRange, ScanStop};
+    let mut env = setup();
+    let account = env.wallet.account_public(0).unwrap();
+    let options = QiScanOptions {
+        receive: IndexRange {
+            start: 0,
+            end: 100_000,
+        },
+        change: IndexRange { start: 0, end: 0 },
+        gap_limit: Some(1),
+        max_addresses: 4,
+    };
+    let before = env.store.snapshot().unwrap();
+    let before_addresses = env.store.addresses().unwrap();
+    let error = scan_and_refresh_qi_with_use_checker(
+        &env.provider,
+        &mut env.store,
+        &account,
+        &options,
+        || false,
+        |_, _| std::future::ready(Err(QiError::UseCheckFailed)),
+    )
+    .await
+    .unwrap_err();
+    assert!(matches!(error, QiError::UseCheckFailed));
+    assert_eq!(env.store.snapshot().unwrap().generation, before.generation);
+    assert_eq!(env.store.addresses().unwrap(), before_addresses);
+    let mut calls = 0;
+    let report = scan_and_refresh_qi_with_use_checker(
+        &env.provider,
+        &mut env.store,
+        &account,
+        &options,
+        || false,
+        |actual_scope, _| {
+            assert_eq!(actual_scope, before.scope);
+            calls += 1;
+            std::future::ready(Ok(calls == 1))
+        },
+    )
+    .await
+    .unwrap();
+    assert_eq!(calls, 2);
+    assert_eq!(report.addresses.len(), 2);
+    assert_eq!(report.stopped[0], ScanStop::GapLimit);
+    assert!(env.store.snapshot().unwrap().coins.is_empty());
+    assert!(env.store.snapshot().unwrap().checkpoint.is_some());
+    for address in report.addresses {
+        assert!(env.store.addresses().unwrap().contains(&address));
+    }
+}

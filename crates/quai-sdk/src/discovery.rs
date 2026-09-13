@@ -2,7 +2,7 @@
 mod qi;
 pub use qi::{
     CurrentQiAddress, CurrentQiDiscovery, CurrentQiOutput, DEFAULT_QI_GAP, ObservedQiBalance,
-    QiDiscoveryError, QiDiscoveryOptions, discover_qi,
+    QiDiscoveryError, QiDiscoveryOptions, discover_qi, discover_qi_with_use_checker,
 };
 use quai_primitives::QuaiAddress;
 use quai_provider::{BlockTag, Provider};

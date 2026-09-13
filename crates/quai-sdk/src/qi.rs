@@ -115,6 +115,9 @@ impl QiChangePool {
 /// Planning failures do not release signed claims or retry submission.
 #[derive(Debug, Error)]
 pub enum QiError {
+    /// An optional caller-owned address-use query failed; no remote text is kept.
+    #[error("Qi address-use check failed")]
+    UseCheckFailed,
     /// A checked provider observation failed.
     #[error(transparent)]
     Provider(#[from] ProviderError),

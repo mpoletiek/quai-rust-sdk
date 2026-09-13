@@ -19705,12 +19705,21 @@
         "(checker: AddressUsageCallback): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::discovery::discover_qi_with_use_checker",
+        "quai_sdk::qi_discovery::scan_and_refresh_qi_with_use_checker"
+      ],
+      "feature": "qi-discovery",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/discovery.rs#optional_qi_use_checker_matches_pinned_short_circuit_and_error_behavior",
+        "crates/quai-sdk/tests/qi.rs#native_use_hints_extend_gap_and_failed_checker_preserves_storage",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_qi_use_hint_accepts_thread_local_async_state"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit per-scan async scoped callback instead of mutable wallet-global state. Only empty current output sets invoke it; true resets the matching-address gap and failures propagate. Hints do not establish historical coverage."
     },
     {
       "id": ".:QiHDWallet:instance:signMessage",
@@ -64726,12 +64735,21 @@
         "(checker: AddressUsageCallback): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::discovery::discover_qi_with_use_checker",
+        "quai_sdk::qi_discovery::scan_and_refresh_qi_with_use_checker"
+      ],
+      "feature": "qi-discovery",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/discovery.rs#optional_qi_use_checker_matches_pinned_short_circuit_and_error_behavior",
+        "crates/quai-sdk/tests/qi.rs#native_use_hints_extend_gap_and_failed_checker_preserves_storage",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_qi_use_hint_accepts_thread_local_async_state"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit per-scan async scoped callback instead of mutable wallet-global state. Only empty current output sets invoke it; true resets the matching-address gap and failures propagate. Hints do not establish historical coverage."
     },
     {
       "id": "./wallet:QiHDWallet:instance:signMessage",

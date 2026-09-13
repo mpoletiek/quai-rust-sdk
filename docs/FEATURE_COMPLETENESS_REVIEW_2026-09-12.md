@@ -90,7 +90,8 @@ Account custody now has a portable journal and browser CAS adapter, with native
 and actual worker tests for signature-before-return persistence, competing nonce
 allocations, cancellation and stale canonical observations. Account-only backup capture and live merge now preserve custody;
 Qi custody now covers durable input claims and all three signed Qi forms;
-complete browser wallet capture and Qi capture/live merge remain open. See [the account workflow](BROWSER_ACCOUNT_CUSTODY.md) and
+account/Qi backup capture and live merge preserve custody, while complete
+browser wallet capture across all journals remains open. See [the account workflow](BROWSER_ACCOUNT_CUSTODY.md) and
 [retained validation](../test-infra/reports/browser-account-custody-2026-09-13.json).
 
 The latest [Orchard read-only recheck](../test-infra/reports/orchard-read-recheck-2026-09-13.json)
@@ -101,3 +102,7 @@ the separate funded wrapper and pinned-node qualification gates.
 [Browser Qi custody](BROWSER_QI_CUSTODY.md) connects current gap/deep discovery
 to revision-fenced input reservations and local mixed-origin signing. Its independent
 codec and actual worker checks are retained in the [Qi custody report](../test-infra/reports/browser-qi-custody-2026-09-13.json).
+
+Qi-only authenticated capture and live merge now retain exact claims and signed
+candidate families, reject conflicting or over-capacity unions atomically, and
+restore encrypted captures to native SQLite. See [retained backup validation](../test-infra/reports/browser-qi-backup-2026-09-13.json).

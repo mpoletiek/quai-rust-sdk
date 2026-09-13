@@ -1,0 +1,25 @@
+{
+  "profile_version": 1,
+  "name": "mainnet-public-gateway-cyprus1",
+  "status": "read-only-observed-deployed-version-unverified",
+  "purpose": "User-authorized mainnet RPC during Orchard maintenance",
+  "chain_id": 9,
+  "zone": [
+    0,
+    0
+  ],
+  "use_pathing": true,
+  "gateway_base_url": "https://rpc.quai.network",
+  "resolved_http_url": "https://rpc.quai.network/cyprus1",
+  "verified_node_commit": null,
+  "genesis_hash": "0xac81c28f1a72591b87b5f16c9793cdc0e87c45c6d426d1a364c3b8f6386b5b8b",
+  "reported_client_version": "go-quai/v0.56.0-f4a5a4fd",
+  "observed_at": "2026-09-13T14:17:46.785757+00:00",
+  "http_reads_verified": true,
+  "ordinary_qi_fee_query_verified": true,
+  "wrapper_code_presence_verified": true,
+  "address_index_verified": false,
+  "transaction_acceptance_verified": false,
+  "ws_verified": false,
+  "latest_read_evidence": "test-infra/reports/mainnet-public-read-recheck-2026-09-13.json"
+}

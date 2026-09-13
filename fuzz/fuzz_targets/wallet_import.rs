@@ -9,7 +9,23 @@ fuzz_target!(|data:&[u8]| {
  if data.starts_with(b"QQICUBK1") {
   let scope=quai_wallet::discovery::NetworkScope{chain_id:quai_consensus::U256::from(15000),genesis:quai_primitives::Hash32::from_bytes([1;32]),zone:quai_primitives::Zone::Cyprus1};
   let identity=quai_primitives::Hash32::from_bytes([7;32]);
-  if let Ok(book)=quai_wallet::qi_custody::QiOperationBook::from_state(data,scope,identity){assert_eq!(book.export_state().unwrap(),data);assert_eq!(book.scope(),scope);assert_eq!(book.identity(),identity);}
+  if let Ok(mut book)=quai_wallet::qi_custody::QiOperationBook::from_state(data,scope,identity){
+   assert_eq!(book.export_state().unwrap(),data);assert_eq!(book.scope(),scope);assert_eq!(book.identity(),identity);
+   static KEYS:std::sync::OnceLock<Vec<quai_crypto::SecretKey>>=std::sync::OnceLock::new();
+   let keys=KEYS.get_or_init(||{
+    let fixture:serde_json::Value=serde_json::from_str(include_str!("../../test-infra/fixtures/qi-custody.json")).unwrap();
+    let mut keys=std::collections::BTreeMap::new();
+    for row in fixture["vectors"].as_array().unwrap(){for key in row["publicTestSecrets"].as_array().unwrap(){
+     let bytes=quai_primitives::get_bytes(key.as_str().unwrap()).unwrap();let key=quai_crypto::SecretKey::from_bytes(bytes.as_slice().try_into().unwrap()).unwrap();keys.insert(key.public_key().address(),key);
+    }}keys.into_values().collect()
+   });
+   // Fixed public toy ownership proofs only; arbitrary valid public origins may be unowned.
+   let origins=keys.iter().map(quai_wallet::full_backup::BackupOrigin::from_private_key).collect();
+   if let Ok(backup)=quai_wallet::full_backup::WalletBackup::capture_qi_custody(&book,origins){
+    let restored=quai_wallet::qi_custody::QiOperationBook::from_backup(&backup,scope,identity).unwrap();
+    let report=book.merge_backup(&backup).unwrap();assert_eq!(report.operations_added,0);assert_eq!(report.candidates_added,0);assert_eq!(book.export_state().unwrap(),restored.export_state().unwrap());
+   }
+  }
  }
  if data.starts_with(b"QACCTBK1") {
   // Fixed public toy owner; no attacker-selected derivation or KDF.

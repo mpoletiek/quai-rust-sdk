@@ -9,7 +9,7 @@ use quai_primitives::{Hash32, QiAddress};
 use quai_wallet::discovery::{CanonicalStatus, Checkpoint, NetworkScope};
 use quai_wallet::metadata::{PublicAddress, StorageError};
 use quai_wallet::qi_custody::{
-    MAX_QI_CUSTODY_BYTES, QiOperationBook, ReservationId, ReservationState,
+    MAX_QI_CUSTODY_BYTES, QiMergeReport, QiOperationBook, ReservationId, ReservationState,
 };
 use quai_wallet::qi_keys::QiKeyResolver;
 use quai_wallet::{AccountPublic, CandidateCoin, CoinType};
@@ -92,6 +92,18 @@ impl BrowserQiBook {
             .store
             .compare_exchange(None, Some(&book.export_state()?))
             .await?)
+    }
+    /// Atomically union authenticated Qi custody into an existing journal. Keeps
+    /// all live claims and candidates, rejects conflicts, and invalidates source
+    /// and inclusion observations. Concurrent writes reject without automatic retry.
+    pub async fn merge_backup(
+        &self,
+        backup: &quai_wallet::full_backup::WalletBackup,
+    ) -> Result<QiMergeReport, BrowserQiError> {
+        let mut snapshot = self.snapshot().await?;
+        let report = snapshot.book.merge_backup(backup)?;
+        self.write(&snapshot).await?;
+        Ok(report)
     }
     /// Revalidate every public origin, input claim, signed payload and candidate.
     pub async fn snapshot(&self) -> Result<BrowserQiSnapshot, BrowserQiError> {

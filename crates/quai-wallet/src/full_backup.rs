@@ -299,6 +299,53 @@ impl WalletBackup {
         backup.validate()?;
         Ok(backup)
     }
+    /// Capture one portable Qi custody journal with explicit secret origins which
+    /// prove every retained public address. Current UTXOs and chain observations
+    /// are omitted. This does not capture address/payment allocation journals,
+    /// account custody or other browser namespaces.
+    pub fn capture_qi_custody(
+        book: &crate::qi_custody::QiOperationBook,
+        origins: Vec<BackupOrigin>,
+    ) -> Result<Self> {
+        let operations = book
+            .operations()
+            .map(|op| OperationState {
+                record: Reservation {
+                    id: op.id,
+                    state: if op.state == ReservationState::Confirmed {
+                        ReservationState::Submitted
+                    } else {
+                        op.state
+                    },
+                    transaction: op.transaction,
+                    inclusion: None,
+                },
+                kind: 0,
+                qi: op
+                    .claims
+                    .iter()
+                    .map(|c| (c.outpoint, c.owner.address()))
+                    .collect(),
+                nonce: None,
+                payload: op.payload.clone(),
+                replacements: op.replacements.clone(),
+            })
+            .collect();
+        let state = PublicWalletState {
+            scopes: vec![ScopeState {
+                scope: book.scope(),
+                addresses: book.addresses().cloned().collect(),
+                derivation: vec![],
+                nonces: vec![],
+                operations,
+            }],
+            channels: vec![],
+            exposures: vec![],
+        };
+        let backup = Self { origins, state };
+        backup.validate()?;
+        Ok(backup)
+    }
     /// Capture all database scopes atomically. Every HD/imported address and bound
     /// account xpub must be proved by one of the explicit supplied secret origins.
     #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]

@@ -791,15 +791,456 @@ mod browser {
             &tx
         );
         let restored = open(&database).await.snapshot().await.unwrap();
-        for public in owners {
+        for public in &owners {
             assert_eq!(
                 restored.book.address(public.address().try_into().unwrap()),
-                Some(&public)
+                Some(public)
             );
         }
+        use quai_sdk::wallet::full_backup::{BackupOrigin, WalletBackup};
+        let backup = WalletBackup::capture_qi_custody(
+            &restored.book,
+            vec![
+                BackupOrigin::from_seed(&[7; 32]).unwrap(),
+                BackupOrigin::from_private_key(&ring.resolve(&owners[1]).unwrap()),
+                BackupOrigin::from_private_key(&ring.resolve(&owners[2]).unwrap()),
+            ],
+        )
+        .unwrap();
+        let copy = QiOperationBook::from_backup(&backup, scope(), identity()).unwrap();
+        assert_eq!(copy.claimed_outpoints(), restored.book.claimed_outpoints());
+        assert_eq!(
+            copy.addresses().collect::<Vec<_>>(),
+            restored.book.addresses().collect::<Vec<_>>()
+        );
         assert_eq!(
             restored.book.operation(id(1)).unwrap().payload,
             Some(signed.signed_bytes().unwrap())
         );
+    }
+}
+
+mod backup_tests {
+    use super::*;
+    use quai_sdk::wallet::full_backup::{BackupOrigin, WalletBackup};
+    fn origins() -> Vec<BackupOrigin> {
+        let keys: BTreeMap<_, _> = vectors()
+            .iter()
+            .flat_map(keys)
+            .map(|k| (k.public_key().address(), k))
+            .collect();
+        keys.values().map(BackupOrigin::from_private_key).collect()
+    }
+    fn capture(b: &QiOperationBook) -> WalletBackup {
+        WalletBackup::capture_qi_custody(b, origins()).unwrap()
+    }
+    fn tx(row: usize, offset: u16) -> QiTransaction {
+        let mut tx = root(&vectors()[row]).transaction().clone();
+        for input in &mut tx.inputs {
+            input.previous_output.index += offset;
+        }
+        tx.outputs[0].denomination = Denomination::new(3).unwrap();
+        tx
+    }
+    fn signed(b: &mut QiOperationBook, n: u128, row: usize, offset: u16) -> SignedQiOperation {
+        let tx = tx(row, offset);
+        reserve(b, n, &tx);
+        let signed = sign(&tx, &keys(&vectors()[row]));
+        b.commit_signed(id(n), &signed).unwrap();
+        signed
+    }
+    fn lower(signed: &SignedQiOperation, row: usize, denomination: u8) -> SignedQiOperation {
+        let mut tx = signed.transaction().clone();
+        tx.outputs[0].denomination = Denomination::new(denomination).unwrap();
+        sign(&tx, &keys(&vectors()[row]))
+    }
+    #[cfg_attr(not(target_arch = "wasm32"), test)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+    fn qi_backup_union_keeps_branches_disjoint_ids_and_invalidates_observations() {
+        let mut source = book();
+        let root = signed(&mut source, 1, 0, 0);
+        let mut live = source.clone();
+        source
+            .commit_replacement(id(1), root.hash().unwrap(), &lower(&root, 0, 2))
+            .unwrap();
+        live.commit_replacement(id(1), root.hash().unwrap(), &lower(&root, 0, 1))
+            .unwrap();
+        let second = signed(&mut live, 2, 0, 100);
+        signed(&mut source, 3, 0, 200);
+        live.observe_inclusion(id(1), root.hash().unwrap(), block())
+            .unwrap();
+        live.observe_inclusion(id(2), second.hash().unwrap(), block())
+            .unwrap();
+        let report = live.merge_backup(&capture(&source)).unwrap();
+        assert_eq!(report.operations_added, 1);
+        assert_eq!(report.candidates_added, 1);
+        assert_eq!(report.invalidated_inclusions, 2);
+        assert_eq!(report.invalidated_checkpoints, 2);
+        assert_eq!(live.operations().count(), 3);
+        assert_eq!(live.operation(id(1)).unwrap().replacements.len(), 2);
+        assert_eq!(
+            live.operation(id(2)).unwrap().state,
+            ReservationState::Submitted
+        );
+        let before = live.export_state().unwrap();
+        assert_eq!(
+            live.merge_backup(&capture(&source)).unwrap(),
+            Default::default()
+        );
+        assert_eq!(live.export_state().unwrap(), before);
+    }
+    #[cfg_attr(not(target_arch = "wasm32"), test)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+    fn qi_unsigned_backups_never_release_or_reopen_and_signed_evidence_retains_claims() {
+        let mut source = book();
+        reserve(&mut source, 1, &tx(0, 0));
+        let reserved = capture(&source);
+        let mut live = source.clone();
+        source.release_unsigned(id(1)).unwrap();
+        let released = capture(&source);
+        live.merge_backup(&released).unwrap();
+        assert_eq!(
+            live.operation(id(1)).unwrap().state,
+            ReservationState::Reserved
+        );
+        live.release_unsigned(id(1)).unwrap();
+        live.merge_backup(&reserved).unwrap();
+        assert_eq!(
+            live.operation(id(1)).unwrap().state,
+            ReservationState::Released
+        );
+        assert!(live.operation(id(1)).unwrap().claims.is_empty());
+        let mut original = QiOperationBook::from_backup(&reserved, scope(), identity()).unwrap();
+        original
+            .commit_signed(id(1), &sign(&tx(0, 0), &keys(&vectors()[0])))
+            .unwrap();
+        live.merge_backup(&capture(&original)).unwrap();
+        live.merge_backup(&released).unwrap();
+        assert_eq!(
+            live.operation(id(1)).unwrap().state,
+            ReservationState::Signed
+        );
+        assert_eq!(live.claimed_outpoints(), original.claimed_outpoints());
+        assert!(live.release_unsigned(id(1)).is_err());
+    }
+    #[cfg_attr(not(target_arch = "wasm32"), test)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+    fn qi_merge_conflicting_inputs_roots_ids_and_capacity_preserves_live_bytes() {
+        let mut live = book();
+        signed(&mut live, 1, 0, 0);
+        let before = live.export_state().unwrap();
+        for case in 0..3 {
+            let mut source = book();
+            match case {
+                0 => {
+                    signed(&mut source, 1, 0, 100);
+                }
+                1 => {
+                    signed(&mut source, 2, 0, 0);
+                }
+                _ => {
+                    let mut different = tx(0, 0);
+                    different.outputs[0].denomination = Denomination::new(2).unwrap();
+                    reserve(&mut source, 1, &different);
+                    source
+                        .commit_signed(id(1), &sign(&different, &keys(&vectors()[0])))
+                        .unwrap();
+                }
+            }
+            assert!(live.merge_backup(&capture(&source)).is_err());
+            assert_eq!(live.export_state().unwrap(), before);
+        }
+        let mut released = book();
+        reserve(&mut released, 1, &tx(0, 0));
+        released.release_unsigned(id(1)).unwrap();
+        reserve(&mut released, 2, &tx(0, 0));
+        let before = released.export_state().unwrap();
+        assert!(released.merge_backup(&capture(&live)).is_err()); // Previously released ID cannot steal a reassigned point.
+        assert_eq!(released.export_state().unwrap(), before);
+        let mut full = book();
+        for n in 1..=MAX_QI_OPERATIONS as u128 {
+            reserve(&mut full, n, &tx(0, 0));
+            full.release_unsigned(id(n)).unwrap();
+        }
+        let before = full.export_state().unwrap();
+        let mut source = book();
+        signed(&mut source, 257, 0, 100);
+        assert!(full.merge_backup(&capture(&source)).is_err());
+        assert_eq!(full.export_state().unwrap(), before);
+    }
+    #[cfg_attr(not(target_arch = "wasm32"), test)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+    fn qi_hash_only_custody_gains_matching_canonical_bytes() {
+        for row in vectors() {
+            let encoded = get_bytes(&format!(
+                "0x{}",
+                row["states"]["hashOnly"].as_str().unwrap()
+            ))
+            .unwrap();
+            let mut live = QiOperationBook::from_state(&encoded, scope(), identity()).unwrap();
+            let hash_only = capture(&live);
+            let mut source = book();
+            let root = root(&row);
+            reserve(&mut source, 1, root.transaction());
+            source.commit_signed(id(1), &root).unwrap();
+            live.merge_backup(&capture(&source)).unwrap();
+            assert_eq!(
+                live.operation(id(1)).unwrap().payload,
+                Some(root.signed_bytes().unwrap())
+            );
+            let before = live.export_state().unwrap();
+            live.merge_backup(&hash_only).unwrap();
+            assert_eq!(live.export_state().unwrap(), before);
+            assert!(live.release_unsigned(id(1)).is_err());
+        }
+    }
+    #[cfg_attr(not(target_arch = "wasm32"), test)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+    fn qi_capture_encrypts_all_forms_and_restores_native_custody_without_observations() {
+        let mut b = book();
+        for row in 0..4 {
+            let root = signed(&mut b, row as u128 + 1, row, row as u16 * 100);
+            b.commit_replacement(
+                id(row as u128 + 1),
+                root.hash().unwrap(),
+                &lower(&root, row, 2),
+            )
+            .unwrap();
+            b.observe_inclusion(id(row as u128 + 1), root.hash().unwrap(), block())
+                .unwrap();
+        }
+        let backup = capture(&b);
+        let encoded = backup
+            .encrypt(
+                b"public toy backup password",
+                quai_sdk::wallet::BackupKdf::default(),
+            )
+            .unwrap();
+        assert_eq!(encoded.as_bytes()[8], 5);
+        let decoded = encoded.decrypt(b"public toy backup password").unwrap();
+        let restored = QiOperationBook::from_backup(&decoded, scope(), identity()).unwrap();
+        assert_eq!(restored.claimed_outpoints(), b.claimed_outpoints());
+        for op in restored.operations() {
+            assert_eq!(op.state, ReservationState::Submitted);
+            assert!(op.inclusion.is_none() && op.reservation_checkpoint.is_none());
+            assert_eq!(op.payload, b.operation(op.id).unwrap().payload);
+            assert_eq!(op.replacements, b.operation(op.id).unwrap().replacements);
+        }
+        #[cfg(all(not(target_arch = "wasm32"), feature = "sqlite"))]
+        {
+            let mut random = [0; 16];
+            quai_sdk::crypto::fill_random(&mut random).unwrap();
+            let directory = std::env::temp_dir()
+                .join(format!("quai-qi-backup-{:x}", u128::from_be_bytes(random)));
+            std::fs::create_dir(&directory).unwrap();
+            let mut store = quai_sdk::wallet::storage::SqliteStore::open(
+                directory.join("wallet.sqlite"),
+                scope(),
+            )
+            .unwrap();
+            assert_eq!(
+                decoded
+                    .restore(&mut store)
+                    .unwrap()
+                    .retained_signed_operations,
+                4
+            );
+            for op in restored.operations() {
+                let expected: std::collections::BTreeSet<_> =
+                    op.claims.iter().map(|c| c.outpoint).collect();
+                assert_eq!(
+                    store
+                        .reserved_outpoints(op.id)
+                        .unwrap()
+                        .into_iter()
+                        .collect::<std::collections::BTreeSet<_>>(),
+                    expected
+                );
+                assert_eq!(store.signed_payload(op.id).unwrap(), op.payload);
+                assert_eq!(
+                    store.replacement_candidates(op.id).unwrap(),
+                    op.replacements
+                );
+                assert!(
+                    store
+                        .reservation(op.id)
+                        .unwrap()
+                        .unwrap()
+                        .inclusion
+                        .is_none()
+                );
+                assert!(store.release_unsigned(op.id).is_err());
+            }
+            drop(store);
+            std::fs::remove_dir_all(directory).unwrap();
+        }
+    }
+    #[cfg(all(target_arch = "wasm32", feature = "browser"))]
+    #[wasm_bindgen_test::wasm_bindgen_test]
+    async fn browser_qi_backup_merge_race_keeps_claims_and_fences_old_observations() {
+        use quai_sdk::browser::BrowserError;
+        use quai_sdk::browser_qi::{BrowserQiBook, BrowserQiError};
+        use std::{future::Future, task::Poll};
+        let database = super::browser::name();
+        let a = BrowserQiBook::open(&database, scope(), identity())
+            .await
+            .unwrap();
+        let b = BrowserQiBook::open(&database, scope(), identity())
+            .await
+            .unwrap();
+        a.initialize().await.unwrap();
+        let rev = a.snapshot().await.unwrap().revision;
+        let mut one = book();
+        let root = signed(&mut one, 1, 0, 0);
+        let mut two = book();
+        signed(&mut two, 2, 0, 100);
+        let first = capture(&one);
+        let second = capture(&two);
+        let mut left = Box::pin(a.merge_backup(&first));
+        let mut right = Box::pin(b.merge_backup(&second));
+        let (mut x, mut y) = (None, None);
+        let (x, y) = std::future::poll_fn(|cx| {
+            if x.is_none()
+                && let Poll::Ready(v) = left.as_mut().poll(cx)
+            {
+                x = Some(v);
+            }
+            if y.is_none()
+                && let Poll::Ready(v) = right.as_mut().poll(cx)
+            {
+                y = Some(v);
+            }
+            if x.is_some() && y.is_some() {
+                Poll::Ready((x.take().unwrap(), y.take().unwrap()))
+            } else {
+                Poll::Pending
+            }
+        })
+        .await;
+        assert_eq!(usize::from(x.is_ok()) + usize::from(y.is_ok()), 1);
+        assert_eq!(a.snapshot().await.unwrap().book.operations().count(), 1);
+        let loser = if x.is_ok() {
+            assert!(matches!(
+                y,
+                Err(BrowserQiError::Browser(BrowserError::StorageConflict))
+            ));
+            &second
+        } else {
+            assert!(matches!(
+                x,
+                Err(BrowserQiError::Browser(BrowserError::StorageConflict))
+            ));
+            &first
+        };
+        assert_eq!(a.merge_backup(loser).await.unwrap().operations_added, 1);
+        assert!(
+            a.observe_inclusion(rev, id(1), root.hash().unwrap(), block())
+                .await
+                .is_err()
+        );
+        let s = b.snapshot().await.unwrap();
+        assert_eq!(s.book.operations().count(), 2);
+        assert_eq!(s.book.claimed_outpoints().len(), 2);
+        let revision = s.revision;
+        let mut collision = book();
+        signed(&mut collision, 3, 0, 0);
+        assert!(b.merge_backup(&capture(&collision)).await.is_err());
+        assert_eq!(b.snapshot().await.unwrap().revision, revision);
+        let backup = capture(&s.book);
+        let restored = BrowserQiBook::open(&super::browser::name(), scope(), identity())
+            .await
+            .unwrap();
+        restored.initialize_from_backup(&backup).await.unwrap();
+        assert_eq!(
+            restored
+                .snapshot()
+                .await
+                .unwrap()
+                .book
+                .export_state()
+                .unwrap(),
+            s.book.export_state().unwrap()
+        );
+    }
+    #[cfg_attr(not(target_arch = "wasm32"), test)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+    fn qi_capture_proves_hd_ancestry_and_rejects_conflicting_public_origins() {
+        use quai_sdk::wallet::{CoinType, HdWallet, Search};
+        let wallet = HdWallet::from_seed(&[7; 32], CoinType::Qi).unwrap();
+        let account = wallet.account_public(0).unwrap();
+        let found = account
+            .search(
+                false,
+                Search {
+                    zone: Zone::Cyprus1,
+                    start_index: 0,
+                    max_attempts: 100_000,
+                },
+                || false,
+            )
+            .unwrap();
+        let public = PublicAddress::derive(&account, false, found.address.index).unwrap();
+        let mut tx = tx(0, 0);
+        tx.inputs[0].public_key =
+            quai_sdk::crypto::PublicKey::from_sec1_bytes(public.public_key()).unwrap();
+        let (coins, imported) = source(&tx);
+        let mut hd = book();
+        hd.reserve(
+            id(1),
+            checkpoint(),
+            U256::from(10),
+            &coins,
+            std::slice::from_ref(&public),
+        )
+        .unwrap();
+        assert!(
+            WalletBackup::capture_qi_custody(&hd, vec![BackupOrigin::from_seed(&[8; 32]).unwrap()])
+                .is_err()
+        );
+        let key = quai_sdk::wallet::qi_keys::QiKeyResolver::resolve(&wallet, &public).unwrap();
+        assert!(
+            WalletBackup::capture_qi_custody(&hd, vec![BackupOrigin::from_private_key(&key)])
+                .is_err()
+        );
+        let backup =
+            WalletBackup::capture_qi_custody(&hd, vec![BackupOrigin::from_seed(&[7; 32]).unwrap()])
+                .unwrap();
+        assert_eq!(backup.scope_state(scope()).unwrap().addresses(), &[public]);
+        let mut standalone = book();
+        standalone
+            .reserve(id(1), checkpoint(), U256::from(10), &coins, &imported)
+            .unwrap();
+        let standalone_backup = WalletBackup::capture_qi_custody(
+            &standalone,
+            vec![BackupOrigin::from_private_key(&key)],
+        )
+        .unwrap();
+        let before = hd.export_state().unwrap();
+        assert!(hd.merge_backup(&standalone_backup).is_err());
+        assert_eq!(hd.export_state().unwrap(), before);
+    }
+    #[cfg_attr(not(target_arch = "wasm32"), test)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+    fn qi_candidate_union_limit_rejects_without_dropping_either_branch() {
+        let mut live = book();
+        let root = signed(&mut live, 1, 0, 0);
+        let mut source = live.clone();
+        for n in 1..=33u8 {
+            let mut tx = root.transaction().clone();
+            tx.outputs[0].denomination = Denomination::new(0).unwrap();
+            let mut address = [0; 20];
+            address[1] = 0x80;
+            address[19] = n;
+            tx.outputs[0].address = QiAddress::try_from(address).unwrap().address();
+            let replacement = sign(&tx, &keys(&vectors()[0]));
+            let target = if n <= 16 { &mut live } else { &mut source };
+            target
+                .commit_replacement(id(1), root.hash().unwrap(), &replacement)
+                .unwrap();
+        }
+        let before = live.export_state().unwrap();
+        assert!(live.merge_backup(&capture(&source)).is_err());
+        assert_eq!(live.export_state().unwrap(), before);
+        assert_eq!(source.operation(id(1)).unwrap().replacements.len(), 17);
     }
 }

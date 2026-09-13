@@ -44,6 +44,20 @@ pub struct QiOperation {
     /// Caller-observed candidate and block, without any authority to release inputs.
     pub inclusion: Option<(Hash32, Checkpoint)>,
 }
+/// Counts from a successful monotonic custody merge; observations are invalidated.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct QiMergeReport {
+    /// Newly retained public address records.
+    pub addresses_added: usize,
+    /// Newly retained operation IDs, including released IDs.
+    pub operations_added: usize,
+    /// Newly retained candidate edges across all operations.
+    pub candidates_added: usize,
+    /// Live inclusion observations discarded for fresh canonical checks.
+    pub invalidated_inclusions: usize,
+    /// Live source checkpoints discarded for fresh discovery.
+    pub invalidated_checkpoints: usize,
+}
 /// One network/zone and application-chosen wallet namespace's public Qi custody.
 /// Every writer for this logical wallet must use the same namespace. This is not
 /// an address allocator, UTXO cache, historical index or encrypted private backup.
@@ -424,6 +438,79 @@ impl QiOperationBook {
         book.validate()?;
         book.export_state()?;
         Ok(book)
+    }
+    /// Union authenticated Qi custody without dropping live IDs, claims or signed
+    /// candidates. Unsigned backups never release or reopen live operations.
+    /// Conflicting owners, ID/input/root assignments or capacity reject atomically.
+    /// Every successful merge discards observations for fresh reconciliation.
+    pub fn merge_backup(
+        &mut self,
+        backup: &crate::full_backup::WalletBackup,
+    ) -> Result<QiMergeReport> {
+        let incoming = Self::from_backup(backup, self.scope, self.identity)?;
+        let mut candidate = self.clone();
+        let mut report = QiMergeReport::default();
+        for public in incoming.addresses.values() {
+            if !candidate.addresses.contains_key(&public.address()) {
+                report.addresses_added += 1;
+            }
+            candidate.add_address(public.clone())?;
+        }
+        for source in incoming.operations.values() {
+            let Some(live) = candidate.operations.get_mut(&source.id.0) else {
+                report.operations_added += 1;
+                report.candidates_added += source.replacements.len();
+                candidate.operations.insert(source.id.0, source.clone());
+                continue;
+            };
+            if (!live.claims.is_empty()
+                && !source.claims.is_empty()
+                && live.claims != source.claims)
+                || matches!((live.transaction, source.transaction), (Some(a), Some(b)) if a != b)
+                || matches!((&live.payload, &source.payload), (Some(a), Some(b)) if a != b)
+            {
+                return Err(StorageError::Conflict);
+            }
+            if source.transaction.is_some() && live.claims.is_empty() {
+                live.claims = source.claims.clone();
+            }
+            live.transaction = live.transaction.or(source.transaction);
+            if live.payload.is_none() {
+                live.payload = source.payload.clone();
+            }
+            for edge in &source.replacements {
+                if !live.replacements.contains(edge) {
+                    live.replacements.push(edge.clone());
+                    report.candidates_added += 1;
+                }
+            }
+            if live.transaction.is_some() {
+                live.state = if matches!(
+                    live.state,
+                    ReservationState::Submitted | ReservationState::Confirmed
+                ) || source.state == ReservationState::Submitted
+                {
+                    ReservationState::Submitted
+                } else {
+                    ReservationState::Signed
+                };
+            }
+        }
+        for op in candidate.operations.values_mut() {
+            if op.inclusion.take().is_some() {
+                report.invalidated_inclusions += 1;
+            }
+            if op.reservation_checkpoint.take().is_some() {
+                report.invalidated_checkpoints += 1;
+            }
+            if op.state == ReservationState::Confirmed {
+                op.state = ReservationState::Submitted;
+            }
+        }
+        candidate.validate()?;
+        candidate.export_state()?;
+        *self = candidate;
+        Ok(report)
     }
     fn validate(&self) -> Result<()> {
         if self.operations.len() > MAX_QI_OPERATIONS

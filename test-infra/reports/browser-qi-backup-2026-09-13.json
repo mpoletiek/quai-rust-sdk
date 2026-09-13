@@ -1,0 +1,158 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "a5655efdd6c488eaa15f143a0a2788dcd64c343d",
+  "testedWorkingTree": true,
+  "changes": [
+    "Qi-only authenticated backup capture proving every retained public origin",
+    "Atomic live Qi backup union preserves IDs, signed roots, exact input claims and candidate branches",
+    "Unsigned backups cannot release or reopen live claims; conflicting input reassignments, roots, origins and capacity reject without mutation",
+    "Browser CAS merge fences previous observations and rejects competing writes",
+    "Encrypted all-form capture restores exact claims and candidate bytes into native SQLite"
+  ],
+  "validation": {
+    "nativeQiCustodyAndBackupTests": 12,
+    "nativeElapsedSeconds": 22.12,
+    "actualChromiumWorkerTests": 19,
+    "workerElapsedSeconds": 41.97,
+    "nativeWalletSdkAllTargetsClippyWarningsDenied": "passed",
+    "wasmSdkBackupBrowserAllTargetsClippyWarningsDenied": "passed",
+    "nativeWalletSdkRustdocWarningsDenied": "passed",
+    "wasmSdkBackupBrowserRustdocWarningsDenied": "passed",
+    "packageFileMirrors": 79
+  },
+  "fuzz": {
+    "recordedAt": "2026-09-13T11:53:55.634081+00:00",
+    "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+    "fuzzLockSha256": "bbbfa14ce3f8959e01343505be9acdc2daebe6c3f77070bf3a2a9b39a7fe5a5b",
+    "sdkLockSha256": "23e5d30c8d68ca0225745105c4ccacbfac66114f395e4eb92fedf3b8ab717ed7",
+    "targets": [
+      {
+        "name": "wallet_import",
+        "binarySha256": "0c1a9350e7e866b60234d7d731ee3c695f0e243a0a4c83645db7a33f59f8310c",
+        "seconds": 120,
+        "exitCode": 0,
+        "addressSanitizer": true,
+        "initialCorpusFiles": 144,
+        "finalCorpusFiles": 1510,
+        "executions": 568911,
+        "coverageCounters": 9700,
+        "features": 25491,
+        "rssMiB": 467
+      }
+    ]
+  },
+  "limitations": [
+    "Capture includes only the selected Qi custody journal, not allocation/payment/account journals or a complete browser wallet.",
+    "Full backup limits include 16 secret origins and 100000 total records; no increase is implied by the Qi journal address capacity.",
+    "All observations are discarded and signed claims remain held for fresh canonical reconciliation.",
+    "Public IndexedDB state is not authenticated against malicious same-origin replacement or rollback.",
+    "Fuzz capture/merge uses fixed public toy keys on an owned validated journal merged with its own backup; conflicting unions are covered deterministically.",
+    "Fuzzing uses the existing 65536-byte input limit and a bounded smoke campaign; LeakSanitizer is disabled because sandbox process inspection is unavailable.",
+    "Loopback fixtures and public toy keys only for custody tests; separately retained public-mainnet checks were read-only."
+  ],
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "a5655efdd6c488eaa15f143a0a2788dcd64c343d",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61985,
+        "sha256": "fc46b76e45663622ea1c244e2b98dbe400a4d5dbe54b80aa5f9f2327b920331d"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45024,
+        "sha256": "0b3cd356a32d42ea94bbbfcf5d0be96c73b9cdd6181955cc53f0cbeffa4e4847"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 129261,
+        "sha256": "9f5f8ac491fb18aadb3e78135ce4b3588d49a73e30b2b9c6d40f5ed216629528"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45641,
+        "sha256": "425b33bde0778ed76eb3cea1512c5ad3ecb6ef42b578eedd11f7126ae59f2fba"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47978,
+        "sha256": "ab6d21e5ffeba78812df6555067b14fed906f167b69d701f30ef74030a080c74"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 191266,
+        "sha256": "2ec0cf062f7d58ac285ca54ac81ef955d9576d14825249652e9ea0d404d93637"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 166092,
+        "sha256": "d95bbbb3504923f9956ca8d3f505252ac7e65a42b1088f0fc56439a71e1b6c78"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 78513,
+        "sha256": "dd5fca11de6142305e060c2eef9ade1a2da41111a7c1cab6434e494dabda4149"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24517,
+        "sha256": "32925844a4cd068894de647daadf684c99b1a472d730da6b9f96faca3a096494"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34221,
+        "sha256": "1bdf31dc36384ac4ac887b681ce5f74b105e0b510e866645e5a838764c21ce5b"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 265769,
+        "sha256": "218029efc6cdbf4d9c079343ca2128df2dc7a1b863bfe91c0dc6e775f7ab1c5a"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39311,
+        "sha256": "85ca02fab5be166c361a143ce0f8a0d7c797280cb1b2e4ea2efdd9c298229e80"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  }
+}

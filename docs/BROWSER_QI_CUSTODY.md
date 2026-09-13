@@ -47,16 +47,35 @@ quais.js serialization format.
 
 Authenticated native v5 backup initialization preserves owned public origins,
 claims, hash-only roots and signed candidates while dropping historical inclusion
-and reservation checkpoints. Qi capture into a new encrypted backup and merge
-into existing browser custody remain separate work, as does complete wallet
-capture across allocation/account/payment journals. Discovery uses latest-only
+and reservation checkpoints. `WalletBackup::capture_qi_custody` captures the
+journal with explicit secret origins proving every retained public address. Its
+authenticated envelope can restore native SQLite or initialize browser custody.
+HD ancestry requires a seed/master proof; a standalone child key does not prove
+the recorded HD origin. Imported BIP47 receive keys can be captured as explicit
+imported private origins, independently of payment-channel allocation state.
+
+`merge_backup` unions authenticated custody into an existing browser journal under
+one CAS. It retains all live IDs and candidate branches, accepts matching bytes for
+hash-only roots, and rejects conflicting public origins, ID/input/root assignments,
+duplicate claims and capacity overflow without changing live state. Unsigned
+backups cannot release or reopen a live operation. Signed evidence can reinstate
+an old released ID's inputs only when they do not conflict with another live claim.
+Every successful merge discards inclusion and reservation checkpoints, requiring
+fresh canonical observations and invalidating previously captured revisions.
+
+Capture is Qi-only: it omits HD/payment allocation journals, account custody,
+current UTXOs and other browser namespaces. Full-backup limits also apply, including
+16 secret origins and 100,000 total records. Complete multi-journal browser wallet
+capture remains separate work. Discovery uses latest-only
 outpoint RPC: a head recheck cannot make those calls an atomic historical snapshot.
 
 Tests include 28 independently encoded Node states using pinned quais.js signed
 transactions; native and actual Chromium worker tests cover all three transaction
 forms, mixed HD/imported/BIP47 key resolution, Fetch discovery and locks, duplicate
 claims, concurrent tabs, cancelled writes, restart, reorg fencing and authenticated
-backup initialization. The shared account/Qi framing's 16 MiB aggregate boundary
+backup initialization, live merge conflicts and concurrent merges. Encrypted
+portable captures of all three Qi forms restore exact custody into native SQLite.
+The shared account/Qi framing's 16 MiB aggregate boundary
 is tested by the native account suite. Qi count and malformed-state bounds are
 covered directly; fuzz imports retain the 65,536-byte input limit. Public toy keys
 used by tests must never be funded on a public network.

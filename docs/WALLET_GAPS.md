@@ -9,14 +9,18 @@ The [2026-09-13 Orchard recheck](../test-infra/reports/orchard-read-recheck-2026
 passed both read-only SDK tests. The gateway now reports
 `go-quai/v0.34.0-pre-b07bc521`; WQI code is present but the configured WQUAI
 address returned empty code. Funded acceptance and faucet access remain open.
+The user subsequently reported Orchard maintenance and authorized the public
+mainnet gateway. [Mainnet public reads](../test-infra/reports/mainnet-public-read-recheck-2026-09-13.json)
+passed wallet, Qi fee and wrapper-code SDK tests; the node reports
+`go-quai/v0.56.0-f4a5a4fd`. These read-only results do not close funded execution gates.
 [Browser account custody](BROWSER_ACCOUNT_CUSTODY.md) now retains nonce claims,
 signed candidates and revision-fenced inclusion, alongside the existing address
 allocators. [Browser Qi custody](BROWSER_QI_CUSTODY.md) now retains exact input
 claims and signs transfer/conversion/wrapping bytes before returning them.
 
-Account-only authenticated backup capture and monotonic live journal merge are
-now implemented. Complete browser wallet capture across all journals and Qi
-capture/live merge still require integration; see the workflow's explicit capture boundary.
+Account-only and Qi-only authenticated backup capture and monotonic live journal
+merge are now implemented. Complete browser wallet capture across all journals
+still requires integration; see the workflow's explicit capture boundary.
 
 **The target is a feature-complete SDK for both Quai and Qi wallet applications.**
 Keys, HD derivation, current gap-50 Qi discovery, mixed-origin signing, payment

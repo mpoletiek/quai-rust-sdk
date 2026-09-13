@@ -553,3 +553,12 @@ before returning; concurrent/cancelled writes and reorgs retain custody. Native 
 backup initialization drops observations. See [workflow](docs/BROWSER_QI_CUSTODY.md)
 and [validation](test-infra/reports/browser-qi-custody-2026-09-13.json). Qi backup
 capture/live merge and complete multi-journal browser wallet capture remain open.
+
+## Qi custody backup capture and live merge (2026-09-13)
+
+`WalletBackup::capture_qi_custody` proves retained public origins before encryption.
+Portable/browser live merges preserve claims and signed candidate branches, reject
+conflicting or oversized unions atomically, and discard old observations. Tests
+restore all Qi forms to native SQLite and exercise actual worker CAS merge races,
+mixed-origin capture and stale revision rejection. See [validation](test-infra/reports/browser-qi-backup-2026-09-13.json).
+Complete multi-journal browser wallet capture remains open.

@@ -229,3 +229,14 @@ pinned JS cases cover chain codes/fingerprints/raw hardened child numbers and
 import round trips; relative account derivation agrees with pinned leaf xpubs.
 All 11 wallet reference tests and strict native/wasm clippy passed. Forty-four
 HD declaration rows now link these APIs and explicit path/secret differences.
+
+
+Signer-free replacement-family recovery now persists a bounded summary after
+network, receipt, inclusion and head checks. SQLite compares both the complete
+candidate list and old cache revision under its writer lock; a newly committed
+candidate invalidates the prior summary atomically. Regression tests cover
+failed canonical winners, conflicting winners, concurrent candidate/cache
+writers, 33-member capacity, root receipt identity and confirmation-head changes.
+The existing isolated block-7 replacement passed this API and database reopen
+without another transaction submission. This closes observation integration,
+not terminal claim release, irreversible finality or full ancestry replay.

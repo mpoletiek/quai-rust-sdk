@@ -169,3 +169,12 @@ committed, `broadcast(reservation_id)` can reopen and revalidate them for explic
 restart rebroadcast. Handle identity is not a proof against cloned databases,
 independently operated copies of a seed, stale backups, or compromised application
 memory; those still require coordinated allocation and recovery reconciliation.
+
+
+Family summaries reserve slot 65535 on the root signed candidate. The
+`compare_exchange_family_observation` operation checks both the ordered candidate
+hash list and cache revision under one writer lock. Adding a new candidate
+invalidates any existing family summary in the same transaction. Replaying an
+already-committed identical edge remains idempotent. Cache updates and
+invalidations cannot release claims; overflow or storage failure rolls back the
+complete transaction before a replacement signature is exposed.

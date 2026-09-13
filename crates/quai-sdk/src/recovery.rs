@@ -1,6 +1,9 @@
 //! Bounded durable reconciliation of signed operations against a configured node.
+mod family;
 use crate::qi::QiError;
-use quai_provider::{Provider, ReceiptOutcome};
+pub use family::{CandidateObservation, FamilyUpdate, track_family};
+use quai_consensus::{SignedQiOperation, SignedQuaiTransaction};
+use quai_provider::{Provider, ReceiptOutcome, TransactionKind};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::Checkpoint;
 use quai_wallet::storage::{ReservationId, ReservationState, SqliteStore};
@@ -45,11 +48,31 @@ pub async fn reconcile_operation<T: Transport>(
     if !matches!(
         record.state,
         ReservationState::Signed | ReservationState::Submitted | ReservationState::Confirmed
-    ) || store.signed_payload(id)?.is_none()
-    {
+    ) {
         return Err(QiError::MissingSignedPayload);
     }
     let hash = record.transaction.ok_or(QiError::MissingSignedPayload)?;
+    let bytes = store
+        .signed_payload(id)?
+        .ok_or(QiError::MissingSignedPayload)?;
+    let account = SignedQuaiTransaction::decode(&bytes).ok();
+    if let Some(signed) = &account {
+        if signed.hash().ok() != Some(hash)
+            || signed.transaction().chain_id != scope.chain_id
+            || signed.from().address().zone().ok() != Some(scope.zone)
+        {
+            return Err(QiError::IdentityMismatch);
+        }
+    } else {
+        let signed =
+            SignedQiOperation::decode(&bytes).map_err(|_| QiError::MissingSignedPayload)?;
+        if signed.hash().ok() != Some(hash)
+            || signed.transaction().chain_id != scope.chain_id
+            || signed.transaction().origin_zone().ok() != Some(scope.zone)
+        {
+            return Err(QiError::IdentityMismatch);
+        }
+    }
     let mut reorganized = false;
     if let Some(old) = record.inclusion {
         let old_height = u64::try_from(old.height).map_err(|_| QiError::StaleSnapshot)?;
@@ -72,6 +95,20 @@ pub async fn reconcile_operation<T: Transport>(
             OperationObservation::NotObserved
         });
     };
+    if let Some(signed) = &account {
+        if receipt.kind != TransactionKind::Quai
+            || receipt
+                .from
+                .is_some_and(|from| from != signed.from().address())
+            || receipt
+                .to
+                .is_some_and(|to| Some(to) != signed.transaction().to)
+        {
+            return Err(QiError::IdentityMismatch);
+        }
+    } else if receipt.kind != TransactionKind::Qi {
+        return Err(QiError::IdentityMismatch);
+    }
     let block = Checkpoint {
         hash: receipt.inclusion.block_hash,
         height: U256::from(receipt.inclusion.block_number),
@@ -98,6 +135,13 @@ pub async fn reconcile_operation<T: Transport>(
         .is_none_or(|header| header.hash != block.hash)
     {
         clear_inclusion(store, id)?;
+        return Err(QiError::StaleSnapshot);
+    }
+    if provider
+        .header_at(scope.zone, tip.number)
+        .await?
+        .is_none_or(|header| header.hash != tip.hash)
+    {
         return Err(QiError::StaleSnapshot);
     }
     // A previous included observation can move only after explicit invalidation.

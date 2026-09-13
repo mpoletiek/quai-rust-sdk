@@ -207,6 +207,14 @@ impl SqliteStore {
                 new.payload
             ],
         )?;
+        // A family view omitting this new candidate is stale immediately. Keep
+        // its revision as a tombstone under the same writer lock as the append.
+        // SQLite STRICT integer storage also rejects revision overflow, rolling
+        // back the entire operation before any new signature is exposed.
+        tx.execute(
+            "UPDATE observation_cache SET revision=revision+1,payload=NULL WHERE scope=?1 AND operation=?2 AND candidate=?3 AND slot=65535",
+            params![&self.key[..], &id.0[..], &record.transaction.ok_or(StorageError::Invalid)?.bytes()[..]],
+        )?;
         tx.commit()?;
         Ok(())
     }

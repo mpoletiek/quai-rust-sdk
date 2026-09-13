@@ -1336,6 +1336,18 @@ async fn conflicting_qi_candidates_preserve_recipients_and_survive_restart_and_t
         root.signed_bytes().unwrap()
     );
     assert!(reopened.release_unsigned(id(95)).is_err());
+    let family = quai_sdk::recovery::track_family(&env.provider, &mut reopened, id(95))
+        .await
+        .unwrap();
+    assert_eq!(family.candidates.len(), 2);
+    assert_eq!(family.candidates[1].0, hash);
+    assert!(family.canonical.is_none());
+    let cache = reopened
+        .observation_cache(id(95), root.hash().unwrap(), u16::MAX)
+        .unwrap()
+        .unwrap();
+    assert_eq!(cache.revision, family.revision);
+    assert_eq!(reopened.reserved_outpoints(id(95)).unwrap().len(), 2);
 }
 
 #[tokio::test]
@@ -1741,4 +1753,61 @@ async fn settlement_cursor_cannot_clear_or_overwrite_a_concurrent_observer() {
     assert_eq!(cache.revision, 3);
     assert_eq!(cache.payload.unwrap(), race.payload);
     assert_eq!(env.store.reserved_outpoints(id(97)).unwrap().len(), 2);
+}
+
+#[path = "support/recovery.rs"]
+mod recovery_support;
+#[tokio::test]
+async fn recovery_rejects_a_quai_receipt_for_signed_qi_before_recording_inclusion() {
+    use recovery_support::{RecoveryMock, receipt};
+    use std::sync::atomic::AtomicBool;
+    let mut env = setup();
+    let change = pool(&mut env, 0);
+    refresh(&mut env);
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let prepared = session
+        .prepare(id(97), intent(), policy(), change)
+        .await
+        .unwrap();
+    let signed = session.sign(&prepared).unwrap();
+    for kind in [0, 2] {
+        let observed = Provider::new(
+            RecoveryMock {
+                base: env.mock.clone(),
+                receipt: receipt(
+                    signed.hash().unwrap().to_string(),
+                    kind,
+                    if kind == 0 {
+                        Some("0x0000000000000000000000000000000000000001".into())
+                    } else {
+                        None
+                    },
+                    None,
+                ),
+                change_head: false,
+                head_rechecked: Arc::new(AtomicBool::new(false)),
+            },
+            Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+            env.store.scope().chain_id,
+        );
+        let result =
+            quai_sdk::recovery::reconcile_operation(&observed, &mut env.store, id(97)).await;
+        if kind == 0 {
+            assert!(matches!(result, Err(QiError::IdentityMismatch)));
+            assert_eq!(
+                env.store.reservation(id(97)).unwrap().unwrap().state,
+                ReservationState::Signed
+            );
+        } else {
+            assert!(matches!(
+                result.unwrap(),
+                quai_sdk::recovery::OperationObservation::Included {
+                    confirmations: 2,
+                    ..
+                }
+            ));
+        }
+    }
+    assert_eq!(env.store.reserved_outpoints(id(97)).unwrap().len(), 2);
+    assert!(env.store.release_unsigned(id(97)).is_err());
 }

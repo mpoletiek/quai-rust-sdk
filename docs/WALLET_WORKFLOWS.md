@@ -329,3 +329,29 @@ cargo run -p quai-sdk --features abi --example artifact_deployment -- contract.j
 Use a single-contract artifact for this example. Constructor arguments are a JSON
 array and must match the artifact's ABI. It does not compile Solidity, resolve
 libraries or infer runtime code for deployment verification.
+
+
+## Observe replacement families after restart
+
+`recovery::track_family(provider, store, reservation_id)` needs the scoped database
+and provider, without a wallet key or signer. It reconstructs all durable account
+or Qi candidates (up to 33), validates receipt identity, checks each inclusion
+and the sampled head, and returns a `FamilyUpdate` after persisting its public
+summary. Failed executions can be canonical winners; absent transactions remain
+`NotObserved` and never imply a definitive drop. Cross-zone destination and
+conversion settlement still use the separate settlement observer.
+
+The version-1 JSON summary occupies root candidate cache slot 65535, reserved
+for family recovery. Its head and confirmations are sampled observations, so
+requery before using them as current wallet state. New candidates invalidate the
+summary atomically. A concurrent candidate append or cache revision prevents a
+stale observer from saving its result; retry by re-reading the full family.
+Errors invalidate only the revision read by that observer. Signed payloads,
+nonce/input claims and the root reservation inclusion record remain independent.
+Cache data is excluded from backups and must be rebuilt after restore.
+
+`reconcile_operation` remains the root-only inclusion updater. It now validates
+the receipt's ledger and account fields against the stored signed bytes and
+rechecks the confirmation head before recording inclusion. It does not select
+replacement winners. Neither API unlocks spent claims, rebroadcasts transactions,
+or treats confirmation counts as irreversible finality.

@@ -884,3 +884,282 @@ async fn deployment_tracking_rejects_noncreation_and_invalidates_only_public_cac
     );
     assert!(store.release_unsigned(id).is_err());
 }
+
+#[path = "support/recovery.rs"]
+mod recovery_support;
+#[tokio::test]
+async fn recovery_binds_account_receipt_and_rechecks_confirmation_head_before_writing() {
+    use quai_sdk::recovery::{OperationObservation, reconcile_operation};
+    use recovery_support::{RecoveryMock, receipt};
+    use std::sync::atomic::AtomicBool;
+    let (directory, mock, provider, signer, mut store) = setup();
+    let id = ReservationId([94; 16]);
+    let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
+    let prepared = session.prepare(id, intent(), policy()).await.unwrap();
+    let signed = session.sign(&prepared).unwrap();
+    let original = receipt(
+        signed.hash().unwrap().to_string(),
+        0,
+        Some(signed.from().address().to_string()),
+        signed.transaction().to.map(|a| a.to_string()),
+    );
+    for mode in 0..4 {
+        let mut result = original.clone();
+        match mode {
+            0 => result["type"] = json!("0x2"),
+            1 => result["from"] = json!("0x0000000000000000000000000000000000000001"),
+            2 => result["to"] = json!("0x0000000000000000000000000000000000000001"),
+            _ => (),
+        }
+        let transport = RecoveryMock {
+            base: mock.clone(),
+            receipt: result,
+            change_head: mode == 3,
+            head_rechecked: Arc::new(AtomicBool::new(false)),
+        };
+        let observed = Provider::new(
+            transport.clone(),
+            Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+            store.scope().chain_id,
+        );
+        assert!(
+            reconcile_operation(&observed, &mut store, id)
+                .await
+                .is_err()
+        );
+        assert_eq!(
+            store.reservation(id).unwrap().unwrap().state,
+            ReservationState::Signed
+        );
+        if mode == 3 {
+            assert!(transport.head_rechecked.load(Ordering::SeqCst));
+        }
+    }
+    let observed = Provider::new(
+        RecoveryMock {
+            base: mock,
+            receipt: original,
+            change_head: false,
+            head_rechecked: Arc::new(AtomicBool::new(false)),
+        },
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        store.scope().chain_id,
+    );
+    assert!(matches!(
+        reconcile_operation(&observed, &mut store, id)
+            .await
+            .unwrap(),
+        OperationObservation::Included {
+            confirmations: 2,
+            ..
+        }
+    ));
+    let mut reopened = SqliteStore::open(directory.0.join("wallet.sqlite"), store.scope()).unwrap();
+    assert_eq!(
+        reopened.reservation(id).unwrap().unwrap().state,
+        ReservationState::Confirmed
+    );
+    assert!(reopened.release_unsigned(id).is_err());
+}
+
+// Inject a second SQLite writer exactly while a recovery RPC is outstanding.
+type RecoveryHook = Arc<Mutex<Option<Box<dyn FnOnce() + Send>>>>;
+#[derive(Clone)]
+struct FamilyRace {
+    base: recovery_support::RecoveryMock<Mock>,
+    hook: RecoveryHook,
+}
+impl Transport for FamilyRace {
+    async fn request(&self, e: &Endpoint, m: &str, p: Value) -> Result<Value, RpcError> {
+        if m == "quai_getTransactionReceipt"
+            && let Some(hook) = self.hook.lock().unwrap().take()
+        {
+            hook();
+        }
+        self.base.request(e, m, p).await
+    }
+}
+#[tokio::test]
+async fn family_recovery_persists_replacement_winner_and_rejects_concurrent_candidates() {
+    use quai_sdk::recovery::{CandidateObservation, track_family};
+    use quai_sdk::wallet::storage::StorageError;
+    use recovery_support::{RecoveryMock, receipt};
+    use std::sync::atomic::AtomicBool;
+    let (directory, mock, provider, signer, mut store) = setup();
+    let id = ReservationId([95; 16]);
+    let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
+    let prepared = session.prepare(id, intent(), policy()).await.unwrap();
+    let root = session.sign(&prepared).unwrap();
+    let root_hash = root.hash().unwrap();
+    let mut tx = root.transaction().clone();
+    tx.gas_price += U256::from(1);
+    let replacement = signer.sign_quai(&tx).unwrap();
+    let replacement_hash = replacement.hash().unwrap();
+    store
+        .commit_quai_replacement(id, root_hash, &replacement)
+        .unwrap();
+    let mut result = receipt(
+        replacement_hash.to_string(),
+        0,
+        Some(root.from().address().to_string()),
+        tx.to.map(|a| a.to_string()),
+    );
+    result["status"] = json!("0x0");
+    let base = RecoveryMock {
+        base: mock.clone(),
+        receipt: result.clone(),
+        change_head: false,
+        head_rechecked: Arc::new(AtomicBool::new(false)),
+    };
+    let observed = Provider::new(
+        base.clone(),
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        store.scope().chain_id,
+    );
+    let update = track_family(&observed, &mut store, id).await.unwrap();
+    assert_eq!(update.canonical, Some(replacement_hash));
+    assert!(matches!(
+        update.candidates[0].1,
+        CandidateObservation::NotObserved
+    ));
+    assert!(matches!(
+        update.candidates[1].1,
+        CandidateObservation::Included {
+            outcome: quai_sdk::provider::ReceiptOutcome::Failed,
+            confirmations: 2,
+            ..
+        }
+    ));
+    let path = directory.0.join("wallet.sqlite");
+    let scope = store.scope();
+    let mut reopened = SqliteStore::open(&path, scope).unwrap();
+    let cache = reopened
+        .observation_cache(id, root_hash, u16::MAX)
+        .unwrap()
+        .unwrap();
+    let payload: Value = serde_json::from_slice(cache.payload.as_deref().unwrap()).unwrap();
+    assert_eq!(payload["canonical"], replacement_hash.to_string());
+    assert!(reopened.release_unsigned(id).is_err());
+    tx.gas_price += U256::from(1);
+    let third = signer.sign_quai(&tx).unwrap();
+    let third_hash = third.hash().unwrap();
+    let race = FamilyRace {
+        base: base.clone(),
+        hook: Arc::new(Mutex::new(Some(Box::new(move || {
+            let mut writer = SqliteStore::open(path, scope).unwrap();
+            writer
+                .commit_quai_replacement(id, replacement_hash, &third)
+                .unwrap();
+        })))),
+    };
+    let raced = Provider::new(
+        race,
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        scope.chain_id,
+    );
+    assert!(matches!(
+        track_family(&raced, &mut store, id).await,
+        Err(quai_sdk::qi::QiError::Storage(StorageError::Conflict))
+    ));
+    let invalidated = store
+        .observation_cache(id, root_hash, u16::MAX)
+        .unwrap()
+        .unwrap();
+    assert_eq!(invalidated.revision, cache.revision + 1);
+    assert!(invalidated.payload.is_none());
+    let update = track_family(&observed, &mut store, id).await.unwrap();
+    assert_eq!(update.candidates.len(), 3);
+    assert_eq!(update.candidates[2].0, third_hash);
+    // A newer revision wins even when this observer subsequently sees a changed head.
+    let path = directory.0.join("wallet.sqlite");
+    let mut changed = base.clone();
+    changed.change_head = true;
+    let expected = update.revision;
+    let race = FamilyRace {
+        base: changed,
+        hook: Arc::new(Mutex::new(Some(Box::new(move || {
+            let mut writer = SqliteStore::open(path, scope).unwrap();
+            writer
+                .compare_exchange_family_observation(
+                    id,
+                    &[root_hash, replacement_hash, third_hash],
+                    Some(expected),
+                    Some(b"newer observation"),
+                )
+                .unwrap();
+        })))),
+    };
+    let raced = Provider::new(
+        race,
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        scope.chain_id,
+    );
+    assert!(track_family(&raced, &mut store, id).await.is_err());
+    assert_eq!(
+        store
+            .observation_cache(id, root_hash, u16::MAX)
+            .unwrap()
+            .unwrap()
+            .payload
+            .as_deref(),
+        Some(b"newer observation".as_slice())
+    );
+    // Two same-nonce candidates cannot both be canonical. The old cache is invalidated.
+    let root_receipt = receipt(
+        root_hash.to_string(),
+        0,
+        Some(root.from().address().to_string()),
+        root.transaction().to.map(|a| a.to_string()),
+    );
+    let mut conflicting = base.clone();
+    conflicting.receipt =
+        json!({root_hash.to_string():root_receipt,replacement_hash.to_string():result});
+    let observed = Provider::new(
+        conflicting,
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        scope.chain_id,
+    );
+    assert!(track_family(&observed, &mut store, id).await.is_err());
+    assert!(
+        store
+            .observation_cache(id, root_hash, u16::MAX)
+            .unwrap()
+            .unwrap()
+            .payload
+            .is_none()
+    );
+    // The largest supported family fits the bounded 4096-byte cache.
+    let mut parent = third_hash;
+    for _ in 3..33 {
+        tx.gas_price += U256::from(1);
+        let next = signer.sign_quai(&tx).unwrap();
+        store.commit_quai_replacement(id, parent, &next).unwrap();
+        parent = next.hash().unwrap();
+    }
+    let observed = Provider::new(
+        base,
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        scope.chain_id,
+    );
+    let update = track_family(&observed, &mut store, id).await.unwrap();
+    assert_eq!(update.candidates.len(), 33);
+    assert!(
+        store
+            .observation_cache(id, root_hash, u16::MAX)
+            .unwrap()
+            .unwrap()
+            .payload
+            .unwrap()
+            .len()
+            <= 4096
+    );
+    assert!(
+        store
+            .compare_exchange_family_observation(id, &[root_hash], Some(update.revision), None)
+            .is_err()
+    );
+    assert_eq!(
+        store.reserved_nonce(id).unwrap().unwrap().1,
+        root.transaction().nonce
+    );
+}

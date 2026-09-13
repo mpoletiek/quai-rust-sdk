@@ -458,11 +458,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "verify-replacement" => {
             let record=read("replacement-signed.json")?;
             let mut store=SqliteStore::open(&account_path,scope())?;
-            let observation=AccountSession::new(&provider,&signer,&mut store)?.observe_candidates(ReservationId([4;16])).await?;
-            assert_eq!(observation.canonical,Some(record["replacement"].as_str().ok_or("candidate hash")?.parse()?));
-            assert_eq!(observation.candidates.len(),2);
+            let update=quai_sdk::recovery::track_family(&provider,&mut store,ReservationId([4;16])).await?;
+            assert_eq!(update.canonical,Some(record["replacement"].as_str().ok_or("candidate hash")?.parse()?));
+            assert_eq!(update.candidates.len(),2);
             assert!(store.release_unsigned(ReservationId([4;16])).is_err());
-            save("replacement-verified.json",json!({"canonical":observation.canonical.map(|h|h.to_string()),"observations":format!("{:?}",observation.candidates),"nonceClaimRetained":true,"signedCandidates":store.quai_replacements(ReservationId([4;16]))?.len()+1,"qualification":"isolated documented development profile; public fixture funds"}))?;
+            let root=update.candidates[0].0;
+            drop(store);
+            let mut reopened=SqliteStore::open(&account_path,scope())?;
+            let cache=reopened.observation_cache(ReservationId([4;16]),root,u16::MAX)?.ok_or("family cache missing")?;
+            assert_eq!(cache.revision,update.revision);
+            let summary:Value=serde_json::from_slice(cache.payload.as_deref().ok_or("family cache empty")?)?;
+            assert_eq!(summary["canonical"],record["replacement"]);
+            save("replacement-verified.json",json!({"canonical":update.canonical.map(|h|h.to_string()),"observations":format!("{:?}",update.candidates),"nonceClaimRetained":true,"signedCandidates":reopened.quai_replacements(ReservationId([4;16]))?.len()+1,"cacheRevision":cache.revision,"cacheSurvivesReopen":true,"signerRequiredForObservation":false,"submitted":false,"qualification":"isolated documented development profile; public fixture funds"}))?;
         }
         "verify-deployment" => {
             let record=read("deployment-signed.json")?;

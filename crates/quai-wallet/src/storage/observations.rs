@@ -75,31 +75,103 @@ impl SqliteStore {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         candidate_exists(&tx, &self.key, self.scope, id, candidate)?;
-        let old: Option<i64> = tx.query_row("SELECT revision FROM observation_cache WHERE scope=?1 AND operation=?2 AND candidate=?3 AND slot=?4", params![&self.key[..], &id.0[..], &candidate.bytes()[..], slot], |r| r.get(0)).optional()?;
-        let old = old
-            .map(u64::try_from)
-            .transpose()
-            .map_err(|_| StorageError::Invalid)?;
-        if old != expected_revision {
-            return Err(StorageError::Conflict);
-        }
-        if old.is_none() {
-            let count: i64 = tx.query_row(
-                "SELECT count(*) FROM observation_cache WHERE scope=?1 AND operation=?2",
-                params![&self.key[..], &id.0[..]],
-                |r| r.get(0),
-            )?;
-            if count >= 2048 {
-                return Err(StorageError::Invalid);
-            }
-        }
-        let revision = old
-            .unwrap_or(0)
-            .checked_add(1)
-            .filter(|n| *n <= i64::MAX as u64)
-            .ok_or(StorageError::Overflow)?;
-        tx.execute("INSERT INTO observation_cache VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(scope,operation,candidate,slot) DO UPDATE SET revision=excluded.revision,payload=excluded.payload", params![&self.key[..], &id.0[..], &candidate.bytes()[..], slot, revision as i64, payload])?;
+        let revision = write_observation(
+            &tx,
+            &self.key,
+            id,
+            candidate,
+            slot,
+            expected_revision,
+            payload,
+        )?;
         tx.commit()?;
         Ok(revision)
     }
+    /// Save a family summary only if its ordered root/replacement identities and
+    /// old cache revision still match under the same SQLite writer lock.
+    /// Slot 65535 on the root candidate is reserved for these summaries.
+    /// Signed claims and payloads are never changed by this cache operation.
+    pub fn compare_exchange_family_observation(
+        &mut self,
+        id: ReservationId,
+        expected_candidates: &[Hash32],
+        expected_revision: Option<u64>,
+        payload: Option<&[u8]>,
+    ) -> Result<u64> {
+        if expected_candidates.is_empty()
+            || expected_candidates.len() > 33
+            || payload.is_some_and(|p| p.is_empty() || p.len() > 4096)
+        {
+            return Err(StorageError::Invalid);
+        }
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let root =
+            signed_payload_read(&tx, &self.key, self.scope, id)?.ok_or(StorageError::Invalid)?;
+        let variants = replacements::read_variants(&tx, &self.key, id)?;
+        replacements::validate_family(&root, &variants)?;
+        let actual: Vec<_> = std::iter::once(root)
+            .chain(variants.into_iter().map(|v| v.payload))
+            .map(|bytes| {
+                if let Ok(qi) = quai_consensus::SignedQiOperation::decode(&bytes) {
+                    qi.hash().map_err(|_| StorageError::Invalid)
+                } else {
+                    SignedQuaiTransaction::decode(&bytes)
+                        .and_then(|tx| tx.hash())
+                        .map_err(|_| StorageError::Invalid)
+                }
+            })
+            .collect::<Result<_>>()?;
+        if actual != expected_candidates {
+            return Err(StorageError::Conflict);
+        }
+        let revision = write_observation(
+            &tx,
+            &self.key,
+            id,
+            expected_candidates[0],
+            u16::MAX,
+            expected_revision,
+            payload,
+        )?;
+        tx.commit()?;
+        Ok(revision)
+    }
+}
+
+fn write_observation(
+    connection: &Connection,
+    key: &[u8],
+    id: ReservationId,
+    candidate: Hash32,
+    slot: u16,
+    expected_revision: Option<u64>,
+    payload: Option<&[u8]>,
+) -> Result<u64> {
+    let old: Option<i64> = connection.query_row("SELECT revision FROM observation_cache WHERE scope=?1 AND operation=?2 AND candidate=?3 AND slot=?4", params![key, &id.0[..], &candidate.bytes()[..], slot], |r| r.get(0)).optional()?;
+    let old = old
+        .map(u64::try_from)
+        .transpose()
+        .map_err(|_| StorageError::Invalid)?;
+    if old != expected_revision {
+        return Err(StorageError::Conflict);
+    }
+    if old.is_none() {
+        let count: i64 = connection.query_row(
+            "SELECT count(*) FROM observation_cache WHERE scope=?1 AND operation=?2",
+            params![key, &id.0[..]],
+            |r| r.get(0),
+        )?;
+        if count >= 2048 {
+            return Err(StorageError::Invalid);
+        }
+    }
+    let revision = old
+        .unwrap_or(0)
+        .checked_add(1)
+        .filter(|n| *n <= i64::MAX as u64)
+        .ok_or(StorageError::Overflow)?;
+    connection.execute("INSERT INTO observation_cache VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(scope,operation,candidate,slot) DO UPDATE SET revision=excluded.revision,payload=excluded.payload", params![key, &id.0[..], &candidate.bytes()[..], slot, revision as i64, payload])?;
+    Ok(revision)
 }

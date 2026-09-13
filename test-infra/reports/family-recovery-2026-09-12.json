@@ -1,0 +1,14 @@
+{
+  "nativeWorkspaceAllFeatures": {
+    "reportedPasses": 333,
+    "failures": 0,
+    "ignored": 4
+  },
+  "strictNativeClippy": "passed",
+  "strictWasmClippy": "passed",
+  "strictRustdoc": "passed",
+  "targetedFinalFamilyTest": "passed, including 33 candidates and concurrent writers",
+  "targetedStorageTests": 3,
+  "isolatedNode": "Existing block-7 replacement observed, cache reopened; no transaction submission",
+  "limits": "Source-reported origin inclusion, not finality, destination settlement, full historical recovery or terminal claim release."
+}

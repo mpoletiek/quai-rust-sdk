@@ -11,14 +11,22 @@
   "fuzz": {
     "target": "abi",
     "sanitizer": "AddressSanitizer",
-    "executions": 688504,
+    "executions": 762706,
     "seconds": 121,
     "rssLimitMiB": 1024,
     "inputTimeoutSeconds": 5,
     "maxInputBytes": 65536,
     "seed": 20260913,
     "crashes": 0,
-    "binarySha256": "fd4bfcdf3a62b6ebf862312010bda9d08de9038a939a293b339db752228d7afc"
+    "binarySha256": "fd4bfcdf3a62b6ebf862312010bda9d08de9038a939a293b339db752228d7afc",
+    "exitCode": 0,
+    "status": "passed with ASAN_OPTIONS=detect_leaks=0; address checks enabled, leak checks excluded",
+    "firstAttempt": {
+      "executions": 688504,
+      "seconds": 121,
+      "exitCode": 1,
+      "result": "Mutation loop completed; sandbox process-inspection restrictions caused LeakSanitizer fatal shutdown error. Emitted empty input passes replay."
+    }
   },
   "qualification": "Bounded sequence defaults, reference vectors and parser fuzzing; not security/release certification."
 }

@@ -20,6 +20,7 @@ mod hd;
 pub mod metadata;
 #[cfg(feature = "payments")]
 pub mod payment_allocation;
+pub mod qi_addresses;
 #[cfg(feature = "backup")]
 pub mod qi_custody;
 pub mod qi_keys;

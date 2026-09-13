@@ -54,11 +54,12 @@ views. `ObservedAddress` also retains explicit history capability and `ever_used
 when using a history-capable source. Channel exposures can be queried through
 `Provider::outpoints` and retained in an application-owned observation view.
 
-Rust does not persist the reference's four-state address-status cache or provide
-its three cached `getGap*` getters. This is an explicit convenience omission;
-current emptiness must never rewind allocation floors. Existing current reports
-supply HD gap views; channel callers must compose their exposure and observation
-views. These differences do not imply missing derivation or missing UTXO reads.
+`QiAddressBook` now supplies the four-state in-memory cache and external/change/
+channel gap views. Its portable refresh helper queries all registered origins and
+commits only after final network/head checks. See [Qi address views](QI_ADDRESS_VIEWS.md).
+New imports start Unknown; empty observations preserve prior Used/AttemptedUse
+until explicit invalidation. These statuses cannot rewind durable allocations.
+The cache is rebuilt after restart, independently of authenticated custody.
 
 ## Coins, scanning and payment channels
 

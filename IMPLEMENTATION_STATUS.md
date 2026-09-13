@@ -785,3 +785,20 @@ The ledger now has 70 implemented, 1,344 deviation, 144 partial and 2,370 pendin
 rows. These are declaration counts, not a feature-completion percentage. This
 batch changes audit/test documentation only; [the report](test-infra/reports/hd-wallet-parity-review-2026-09-13.json)
 does not claim new package or runtime qualification.
+
+## 2026-09-13: scoped Qi address inventory and cached gap views
+
+Added `QiAddressBook` with exact HD/imported/payment receive origins, branch/account/
+peer lookups, four-state cached usage and external/change/channel gap views.
+Portable refresh queries every registered origin, checks resource bounds and
+network/head identity, then commits one complete usage batch. Reorgs, errors,
+partial failures and cancellation preserve the old cache. The cache has no
+allocation or custody authority.
+
+Six native and six Chromium worker tests pass, along with strict native/Wasm
+Clippy, warnings-denied rustdoc, the minimal wallet feature check and all extracted
+package checks. See [the guide](docs/QI_ADDRESS_VIEWS.md) and
+[report](test-infra/reports/qi-address-views-2026-09-13.json). Six cached-gap ledger
+rows move from partial to documented Rust behavior; legacy wallet-JSON migration
+remains a separate gap. Ledger counts: 70 implemented, 1,350 deviation, 138 partial,
+2,370 pending.

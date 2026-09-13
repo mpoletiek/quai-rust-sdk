@@ -105,6 +105,7 @@ jobs:
         env:
           CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner
           WASM_BINDGEN_TEST_TIMEOUT: 90
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-address-book
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-worker
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-contract-code
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-contracts

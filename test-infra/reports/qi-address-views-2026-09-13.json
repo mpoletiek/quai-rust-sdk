@@ -1,0 +1,138 @@
+{
+  "recordedAt": "2026-09-13T21:14:26.457544+00:00",
+  "baseCommit": "3552726a9ca35583d0aa22f029e411707cc45794",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    "crates/quai-wallet/src/qi_addresses.rs": "c8971d956a571cc595af66018cffe8b0e60bc22279ed44d554d41e1849c73f30",
+    "crates/quai-sdk/src/discovery/qi_addresses.rs": "de5cc6d1c71de65e85b879570a82dc268870454ea455a0b82e26c0dd37be4969",
+    "crates/quai-sdk/tests/qi_address_book.rs": "bcf4ac5971b7ca48dd142391636e8616eef912efc739a4de68c68eda4e68d373",
+    "docs/QI_ADDRESS_VIEWS.md": "347271ed8bc66a5f0d57983aeb7db01f1ec59b700b7b285e081595136e06a357"
+  },
+  "parityRows": [
+    ".:QiHDWallet:instance:getGapAddressesForZone",
+    ".:QiHDWallet:instance:getGapChangeAddressesForZone",
+    ".:QiHDWallet:instance:getGapPaymentChannelAddressesForZone",
+    "./wallet:QiHDWallet:instance:getGapAddressesForZone",
+    "./wallet:QiHDWallet:instance:getGapChangeAddressesForZone",
+    "./wallet:QiHDWallet:instance:getGapPaymentChannelAddressesForZone"
+  ],
+  "validation": {
+    "nativeTests": 6,
+    "chromiumWorkerTests": 6,
+    "nativeWalletSdkStrictClippy": "passed",
+    "wasmSdkStrictClippy": "passed",
+    "nativeAndWasmRustdocWarningsDenied": "passed",
+    "minimalWalletWithoutPaymentsCheck": "passed",
+    "packageRehearsal": {
+      "schemaVersion": 1,
+      "published": false,
+      "networkAccess": false,
+      "sourceCommit": "3552726a9ca35583d0aa22f029e411707cc45794",
+      "sourceDirty": true,
+      "packages": [
+        {
+          "name": "quai-primitives",
+          "version": "0.1.0-alpha.1",
+          "bytes": 62129,
+          "sha256": "453a81cb8bafdb12189bc986364e6df6337ce58ad14eadc6e9bccfc8e544c954"
+        },
+        {
+          "name": "quai-rpc",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45149,
+          "sha256": "d68ab2d40fbf2832d2ab161ba6a5b7180f05bc1579f57a26f0f9a6cdd473a8e6"
+        },
+        {
+          "name": "quai-provider",
+          "version": "0.1.0-alpha.1",
+          "bytes": 136602,
+          "sha256": "6d752c12433b5cab0edaaa4f76be9ad0191613c96f563eda817472b15119f033"
+        },
+        {
+          "name": "quai-consensus",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45778,
+          "sha256": "a9bae5abbdfd37a6763b7683f1fbc643e18fedd068dcfa540577aecd84379852"
+        },
+        {
+          "name": "quai-crypto",
+          "version": "0.1.0-alpha.1",
+          "bytes": 48117,
+          "sha256": "b91b7ef6c3f4e4bef18c331595ed28a60f80ddc532fc1f43fb3d5f3a9f0caad5"
+        },
+        {
+          "name": "quai-sdk",
+          "version": "0.1.0-alpha.1",
+          "bytes": 246498,
+          "sha256": "43711429a8cc98710eb75a4b7c7073baf2780a6e264a65bd8bb004e494bbd49b"
+        },
+        {
+          "name": "quai-abi",
+          "version": "0.1.0-alpha.1",
+          "bytes": 166209,
+          "sha256": "9a49f2c6ba275eaef566e16cc62c691870c38b1cc79e2de7fda15b9110bffaa4"
+        },
+        {
+          "name": "quai-browser",
+          "version": "0.1.0-alpha.1",
+          "bytes": 86928,
+          "sha256": "eb94085b9667f18e3fd0cf8d5c0f7a09b329e358565d8e589fa8e62bbefedc71"
+        },
+        {
+          "name": "quai-signer",
+          "version": "0.1.0-alpha.1",
+          "bytes": 24661,
+          "sha256": "a0b7bce18434dfdce3aeea360904d11f0b7273646b5aa6cc2511bbce043a3ce6"
+        },
+        {
+          "name": "quai-keystore",
+          "version": "0.1.0-alpha.1",
+          "bytes": 34356,
+          "sha256": "e8d1f3815e749ad1c004f1735556b0e5e3438d3f618c022b5cc40375b7d0249d"
+        },
+        {
+          "name": "quai-wallet",
+          "version": "0.1.0-alpha.1",
+          "bytes": 272670,
+          "sha256": "aaf27351b43c4634566eedc75bb7ab257c59eab04f15f01f0349a7c2bfa7feaa"
+        },
+        {
+          "name": "quai-payments",
+          "version": "0.1.0-alpha.1",
+          "bytes": 39457,
+          "sha256": "388b134b2befe705554c1dc066d986ad63059d782d16686c21f35f5fd6988681"
+        }
+      ],
+      "consumerTests": {
+        "minimal": "passed",
+        "default": "passed",
+        "full": "passed"
+      },
+      "packagedTargetChecks": {
+        "quai-primitives": "passed",
+        "quai-rpc": "passed",
+        "quai-provider": "passed",
+        "quai-consensus": "passed",
+        "quai-crypto": "passed",
+        "quai-sdk": "passed",
+        "quai-abi": "passed",
+        "quai-browser": "passed",
+        "quai-signer": "passed",
+        "quai-keystore": "passed",
+        "quai-wallet": "passed",
+        "quai-payments": "passed"
+      },
+      "packagedWasmChecks": {
+        "quai-browser": "passed",
+        "quai-sdk": "passed"
+      },
+      "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+    }
+  },
+  "limitations": [
+    "Advisory in-memory cache; no durable serialization, allocation or custody authority",
+    "Latest-only outpoint reads are source claims and cannot prove historical completeness or atomicity",
+    "Mock public-toy tests; no funded node execution",
+    "Explicit invalidation clears usage; live allocation floors and claims remain independent"
+  ]
+}

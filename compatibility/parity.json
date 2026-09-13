@@ -21044,20 +21044,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::discovery::CurrentQiDiscovery",
-        "quai_sdk::discovery::CurrentQiAddress",
-        "quai_provider::Provider::outpoints"
+        "quai_wallet::qi_addresses::QiAddressBook::gap_branch",
+        "quai_wallet::qi_addresses::QiAddressBook::gap_payment_channel",
+        "quai_sdk::discovery::refresh_qi_address_book"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "compatibility/scripts/hd-wallet-workflows.test.mjs",
-        "crates/quai-sdk/tests/discovery.rs"
+        "crates/quai-sdk/tests/qi_address_book.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/QI_ADDRESS_VIEWS.md"
       ],
-      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
+      "deviation": "Scoped four-state public cache with external/change and channel gap views. Explicit portable refresh stages all results and validates network/head before commit. Imports start Unknown; prior Used/AttemptedUse survives empty reads until invalidation. No durable allocation or custody authority; rebuild cache after restart."
     },
     {
       "id": ".:QiHDWallet:instance:getGapChangeAddressesForZone",
@@ -21069,20 +21069,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::discovery::CurrentQiDiscovery",
-        "quai_sdk::discovery::CurrentQiAddress",
-        "quai_provider::Provider::outpoints"
+        "quai_wallet::qi_addresses::QiAddressBook::gap_branch",
+        "quai_wallet::qi_addresses::QiAddressBook::gap_payment_channel",
+        "quai_sdk::discovery::refresh_qi_address_book"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "compatibility/scripts/hd-wallet-workflows.test.mjs",
-        "crates/quai-sdk/tests/discovery.rs"
+        "crates/quai-sdk/tests/qi_address_book.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/QI_ADDRESS_VIEWS.md"
       ],
-      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
+      "deviation": "Scoped four-state public cache with external/change and channel gap views. Explicit portable refresh stages all results and validates network/head before commit. Imports start Unknown; prior Used/AttemptedUse survives empty reads until invalidation. No durable allocation or custody authority; rebuild cache after restart."
     },
     {
       "id": ".:QiHDWallet:instance:getGapPaymentChannelAddressesForZone",
@@ -21094,20 +21094,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::discovery::CurrentQiDiscovery",
-        "quai_sdk::discovery::CurrentQiAddress",
-        "quai_provider::Provider::outpoints"
+        "quai_wallet::qi_addresses::QiAddressBook::gap_branch",
+        "quai_wallet::qi_addresses::QiAddressBook::gap_payment_channel",
+        "quai_sdk::discovery::refresh_qi_address_book"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "compatibility/scripts/hd-wallet-workflows.test.mjs",
-        "crates/quai-sdk/tests/discovery.rs"
+        "crates/quai-sdk/tests/qi_address_book.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/QI_ADDRESS_VIEWS.md"
       ],
-      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
+      "deviation": "Scoped four-state public cache with external/change and channel gap views. Explicit portable refresh stages all results and validates network/head before commit. Imports start Unknown; prior Used/AttemptedUse survives empty reads until invalidation. No durable allocation or custody authority; rebuild cache after restart."
     },
     {
       "id": ".:QiHDWallet:instance:getImportedAddresses",
@@ -69517,20 +69517,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::discovery::CurrentQiDiscovery",
-        "quai_sdk::discovery::CurrentQiAddress",
-        "quai_provider::Provider::outpoints"
+        "quai_wallet::qi_addresses::QiAddressBook::gap_branch",
+        "quai_wallet::qi_addresses::QiAddressBook::gap_payment_channel",
+        "quai_sdk::discovery::refresh_qi_address_book"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "compatibility/scripts/hd-wallet-workflows.test.mjs",
-        "crates/quai-sdk/tests/discovery.rs"
+        "crates/quai-sdk/tests/qi_address_book.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/QI_ADDRESS_VIEWS.md"
       ],
-      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
+      "deviation": "Scoped four-state public cache with external/change and channel gap views. Explicit portable refresh stages all results and validates network/head before commit. Imports start Unknown; prior Used/AttemptedUse survives empty reads until invalidation. No durable allocation or custody authority; rebuild cache after restart."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getGapChangeAddressesForZone",
@@ -69542,20 +69542,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::discovery::CurrentQiDiscovery",
-        "quai_sdk::discovery::CurrentQiAddress",
-        "quai_provider::Provider::outpoints"
+        "quai_wallet::qi_addresses::QiAddressBook::gap_branch",
+        "quai_wallet::qi_addresses::QiAddressBook::gap_payment_channel",
+        "quai_sdk::discovery::refresh_qi_address_book"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "compatibility/scripts/hd-wallet-workflows.test.mjs",
-        "crates/quai-sdk/tests/discovery.rs"
+        "crates/quai-sdk/tests/qi_address_book.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/QI_ADDRESS_VIEWS.md"
       ],
-      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
+      "deviation": "Scoped four-state public cache with external/change and channel gap views. Explicit portable refresh stages all results and validates network/head before commit. Imports start Unknown; prior Used/AttemptedUse survives empty reads until invalidation. No durable allocation or custody authority; rebuild cache after restart."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getGapPaymentChannelAddressesForZone",
@@ -69567,20 +69567,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::discovery::CurrentQiDiscovery",
-        "quai_sdk::discovery::CurrentQiAddress",
-        "quai_provider::Provider::outpoints"
+        "quai_wallet::qi_addresses::QiAddressBook::gap_branch",
+        "quai_wallet::qi_addresses::QiAddressBook::gap_payment_channel",
+        "quai_sdk::discovery::refresh_qi_address_book"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "compatibility/scripts/hd-wallet-workflows.test.mjs",
-        "crates/quai-sdk/tests/discovery.rs"
+        "crates/quai-sdk/tests/qi_address_book.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/QI_ADDRESS_VIEWS.md"
       ],
-      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
+      "deviation": "Scoped four-state public cache with external/change and channel gap views. Explicit portable refresh stages all results and validates network/head before commit. Imports start Unknown; prior Used/AttemptedUse survives empty reads until invalidation. No durable allocation or custody authority; rebuild cache after restart."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getImportedAddresses",

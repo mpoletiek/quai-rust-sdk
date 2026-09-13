@@ -751,7 +751,17 @@ toy reproductions instead of credentials or funded wallet material.
 
 The [HD wallet review](docs/HD_WALLET_PARITY_REVIEW.md) maps Quai/Qi identity,
 address lookup, channels, current scans, key ownership and transaction workflows.
-It retains whole legacy wallet-JSON migration and cached address-status views as
-partial. Authenticated Rust backups and typed current observations already exist;
+It retains whole legacy wallet-JSON migration as partial. Cached address-status
+and gap views now use `QiAddressBook` and the portable refresh helper. Authenticated Rust backups and typed current observations already exist;
 these should not be confused with the reference's plaintext wallet schema or
 mutable status cache.
+
+## Qi address inventory and cached usage
+
+`wallet::qi_addresses::QiAddressBook` provides exact public origin lookup, HD
+branch/account views, verified payment receive views and cached gap filters.
+`discovery::refresh_qi_address_book` refreshes all registered origins with bounded
+outpoint reads and commits only after the final network/head checks. Usage hints
+are optional and work with worker-local callbacks. Errors and cancellation preserve
+the prior cache. See [Qi address views](docs/QI_ADDRESS_VIEWS.md) for registration,
+status transitions, reorg invalidation and the separation from allocation/custody.

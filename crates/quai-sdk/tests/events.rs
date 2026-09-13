@@ -200,3 +200,42 @@ async fn typed_event_filters_hash_values_validate_before_io_and_parse_observed_l
         matches!(abi.parse_revert(&data), Ok(ParsedRevert::Panic(code)) if code == U256::from(17))
     );
 }
+
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+fn receipt_log_views_preserve_decoded_unknown_malformed_and_foreign_logs() {
+    use quai_sdk::contracts::{ReceiptLog, decode_receipt_logs};
+    use quai_sdk::provider::{Log, Receipt};
+    let (mock, _) = fixture();
+    let mut logs = vec![mock.row.clone(); 4];
+    for (i, log) in logs.iter_mut().enumerate() {
+        log["logIndex"] = json!(format!("{i:#x}"));
+    }
+    logs[1]["topics"] = json!([]);
+    logs[2]["data"] = json!("0x01");
+    logs[3]["address"] = json!("0x0011223344556677889900112233445566778800");
+    let receipt=Receipt::try_from(json!({"transactionHash":logs[0]["transactionHash"],"blockHash":logs[0]["blockHash"],"blockNumber":"0xf","transactionIndex":"0x2","type":"0x0","from":ADDRESS,"to":ADDRESS,"gasUsed":"0x1","cumulativeGasUsed":"0x1","effectiveGasPrice":"0x2","status":"0x1","logs":logs,"logsBloom":format!("0x{}","00".repeat(10240))})).unwrap();
+    let abi = AbiInterface::from_json(ABI).unwrap();
+    let decoded = decode_receipt_logs(&abi, &receipt, 4).unwrap();
+    assert!(
+        matches!(&decoded[0],ReceiptLog::Decoded{event,values,..} if event.name()=="Tagged" && values.len()==2)
+    );
+    assert!(matches!(&decoded[1], ReceiptLog::Unrecognized(_)));
+    assert!(matches!(&decoded[2], ReceiptLog::Undecoded { .. }));
+    assert!(matches!(&decoded[3], ReceiptLog::Decoded { .. }));
+    for (i, entry) in decoded.iter().enumerate() {
+        assert_eq!(entry.log(), &receipt.logs[i]);
+        assert_eq!(
+            Log::try_from(entry.log().to_rpc_json().unwrap()).unwrap(),
+            receipt.logs[i]
+        );
+    }
+    assert!(decode_receipt_logs(&abi, &receipt, 3).is_err());
+    assert!(decode_receipt_logs(&abi, &receipt, 0).is_err());
+    let p = provider(mock);
+    let contract = Contract::new(ADDRESS.parse().unwrap(), abi, &p);
+    assert!(matches!(
+        &contract.receipt_logs(&receipt, 4).unwrap()[3],
+        ReceiptLog::Unrecognized(_)
+    ));
+}

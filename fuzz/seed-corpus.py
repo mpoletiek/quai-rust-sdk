@@ -10,6 +10,11 @@ def put(target,data):
  counts[target]=counts.get(target,0)+1
 def load(path):return json.loads((root/path).read_text())
 def hexbytes(s):return bytes.fromhex(s.removeprefix('0x'))
+for name in ['orchard.json','lan-mainnet.json']:
+ for row in load('crates/quai-provider/tests/fixtures/'+name)['records']:
+  for field in ['transaction','receipt']:
+   if row.get(field) is not None:put('transactions',json.dumps(row[field],separators=(',',':')).encode())
+  for log in row.get('receipt',{}).get('logs',[]):put('transactions',json.dumps(log,separators=(',',':')).encode())
 for row in load('compatibility/fixtures/transactions.json')['vectors']:
  for key,value in row.items():
   if key.lower() in ['unsigned','signed','unsignedserialized','serialized','unsignedbytes','signedbytes'] and isinstance(value,str):put('transactions',hexbytes(value))

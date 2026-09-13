@@ -69,6 +69,79 @@ pub struct ContractEvent {
     pub log: Log,
 }
 
+/// ABI interpretation of one receipt log without losing unknown or malformed logs.
+/// Matching a topic identifies an ABI declaration, not authentic emitter semantics.
+#[derive(Debug)]
+pub enum ReceiptLog<'a> {
+    /// No matching nonanonymous declaration (or outside a bound contract's address).
+    Unrecognized(&'a Log),
+    /// Matching declaration and canonical decoded arguments.
+    Decoded {
+        /// Complete source log, including removal and inclusion metadata.
+        log: &'a Log,
+        /// Caller-supplied ABI declaration with name, signature and argument types.
+        event: &'a quai_abi::AbiEvent,
+        /// Positional values; indexed dynamic/compound fields remain hashes.
+        values: Vec<AbiEventValue>,
+    },
+    /// A matching or ambiguous declaration could not decode this source log.
+    Undecoded {
+        /// Complete original log, retained despite the decoding failure.
+        log: &'a Log,
+        /// Structured ABI error, without arbitrary node diagnostic strings.
+        error: AbiError,
+    },
+}
+impl ReceiptLog<'_> {
+    /// Original log for every interpretation, preserving order and source identity.
+    pub fn log(&self) -> &Log {
+        match self {
+            Self::Unrecognized(log) | Self::Decoded { log, .. } | Self::Undecoded { log, .. } => {
+                log
+            }
+        }
+    }
+}
+/// Decode all receipt logs against an ABI with a caller budget of 1..65536 logs.
+/// Like quais.js ContractTransactionReceipt, this free function considers every
+/// emitter. Use `Contract::receipt_logs` to restrict decoding to one address.
+/// No RPC, mutation or implicit anonymous-event selection occurs.
+pub fn decode_receipt_logs<'a>(
+    interface: &'a AbiInterface,
+    receipt: &'a quai_provider::Receipt,
+    max_logs: usize,
+) -> Result<Vec<ReceiptLog<'a>>, ContractError> {
+    receipt_logs(interface, receipt, max_logs, None)
+}
+fn receipt_logs<'a>(
+    interface: &'a AbiInterface,
+    receipt: &'a quai_provider::Receipt,
+    max_logs: usize,
+    emitter: Option<quai_primitives::Address>,
+) -> Result<Vec<ReceiptLog<'a>>, ContractError> {
+    if !(1..=65536).contains(&max_logs) || receipt.logs.len() > max_logs {
+        return Err(AbiError::Limit.into());
+    }
+    Ok(receipt
+        .logs
+        .iter()
+        .map(|log| {
+            if emitter.is_some_and(|address| address != log.address) {
+                return ReceiptLog::Unrecognized(log);
+            }
+            match interface.parse_log(&log.topics, log.data.bytes()) {
+                Ok(parsed) => ReceiptLog::Decoded {
+                    log,
+                    event: parsed.event,
+                    values: parsed.values,
+                },
+                Err(AbiError::NotFound) => ReceiptLog::Unrecognized(log),
+                Err(error) => ReceiptLog::Undecoded { log, error },
+            }
+        })
+        .collect())
+}
+
 /// Explicit four-byte suffix search, matching the JS deployment-grinding mechanism.
 /// Appending bytes can affect hand-written init code that inspects trailing code;
 /// review/simulate the final bytes, never assume arbitrary init code ignores them.
@@ -344,6 +417,20 @@ impl<'a, T: Transport> Contract<'a, T> {
             values,
             log,
         })
+    }
+    /// Interpret matching logs from this contract and retain every other log as
+    /// unrecognized. Malformed matching logs retain their original data and error.
+    pub fn receipt_logs<'b>(
+        &'b self,
+        receipt: &'b quai_provider::Receipt,
+        max_logs: usize,
+    ) -> Result<Vec<ReceiptLog<'b>>, ContractError> {
+        receipt_logs(
+            &self.interface,
+            receipt,
+            max_logs,
+            Some(self.address.address()),
+        )
     }
     /// Query a bounded block range for a nonanonymous event from this exact emitter.
     /// Filters refer only to indexed argument positions; the signature topic is inserted

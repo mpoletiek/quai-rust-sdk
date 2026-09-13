@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 1400 | Documented replacement, stricter behavior, correction or omission |
+| `deviation` | 1670 | Documented replacement, stricter behavior, correction or omission |
 | `partial` | 126 | A mapping exists with unfinished behavior or scope |
-| `pending` | 2336 | No completed row-level reconciliation; not proof of absence |
+| `pending` | 2066 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -242,25 +242,19 @@ root/subpath exports account for much of the volume.
 | `AbstractProvider` | 84 | 10 | 0 | 68 |
 | `Result` | 88 | 0 | 0 | 0 |
 | `FetchRequest` | 64 | 0 | 0 | 0 |
-| `ContractTransactionReceipt` | 58 | 0 | 0 | 0 |
-| `TransactionReceipt` | 58 | 0 | 0 | 0 |
 | `QuaiTransaction` | 46 | 10 | 0 | 0 |
 | `BaseContract` | 50 | 4 | 0 | 2 |
 | `ContractTransactionResponse` | 52 | 0 | 0 | 6 |
 | `QuaiTransactionResponse` | 52 | 0 | 0 | 6 |
 | `Contract` | 46 | 4 | 0 | 2 |
-| `Block` | 48 | 0 | 0 | 0 |
 | `QiTransaction` | 36 | 10 | 0 | 0 |
-| `EventLog` | 42 | 0 | 0 | 0 |
 | `QiTransactionResponse` | 40 | 0 | 0 | 0 |
 | `FunctionFragment` | 38 | 0 | 0 | 0 |
 | `TypedDataEncoder` | 14 | 20 | 0 | 2 |
-| `UndecodedEventLog` | 34 | 0 | 0 | 0 |
 | `FetchResponse` | 32 | 0 | 0 | 0 |
 | `ParamType` | 32 | 0 | 0 | 0 |
 | `Signature` | 32 | 0 | 0 | 0 |
 | `EventFragment` | 30 | 0 | 0 | 0 |
-| `Log` | 30 | 0 | 0 | 2 |
 | `ConstructorFragment` | 26 | 0 | 0 | 0 |
 | `ErrorFragment` | 26 | 0 | 0 | 0 |
 | `ContractEventPayload` | 24 | 0 | 0 | 0 |
@@ -474,3 +468,15 @@ transactions compared field by field. Send acknowledgements require separate
 observation; requests never retry automatically. Native SQLite and browser
 IndexedDB preparation can commit exact external signatures without losing their
 nonce claims. Provider conveniences use typed requests and explicit quotation.
+
+## Block, receipt and log response reconciliation
+
+Reviewed 272 declaration rows across `Block`, `TransactionReceipt`,
+`ContractTransactionReceipt`, `Log`, `EventLog` and `UndecodedEventLog`.
+[The response review](docs/RESPONSE_PARITY.md) maps typed data, explicit provider
+reads, canonical confirmation/replay composition and ABI log interpretation.
+New APIs add exact block lookup, bounded metadata/outbound views, checked receipt
+fees, normalized JSON exports and receipt log views that retain decoding errors.
+The published prefetched async hash lookup skips matching entries; Rust does not
+reproduce that defect. The published receipt-result helper has no JSON-RPC backend
+implementation. No archive execution data or finality is inferred.

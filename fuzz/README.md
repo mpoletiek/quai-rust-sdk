@@ -89,3 +89,10 @@ fixture seeds, bounded parsing, trusted root checks and representable export/imp
 round trips. Its 120-second run completed **42,643 executions** with AddressSanitizer
 active and exit 0. See `test-infra/reports/legacy-wallet-fuzz-2026-09-13.json` for
 binary and lock identities. This is bounded smoke coverage, not exhaustive review.
+
+Typed node transaction, receipt and log JSON now exercise parse/export round trips
+in the transaction target, alongside all existing canonical protobuf paths. The
+120-second run completed **1,093,559 executions**, exit 0 with AddressSanitizer;
+`test-infra/reports/response-fuzz-2026-09-13.json` retains binary/lock identities.
+Public-node record and log seeds extend the initial corpus to 93 files. This does
+not fuzz every provider workflow or establish consensus correctness.

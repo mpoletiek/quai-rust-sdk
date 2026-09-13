@@ -835,3 +835,18 @@ and 15 browser preflight tests). Strict native/Wasm Clippy and warnings-denied
 rustdoc pass. [The guide](docs/RPC_SIGNER.md) records API and behavior differences.
 Forty declaration rows are reconciled; counts are 66 implemented, 1,400 deviation,
 126 partial and 2,336 pending. Broader parity and release qualification continue.
+
+## 2026-09-13: typed response views and normalized node JSON
+
+Added exact block transaction lookup, bounded block metadata and distinct outbound
+ETX views. Transactions, receipts, logs and both block representations export
+normalized node JSON with revalidated fields and retained top-level extensions.
+Receipt fees use checked U256 arithmetic. ABI receipt views preserve decoded,
+unknown and malformed logs, with optional contract-address binding.
+
+Six native and six Chromium response tests, four native and four Chromium event
+tests, four published-source regressions and 29 provider block/receipt/confirmation
+regressions pass. Response parser/export fuzzing completed 1,093,559 executions
+with AddressSanitizer active and no failure. See [the response guide](docs/RESPONSE_PARITY.md).
+The review reconciles 272 declarations; counts are 66 implemented, 1,670 deviation,
+126 partial and 2,066 pending. The broader behavioral audit remains unfinished.

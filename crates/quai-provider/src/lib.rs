@@ -18,7 +18,9 @@ pub use deployment::{DeploymentCode, DeploymentObservation, DeploymentReference}
 mod contract_code;
 pub use contract_code::ContractCodeObservation;
 mod blocks;
-pub use blocks::{BlockHashes, MinedBlock};
+pub use blocks::{
+    BlockHashes, BlockMetadata, BlockTransactionId, MinedBlock, OutboundBlockTransaction,
+};
 mod qi_credit;
 pub use qi_credit::QiCreditObservation;
 mod external_tracking;
@@ -40,6 +42,7 @@ pub use qi_special_fee::{QiFeeProfile, QiFeeQuote, qi_special_gas};
 mod wallet_rpc;
 pub use logs::{LogFilter, LogRange, TopicMatch};
 pub use wallet_rpc::OutpointDeltas;
+mod response_json;
 mod submission;
 mod types;
 #[cfg(all(feature = "polling", not(target_arch = "wasm32")))]

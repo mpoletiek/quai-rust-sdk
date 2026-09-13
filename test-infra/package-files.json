@@ -328,6 +328,14 @@
     {
       "source": "compatibility/fixtures/legacy-wallets.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/legacy-wallets.json"
+    },
+    {
+      "source": "crates/quai-provider/tests/fixtures/orchard.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-provider/tests/fixtures/orchard.json"
+    },
+    {
+      "source": "crates/quai-provider/tests/fixtures/conversion-block16.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-provider/tests/fixtures/conversion-block16.json"
     }
   ]
 }

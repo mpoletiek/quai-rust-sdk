@@ -795,3 +795,17 @@ must still match before persistence. Wallet-mediated sends instead return a
 `RemoteSendAcknowledgement` for independent signed-transaction observation and
 explicit comparison with the original request. See [remote signer documentation](docs/RPC_SIGNER.md)
 for construction, durable workflow, cancellation, limits and quais.js differences.
+
+## Block, receipt and log views
+
+Mined full and hash-only blocks support exact `BlockTransactionId` lookup and
+normalized `to_rpc_json()` export. `metadata()` exposes exact timestamp/size/entropy,
+header maps and bounded interlink, manifest, uncle, work-share and outbound ETX
+views. Outbound ETXs remain separate from transactions executed in the block.
+
+Transactions, receipts and logs export normalized node JSON while preserving
+exact quantities and top-level extensions. `Receipt::fee()` checks U256 overflow.
+With feature `abi`, `contracts::decode_receipt_logs` preserves decoded, unknown
+and malformed logs in order; `Contract::receipt_logs` restricts interpretation to
+its bound emitter. See [response API and parity details](docs/RESPONSE_PARITY.md)
+for limits, field mappings, canonicality and published lookup defects.

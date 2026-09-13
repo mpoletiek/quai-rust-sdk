@@ -9,6 +9,21 @@ fuzz_target!(|data: &[u8]| {
     if data.len() > MAX_TRANSACTION_BYTES + 1 {
         return;
     }
+    if let Ok(value) = serde_json::from_slice::<serde_json::Value>(data) {
+        if let Ok(tx) = quai_provider::Transaction::try_from(value.clone()) {
+            let exported = tx.to_rpc_json().unwrap();
+            assert_eq!(quai_provider::Transaction::try_from(exported).unwrap(), tx);
+        }
+        if let Ok(receipt) = quai_provider::Receipt::try_from(value.clone()) {
+            let exported = receipt.to_rpc_json().unwrap();
+            assert_eq!(quai_provider::Receipt::try_from(exported).unwrap(), receipt);
+            let _ = receipt.fee();
+        }
+        if let Ok(log) = quai_provider::Log::try_from(value) {
+            let exported = log.to_rpc_json().unwrap();
+            assert_eq!(quai_provider::Log::try_from(exported).unwrap(), log);
+        }
+    }
     if let Ok(tx) = QuaiTransaction::decode_unsigned(data) {
         assert_eq!(tx.unsigned_bytes().unwrap(), data);
     }

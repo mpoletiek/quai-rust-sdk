@@ -162,6 +162,20 @@ fn account_watch_only_and_bounded_grinding_match_quais() {
             watch.derive_address(change, expected_index).unwrap(),
             found.address
         );
+        let metadata =
+            quai_wallet::metadata::PublicAddress::derive(&public, change, expected_index).unwrap();
+        assert_eq!(metadata.address().to_string(), text(vector, "address"));
+        assert_eq!(hex(metadata.public_key()), text(vector, "publicKey"));
+        let mut expected = b"QADDR001".to_vec();
+        expected.extend(unhex(text(vector, "publicKey")));
+        expected.extend([1, u8::from(coin == CoinType::Qi), u8::from(change)]);
+        expected.extend(account.to_be_bytes());
+        expected.extend(expected_index.to_be_bytes());
+        assert_eq!(metadata.export_metadata(), expected);
+        assert_eq!(
+            quai_wallet::metadata::PublicAddress::from_metadata(&expected).unwrap(),
+            metadata
+        );
         let private = wallet.derive_key(account, change, expected_index).unwrap();
         assert_eq!(
             private.public_key().public_key().unwrap().address(),

@@ -8,6 +8,7 @@ fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
  let _=Keystore::from_json(data,KdfLimits::default()); // no attacker-selected expensive KDF execution
  if let Ok(code)=PaymentCode::from_bytes(data){assert_eq!(PaymentCode::from_base58(&code.to_base58()).unwrap(),code);}
+ if let Ok(address)=quai_wallet::metadata::PublicAddress::from_metadata(data){assert_eq!(address.export_metadata(),data);assert_eq!(PublicKey::from_sec1_bytes(address.public_key()).unwrap().address(),address.address());}
  let _=PublicKey::from_sec1_bytes(data);
  if let Ok(signature)=<&[u8;65]>::try_from(data){let _=RecoverableSignature::from_quais_bytes(signature);}
  if let Ok(signature)=<&[u8;64]>::try_from(data){let _=SchnorrSignature::from_bytes(signature);}

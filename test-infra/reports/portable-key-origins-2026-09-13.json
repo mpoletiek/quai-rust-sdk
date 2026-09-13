@@ -1,0 +1,158 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "c695f5f6fc0bdcb3616a0be9e211d762a45c5021",
+  "testedWorkingTree": true,
+  "changes": [
+    "Portable public key-origin metadata and QiKeyResolver/QiKeyring without SQLite",
+    "Exact 42/52-byte public metadata codec with explicit asserted-ancestry boundary",
+    "Optional portable BIP47 receive-key import and SDK feature forwarding",
+    "Native storage re-exports identical types; no database or encrypted full-backup format change"
+  ],
+  "validation": {
+    "nativeWalletReportedPassesIncludingSubprocessSummaries": 72,
+    "nativeQiWorkflowTests": 30,
+    "portableSdkKeyOriginTestsWithPayments": 3,
+    "portableSdkKeyOriginTestsWithoutPayments": 2,
+    "nativeReferenceTestsIncludingSixMetadataRecords": 11,
+    "actualChromiumWorkerTests": 4,
+    "nativeWalletSdkAllTargetsClippyWarningsDenied": "passed",
+    "portableSdkWasmAllTargetsClippyWarningsDenied": "passed",
+    "nativeWalletSdkRustdocWarningsDenied": "passed",
+    "packageFileMirrors": 64
+  },
+  "fuzz": {
+    "recordedAt": "2026-09-13T08:23:24.366482+00:00",
+    "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+    "fuzzLockSha256": "d6ee6a295246aae181e637a4a62c7b3c6e9636e6acbaf210d608a72728cbba98",
+    "sdkLockSha256": "23e5d30c8d68ca0225745105c4ccacbfac66114f395e4eb92fedf3b8ab717ed7",
+    "targets": [
+      {
+        "name": "wallet_import",
+        "binarySha256": "e8777a01edfc2fb9f5a1c306d1d8a49cc88830a1d7e48123c85dab48fedbafb5",
+        "seconds": 120,
+        "exitCode": 0,
+        "addressSanitizer": true,
+        "initialCorpusFiles": 61,
+        "finalCorpusFiles": 1438,
+        "executions": 1818598,
+        "coverageCounters": 2408,
+        "features": 8082,
+        "rssMiB": 495
+      }
+    ],
+    "leakSanitizer": false,
+    "sanitizerEnvironment": "ASAN_OPTIONS=detect_leaks=0: sandbox process inspection limitation; AddressSanitizer enabled, no leak-clean qualification."
+  },
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "c695f5f6fc0bdcb3616a0be9e211d762a45c5021",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61986,
+        "sha256": "2e7f9d4cd5207f6314ab6122809c4979d820d5e6f80e863a656f73e78ce20c20"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45022,
+        "sha256": "0392fb25c810f871525a7f9ec7408df6f8f1b36002dc5d1eab8d3931301512c7"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 126466,
+        "sha256": "206090f81c7aad8335660c4484093de6ab55baac9f5b2349d097117a131f0887"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45641,
+        "sha256": "b96ca23c611c69fec3e55571f7c0f4451b47e43a1111628a120062c8ab3118bf"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47978,
+        "sha256": "9839c9df6086660e5f093e45bc596c449c470285c4231389deb0796a1953475b"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 121752,
+        "sha256": "b5044fa1073465846e93cb9d9e8dedfa53e6619d11f6c726711331ee01000892"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 150803,
+        "sha256": "7e8d7194e63c1241f3edc4c4f0378a046afaebf1c967f890695eb868bb6fe3a6"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 74988,
+        "sha256": "11f6535dd5b67c29bf317a9b1bf301342a08a0b456797e40ff34e7932cee7ab4"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24517,
+        "sha256": "64ef0a6cb46fe1a63d941bcc7bd69c7f12619cdb20df38f514bf176a353bdaa9"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34220,
+        "sha256": "5e0bfbb486e56fd57b5f45c4460068d46c9c28382283103f9a610339b09126df"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 234343,
+        "sha256": "e1177f03e1d480d3559626080fdc9bd7f8b1ee9536fe144033646463dfb1deb8"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39311,
+        "sha256": "fc3b641c9ed5266039f171e5d1a487bba311f622d3e8f816d523e89bd6906201"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "limitations": [
+    "Public metadata is unauthenticated and cannot prove ancestry or grant signing authority; exact local keys are required.",
+    "Payment receive-key import does not allocate or persist channel ranges; explicit durable exposure handling remains required.",
+    "Ordered signing uses public toy fixtures and is not funded node acceptance.",
+    "Full browser reservation and encrypted wallet-state restore integration remain open.",
+    "Bounded fuzz and platform tests are not sustained soak, independent review or release certification."
+  ]
+}

@@ -12,7 +12,7 @@ pub mod discovery;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod full_backup;
 mod hd;
-#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+pub mod metadata;
 pub mod qi_keys;
 mod selection;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]

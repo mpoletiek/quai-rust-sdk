@@ -1,8 +1,13 @@
 //! Explicit local Qi key resolution across HD, imported and payment origins.
-use crate::storage::{KeyOrigin, PublicAddress, SqliteStore, StorageError};
+use crate::metadata::{KeyOrigin, PublicAddress, StorageError};
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+use crate::storage::SqliteStore;
 use crate::{CoinType, HdWallet};
 use quai_crypto::SecretKey;
-use quai_payments::{PaymentCode, PaymentDirection, PrivatePaymentCode};
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+use quai_payments::PaymentDirection;
+#[cfg(feature = "payments")]
+use quai_payments::{PaymentCode, PrivatePaymentCode};
 use quai_primitives::{Address, QiAddress};
 use std::collections::BTreeMap;
 
@@ -64,7 +69,7 @@ impl<'a> QiKeyring<'a> {
         })
     }
     /// Take ownership of an explicitly imported key. Returns public metadata for
-    /// `SqliteStore::import_metadata`. Conflicting/duplicate keys are rejected.
+    /// native or browser public state. Conflicting/duplicate keys are rejected.
     pub fn import(&mut self, key: SecretKey) -> Result<PublicAddress, StorageError> {
         let address = PublicAddress::imported(&key.public_key())?;
         QiAddress::try_from(address.address()).map_err(|_| StorageError::Invalid)?;
@@ -74,9 +79,25 @@ impl<'a> QiKeyring<'a> {
         self.imported.insert(address.address(), key);
         Ok(address)
     }
+    /// Import one explicitly selected BIP47 receive key on native or browser targets.
+    /// The caller must persist its channel exposure and burned range before exposing
+    /// the address. This verifies key ownership; it does not allocate or save state.
+    #[cfg(feature = "payments")]
+    pub fn import_payment_receive(
+        &mut self,
+        owner: &PrivatePaymentCode,
+        peer: &PaymentCode,
+        index: u32,
+    ) -> Result<PublicAddress, StorageError> {
+        let key = owner
+            .receive_key(peer, index)
+            .map_err(|_| StorageError::Invalid)?;
+        self.import(key)
+    }
     /// Load registered receive exposures for a verified channel in this store's
     /// zone. Derive and verify every key before atomically extending the keyring.
     /// Send destinations are never imported as locally owned keys.
+    #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
     pub fn load_payment_channel(
         &mut self,
         store: &SqliteStore,

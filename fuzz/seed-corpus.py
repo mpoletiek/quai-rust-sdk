@@ -27,6 +27,10 @@ for row in load('crates/quai-keystore/tests/fixtures/keystores.json')['vectors']
 for row in load('crates/quai-crypto/tests/fixtures/quais-crypto.json')['vectors']:
  for key in ['compressed','uncompressed','signature']:
   if isinstance(row.get(key),str):put('wallet_import',hexbytes(row[key]))
+for row in load('crates/quai-wallet/tests/reference.json')['grinding']:
+ public=b'QADDR001'+hexbytes(row['publicKey'])
+ put('wallet_import',public+bytes([0]))
+ put('wallet_import',public+bytes([1,int(row['coin']==969),int(row['change'])])+row['account'].to_bytes(4,'big')+row['index'].to_bytes(4,'big'))
 for row in load('compatibility/fixtures/encoding.json')['bytes']:
  put('encoding',hexbytes(row['input']))
  for field in ['base64']:

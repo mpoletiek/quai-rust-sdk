@@ -16,7 +16,7 @@ ws = ["quai-rpc/ws", "quai-provider/ws"]
 sqlite = ["wallet", "quai-wallet/sqlite"]
 abi = ["dep:quai-abi", "dep:quai-consensus"]
 browser = ["dep:quai-browser"]
-payments = ["dep:quai-payments"]
+payments = ["dep:quai-payments", "quai-wallet?/payments"]
 keystore = ["dep:quai-keystore"]
 
 [dependencies]

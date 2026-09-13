@@ -195,3 +195,39 @@ writes preserve both old cursor and old wallet state. The SDK's
 `reconcile_persisted_head_replay` supplies that integration across reopen/restart.
 Backup capture excludes this cache and restore clears it with a revisioned
 tombstone. Cursor storage never contains keys or releases transaction claims.
+
+### Portable public origins and local key resolution
+
+`metadata::{PublicAddress, KeyOrigin, StorageError}` and
+`qi_keys::{QiKeyResolver, QiKeyring}` are available without SQLite, including in
+browser workers. Existing `storage::{PublicAddress, KeyOrigin, StorageError}`
+paths re-export the same types when native SQLite is enabled; the database schema
+and existing backup format remain unchanged.
+
+`PublicAddress::derive` validates an exact child against a caller-trusted account
+xpub. `imported` records a public key without claiming HD ancestry. The versioned
+`export_metadata` / `from_metadata` format contains only a compressed public key
+and its public origin: magic `QADDR001`, 33-byte SEC1 key, then either `0` for an
+imported key or `1, coin, change, account_be_u32, index_be_u32` for BIP44. Coin is
+0 for Quai or 1 for Qi; change is 0/1; account/index must be unhardened. Exact sizes
+are 42 and 52 bytes. The address is derived from the key, its zone must be known,
+and its ledger must match an asserted HD coin type. Trailing bytes are rejected.
+This public format is not encrypted or authenticated. Decoding cannot prove HD
+ancestry; verify ownership with the trusted xpub or local resolver before signing.
+
+`QiKeyring` holds an optional Qi HD origin plus at most 4,096 explicit local keys.
+It rejects duplicates, non-Qi addresses and mismatched full public keys. Keys stay
+in memory in guarded secret types and are never included in metadata serialization.
+The optional `payments` feature adds `import_payment_receive(owner, peer, index)`
+for an explicitly selected BIP47 receive key. It verifies ownership but does not
+allocate or save a payment exposure. The application must persist channel ranges
+before exposing addresses. Native `load_payment_channel` still loads verified,
+registered receive exposures atomically; `sqlite` enables `payments` automatically.
+The SDK's `payments` feature also enables this integration when `wallet` is active.
+
+Actual Chromium worker tests cover HD/imported/payment ownership, ordered mixed
+Qi signing, malformed/forged metadata, and IndexedDB reopen with revision fencing.
+Public metadata alone never grants signing authority. Persistent browser nonce and
+UTXO reservations, full backup integration and real extension qualification remain
+separate work; the existing native durable wallet workflows continue to own those
+transaction lifecycle guarantees.

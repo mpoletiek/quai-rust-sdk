@@ -29,7 +29,7 @@ criteria FC01–FC12. Historical test/node results below retain their recorded s
 | Payment codes | BIP47 seed/master/account-xprv derivation, registered send destinations and receive gap/deep scanning, verified receive key resolution, monotonic exposure imports and authenticated seed/master/account-xprv channel backup |
 | Discovery | Both the history-capable abstract scanner and supplied current-state Qi scan/refresh; gap 50, explicit deep ranges, all stored origins, fixed denominations/locks and balance buckets; latest-only consistency limits remain explicit |
 | Conversions | Typed rates/calculation, durable Quai-to-Qi and Qi-to-Quai preparation, explicit specialized Qit fees, signed backup/recovery and bounded ETX correlation and attributed current Qi credit/refund locks; automatic fees require the explicit SHA-anchored v0.56.0 profile; maturity qualification remains open |
-| Browser | Real Chromium Fetch/injected-provider tests, recovered personal/typed-data signatures, worker Fetch/HD Qi derivation/OS entropy/signing; scoped atomic IndexedDB snapshots; full browser wallet integration and real extension interoperability remain open |
+| Browser | Real Chromium Fetch/injected-provider tests, recovered personal/typed-data signatures, worker Fetch, HD/imported/BIP47 key resolution, metadata reopen, OS entropy and ordered signing; scoped atomic IndexedDB snapshots; full browser wallet integration and real extension interoperability remain open |
 | Wrappers | WQI native wrapping/claim/redemption and WQUAI deposit/withdraw; exact units, typed ABI and redemption dust/gas guards; user-confirmed deployment constants; four independent JS/Rust/Go wrapping fixtures |
 
 The native offline example derives both ledger identities and signs/decodes a
@@ -440,3 +440,12 @@ errors, including builtin Error/Panic. Tests cover 246 pinned filter cases,
 call/log/revert fixtures, aggregate bounds, anonymous selection and actual worker
 queries. 92 related declarations now map to tested APIs or explicit Rust differences.
 [Retained evidence](test-infra/reports/abi-workflows-2026-09-13.json).
+
+
+Public key-origin metadata and local Qi key resolution now run without SQLite.
+Existing native storage paths re-export the same types; database and full-backup
+encodings are unchanged. Four actual worker tests cover both-ledger metadata,
+HD/imported/BIP47 ownership, ordered multi-input signing and IndexedDB reopen/CAS.
+The new public metadata encoding is bounded and does not authenticate ancestry or
+grant signing authority. Full persistent browser wallet lifecycle remains open.
+[Retained evidence](test-infra/reports/portable-key-origins-2026-09-13.json).

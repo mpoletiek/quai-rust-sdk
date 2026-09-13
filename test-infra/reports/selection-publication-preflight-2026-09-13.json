@@ -1,0 +1,184 @@
+{
+  "recordedAt": "2026-09-13T20:35:48.574379+00:00",
+  "baseCommit": "18215fa6dc85c4af1ffdccd39951e86b90ece60f",
+  "testedWorkingTree": true,
+  "reviewedRows": [
+    ".:denominations",
+    ".:FewestCoinSelector",
+    ".:FewestCoinSelector:instance:availableUTXOs",
+    ".:FewestCoinSelector:instance:changeOutputs",
+    ".:FewestCoinSelector:instance:decreaseFee",
+    ".:FewestCoinSelector:instance:increaseFee",
+    ".:FewestCoinSelector:instance:performSelection",
+    ".:FewestCoinSelector:instance:selectedUTXOs",
+    ".:FewestCoinSelector:instance:spendOutputs",
+    ".:FewestCoinSelector:instance:target",
+    ".:FewestCoinSelector:instance:totalInputValue",
+    ".:UTXO",
+    ".:UTXO:instance:address",
+    ".:UTXO:instance:denomination",
+    ".:UTXO:instance:index",
+    ".:UTXO:instance:lock",
+    ".:UTXO:instance:toJSON",
+    ".:UTXO:instance:txhash",
+    ".:UTXO:static:from",
+    "./transaction:denominations",
+    "./transaction:FewestCoinSelector",
+    "./transaction:FewestCoinSelector:instance:availableUTXOs",
+    "./transaction:FewestCoinSelector:instance:changeOutputs",
+    "./transaction:FewestCoinSelector:instance:decreaseFee",
+    "./transaction:FewestCoinSelector:instance:increaseFee",
+    "./transaction:FewestCoinSelector:instance:performSelection",
+    "./transaction:FewestCoinSelector:instance:selectedUTXOs",
+    "./transaction:FewestCoinSelector:instance:spendOutputs",
+    "./transaction:FewestCoinSelector:instance:target",
+    "./transaction:FewestCoinSelector:instance:totalInputValue",
+    "./transaction:UTXO",
+    "./transaction:UTXO:instance:address",
+    "./transaction:UTXO:instance:denomination",
+    "./transaction:UTXO:instance:index",
+    "./transaction:UTXO:instance:lock",
+    "./transaction:UTXO:instance:toJSON",
+    "./transaction:UTXO:instance:txhash",
+    "./transaction:UTXO:static:from"
+  ],
+  "validation": {
+    "selectionTests": 7,
+    "fixedFeeCasesInSelectionSuite": 69,
+    "publishedJsRegressionTests": 3,
+    "walletStrictClippy": "passed",
+    "packageRehearsal": {
+      "schemaVersion": 1,
+      "published": false,
+      "networkAccess": false,
+      "sourceCommit": "18215fa6dc85c4af1ffdccd39951e86b90ece60f",
+      "sourceDirty": true,
+      "packages": [
+        {
+          "name": "quai-primitives",
+          "version": "0.1.0-alpha.1",
+          "bytes": 62139,
+          "sha256": "27c5eb045d5da83cfc210b59c9fea1615023ab6bc1e792feb6c47112324be677"
+        },
+        {
+          "name": "quai-rpc",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45160,
+          "sha256": "2ed71f97c0c8ca8683c5087e6b1e34c1039b66e8204aa34b61bd24b9f35e7ad2"
+        },
+        {
+          "name": "quai-provider",
+          "version": "0.1.0-alpha.1",
+          "bytes": 135224,
+          "sha256": "0781b39fb071716576c2e2cff2bfe5325909e4674674f4610010d4561275dec5"
+        },
+        {
+          "name": "quai-consensus",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45789,
+          "sha256": "a4cdf5a736c5bebd290bbc1f2efefe1c95cf94fb6f77cf07529bb6963d9b46de"
+        },
+        {
+          "name": "quai-crypto",
+          "version": "0.1.0-alpha.1",
+          "bytes": 48131,
+          "sha256": "12309f605ba43432318028cea1e88540a34e0426ae1064c0a6605af0a609163f"
+        },
+        {
+          "name": "quai-sdk",
+          "version": "0.1.0-alpha.1",
+          "bytes": 242812,
+          "sha256": "4f9a2995a61a2035f1ce6975221fb288054915e209eae2371a429b4e100aba56"
+        },
+        {
+          "name": "quai-abi",
+          "version": "0.1.0-alpha.1",
+          "bytes": 166222,
+          "sha256": "38503d177739e4e45226c064c146b4a1eca1b8500fe8ac8395e0e92e2075c18f"
+        },
+        {
+          "name": "quai-browser",
+          "version": "0.1.0-alpha.1",
+          "bytes": 82534,
+          "sha256": "e756b29d2e9b1b1f2554fb6ae56b64edd34aa6d1ec48be840d835568989a1817"
+        },
+        {
+          "name": "quai-signer",
+          "version": "0.1.0-alpha.1",
+          "bytes": 24676,
+          "sha256": "fa9ec9c99eb867aca5f457935e11f62a14b8fb627d779e2f907a8c36d6c319d0"
+        },
+        {
+          "name": "quai-keystore",
+          "version": "0.1.0-alpha.1",
+          "bytes": 34367,
+          "sha256": "34996e0c9a282a422812629d4f20266251c177476400a566633ee23b04da1127"
+        },
+        {
+          "name": "quai-wallet",
+          "version": "0.1.0-alpha.1",
+          "bytes": 270544,
+          "sha256": "7ec383872a8528a3d8b9abad8d70a201700edc0d1c47ee2e8b695b8fee6a24b5"
+        },
+        {
+          "name": "quai-payments",
+          "version": "0.1.0-alpha.1",
+          "bytes": 39469,
+          "sha256": "1d495a498e8b7aa176e042ff3c82bf4474e62b886d6d233b6c81a53ae206534a"
+        }
+      ],
+      "consumerTests": {
+        "minimal": "passed",
+        "default": "passed",
+        "full": "passed"
+      },
+      "packagedTargetChecks": {
+        "quai-primitives": "passed",
+        "quai-rpc": "passed",
+        "quai-provider": "passed",
+        "quai-consensus": "passed",
+        "quai-crypto": "passed",
+        "quai-sdk": "passed",
+        "quai-abi": "passed",
+        "quai-browser": "passed",
+        "quai-signer": "passed",
+        "quai-keystore": "passed",
+        "quai-wallet": "passed",
+        "quai-payments": "passed"
+      },
+      "packagedWasmChecks": {
+        "quai-browser": "passed",
+        "quai-sdk": "passed"
+      },
+      "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+    }
+  },
+  "sourceSha256": {
+    "crates/quai-wallet/tests/selection.rs": "a36d5ff37b67d003f5b0a92543458213ccef0455b5c9711f18da715434dcc50b",
+    "compatibility/scripts/selection-fee-regressions.test.mjs": "7f73ab9e2dd4880162c5035373b21b1a3c11f3334d26db128fb7163d0d7651c3",
+    "crates/quai-abi/Cargo.toml": "1256e63156a42ef0088f2981209ab604a19ad99cace472d9d468aa13f7f836c4",
+    "crates/quai-browser/Cargo.toml": "38edecbab9569a74cdb6844de76262203667721ac9b2fedc38b04ded93a4fa58",
+    "crates/quai-consensus/Cargo.toml": "ae7e344604ed932951342a72678c9108d1bb9dc50f09edfe363392ce038eced8",
+    "crates/quai-crypto/Cargo.toml": "35524d056fdf2014705b88bc14b5d0c15dc9aa5ae7d5c2f556d2b79c422aeb30",
+    "crates/quai-keystore/Cargo.toml": "32dffbfc07d92283c6955bc418c16ed54da33d2e0b91aa1961fdc381e14c27dd",
+    "crates/quai-payments/Cargo.toml": "0dd894b7bbe29aeb6d6d5ce2201fd06169e28f8af2e14e8922dd4672dde94935",
+    "crates/quai-primitives/Cargo.toml": "05057b7b8a4ba585818305d02d97e2b3b5e0a28bbcba03eb3b304a8a388eeb1e",
+    "crates/quai-provider/Cargo.toml": "0484a93620b44dfbde42568078a88244645b20cbceedbee485db1bf5cfd968ee",
+    "crates/quai-rpc/Cargo.toml": "6fb25bb4e0142820fec9d318d32e30603680005258a10f057a8376859111b9fa",
+    "crates/quai-sdk/Cargo.toml": "e61f30fb55c07da693e366332cb2ee6520ec9c397088c40a60c67ca55ce412bf",
+    "crates/quai-signer/Cargo.toml": "d05cccc0f9e9285a24c137203a24aeee0fa6d4f33b0cae2acc8367c0bafe68b1",
+    "crates/quai-wallet/Cargo.toml": "05d542d59c83b8c8a5e972b94484c2f9463de45a59d7942c23b0fa0baaa85ce4"
+  },
+  "releasePreparation": [
+    "All twelve package manifests now have explicit README/homepage/documentation/discovery metadata and docs.rs target configuration",
+    "Private vulnerability reporting enabled and checked; no report or message sent",
+    "All twelve crates.io name lookups returned 404; no reservation or publication performed",
+    "Documented dependency order and guarded first-release process"
+  ],
+  "limitations": [
+    "No claim of overall feature parity from these row mappings",
+    "Publish remains false; no credentials or actual registry upload were exercised",
+    "Name availability is a dated observation; hosted docs.rs publication still untested",
+    "Funded unmodified-network and independent release/security qualification remain separate"
+  ]
+}

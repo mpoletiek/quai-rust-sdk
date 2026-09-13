@@ -46,8 +46,13 @@ records four fixed medium findings, password-buffer hardening, regression eviden
 and unresolved limits. Parser sanitizer smoke runs are bounded checks, not sustained
 fuzz qualification. Two inactive optional dependencies remain unmaintained.
 
-Before public release, designate a security owner and private reporting channel;
-complete dependency/license review, sustained fuzzing, platform checks, protocol-specific
-review, funded acceptance and recovery gates. No independent security audit has
+Report suspected vulnerabilities privately through
+[GitHub private vulnerability reporting](https://github.com/mpoletiek/quai-rust-sdk/security/advisories/new).
+This route is enabled for this repository and reaches its maintainers. Include a
+minimal reproduction using public toy keys, affected versions and expected impact;
+never include credentials or funded wallet material. No response-time SLA is promised.
+
+Before a production release, complete dependency/license review, sustained fuzzing,
+platform checks, protocol-specific review, funded acceptance and recovery gates. No independent security audit has
 occurred. Never include real private keys, mnemonics, wallet exports or
 credential-bearing URLs in public bug reports; use public test fixtures.

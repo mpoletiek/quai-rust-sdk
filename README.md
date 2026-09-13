@@ -222,7 +222,7 @@ or independent compatibility evidence, and pass the relevant checks above. Keep
 signing/submission explicit and preserve ambiguous signed claims. Use public test
 fixtures only; do not commit real keys, wallet exports, database files or credentials.
 Read [SECURITY.md](SECURITY.md) before reporting a security issue, and never include
-secrets in a public issue. A private security-reporting channel is a release gate.
+secrets in a public issue. Use [private vulnerability reporting](https://github.com/mpoletiek/quai-rust-sdk/security/advisories/new) for security reports.
 
 ## License
 

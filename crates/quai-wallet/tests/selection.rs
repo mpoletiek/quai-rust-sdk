@@ -34,6 +34,27 @@ fn request(target: u64, fee: u64) -> SelectionRequest {
     }
 }
 #[test]
+fn fee_reselection_preserves_target_and_never_reports_uncovered_or_reversed_adjustments() {
+    let coins = [coin(0, 2), coin(1, 0)]; // Ten plus one Qits.
+    let before = select_fewest(&coins, &request(5, 1)).unwrap();
+    // Pinned JS increaseFee(6) returns a six-Qit fee despite requiring seven.
+    assert_eq!(
+        select_fewest(&coins, &request(5, 7)),
+        Err(SelectionError::InsufficientFunds)
+    );
+    assert_eq!(before.fee, U256::from(1));
+    let high = select_fewest(&coins, &request(5, 3)).unwrap();
+    let low = select_fewest(&coins, &request(5, 2)).unwrap();
+    assert_eq!(high.fee, U256::from(3));
+    assert_eq!(low.fee, U256::from(2));
+    for result in [before, high, low] {
+        let spend: u64 = result.spend_outputs.iter().map(|d| d.value()).sum();
+        let change: u64 = result.change_outputs.iter().map(|d| d.value()).sum();
+        assert_eq!(spend, 5);
+        assert_eq!(U256::from(spend + change) + result.fee, result.input_value);
+    }
+}
+#[test]
 fn all_69_fixed_fee_vectors_match_reference_input_and_output_order() {
     let file: Value = serde_json::from_str(include_str!(
         "fixtures/shared/compatibility/fixtures/selection.json"

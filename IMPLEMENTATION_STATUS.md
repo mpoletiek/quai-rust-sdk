@@ -739,3 +739,18 @@ Settlement CI run 34779281316 failed only the standalone IndexedDB fixture's
 and browser-exit/stderr diagnostics plus a finite 120-second startup-inclusive
 deadline. Local reproduction passed; CI must still qualify this change. See
 `test-infra/reports/signer-keystore-parity-2026-09-13.json`.
+
+## Selection reconciliation and publication metadata — September 13, 2026
+
+Reconciled 38 selection/UTXO/denomination declarations. Three executable published
+JS regressions demonstrate underfunded fee increases, reversed fee decreases and
+lossy lock metadata. Seven Rust selection tests, including 69 fixed-fee cases,
+pass and retain exact fees/targets/locks; wallet strict Clippy passes.
+
+All twelve crates now declare publication metadata and docs.rs targets, with
+repository links usable outside the checkout. The archive rehearsal passed twelve
+packages, three extracted consumers, twelve native target checks and two Wasm
+checks. All proposed crate names returned 404 on the dated read-only lookup; no
+names were reserved or uploaded. Private vulnerability reporting is enabled.
+`docs/PUBLISHING.md` records the dependency order, authorization boundary and
+remaining qualification. See the retained selection/publication preflight report.

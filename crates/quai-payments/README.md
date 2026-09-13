@@ -130,6 +130,6 @@ and production notification protocols remain unqualified.
 `from_master_xprv` derives the same payment identity as its original seed.
 `from_account_xprv` validates depth/account while explicitly trusting the omitted
 ancestry; full-wallet backup v3 and later support these explicit account origins.
-The [facade workflow guide](../../docs/WALLET_WORKFLOWS.md) covers registered
+The [facade workflow guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/WALLET_WORKFLOWS.md) covers registered
 channel send destinations, current receive scanning and spending through a
 verified local keyring. Those network/storage workflows live outside this crate.

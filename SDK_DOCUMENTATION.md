@@ -732,3 +732,15 @@ releasing claims. Native `wait_for_account_transaction` follows bounded pages
 under an overall deadline; browser callers choose page/timer policy explicitly.
 See [account nonce replacement discovery](docs/ACCOUNT_NONCE_REPLACEMENTS.md) for
 coverage, missing receipts, reorg behavior and the published-reference differences.
+
+## Reference selection review and publishing
+
+The [Qi selection review](docs/QI_SELECTION_PARITY_REVIEW.md) maps denominations,
+coin metadata, selection results and fee adjustments, including reference bugs
+that Rust corrects. [Publishing instructions](docs/PUBLISHING.md) cover package
+metadata, docs.rs targets, extracted archive checks and first-release dependency
+order. Upload remains disabled and requires separate authorization.
+
+Use [private vulnerability reporting](https://github.com/mpoletiek/quai-rust-sdk/security/advisories/new)
+for security findings; follow the [security policy](SECURITY.md) and use public
+toy reproductions instead of credentials or funded wallet material.

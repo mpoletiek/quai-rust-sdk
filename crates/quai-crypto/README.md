@@ -108,7 +108,7 @@ above still apply.
 This is local signing by an owner of all keys. It does not implement a
 distributed MuSig session, nonce exchange, partial-signature validation or nonce
 reuse prevention across participants. Those protocols remain separate work.
-The independent [Go oracle](../../test-infra/go-oracle/README.md) verifies both
+The independent [Go oracle](https://github.com/mpoletiek/quai-rust-sdk/blob/main/test-infra/go-oracle/README.md) verifies both
 JS protocol signatures and captured signatures produced by this local Rust API.
 Neither musig2 nor this integration has been independently audited for the SDK.
 

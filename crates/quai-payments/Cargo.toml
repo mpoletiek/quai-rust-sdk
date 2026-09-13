@@ -7,6 +7,11 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 publish.workspace = true
+readme = "README.md"
+homepage = "https://github.com/mpoletiek/quai-rust-sdk"
+documentation = "https://docs.rs/quai-payments"
+keywords = ["quai", "qi", "blockchain"]
+categories = ["cryptography"]
 
 [dependencies]
 quai-primitives.workspace = true
@@ -23,3 +28,8 @@ workspace = true
 
 [dev-dependencies]
 ripemd = "0.1.3"
+
+[package.metadata.docs.rs]
+all-features = true
+default-target = "x86_64-unknown-linux-gnu"
+targets = ["x86_64-unknown-linux-gnu"]

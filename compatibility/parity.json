@@ -7608,11 +7608,17 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_consensus::Denomination::VALUES"
+      ],
+      "feature": "wallet/selection",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-consensus/tests/qi_vectors.rs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
       "deviation": null
     },
     {
@@ -9859,17 +9865,20 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::select_fewest",
-        "quai_wallet::select_with_fee"
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
       ],
-      "feature": "wallet",
-      "status": "partial",
+      "feature": "wallet/selection",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/selection.rs"
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
       ],
-      "deviation": "Ordinary selection with bounded shape/maturity/fee constraints; no aggregation/conversion or automatic change/address reservation."
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": ".:FewestCoinSelector:instance:availableUTXOs",
@@ -9878,12 +9887,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": ".:FewestCoinSelector:instance:changeOutputs",
@@ -9892,12 +9911,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": ".:FewestCoinSelector:instance:decreaseFee",
@@ -9908,12 +9937,22 @@
         "(feeReduction: bigint): SelectedCoinsResult"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": ".:FewestCoinSelector:instance:increaseFee",
@@ -9924,12 +9963,22 @@
         "(additionalFeeNeeded: bigint): SelectedCoinsResult"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": ".:FewestCoinSelector:instance:performSelection",
@@ -9940,12 +9989,22 @@
         "(config: CoinSelectionConfig): SelectedCoinsResult"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": ".:FewestCoinSelector:instance:selectedUTXOs",
@@ -9954,12 +10013,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": ".:FewestCoinSelector:instance:spendOutputs",
@@ -9968,12 +10037,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": ".:FewestCoinSelector:instance:target",
@@ -9982,12 +10061,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": ".:FewestCoinSelector:instance:totalInputValue",
@@ -9996,12 +10085,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": ".:Filter",
@@ -32011,12 +32110,22 @@
         "new (): UTXO"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": ".:UTXO:instance:address",
@@ -32025,12 +32134,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": ".:UTXO:instance:denomination",
@@ -32039,12 +32158,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": ".:UTXO:instance:index",
@@ -32053,12 +32182,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": ".:UTXO:instance:lock",
@@ -32067,12 +32206,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": ".:UTXO:instance:toJSON",
@@ -32083,12 +32232,22 @@
         "(): any"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": ".:UTXO:instance:txhash",
@@ -32097,12 +32256,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": ".:UTXO:static:from",
@@ -32113,12 +32282,22 @@
         "(utxo: UTXOLike): UTXO"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": ".:uuidV4",
@@ -61684,11 +61863,17 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_consensus::Denomination::VALUES"
+      ],
+      "feature": "wallet/selection",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-consensus/tests/qi_vectors.rs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
       "deviation": null
     },
     {
@@ -61702,17 +61887,20 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::select_fewest",
-        "quai_wallet::select_with_fee"
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
       ],
-      "feature": "wallet",
-      "status": "partial",
+      "feature": "wallet/selection",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/selection.rs"
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
       ],
-      "deviation": "Ordinary selection with bounded shape/maturity/fee constraints; no aggregation/conversion or automatic change/address reservation."
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": "./transaction:FewestCoinSelector:instance:availableUTXOs",
@@ -61721,12 +61909,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": "./transaction:FewestCoinSelector:instance:changeOutputs",
@@ -61735,12 +61933,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": "./transaction:FewestCoinSelector:instance:decreaseFee",
@@ -61751,12 +61959,22 @@
         "(feeReduction: bigint): SelectedCoinsResult"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": "./transaction:FewestCoinSelector:instance:increaseFee",
@@ -61767,12 +61985,22 @@
         "(additionalFeeNeeded: bigint): SelectedCoinsResult"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": "./transaction:FewestCoinSelector:instance:performSelection",
@@ -61783,12 +62011,22 @@
         "(config: CoinSelectionConfig): SelectedCoinsResult"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": "./transaction:FewestCoinSelector:instance:selectedUTXOs",
@@ -61797,12 +62035,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": "./transaction:FewestCoinSelector:instance:spendOutputs",
@@ -61811,12 +62059,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": "./transaction:FewestCoinSelector:instance:target",
@@ -61825,12 +62083,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": "./transaction:FewestCoinSelector:instance:totalInputValue",
@@ -61839,12 +62107,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_fewest",
+        "quai_wallet::select_with_fee",
+        "quai_wallet::SelectionRequest",
+        "quai_wallet::CoinSelection"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Pure bounded selection and immutable results replace mutable class state. Exact final fee re-selection replaces increaseFee/decreaseFee and corrects uncovered/reversed fee adjustments. Preserves full input denomination capacity, locks, expiry, reservations and value conservation; 69 pinned fixed-fee cases match. New selection requires fresh review/address assignment before signing."
     },
     {
       "id": "./transaction:ProtoTransaction",
@@ -62799,12 +63077,22 @@
         "new (): UTXO"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": "./transaction:UTXO:instance:address",
@@ -62813,12 +63101,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": "./transaction:UTXO:instance:denomination",
@@ -62827,12 +63125,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": "./transaction:UTXO:instance:index",
@@ -62841,12 +63149,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": "./transaction:UTXO:instance:lock",
@@ -62855,12 +63173,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": "./transaction:UTXO:instance:toJSON",
@@ -62871,12 +63199,22 @@
         "(): any"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": "./transaction:UTXO:instance:txhash",
@@ -62885,12 +63223,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": "./transaction:UTXO:static:from",
@@ -62901,12 +63249,22 @@
         "(utxo: UTXOLike): UTXO"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_provider::AddressOutpoint",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "wallet/selection",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/selection.rs",
+        "crates/quai-provider/tests/provider.rs",
+        "compatibility/scripts/selection-fee-regressions.test.mjs"
+      ],
+      "docs": [
+        "docs/QI_SELECTION_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed complete public coin fields and bounded provider parsing replace nullable mutable JS UTXO objects. Locks are preserved and enforced; pinned from/toJSON omit them. No legacy JS DTO serializer; callers access explicit public fields. Current UTXO observations are invalidated on backup restore."
     },
     {
       "id": "./utils:ActionRejectedError",

@@ -1,0 +1,80 @@
+{
+  "recordedAt": "2026-09-13T20:26:23.055811+00:00",
+  "published": false,
+  "readOnly": true,
+  "qualification": "A not-found lookup does not reserve a name or prove future registration availability. Existing ownership requires separate verification.",
+  "crates": [
+    {
+      "name": "quai-abi",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-abi"
+    },
+    {
+      "name": "quai-browser",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-browser"
+    },
+    {
+      "name": "quai-consensus",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-consensus"
+    },
+    {
+      "name": "quai-crypto",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-crypto"
+    },
+    {
+      "name": "quai-keystore",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-keystore"
+    },
+    {
+      "name": "quai-payments",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-payments"
+    },
+    {
+      "name": "quai-primitives",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-primitives"
+    },
+    {
+      "name": "quai-provider",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-provider"
+    },
+    {
+      "name": "quai-rpc",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-rpc"
+    },
+    {
+      "name": "quai-sdk",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-sdk"
+    },
+    {
+      "name": "quai-signer",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-signer"
+    },
+    {
+      "name": "quai-wallet",
+      "status": "not-found",
+      "httpStatus": 404,
+      "url": "https://crates.io/api/v1/crates/quai-wallet"
+    }
+  ]
+}

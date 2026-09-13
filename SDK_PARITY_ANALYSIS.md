@@ -88,10 +88,10 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
-| `implemented` | 62 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 1246 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 158 | A mapping exists with unfinished behavior or scope |
-| `pending` | 2462 | No completed row-level reconciliation; not proof of absence |
+| `implemented` | 64 | An explicitly mapped behavior, still subject to qualification |
+| `deviation` | 1282 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 156 | A mapping exists with unfinished behavior or scope |
+| `pending` | 2426 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -133,6 +133,8 @@ machine-readable ledger. [Unknown account replacements](docs/ACCOUNT_NONCE_REPLA
 now have executable reference comparisons and typed observation/wait APIs.
 The [local/watch-only signer review](docs/SIGNER_PARITY_REVIEW.md) reconciles
 provider composition, signing, HD origins and native/Wasm legacy key interchange.
+The [Qi selection review](docs/QI_SELECTION_PARITY_REVIEW.md) maps fixed
+denominations, coin records, selection state and corrected fee adjustments.
 
 ## Concrete remaining gaps
 
@@ -147,7 +149,7 @@ gaps merely because they appear here.
 | --- | --- | --- |
 | Browser/native storage differences | Browser sessions compose discovery, account/Qi preparation, reviewed replacements, durable signing/submission, canonical reconciliation and signed-intent settlement; destination cursor persistence remains native-only | Browser callers must recheck explicit destination ranges after restart; native persisted cursors are an additional recovery convenience, not a proven missing quais.js behavior |
 | Automatic wallet reconciliation and terminal claim policy | Bounded canonical replay and conservative claims exist; applications still explicitly refresh/apply observations | Defined pending/replaced/dropped/reorg/terminal transitions with evidence-based claim handling and fault tests; disappearance alone must not permit reuse |
-| Row-level semantic parity review | 2462 pending and 158 partial declarations, including inherited provider and response helpers | Review each unique behavior, overload and inherited binding; map it to tested Rust behavior or justify a specific omission |
+| Row-level semantic parity review | 2426 pending and 156 partial declarations, including inherited provider and response helpers | Review each unique behavior, overload and inherited binding; map it to tested Rust behavior or justify a specific omission |
 | Injected-wallet convenience/interoperability | Provider selection is explicit; chain switching and permission management are absent | Implement selected supported extension operations with exact request/result/context tests, then qualify real extensions |
 | Payment notification automation | Version-one keys/channels work with explicit code exchange | A specified supported notification/exchange protocol, parser/construction/discovery tests and appropriate node/peer qualification; do not infer it from payment-code key derivation |
 | Browser journal lifetime management | IDs remain consumed under finite bounds; there is no general safe compaction/rotation workflow | A design retaining anti-reuse/claim guarantees across archival or successor journals, with restore/concurrency tests |
@@ -263,7 +265,6 @@ root/subpath exports account for much of the volume.
 | `StructFragment` | 24 | 0 | 0 | 0 |
 | `NamedFragment` | 22 | 0 | 0 | 0 |
 | `BaseWallet` | 20 | 0 | 0 | 0 |
-| `FewestCoinSelector` | 18 | 2 | 0 | 0 |
 | `Fragment` | 20 | 0 | 0 | 0 |
 | `LangEs` | 20 | 0 | 0 | 0 |
 | `LangEn` | 18 | 0 | 0 | 0 |
@@ -276,7 +277,6 @@ root/subpath exports account for much of the volume.
 | `SocketBlockSubscriber` | 16 | 0 | 0 | 0 |
 | `SocketPendingSubscriber` | 16 | 0 | 0 | 0 |
 | `SocketSubscriber` | 16 | 0 | 0 | 0 |
-| `UTXO` | 16 | 0 | 0 | 0 |
 | `WordlistOwl` | 16 | 0 | 0 | 0 |
 | `BIP44` | 12 | 0 | 0 | 0 |
 | `UnmanagedSubscriber` | 12 | 0 | 0 | 0 |
@@ -323,7 +323,6 @@ root/subpath exports account for much of the volume.
 | `copyRequest` | 2 | 0 | 0 | 0 |
 | `DebugEventBrowserProvider` | 2 | 0 | 0 | 0 |
 | `DeferredTopicFilter` | 2 | 0 | 0 | 0 |
-| `denominations` | 2 | 0 | 0 | 0 |
 | `Eip1193Provider` | 2 | 0 | 0 | 0 |
 | `EncryptOptions` | 2 | 0 | 0 | 0 |
 | `ErrorCode` | 2 | 0 | 0 | 0 |

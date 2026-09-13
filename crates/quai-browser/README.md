@@ -287,5 +287,5 @@ Cancellation after dispatch may commit all entries; re-read before retrying.
 
 The facade's `browser_backups::merge_wallet_backup` validates owned recovery
 merges across initialized HD, account, Qi and payment books before this commit.
-See [atomic restore](../../docs/BROWSER_ATOMIC_RESTORE.md) and the
-[SDK guide](../../SDK_DOCUMENTATION.md).
+See [atomic restore](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/BROWSER_ATOMIC_RESTORE.md) and the
+[SDK guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/SDK_DOCUMENTATION.md).

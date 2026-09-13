@@ -4,9 +4,9 @@ This crate implements offline BIP39/BIP32 derivation for Quai coin type 994 and
 Qi coin type 969, bounded discovery, optional native wallet-state persistence
 and portable authenticated backup. Signing workflows and provider adapters live in other
 SDK crates. This crate does not implement verified chain-proof recovery. Bounded watch-only discovery and durable fresh
-address allocation are documented in [DISCOVERY.md](DISCOVERY.md). Optional native
+address allocation are documented in [DISCOVERY.md](https://github.com/mpoletiek/quai-rust-sdk/blob/main/crates/quai-wallet/DISCOVERY.md). Optional native
 `sqlite` storage provides public metadata, snapshot generations, durable outpoint
-and nonce reservations, and validated signed-payload recovery; see [STORAGE.md](STORAGE.md).
+and nonce reservations, and validated signed-payload recovery; see [STORAGE.md](https://github.com/mpoletiek/quai-rust-sdk/blob/main/crates/quai-wallet/STORAGE.md).
 
 Implemented behavior:
 
@@ -22,7 +22,7 @@ Implemented behavior:
   the declared coin ancestry must come from a trusted source because xpub bytes
   cannot prove their complete origin path.
 - Authenticated encrypted **seed-only** backups with explicit coin/account
-  metadata. See [the binary format and limits](BACKUP_FORMAT.md).
+  metadata. See [the binary format and limits](https://github.com/mpoletiek/quai-rust-sdk/blob/main/crates/quai-wallet/BACKUP_FORMAT.md).
 
 ```rust
 use quai_wallet::{CoinType, HdWallet, Language, Mnemonic, Search};
@@ -79,7 +79,7 @@ limit. Mnemonic parsing accepts surrounding/repeated Unicode whitespace; this
 is more permissive than some reference wordlist splitters, and seeds derive
 from the canonical validated phrase. Native authenticated full-wallet backups and portable mnemonic generation are
 available. Browser custody and atomic recovery are described in the
-[SDK guide](../../SDK_DOCUMENTATION.md); complete browser session orchestration
+[SDK guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/SDK_DOCUMENTATION.md); complete browser session orchestration
 remains separate.
 
 The underlying bip32 0.5.3 master API accepts only 16/32/64-byte seeds. This
@@ -113,14 +113,14 @@ index/depth boundaries, cancellation and resumable search. These are offline
 conformance tests, not node qualification or a security audit of the wallet.
 
 Native authenticated database-state backup with explicit seed/master-xprv/imported-key
-owners is documented in [FULL_BACKUP_FORMAT.md](FULL_BACKUP_FORMAT.md). It includes
+owners is documented in [FULL_BACKUP_FORMAT.md](https://github.com/mpoletiek/quai-rust-sdk/blob/main/crates/quai-wallet/FULL_BACKUP_FORMAT.md). It includes
 burned ranges, retained claims and SQLite-registered seed/master-owned BIP47 channels,
 invalidates snapshots on restore, and excludes external application-held channels
 and other uninventoried state. The `sqlite` feature enables durable payment cursors
 and ownership-verified QUAIWALT v2 channel backups; legacy v1 decoding is preserved.
 
 Current gap-50 Qi RPC discovery, mixed-origin sessions, payment channel orchestration,
-sweep/aggregation and recovery are described in the [facade workflow guide](../../docs/WALLET_WORKFLOWS.md).
+sweep/aggregation and recovery are described in the [facade workflow guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/WALLET_WORKFLOWS.md).
 
 ## Extended key metadata and subtree paths
 
@@ -241,7 +241,7 @@ workers. Native `sqlite` enables it automatically and keeps atomic capture/resto
 `WalletBackup::scope_state` exposes owned addresses, derivation/nonce cursors and
 retained signed claims/candidates; payment channel/exposure views retain their
 complete context. These are authenticated historical records, not live balances
-or permission to rewind current state. See [QUAIWALT](FULL_BACKUP_FORMAT.md).
+or permission to rewind current state. See [QUAIWALT](https://github.com/mpoletiek/quai-rust-sdk/blob/main/crates/quai-wallet/FULL_BACKUP_FORMAT.md).
 
 
 `allocation::AddressAllocationBook` adds bounded public receive/change allocation
@@ -249,9 +249,9 @@ journals with immutable request IDs, burned raw ranges and exact completed child
 The facade's `browser_addresses::BrowserAddressBook` commits the range before
 search and the address before returning it, using IndexedDB CAS across tabs and
 workers. It refuses stale initialization/tombstones and can initialize floors from
-an authenticated full backup. See [durable allocation](DISCOVERY.md#portable-durable-hd-address-allocation).
+an authenticated full backup. See [durable allocation](https://github.com/mpoletiek/quai-rust-sdk/blob/main/crates/quai-wallet/DISCOVERY.md#portable-durable-hd-address-allocation).
 
 With `payments`, the portable `payment_allocation` module retains bounded public
 send/receive journals, explicit consumed ranges and verified destinations. The
 browser facade adds atomic persistence; authenticated backup cursor initialization
-requires `backup`. See [discovery and allocation](DISCOVERY.md).
+requires `backup`. See [discovery and allocation](https://github.com/mpoletiek/quai-rust-sdk/blob/main/crates/quai-wallet/DISCOVERY.md).

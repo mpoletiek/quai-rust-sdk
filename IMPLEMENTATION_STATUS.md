@@ -192,3 +192,13 @@ reread for current receipts and output locks. Reorg/missing anchors require an
 explicit restart range, and concurrent observers cannot clear or overwrite one
 another's newer cache. This remains source observation, not historical recovery
 or finality qualification.
+
+
+Validated `AbiValue` pairs now cover explicit Solidity types, immediate range and
+shape checks, bounded zero/empty defaults, exact integer bounds and structural
+metadata. There are 426 pinned reference encoder cases and 64 integer bound
+cases; JavaScript constant-zero helper stubs and delayed validation are recorded
+as deliberate differences. The extended ABI/default fuzz run completed 2,485,442
+executions with no sanitizer failure. A CI-only Chromium profile deletion race
+was reproduced deterministically and fixed without suppressing storage assertions
+or permission errors.

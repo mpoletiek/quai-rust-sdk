@@ -26254,12 +26254,18 @@
         "new (guard: any, type: string, value: any, options?: any): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:instance:_typedSymbol",
@@ -26269,11 +26275,15 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Rust static AbiValue identity replaces JS brand symbols and runtime duck typing."
     },
     {
       "id": ".:Typed:instance:arrayLength",
@@ -26282,12 +26292,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::array_info"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:instance:defaultValue",
@@ -26298,12 +26314,18 @@
         "(): string | number | bigint | Result"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::default_for"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Type-correct bounded defaults and exact integer limits intentionally replace pinned JS constant-zero stubs; non-integer bounds return None."
     },
     {
       "id": ".:Typed:instance:format",
@@ -26314,12 +26336,18 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::canonical_name"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:instance:isBigInt",
@@ -26330,12 +26358,18 @@
         "(): this is TypedBigInt"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::is_integer"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:instance:isData",
@@ -26346,12 +26380,18 @@
         "(): this is TypedData"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::is_bytes"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:instance:isString",
@@ -26362,12 +26402,18 @@
         "(): this is TypedString"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::is_string"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:instance:maxValue",
@@ -26378,12 +26424,18 @@
         "(): string | number | bigint"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::integer_bounds"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Type-correct bounded defaults and exact integer limits intentionally replace pinned JS constant-zero stubs; non-integer bounds return None."
     },
     {
       "id": ".:Typed:instance:minValue",
@@ -26394,12 +26446,18 @@
         "(): string | number | bigint"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::integer_bounds"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Type-correct bounded defaults and exact integer limits intentionally replace pinned JS constant-zero stubs; non-integer bounds return None."
     },
     {
       "id": ".:Typed:instance:tupleName",
@@ -26409,11 +26467,15 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "ABI values are positional; JS tuple-name metadata is not represented."
     },
     {
       "id": ".:Typed:instance:type",
@@ -26422,12 +26484,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::abi_type"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:instance:value",
@@ -26436,12 +26504,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::value"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:address",
@@ -26452,12 +26526,18 @@
         "(v: string | Addressable): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:array",
@@ -26468,12 +26548,18 @@
         "(v: Array<any | Typed>, dynamic?: null | boolean): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Complete explicit AbiType plus positional values replaces runtime inference; nested shape and bounds are checked immediately."
     },
     {
       "id": ".:Typed:static:bool",
@@ -26484,12 +26570,18 @@
         "(v: any): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes",
@@ -26500,12 +26592,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes1",
@@ -26516,12 +26614,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes10",
@@ -26532,12 +26636,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes11",
@@ -26548,12 +26658,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes12",
@@ -26564,12 +26680,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes13",
@@ -26580,12 +26702,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes14",
@@ -26596,12 +26724,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes15",
@@ -26612,12 +26746,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes16",
@@ -26628,12 +26768,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes17",
@@ -26644,12 +26790,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes18",
@@ -26660,12 +26812,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes19",
@@ -26676,12 +26834,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes2",
@@ -26692,12 +26856,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes20",
@@ -26708,12 +26878,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes21",
@@ -26724,12 +26900,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes22",
@@ -26740,12 +26922,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes23",
@@ -26756,12 +26944,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes24",
@@ -26772,12 +26966,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes25",
@@ -26788,12 +26988,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes26",
@@ -26804,12 +27010,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes27",
@@ -26820,12 +27032,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes28",
@@ -26836,12 +27054,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes29",
@@ -26852,12 +27076,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes3",
@@ -26868,12 +27098,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes30",
@@ -26884,12 +27120,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes31",
@@ -26900,12 +27142,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes32",
@@ -26916,12 +27164,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes4",
@@ -26932,12 +27186,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes5",
@@ -26948,12 +27208,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes6",
@@ -26964,12 +27230,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes7",
@@ -26980,12 +27252,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes8",
@@ -26996,12 +27274,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:bytes9",
@@ -27012,12 +27296,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:dereference",
@@ -27028,12 +27318,18 @@
         "<T>(value: Typed | T, type: string): T"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::expect_type"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:from",
@@ -27044,12 +27340,18 @@
         "(type: string, value: any): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int",
@@ -27060,12 +27362,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int104",
@@ -27076,12 +27384,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int112",
@@ -27092,12 +27406,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int120",
@@ -27108,12 +27428,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int128",
@@ -27124,12 +27450,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int136",
@@ -27140,12 +27472,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int144",
@@ -27156,12 +27494,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int152",
@@ -27172,12 +27516,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int16",
@@ -27188,12 +27538,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int160",
@@ -27204,12 +27560,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int168",
@@ -27220,12 +27582,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int176",
@@ -27236,12 +27604,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int184",
@@ -27252,12 +27626,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int192",
@@ -27268,12 +27648,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int200",
@@ -27284,12 +27670,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int208",
@@ -27300,12 +27692,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int216",
@@ -27316,12 +27714,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int224",
@@ -27332,12 +27736,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int232",
@@ -27348,12 +27758,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int24",
@@ -27364,12 +27780,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int240",
@@ -27380,12 +27802,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int248",
@@ -27396,12 +27824,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int256",
@@ -27412,12 +27846,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int32",
@@ -27428,12 +27868,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int40",
@@ -27444,12 +27890,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int48",
@@ -27460,12 +27912,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int56",
@@ -27476,12 +27934,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int64",
@@ -27492,12 +27956,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int72",
@@ -27508,12 +27978,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int8",
@@ -27524,12 +28000,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int80",
@@ -27540,12 +28022,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int88",
@@ -27556,12 +28044,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:int96",
@@ -27572,12 +28066,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:isTyped",
@@ -27589,11 +28089,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Rust static AbiValue identity replaces JS brand symbols and runtime duck typing."
     },
     {
       "id": ".:Typed:static:overrides",
@@ -27604,12 +28108,20 @@
         "(v: Record<string, any>): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Transaction overrides are explicit provider CallRequest fields or durable transaction intents; they are not ABI values."
     },
     {
       "id": ".:Typed:static:string",
@@ -27620,12 +28132,18 @@
         "(v: string): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:tuple",
@@ -27636,12 +28154,18 @@
         "(v: Array<any | Typed> | Record<string, any | Typed>, name?: string): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Complete explicit AbiType plus positional values replaces runtime inference; nested shape and bounds are checked immediately."
     },
     {
       "id": ".:Typed:static:uint",
@@ -27652,12 +28176,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint104",
@@ -27668,12 +28198,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint112",
@@ -27684,12 +28220,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint120",
@@ -27700,12 +28242,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint128",
@@ -27716,12 +28264,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint136",
@@ -27732,12 +28286,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint144",
@@ -27748,12 +28308,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint152",
@@ -27764,12 +28330,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint16",
@@ -27780,12 +28352,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint160",
@@ -27796,12 +28374,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint168",
@@ -27812,12 +28396,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint176",
@@ -27828,12 +28418,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint184",
@@ -27844,12 +28440,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint192",
@@ -27860,12 +28462,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint200",
@@ -27876,12 +28484,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint208",
@@ -27892,12 +28506,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint216",
@@ -27908,12 +28528,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint224",
@@ -27924,12 +28550,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint232",
@@ -27940,12 +28572,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint24",
@@ -27956,12 +28594,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint240",
@@ -27972,12 +28616,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint248",
@@ -27988,12 +28638,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint256",
@@ -28004,12 +28660,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint32",
@@ -28020,12 +28682,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint40",
@@ -28036,12 +28704,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint48",
@@ -28052,12 +28726,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint56",
@@ -28068,12 +28748,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint64",
@@ -28084,12 +28770,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint72",
@@ -28100,12 +28792,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint8",
@@ -28116,12 +28814,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint80",
@@ -28132,12 +28836,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint88",
@@ -28148,12 +28858,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:Typed:static:uint96",
@@ -28164,12 +28880,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": ".:TypedDataDomain",
@@ -35882,12 +36604,18 @@
         "new (guard: any, type: string, value: any, options?: any): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:instance:_typedSymbol",
@@ -35897,11 +36625,15 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Rust static AbiValue identity replaces JS brand symbols and runtime duck typing."
     },
     {
       "id": "./abi:Typed:instance:arrayLength",
@@ -35910,12 +36642,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::array_info"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:instance:defaultValue",
@@ -35926,12 +36664,18 @@
         "(): string | number | bigint | Result"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::default_for"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Type-correct bounded defaults and exact integer limits intentionally replace pinned JS constant-zero stubs; non-integer bounds return None."
     },
     {
       "id": "./abi:Typed:instance:format",
@@ -35942,12 +36686,18 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::canonical_name"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:instance:isBigInt",
@@ -35958,12 +36708,18 @@
         "(): this is TypedBigInt"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::is_integer"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:instance:isData",
@@ -35974,12 +36730,18 @@
         "(): this is TypedData"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::is_bytes"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:instance:isString",
@@ -35990,12 +36752,18 @@
         "(): this is TypedString"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::is_string"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:instance:maxValue",
@@ -36006,12 +36774,18 @@
         "(): string | number | bigint"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::integer_bounds"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Type-correct bounded defaults and exact integer limits intentionally replace pinned JS constant-zero stubs; non-integer bounds return None."
     },
     {
       "id": "./abi:Typed:instance:minValue",
@@ -36022,12 +36796,18 @@
         "(): string | number | bigint"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiType::integer_bounds"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Type-correct bounded defaults and exact integer limits intentionally replace pinned JS constant-zero stubs; non-integer bounds return None."
     },
     {
       "id": "./abi:Typed:instance:tupleName",
@@ -36037,11 +36817,15 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "ABI values are positional; JS tuple-name metadata is not represented."
     },
     {
       "id": "./abi:Typed:instance:type",
@@ -36050,12 +36834,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::abi_type"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:instance:value",
@@ -36064,12 +36854,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::value"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:address",
@@ -36080,12 +36876,18 @@
         "(v: string | Addressable): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:array",
@@ -36096,12 +36898,18 @@
         "(v: Array<any | Typed>, dynamic?: null | boolean): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Complete explicit AbiType plus positional values replaces runtime inference; nested shape and bounds are checked immediately."
     },
     {
       "id": "./abi:Typed:static:bool",
@@ -36112,12 +36920,18 @@
         "(v: any): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes",
@@ -36128,12 +36942,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes1",
@@ -36144,12 +36964,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes10",
@@ -36160,12 +36986,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes11",
@@ -36176,12 +37008,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes12",
@@ -36192,12 +37030,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes13",
@@ -36208,12 +37052,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes14",
@@ -36224,12 +37074,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes15",
@@ -36240,12 +37096,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes16",
@@ -36256,12 +37118,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes17",
@@ -36272,12 +37140,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes18",
@@ -36288,12 +37162,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes19",
@@ -36304,12 +37184,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes2",
@@ -36320,12 +37206,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes20",
@@ -36336,12 +37228,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes21",
@@ -36352,12 +37250,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes22",
@@ -36368,12 +37272,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes23",
@@ -36384,12 +37294,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes24",
@@ -36400,12 +37316,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes25",
@@ -36416,12 +37338,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes26",
@@ -36432,12 +37360,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes27",
@@ -36448,12 +37382,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes28",
@@ -36464,12 +37404,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes29",
@@ -36480,12 +37426,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes3",
@@ -36496,12 +37448,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes30",
@@ -36512,12 +37470,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes31",
@@ -36528,12 +37492,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes32",
@@ -36544,12 +37514,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes4",
@@ -36560,12 +37536,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes5",
@@ -36576,12 +37558,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes6",
@@ -36592,12 +37580,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes7",
@@ -36608,12 +37602,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes8",
@@ -36624,12 +37624,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:bytes9",
@@ -36640,12 +37646,18 @@
         "(v: BytesLike): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:dereference",
@@ -36656,12 +37668,18 @@
         "<T>(value: Typed | T, type: string): T"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::expect_type"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:from",
@@ -36672,12 +37690,18 @@
         "(type: string, value: any): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int",
@@ -36688,12 +37712,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int104",
@@ -36704,12 +37734,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int112",
@@ -36720,12 +37756,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int120",
@@ -36736,12 +37778,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int128",
@@ -36752,12 +37800,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int136",
@@ -36768,12 +37822,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int144",
@@ -36784,12 +37844,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int152",
@@ -36800,12 +37866,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int16",
@@ -36816,12 +37888,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int160",
@@ -36832,12 +37910,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int168",
@@ -36848,12 +37932,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int176",
@@ -36864,12 +37954,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int184",
@@ -36880,12 +37976,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int192",
@@ -36896,12 +37998,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int200",
@@ -36912,12 +38020,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int208",
@@ -36928,12 +38042,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int216",
@@ -36944,12 +38064,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int224",
@@ -36960,12 +38086,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int232",
@@ -36976,12 +38108,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int24",
@@ -36992,12 +38130,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int240",
@@ -37008,12 +38152,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int248",
@@ -37024,12 +38174,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int256",
@@ -37040,12 +38196,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int32",
@@ -37056,12 +38218,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int40",
@@ -37072,12 +38240,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int48",
@@ -37088,12 +38262,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int56",
@@ -37104,12 +38284,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int64",
@@ -37120,12 +38306,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int72",
@@ -37136,12 +38328,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int8",
@@ -37152,12 +38350,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int80",
@@ -37168,12 +38372,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int88",
@@ -37184,12 +38394,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:int96",
@@ -37200,12 +38416,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:isTyped",
@@ -37217,11 +38439,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Rust static AbiValue identity replaces JS brand symbols and runtime duck typing."
     },
     {
       "id": "./abi:Typed:static:overrides",
@@ -37232,12 +38458,20 @@
         "(v: Record<string, any>): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Transaction overrides are explicit provider CallRequest fields or durable transaction intents; they are not ABI values."
     },
     {
       "id": "./abi:Typed:static:string",
@@ -37248,12 +38482,18 @@
         "(v: string): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:tuple",
@@ -37264,12 +38504,18 @@
         "(v: Array<any | Typed> | Record<string, any | Typed>, name?: string): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Complete explicit AbiType plus positional values replaces runtime inference; nested shape and bounds are checked immediately."
     },
     {
       "id": "./abi:Typed:static:uint",
@@ -37280,12 +38526,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint104",
@@ -37296,12 +38548,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint112",
@@ -37312,12 +38570,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint120",
@@ -37328,12 +38592,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint128",
@@ -37344,12 +38614,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint136",
@@ -37360,12 +38636,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint144",
@@ -37376,12 +38658,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint152",
@@ -37392,12 +38680,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint16",
@@ -37408,12 +38702,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint160",
@@ -37424,12 +38724,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint168",
@@ -37440,12 +38746,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint176",
@@ -37456,12 +38768,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint184",
@@ -37472,12 +38790,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint192",
@@ -37488,12 +38812,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint200",
@@ -37504,12 +38834,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint208",
@@ -37520,12 +38856,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint216",
@@ -37536,12 +38878,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint224",
@@ -37552,12 +38900,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint232",
@@ -37568,12 +38922,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint24",
@@ -37584,12 +38944,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint240",
@@ -37600,12 +38966,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint248",
@@ -37616,12 +38988,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint256",
@@ -37632,12 +39010,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint32",
@@ -37648,12 +39032,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint40",
@@ -37664,12 +39054,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint48",
@@ -37680,12 +39076,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint56",
@@ -37696,12 +39098,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint64",
@@ -37712,12 +39120,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint72",
@@ -37728,12 +39142,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint8",
@@ -37744,12 +39164,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint80",
@@ -37760,12 +39186,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint88",
@@ -37776,12 +39208,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./abi:Typed:static:uint96",
@@ -37792,12 +39230,18 @@
         "(v: BigNumberish): Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiValue::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/typed_values.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit validated AbiType/AbiValue replaces width-specific JS wrappers and coercions; exact range/length checks occur at construction, and values are immutable."
     },
     {
       "id": "./address:Addressable",

@@ -11,6 +11,22 @@ import threading
 import time
 
 
+def remove_profile(profile):
+    # Chromium children can still finish writes or unlink temporary files after
+    # the parent exits. Retry only this owned path for both observed race forms;
+    # permission failures and an exhausted retry budget remain real failures.
+    for attempt in range(20):
+        try:
+            shutil.rmtree(profile)
+            return
+        except OSError as error:
+            if error.errno == errno.ENOENT and not pathlib.Path(profile).exists():
+                return
+            if error.errno not in (errno.ENOTEMPTY, errno.ENOENT) or attempt == 19:
+                raise
+            time.sleep(0.1)
+
+
 def main():
     root = pathlib.Path(__file__).resolve().parents[1]
     finished = threading.Event()
@@ -51,16 +67,7 @@ def main():
                     except subprocess.TimeoutExpired:
                         process.kill()
                         process.wait(timeout=5)
-            # Chromium's child processes can finish profile writes just after
-            # the browser process exits. Retry only this owned temporary path.
-            for attempt in range(20):
-                try:
-                    shutil.rmtree(profile)
-                    break
-                except OSError as error:
-                    if error.errno != errno.ENOTEMPTY or attempt == 19:
-                        raise
-                    time.sleep(0.1)
+            remove_profile(profile)
     finally:
         server.shutdown()
         server.server_close()

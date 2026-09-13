@@ -12,7 +12,8 @@ Targets:
   every successful decode must reproduce the exact input bytes and produce its
   transaction identity. Signature verification stays enabled.
 - `abi`: bounded type/interface/typed-data parsing, RPC-document hash stability,
-  and exact canonical ABI re-encoding for selected static/dynamic/nested types.
+  and exact canonical ABI re-encoding for selected static/dynamic/nested types,
+  plus bounded type-correct defaults.
 - `wallet_import`: legacy keystore parsing/resource bounds, public payment-code
   roundtrips, extended-key/mnemonic and public-key/signature import boundaries.
   It deliberately does not execute attacker-selected expensive KDF parameters.
@@ -72,3 +73,7 @@ exit 0; it has its own report and binary identity. These are
 bounded parser/arithmetic runs, not a substitute for stateful fault testing or
 independent security review. `--report PATH` retains additional runs without
 replacing the earlier smoke evidence. CI builds and runs all five targets.
+
+The subsequent typed-value/default extension completed another 300-second ABI
+run with **2,485,442 executions**, exit 0 and AddressSanitizer active. Its separate
+`typed-abi-fuzz-2026-09-12.json` report binds the updated target and public corpus.

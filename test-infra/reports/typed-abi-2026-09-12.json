@@ -1,0 +1,36 @@
+{
+  "recordedAt": "2026-09-13T02:16:09.276246+00:00",
+  "scope": "Validated ABI type/value pairs, bounded defaults and integer bounds; regression for Chromium profile cleanup race",
+  "abi_tests": {
+    "reported_passes": 22,
+    "failures": 0,
+    "ignored": 0
+  },
+  "pinned_js_encoder_cases": 426,
+  "integer_bound_cases": 64,
+  "strict_native_and_wasm_clippy": "passed",
+  "rustdoc_warnings_denied": "passed",
+  "chromium_browser_tests": 11,
+  "standalone_indexeddb_regression": "passed",
+  "python_infrastructure_tests": 16,
+  "reference_script_tests": "passed",
+  "fuzz_report": "typed-abi-fuzz-2026-09-12.json",
+  "ci_failure_fixed": {
+    "run": 34732158253,
+    "job": 103656819796,
+    "symptom": "IndexedDB assertions passed, then rmtree encountered a child file removed by Chromium",
+    "fix": "Retry ENOENT while the owned root exists, as well as ENOTEMPTY; preserve permission failures and bounded retries",
+    "deterministic_regressions": [
+      "child-file disappearance",
+      "late child write",
+      "already-removed root",
+      "permission failure"
+    ]
+  },
+  "limitations": [
+    "Typed defaults and integer limits deliberately correct pinned reference constant-zero stubs.",
+    "ABI values use explicit types and positional tuples; runtime coercions and JS branding are not mirrored.",
+    "Bounded sanitizer runs are not independent security qualification."
+  ],
+  "releaseQualified": false
+}

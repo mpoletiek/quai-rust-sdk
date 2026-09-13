@@ -236,3 +236,38 @@ through pinned JS Interface. Regenerate them with:
 ```sh
 node crates/quai-abi/tests/generate-abi-fixtures.mjs
 ```
+
+## Values with explicit ABI types
+
+`AbiValue::new(AbiType, Value)` validates and retains an immutable type/value
+pair. All integer widths, fixed/dynamic bytes, strings, addresses, booleans,
+arrays and tuples use the existing bounded codec contract. `encode` encodes one
+parameter sequence; `expect_type` rejects a mismatched expected type. Debug
+shows only the canonical type and encoded size. Values are borrowed immutably;
+owned parts can be extracted, but modified values require construction again.
+
+`AbiValue::default_for` supplies type-correct zero/empty values and checks node,
+text and encoded-size limits before allocating the default tree. Dynamic arrays
+are empty; fixed arrays and tuples preserve their complete declared shape.
+`AbiType::integer_bounds` returns exact decimal bounds for every integer width.
+Type predicates, `array_info` and `tuple_components` expose structural metadata.
+
+These APIs replace JS `Typed` width-specific constructors with an explicit
+validated type. They validate values immediately; the pinned constructors leave
+range/length checks to the encoder. The reference's default/min/max helpers
+return the constant zero, which Rust intentionally corrects. Guard tokens, brand
+symbols, duck typing, inferred array/tuple types, loose truthiness, and tuple-name
+metadata are not mirrored. Tuples remain positional. Transaction overrides use
+provider `CallRequest`/transaction intents, not an ABI value wrapper. The 426
+reference encoder cases and 64 bound cases retain constructor observations and
+stub results; tests verify exact encoding and deliberate validation differences.
+
+```rust
+use quai_abi::{AbiType, AbiValue};
+use serde_json::json;
+let value = AbiValue::new("uint16".parse()?, json!("65535"))?;
+assert_eq!(value.encode()?.len(), 32);
+assert_eq!(value.abi_type().integer_bounds(), Some(("0".into(), "65535".into())));
+assert!(AbiValue::new("uint16".parse()?, json!("65536")).is_err());
+# Ok::<(), Box<dyn std::error::Error>>(())
+```

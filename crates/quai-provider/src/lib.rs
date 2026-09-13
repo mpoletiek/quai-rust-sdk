@@ -4,6 +4,8 @@ use quai_rpc::{QuantityError, RouteError, Routing, RpcError, Transport, U256, pa
 use serde_json::{Value, json};
 use thiserror::Error;
 
+mod confirmation;
+pub use confirmation::{ConfirmedReceipt, ReceiptConfirmation};
 mod deployment;
 #[cfg(all(feature = "polling", not(target_arch = "wasm32")))]
 pub use deployment::DeploymentWaitError;
@@ -43,7 +45,7 @@ pub use types::{
     TransactionKind, ZoneHeader,
 };
 #[cfg(all(feature = "polling", not(target_arch = "wasm32")))]
-pub use wait::{ConfirmedReceipt, WaitConfig, WaitError};
+pub use wait::{WaitConfig, WaitError};
 
 /// A block selector supported by the initial account read methods.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

@@ -1,4 +1,4 @@
-use crate::{Inclusion, Provider, ProviderError, Receipt, ZoneHeader};
+use crate::{ConfirmedReceipt, Inclusion, Provider, ProviderError};
 use quai_primitives::{Hash32, Zone};
 use quai_rpc::Transport;
 use std::time::Duration;
@@ -13,17 +13,6 @@ pub struct WaitConfig {
     pub timeout: Duration,
     /// Positive delay between incomplete observations, no longer than timeout.
     pub poll_interval: Duration,
-}
-
-/// A receipt that passed the requested observed confirmations and consistency checks.
-#[derive(Clone, Debug)]
-pub struct ConfirmedReceipt {
-    /// Receipt re-read after validating its block association.
-    pub receipt: Receipt,
-    /// Observed confirmations, including the containing block.
-    pub confirmations: u64,
-    /// Observed head used for the count and subsequently checked by number/hash.
-    pub observed_head: ZoneHeader,
 }
 
 /// Native receipt-wait failures never imply a transaction was rejected or cancelled.
@@ -79,41 +68,16 @@ impl<T: Transport> Provider<T> {
         let mut last_observed_inclusion = None;
         let work = async {
             loop {
-                let candidate = self.receipt(zone, transaction_hash).await?;
-                if let Some(receipt) = candidate {
-                    last_observed_inclusion = Some(receipt.inclusion);
-                    let observed_head = self.latest_header(zone).await?;
-                    if let Some(head) = observed_head
-                        && head.number >= receipt.inclusion.block_number
-                    {
-                        let confirmations = (head.number - receipt.inclusion.block_number)
-                            .checked_add(1)
-                            .ok_or(ProviderError::InvalidResult("confirmation count overflow"))?;
-                        if confirmations >= config.confirmations {
-                            let canonical =
-                                self.header_at(zone, receipt.inclusion.block_number).await?;
-                            if canonical
-                                .is_some_and(|header| header.hash == receipt.inclusion.block_hash)
-                            {
-                                let latest_receipt = self.receipt(zone, transaction_hash).await?;
-                                if let Some(latest_receipt) = latest_receipt
-                                    && latest_receipt.inclusion == receipt.inclusion
-                                {
-                                    let canonical_head = self.header_at(zone, head.number).await?;
-                                    if canonical_head.is_some_and(|header| header.hash == head.hash)
-                                    {
-                                        return Ok(ConfirmedReceipt {
-                                            receipt: latest_receipt,
-                                            confirmations,
-                                            observed_head: head,
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    last_observed_inclusion = None;
+                if let Some(receipt) = self
+                    .confirmation_poll(
+                        zone,
+                        transaction_hash,
+                        config.confirmations,
+                        &mut last_observed_inclusion,
+                    )
+                    .await?
+                {
+                    return Ok(receipt);
                 }
                 tokio::time::sleep(config.poll_interval).await;
             }

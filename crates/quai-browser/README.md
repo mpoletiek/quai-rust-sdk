@@ -241,3 +241,36 @@ does not encrypt bytes or interpret wallet state. Encrypt sensitive payloads
 before persistence and reconcile wallet claims in the application's state layer.
 Run `python3 crates/quai-browser/tests/run_storage.py` for real Chromium storage
 checks in addition to the wasm transport and worker suites.
+
+
+## Bounded receipt waiting in windows and workers
+
+`wait_for_receipt(&provider, zone, transaction_hash, BrowserWaitConfig)` supports
+non-Send Fetch, socket and injected read transports. Configure positive
+`confirmations`, `timeout_ms`, `poll_interval_ms` and `max_polls`; there are no
+implicit forever-wait defaults. Milliseconds must fit a browser timer
+(1 through 2,147,483,647), the interval cannot exceed the timeout, and at most
+100,000 complete observations are permitted. Each observation uses the provider's
+canonical receipt/head checks and never submits a transaction.
+
+An owned deadline timer races the complete polling operation, including stalled
+RPC futures. An additional timer exists only during the interval between polls.
+Dropping the outer future clears both timers and drops the active read future;
+Fetch then aborts and releases its concurrency permit. No transaction is cancelled
+by cancelling its observer. Node errors return immediately without retry.
+`PollLimit` and `Timeout` retain the transaction identity, completed-poll count and
+last completed poll's inclusion. A partially cancelled poll contributes no
+inclusion to those fields. Confirmed execution failures retain their explicit
+outcome rather than becoming successful transfers.
+
+The adapter also checks `performance.now()` before polls and before accepting
+results, so delayed timer callbacks cannot return success after observable clock
+expiry. Background suspension can delay resumption; this is not a real-time
+scheduler or proof of chain finality. Missing clock/timer facilities fail without
+a wall-clock fallback. Same-origin application code remains trusted.
+
+Nine actual Chromium worker tests cover portable observations, vanished/changed
+receipts and canonical heads, delayed inclusion, explicit limits, provider errors,
+stalled reads, dropped futures and cancellation of actual Fetch with immediate
+reuse of its sole request permit. Node tests check timer bounds and cleanup. The
+native waiter retains seven canonicality/timeout/cancellation regressions.

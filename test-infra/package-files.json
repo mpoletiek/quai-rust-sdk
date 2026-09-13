@@ -296,6 +296,10 @@
     {
       "source": "compatibility/fixtures/human-abi.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-abi/tests/fixtures/human-abi.json"
+    },
+    {
+      "source": "crates/quai-provider/tests/fixtures/lan-mainnet.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-provider/tests/fixtures/lan-mainnet.json"
     }
   ]
 }

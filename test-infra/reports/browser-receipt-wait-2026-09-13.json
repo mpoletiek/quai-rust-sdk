@@ -1,0 +1,141 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "6c38e3f1c8500d2e0603b69c0dc7e3ecf8abef1c",
+  "testedWorkingTree": true,
+  "changes": [
+    "Portable one-poll receipt confirmations sharing the original native canonical block/receipt/head checks",
+    "Browser/worker deadline racing complete provider observations with bounded attempts and owned timer cleanup",
+    "No Tokio requirement for worker waits; non-Send transport support and explicit completed-poll timeout context",
+    "Actual Fetch timeout cancellation releases the sole transport permit"
+  ],
+  "fixturesSha256": {
+    "crates/quai-provider/tests/fixtures/lan-mainnet.json": "7e102caacccf84b3c18a32e219df84d2b3376cabad46a0b584ffabf665fa6d0a"
+  },
+  "validation": {
+    "nativeExistingWaitTests": 7,
+    "nativePortableObservationTests": 3,
+    "actualChromiumWorkerReceiptTests": 9,
+    "workerSuiteElapsedSeconds": 0.28,
+    "nodeTimerTests": 3,
+    "nativeProviderBrowserSdkAllTargetsClippyWarningsDenied": "passed",
+    "portableBrowserSdkWasmAllTargetsClippyWarningsDenied": "passed",
+    "nativeProviderBrowserSdkRustdocWarningsDenied": "passed",
+    "portableBrowserSdkWasmRustdocWarningsDenied": "passed",
+    "ciYamlDuplicateKeyCheck": "passed",
+    "runnerPythonSyntax": "passed",
+    "packageFileMirrors": 75
+  },
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "6c38e3f1c8500d2e0603b69c0dc7e3ecf8abef1c",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61988,
+        "sha256": "52710ef025483e9897d338362686daee360cd7c208f69e6abb628f69da4d3d9e"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45028,
+        "sha256": "ab9c1018ddf3821bd9b3bb0dc9d6f2ef60c181c770672188fbe99b462b4f59f5"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 127368,
+        "sha256": "a817be086d60198273364effc88e249c98e4284dcd4f300ea0329327bcde9c94"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45642,
+        "sha256": "7319f95e02ebf8433cfc36a6e0dc46914caf655cd8b600267ae9889671030a94"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47979,
+        "sha256": "d8d336375d00415c3256d22484c254618518c53a233c81fd7e9ced3d81268d6f"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 166483,
+        "sha256": "4302ea1e83726b0a1163822539633e84565e2b4349c5c3b9dc1e1f88ab4b52cb"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 166091,
+        "sha256": "5de31cb14c04f75afc8dde2e9cb7e985d1f5244f5e2b7abab8ab8dd1d59620b2"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 78460,
+        "sha256": "a503a4b10d880701c0d705328139b0ba0c8f0879c1ab5eeea40ddbf2dcfb34a2"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24519,
+        "sha256": "82ae7049ddf7de5a6925b2d7d6e123f16211a0ab61d74601f49a14d005766016"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34225,
+        "sha256": "5b8666afff1ce9afbd25e1b710029bbde789a9ef9886ad844764a20f91df91af"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 252479,
+        "sha256": "fe629e3a72d06a376c8834ca9a265976b8825eb6a002f70c8a414c017bfab8f5"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39313,
+        "sha256": "b700926416af74690fbfb1f72c09d54b5c3af596dc1cb4b0455d5a510af0fdb1"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "limitations": [
+    "Confirmation depth and repeated canonical RPC reads are observations, not authenticated finality or permission to release signed claims.",
+    "Browser background scheduling is not real-time; timeout checks use the observable monotonic browser clock and reject success after observed expiry.",
+    "Browser timeout context includes completed polls only, not an inclusion from a cancelled partial poll.",
+    "Dropped read futures cancel polling/transport work where supported; they cannot cancel a submitted transaction.",
+    "Actual Chromium worker tests use scripted node observations and an owned loopback Fetch fixture; they are not funded node, real-extension or other-browser qualification.",
+    "This change has async state/timer tests and package checks; no additional parser fuzz coverage or sustained fault/soak qualification is claimed."
+  ]
+}

@@ -319,9 +319,42 @@ impl BrowserSocketConfig {
     }
 }
 #[cfg(target_arch = "wasm32")]
+mod receipt_wait;
+#[cfg(target_arch = "wasm32")]
 mod socket;
 #[cfg(target_arch = "wasm32")]
+pub use receipt_wait::{BrowserReceiptWaitError, wait_for_receipt};
+#[cfg(target_arch = "wasm32")]
 pub use socket::{BrowserSubscription, BrowserWebSocketTransport};
+
+/// Explicit browser receipt-wait limits. Milliseconds must be positive and fit a
+/// browser timer; polling attempts are independently bounded. No implicit defaults.
+#[derive(Clone, Copy, Debug)]
+pub struct BrowserWaitConfig {
+    /// Required positive observed depth, including the containing block.
+    pub confirmations: u64,
+    /// Overall observable monotonic timeout, including RPCs and polling delays.
+    pub timeout_ms: u32,
+    /// Delay between incomplete observations, no longer than the timeout.
+    pub poll_interval_ms: u32,
+    /// At most 100,000 completed observations; zero is invalid.
+    pub max_polls: u32,
+}
+impl BrowserWaitConfig {
+    /// Validate before allocating timers or performing provider I/O.
+    pub fn validate(&self) -> Result<(), BrowserError> {
+        if self.confirmations == 0
+            || self.timeout_ms == 0
+            || self.timeout_ms > i32::MAX as u32
+            || self.poll_interval_ms == 0
+            || self.poll_interval_ms > self.timeout_ms
+            || !(1..=100_000).contains(&self.max_polls)
+        {
+            return Err(BrowserError::InvalidConfig);
+        }
+        Ok(())
+    }
+}
 
 #[cfg(test)]
 mod socket_config_tests {

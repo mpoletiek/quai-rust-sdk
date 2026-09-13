@@ -166,5 +166,10 @@
     "No Solidity source bodies, comments, struct declarations, gas annotations, mixed arbitrary JS values or warning-and-skip parsing.",
     "JSON output retains validated source metadata; it does not reproduce pinned JS serialization defects or byte/key ordering.",
     "Actual Chromium worker, mocks, bounded fuzz and package checks are not deployed-contract execution, other-browser, sustained fuzz, independent security review or release certification."
-  ]
+  ],
+  "ciVerified": {
+    "runId": 34750193258,
+    "conclusion": "success",
+    "jobs": 8
+  }
 }

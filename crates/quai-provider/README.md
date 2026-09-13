@@ -23,7 +23,7 @@ The response parsers preserve top-level unknown fields in `Extensions`, whose de
 
 `broadcast(&SignedQuaiTransaction)` checks the signed transaction's chain ID before any RPC, computes its expected ID and canonical protobuf before submission, then checks the endpoint chain at the recovered sender's zone. It submits exactly one `quai_sendRawTransaction` request and requires the returned ID to match. There is no automatic retry. Errors distinguish preflight from ambiguous submit-stage outcomes; every send-stage error preserves the expected transaction ID for reconciliation, including malformed or conflicting acknowledgements. Acknowledgement does not establish inclusion. Retain `signed.hash()` before awaiting: dropping the future cancels waiting but cannot roll back a possibly accepted transaction.
 
-`wait_for_receipt(zone, hash, WaitConfig)` requires a positive confirmation count, timeout and poll interval. It tolerates missing or reorged receipt observations, verifies the containing block by canonical number/hash, re-reads the receipt, and verifies the observed head hash before returning. Failed execution receipts are returned with their explicit outcome. RPC failures stop the wait without automatic retry. The overall timeout covers cooperative RPC polling and delays; dropping the future stops polling. Separate RPC reads cannot eliminate races or prove finality, and chain-ID checks cannot authenticate a dishonest node. The native `polling` feature uses Tokio time; `http` enables it. Browser timers/polling remain unqualified.
+`wait_for_receipt(zone, hash, WaitConfig)` requires a positive confirmation count, timeout and poll interval. It tolerates missing or reorged receipt observations, verifies the containing block by canonical number/hash, re-reads the receipt, and verifies the observed head hash before returning. Failed execution receipts are returned with their explicit outcome. RPC failures stop the wait without automatic retry. The overall timeout covers cooperative RPC polling and delays; dropping the future stops polling. Separate RPC reads cannot eliminate races or prove finality, and chain-ID checks cannot authenticate a dishonest node. The native `polling` feature uses Tokio time; `http` enables it. Portable single-poll checks and bounded browser waiting are described below.
 
 Broadcast and confirmation regressions use only mock transports. **No real transaction was submitted during this increment**, including to mainnet. Funded disposable-testnet acceptance remains a separate gate.
 
@@ -130,3 +130,22 @@ Restoring checks the expected network; polling still revalidates canonical node
 history. Persist the cursor atomically with application updates, or use the SDK's
 native `reconcile_persisted_head_replay` integration. Saved headers are trusted-node
 observations, not proof of finality or historical Qi outpoints.
+
+
+## Portable receipt confirmation observations
+
+`observe_receipt_confirmation(zone, hash, positive_depth)` performs one bounded
+observation with any configured native or non-Send browser transport. It returns
+`ReceiptConfirmation::Pending` with the last observed inclusion (or none), or a
+boxed `ConfirmedReceipt`. The observation rechecks canonical block association,
+the receipt and the observed head before success. It performs at most five typed
+reads, each with a chain-ID check. Missing/reorged data stays pending, and RPC
+errors return immediately. A confirmed execution failure retains its explicit
+receipt outcome. Separate node reads and confirmation depth do not prove finality.
+
+The native `wait_for_receipt` uses this same internal observation implementation
+and retains its existing Tokio deadline, cancellation and error semantics.
+Without `polling`, callers can schedule individual portable observations. Wasm
+applications can use `quai_browser::wait_for_receipt` with bounded browser timers,
+an overall observable monotonic deadline and an explicit maximum poll count.
+That adapter does not require Tokio, submit transactions or release wallet claims.

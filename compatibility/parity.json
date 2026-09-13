@@ -1538,12 +1538,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": ".:AbstractProvider:instance:zoneFromAddress",
@@ -4580,12 +4591,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": ".:BrowserProvider:instance:zoneFromAddress",
@@ -15389,12 +15411,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:zoneFromAddress",
@@ -17071,12 +17104,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": ".:JsonRpcProvider:instance:zoneFromAddress",
@@ -26010,12 +26054,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": ".:SocketProvider:instance:zoneFromAddress",
@@ -33443,12 +33498,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": ".:WebSocketProvider:instance:waitShardReady",
@@ -47117,12 +47183,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": "./providers:AbstractProvider:instance:zoneFromAddress",
@@ -49161,12 +49238,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": "./providers:BrowserProvider:instance:zoneFromAddress",
@@ -50917,12 +51005,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:zoneFromAddress",
@@ -52599,12 +52698,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:zoneFromAddress",
@@ -56363,12 +56473,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": "./providers:SocketProvider:instance:zoneFromAddress",
@@ -58867,12 +58988,23 @@
         "(hash: string, _confirms?: null | number, timeout?: null | number): Promise<null | TransactionReceipt>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_receipt_confirmation",
+        "quai_provider::Provider::wait_for_receipt",
+        "quai_browser::wait_for_receipt"
+      ],
+      "feature": "provider; polling for native waiter; browser for Wasm waiter",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/confirmation.rs",
+        "crates/quai-sdk/tests/receipt_confirmation.rs",
+        "crates/quai-browser/tests/timer.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit zone/hash and positive confirmations. Native overall timeout or browser monotonic deadline plus bounded poll count; canonical receipt/head associations rechecked, read errors surfaced without retry. No implicit forever wait, zero-confirmation nullable result, automatic submission or finality claim. Browser timeout retains context from completed polls only; dropped futures clear timers and drop active reads."
     },
     {
       "id": "./providers:WebSocketProvider:instance:waitShardReady",

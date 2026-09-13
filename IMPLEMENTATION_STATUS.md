@@ -487,3 +487,12 @@ names, internal types and legacy flags; invalid fragments fail the whole import.
 with shared actual-worker tests and exact contract-facade calldata/block checks.
 Gas annotations, Solidity source parsing and implicit JavaScript coercions remain
 explicit exclusions. [Retained evidence](test-infra/reports/readable-abi-2026-09-13.json).
+
+
+Receipt confirmation checks now run portably without Tokio. The native waiter
+shares the same canonical block/receipt/head rechecks, while browser/worker waiting
+adds owned timers, overall observable monotonic deadlines and explicit poll limits.
+Cancellation drops active reads and clears timers; actual Fetch permit cleanup,
+non-Send worker transports, reorgs and stalled reads are covered by nine worker
+tests. Confirmation depth remains an observation, not finality or authorization
+to release signed claims. [Retained evidence](test-infra/reports/browser-receipt-wait-2026-09-13.json).

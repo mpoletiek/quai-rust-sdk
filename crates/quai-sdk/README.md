@@ -61,3 +61,8 @@ signed payload; replacements and restart broadcast never rediscover access.
 Contract interfaces accept `abi::AbiInterface::from_human_readable` for bounded
 named Solidity ABI declarations. Full/minimal formatting and lossless JSON
 metadata export preserve declaration order; malformed entries fail the import.
+
+Browser consumers can call `browser::wait_for_receipt` with explicit monotonic
+millisecond and poll-count limits. `Provider::observe_receipt_confirmation` also
+exposes one portable observation for application-controlled scheduling. Both
+check canonical receipt/head associations and preserve execution-failure outcomes.

@@ -163,5 +163,10 @@
       "quai-sdk": "passed"
     },
     "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "ciVerified": {
+    "runId": 34749721759,
+    "conclusion": "success",
+    "jobs": 8
   }
 }

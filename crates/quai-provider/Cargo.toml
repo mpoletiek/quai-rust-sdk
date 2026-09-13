@@ -12,6 +12,7 @@ publish.workspace = true
 default = ["http"]
 http = ["quai-rpc/http", "polling"]
 polling = ["dep:tokio"]
+ws = ["quai-rpc/ws", "polling"]
 
 [dependencies]
 quai-primitives.workspace = true
@@ -26,6 +27,10 @@ tokio = { workspace = true, optional = true }
 [dev-dependencies]
 quai-crypto.workspace = true
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+tokio-tungstenite = { version = "0.30.0", default-features = false, features = ["handshake"] }
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
 
 [lints]
 workspace = true

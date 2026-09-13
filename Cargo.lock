@@ -2048,6 +2048,7 @@ dependencies = [
 name = "quai-provider"
 version = "0.1.0-alpha.1"
 dependencies = [
+ "futures-util",
  "quai-consensus",
  "quai-crypto",
  "quai-primitives",
@@ -2055,6 +2056,7 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tokio",
+ "tokio-tungstenite",
 ]
 
 [[package]]

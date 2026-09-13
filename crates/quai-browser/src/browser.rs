@@ -263,12 +263,11 @@ impl InjectedProvider {
             // Request-only providers cannot report transient changes. Recheck their
             // current chain and exposed account before releasing a result.
             self.check_chain().await?;
-            if let Some(account) = account {
-                if !Self::accounts_from(self.raw("quai_accounts", json!([])).await?)?
+            if let Some(account) = account
+                && !Self::accounts_from(self.raw("quai_accounts", json!([])).await?)?
                     .contains(&account)
-                {
-                    return Err(BrowserError::AccountUnavailable);
-                }
+            {
+                return Err(BrowserError::AccountUnavailable);
             }
         }
         if provider_changed(&self.watch.0, revision) {

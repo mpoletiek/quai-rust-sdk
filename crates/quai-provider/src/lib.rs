@@ -10,8 +10,10 @@ pub use conversion_tracking::{
     ConversionReference, ConversionSpendability, EtxCorrelation, EtxExecutionObservation,
     EtxScanRequest, EtxScanResult, LockedBalanceObservation, ScanCoverage, TransactionBlock,
 };
+mod head_tracker;
 mod logs;
 mod qi;
+pub use head_tracker::{HeadTracker, HeadUpdate};
 mod qi_special_fee;
 pub use qi_special_fee::{QiFeeProfile, QiFeeQuote, qi_special_gas};
 mod wallet_rpc;
@@ -55,6 +57,9 @@ impl BlockTag {
 /// Provider failures without raw endpoint URLs or remote response bodies.
 #[derive(Debug, Error)]
 pub enum ProviderError {
+    /// Requested canonical replay predates retained anchors or source history.
+    #[error("canonical replay history unavailable; restore an older checkpoint explicitly")]
+    ReplayHistoryUnavailable,
     /// A typed request violates the supported account simulation contract.
     #[error("invalid RPC request: {0}")]
     InvalidRequest(&'static str),
@@ -432,3 +437,8 @@ fn quantity(value: Value) -> Result<U256, ProviderError> {
         .ok_or(ProviderError::InvalidResult("expected hex quantity string"))?;
     Ok(parse_quantity(value)?)
 }
+
+#[cfg(all(feature = "ws", not(target_arch = "wasm32")))]
+mod head_follower;
+#[cfg(all(feature = "ws", not(target_arch = "wasm32")))]
+pub use head_follower::{HeadFollowPolicy, WsHeadFollower};

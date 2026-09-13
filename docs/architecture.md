@@ -111,3 +111,20 @@ is retried. Providers exposing only `request` instead receive post-response chai
 and account checks, with `monitors_context_events()` explicitly reporting false;
 transient changes cannot be detected without event support. Account-access requests
 allow the expected permission-driven account change and recheck the chain afterward.
+
+### Canonical head replay and WebSocket reconnection
+
+`HeadTracker` polls a configured provider from an explicit trusted checkpoint. It
+retains 2–4096 block anchors and returns at most 256 new headers per page, checking
+parent links and both page anchors. Reorganizations return removed blocks newest
+first and replacement headers oldest first. Missing history or a fork older than
+the retained window returns `ReplayHistoryUnavailable` without changing the cursor.
+A checkpoint at genesis uses the verified genesis hash; replay starts at block one.
+
+With the `ws` feature, `WsHeadFollower` subscribes before replay, reconnects within
+an explicit attempt budget, and polls after a bounded quiet interval. Notifications
+only wake the numbered-header tracker; missed or duplicate notifications do not
+skip blocks. No pending transaction or write request is replayed. Application
+state must undo/apply each returned page and persist its checkpoint before asking
+for another page. A cloned `HeadTracker` can be polled and adopted after a durable
+application commit. The tracker itself is not a wallet database or consensus proof.

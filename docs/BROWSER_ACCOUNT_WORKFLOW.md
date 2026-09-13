@@ -76,8 +76,8 @@ This workflow covers same/cross-zone Quai transfers, contract/wrapper calls,
 Quai-to-Qi conversion and deployment. [Browser candidate recovery](BROWSER_CANDIDATE_RECOVERY.md)
 provides explicit persisted replacement selection and canonical reconciliation.
 [Browser Qi preparation](BROWSER_QI_WORKFLOW.md) covers discovery, selection,
-conversion/wrapping and durable signing. Replacement preparation and destination
-settlement still require their own integration. The root broadcast
+conversion/wrapping and durable signing. [Reviewed replacements](BROWSER_REPLACEMENTS.md) retain the existing nonce and
+all fields except gas price. Destination settlement still requires its own integration. The root broadcast
 method does not silently select a replacement. Current balances and fee estimates
 are advisory observations; preparing several operations does not reserve aggregate
 balance or guarantee that the node will accept them.

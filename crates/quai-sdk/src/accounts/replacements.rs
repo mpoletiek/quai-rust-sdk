@@ -1,14 +1,6 @@
 //! Exact fee-only replacement preparation with durable candidate custody.
 use super::*;
-/// Explicit pool bump and maximum debit policy. Pinned go-quai defaults to a
-/// five-percent pool bump, but nodes can configure a different value.
-#[derive(Clone, Copy, Debug)]
-pub struct ReplacementPolicy {
-    /// Required bump relative to the selected parent, 1..=1000 percent.
-    pub minimum_price_bump_percent: u16,
-    /// Reviewed operation fee/debit limits.
-    pub fees: FeePolicy,
-}
+pub use crate::account_replacement::ReplacementPolicy;
 /// Frozen fee-only replacement; all other transaction fields match its parent.
 #[derive(Debug)]
 pub struct PreparedAccountReplacement {
@@ -95,107 +87,30 @@ impl<T: Transport, S: Signer> AccountSession<'_, T, S> {
             .find(|tx| tx.hash().ok() == Some(parent))
             .ok_or(AccountError::InvalidOperation)?;
         let sender = parent_tx.from();
-        let mut transaction = parent_tx.transaction().clone();
-        if transaction.gas_limit > policy.fees.max_gas {
-            return Err(AccountError::FeeLimit);
-        }
-        self.verify_network().await?;
-        let confirmed = self
-            .provider
-            .latest_header(sender.zone())
-            .await?
-            .ok_or(AccountError::ObservationChanged)?;
-        if self
-            .provider
-            .transaction_count(sender, BlockTag::Number(U256::from(confirmed.number)))
-            .await?
-            > transaction.nonce
-        {
-            return Err(AccountError::InvalidOperation);
-        }
-        let observation = self.observation().await?;
-        let old = transaction.gas_price;
-        let numerator = old
-            .checked_mul(U256::from(
-                100 + u64::from(policy.minimum_price_bump_percent),
-            ))
-            .ok_or(AccountError::FeeLimit)?;
-        let minimum = (numerator / U256::from(100))
-            .checked_add(U256::from(u8::from(
-                numerator % U256::from(100) != U256::ZERO,
-            )))
-            .ok_or(AccountError::FeeLimit)?;
-        transaction.gas_price = self
-            .provider
-            .gas_price(sender.zone())
-            .await?
-            .max(minimum)
-            .max(
-                old.checked_add(U256::from(1))
-                    .ok_or(AccountError::FeeLimit)?,
-            );
-        let fee = transaction
-            .gas_price
-            .checked_mul(U256::from(transaction.gas_limit))
-            .ok_or(AccountError::FeeLimit)?;
-        if transaction.gas_price > policy.fees.max_gas_price || fee > policy.fees.max_total_fee {
-            return Err(AccountError::FeeLimit);
-        }
-        let gas = if transaction
-            .to
-            .is_some_and(|to| to.ledger() == quai_primitives::Ledger::Qi)
-        {
-            self.quote_conversion(sender, &transaction, policy.fees, observation.0)
-                .await?
-                .0
-        } else {
-            let request = CallRequest {
-                from: sender,
-                to: transaction
-                    .to
-                    .map(QuaiAddress::try_from)
-                    .transpose()
-                    .map_err(|_| AccountError::InvalidOperation)?,
-                gas: Some(transaction.gas_limit),
-                gas_price: Some(transaction.gas_price),
-                value: Some(transaction.value),
-                nonce: Some(transaction.nonce),
-                input: RpcData::new(transaction.data.clone())?,
-                access_list: transaction
-                    .access_list
-                    .iter()
-                    .map(|a| AccessListItem {
-                        address: a.address,
-                        storage_keys: a.storage_keys.clone(),
-                    })
-                    .collect(),
-            };
-            self.quote_fee(&request, policy.fees, observation.0)
-                .await?
-                .0
-        };
-        if gas > transaction.gas_limit {
-            return Err(AccountError::FeeLimit);
-        }
-        if fee
-            .checked_add(transaction.value)
-            .ok_or(AccountError::FeeLimit)?
-            > self.provider.balance(sender, observation.0).await?
-        {
-            return Err(AccountError::InsufficientBalance);
-        }
-        self.verify_observation(observation).await?;
-        if self
-            .provider
-            .header_at(sender.zone(), confirmed.number)
-            .await?
-            .is_none_or(|h| h.hash != confirmed.hash)
-        {
-            return Err(AccountError::ObservationChanged);
-        }
-        transaction
-            .signing_digest()
-            .map_err(|_| AccountError::InvalidOperation)?;
+        let quote = crate::account_replacement::quote_account_replacement(
+            self.provider,
+            self.store.scope(),
+            parent_tx,
+            self.observation_policy,
+            policy,
+        )
+        .await
+        .map_err(|e| match e {
+            crate::account_preflight::AccountPreflightError::Provider(e) => {
+                AccountError::Provider(e)
+            }
+            crate::account_preflight::AccountPreflightError::FeeLimit => AccountError::FeeLimit,
+            crate::account_preflight::AccountPreflightError::InsufficientBalance => {
+                AccountError::InsufficientBalance
+            }
+            crate::account_preflight::AccountPreflightError::ObservationChanged => {
+                AccountError::ObservationChanged
+            }
+            crate::account_preflight::AccountPreflightError::Invalid => {
+                AccountError::InvalidOperation
+            }
+        })?;
+        let transaction = quote.transaction().clone();
         Ok(PreparedAccountReplacement {
             instance: self.store.instance(),
             genesis: self.store.scope().genesis,

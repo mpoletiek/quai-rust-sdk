@@ -137,6 +137,134 @@ impl PreparedBrowserQiTransaction {
             .await?)
     }
 }
+/// Same-input Qi replacement bound to the original durable family.
+pub struct PreparedBrowserQiReplacement {
+    book: BrowserQiBook,
+    id: ReservationId,
+    quote: crate::qi_replacement::QiReplacementQuote,
+}
+impl PreparedBrowserQiReplacement {
+    /// Exact outputs/data after reducing only selected owned change.
+    pub fn transaction(&self) -> &QiTransaction {
+        self.quote.transaction()
+    }
+    /// Selected immutable parent, which may still mine.
+    pub fn parent_hash(&self) -> Hash32 {
+        self.quote.parent_hash()
+    }
+    /// Original input-claim family; no new inputs were reserved.
+    pub fn reservation_id(&self) -> ReservationId {
+        self.id
+    }
+    /// Source-reported total fee in Qits.
+    pub fn fee(&self) -> U256 {
+        self.quote.fee()
+    }
+    /// Exact reviewed signing digest.
+    pub fn signing_digest(&self) -> Hash32 {
+        self.quote.signing_digest()
+    }
+    /// Persist the verified candidate before returning. Repeating an identical
+    /// parent/payload returns existing bytes, including randomized MuSig signatures.
+    pub async fn sign(
+        &self,
+        resolver: &(impl QiKeyResolver + ?Sized),
+    ) -> Result<SignedQiOperation, BrowserQiTransactionError> {
+        let mut snapshot = self.book.snapshot().await?;
+        let op = snapshot
+            .book
+            .operation(self.id)
+            .filter(|op| {
+                matches!(
+                    op.state,
+                    quai_wallet::qi_custody::ReservationState::Signed
+                        | quai_wallet::qi_custody::ReservationState::Submitted
+                )
+            })
+            .ok_or(QiPreflightError::Invalid)?;
+        for edge in &op.replacements {
+            let existing =
+                SignedQiOperation::decode(&edge.payload).map_err(BrowserQiError::from)?;
+            if edge.parent == self.parent_hash() && existing.transaction() == self.transaction() {
+                return Ok(existing);
+            }
+        }
+        let present = op.transaction == Some(self.parent_hash())
+            || op.replacements.iter().any(|edge| {
+                SignedQiOperation::decode(&edge.payload)
+                    .and_then(|tx| tx.hash())
+                    .ok()
+                    == Some(self.parent_hash())
+            });
+        if !present {
+            return Err(QiPreflightError::Invalid.into());
+        }
+        snapshot
+            .book
+            .check_inputs(self.id, self.transaction())
+            .map_err(BrowserQiError::from)?;
+        // Verify both input ownership and the approved reduction of local change.
+        for owner in self.quote.required_owners() {
+            let key = resolver.resolve(owner).map_err(BrowserQiError::from)?;
+            if key.public_key().to_compressed() != *owner.public_key() {
+                return Err(QiPreflightError::Invalid.into());
+            }
+        }
+        let mut keys = Vec::with_capacity(self.transaction().inputs.len());
+        for input in &self.transaction().inputs {
+            let address = input
+                .public_key
+                .address()
+                .try_into()
+                .map_err(|_| QiPreflightError::Invalid)?;
+            let owner = snapshot
+                .book
+                .address(address)
+                .ok_or(QiPreflightError::Invalid)?;
+            let key = resolver.resolve(owner).map_err(BrowserQiError::from)?;
+            if key.public_key() != input.public_key {
+                return Err(QiPreflightError::Invalid.into());
+            }
+            keys.push(key);
+        }
+        let keys: Vec<_> = keys.iter().collect();
+        let signed = match self.transaction().data.len() {
+            0 => SignedQiOperation::Transfer(
+                self.transaction()
+                    .sign_local(&keys)
+                    .map_err(BrowserQiError::from)?,
+            ),
+            20 => SignedQiOperation::Wrapping(
+                quai_consensus::QiWrappingTransaction::from_transaction(self.transaction().clone())
+                    .map_err(BrowserQiError::from)?
+                    .sign_local(&keys)
+                    .map_err(BrowserQiError::from)?,
+            ),
+            22 => SignedQiOperation::Conversion(
+                quai_consensus::QiConversionTransaction::from_transaction(
+                    self.transaction().clone(),
+                )
+                .map_err(BrowserQiError::from)?
+                .sign_local(&keys)
+                .map_err(BrowserQiError::from)?,
+            ),
+            _ => return Err(QiPreflightError::Invalid.into()),
+        };
+        snapshot
+            .book
+            .commit_replacement(self.id, self.parent_hash(), &signed)
+            .map_err(BrowserQiError::from)?;
+        self.book
+            .store
+            .compare_exchange(
+                Some(snapshot.revision),
+                Some(&snapshot.book.export_state().map_err(BrowserQiError::from)?),
+            )
+            .await
+            .map_err(BrowserQiError::from)?;
+        Ok(signed)
+    }
+}
 /// Browser preparation over a scoped input journal and explicit local key resolver.
 /// The resolver supports HD, imported and registered payment-code receive origins.
 pub struct BrowserQiSession<'a, T> {
@@ -303,6 +431,73 @@ impl<'a, T: Transport> BrowserQiSession<'a, T> {
                 .map_err(BrowserQiError::from)?;
         }
         Ok(PreparedBrowserQiTransaction {
+            book: self.book.clone(),
+            id,
+            quote,
+        })
+    }
+    /// Prepare a same-input candidate funded only from selected owned change.
+    /// Capture the custody revision before refreshing source input observations;
+    /// both the parent and original claim set are revalidated. The fixed candidate
+    /// is estimated once; a fee deficit rejects without changing its outputs.
+    #[allow(clippy::too_many_arguments)]
+    pub async fn prepare_replacement(
+        &self,
+        id: ReservationId,
+        expected_revision: u64,
+        source: QiSource,
+        intent: crate::qi_replacement::QiReplacementIntent,
+        policy: QiPolicy,
+        fees: QiFeeMode,
+    ) -> Result<PreparedBrowserQiReplacement, BrowserQiTransactionError> {
+        let snapshot = self.book.snapshot().await?;
+        if snapshot.revision != expected_revision || source.scope != snapshot.book.scope() {
+            return Err(QiPreflightError::Stale.into());
+        }
+        let op = snapshot
+            .book
+            .operation(id)
+            .filter(|op| {
+                matches!(
+                    op.state,
+                    quai_wallet::qi_custody::ReservationState::Signed
+                        | quai_wallet::qi_custody::ReservationState::Submitted
+                ) && op.replacements.len() < 32
+            })
+            .ok_or(QiPreflightError::Invalid)?;
+        let parent = std::iter::once(op.payload.as_deref().ok_or(QiPreflightError::Invalid)?)
+            .chain(op.replacements.iter().map(|r| r.payload.as_slice()))
+            .find_map(|bytes| {
+                SignedQiOperation::decode(bytes)
+                    .ok()
+                    .filter(|tx| tx.hash().ok() == Some(intent.parent))
+            })
+            .ok_or(QiPreflightError::Invalid)?;
+        snapshot
+            .book
+            .check_inputs(id, parent.transaction())
+            .map_err(BrowserQiError::from)?;
+        let quote = crate::qi_replacement::quote_qi_replacement(
+            self.provider,
+            &source,
+            &parent,
+            intent,
+            policy,
+            fees,
+        )
+        .await?;
+        for owner in quote.required_owners() {
+            self.check_key(owner)?;
+        }
+        self.book
+            .store
+            .compare_exchange(
+                Some(snapshot.revision),
+                Some(&snapshot.book.export_state().map_err(BrowserQiError::from)?),
+            )
+            .await
+            .map_err(BrowserQiError::from)?;
+        Ok(PreparedBrowserQiReplacement {
             book: self.book.clone(),
             id,
             quote,

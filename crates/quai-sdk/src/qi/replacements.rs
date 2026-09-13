@@ -1,17 +1,7 @@
 //! Conflicting same-input candidates fund a larger fee only from explicit owned change.
 use super::*;
+pub use crate::qi_replacement::QiReplacementIntent;
 use quai_consensus::{QiConversionTransaction, QiWrappingTransaction, SignedQiOperation};
-/// Explicit parent and owned change to reduce. All nonselected parent outputs are
-/// preserved, including payment recipients and conversion/wrapping destinations.
-#[derive(Clone, Debug)]
-pub struct QiReplacementIntent {
-    /// Original or earlier persisted candidate to replace.
-    pub parent: Hash32,
-    /// Distinct parent output indexes asserted to be local change; ownership is checked.
-    pub change_indexes: Vec<u16>,
-    /// Replacement owned change outputs; their total must be strictly lower.
-    pub change_outputs: Vec<QiOutput>,
-}
 /// Exact same-input payload, new fee and family identity for explicit review.
 #[derive(Debug)]
 pub struct PreparedQiReplacement {

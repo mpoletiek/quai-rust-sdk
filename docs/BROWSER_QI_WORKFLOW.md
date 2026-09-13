@@ -83,3 +83,7 @@ bounds, allocator/input races, cancellation, exact conversion/wrapping data and
 restart replay after ambiguous submission. RPC responses are synthetic. They do
 not establish funded unmodified-node acceptance, mature redemption spending or
 aggregation placement.
+
+[Reviewed replacements](BROWSER_REPLACEMENTS.md) preserve the complete original
+input set, recipients and operation data while reducing only selected owned change.
+They reuse the same family claim and persist signed candidates before submission.

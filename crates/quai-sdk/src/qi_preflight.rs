@@ -486,7 +486,7 @@ pub async fn quote_qi<T: Transport>(
     }
     Err(SelectionError::FeeDidNotConverge.into())
 }
-async fn network<T: Transport>(
+pub(crate) async fn network<T: Transport>(
     provider: &Provider<T>,
     scope: NetworkScope,
 ) -> Result<(), QiPreflightError> {
@@ -497,7 +497,7 @@ async fn network<T: Transport>(
     }
     Ok(())
 }
-async fn candidate_height<T: Transport>(
+pub(crate) async fn candidate_height<T: Transport>(
     provider: &Provider<T>,
     source: &QiSource,
     max_age: u64,

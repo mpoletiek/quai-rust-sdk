@@ -113,7 +113,8 @@ signing/submission, or persisted wallet orchestration.
 
 Native facade modules are `accounts`, `qi`, `qi_discovery`, `payment_channels`,
 `recovery`, `settlement` and `deployments`. Portable modules include `account_preflight`,
-`qi_preflight`, `candidate_observation`, `discovery`, `contracts` and `wrappers`. Browser modules are `browser_addresses`,
+`qi_preflight`, `account_replacement`, `qi_replacement`, `candidate_observation`,
+`discovery`, `contracts` and `wrappers`. Browser modules are `browser_addresses`,
 `browser_payments`, `browser_accounts`, `browser_qi`, `browser_backups` and
 `browser_transactions`, `browser_qi_transactions` and `browser_recovery`.
 Their precise feature gates are in the linked facade source.
@@ -599,8 +600,9 @@ Browser conversions and nonce-bound deployments share this workflow, with option
 access-list discovery that preserves required entries.
 `browser_recovery::BrowserRecoverySession` selects exact persisted candidates and
 reconciles account/Qi inclusions without unlocked keys; see
-[browser candidate recovery](docs/BROWSER_CANDIDATE_RECOVERY.md). Replacement
-preparation and destination settlement still require integration.
+[browser candidate recovery](docs/BROWSER_CANDIDATE_RECOVERY.md). Both sessions now prepare [reviewed replacements](docs/BROWSER_REPLACEMENTS.md)
+with exact field/ownership checks and durable candidate signing. Destination
+settlement still requires integration.
 `browser_qi_transactions::BrowserQiSession` now combines current HD discovery and
 persisted owners with exact denomination/fee planning, fresh change allocation,
 revision-fenced custody and signing for transfers/conversions/wrapping. Portable

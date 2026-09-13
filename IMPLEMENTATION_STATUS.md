@@ -672,3 +672,18 @@ consumers, twelve native and two Wasm packaged-target checks passed. Evidence is
 retained in [the report](test-infra/reports/browser-qi-workflow-2026-09-13.json).
 The preceding candidate-recovery commit `63d4c63` passed all eight CI jobs in run
 `34776798892`; its ancestor `18ee50e` run was cancelled by the newer push.
+
+## Reviewed browser replacements
+
+Account replacement quotation is shared between native/browser sessions and changes
+only gas price under explicit bump/debit bounds and confirmed-nonce admission.
+Browser Qi replacement planning preserves inputs, recipients and specialized data,
+reducing only explicitly selected owned change. Signing persists the candidate edge
+before returning; repeated Qi signing returns existing randomized-signature bytes.
+Eight account and six Qi portable tests, twenty native account and thirty native Qi
+regression tests pass; actual Chromium suites cover fourteen account and twelve Qi
+cases. See [reviewed replacements](docs/BROWSER_REPLACEMENTS.md). Destination
+settlement and the declaration-level semantic parity audit remain open.
+Native/Wasm strict Clippy and rustdoc pass. Evidence is retained in
+[the report](test-infra/reports/browser-replacements-2026-09-13.json). The preceding
+Qi-workflow commit `df40f9b` passed CI run `34777796915`.

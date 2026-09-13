@@ -62,6 +62,91 @@ impl PreparedBrowserAccountTransaction {
             .await?)
     }
 }
+/// Fixed fee-only replacement bound to its original account journal and parent.
+pub struct PreparedBrowserAccountReplacement {
+    book: BrowserAccountBook,
+    id: ReservationId,
+    quote: crate::account_replacement::AccountReplacementQuote,
+}
+impl PreparedBrowserAccountReplacement {
+    /// Exact unsigned candidate for review; only gas price differs from its parent.
+    pub fn transaction(&self) -> &QuaiTransaction {
+        self.quote.transaction()
+    }
+    /// Exact parent candidate, which remains held and may still mine.
+    pub fn parent_hash(&self) -> Hash32 {
+        self.quote.parent_hash()
+    }
+    /// Shared family reservation; no new nonce is allocated.
+    pub fn reservation_id(&self) -> ReservationId {
+        self.id
+    }
+    /// Maximum gas debit for the replacement.
+    pub fn maximum_fee(&self) -> quai_rpc::U256 {
+        self.quote.maximum_fee()
+    }
+    /// Exact reviewed signing digest.
+    pub fn signing_digest(&self) -> Hash32 {
+        self.quote.signing_digest()
+    }
+    /// Verify the signer and current family, then persist the exact signed edge
+    /// before returning bytes. Concurrent writes reject without replacing history.
+    pub async fn sign(
+        &self,
+        signer: &impl Signer,
+    ) -> Result<SignedQuaiTransaction, BrowserTransactionError> {
+        let mut snapshot = self.book.snapshot().await?;
+        if signer.address() != snapshot.book.address().address()
+            || signer.chain_id() != snapshot.book.scope().chain_id
+        {
+            return Err(AccountPreflightError::Invalid.into());
+        }
+        let op = snapshot
+            .book
+            .operation(self.id)
+            .filter(|op| {
+                matches!(
+                    op.state,
+                    ReservationState::Signed | ReservationState::Submitted
+                )
+            })
+            .ok_or(AccountPreflightError::Invalid)?;
+        let present = op.transaction == Some(self.quote.parent_hash())
+            || op.replacements.iter().any(|edge| {
+                SignedQuaiTransaction::decode(&edge.payload)
+                    .and_then(|tx| tx.hash())
+                    .ok()
+                    == Some(self.quote.parent_hash())
+            });
+        if !present {
+            return Err(AccountPreflightError::Invalid.into());
+        }
+        let signed = signer
+            .sign_quai(self.quote.transaction())
+            .map_err(BrowserAccountError::from)?;
+        if signed.transaction() != self.quote.transaction() {
+            return Err(AccountPreflightError::Invalid.into());
+        }
+        snapshot
+            .book
+            .commit_replacement(self.id, self.quote.parent_hash(), &signed)
+            .map_err(BrowserAccountError::from)?;
+        self.book
+            .store
+            .compare_exchange(
+                Some(snapshot.revision),
+                Some(
+                    &snapshot
+                        .book
+                        .export_state()
+                        .map_err(BrowserAccountError::from)?,
+                ),
+            )
+            .await
+            .map_err(BrowserAccountError::from)?;
+        Ok(signed)
+    }
+}
 /// Account orchestration over a non-Send browser provider and durable book.
 /// The provider may be Fetch, WebSocket or an explicit submission-capable adapter.
 pub struct BrowserAccountSession<'a, T> {
@@ -259,6 +344,65 @@ impl<'a, T: Transport> BrowserAccountSession<'a, T> {
             .await
             .map_err(BrowserAccountError::from)?;
         Ok(PreparedBrowserAccountTransaction {
+            book: self.book.clone(),
+            id,
+            quote,
+        })
+    }
+    /// Quote an explicit fee-only replacement of a persisted candidate. Simulate
+    /// its retained nonce and fields, then fence the pre-read journal revision.
+    /// A new nonce is never reserved and no candidate is selected for submission.
+    pub async fn prepare_replacement(
+        &self,
+        id: ReservationId,
+        parent: Hash32,
+        policy: crate::account_replacement::ReplacementPolicy,
+    ) -> Result<PreparedBrowserAccountReplacement, BrowserTransactionError> {
+        let snapshot = self.book.snapshot().await?;
+        let op = snapshot
+            .book
+            .operation(id)
+            .filter(|op| {
+                matches!(
+                    op.state,
+                    ReservationState::Signed | ReservationState::Submitted
+                ) && op.replacements.len() < 32
+            })
+            .ok_or(AccountPreflightError::Invalid)?;
+        let candidate = std::iter::once(
+            op.payload
+                .as_deref()
+                .ok_or(AccountPreflightError::Invalid)?,
+        )
+        .chain(op.replacements.iter().map(|r| r.payload.as_slice()))
+        .find_map(|bytes| {
+            SignedQuaiTransaction::decode(bytes)
+                .ok()
+                .filter(|tx| tx.hash().ok() == Some(parent))
+        })
+        .ok_or(AccountPreflightError::Invalid)?;
+        let quote = crate::account_replacement::quote_account_replacement(
+            self.provider,
+            snapshot.book.scope(),
+            &candidate,
+            self.observation,
+            policy,
+        )
+        .await?;
+        self.book
+            .store
+            .compare_exchange(
+                Some(snapshot.revision),
+                Some(
+                    &snapshot
+                        .book
+                        .export_state()
+                        .map_err(BrowserAccountError::from)?,
+                ),
+            )
+            .await
+            .map_err(BrowserAccountError::from)?;
+        Ok(PreparedBrowserAccountReplacement {
             book: self.book.clone(),
             id,
             quote,

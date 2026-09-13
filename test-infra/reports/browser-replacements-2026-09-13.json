@@ -1,0 +1,38 @@
+{
+  "recordedAt": "2026-09-13T19:42:38.853632+00:00",
+  "baseCommit": "df40f9b124bbf5e7d447973afe96bfdc479bde6c",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    "crates/quai-sdk/src/account_replacement.rs": "a6308f707d4241874cfafb9548da5c09d3bc11335a2a737b32e59c2e71dc4139",
+    "crates/quai-sdk/src/qi_replacement.rs": "7f08f4c80e3e95e0b90df6ed7096966d3cb27bba036c31704b9d1447616d3650",
+    "crates/quai-sdk/src/browser_transactions.rs": "8e57720258011ce2a4d19afd9da258a0f2550cd991731ae5999e5b7d82b437dc",
+    "crates/quai-sdk/src/browser_qi_transactions.rs": "a02047bda96e66c2c22b88ec1d54f54c1a156a8bd0129d24dca3c9cdb4746c4d",
+    "crates/quai-sdk/src/accounts/replacements.rs": "396092521ca2152fa65b0a0ffea8ce39f498c14a498f09a13056ec83b5851c11",
+    "crates/quai-sdk/tests/account_preflight.rs": "0897ee5e0e64b827e1c0f24336b6e80f0d2a4c2840bf4d5abe9b6e3fac740c12",
+    "crates/quai-sdk/tests/qi_preflight.rs": "5309c392ebdc8b4ed327ea686848155600212df4ce5768c6f23cbbbc8c6e39f7"
+  },
+  "changes": [
+    "Shared native/browser fee-only account replacement quotation",
+    "Portable and browser same-input Qi replacement funded only by selected locally owned change",
+    "Durable exact candidate signing with randomized-signature replay before key resolution"
+  ],
+  "validation": {
+    "portableAccountTests": 8,
+    "portableQiTests": 6,
+    "nativeAccountRegressionTests": 20,
+    "nativeQiRegressionTests": 30,
+    "chromiumAccountTests": 14,
+    "chromiumQiTests": 12,
+    "chromiumAccountElapsedSeconds": 2.9,
+    "chromiumQiElapsedSeconds": 13.17,
+    "nativeAndWasmStrictClippy": "passed",
+    "nativeAndWasmRustdocWarningsDenied": "passed",
+    "docsLinksParityAppendix": "passed"
+  },
+  "limitations": [
+    "Synthetic RPC and actual Chromium custody evidence, not funded node replacement admission or priority",
+    "No new format/parser or fuzz campaign",
+    "No new local package rehearsal for this batch; GitHub package verification and final release rehearsal remain required",
+    "Destination settlement integration and declaration-level semantic reconciliation remain open"
+  ]
+}

@@ -561,6 +561,105 @@ async fn conversion_invalid_intents_and_fee_arithmetic_fail_closed() {
     }
 }
 
+fn replacement_policy() -> quai_sdk::account_replacement::ReplacementPolicy {
+    let mut fees = fee();
+    fees.max_total_fee = U256::from(100_000);
+    fees.max_gas_price = U256::from(5);
+    quai_sdk::account_replacement::ReplacementPolicy {
+        minimum_price_bump_percent: 5,
+        fees,
+    }
+}
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn replacement_quotes_change_only_price_and_use_confirmed_nonce_admission() {
+    use quai_sdk::account_replacement::quote_account_replacement;
+    for conversion_mode in [false, true] {
+        let m = Mock::default();
+        if conversion_mode {
+            m.state().mode = 11;
+        }
+        let p = m.provider();
+        let quote = if conversion_mode {
+            quote_quai_conversion(
+                &p,
+                scope(),
+                sender(),
+                conversion(),
+                AccountNonce::Exact(8),
+                AccountObservationPolicy::Pending,
+                fee(),
+            )
+            .await
+            .unwrap()
+        } else {
+            quote_account(
+                &p,
+                scope(),
+                sender(),
+                intent(),
+                AccountNonce::Exact(8),
+                AccountObservationPolicy::Pending,
+                fee(),
+            )
+            .await
+            .unwrap()
+        };
+        let parent = quote.transaction().sign(&key()).unwrap();
+        if !conversion_mode {
+            m.state().mode = 4;
+        } // Pending nonce RPC is unavailable; replacement must use confirmed admission.
+        let replacement = quote_account_replacement(
+            &p,
+            scope(),
+            &parent,
+            AccountObservationPolicy::Pending,
+            replacement_policy(),
+        )
+        .await
+        .unwrap();
+        let mut expected = parent.transaction().clone();
+        expected.gas_price = U256::from(3);
+        assert_eq!(replacement.transaction(), &expected);
+        assert_eq!(replacement.maximum_fee(), U256::from(69_306));
+        assert_eq!(replacement.parent_hash(), parent.hash().unwrap());
+        assert_eq!(
+            replacement.signing_digest(),
+            expected.signing_digest().unwrap()
+        );
+        let mut stale = expected.clone();
+        stale.nonce = 4;
+        assert!(matches!(
+            quote_account_replacement(
+                &p,
+                scope(),
+                &stale.sign(&key()).unwrap(),
+                AccountObservationPolicy::Pending,
+                replacement_policy()
+            )
+            .await,
+            Err(AccountPreflightError::Invalid)
+        ));
+        if !conversion_mode {
+            for mode in [3, 6, 10] {
+                m.state().mode = mode;
+                m.state().headers = 0;
+                assert!(
+                    quote_account_replacement(
+                        &p,
+                        scope(),
+                        &parent,
+                        AccountObservationPolicy::PinnedLatest,
+                        replacement_policy()
+                    )
+                    .await
+                    .is_err()
+                );
+            }
+        }
+    }
+}
+
 #[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
 mod browser {
     use super::*;
@@ -741,6 +840,80 @@ mod browser {
         let state = m.state();
         assert_eq!(state.sends.len(), 2);
         assert_eq!(state.sends[0], state.sends[1]);
+    }
+    #[wasm_bindgen_test::wasm_bindgen_test]
+    async fn reviewed_account_replacement_keeps_nonce_fields_and_exact_candidate_after_restart() {
+        use quai_sdk::browser_recovery::BrowserRecoverySession;
+        let m = Mock::default();
+        let p = m.provider();
+        let name = name();
+        let book = BrowserAccountBook::open(&name, scope(), key().public_key())
+            .await
+            .unwrap();
+        book.initialize(8).await.unwrap();
+        let session = BrowserAccountSession::new(&p, &book);
+        let signer = LocalSigner::new(key(), scope().chain_id).unwrap();
+        let root = session
+            .prepare(id(12), intent(), fee())
+            .await
+            .unwrap()
+            .sign(&signer)
+            .await
+            .unwrap();
+        let reviewed = session
+            .prepare_replacement(id(12), root.hash().unwrap(), replacement_policy())
+            .await
+            .unwrap();
+        let candidate = reviewed.sign(&signer).await.unwrap();
+        assert_eq!(candidate.transaction(), reviewed.transaction());
+        assert_eq!(candidate.transaction().nonce, 8);
+        assert_eq!(
+            candidate.transaction().access_list,
+            root.transaction().access_list
+        );
+        assert_eq!(book.snapshot().await.unwrap().book.next_nonce(), 9);
+        m.state().mode = 8;
+        assert!(
+            BrowserRecoverySession::for_account(&p, &book)
+                .broadcast_candidate(id(12), candidate.hash().unwrap())
+                .await
+                .is_err()
+        );
+        let reopened = BrowserAccountBook::open(&name, scope(), key().public_key())
+            .await
+            .unwrap();
+        m.state().mode = 0;
+        assert_eq!(
+            BrowserRecoverySession::for_account(&p, &reopened)
+                .broadcast_candidate(id(12), candidate.hash().unwrap())
+                .await
+                .unwrap()
+                .transaction_hash,
+            candidate.hash().unwrap()
+        );
+        {
+            let state = m.state();
+            assert_eq!(state.sends[0], state.sends[1]);
+        }
+        let snapshot = book.snapshot().await.unwrap();
+        book.observe_inclusion(
+            snapshot.revision,
+            id(12),
+            candidate.hash().unwrap(),
+            quai_sdk::wallet::discovery::Checkpoint {
+                height: U256::from(16),
+                hash: hash(2),
+            },
+        )
+        .await
+        .unwrap();
+        assert!(reviewed.sign(&signer).await.is_err());
+        assert!(
+            session
+                .prepare_replacement(id(12), root.hash().unwrap(), replacement_policy())
+                .await
+                .is_err()
+        );
     }
     #[wasm_bindgen_test::wasm_bindgen_test]
     async fn preparation_races_cancellation_and_fee_failures_cannot_reserve_unreviewed_nonces() {

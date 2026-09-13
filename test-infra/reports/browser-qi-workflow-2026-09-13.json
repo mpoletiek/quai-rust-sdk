@@ -132,5 +132,10 @@
     "Current separate outpoint reads are advisory, not historical/atomic snapshots; input values and fees remain source claims",
     "Replacement preparation and destination-settlement integration remain open",
     "No new codec/format or fuzz campaign; bounded planning composes existing selectors/consensus codecs"
-  ]
+  ],
+  "githubCI": {
+    "commit": "df40f9b124bbf5e7d447973afe96bfdc479bde6c",
+    "runId": 34777796915,
+    "conclusion": "success"
+  }
 }

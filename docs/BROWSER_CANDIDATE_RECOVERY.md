@@ -47,5 +47,6 @@ relationships; this standalone observer does not replace those checks. Native
 IndexedDB concurrency, cancellation, restart, ambiguous sends, retained inclusion,
 reorgs, competing candidates and all three Qi wire forms. RPC acknowledgements are
 synthetic test results, not funded node acceptance. [Browser Qi preparation](BROWSER_QI_WORKFLOW.md) supplies the selection/fee/signing
-workflow. Replacement preparation and destination settlement remain separate
+workflow. [Reviewed replacement preparation](BROWSER_REPLACEMENTS.md) creates
+explicitly approved candidate edges. Destination settlement remains separate
 integration work.

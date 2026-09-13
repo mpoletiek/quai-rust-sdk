@@ -1,6 +1,9 @@
 //! Quai SDK under construction; wallet derivation and offline signing are available.
 #[cfg(feature = "wallet")]
 pub mod account_preflight;
+/// Portable fee-only account replacement quotation.
+#[cfg(feature = "wallet")]
+pub mod account_replacement;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod accounts;
 #[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
@@ -44,6 +47,9 @@ pub mod qi_discovery;
 /// Portable exact-denomination Qi preparation.
 #[cfg(feature = "wallet")]
 pub mod qi_preflight;
+/// Portable same-input Qi replacement quotation.
+#[cfg(feature = "wallet")]
+pub mod qi_replacement;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod recovery;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]

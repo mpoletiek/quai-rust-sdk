@@ -465,6 +465,91 @@ async fn known_address_extension_is_bounded_and_applies_no_partial_results() {
     assert_eq!(empty.coins, original.coins);
     assert_eq!(empty.owners, original.owners);
 }
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn qi_replacement_reduces_only_owned_change_and_keeps_inputs_and_special_data() {
+    use quai_sdk::qi_replacement::{QiReplacementIntent, quote_qi_replacement};
+    let change = change();
+    for kind in 0..3 {
+        let m = Mock::default();
+        m.state().mode = 5;
+        let p = m.provider();
+        let mut source = source();
+        source.owners.push(change.clone());
+        let original = quote_qi(
+            &p,
+            QiQuoteRequest {
+                source: &source,
+                intent: if kind == 0 {
+                    intent()
+                } else {
+                    special(kind == 2)
+                },
+                policy: policy(),
+                fees: QiFeeMode::Explicit(U256::ZERO),
+                change: std::slice::from_ref(&change),
+            },
+        )
+        .await
+        .unwrap();
+        let tx = original.transaction();
+        let parent = match kind {
+            0 => SignedQiOperation::Transfer(tx.sign_local(&[&key()]).unwrap()),
+            1 => SignedQiOperation::Conversion(
+                quai_sdk::consensus::QiConversionTransaction::from_transaction(tx.clone())
+                    .unwrap()
+                    .sign_local(&[&key()])
+                    .unwrap(),
+            ),
+            _ => SignedQiOperation::Wrapping(
+                quai_sdk::consensus::QiWrappingTransaction::from_transaction(tx.clone())
+                    .unwrap()
+                    .sign_local(&[&key()])
+                    .unwrap(),
+            ),
+        };
+        let intent = QiReplacementIntent {
+            parent: parent.hash().unwrap(),
+            change_indexes: vec![1],
+            change_outputs: vec![],
+        };
+        let fees = if kind == 0 {
+            QiFeeMode::Node
+        } else {
+            QiFeeMode::Profile(quai_sdk::provider::QiFeeProfile::V056ShaAnchored)
+        };
+        let quote = quote_qi_replacement(&p, &source, &parent, intent.clone(), policy(), fees)
+            .await
+            .unwrap();
+        assert_eq!(quote.transaction().inputs, parent.transaction().inputs);
+        assert_eq!(
+            quote.transaction().outputs,
+            [parent.transaction().outputs[0].clone()]
+        );
+        assert_eq!(quote.transaction().data, parent.transaction().data);
+        assert_eq!(quote.fee(), U256::from(5));
+        assert_eq!(quote.required_owners().len(), 2);
+        for case in 0..5 {
+            let mut bad = intent.clone();
+            let mut src = source.clone();
+            let mut limits = policy();
+            match case {
+                0 => bad.change_indexes = vec![0],
+                1 => bad.change_indexes = vec![1, 1],
+                2 => bad.change_outputs = vec![parent.transaction().outputs[1].clone()],
+                3 => src.coins.clear(),
+                4 => limits.max_fee = U256::from(4),
+                _ => unreachable!(),
+            }
+            assert!(
+                quote_qi_replacement(&p, &src, &parent, bad, limits, fees)
+                    .await
+                    .is_err()
+            );
+        }
+        assert!(m.state().sends.is_empty());
+    }
+}
 #[cfg(all(target_arch = "wasm32", feature = "browser"))]
 mod browser {
     use super::*;
@@ -604,6 +689,153 @@ mod browser {
                     .any(|(method, _)| method == "quai_estimateFeeForQi")
             );
         }
+    }
+    #[wasm_bindgen_test::wasm_bindgen_test]
+    async fn qi_replacement_signing_replays_persisted_musig_candidate_without_keys() {
+        use quai_sdk::browser_recovery::BrowserRecoverySession;
+        use quai_sdk::qi_replacement::QiReplacementIntent;
+        use quai_sdk::wallet::qi_keys::QiKeyResolver;
+        struct Locked;
+        impl QiKeyResolver for Locked {
+            fn resolve(
+                &self,
+                _: &PublicAddress,
+            ) -> Result<SecretKey, quai_sdk::wallet::metadata::StorageError> {
+                panic!("persisted candidate must not sign again")
+            }
+        }
+        let m = Mock::default();
+        let p = m.provider();
+        let (name, a, b) = books().await;
+        let w = wallet();
+        let mut keys = QiKeyring::new(Some(&w)).unwrap();
+        keys.import(key()).unwrap();
+        let mut raw = [0; 32];
+        raw[30..].copy_from_slice(&300u16.to_be_bytes());
+        let second = keys.import(SecretKey::from_bytes(&raw).unwrap()).unwrap();
+        let mut source = source();
+        let mut coin = source.coins[0].clone();
+        coin.outpoint.index = 1;
+        coin.address = second.address().try_into().unwrap();
+        source.coins.push(coin);
+        source.owners.push(second);
+        let c = pool(&a, 1).await;
+        source.owners.extend_from_slice(c.addresses());
+        let intent = QiOperationIntent::Transfer(QiIntent {
+            amount: U256::from(15),
+            destinations: vec![
+                "0x0080000000000000000000000000000000000001"
+                    .parse()
+                    .unwrap(),
+                "0x0080000000000000000000000000000000000002"
+                    .parse()
+                    .unwrap(),
+            ],
+        });
+        let session = BrowserQiSession::new(&p, &b, &keys);
+        let root = session
+            .prepare_observed(
+                id(1),
+                b.snapshot().await.unwrap().revision,
+                source.clone(),
+                BrowserQiRequest {
+                    intent,
+                    policy: policy(),
+                    fees: QiFeeMode::Explicit(U256::ZERO),
+                },
+                c,
+            )
+            .await
+            .unwrap()
+            .sign(&keys)
+            .await
+            .unwrap();
+        assert_eq!(root.transaction().inputs.len(), 2);
+        assert_eq!(root.transaction().outputs.len(), 3);
+        // Owning the inputs is insufficient: reducing old change requires its key too.
+        let mut inputs_only = QiKeyring::new(None).unwrap();
+        inputs_only.import(key()).unwrap();
+        inputs_only
+            .import(SecretKey::from_bytes(&raw).unwrap())
+            .unwrap();
+        let revision = b.snapshot().await.unwrap().revision;
+        assert!(
+            BrowserQiSession::new(&p, &b, &inputs_only)
+                .prepare_replacement(
+                    id(1),
+                    revision,
+                    source.clone(),
+                    QiReplacementIntent {
+                        parent: root.hash().unwrap(),
+                        change_indexes: vec![2],
+                        change_outputs: vec![]
+                    },
+                    policy(),
+                    QiFeeMode::Node,
+                )
+                .await
+                .is_err()
+        );
+        assert_eq!(b.snapshot().await.unwrap().revision, revision);
+        let prepared = session
+            .prepare_replacement(
+                id(1),
+                b.snapshot().await.unwrap().revision,
+                source,
+                QiReplacementIntent {
+                    parent: root.hash().unwrap(),
+                    change_indexes: vec![2],
+                    change_outputs: vec![],
+                },
+                policy(),
+                QiFeeMode::Node,
+            )
+            .await
+            .unwrap();
+        let signed = prepared.sign(&keys).await.unwrap();
+        let repeated = prepared.sign(&Locked).await.unwrap();
+        assert_eq!(
+            signed.signed_bytes().unwrap(),
+            repeated.signed_bytes().unwrap()
+        );
+        assert_eq!(signed.transaction().inputs, root.transaction().inputs);
+        assert_eq!(
+            signed.transaction().outputs,
+            root.transaction().outputs[..2]
+        );
+        assert_eq!(
+            b.snapshot()
+                .await
+                .unwrap()
+                .book
+                .operation(id(1))
+                .unwrap()
+                .replacements
+                .len(),
+            1
+        );
+        m.state().mode = 7;
+        assert!(
+            BrowserRecoverySession::for_qi(&p, &b)
+                .broadcast_candidate(id(1), signed.hash().unwrap())
+                .await
+                .is_err()
+        );
+        let reopened = BrowserQiBook::open(&name, scope(), hash(7)).await.unwrap();
+        m.state().mode = 0;
+        assert_eq!(
+            BrowserRecoverySession::for_qi(&p, &reopened)
+                .broadcast_candidate(id(1), signed.hash().unwrap())
+                .await
+                .unwrap()
+                .transaction_hash,
+            signed.hash().unwrap()
+        );
+        {
+            let state = m.state();
+            assert_eq!(state.sends[0], state.sends[1]);
+        }
+        assert!(reopened.release_unsigned(id(1)).await.is_err());
     }
     #[wasm_bindgen_test::wasm_bindgen_test]
     async fn current_hd_discovery_flows_through_exact_planning_and_custody() {

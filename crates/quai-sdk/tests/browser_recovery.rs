@@ -53,7 +53,11 @@ impl Mock {
     fn provider(&self) -> Provider<Self> {
         Provider::new(
             self.clone(),
-            Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+            Routing::gateway(
+                "http://127.0.0.1:9200",
+                [Zone::Cyprus1.into(), Zone::Cyprus2.into()],
+            )
+            .unwrap(),
             self.state().chain,
         )
     }
@@ -250,6 +254,183 @@ async fn portable_observation_accepts_each_qi_wire_form_and_rejects_wrong_receip
         ));
     }
 }
+struct SettlementCase {
+    scope: NetworkScope,
+    bytes: Vec<u8>,
+    kind: quai_sdk::settlement_observation::SettlementKind,
+    request: quai_sdk::provider::EtxScanRequest,
+}
+fn settlement_cases() -> Vec<SettlementCase> {
+    use quai_sdk::settlement_observation::SettlementKind;
+    let request = quai_sdk::provider::EtxScanRequest {
+        zone: Zone::Cyprus1,
+        from: 16,
+        to: 16,
+        max_transactions_per_block: 16,
+        max_total_transactions: 32,
+        preceding_block: None,
+    };
+    let mut cases = vec![];
+    for row in qi_vectors() {
+        let bytes = get_bytes(row["signed"].as_str().unwrap()).unwrap();
+        let tx = SignedQiOperation::decode(&bytes).unwrap();
+        let kind = match tx {
+            SignedQiOperation::Conversion(_) => SettlementKind::Conversion,
+            SignedQiOperation::Wrapping(_) => SettlementKind::QiWrapping,
+            _ => continue,
+        };
+        let mut scope = scope();
+        scope.chain_id = tx.transaction().chain_id;
+        cases.push(SettlementCase {
+            scope,
+            bytes,
+            kind,
+            request,
+        });
+    }
+    let mut conversion = signed(2).transaction().clone();
+    conversion.to = Some(
+        "0x00edf2d16afbc028fb1e879559b07997af79539f"
+            .parse()
+            .unwrap(),
+    );
+    conversion.value = U256::from(quai_sdk::consensus::MIN_QUAI_CONVERSION_VALUE);
+    conversion.data = vec![4, 210];
+    cases.push(SettlementCase {
+        scope: scope(),
+        bytes: conversion.sign(&key()).unwrap().signed_bytes().unwrap(),
+        kind: SettlementKind::Conversion,
+        request,
+    });
+    let contract = "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+        .parse::<quai_sdk::QuaiAddress>()
+        .unwrap();
+    let mut redemption = signed(2).transaction().clone();
+    redemption.to = Some(contract.address());
+    redemption.value = U256::ZERO;
+    redemption.data = vec![0; 100];
+    redemption.data[..4].copy_from_slice(&[0xbc, 0x35, 0xba, 0xfe]);
+    redemption.data[16..36].copy_from_slice(conversion.to.unwrap().bytes());
+    redemption.data[36..68]
+        .copy_from_slice(&U256::from(1_000_000_000_000_000_000u64).to_be_bytes::<32>());
+    redemption.data[92..100].copy_from_slice(&100_000u64.to_be_bytes());
+    cases.push(SettlementCase {
+        scope: scope(),
+        bytes: redemption.sign(&key()).unwrap().signed_bytes().unwrap(),
+        kind: SettlementKind::WqiRedemption {
+            contract,
+            etx_index: 0,
+        },
+        request,
+    });
+    let mut cross = signed(2).transaction().clone();
+    cross.to = Some(
+        "0x0100000000000000000000000000000000000001"
+            .parse()
+            .unwrap(),
+    );
+    let mut other = request;
+    other.zone = Zone::Cyprus2;
+    cases.push(SettlementCase {
+        scope: scope(),
+        bytes: cross.sign(&key()).unwrap().signed_bytes().unwrap(),
+        kind: SettlementKind::CrossZoneQuai,
+        request: other,
+    });
+    let row = &qi_vectors()[0];
+    let parent =
+        SignedQiOperation::decode(&get_bytes(row["signed"].as_str().unwrap()).unwrap()).unwrap();
+    let mut raw = parent.transaction().clone();
+    raw.outputs[0].address = "0x0180000000000000000000000000000000000001"
+        .parse()
+        .unwrap();
+    let secret = SecretKey::from_bytes(
+        &get_bytes(row["publicTestSecrets"][0].as_str().unwrap())
+            .unwrap()
+            .try_into()
+            .unwrap(),
+    )
+    .unwrap();
+    let mut scope = scope();
+    scope.chain_id = raw.chain_id;
+    cases.push(SettlementCase {
+        scope,
+        bytes: raw.sign_local(&[&secret]).unwrap().signed_bytes().unwrap(),
+        kind: SettlementKind::CrossZoneQi { output_index: 0 },
+        request: other,
+    });
+    cases
+}
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn settlement_reconstructs_all_signed_intents_and_preserves_unavailable_and_failed_origins() {
+    use quai_sdk::settlement_observation::observe_signed_settlement;
+    for case in settlement_cases() {
+        let m = Mock::default();
+        m.state().chain = case.scope.chain_id;
+        let p = m.provider();
+        let result =
+            observe_signed_settlement(&p, case.scope, &case.bytes, case.kind, case.request, 16)
+                .await
+                .unwrap();
+        let origin = result
+            .conversion
+            .as_ref()
+            .map(|o| &o.origin)
+            .or_else(|| result.external.as_ref().map(|o| &o.origin))
+            .unwrap();
+        assert!(matches!(
+            origin,
+            quai_sdk::provider::ConversionOriginObservation::Unavailable
+        ));
+        assert!(result.qi_credit.is_none());
+        let (h, kind) = if let Ok(tx) = SignedQuaiTransaction::decode(&case.bytes) {
+            (tx.hash().unwrap(), 0)
+        } else {
+            (
+                SignedQiOperation::decode(&case.bytes)
+                    .unwrap()
+                    .hash()
+                    .unwrap(),
+                2,
+            )
+        };
+        let mut receipt = receipt(h, kind);
+        if let Ok(tx) = SignedQuaiTransaction::decode(&case.bytes) {
+            receipt["to"] = json!(tx.transaction().to.map(|to| to.to_string()));
+        }
+        m.state().receipts.insert(h.to_string(), receipt);
+        let result =
+            observe_signed_settlement(&p, case.scope, &case.bytes, case.kind, case.request, 16)
+                .await
+                .unwrap();
+        let origin = result
+            .conversion
+            .as_ref()
+            .map(|o| &o.origin)
+            .or_else(|| result.external.as_ref().map(|o| &o.origin))
+            .unwrap();
+        assert!(matches!(
+            origin,
+            quai_sdk::provider::ConversionOriginObservation::Failed { .. }
+        ));
+        assert!(result.qi_credit.is_none());
+        let mut wrong = case.scope;
+        wrong.chain_id += U256::from(1);
+        let before = m.state().calls;
+        assert!(
+            observe_signed_settlement(&p, wrong, &case.bytes, case.kind, case.request, 16)
+                .await
+                .is_err()
+        );
+        assert_eq!(m.state().calls, before);
+        assert!(
+            observe_signed_settlement(&p, case.scope, &case.bytes, case.kind, case.request, 0)
+                .await
+                .is_err()
+        );
+    }
+}
 #[cfg(all(target_arch = "wasm32", feature = "browser"))]
 mod browser {
     use super::*;
@@ -385,6 +566,143 @@ mod browser {
                 .inclusion
                 .is_none()
         );
+    }
+    #[wasm_bindgen_test::wasm_bindgen_test]
+    async fn settlement_race_does_not_return_a_view_for_stale_custody() {
+        use std::{future::Future, pin::Pin, task::Poll};
+        async fn once<F: Future>(mut f: Pin<&mut F>) -> Poll<F::Output> {
+            std::future::poll_fn(|cx| Poll::Ready(f.as_mut().poll(cx))).await
+        }
+        let case = settlement_cases().remove(2);
+        let tx = SignedQuaiTransaction::decode(&case.bytes).unwrap();
+        let m = Mock::default();
+        m.state().chain = case.scope.chain_id;
+        let p = m.provider();
+        let b = BrowserAccountBook::open(&name(), case.scope, key().public_key())
+            .await
+            .unwrap();
+        b.initialize(tx.transaction().nonce).await.unwrap();
+        b.reserve_nonce(id(), tx.transaction().nonce).await.unwrap();
+        b.commit_signed(id(), &tx).await.unwrap();
+        let s = BrowserRecoverySession::for_account(&p, &b);
+        m.state().stall = true;
+        let mut f =
+            Box::pin(s.observe_settlement(id(), tx.hash().unwrap(), case.kind, case.request, 16));
+        assert!(once(f.as_mut()).await.is_pending());
+        b.snapshot().await.unwrap();
+        assert!(once(f.as_mut()).await.is_pending());
+        b.mark_submitted(id()).await.unwrap();
+        let before = b.snapshot().await.unwrap();
+        m.state().stall = false;
+        assert!(matches!(
+            f.await,
+            Err(BrowserRecoveryError::Browser(
+                quai_sdk::browser::BrowserError::StorageConflict
+            ))
+        ));
+        let after = b.snapshot().await.unwrap();
+        assert_eq!(after.revision, before.revision);
+        assert_eq!(
+            after.book.export_state().unwrap(),
+            before.book.export_state().unwrap()
+        );
+        assert_eq!(
+            after.book.operation(id()).unwrap().state,
+            ReservationState::Submitted
+        );
+        assert!(m.state().sends.is_empty());
+    }
+    #[wasm_bindgen_test::wasm_bindgen_test]
+    async fn settlement_uses_persisted_candidates_without_mutating_claims_or_caching_finality() {
+        use quai_sdk::wallet::{CandidateCoin, metadata::PublicAddress};
+        for case in settlement_cases() {
+            let m = Mock::default();
+            m.state().chain = case.scope.chain_id;
+            let p = m.provider();
+            if let Ok(tx) = SignedQuaiTransaction::decode(&case.bytes) {
+                let b = BrowserAccountBook::open(&name(), case.scope, key().public_key())
+                    .await
+                    .unwrap();
+                b.initialize(tx.transaction().nonce).await.unwrap();
+                b.reserve_nonce(id(), tx.transaction().nonce).await.unwrap();
+                b.commit_signed(id(), &tx).await.unwrap();
+                let before = b.snapshot().await.unwrap();
+                let s = BrowserRecoverySession::for_account(&p, &b);
+                assert!(
+                    s.observe_settlement(id(), hash(8), case.kind, case.request, 16)
+                        .await
+                        .is_err()
+                );
+                let result = s
+                    .observe_settlement(id(), tx.hash().unwrap(), case.kind, case.request, 16)
+                    .await
+                    .unwrap();
+                let after = b.snapshot().await.unwrap();
+                assert!(result.revision > before.revision);
+                assert_eq!(
+                    before.book.export_state().unwrap(),
+                    after.book.export_state().unwrap()
+                );
+                assert!(result.observation.qi_credit.is_none());
+            } else {
+                let tx = SignedQiOperation::decode(&case.bytes).unwrap();
+                let b = BrowserQiBook::open(&name(), case.scope, hash(7))
+                    .await
+                    .unwrap();
+                b.initialize().await.unwrap();
+                let owners: BTreeMap<_, _> = tx
+                    .transaction()
+                    .inputs
+                    .iter()
+                    .map(|i| {
+                        (
+                            i.public_key.address(),
+                            PublicAddress::imported(&i.public_key).unwrap(),
+                        )
+                    })
+                    .collect();
+                let coins: Vec<_> = tx
+                    .transaction()
+                    .inputs
+                    .iter()
+                    .map(|i| CandidateCoin {
+                        outpoint: i.previous_output,
+                        address: i.public_key.address().try_into().unwrap(),
+                        denomination: quai_sdk::consensus::Denomination::new(14).unwrap(),
+                        unlock_height: U256::ZERO,
+                        expires_at: None,
+                        reserved: false,
+                    })
+                    .collect();
+                b.reserve(
+                    b.snapshot().await.unwrap().revision,
+                    id(),
+                    Checkpoint {
+                        height: U256::from(16),
+                        hash: hash(2),
+                    },
+                    U256::from(17),
+                    &coins,
+                    &owners.into_values().collect::<Vec<_>>(),
+                )
+                .await
+                .unwrap();
+                b.commit_signed(id(), &tx).await.unwrap();
+                let before = b.snapshot().await.unwrap();
+                let result = BrowserRecoverySession::for_qi(&p, &b)
+                    .observe_settlement(id(), tx.hash().unwrap(), case.kind, case.request, 16)
+                    .await
+                    .unwrap();
+                let after = b.snapshot().await.unwrap();
+                assert!(result.revision > before.revision);
+                assert_eq!(
+                    before.book.export_state().unwrap(),
+                    after.book.export_state().unwrap()
+                );
+                assert!(result.observation.qi_credit.is_none());
+            }
+            assert!(m.state().sends.is_empty());
+        }
     }
     #[wasm_bindgen_test::wasm_bindgen_test]
     async fn qi_all_wire_forms_broadcast_and_reconcile_without_unlocking_keys() {

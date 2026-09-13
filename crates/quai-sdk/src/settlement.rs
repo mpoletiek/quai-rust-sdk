@@ -2,39 +2,16 @@
 mod resume;
 use crate::qi::QiError;
 use quai_consensus::{SignedQiOperation, SignedQuaiTransaction};
-use quai_primitives::{Hash32, QuaiAddress};
+use quai_primitives::Hash32;
 use quai_provider::{
-    ConversionObservation, ConversionReference, EtxScanRequest, ExternalObservation,
-    ExternalReference, Provider, QiCreditObservation,
+    ConversionObservation, EtxScanRequest, ExternalObservation, Provider, QiCreditObservation,
 };
 use quai_rpc::Transport;
 use quai_wallet::storage::{ObservationCache, ReservationId, SqliteStore};
 pub use resume::{SettlementCursor, revalidate_settlement_cursor};
 use serde_json::{Value, json};
 
-/// Explicit interpretation of a locally signed operation. No operation is inferred
-/// from its transaction hash, and contract deployment identity remains caller-selected.
-#[derive(Clone, Copy, Debug)]
-pub enum SettlementKind {
-    /// Direct Quai-to-Qi or Qi-to-Quai conversion, including its refund path.
-    Conversion,
-    /// Native Qi wrapping into protocol backing, before claimDeposit token minting.
-    QiWrapping,
-    /// Exact WQI ABI redemption into a native Qi beneficiary.
-    WqiRedemption {
-        /// Explicit expected contract deployment.
-        contract: QuaiAddress,
-        /// Emitted external index, normally zero for a direct unwrap call.
-        etx_index: u16,
-    },
-    /// One explicit cross-zone Qi output; each output has its own ETX correlation.
-    CrossZoneQi {
-        /// Index in the original signed Qi output list.
-        output_index: u16,
-    },
-    /// Direct cross-zone Quai transfer/call.
-    CrossZoneQuai,
-}
+pub use crate::settlement_observation::SettlementKind;
 /// Current observations saved before this result is returned. A later reorg or
 /// source change can invalidate them; claims and signed bytes remain untouched.
 #[derive(Clone, Debug)]
@@ -198,55 +175,31 @@ async fn observe<T: Transport>(
             }
         })
         .ok_or(QiError::MissingSignedPayload)?;
-    let genesis = store.scope().genesis;
-    let conversion = match kind {
-        SettlementKind::Conversion => Some(
-            if let Ok(SignedQiOperation::Conversion(qi)) = SignedQiOperation::decode(&bytes) {
-                ConversionReference::from_qi(genesis, &qi)?
-            } else {
-                ConversionReference::from_quai(genesis, &SignedQuaiTransaction::decode(&bytes)?)?
-            },
-        ),
-        _ => None,
-    };
-    if let Some(reference) = conversion {
-        let (observation, credit) = provider
-            .observe_conversion_qi_credit(&reference, request, max_outputs)
-            .await?;
-        return Ok((Some(observation), None, credit));
-    }
-    let reference = match kind {
-        SettlementKind::QiWrapping => {
-            let SignedQiOperation::Wrapping(qi) = SignedQiOperation::decode(&bytes)? else {
-                return Err(QiError::InvalidPolicy);
-            };
-            ExternalReference::from_qi_wrapping(genesis, &qi)?
+    let observation = crate::settlement_observation::observe_signed_settlement(
+        provider,
+        store.scope(),
+        &bytes,
+        kind,
+        request,
+        max_outputs,
+    )
+    .await
+    .map_err(|e| match e {
+        crate::settlement_observation::SettlementObservationError::Provider(e) => {
+            QiError::Provider(e)
         }
-        SettlementKind::WqiRedemption {
-            contract,
-            etx_index,
-        } => ExternalReference::from_wqi_unwrap(
-            genesis,
-            &SignedQuaiTransaction::decode(&bytes)?,
-            contract,
-            etx_index,
-        )?,
-        SettlementKind::CrossZoneQi { output_index } => {
-            let SignedQiOperation::Transfer(qi) = SignedQiOperation::decode(&bytes)? else {
-                return Err(QiError::InvalidPolicy);
-            };
-            ExternalReference::from_cross_zone_qi(genesis, &qi, output_index)?
+        crate::settlement_observation::SettlementObservationError::Transaction(e) => {
+            QiError::Transaction(e)
         }
-        SettlementKind::CrossZoneQuai => ExternalReference::from_cross_zone_quai(
-            genesis,
-            &SignedQuaiTransaction::decode(&bytes)?,
-        )?,
-        _ => return Err(QiError::InvalidPolicy),
-    };
-    let (observation, credit) = provider
-        .observe_external_qi_credit(&reference, request, max_outputs)
-        .await?;
-    Ok((None, Some(observation), credit))
+        crate::settlement_observation::SettlementObservationError::Invalid => {
+            QiError::IdentityMismatch
+        }
+    })?;
+    Ok((
+        observation.conversion,
+        observation.external,
+        observation.qi_credit,
+    ))
 }
 /// Decode the bounded public cache envelope for a continuation UI. Its fields are
 /// observations only; use a live tracker call before reporting current settlement.

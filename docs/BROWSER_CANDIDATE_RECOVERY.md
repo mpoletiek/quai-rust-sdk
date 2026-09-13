@@ -48,5 +48,37 @@ IndexedDB concurrency, cancellation, restart, ambiguous sends, retained inclusio
 reorgs, competing candidates and all three Qi wire forms. RPC acknowledgements are
 synthetic test results, not funded node acceptance. [Browser Qi preparation](BROWSER_QI_WORKFLOW.md) supplies the selection/fee/signing
 workflow. [Reviewed replacement preparation](BROWSER_REPLACEMENTS.md) creates
-explicitly approved candidate edges. Destination settlement remains separate
-integration work.
+explicitly approved candidate edges.
+
+## Destination settlement
+
+`observe_settlement(id, candidate_hash, kind, request, max_outputs)` reconstructs
+intent from the selected persisted signed bytes. `SettlementKind` selects either
+conversion direction, native Qi wrapping, WQI redemption with an explicit
+contract/index, one cross-zone Qi output, or cross-zone Quai execution. Invalid
+signed scope, operation interpretation or candidate selection rejects. No keys
+are required and no transaction is sent.
+
+The bounded `EtxScanRequest` specifies the destination zone, inclusive block range
+and external-transaction limits. For subsequent pages supply the preceding block
+anchor. Provider observers check network identity, canonical origin, signed
+sender/recipient, emitted external transactions, destination execution and current
+attributed Qi credit. Missing origins and failed origins remain distinct; origin
+inclusion alone does not establish execution or maturity. Qi credit is a current
+node observation, not historical or atomic UTXO recovery.
+
+The returned `BrowserSettlementUpdate` contains an advisory observation and a
+revision fenced against the journal read before RPC. A concurrent writer causes
+a storage conflict; no stale view is returned as a successful journal update.
+The same custody bytes are committed: nonce floors, claims and candidate families
+are preserved. Destination observations and page cursors are **not persisted in
+the browser custody frame**. After restart reconstruct the same signed reference
+and recheck explicit ranges. Native settlement resume additionally persists
+bounded, revalidated destination scan cursors.
+
+`settlement_observation::observe_signed_settlement` exposes the same portable
+read-only operation independently of storage; native settlement delegates to it.
+The browser tests cover reconstruction of all six signed intents, unavailable and
+failed origins, unchanged custody and a concurrent-update conflict. Successful
+and mature destination execution requires separate provider/node qualification;
+these browser fixtures do not establish funded settlement acceptance.

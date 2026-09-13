@@ -40,12 +40,13 @@ Three different completion questions must be answered separately:
 | Question | Supported assessment |
 | --- | --- |
 | Does useful core functionality exist? | Yes: native identity/derivation, current Qi discovery, selection/signing, payment channels, conversions, wrappers, contracts and durable recovery have implementations and tests |
-| Does every required published quais.js behavior have a tested Rust equivalent or justified difference? | Not established. The semantic review is unfinished, and complete browser session orchestration is a concrete integration gap |
+| Does every required published quais.js behavior have a tested Rust equivalent or justified difference? | Not established. The semantic review is unfinished, and browser/native orchestration has explicit storage and lifecycle differences |
 | Is the SDK production-qualified? | No. Funded unmodified-network acceptance and broader reliability/security/platform qualification remain open |
 
 The browser gap is visible in the [facade feature gates](crates/quai-sdk/src/lib.rs):
 `accounts`, `qi`, `recovery` and related full native sessions require native
-SQLite, while browser books expose custody/signing/allocation building blocks.
+SQLite, while browser sessions compose their own IndexedDB custody, preparation, signing,
+submission and recovery APIs.
 Existing [reconciliation APIs](crates/quai-sdk/src/recovery.rs) must not be
 reported as wholly absent merely because automatic lifecycle application remains
 unfinished. Similarly, an unrun funded acceptance test is a qualification gap,
@@ -109,9 +110,9 @@ This analysis does not relabel unresolved rows to make the counts appear complet
 | Qi discovery | Receive/change default gap 50 matching Qi addresses, deep ranges, every persisted origin refresh, lock/balance classes | Latest-only outpoints cannot prove historical address use; optional external use hints and explicit recovery ranges are needed for stronger recovery |
 | Qi selection/signing | Fixed denomination inventory, exact output/address capacity, single/multi-input signing, sweep and explicit aggregation | No fee-shortfall success; aggregation block placement remains unqualified |
 | Quai transactions | Native durable prepare/review/sign/broadcast, nonce reservation, access lists, deployment and cross-zone intents | Native SQLite sessions and the browser account session use explicit pending/latest policy; browser replacement preparation, candidate selection and reconciliation exist |
-| Qi transactions | Native and browser durable selection/fee convergence/preparation/signing/submission; exact special-operation custody and candidate reconciliation | Browser specialized destination-settlement integration remains open; observations remain source claims |
+| Qi transactions | Native and browser durable selection/fee convergence/preparation/signing/submission; exact special-operation custody and candidate reconciliation | Browser signed-intent destination observations exist; only native resume persists destination cursors; observations remain source claims |
 | Payment codes | Version-one BIP47 seed/master/account origins, matching send/receive keys, registered channels, gap/deep scans and mixed-origin spending | Peer-code exchange is out of band; automatic notification discovery/blinding is absent; bounded cursors deliberately avoid reuse |
-| Quai → Qi | Native and browser conversion preparation, simulation/fees/slippage and signed custody; native destination observations | Quote history depends on node behavior; per-operation maturity/production execution need stronger evidence |
+| Quai → Qi | Native and browser conversion preparation, simulation/fees/slippage and signed custody; native/browser destination observations | Quote history depends on node behavior; per-operation maturity/production execution need stronger evidence |
 | Qi → Quai | Exact 22-byte conversion form, refund/slippage, explicit or profiled fees and signed recovery | Specialized estimator requires asserted compatible fork/node profile; aggregate Quai balance is not operation-specific maturity proof |
 | Qi → WQI / WQI → Qi | Native 20-byte wrap, WQI backing/claim, ERC-20 operations, redemption gas/dust planning, lock observations | Mature unmodified-network redemption spend and audited contract/profile qualification remain open |
 | Quai ↔ WQUAI | Configured deployment, deposit/withdraw and ERC-20 intents | Mainnet code observed; last Orchard WQUAI code check was empty; funded unmodified/testnet acceptance remains open |
@@ -120,7 +121,7 @@ This analysis does not relabel unresolved rows to make the counts appear complet
 | RPC and providers | Typed reads, block/pool/log/wallet APIs, exact signed broadcast, bounded receipts/head/ETX tracking | Many inherited hooks/response helpers still need declaration reconciliation; no fabricated `safe`/`finalized` or historical return-data capability |
 | Native WebSocket | Bounded subscriptions, lag/disconnect reporting, reconnect and canonical replay with persistence fences | Complete automatic wallet-state application and terminal claim policy are unfinished |
 | Browser transport/signing | Actual Wasm Fetch/WS, workers, injected message/typed/transaction verification, explicit raw submission capability | No automatic wallet selection, chain switching or permission manager; real extensions/other engines need qualification |
-| Browser persistence | Durable allocation, account/Qi custody, consistent backup capture and atomic multi-journal live restore | Explicit enumeration; initialized targets required by the coordinator; account call/conversion/deployment fee/prepare/sign/root-submit orchestration now exists; account/Qi candidate reconciliation exists; Qi preparation now includes current discovery and persisted owners; destination settlement and history compaction remain open |
+| Browser persistence | Durable allocation, account/Qi custody, consistent backup capture and atomic multi-journal live restore | Explicit enumeration; initialized targets required by the coordinator; account call/conversion/deployment fee/prepare/sign/root-submit orchestration now exists; account/Qi candidate reconciliation exists; Qi preparation now includes current discovery and persisted owners; destination observations now exist; native persisted destination cursors and general history compaction differ |
 | Backup/restore | Authenticated private origins, public ownership proofs, channels, burned floors, exact candidate families, monotonic merge | Portable backups retain floors/exposures rather than missing allocation request history; browser/native storage APIs differ |
 | Platform and release | Linux/macOS/Windows CI, Chromium, native/Wasm extracted package checks and bounded sanitizer fuzzing | Broader engine/extension/fault/reorg/soak/performance, funded acceptance and independent security review remain open; crates.io publishing disabled |
 
@@ -141,7 +142,7 @@ gaps merely because they appear here.
 
 | Gap | Why it remains open | What would close it |
 | --- | --- | --- |
-| Complete browser wallet sessions | Custody, discovery, atomic recovery and account call/conversion/deployment preparation/submission exist; browser Qi preparation/submission and candidate recovery exist; reviewed account/Qi replacements exist; destination settlement still needs integration | A browser workflow that composes policy, exact preparation, durable authorization/submission and reconciliation, with interruption/concurrency tests |
+| Browser/native storage differences | Browser sessions compose discovery, account/Qi preparation, reviewed replacements, durable signing/submission, canonical reconciliation and signed-intent settlement; destination cursor persistence remains native-only | Browser callers must recheck explicit destination ranges after restart; native persisted cursors are an additional recovery convenience, not a proven missing quais.js behavior |
 | Automatic wallet reconciliation and terminal claim policy | Bounded canonical replay and conservative claims exist; applications still explicitly refresh/apply observations | Defined pending/replaced/dropped/reorg/terminal transitions with evidence-based claim handling and fault tests; disappearance alone must not permit reuse |
 | Row-level semantic parity review | 2639 pending and 168 partial declarations, including inherited provider and response helpers | Review each unique behavior, overload and inherited binding; map it to tested Rust behavior or justify a specific omission |
 | Injected-wallet convenience/interoperability | Provider selection is explicit; chain switching and permission management are absent | Implement selected supported extension operations with exact request/result/context tests, then qualify real extensions |

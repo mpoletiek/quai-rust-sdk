@@ -54,6 +54,9 @@ pub mod qi_replacement;
 pub mod recovery;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod settlement;
+/// Portable destination observations from exact signed payloads.
+#[cfg(feature = "wallet")]
+pub mod settlement_observation;
 #[cfg(feature = "abi")]
 pub mod wrappers;
 #[cfg(feature = "abi")]

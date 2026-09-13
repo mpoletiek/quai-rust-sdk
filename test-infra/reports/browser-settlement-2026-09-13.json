@@ -1,0 +1,36 @@
+{
+  "recordedAt": "2026-09-13T19:57:49.045952+00:00",
+  "baseCommit": "2cb10d1a259173b0325415f56aa99504caf62b43",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    "crates/quai-sdk/src/settlement_observation.rs": "fa78c6fd08c45ceec5254d5b4a8f80c23a05d606e5f34b09175c44d4078dbc1d",
+    "crates/quai-sdk/src/settlement.rs": "e726479183eb541398b462bbf88dedd1c738e01298d295c9de23e381f5ef81a2",
+    "crates/quai-sdk/src/browser_recovery.rs": "efb57f5c3428d5079c7100f3f92b42d3acdb1b2dc30c978db811fd8781b3ef58",
+    "crates/quai-sdk/tests/browser_recovery.rs": "cb8162678f7104f3b89c94a5d9fc27515794e6c6740e3d0acc7931ae34f9cd90"
+  },
+  "changes": [
+    "Portable signed-intent settlement observation shared with native recovery",
+    "Browser persisted-candidate settlement reconstruction with pre-RPC custody revision fence"
+  ],
+  "validation": {
+    "portableTests": 3,
+    "nativeAccountRegressionTests": 20,
+    "nativeQiRegressionTests": 30,
+    "providerTrackingTests": 15,
+    "providerLiveTestsIgnored": 1,
+    "chromiumTests": 8,
+    "chromiumElapsedSeconds": 4.77,
+    "nativeAndWasmStrictClippy": "passed",
+    "nativeAndWasmRustdocWarningsDenied": "passed"
+  },
+  "limitations": [
+    "Browser destination observations and cursors are not persisted; native resume retains that extra",
+    "Browser fixtures cover unavailable/failed origins and concurrency, not funded successful or mature settlement",
+    "No new local package rehearsal or fuzz campaign for this composition-only batch"
+  ],
+  "previousCommitCI": {
+    "commit": "2cb10d1a259173b0325415f56aa99504caf62b43",
+    "runId": 34778526388,
+    "conclusion": "success"
+  }
+}

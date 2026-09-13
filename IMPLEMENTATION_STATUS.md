@@ -687,3 +687,18 @@ settlement and the declaration-level semantic parity audit remain open.
 Native/Wasm strict Clippy and rustdoc pass. Evidence is retained in
 [the report](test-infra/reports/browser-replacements-2026-09-13.json). The preceding
 Qi-workflow commit `df40f9b` passed CI run `34777796915`.
+
+## Portable/browser signed settlement — September 13, 2026
+
+Native settlement now delegates exact signed conversion, wrapping, WQI redemption
+and cross-zone interpretation to a portable observer. Browser recovery selects
+persisted candidate bytes and fences the destination result against its pre-RPC
+IndexedDB revision. Custody bytes and claims remain unchanged. Destination views
+and cursors are in memory on browser; native resume additionally persists cursors.
+
+Three portable tests, eight Chromium worker tests (including a writer race),
+20 account and 30 Qi native regressions, and 15 provider tracking tests passed;
+one live provider test remained explicitly ignored. Strict native/Wasm SDK Clippy
+and warnings-denied rustdoc passed. These fixture tests do not qualify funded
+settlement. See `test-infra/reports/browser-settlement-2026-09-13.json`.
+Prior replacement commit `2cb10d1` passed GitHub run 34778526388.

@@ -32,6 +32,9 @@ pub enum BrowserRecoveryError {
     /// Invalid or changed provider observation.
     #[error(transparent)]
     Observation(#[from] FamilyObservationError),
+    /// Exact signed settlement interpretation or destination observation failed.
+    #[error(transparent)]
+    Settlement(#[from] crate::settlement_observation::SettlementObservationError),
     /// Explicit submission failed; an ambiguous outcome retains every candidate.
     #[error(transparent)]
     Broadcast(#[from] BroadcastError),
@@ -46,6 +49,16 @@ pub struct BrowserFamilyUpdate {
     /// Persisted inclusion, possibly retained from an earlier read if its header
     /// remains canonical while receipt indexing is temporarily unavailable.
     pub inclusion: Option<(Hash32, Checkpoint)>,
+}
+/// Destination result fenced against the original candidate journal. The signed
+/// family remains persisted; this view and its page anchors are not stored in the
+/// custody frame. Reopen/reconstruct and recheck explicit ranges after restart.
+#[derive(Clone, Debug)]
+pub struct BrowserSettlementUpdate {
+    /// Custody revision committed after the destination reads.
+    pub revision: u64,
+    /// Advisory external execution, conversion/refund and current Qi credit.
+    pub observation: crate::settlement_observation::SignedSettlementObservation,
 }
 enum Custody<'a> {
     Account(&'a BrowserAccountBook),
@@ -240,6 +253,44 @@ impl<'a, T: Transport> BrowserRecoverySession<'a, T> {
                 }
                 SignedQiOperation::Wrapping(tx) => self.provider.broadcast_qi_wrapping(&tx).await?,
             }
+        })
+    }
+    /// Observe one explicit conversion, wrapping, redemption or cross-zone
+    /// destination range from an exact persisted candidate. Uses the same portable
+    /// intent reconstruction as native settlement tracking. A concurrent candidate,
+    /// backup or custody write rejects the view. Signed claims are never changed.
+    /// The result/page anchors are not a persisted settlement cursor; resume with
+    /// explicit bounded ranges and revalidated preceding blocks after restart.
+    pub async fn observe_settlement(
+        &self,
+        id: ReservationId,
+        candidate: Hash32,
+        kind: crate::settlement_observation::SettlementKind,
+        request: quai_provider::EtxScanRequest,
+        max_outputs: usize,
+    ) -> Result<BrowserSettlementUpdate, BrowserRecoveryError> {
+        let s = self.snapshot(id).await?;
+        let bytes = s
+            .payloads
+            .iter()
+            .find(|bytes| payload_hash(bytes).ok() == Some(candidate))
+            .ok_or(StorageError::Transition)?;
+        let observation = crate::settlement_observation::observe_signed_settlement(
+            self.provider,
+            s.scope,
+            bytes,
+            kind,
+            request,
+            max_outputs,
+        )
+        .await?;
+        let revision = self
+            .store()
+            .compare_exchange(Some(s.revision), Some(&s.bytes()?))
+            .await?;
+        Ok(BrowserSettlementUpdate {
+            revision,
+            observation,
         })
     }
     /// Reconcile every candidate and atomically apply a canonical winner or lost

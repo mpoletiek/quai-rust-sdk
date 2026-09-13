@@ -142,3 +142,9 @@ An explicit fault check subsequently restarted the isolated node, verified readi
 The separate conversion lane is documented in [CONVERSIONS.md](CONVERSIONS.md), including its distinct genesis, failed initialization attempt, actual conversion/refund/maturity outcomes, changed ETX IDs and receipt-status limitation.
 
 The bounded high-level wallet run is documented in [HIGHLEVEL.md](HIGHLEVEL.md): real Qi fee convergence, process-restart signed-byte custody and exact output accounting passed; live high-level account preparation stopped safely on a pending-state node RPC crash and remains a release blocker. All owned disposable nodes were stopped after that run.
+
+The owned development harness enables `quai,txpool` on its loopback HTTP/WS
+endpoints for the read-only `inspect_pool` SDK example. This does not change
+consensus or fund a transaction; the node remains an isolated patched profile.
+The 2026-09-12 read reported height 7, empty account/Qi pools, a 1018-byte pending
+header and a 21000-gas zero-value access-list simulation.

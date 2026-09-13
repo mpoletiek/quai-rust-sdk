@@ -133,6 +133,12 @@ fn read_method(method: &str) -> bool {
             | "quai_calculateConversionAmount"
             | "quai_getWrappedQiDeposit"
             | "quai_getLockedBalance"
+            | "quai_createAccessList"
+            | "quai_getPendingHeader"
+            | "quai_getProtocolExpansionNumber"
+            | "txpool_status"
+            | "txpool_content"
+            | "txpool_inspect"
             | "quai_accounts"
     )
 }

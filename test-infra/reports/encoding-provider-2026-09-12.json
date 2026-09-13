@@ -1,0 +1,46 @@
+{
+  "scope": "Bounded byte encodings and signed-width helpers; access-list, topology, pending header and account pool RPCs; provider parity reconciliation",
+  "validation": {
+    "workspace_all_features": {
+      "reported_passes": 305,
+      "failures": 0,
+      "ignored": 4,
+      "exit_code": 0
+    },
+    "pinned_js_encoding_vectors": 80,
+    "native_and_wasm_strict_clippy": "passed",
+    "rustdoc_warnings_denied": "passed",
+    "real_chromium_browser_tests": 11,
+    "real_chromium_worker_tests": 5,
+    "local_chain_harness_unit_tests": 3,
+    "reference_script_test_entrypoints": 3
+  },
+  "development_node_readonly": {
+    "access_list": {
+      "entries": 0,
+      "gas_used": 21000
+    },
+    "chain": "1337",
+    "height": "7",
+    "pending_header_bytes": 1018,
+    "pool": {
+      "decoded_accounts": 0,
+      "inspection_entries": 0,
+      "pending": 0,
+      "qi": 0,
+      "queued": 0
+    },
+    "protocol_expansion": 0,
+    "submitted": false
+  },
+  "parity": {
+    "total_declarations": 3928,
+    "encoding_declarations_reviewed": 30,
+    "provider_declarations_reconciled": 264,
+    "partial": 164,
+    "deviation": 329,
+    "pending": 3405,
+    "implemented": 30
+  },
+  "qualification": "Owned isolated patched development node only; no new transaction submitted. Loopback txpool module enabled explicitly. Raw pending header bytes are not a decoded WorkObject API."
+}

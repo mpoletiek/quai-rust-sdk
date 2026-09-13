@@ -12,6 +12,8 @@ publish.workspace = true
 tiny-keccak.workspace = true
 ruint.workspace = true
 thiserror.workspace = true
+base64 = "0.22.1"
+bs58 = "0.5.1"
 
 [dev-dependencies]
 serde_json.workspace = true

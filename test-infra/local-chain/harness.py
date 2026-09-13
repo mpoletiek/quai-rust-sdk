@@ -54,7 +54,7 @@ def no_running(work):
 def args_for(work):
     return [str(work/'go-quai-sdk-development'),'start','--global.config-dir',str(work/'development-config'),'--global.data-dir',str(work/'development-data'),
         '--node.environment','local','--node.consensus-engine','blake3','--node.solo','--node.ipaddr','127.0.0.1','--node.port','14002','--node.portmap=false','--node.min-peers','0','--node.max-peers','0','--node.telemetry=false','--node.cache','128','--node.bloomfilter-size','16','--node.index-address-utxos','--node.miner-preference','0','--node.quai-coinbases','0x0049cda3305ccb9cb23e7ce2528cef555e9a5b32','--node.qi-coinbases','0x00edf2d16afbc028fb1e879559b07997af79539f',
-        '--rpc.http-addr','127.0.0.1','--rpc.ws-addr','127.0.0.1','--rpc.http-port','19001','--rpc.ws-port','18001','--rpc.http-vhosts','localhost,127.0.0.1','--rpc.http-api','quai','--rpc.ws-api','quai','--txpool.sync-tx-with-return=false']
+        '--rpc.http-addr','127.0.0.1','--rpc.ws-addr','127.0.0.1','--rpc.http-port','19001','--rpc.ws-port','18001','--rpc.http-vhosts','localhost,127.0.0.1','--rpc.http-api','quai,txpool','--rpc.ws-api','quai,txpool','--txpool.sync-tx-with-return=false']
 
 def inventory_tree(root):
     result=[]

@@ -150,3 +150,16 @@ its previously funded Qi operation on the owned isolated development chain.
 New observer fixtures are explicitly synthetic and do not qualify funded wrapping
 or multi-zone destination execution. The older source-only/block receipt observer
 remains available; current indexed Qi output attribution is a separate API.
+
+## Encoding and provider coverage — 2026-09-12
+
+Bounded byte encoding and signed-width helpers pass 80 generated quais.js
+vectors, including zero preservation and signed boundaries. Access-list
+creation, protocol expansion, advertised regions, pending-header bytes and
+bounded account pool content/inspection are implemented. The read-only
+`inspect_pool` example passes on the owned development chain after explicitly
+enabling its loopback txpool module. [Evidence](test-infra/reports/encoding-provider-2026-09-12.json)
+records 305 workspace reported passes, zero failures, four ignored integration
+tests, strict native/Wasm Clippy, rustdoc and real browser/worker results.
+The parity tracker reconciles 30 encoding and 264 provider declarations with
+explicit typed-Rust differences; its remaining rows are still tracked.

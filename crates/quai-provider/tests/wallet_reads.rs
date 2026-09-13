@@ -598,3 +598,177 @@ async fn cross_zone_account_simulation_routes_by_sender_and_preserves_destinatio
     );
     mock.drained();
 }
+
+#[tokio::test]
+async fn access_list_creation_preserves_order_and_rejects_vm_errors_and_overflow() {
+    let request = CallRequest::new(ADDRESS.parse().unwrap(), ADDRESS.parse().unwrap());
+    let params = json!([{"from":ADDRESS,"to":ADDRESS,"input":"0x","txType":0},"latest"]);
+    let response =
+        json!({"accessList":[{"address":ADDRESS,"storageKeys":[HASH]}],"gasUsed":"0x5208"});
+    let mock = Mock::read("quai_createAccessList", params.clone(), response.clone(), 9);
+    let estimate = mock
+        .provider(9)
+        .create_access_list(&request, BlockTag::Latest)
+        .await
+        .unwrap();
+    assert_eq!(estimate.gas_used, 21000);
+    assert_eq!(
+        estimate.access_list[0].storage_keys,
+        [HASH.parse().unwrap()]
+    );
+    mock.drained();
+    for (field, value) in [
+        ("error", json!("execution reverted")),
+        ("gasUsed", json!("0x10000000000000000")),
+        ("accessList", json!(null)),
+        ("future", json!(true)),
+    ] {
+        let mut response = response.clone();
+        response[field] = value;
+        let mock = Mock::read("quai_createAccessList", params.clone(), response, 9);
+        assert!(
+            mock.provider(9)
+                .create_access_list(&request, BlockTag::Latest)
+                .await
+                .is_err()
+        );
+        mock.drained();
+    }
+}
+
+#[tokio::test]
+async fn pool_content_checks_sender_nonce_chain_and_pending_identity() {
+    let mut pending = quai();
+    for field in ["blockHash", "blockNumber", "transactionIndex"] {
+        pending[field] = Value::Null;
+    }
+    let address = pending["from"].as_str().unwrap().to_owned();
+    let nonce = quai_rpc::parse_quantity(pending["nonce"].as_str().unwrap())
+        .unwrap()
+        .to_string();
+    let content = json!({"pending":{address.clone():{nonce.clone():pending.clone()}},"queued":{}});
+    let mock = Mock::read("txpool_content", json!([]), content.clone(), 9);
+    let rows = mock
+        .provider(9)
+        .pool_content(Zone::Cyprus1, 16)
+        .await
+        .unwrap();
+    assert_eq!(rows.len(), 1);
+    assert!(!rows[0].queued);
+    mock.drained();
+    for field in ["from", "nonce", "chainId", "blockHash"] {
+        let mut content = content.clone();
+        content["pending"][&address][&nonce][field] = match field {
+            "from" => json!(ADDRESS),
+            "nonce" => json!("0xffff"),
+            "chainId" => json!("0x539"),
+            _ => json!(HASH),
+        };
+        let mock = Mock::read("txpool_content", json!([]), content, 9);
+        assert!(
+            mock.provider(9)
+                .pool_content(Zone::Cyprus1, 16)
+                .await
+                .is_err(),
+            "{field}"
+        );
+        mock.drained();
+    }
+    let mock = Mock::read(
+        "txpool_inspect",
+        json!([]),
+        json!({"pending":{ADDRESS:{"7":"public diagnostic"}},"queued":{}}),
+        9,
+    );
+    let rows = mock
+        .provider(9)
+        .pool_inspect(Zone::Cyprus1, 1)
+        .await
+        .unwrap();
+    assert_eq!(rows[0].nonce, 7);
+    assert_eq!(rows[0].summary, "public diagnostic");
+    assert!(!format!("{:?}", rows[0]).contains("public diagnostic"));
+    mock.drained();
+    let mock = Mock::read(
+        "txpool_content",
+        json!([]),
+        json!({"pending":{address:{"00":pending}},"queued":{}}),
+        9,
+    );
+    assert!(
+        mock.provider(9)
+            .pool_content(Zone::Cyprus1, 16)
+            .await
+            .is_err()
+    );
+    let mock = Mock::default();
+    assert!(
+        mock.provider(9)
+            .pool_content(Zone::Cyprus1, 0)
+            .await
+            .is_err()
+    );
+    mock.drained();
+}
+
+#[tokio::test]
+async fn pool_counts_pending_wire_and_advertised_regions_have_explicit_routes() {
+    let mock = Mock::read(
+        "txpool_status",
+        json!([]),
+        json!({"pending":"0x2","queued":"0x1","qi":"0x5"}),
+        9,
+    );
+    assert_eq!(
+        mock.provider(9).pool_status(Zone::Cyprus1).await.unwrap(),
+        quai_provider::PoolStatus {
+            pending: 2,
+            queued: 1,
+            qi: 5
+        }
+    );
+    mock.drained();
+    let mock = Mock::read("quai_getPendingHeader", json!([]), json!("0x000102"), 9);
+    assert_eq!(
+        mock.provider(9)
+            .pending_header_bytes(Zone::Cyprus1)
+            .await
+            .unwrap()
+            .bytes(),
+        [0, 1, 2]
+    );
+    mock.drained();
+    let mock = Mock::read(
+        "quai_getProtocolExpansionNumber",
+        json!([]),
+        json!("0x3"),
+        9,
+    );
+    assert_eq!(
+        mock.provider(9)
+            .protocol_expansion(Zone::Cyprus1.into())
+            .await
+            .unwrap(),
+        3
+    );
+    mock.drained();
+    let mock = Mock::read(
+        "quai_listRunningChains",
+        json!([]),
+        json!([[0, 0], [2, 1]]),
+        9,
+    );
+    let provider = Provider::new(
+        mock.clone(),
+        Routing::direct(URL, quai_primitives::Shard::Prime).unwrap(),
+        U256::from(9),
+    );
+    assert_eq!(
+        provider.running_regions().await.unwrap(),
+        [
+            quai_primitives::Region::Cyprus,
+            quai_primitives::Region::Hydra
+        ]
+    );
+    mock.drained();
+}

@@ -13,11 +13,11 @@ The provider currently exposes:
 
 `BlockTag::Number` rejects values above the node's signed 64-bit range before I/O. This matters because go-quai can interpret a 66-character selector as a hash. Nonces, gas and transaction indices enforce their wire integer widths; account values and prices retain 256 bits. `Hash32` is a primitive, whereas `RpcData` distinguishes bytes from quantities and caps decoded data at 1 MiB. Collections have explicit limits: 65,536 entries for outpoints/inputs/outputs/logs and 4,096 access-list entries with 65,536 total storage keys.
 
-`CallRequest::try_from(serde_json::Value)` is a strict adapter for external request objects. It rejects unknown fields, conflicting `data`/`input` usage, unsupported transaction kinds and Ethereum dynamic-fee fields. The request uses `input`, `gasPrice`, and numeric `txType: 0`; both simulation methods send an explicit second block-selector argument. Contract creation requires nonempty input. Same-zone Quai calls are supported; cross-zone simulation, Qi estimates, conversions, state overrides and block-hash selectors need dedicated future APIs. Simulation does not submit anything, and the node may replace a supplied nonce with its state nonce.
+`CallRequest::try_from(serde_json::Value)` is a strict adapter for external request objects. It rejects unknown fields, conflicting `data`/`input` usage, unsupported transaction kinds and Ethereum dynamic-fee fields. The request uses `input`, `gasPrice`, and numeric `txType: 0`; both simulation methods send an explicit second block-selector argument. Contract creation requires nonempty input. Same-zone and cross-zone account calls route by sender. Ordinary and profile-selected specialized Qi estimates and conversion APIs are separate typed methods; state overrides and block-hash simulation selectors remain outside this request model. Simulation does not submit anything, and the node may replace a supplied nonce with its state nonce.
 
 The response parsers preserve top-level unknown fields in `Extensions`, whose debug output omits values. Known signatures and public keys are checked for structural encoding only; they are not cryptographically verified. Unknown transaction types, partial inclusion metadata, incorrect lookup hashes, malformed log associations and duplicate outpoints are rejected. Pending and missing transactions remain `Option` values; neither establishes rejection. Receipt outcomes distinguish status from historical post-state roots. Quai log blooms are **10,240 bytes**, as verified against both captured nodes and pinned source; Ethereum's 256-byte bloom assumption is wrong here. ETX receipts can report zero cumulative gas despite nonzero gas used.
 
-`outpoints` operates at current head only. An empty result does not establish address-index readiness, and a returned outpoint does not establish key ownership, maturity, nonexpiry or spendability. Wallet recovery and reservation logic belong to subsequent implementation work.
+`outpoints` operates at current head only. An empty result does not establish address-index readiness, and a returned outpoint does not establish key ownership, maturity, nonexpiry or spendability. Wallet recovery and reservation logic live in quai-wallet and the native quai-sdk sessions.
 
 ## Explicit submission and confirmation
 
@@ -38,3 +38,25 @@ The pinned candidate protocol reference is [go-quai f3f345c877300c044e3e0081a48b
 Normal tests combine mock transports, malformed/adversarial responses and [captured public responses](tests/fixtures/README.md). They neither contact a live node nor contain private keys. Run `cargo test -p quai-provider --locked`. No HTTP transport is needed for the mock/fixture suite; `--no-default-features` is supported.
 
 An ignored `live_reads` test is opt-in and requires `QUAI_RPC_URL` plus decimal `QUAI_EXPECTED_CHAIN_ID`. It uses the exact supplied endpoint, reads public zero-address state and nonexistent transaction lookups, and simulates/estimates a zero-value account call. It does not sign or submit. Invoke with `cargo test -p quai-provider --test live_reads -- --ignored` after explicitly configuring those variables. This smoke test passed on both the authorized direct LAN node (chain 9) and Orchard's resolved Cyprus-1 gateway (chain 15000) on 2026-09-11. It does not establish funded transaction or Qi-signature acceptance.
+
+## Access lists, pool inspection and current topology
+
+`create_access_list` simulates the exact account call at an explicit selector,
+retains ordered access entries and gas used, and rejects VM-level execution
+errors. It never inserts a generated access list into a previously signed call.
+`protocol_expansion` reads the reported expansion number at an explicit shard.
+`running_regions` derives regions from actual advertised running zones; it avoids
+the pinned JS active-region threshold inconsistency. `pending_header_bytes`
+returns bounded protobuf bytes, retaining the distinction from header JSON.
+
+`pool_status` reports account pending/queued and Qi counts. `pool_content` and
+`pool_inspect` accept explicit entry budgets up to 4096. Account content validates
+sender/nonce map keys, chain, zone, hashes and pending inclusion state. The pinned
+node's account content/inspection RPCs exclude Qi, even though status counts it.
+Inspection text is bounded and omitted from Debug. Pool absence cannot release
+signed claims. The node must explicitly enable the `txpool` RPC module; missing
+methods remain visible RPC errors and are never reported as empty pools.
+
+Run the read-only `quai-sdk` example `inspect_pool` with `QUAI_RPC_URL` and
+`QUAI_EXPECTED_CHAIN_ID`. It reports topology, pool counts and pending-header size
+and performs a zero-value access-list simulation; it never signs or submits.

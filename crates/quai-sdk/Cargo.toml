@@ -60,3 +60,7 @@ required-features = ["http", "abi"]
 [[example]]
 name = "payment_codes"
 required-features = ["payments"]
+
+[[example]]
+name = "inspect_pool"
+required-features = ["http"]

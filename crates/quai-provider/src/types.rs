@@ -758,7 +758,7 @@ fn parse_outputs(value: Value) -> Result<Vec<QiOutput>, ProviderError> {
         })
         .collect()
 }
-fn access_list(value: Value) -> Result<Vec<AccessListItem>, ProviderError> {
+pub(crate) fn access_list(value: Value) -> Result<Vec<AccessListItem>, ProviderError> {
     let entries = array(value, MAX_ACCESS_ENTRIES)?
         .into_iter()
         .map(|value| {

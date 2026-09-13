@@ -2038,6 +2038,8 @@ dependencies = [
 name = "quai-primitives"
 version = "0.1.0-alpha.1"
 dependencies = [
+ "base64 0.22.1",
+ "bs58",
  "ruint",
  "serde_json",
  "thiserror",

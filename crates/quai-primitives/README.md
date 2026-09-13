@@ -50,3 +50,20 @@ uses the full salt and exact init-code hash. Both functions return arbitrary
 addresses; deployment still must satisfy active-zone and Quai-ledger rules.
 The shared 30-case corpus and Go regression test verify both formulas, including
 18 retained leading-zero divergences. Neither helper proves deployment success.
+
+## Byte encodings and signed widths
+
+The crate exposes bounded hex, byte concatenation/slicing/padding, Base64,
+Base58, null-terminated UTF-8 bytes32 and two's-complement helpers. General byte
+outputs are capped at 1 MiB; Base58 conversion is capped at 4096 bytes to bound
+its quadratic radix work. `decode_base58_bytes` preserves leading zeros;
+`decode_base58` returns a numeric U256 and rejects larger values. Hex requires
+an even-width lowercase `0x` prefix. Base64 uses strict padded RFC 4648 decoding,
+so Node Buffer's whitespace, missing-padding and trailing-bit coercions are an
+explicit deviation. Rust byte slices replace JS BytesLike aliases/coercions.
+
+`to_twos`/`from_twos` support explicit widths 1..=256 with signed range checks;
+`mask` supports 0..=256. Values never silently truncate except through explicit
+`mask`. `encode_bytes32` allows at most 31 UTF-8 bytes; decoding requires a final
+zero byte and strict UTF-8, strips trailing padding and preserves internal nulls.
+Eighty generated pinned-JS vectors cover these boundaries and zero preservation.

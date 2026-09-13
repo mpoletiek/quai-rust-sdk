@@ -81,3 +81,5 @@ initialization. Worker tests additionally cover competing connections, cancellat
 after nonce/signature write dispatch, restart, stale observations and tombstones.
 The aggregate 16 MiB boundary is tested natively; the fuzz campaign uses the
 existing 65,536-byte input cap and makes no full-size fuzzing claim.
+
+For combined HD/account/Qi/payment recovery, use [portable wallet capture](PORTABLE_WALLET_CAPTURE.md) with every relevant frozen journal and retained address inventory. Its recovery-format and snapshot-consistency boundaries are explicit.

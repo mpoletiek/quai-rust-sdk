@@ -19,8 +19,9 @@ allocators. [Browser Qi custody](BROWSER_QI_CUSTODY.md) now retains exact input
 claims and signs transfer/conversion/wrapping bytes before returning them.
 
 Account-only and Qi-only authenticated backup capture and monotonic live journal
-merge are now implemented. Complete browser wallet capture across all journals
-still requires integration; see the workflow's explicit capture boundary.
+merge are now implemented. [Combined portable recovery capture](PORTABLE_WALLET_CAPTURE.md)
+now includes all four journal types. Automated consistent browser collection and
+coordinated live restore still require integration; see the workflow's explicit capture boundary.
 
 **The target is a feature-complete SDK for both Quai and Qi wallet applications.**
 Keys, HD derivation, current gap-50 Qi discovery, mixed-origin signing, payment

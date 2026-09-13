@@ -22,6 +22,8 @@ use thiserror::Error;
 use zeroize::Zeroizing;
 
 mod payment;
+mod portable;
+pub use portable::{AccountCustodyCapture, MAX_PORTABLE_CAPTURE_JOURNALS, PortableWalletCapture};
 mod views;
 pub use crate::state::payment::PaymentAddressRecord;
 pub use views::{

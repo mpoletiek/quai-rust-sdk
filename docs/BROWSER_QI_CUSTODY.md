@@ -79,3 +79,5 @@ The shared account/Qi framing's 16 MiB aggregate boundary
 is tested by the native account suite. Qi count and malformed-state bounds are
 covered directly; fuzz imports retain the 65,536-byte input limit. Public toy keys
 used by tests must never be funded on a public network.
+
+For combined HD/account/Qi/payment recovery, use [portable wallet capture](PORTABLE_WALLET_CAPTURE.md) with every relevant frozen journal and retained address inventory. Its recovery-format and snapshot-consistency boundaries are explicit.

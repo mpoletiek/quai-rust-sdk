@@ -562,3 +562,13 @@ conflicting or oversized unions atomically, and discard old observations. Tests
 restore all Qi forms to native SQLite and exercise actual worker CAS merge races,
 mixed-origin capture and stale revision rejection. See [validation](test-infra/reports/browser-qi-backup-2026-09-13.json).
 Complete multi-journal browser wallet capture remains open.
+
+## Combined portable wallet recovery capture (2026-09-13)
+
+`WalletBackup::capture_portable` combines frozen HD/account/Qi/payment journals and
+retained address inventory with explicit private ownership proofs. It preserves
+burned cursors, both-ledger claims/candidates and channel exposures; native SQLite
+restore/recapture and browser initialization across all journal types are tested.
+See [workflow and format boundaries](docs/PORTABLE_WALLET_CAPTURE.md) and
+[validation](test-infra/reports/portable-wallet-capture-2026-09-13.json). Automated
+consistent browser collection and coordinated live restore remain open.

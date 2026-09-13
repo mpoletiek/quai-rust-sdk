@@ -107,6 +107,9 @@ jobs:
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-events
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-human-abi
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-receipts
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-portable-capture
+        env:
+          WASM_BINDGEN_TEST_TIMEOUT: 180
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-qi-custody
         env:
           WASM_BINDGEN_TEST_TIMEOUT: 180

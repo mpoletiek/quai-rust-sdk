@@ -106,3 +106,8 @@ codec and actual worker checks are retained in the [Qi custody report](../test-i
 Qi-only authenticated capture and live merge now retain exact claims and signed
 candidate families, reject conflicting or over-capacity unions atomically, and
 restore encrypted captures to native SQLite. See [retained backup validation](../test-infra/reports/browser-qi-backup-2026-09-13.json).
+
+[Combined portable recovery capture](PORTABLE_WALLET_CAPTURE.md) now preserves
+HD/account/Qi/payment cursor, custody and exposure state in one authenticated
+backup. Detached input collection still requires caller-established consistency;
+allocator request-ID history is outside the existing recovery format.

@@ -18,7 +18,14 @@
     "wasmSdkBackupBrowserAllTargetsClippyWarningsDenied": "passed",
     "nativeWalletSdkRustdocWarningsDenied": "passed",
     "wasmSdkBackupBrowserRustdocWarningsDenied": "passed",
-    "packageFileMirrors": 79
+    "packageFileMirrors": 79,
+    "explicitSqliteFeatureRoundTripRecheck": {
+      "featureSelection": "backup,sqlite",
+      "test": "qi_capture_encrypts_all_forms_and_restores_native_custody_without_observations",
+      "passed": 1,
+      "elapsedSeconds": 21.97,
+      "note": "The original targeted local 12-test run enabled backup only. This explicit recheck executes the feature-gated SQLite assertions; all-feature CI also exercises them."
+    }
   },
   "fuzz": {
     "recordedAt": "2026-09-13T11:53:55.634081+00:00",
@@ -154,5 +161,11 @@
       "quai-sdk": "passed"
     },
     "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "ciVerified": {
+    "commit": "1913b4fe61c9c0e82063acf581f86cd15a0d510a",
+    "runId": 34762332349,
+    "conclusion": "success",
+    "url": "https://github.com/mpoletiek/quai-rust-sdk/actions/runs/34762332349"
   }
 }

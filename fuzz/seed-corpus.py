@@ -89,4 +89,10 @@ put('abi',json.dumps({'items':[1,2,3,4],'names':['same','same','__proto__','then
 
 typed_utils=load('compatibility/fixtures/typed-data-utils.json')
 for row in typed_utils['vectors']:put('abi',json.dumps({'types':typed_utils['types'],'type':row['type'],'value':row['value']}).encode())
+
+
+crypto_utils=load('compatibility/fixtures/crypto-utils.json')
+for row in crypto_utils['signatures']:
+ put('wallet_import',hexbytes(row['compact']));put('wallet_import',hexbytes(row['serialized']));put('wallet_import',hexbytes(row['r'])+hexbytes(row['s'])+int(row['networkV']).to_bytes(32,'big'))
+for row in crypto_utils['pairs']:put('wallet_import',hexbytes(crypto_utils['keys'][row['a']]['privateKey'])+hexbytes(crypto_utils['keys'][row['b']]['privateKey']))
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

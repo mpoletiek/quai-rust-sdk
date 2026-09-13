@@ -3,7 +3,7 @@ use libfuzzer_sys::fuzz_target;
 use quai_keystore::{Keystore,KdfLimits};
 use quai_payments::PaymentCode;
 use quai_wallet::{Mnemonic,Language,ExtendedPrivateKey,ExtendedPublicKey};
-use quai_crypto::{PublicKey,RecoverableSignature,SchnorrSignature};
+use quai_crypto::{PublicKey,RecoverableSignature,SchnorrSignature,SecretKey,SignatureMetadata,U256,legacy_chain_id,legacy_chain_v,normalized_v};
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
  if data.first()==Some(&b'{') {
@@ -108,7 +108,21 @@ fuzz_target!(|data:&[u8]| {
  if let Ok(address)=quai_wallet::metadata::PublicAddress::from_metadata(data){assert_eq!(address.export_metadata(),data);assert_eq!(PublicKey::from_sec1_bytes(address.public_key()).unwrap().address(),address.address());}
  let _=PublicKey::from_sec1_bytes(data);
  if let Ok(signature)=<&[u8;65]>::try_from(data){let _=RecoverableSignature::from_quais_bytes(signature);}
- if let Ok(signature)=<&[u8;64]>::try_from(data){let _=SchnorrSignature::from_bytes(signature);}
+ if let Ok(signature)=<&[u8;64]>::try_from(data){
+  let _=SchnorrSignature::from_bytes(signature);
+  if let Ok(sig)=RecoverableSignature::from_eip2098(signature){assert_eq!(sig.to_eip2098().unwrap(),*signature);assert_eq!(SignatureMetadata::from_signature(sig).unwrap().signature(),sig);}
+  let a: &[u8;32]=signature[..32].try_into().unwrap();let b: &[u8;32]=signature[32..].try_into().unwrap();
+  if let (Ok(a),Ok(b))=(SecretKey::from_bytes(a),SecretKey::from_bytes(b)) {
+   assert_eq!(a.ecdh_shared_point(&b.public_key()).as_bytes(),b.ecdh_shared_point(&a.public_key()).as_bytes());
+   assert_eq!(&a.ecdh_shared_point(&b.public_key()).as_bytes()[1..33],a.ecdh_shared_x(&b.public_key()).as_bytes());
+   assert_eq!(a.public_key().add_point(b.public_key()),b.public_key().add_point(a.public_key()));
+  }
+ }
+ if data.len()==96 {
+  let r: [u8;32]=data[..32].try_into().unwrap();let s: [u8;32]=data[32..64].try_into().unwrap();let v=U256::from_be_bytes::<32>(data[64..].try_into().unwrap());
+  if let Ok(metadata)=SignatureMetadata::from_rs_v(r,s,v){assert_eq!(metadata.v(),normalized_v(v).unwrap());let _=serde_json::from_str::<serde_json::Value>(&metadata.to_json()).unwrap();if let Some(chain)=metadata.legacy_chain_id(){assert_eq!(legacy_chain_v(chain,metadata.v()).unwrap(),v);assert_eq!(legacy_chain_id(v).unwrap(),chain);}}
+ }
+
  if let Ok(text)=std::str::from_utf8(data){
   let _=PaymentCode::from_base58(text);
   let _=ExtendedPrivateKey::import(text);

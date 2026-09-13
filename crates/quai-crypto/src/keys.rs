@@ -61,6 +61,20 @@ impl SecretKey {
         crate::SecretBytes::new(Zeroizing::new((*shared.raw_secret_bytes()).into()))
     }
 
+    /// Compute the full uncompressed 65-byte SEC1 ECDH shared point into a
+    /// zeroizing buffer, matching the published SigningKey shared-secret form.
+    /// This is secret material, not an encryption key; apply the protocol KDF.
+    /// Named scalar/point/encoding intermediates are guarded. Backend/compiler
+    /// transient copies cannot be guaranteed erased.
+    pub fn ecdh_shared_point(&self, peer: &PublicKey) -> crate::SecretBytes<65> {
+        let scalar = self.guarded_scalar();
+        let point = Zeroizing::new(peer.0.to_projective() * *scalar);
+        let encoded = Zeroizing::new(point.to_encoded_point(false));
+        let mut bytes = Zeroizing::new([0u8; 65]);
+        bytes.copy_from_slice(encoded.as_bytes());
+        crate::SecretBytes::new(bytes)
+    }
+
     /// Add another nonzero scalar modulo the curve order; reject a zero result.
     /// All named private arithmetic intermediates have zeroizing guards.
     pub fn add_tweak(&self, tweak: &SecretKey) -> Result<Self, CryptoError> {
@@ -152,6 +166,17 @@ impl PublicKey {
             return Err(CryptoError::InvalidPublicKey);
         }
         k256::PublicKey::from_sec1_bytes(bytes)
+            .map(Self)
+            .map_err(|_| CryptoError::InvalidPublicKey)
+    }
+
+    /// Add two validated public points; reject the identity result. Point order
+    /// does not affect addition. This does not implement an aggregate signing
+    /// protocol or protect against rogue-key attacks; use OrderedKeyAggregate
+    /// when the application requires the supported MuSig aggregation protocol.
+    pub fn add_point(self, other: Self) -> Result<Self, CryptoError> {
+        let point = self.0.to_projective() + other.0.to_projective();
+        k256::PublicKey::from_affine(point.to_affine())
             .map(Self)
             .map_err(|_| CryptoError::InvalidPublicKey)
     }

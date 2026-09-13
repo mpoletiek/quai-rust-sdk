@@ -913,3 +913,32 @@ has 66 implemented, 2,748 deviation, 40 partial and 1,074 pending entries.
 The typed-data batch passes extracted-source rehearsal for all twelve crate
 archives, three consumer profiles, twelve native target compilations and two Wasm
 target compilations. No registry upload or docs.rs release certification is claimed.
+
+
+## Crypto metadata and curve utilities — 2026-09-13
+
+Added EIP-2098 parsing/serialization, `SignatureMetadata`, checked U256 legacy
+chain/V helpers, guarded full SEC1 ECDH output and validated public-point addition.
+The default 32-byte `SecretBytes` now supports fixed-size guarded output including
+65-byte shared points. Private/public scalar binding, nonzero low-S signatures
+and identity rejection remain explicit. Legacy metadata does not alter Quai
+protobuf signing or domain policy.
+
+All 23 native crypto tests and eight shared worker/key-origin tests pass. Four
+published-source regressions cover exact bytes and permissive constructor defects.
+Strict native/Wasm Clippy and warnings-denied docs pass. AddressSanitizer wallet
+import/crypto fuzzing completed 48,121 executions over 120 seconds without failure;
+this is bounded smoke coverage, not an independent security audit.
+
+An existing ruint dependency gained a direct crypto edge; registry versions and
+checksums did not change. Both lockfile audits using the retained advisory database
+report zero vulnerabilities and the same two unmaintained optional-graph warnings
+(derivative/paste), absent from the all-features normal active workspace tree.
+See [crypto parity](docs/CRYPTO_PARITY.md) for APIs and explicit behavior differences.
+
+The review closes 46 pending and two partial rows. Current counts are 66
+implemented, 2,796 deviation, 38 partial and 1,028 pending declarations.
+
+The crypto batch passes extracted-source rehearsal for all twelve crate archives,
+three consumer profiles, twelve native target compilations and two Wasm target
+compilations. No public-registry upload or release certification is claimed.

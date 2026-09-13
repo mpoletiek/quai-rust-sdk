@@ -846,3 +846,11 @@ array and struct roots, and shape-checked value visitors. These utilities suppor
 binding generation and deliberate value transformations before normal domain and
 signer validation. See [typed-data parity](docs/TYPED_DATA_PARITY.md) for the complete
 published API mapping, exact encoding rules, callback semantics and resource limits.
+
+## Signature metadata and shared-secret utilities
+
+The crypto layer supports EIP-2098 compact signatures, explicit legacy EIP-155
+metadata, checked chain/V conversion helpers, full SEC1 ECDH shared points and
+public-point addition. Shared secret outputs use redacted zeroizing buffers.
+See [crypto parity](docs/CRYPTO_PARITY.md) for exact format distinctions, key and
+signature validation, published constructor defects and the complete API mapping.

@@ -248,3 +248,6 @@ async fn browser_metadata_reopens_through_indexeddb_without_granting_key_authori
     );
     reopened.compare_exchange(Some(saved), None).await.unwrap();
 }
+
+#[path = "fixtures/shared/crates/quai-crypto/tests/metadata.rs"]
+mod crypto_metadata;

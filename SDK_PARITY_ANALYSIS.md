@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 2748 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 40 | A mapping exists with unfinished behavior or scope |
-| `pending` | 1074 | No completed row-level reconciliation; not proof of absence |
+| `deviation` | 2796 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 38 | A mapping exists with unfinished behavior or scope |
+| `pending` | 1028 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -243,7 +243,6 @@ root/subpath exports account for much of the volume.
 | `QiTransaction` | 36 | 10 | 0 | 0 |
 | `QiTransactionResponse` | 40 | 0 | 0 | 0 |
 | `FetchResponse` | 32 | 0 | 0 | 0 |
-| `Signature` | 32 | 0 | 0 | 0 |
 | `ContractEventPayload` | 24 | 0 | 0 | 0 |
 | `BaseWallet` | 20 | 0 | 0 | 0 |
 | `LangEs` | 20 | 0 | 0 | 0 |
@@ -253,7 +252,6 @@ root/subpath exports account for much of the volume.
 | `AbstractTransaction` | 17 | 0 | 0 | 0 |
 | `ContractUnknownEventPayload` | 16 | 0 | 0 | 0 |
 | `Network` | 16 | 0 | 0 | 0 |
-| `SigningKey` | 14 | 2 | 2 | 0 |
 | `SocketBlockSubscriber` | 16 | 0 | 0 | 0 |
 | `SocketPendingSubscriber` | 16 | 0 | 0 | 0 |
 | `SocketSubscriber` | 16 | 0 | 0 | 0 |
@@ -504,3 +502,17 @@ This closes 14 pending and 20 partial rows. Current counts are **66 implemented,
 2,748 deviation, 40 partial and 1,074 pending**. Remaining work includes signature
 utilities, transaction/contract response families and generic transport helpers;
 full feature parity and release qualification remain open.
+
+
+## Signature and signing-key review — 2026-09-13
+
+The [crypto review](docs/CRYPTO_PARITY.md) closes EIP-2098 compact signatures,
+explicit legacy signature metadata, checked V/chain helpers, full SEC1 ECDH
+output and general public-point addition. Rust validates scalar/point ownership
+and low S instead of retaining the published permissive constructor behavior.
+No Quai transaction format or signer network policy changes.
+
+This reconciles 48 declarations, closing 46 pending and two partial rows while
+retaining the two previously implemented deterministic-signing declarations.
+Counts are **66 implemented, 2,796 deviation, 38 partial and 1,028 pending**.
+Wordlist, transaction/contract response and transport utility reviews remain open.

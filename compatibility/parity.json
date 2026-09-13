@@ -30511,12 +30511,24 @@
         "new (guard: any, r: string, s: string, v: 27 | 28): Signature"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::from_rs_v",
+        "quai_crypto::RecoverableSignature::from_quais_bytes",
+        "quai_crypto::RecoverableSignature::from_eip2098"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": ".:Signature:instance:clone",
@@ -30527,12 +30539,22 @@
         "(): Signature"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": ".:Signature:instance:compactSerialized",
@@ -30541,12 +30563,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::to_eip2098"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": ".:Signature:instance:legacyChainId",
@@ -30555,12 +30587,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::legacy_chain_id"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Separate typed legacy metadata retains V>=35 and distinguishes absent chain metadata from Some(0). Normalized serialization uses 27/28; JSON exports exact decimal networkV with published field names. Metadata import is explicit validated R/S/V, without arbitrary JS object/property coercion."
     },
     {
       "id": ".:Signature:instance:networkV",
@@ -30569,12 +30611,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::network_v"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Separate typed legacy metadata retains V>=35 and distinguishes absent chain metadata from Some(0). Normalized serialization uses 27/28; JSON exports exact decimal networkV with published field names. Metadata import is explicit validated R/S/V, without arbitrary JS object/property coercion."
     },
     {
       "id": ".:Signature:instance:r",
@@ -30583,12 +30635,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::r"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": ".:Signature:instance:s",
@@ -30597,12 +30659,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::s"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": ".:Signature:instance:serialized",
@@ -30611,12 +30683,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": ".:Signature:instance:toJSON",
@@ -30627,12 +30709,22 @@
         "(): any"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::to_json"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Separate typed legacy metadata retains V>=35 and distinguishes absent chain metadata from Some(0). Normalized serialization uses 27/28; JSON exports exact decimal networkV with published field names. Metadata import is explicit validated R/S/V, without arbitrary JS object/property coercion."
     },
     {
       "id": ".:Signature:instance:v",
@@ -30641,12 +30733,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::v"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Separate typed legacy metadata retains V>=35 and distinguishes absent chain metadata from Some(0). Normalized serialization uses 27/28; JSON exports exact decimal networkV with published field names. Metadata import is explicit validated R/S/V, without arbitrary JS object/property coercion."
     },
     {
       "id": ".:Signature:instance:yParity",
@@ -30655,12 +30757,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::recovery_id"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": ".:Signature:instance:yParityAndS",
@@ -30669,12 +30781,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::to_eip2098"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": ".:Signature:static:from",
@@ -30685,12 +30807,24 @@
         "(sig?: SignatureLike): Signature"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::from_rs_v",
+        "quai_crypto::RecoverableSignature::from_quais_bytes",
+        "quai_crypto::RecoverableSignature::from_eip2098"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": ".:Signature:static:getChainId",
@@ -30701,12 +30835,22 @@
         "(v: BigNumberish): bigint"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::legacy_chain_id"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact checked U256 legacy helpers; normalized-V calculation accepts parity/27/28/EIP155, chain extraction returns zero for 27/28 and rejects parity-only 0/1, chain-V creation requires 27/28 and rejects overflow. Does not reproduce permissive JS invalid-normalized-V arithmetic."
     },
     {
       "id": ".:Signature:static:getChainIdV",
@@ -30717,12 +30861,22 @@
         "(chainId: BigNumberish, v: 27 | 28): bigint"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::legacy_chain_v"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact checked U256 legacy helpers; normalized-V calculation accepts parity/27/28/EIP155, chain extraction returns zero for 27/28 and rejects parity-only 0/1, chain-V creation requires 27/28 and rejects overflow. Does not reproduce permissive JS invalid-normalized-V arithmetic."
     },
     {
       "id": ".:Signature:static:getNormalizedV",
@@ -30733,12 +30887,22 @@
         "(v: BigNumberish): 27 | 28"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::normalized_v"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact checked U256 legacy helpers; normalized-V calculation accepts parity/27/28/EIP155, chain extraction returns zero for 27/28 and rejects parity-only 0/1, chain-V creation requires 27/28 and rejects overflow. Does not reproduce permissive JS invalid-normalized-V arithmetic."
     },
     {
       "id": ".:SignatureLike",
@@ -30778,17 +30942,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_crypto::SecretKey"
+        "quai_crypto::SecretKey::from_bytes"
       ],
       "feature": "crypto",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-crypto/tests/crypto.rs"
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
       ],
       "docs": [
+        "docs/CRYPTO_PARITY.md",
         "crates/quai-crypto/README.md"
       ],
-      "deviation": "Safe private-key custody and signatures present; complete class surface is tracked separately."
+      "deviation": "Explicit validated secret/public key types and serialization replace dynamic key-length guessing. Private scalars and public points reject invalid/zero/infinity values. Public keys are derived from the actual secret, without the published unverified cached-public-key override."
     },
     {
       "id": ".:SigningKey:instance:compressedPublicKey",
@@ -30797,12 +30965,23 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::public_key",
+        "quai_crypto::PublicKey::to_compressed"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated secret/public key types and serialization replace dynamic key-length guessing. Private scalars and public points reject invalid/zero/infinity values. Public keys are derived from the actual secret, without the published unverified cached-public-key override."
     },
     {
       "id": ".:SigningKey:instance:computeSharedSecret",
@@ -30813,12 +30992,22 @@
         "(other: BytesLike): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::ecdh_shared_point"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact full 65-byte uncompressed SEC1 ECDH output in SecretBytes<65>; peer is a validated public point. Named intermediates and output are zeroizing/redacted; caller must apply its protocol KDF. Shared-X output remains separately available."
     },
     {
       "id": ".:SigningKey:instance:privateKey",
@@ -30827,12 +31016,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::export_bytes"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit guarded key export with redacted diagnostics and zeroizing owned bytes; no implicit secret string property, clone or serde exposure."
     },
     {
       "id": ".:SigningKey:instance:publicKey",
@@ -30841,12 +31040,23 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::public_key",
+        "quai_crypto::PublicKey::to_uncompressed"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated secret/public key types and serialization replace dynamic key-length guessing. Private scalars and public points reject invalid/zero/infinity values. Public keys are derived from the actual secret, without the published unverified cached-public-key override."
     },
     {
       "id": ".:SigningKey:instance:sign",
@@ -30879,12 +31089,22 @@
         "(p0: BytesLike, p1: BytesLike, compressed?: boolean): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::PublicKey::add_point"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Ordinary validated curve addition with identity rejection and explicit compressed/uncompressed serialization. This is not a rogue-key-safe aggregate signing protocol; the separate OrderedKeyAggregate provides supported MuSig aggregation."
     },
     {
       "id": ".:SigningKey:static:computePublicKey",
@@ -30895,12 +31115,24 @@
         "(key: BytesLike, compressed?: boolean): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::from_bytes",
+        "quai_crypto::SecretKey::public_key",
+        "quai_crypto::PublicKey::from_sec1_bytes"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated secret/public key types and serialization replace dynamic key-length guessing. Private scalars and public points reject invalid/zero/infinity values. Public keys are derived from the actual secret, without the published unverified cached-public-key override."
     },
     {
       "id": ".:SigningKey:static:recoverPublicKey",
@@ -30911,12 +31143,22 @@
         "(digest: BytesLike, signature: SignatureLike): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::recover_prehash"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated secret/public key types and serialization replace dynamic key-length guessing. Private scalars and public points reject invalid/zero/infinity values. Public keys are derived from the actual secret, without the published unverified cached-public-key override."
     },
     {
       "id": ".:SocketBlockSubscriber",
@@ -57550,12 +57792,24 @@
         "new (guard: any, r: string, s: string, v: 27 | 28): Signature"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::from_rs_v",
+        "quai_crypto::RecoverableSignature::from_quais_bytes",
+        "quai_crypto::RecoverableSignature::from_eip2098"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": "./crypto:Signature:instance:clone",
@@ -57566,12 +57820,22 @@
         "(): Signature"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": "./crypto:Signature:instance:compactSerialized",
@@ -57580,12 +57844,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::to_eip2098"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": "./crypto:Signature:instance:legacyChainId",
@@ -57594,12 +57868,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::legacy_chain_id"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Separate typed legacy metadata retains V>=35 and distinguishes absent chain metadata from Some(0). Normalized serialization uses 27/28; JSON exports exact decimal networkV with published field names. Metadata import is explicit validated R/S/V, without arbitrary JS object/property coercion."
     },
     {
       "id": "./crypto:Signature:instance:networkV",
@@ -57608,12 +57892,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::network_v"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Separate typed legacy metadata retains V>=35 and distinguishes absent chain metadata from Some(0). Normalized serialization uses 27/28; JSON exports exact decimal networkV with published field names. Metadata import is explicit validated R/S/V, without arbitrary JS object/property coercion."
     },
     {
       "id": "./crypto:Signature:instance:r",
@@ -57622,12 +57916,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::r"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": "./crypto:Signature:instance:s",
@@ -57636,12 +57940,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::s"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": "./crypto:Signature:instance:serialized",
@@ -57650,12 +57964,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": "./crypto:Signature:instance:toJSON",
@@ -57666,12 +57990,22 @@
         "(): any"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::to_json"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Separate typed legacy metadata retains V>=35 and distinguishes absent chain metadata from Some(0). Normalized serialization uses 27/28; JSON exports exact decimal networkV with published field names. Metadata import is explicit validated R/S/V, without arbitrary JS object/property coercion."
     },
     {
       "id": "./crypto:Signature:instance:v",
@@ -57680,12 +58014,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::v"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Separate typed legacy metadata retains V>=35 and distinguishes absent chain metadata from Some(0). Normalized serialization uses 27/28; JSON exports exact decimal networkV with published field names. Metadata import is explicit validated R/S/V, without arbitrary JS object/property coercion."
     },
     {
       "id": "./crypto:Signature:instance:yParity",
@@ -57694,12 +58038,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::recovery_id"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": "./crypto:Signature:instance:yParityAndS",
@@ -57708,12 +58062,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::to_eip2098"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": "./crypto:Signature:static:from",
@@ -57724,12 +58088,24 @@
         "(sig?: SignatureLike): Signature"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SignatureMetadata::from_rs_v",
+        "quai_crypto::RecoverableSignature::from_quais_bytes",
+        "quai_crypto::RecoverableSignature::from_eip2098"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated immutable low-S signature and optional legacy metadata replace mutable JS properties/coercions. Zero/out-of-range scalars, high S and unrepresentable recovery bits reject. Raw R/S, EIP-2098 and normalized 65-byte forms remain distinct; legacy metadata never changes Quai chain policy."
     },
     {
       "id": "./crypto:Signature:static:getChainId",
@@ -57740,12 +58116,22 @@
         "(v: BigNumberish): bigint"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::legacy_chain_id"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact checked U256 legacy helpers; normalized-V calculation accepts parity/27/28/EIP155, chain extraction returns zero for 27/28 and rejects parity-only 0/1, chain-V creation requires 27/28 and rejects overflow. Does not reproduce permissive JS invalid-normalized-V arithmetic."
     },
     {
       "id": "./crypto:Signature:static:getChainIdV",
@@ -57756,12 +58142,22 @@
         "(chainId: BigNumberish, v: 27 | 28): bigint"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::legacy_chain_v"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact checked U256 legacy helpers; normalized-V calculation accepts parity/27/28/EIP155, chain extraction returns zero for 27/28 and rejects parity-only 0/1, chain-V creation requires 27/28 and rejects overflow. Does not reproduce permissive JS invalid-normalized-V arithmetic."
     },
     {
       "id": "./crypto:Signature:static:getNormalizedV",
@@ -57772,12 +58168,22 @@
         "(v: BigNumberish): 27 | 28"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::normalized_v"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact checked U256 legacy helpers; normalized-V calculation accepts parity/27/28/EIP155, chain extraction returns zero for 27/28 and rejects parity-only 0/1, chain-V creation requires 27/28 and rejects overflow. Does not reproduce permissive JS invalid-normalized-V arithmetic."
     },
     {
       "id": "./crypto:SignatureLike",
@@ -57803,17 +58209,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_crypto::SecretKey"
+        "quai_crypto::SecretKey::from_bytes"
       ],
       "feature": "crypto",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-crypto/tests/crypto.rs"
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
       ],
       "docs": [
+        "docs/CRYPTO_PARITY.md",
         "crates/quai-crypto/README.md"
       ],
-      "deviation": "Safe private-key custody and signatures present; complete class surface is tracked separately."
+      "deviation": "Explicit validated secret/public key types and serialization replace dynamic key-length guessing. Private scalars and public points reject invalid/zero/infinity values. Public keys are derived from the actual secret, without the published unverified cached-public-key override."
     },
     {
       "id": "./crypto:SigningKey:instance:compressedPublicKey",
@@ -57822,12 +58232,23 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::public_key",
+        "quai_crypto::PublicKey::to_compressed"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated secret/public key types and serialization replace dynamic key-length guessing. Private scalars and public points reject invalid/zero/infinity values. Public keys are derived from the actual secret, without the published unverified cached-public-key override."
     },
     {
       "id": "./crypto:SigningKey:instance:computeSharedSecret",
@@ -57838,12 +58259,22 @@
         "(other: BytesLike): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::ecdh_shared_point"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact full 65-byte uncompressed SEC1 ECDH output in SecretBytes<65>; peer is a validated public point. Named intermediates and output are zeroizing/redacted; caller must apply its protocol KDF. Shared-X output remains separately available."
     },
     {
       "id": "./crypto:SigningKey:instance:privateKey",
@@ -57852,12 +58283,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::export_bytes"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit guarded key export with redacted diagnostics and zeroizing owned bytes; no implicit secret string property, clone or serde exposure."
     },
     {
       "id": "./crypto:SigningKey:instance:publicKey",
@@ -57866,12 +58307,23 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::public_key",
+        "quai_crypto::PublicKey::to_uncompressed"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated secret/public key types and serialization replace dynamic key-length guessing. Private scalars and public points reject invalid/zero/infinity values. Public keys are derived from the actual secret, without the published unverified cached-public-key override."
     },
     {
       "id": "./crypto:SigningKey:instance:sign",
@@ -57904,12 +58356,22 @@
         "(p0: BytesLike, p1: BytesLike, compressed?: boolean): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::PublicKey::add_point"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Ordinary validated curve addition with identity rejection and explicit compressed/uncompressed serialization. This is not a rogue-key-safe aggregate signing protocol; the separate OrderedKeyAggregate provides supported MuSig aggregation."
     },
     {
       "id": "./crypto:SigningKey:static:computePublicKey",
@@ -57920,12 +58382,24 @@
         "(key: BytesLike, compressed?: boolean): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::from_bytes",
+        "quai_crypto::SecretKey::public_key",
+        "quai_crypto::PublicKey::from_sec1_bytes"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated secret/public key types and serialization replace dynamic key-length guessing. Private scalars and public points reject invalid/zero/infinity values. Public keys are derived from the actual secret, without the published unverified cached-public-key override."
     },
     {
       "id": "./crypto:SigningKey:static:recoverPublicKey",
@@ -57936,12 +58410,22 @@
         "(digest: BytesLike, signature: SignatureLike): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::RecoverableSignature::recover_prehash"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/crypto-utils.test.mjs",
+        "crates/quai-crypto/tests/metadata.rs",
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-crypto/src/secret_bytes.rs"
+      ],
+      "docs": [
+        "docs/CRYPTO_PARITY.md",
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Explicit validated secret/public key types and serialization replace dynamic key-length guessing. Private scalars and public points reject invalid/zero/infinity values. Public keys are derived from the actual secret, without the published unverified cached-public-key override."
     },
     {
       "id": "./hash:hashMessage",

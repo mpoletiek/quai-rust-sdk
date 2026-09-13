@@ -360,6 +360,18 @@
     {
       "source": "compatibility/fixtures/typed-data-utils.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-abi/tests/fixtures/shared/compatibility/fixtures/typed-data-utils.json"
+    },
+    {
+      "source": "compatibility/fixtures/crypto-utils.json",
+      "destination": "crates/quai-crypto/tests/fixtures/shared/compatibility/fixtures/crypto-utils.json"
+    },
+    {
+      "source": "crates/quai-crypto/tests/metadata.rs",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-crypto/tests/metadata.rs"
+    },
+    {
+      "source": "compatibility/fixtures/crypto-utils.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-crypto/tests/fixtures/shared/compatibility/fixtures/crypto-utils.json"
     }
   ]
 }

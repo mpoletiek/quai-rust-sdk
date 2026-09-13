@@ -15,6 +15,7 @@ categories = ["cryptography"]
 
 [dependencies]
 quai-primitives.workspace = true
+ruint.workspace = true
 tiny-keccak.workspace = true
 k256 = { version = "0.13.4", default-features = false, features = ["std", "ecdsa", "schnorr", "ecdh"] }
 zeroize = "1.9"

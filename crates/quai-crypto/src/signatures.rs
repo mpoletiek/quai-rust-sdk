@@ -26,6 +26,25 @@ impl RecoverableSignature {
         })
     }
 
+    /// Parse EIP-2098 `r || yParityAndS`. Validates nonzero in-range scalars and
+    /// low S after extracting parity; this is distinct from raw `r || s` bytes.
+    pub fn from_eip2098(bytes: &[u8; 64]) -> Result<Self, CryptoError> {
+        let mut compact = *bytes;
+        let parity = compact[32] >> 7;
+        compact[32] &= 0x7f;
+        Self::from_compact(&compact, parity)
+    }
+
+    /// Encode EIP-2098 `r || yParityAndS`; full recovery IDs 2/3 cannot fit.
+    pub fn to_eip2098(self) -> Result<[u8; 64], CryptoError> {
+        if self.recovery_id() > 1 {
+            return Err(CryptoError::UnsupportedRecoveryId);
+        }
+        let mut bytes = self.to_compact();
+        bytes[32] |= self.recovery_id() << 7;
+        Ok(bytes)
+    }
+
     /// Return compact `r || s` bytes, without a recovery byte.
     pub fn to_compact(self) -> [u8; 64] {
         self.signature.to_bytes().into()

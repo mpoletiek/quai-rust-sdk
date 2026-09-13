@@ -1,0 +1,208 @@
+{
+  "recordedAt": "2026-09-13T23:33:43.279359+00:00",
+  "baseCommit": "791bb6d8c6fdf19616e7d6e9163b64cfd62b3d32",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    "crates/quai-crypto/src/signatures.rs": "846b0bcdbd07f82359507bc3e72c4684cdf8ff022b61d41922e5a5c908a6c4d0",
+    "crates/quai-crypto/src/signature_metadata.rs": "0b4a6662ed99e3526d73c3471335fcb25f36b58f9b241d18f639a692b7f8e381",
+    "crates/quai-crypto/src/keys.rs": "ba0978add2901dfa053f96531b7a3a3ad1194933ae037d6b15bc3e00456413d2",
+    "crates/quai-crypto/src/secret_bytes.rs": "a7ce3e2396d3b7a8b679c17b9ec6e3c52e50b49eea586f2f4b50bfc8dfc2ba8f",
+    "crates/quai-crypto/src/lib.rs": "70694877713339ad18b86776b8e4b4f465ce75f92244d0c3af3ef28b610ee9e4",
+    "crates/quai-crypto/Cargo.toml": "84673922428d6705fa533690ebda14b148b4515a64899f2dcc397a4d9aba6a13",
+    "crates/quai-crypto/tests/metadata.rs": "326823ad0fd961940c3aaa08122e8f3b4d1f459669b6dd960805229674bd186a",
+    "crates/quai-sdk/tests/key_origins.rs": "499121c4cd754e7b8b6d4b9cb6845ab686b8d57c3d708bdfbad653881c246374",
+    "compatibility/fixtures/crypto-utils.json": "5c58c09cfd2ea5c8ece4d4e4c3172c7873e448dac0241cccc96b20f8c9993558",
+    "compatibility/scripts/crypto-utils.test.mjs": "9212bc833da455f02b80504f0d00920fa495aafc3724933512837ef803ea82db",
+    "compatibility/scripts/generate-crypto-utils.mjs": "a36a0e0391afeafe33951d7b99a97c14f0e46fad40381b501537bc48cbf196c8",
+    "fuzz/fuzz_targets/wallet_import.rs": "9c185d01e8eddf77ba5c0711a495faf262f1125a399bbba34c9c04079399a8f7",
+    "fuzz/seed-corpus.py": "a677b7a43519467b722f1632b34e1bbd5e54b0bbe9b23f134a9b70a131bdbdf9",
+    "docs/CRYPTO_PARITY.md": "c8b6821026a213dafb3639565bd33904a543cda5f31a97c9e82450999b511bf4"
+  },
+  "parityRows": [
+    ".:Signature",
+    ".:Signature:instance:clone",
+    ".:Signature:instance:compactSerialized",
+    ".:Signature:instance:legacyChainId",
+    ".:Signature:instance:networkV",
+    ".:Signature:instance:r",
+    ".:Signature:instance:s",
+    ".:Signature:instance:serialized",
+    ".:Signature:instance:toJSON",
+    ".:Signature:instance:v",
+    ".:Signature:instance:yParity",
+    ".:Signature:instance:yParityAndS",
+    ".:Signature:static:from",
+    ".:Signature:static:getChainId",
+    ".:Signature:static:getChainIdV",
+    ".:Signature:static:getNormalizedV",
+    ".:SigningKey",
+    ".:SigningKey:instance:compressedPublicKey",
+    ".:SigningKey:instance:computeSharedSecret",
+    ".:SigningKey:instance:privateKey",
+    ".:SigningKey:instance:publicKey",
+    ".:SigningKey:static:addPoints",
+    ".:SigningKey:static:computePublicKey",
+    ".:SigningKey:static:recoverPublicKey",
+    "./crypto:Signature",
+    "./crypto:Signature:instance:clone",
+    "./crypto:Signature:instance:compactSerialized",
+    "./crypto:Signature:instance:legacyChainId",
+    "./crypto:Signature:instance:networkV",
+    "./crypto:Signature:instance:r",
+    "./crypto:Signature:instance:s",
+    "./crypto:Signature:instance:serialized",
+    "./crypto:Signature:instance:toJSON",
+    "./crypto:Signature:instance:v",
+    "./crypto:Signature:instance:yParity",
+    "./crypto:Signature:instance:yParityAndS",
+    "./crypto:Signature:static:from",
+    "./crypto:Signature:static:getChainId",
+    "./crypto:Signature:static:getChainIdV",
+    "./crypto:Signature:static:getNormalizedV",
+    "./crypto:SigningKey",
+    "./crypto:SigningKey:instance:compressedPublicKey",
+    "./crypto:SigningKey:instance:computeSharedSecret",
+    "./crypto:SigningKey:instance:privateKey",
+    "./crypto:SigningKey:instance:publicKey",
+    "./crypto:SigningKey:static:addPoints",
+    "./crypto:SigningKey:static:computePublicKey",
+    "./crypto:SigningKey:static:recoverPublicKey"
+  ],
+  "validation": {
+    "nativeCryptoTests": {
+      "passed": 23,
+      "failed": 0,
+      "ignored": 0
+    },
+    "browserWorkerKeyTests": {
+      "passed": 8,
+      "failed": 0,
+      "seconds": 12.85
+    },
+    "publishedSourceTests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "fullReferenceSuite": "passed",
+    "nativeClippy": "workspace all-targets all-features; warnings denied; passed",
+    "wasmClippy": "SDK all targets backup,browser,abi; warnings denied; passed",
+    "nativeDocs": "workspace all-features no-deps; warnings denied; passed",
+    "wasmDocs": "SDK backup,browser,abi no-deps; warnings denied; passed",
+    "packageMirrors": 93,
+    "fuzzReport": "test-infra/reports/crypto-utils-fuzz-2026-09-13.json",
+    "dependencyAudit": "test-infra/reports/crypto-utils-dependency-audit-2026-09-13.json",
+    "packageRehearsal": {
+      "schemaVersion": 1,
+      "published": false,
+      "networkAccess": false,
+      "sourceCommit": "791bb6d8c6fdf19616e7d6e9163b64cfd62b3d32",
+      "sourceDirty": true,
+      "packages": [
+        {
+          "name": "quai-primitives",
+          "version": "0.1.0-alpha.1",
+          "bytes": 62130,
+          "sha256": "1390b41e1d4a1f623fd03f534f59167ef3ab579cfd4aba5a4563d8254c01ca8d"
+        },
+        {
+          "name": "quai-rpc",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45306,
+          "sha256": "c8d92cbff026325c106a13cf23d137f69d793ca71bbceac4d9a95711fcdbf3ce"
+        },
+        {
+          "name": "quai-provider",
+          "version": "0.1.0-alpha.1",
+          "bytes": 144628,
+          "sha256": "d041f76d7dd77de42cd33db392da970dea0cf7832131f7980900145bbfd6d8f1"
+        },
+        {
+          "name": "quai-consensus",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45780,
+          "sha256": "2604ac0a00a671c85b002d00ed7ed54fb444e7cb3809795096cb597a14739e19"
+        },
+        {
+          "name": "quai-crypto",
+          "version": "0.1.0-alpha.1",
+          "bytes": 56982,
+          "sha256": "a33d7621aa4f499984c2e4f3f8f422c98c400f87965488b6f8771445d920c6be"
+        },
+        {
+          "name": "quai-sdk",
+          "version": "0.1.0-alpha.1",
+          "bytes": 291613,
+          "sha256": "a0cfb2cefa6bea8b29a86055702f55c80493441eca530b0ddac15d65720bc9ab"
+        },
+        {
+          "name": "quai-abi",
+          "version": "0.1.0-alpha.1",
+          "bytes": 188441,
+          "sha256": "6a5c9e0cf10a9719b1db6af5e1a9aaec6d3ebe86ff59fdfe8a2f01ffac82cab5"
+        },
+        {
+          "name": "quai-browser",
+          "version": "0.1.0-alpha.1",
+          "bytes": 87001,
+          "sha256": "0e31314d2543772337d4d45994488dd368ff0e0093c9266acf2fc471e9555ca8"
+        },
+        {
+          "name": "quai-signer",
+          "version": "0.1.0-alpha.1",
+          "bytes": 24667,
+          "sha256": "66ace8cbe249b3e237b31c20c320bff4ade7b9983eaad0227392ec5b199ca63f"
+        },
+        {
+          "name": "quai-keystore",
+          "version": "0.1.0-alpha.1",
+          "bytes": 34356,
+          "sha256": "bcab174ee233eac9ba25659daddc26ff4f5a7ef87d31744ea064de450715c77f"
+        },
+        {
+          "name": "quai-wallet",
+          "version": "0.1.0-alpha.1",
+          "bytes": 278872,
+          "sha256": "40f00708cd799c32e3870b9ac82f5857946133d022a70a14a9e1bf72556c77f8"
+        },
+        {
+          "name": "quai-payments",
+          "version": "0.1.0-alpha.1",
+          "bytes": 39461,
+          "sha256": "d778970b3cbd708cce6bbb68f6368e9e6a08a584fee7cc4e846be842d1f2325f"
+        }
+      ],
+      "consumerTests": {
+        "minimal": "passed",
+        "default": "passed",
+        "full": "passed"
+      },
+      "packagedTargetChecks": {
+        "quai-primitives": "passed",
+        "quai-rpc": "passed",
+        "quai-provider": "passed",
+        "quai-consensus": "passed",
+        "quai-crypto": "passed",
+        "quai-sdk": "passed",
+        "quai-abi": "passed",
+        "quai-browser": "passed",
+        "quai-signer": "passed",
+        "quai-keystore": "passed",
+        "quai-wallet": "passed",
+        "quai-payments": "passed"
+      },
+      "packagedWasmChecks": {
+        "quai-browser": "passed",
+        "quai-sdk": "passed"
+      },
+      "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+    }
+  },
+  "limitations": [
+    "Public-toy offline crypto vectors only; no real private wallet material or funded transaction.",
+    "Raw compact R/S, EIP-2098 and normalized Quai forms remain distinct; legacy metadata is explicit.",
+    "Shared-secret outputs require a protocol KDF; guards cannot erase compiler/backend transient or caller copies.",
+    "Public point addition is not a rogue-key-safe aggregation protocol.",
+    "Bounded fuzz smoke is not independent audit or sustained qualification.",
+    "Overall parity remains incomplete: 1028 pending and 38 partial declarations."
+  ]
+}

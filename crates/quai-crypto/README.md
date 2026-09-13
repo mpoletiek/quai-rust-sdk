@@ -126,3 +126,24 @@ No PRNG fallback exists. Successful caller buffers remain caller-owned sensitive
 material. Native boundary and failure tests plus actual Chromium worker execution
 cover this API; those checks do not constitute statistical entropy certification
 or qualification of every browser engine.
+
+## Compact signatures, legacy metadata and full ECDH points
+
+`RecoverableSignature::from_eip2098` / `to_eip2098` handle `r || yParityAndS`,
+separately from raw compact `r || s`. Both scalars must be nonzero, in range and
+low S. Recovery IDs 2/3 cannot fit parity-only representations and reject.
+
+`SignatureMetadata` wraps a validated signature and optional EIP-155 V. Construct
+from exact R/S/V or an existing parity signature; inspect `v`, `network_v` and
+`legacy_chain_id`, or export `to_json`. Free `normalized_v`, `legacy_chain_id` and
+`legacy_chain_v` helpers use checked U256 quantities. This metadata does not alter
+Quai protobuf signing or authorize another network. No default zero signature,
+unverified public-key cache or arbitrary JS object coercion is accepted.
+
+`SecretKey::ecdh_shared_point` returns the full uncompressed SEC1 shared point in
+`SecretBytes<65>`, matching published SigningKey ECDH output. Existing
+`ecdh_shared_x` returns its X coordinate in the default 32-byte secret buffer.
+Both require the calling protocol's KDF, redact diagnostics and zeroize owned
+buffers. Backend/compiler transients and caller copies cannot be guaranteed erased.
+`PublicKey::add_point` adds validated points and rejects infinity; use the separate
+ordered aggregation API when a MuSig signing protocol is required.

@@ -11,8 +11,12 @@ mod hash;
 pub use entropy::{MAX_RANDOM_BYTES, fill_random};
 mod keys;
 mod secret_bytes;
+mod signature_metadata;
 mod signatures;
+/// Exact unsigned integer used by legacy signature metadata helpers.
+pub use ruint::aliases::U256;
 pub use secret_bytes::SecretBytes;
+pub use signature_metadata::{SignatureMetadata, legacy_chain_id, legacy_chain_v, normalized_v};
 
 pub use aggregate::{MAX_AGGREGATE_KEYS, OrderedKeyAggregate};
 pub use hash::{

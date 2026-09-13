@@ -45,6 +45,7 @@ pub struct AddressAllocationBook {
     scope: NetworkScope,
     account: AccountPublic,
     identity: Hash32,
+    sealed_history: bool,
     floor: [u32; 2],
     next: [u32; 2],
     allocations: BTreeMap<AddressAllocationId, AddressAllocation>,
@@ -96,6 +97,33 @@ impl AddressAllocationBook {
         }
         Self::new(scope, account, floor[0], floor[1])
     }
+    /// Merge authenticated burned floors into a live journal without dropping IDs
+    /// or completed addresses. All pending ranges are abandoned before raising the
+    /// floor, so an older in-flight search cannot expose an ambiguous address.
+    /// Historical records are sealed below the new floor in QADDRBK2; existing
+    /// QADDRBK1 decoding remains strict. The returned count is abandoned requests.
+    #[cfg(feature = "backup")]
+    pub fn merge_backup(
+        &mut self,
+        backup: &crate::full_backup::WalletBackup,
+    ) -> Result<usize, StorageError> {
+        let incoming = Self::from_backup(backup, self.scope, self.account.clone())?;
+        let mut candidate = self.clone();
+        let mut abandoned = 0;
+        for request in candidate.allocations.values_mut() {
+            if matches!(request.status, AddressAllocationStatus::Pending) {
+                request.status = AddressAllocationStatus::Abandoned;
+                abandoned += 1;
+            }
+        }
+        for branch in 0..2 {
+            candidate.next[branch] = candidate.next[branch].max(incoming.next[branch]);
+        }
+        candidate.floor = candidate.next;
+        candidate.sealed_history = true;
+        *self = candidate;
+        Ok(abandoned)
+    }
     /// Initialize with explicit first unconsumed receive/change indexes. They must
     /// include all previously exposed addresses and burned ranges. Zero is correct
     /// only for a fresh account branch, not an empty latest-only UTXO scan.
@@ -117,6 +145,7 @@ impl AddressAllocationBook {
             scope,
             identity: Self::account_identity(&account),
             account,
+            sealed_history: false,
             floor,
             next: floor,
             allocations: BTreeMap::new(),
@@ -243,7 +272,11 @@ impl AddressAllocationBook {
     /// is serialized. Completed public keys are re-derived during validated import.
     pub fn export_state(&self) -> Vec<u8> {
         let mut bytes = Vec::with_capacity(HEADER + self.allocations.len() * 30);
-        bytes.extend(b"QADDRBK1");
+        bytes.extend(if self.sealed_history {
+            b"QADDRBK2"
+        } else {
+            b"QADDRBK1"
+        });
         bytes.extend(self.scope.key());
         bytes.extend(self.identity.bytes());
         for index in self.floor.into_iter().chain(self.next) {
@@ -269,7 +302,8 @@ impl AddressAllocationBook {
         bytes
     }
     /// Import against an independently supplied scope and trusted account descriptor.
-    /// Checks exact bytes, ID ordering, complete nonoverlapping range coverage and
+    /// Checks exact bytes, ID ordering, nonoverlapping sealed history (v2), complete
+    /// new-range coverage above the floor and
     /// every completed derivation. It cannot establish that a snapshot is the latest;
     /// persistent revision fencing belongs to the selected storage backend.
     pub fn from_state(
@@ -279,7 +313,7 @@ impl AddressAllocationBook {
     ) -> Result<Self, StorageError> {
         if bytes.len() < HEADER
             || bytes.len() > MAX_ADDRESS_ALLOCATION_BYTES
-            || &bytes[..8] != b"QADDRBK1"
+            || !matches!(&bytes[..8], b"QADDRBK1" | b"QADDRBK2")
             || bytes[8..73] != scope.key()
             || bytes[73..105] != *Self::account_identity(&account).bytes()
         {
@@ -295,6 +329,7 @@ impl AddressAllocationBook {
             ))
         }
         let mut book = Self::new(scope, account, u32_at(bytes, 105)?, u32_at(bytes, 109)?)?;
+        book.sealed_history = bytes[7] == b'2';
         let expected_next = [u32_at(bytes, 113)?, u32_at(bytes, 117)?];
         if expected_next.iter().any(|n| *n > 1 << 31) {
             return Err(StorageError::Invalid);
@@ -354,6 +389,12 @@ impl AddressAllocationBook {
                 }
                 _ => return Err(StorageError::Invalid),
             };
+            if book.sealed_history
+                && range.end <= book.floor[usize::from(change)]
+                && matches!(status, AddressAllocationStatus::Pending)
+            {
+                return Err(StorageError::Invalid);
+            }
             ranges[usize::from(change)].push(range);
             book.allocations.insert(
                 id,
@@ -371,7 +412,15 @@ impl AddressAllocationBook {
         for (branch, ranges) in ranges.iter_mut().enumerate() {
             ranges.sort_unstable_by_key(|r| r.start);
             let mut next = book.floor[branch];
+            let mut previous_end = 0;
             for range in ranges {
+                if range.start < previous_end {
+                    return Err(StorageError::Invalid);
+                }
+                previous_end = range.end;
+                if book.sealed_history && range.end <= book.floor[branch] {
+                    continue;
+                }
                 if range.start != next {
                     return Err(StorageError::Invalid);
                 }

@@ -61,6 +61,7 @@ pub struct PaymentAllocationBook {
     account: u32,
     direction: PaymentDirection,
     identity: Hash32,
+    sealed_history: bool,
     floor: u32,
     next: u32,
     allocations: BTreeMap<PaymentAllocationId, PaymentAllocation>,
@@ -98,6 +99,7 @@ impl PaymentAllocationBook {
             ),
             peer,
             direction,
+            sealed_history: false,
             floor: first_index,
             next: first_index,
             allocations: BTreeMap::new(),
@@ -149,6 +151,33 @@ impl PaymentAllocationBook {
             &channel.channel(owner).map_err(|_| StorageError::Invalid)?,
             direction,
         )
+    }
+    /// Merge authenticated channel floors into a live journal while retaining
+    /// every ID and completed exposure. Abandons all pending ranges, then seals
+    /// history below the maximum cursor using QPAYABK2. Existing v1 decoding stays
+    /// strict. Returns the number of abandoned requests; no storage write occurs.
+    #[cfg(feature = "backup")]
+    pub fn merge_backup(
+        &mut self,
+        owner: &PrivatePaymentCode,
+        backup: &crate::full_backup::WalletBackup,
+    ) -> Result<usize, StorageError> {
+        self.check_owner(owner)?;
+        let incoming =
+            Self::from_backup(backup, self.scope, owner, self.peer.clone(), self.direction)?;
+        let mut candidate = self.clone();
+        let mut abandoned = 0;
+        for request in candidate.allocations.values_mut() {
+            if matches!(request.status, PaymentAllocationStatus::Pending) {
+                request.status = PaymentAllocationStatus::Abandoned;
+                abandoned += 1;
+            }
+        }
+        candidate.next = candidate.next.max(incoming.next);
+        candidate.floor = candidate.next;
+        candidate.sealed_history = true;
+        *self = candidate;
+        Ok(abandoned)
     }
     /// Public namespace; network/zone is supplied separately to the storage layer.
     pub fn channel_identity(
@@ -317,7 +346,11 @@ impl PaymentAllocationBook {
     /// these bytes contain no secret and provide no authentication or freshness.
     pub fn export_state(&self) -> Vec<u8> {
         let mut bytes = Vec::with_capacity(HEADER + 29 * self.allocations.len());
-        bytes.extend(b"QPAYABK1");
+        bytes.extend(if self.sealed_history {
+            b"QPAYABK2"
+        } else {
+            b"QPAYABK1"
+        });
         bytes.extend(self.scope.key());
         bytes.extend(self.identity.bytes());
         bytes.extend(self.floor.to_be_bytes());
@@ -350,7 +383,7 @@ impl PaymentAllocationBook {
     ) -> Result<Self, StorageError> {
         if bytes.len() < HEADER
             || bytes.len() > MAX_PAYMENT_ALLOCATION_BYTES
-            || &bytes[..8] != b"QPAYABK1"
+            || !matches!(&bytes[..8], b"QPAYABK1" | b"QPAYABK2")
             || bytes[8..73] != scope.key()
             || bytes[73..105]
                 != *Self::channel_identity(owner.public_code(), owner.account(), &peer, direction)
@@ -368,6 +401,7 @@ impl PaymentAllocationBook {
             ))
         }
         let mut book = Self::new(scope, owner, peer, direction, number(bytes, 105)?)?;
+        book.sealed_history = bytes[7] == b'2';
         let expected = number(bytes, 109)?;
         let count = usize::from(u16::from_be_bytes(
             bytes[113..115]
@@ -415,6 +449,12 @@ impl PaymentAllocationBook {
                 }
                 _ => return Err(StorageError::Invalid),
             };
+            if book.sealed_history
+                && range.end <= book.floor
+                && matches!(status, PaymentAllocationStatus::Pending)
+            {
+                return Err(StorageError::Invalid);
+            }
             ranges.push(range);
             book.allocations
                 .insert(id, PaymentAllocation { id, range, status });
@@ -423,7 +463,15 @@ impl PaymentAllocationBook {
             return Err(StorageError::Invalid);
         }
         ranges.sort_unstable_by_key(|r| r.start);
+        let mut previous_end = 0;
         for range in ranges {
+            if range.start < previous_end {
+                return Err(StorageError::Invalid);
+            }
+            previous_end = range.end;
+            if book.sealed_history && range.end <= book.floor {
+                continue;
+            }
             if range.start != book.next {
                 return Err(StorageError::Invalid);
             }

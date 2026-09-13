@@ -153,5 +153,11 @@
       "quai-sdk": "passed"
     },
     "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "ciVerified": {
+    "commit": "b6f6d769b502a6b6fc14436198b0e08e0d77b097",
+    "runId": 34763859064,
+    "conclusion": "success",
+    "url": "https://github.com/mpoletiek/quai-rust-sdk/actions/runs/34763859064"
   }
 }

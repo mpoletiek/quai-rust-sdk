@@ -100,6 +100,20 @@ impl BrowserAddressBook {
             .compare_exchange(None, Some(&book.export_state()))
             .await?)
     }
+    /// Atomically merge authenticated floors, retaining IDs/completions and
+    /// abandoning pending searches. A CAS conflict rejects without automatic retry.
+    #[cfg(feature = "backup")]
+    pub async fn merge_backup(
+        &self,
+        backup: &quai_wallet::full_backup::WalletBackup,
+    ) -> Result<usize, BrowserAddressError> {
+        let mut snapshot = self.snapshot().await?;
+        let abandoned = snapshot.book.merge_backup(backup)?;
+        self.store
+            .compare_exchange(Some(snapshot.revision), Some(&snapshot.book.export_state()))
+            .await?;
+        Ok(abandoned)
+    }
     /// Read and validate the complete bounded journal against the configured scope
     /// and account. A tombstone never silently creates an empty wallet branch.
     pub async fn snapshot(&self) -> Result<BrowserAddressSnapshot, BrowserAddressError> {

@@ -130,6 +130,21 @@ impl BrowserPaymentBook {
             .compare_exchange(None, Some(&book.export_state()))
             .await?)
     }
+    /// Atomically merge authenticated channel floors, retaining IDs/exposures and
+    /// abandoning pending searches. A CAS conflict rejects without automatic retry.
+    #[cfg(feature = "backup")]
+    pub async fn merge_backup(
+        &self,
+        owner: &PrivatePaymentCode,
+        backup: &quai_wallet::full_backup::WalletBackup,
+    ) -> Result<usize, BrowserPaymentError> {
+        let mut snapshot = self.snapshot(owner).await?;
+        let abandoned = snapshot.book.merge_backup(owner, backup)?;
+        self.store
+            .compare_exchange(Some(snapshot.revision), Some(&snapshot.book.export_state()))
+            .await?;
+        Ok(abandoned)
+    }
     /// Validate every completed derivation against the explicit private owner.
     /// Run large journal reads/searches in an application worker. No keys are saved.
     pub async fn snapshot(

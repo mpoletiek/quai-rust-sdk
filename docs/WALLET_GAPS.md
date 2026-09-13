@@ -142,3 +142,8 @@ environment. No mainnet transaction or wallet mutation was performed.
 Existing passing tests cover the implemented foundation, not missing wallet
 behavior. See [implementation status](../IMPLEMENTATION_STATUS.md) and the
 [dependency audit](dependency-audit.md) for current evidence and open warnings.
+
+[Live allocation restore](BROWSER_ALLOCATION_RESTORE.md) now merges authenticated
+HD/payment floors while preserving IDs and completed exposures. Versioned sealed
+history prevents stale pending work from exposing an address after restore.
+Coordinated atomic restoration across journals remains open.

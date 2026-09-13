@@ -120,3 +120,7 @@ The browser backup collector now reads all explicitly selected HD/account/Qi/pay
 journals under a common revision-checked snapshot. It rejects concurrent mutation
 without retry and returns a guarded backup plus revision evidence. Coordinated live
 restore remains separate from read-only collection.
+
+HD/payment journals now support authenticated live floor merge with retained IDs,
+completed addresses/exposures, abandoned pending work and strict versioned history.
+Both browser adapters use CAS. See [allocation recovery](BROWSER_ALLOCATION_RESTORE.md).

@@ -43,7 +43,7 @@ fuzz_target!(|data:&[u8]| {
    let report=book.merge_backup(&backup).unwrap();assert_eq!(report.operations_added,0);assert_eq!(report.candidates_added,0);assert_eq!(book.export_state().unwrap(),restored.export_state().unwrap());
   }
  }
- if data.starts_with(b"QPAYABK1") {
+ if data.starts_with(b"QPAYABK") {
   // Public toy fixture keys only; fixed-cost derivation, no attacker-selected KDF.
   static OWNER:std::sync::OnceLock<quai_payments::PrivatePaymentCode>=std::sync::OnceLock::new();
   static PEER:std::sync::OnceLock<PaymentCode>=std::sync::OnceLock::new();
@@ -55,13 +55,15 @@ fuzz_target!(|data:&[u8]| {
     assert_eq!(book.export_state(),data);assert_eq!(book.scope(),scope);
     let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{payments:&[&book],..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_seed(&[1;16]).unwrap()]).unwrap();
     let restored=quai_wallet::payment_allocation::PaymentAllocationBook::from_backup(&backup,scope,owner,peer.clone(),direction).unwrap();assert_eq!(restored.next_index(),book.next_index());
+    let mut live=book.clone();let count=live.allocations().count();live.merge_backup(owner,&backup).unwrap();assert_eq!(live.next_index(),book.next_index());assert_eq!(live.allocations().count(),count);
+    assert_eq!(quai_wallet::payment_allocation::PaymentAllocationBook::from_state(&live.export_state(),scope,owner,peer.clone(),direction).unwrap().export_state(),live.export_state());
     let again=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{payments:&[&restored],previous_inventory:Some(&backup),..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_seed(&[1;16]).unwrap()]).unwrap();
     assert_eq!(again.payment_exposures().count(),backup.payment_exposures().count());
     assert_eq!(quai_wallet::payment_allocation::PaymentAllocationBook::from_backup(&again,scope,owner,peer.clone(),direction).unwrap().next_index(),book.next_index());
    }
   }}
  }
- if data.starts_with(b"QADDRBK1") {
+ if data.starts_with(b"QADDRBK") {
   static DESCRIPTORS: std::sync::OnceLock<Vec<(quai_wallet::discovery::NetworkScope,quai_wallet::AccountPublic)>>=std::sync::OnceLock::new();
   let descriptors=DESCRIPTORS.get_or_init(|| {
    let fixture:serde_json::Value=serde_json::from_str(include_str!("../../test-infra/fixtures/address-allocation.json")).unwrap();
@@ -71,7 +73,14 @@ fuzz_target!(|data:&[u8]| {
     let scope=quai_wallet::discovery::NetworkScope{chain_id:quai_consensus::U256::from(15000),genesis:quai_primitives::Hash32::from_bytes([1;32]),zone:quai_primitives::Zone::from_byte(row["zone"].as_u64().unwrap() as u8).unwrap()};(scope,account)
    }).collect()
   });
-  for (scope,account) in descriptors {if let Ok(book)=quai_wallet::allocation::AddressAllocationBook::from_state(data,*scope,account.clone()){assert_eq!(book.export_state(),data);assert_eq!(book.scope(),*scope);}}
+  for (scope,account) in descriptors {if let Ok(mut book)=quai_wallet::allocation::AddressAllocationBook::from_state(data,*scope,account.clone()){
+   assert_eq!(book.export_state(),data);assert_eq!(book.scope(),*scope);
+   static SEED:std::sync::OnceLock<Vec<u8>>=std::sync::OnceLock::new();
+   let seed=SEED.get_or_init(||{let f:serde_json::Value=serde_json::from_str(include_str!("../../test-infra/fixtures/allocation-merge.json")).unwrap();quai_primitives::get_bytes(f["hdSeed"].as_str().unwrap()).unwrap()});
+   let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{allocations:&[&book],..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_seed(seed).unwrap()]).unwrap();
+   let count=book.allocations().count();let next=[book.next_index(false),book.next_index(true)];book.merge_backup(&backup).unwrap();assert_eq!(book.allocations().count(),count);assert_eq!([book.next_index(false),book.next_index(true)],next);
+   assert_eq!(quai_wallet::allocation::AddressAllocationBook::from_state(&book.export_state(),*scope,account.clone()).unwrap().export_state(),book.export_state());
+  }}
  }
  if let Ok(backup)=quai_wallet::full_backup::EncryptedWalletBackup::from_bytes(data){assert_eq!(backup.as_bytes(),data);}
  let _=Keystore::from_json(data,KdfLimits::default()); // no attacker-selected expensive KDF execution

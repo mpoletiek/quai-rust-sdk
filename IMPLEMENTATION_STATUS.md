@@ -590,3 +590,13 @@ backup construction. Mutations, tombstones and bounds reject without retry; no
 storage writes occur. Actual worker tests cover every journal type, first/last
 revision races and cancellation. See [workflow](docs/PORTABLE_WALLET_CAPTURE.md)
 and [validation](test-infra/reports/browser-wallet-collection-2026-09-13.json).
+
+## Live HD/payment allocation restore (2026-09-13)
+
+Portable/browser allocation merges preserve completed exposures and consumed IDs,
+abandon pending work, and advance to maximum authenticated cursor floors. New
+QADDRBK2/QPAYABK2 sealed-history journals retain nonoverlapping past records while
+keeping strict new-range coverage; v1 parsing is unchanged. Independent fixtures
+and native/worker race tests are retained in [validation](test-infra/reports/browser-allocation-restore-2026-09-13.json).
+See [workflow](docs/BROWSER_ALLOCATION_RESTORE.md). Atomic multi-journal restoration
+remains separate work.

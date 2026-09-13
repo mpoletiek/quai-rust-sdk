@@ -52,6 +52,8 @@ jobs:
       - run: git diff --exit-code -- test-infra/fixtures/account-custody.json
       - run: node test-infra/generate_payment_allocation_fixtures.mjs
       - run: git diff --exit-code -- test-infra/fixtures/payment-allocation.json
+      - run: node test-infra/generate_allocation_merge_fixtures.mjs
+      - run: git diff --exit-code -- test-infra/fixtures/allocation-merge.json
       - run: npm run wrapping --prefix compatibility
       - run: git diff --exit-code -- crates/quai-consensus/tests/wrapping-vectors.json crates/quai-sdk/tests/wrapper-calls.json
       - run: python3 test-infra/sync_package_files.py --check
@@ -107,6 +109,9 @@ jobs:
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-events
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-human-abi
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-receipts
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-allocation-merge
+        env:
+          WASM_BINDGEN_TEST_TIMEOUT: 180
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-portable-capture
         env:
           WASM_BINDGEN_TEST_TIMEOUT: 180

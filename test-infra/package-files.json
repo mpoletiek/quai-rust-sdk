@@ -316,6 +316,10 @@
     {
       "source": "test-infra/fixtures/qi-custody.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/qi-custody.json"
+    },
+    {
+      "source": "test-infra/fixtures/allocation-merge.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/allocation-merge.json"
     }
   ]
 }

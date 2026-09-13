@@ -36,7 +36,9 @@ required version follows the included origins/channels/candidates. Decrypt with
 `EncryptedWalletBackup`, then restore a native store or initialize the browser
 address, account, Qi and payment books from the same authenticated backup.
 Initialization requires unused namespaces. Existing account/Qi books use their
-explicit monotonic merge methods; never overwrite a live journal with an old copy.
+explicit monotonic custody merges. [Live allocation merges](BROWSER_ALLOCATION_RESTORE.md)
+retain consumed IDs/completions, abandon pending searches and advance burned floors.
+Never overwrite a live journal with an old copy.
 
 Inclusion and reservation checkpoints are omitted. Current UTXOs, balances,
 canonical ancestry, external wallet connection state and network observations

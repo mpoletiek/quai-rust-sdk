@@ -2,10 +2,13 @@
 //!
 //! This crate has no wallet storage or transaction wire-format assumptions.
 //! Secret keys redact diagnostics and zeroize on drop. Imported input buffers
-//! remain the caller's responsibility. Browser entropy is not yet qualified.
+//! remain the caller's responsibility. Browser entropy uses Web Crypto and is
+//! exercised in the SDK's actual Chromium worker tests.
 
 mod aggregate;
+mod entropy;
 mod hash;
+pub use entropy::{MAX_RANDOM_BYTES, fill_random};
 mod keys;
 mod secret_bytes;
 mod signatures;
@@ -13,7 +16,7 @@ pub use secret_bytes::SecretBytes;
 
 pub use aggregate::{MAX_AGGREGATE_KEYS, OrderedKeyAggregate};
 pub use hash::{
-    MESSAGE_PREFIX, hash_message, hmac_sha256, hmac_sha512, keccak256, sha256, sha512,
+    MESSAGE_PREFIX, hash_message, hmac_sha256, hmac_sha512, keccak256, ripemd160, sha256, sha512,
     verify_hmac_sha256, verify_hmac_sha512,
 };
 pub use keys::{PublicKey, SecretKey};
@@ -46,6 +49,8 @@ pub enum CryptoError {
     VerificationFailed,
     /// The operating system could not provide usable cryptographic randomness.
     RandomnessUnavailable,
+    /// Requested random output exceeds the explicit shared native/browser bound.
+    RandomRequestTooLarge,
 }
 
 impl core::fmt::Display for CryptoError {
@@ -65,6 +70,7 @@ impl core::fmt::Display for CryptoError {
             Self::SigningFailed => "signature generation failed",
             Self::VerificationFailed => "signature verification failed",
             Self::RandomnessUnavailable => "cryptographic randomness unavailable",
+            Self::RandomRequestTooLarge => "random output exceeds resource limit",
         })
     }
 }

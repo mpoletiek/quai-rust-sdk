@@ -11,11 +11,16 @@
 mod fixed;
 pub use fixed::{FixedError, FixedFormat, FixedPoint, Rounding};
 mod encoding;
+mod text;
 pub use encoding::{
     EncodingError, MAX_BASE58_BYTES, MAX_ENCODING_BYTES, concat_bytes, data_slice, decode_base58,
     decode_base58_bytes, decode_base64, decode_bytes32, encode_base58, encode_base64,
     encode_bytes32, from_twos, get_bytes, hexlify, mask, strip_zeros_left, to_twos, zero_pad_bytes,
     zero_pad_value,
+};
+pub use text::{
+    UTF8_UNICODE_VERSION, Utf8Normalization, to_utf8_bytes, to_utf8_code_points, to_utf8_string,
+    uuid_v4,
 };
 mod address;
 mod amount;

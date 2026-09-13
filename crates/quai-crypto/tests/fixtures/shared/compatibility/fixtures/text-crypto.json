@@ -1,0 +1,1012 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "normalizationNote": "Known stable normalization cases; Rust exposes its normalization table version independently of JS engine.",
+  "note": "Rust strings exclude unpaired UTF-16 surrogates; strict decoding rejects ill-formed UTF-8. UUID input has an exact 16-byte type and is not mutated.",
+  "texts": [
+    {
+      "text": "",
+      "form": null,
+      "bytes": "0x",
+      "points": []
+    },
+    {
+      "text": "",
+      "form": "NFC",
+      "bytes": "0x",
+      "points": []
+    },
+    {
+      "text": "",
+      "form": "NFD",
+      "bytes": "0x",
+      "points": []
+    },
+    {
+      "text": "",
+      "form": "NFKC",
+      "bytes": "0x",
+      "points": []
+    },
+    {
+      "text": "",
+      "form": "NFKD",
+      "bytes": "0x",
+      "points": []
+    },
+    {
+      "text": "Qi Quai",
+      "form": null,
+      "bytes": "0x51692051756169",
+      "points": [
+        81,
+        105,
+        32,
+        81,
+        117,
+        97,
+        105
+      ]
+    },
+    {
+      "text": "Qi Quai",
+      "form": "NFC",
+      "bytes": "0x51692051756169",
+      "points": [
+        81,
+        105,
+        32,
+        81,
+        117,
+        97,
+        105
+      ]
+    },
+    {
+      "text": "Qi Quai",
+      "form": "NFD",
+      "bytes": "0x51692051756169",
+      "points": [
+        81,
+        105,
+        32,
+        81,
+        117,
+        97,
+        105
+      ]
+    },
+    {
+      "text": "Qi Quai",
+      "form": "NFKC",
+      "bytes": "0x51692051756169",
+      "points": [
+        81,
+        105,
+        32,
+        81,
+        117,
+        97,
+        105
+      ]
+    },
+    {
+      "text": "Qi Quai",
+      "form": "NFKD",
+      "bytes": "0x51692051756169",
+      "points": [
+        81,
+        105,
+        32,
+        81,
+        117,
+        97,
+        105
+      ]
+    },
+    {
+      "text": "é",
+      "form": null,
+      "bytes": "0xc3a9",
+      "points": [
+        233
+      ]
+    },
+    {
+      "text": "é",
+      "form": "NFC",
+      "bytes": "0xc3a9",
+      "points": [
+        233
+      ]
+    },
+    {
+      "text": "é",
+      "form": "NFD",
+      "bytes": "0x65cc81",
+      "points": [
+        101,
+        769
+      ]
+    },
+    {
+      "text": "é",
+      "form": "NFKC",
+      "bytes": "0xc3a9",
+      "points": [
+        233
+      ]
+    },
+    {
+      "text": "é",
+      "form": "NFKD",
+      "bytes": "0x65cc81",
+      "points": [
+        101,
+        769
+      ]
+    },
+    {
+      "text": "é",
+      "form": null,
+      "bytes": "0x65cc81",
+      "points": [
+        101,
+        769
+      ]
+    },
+    {
+      "text": "é",
+      "form": "NFC",
+      "bytes": "0xc3a9",
+      "points": [
+        233
+      ]
+    },
+    {
+      "text": "é",
+      "form": "NFD",
+      "bytes": "0x65cc81",
+      "points": [
+        101,
+        769
+      ]
+    },
+    {
+      "text": "é",
+      "form": "NFKC",
+      "bytes": "0xc3a9",
+      "points": [
+        233
+      ]
+    },
+    {
+      "text": "é",
+      "form": "NFKD",
+      "bytes": "0x65cc81",
+      "points": [
+        101,
+        769
+      ]
+    },
+    {
+      "text": "Å",
+      "form": null,
+      "bytes": "0xe284ab",
+      "points": [
+        8491
+      ]
+    },
+    {
+      "text": "Å",
+      "form": "NFC",
+      "bytes": "0xc385",
+      "points": [
+        197
+      ]
+    },
+    {
+      "text": "Å",
+      "form": "NFD",
+      "bytes": "0x41cc8a",
+      "points": [
+        65,
+        778
+      ]
+    },
+    {
+      "text": "Å",
+      "form": "NFKC",
+      "bytes": "0xc385",
+      "points": [
+        197
+      ]
+    },
+    {
+      "text": "Å",
+      "form": "NFKD",
+      "bytes": "0x41cc8a",
+      "points": [
+        65,
+        778
+      ]
+    },
+    {
+      "text": "Å",
+      "form": null,
+      "bytes": "0x41cc8a",
+      "points": [
+        65,
+        778
+      ]
+    },
+    {
+      "text": "Å",
+      "form": "NFC",
+      "bytes": "0xc385",
+      "points": [
+        197
+      ]
+    },
+    {
+      "text": "Å",
+      "form": "NFD",
+      "bytes": "0x41cc8a",
+      "points": [
+        65,
+        778
+      ]
+    },
+    {
+      "text": "Å",
+      "form": "NFKC",
+      "bytes": "0xc385",
+      "points": [
+        197
+      ]
+    },
+    {
+      "text": "Å",
+      "form": "NFKD",
+      "bytes": "0x41cc8a",
+      "points": [
+        65,
+        778
+      ]
+    },
+    {
+      "text": "ﬃ",
+      "form": null,
+      "bytes": "0xefac83",
+      "points": [
+        64259
+      ]
+    },
+    {
+      "text": "ﬃ",
+      "form": "NFC",
+      "bytes": "0xefac83",
+      "points": [
+        64259
+      ]
+    },
+    {
+      "text": "ﬃ",
+      "form": "NFD",
+      "bytes": "0xefac83",
+      "points": [
+        64259
+      ]
+    },
+    {
+      "text": "ﬃ",
+      "form": "NFKC",
+      "bytes": "0x666669",
+      "points": [
+        102,
+        102,
+        105
+      ]
+    },
+    {
+      "text": "ﬃ",
+      "form": "NFKD",
+      "bytes": "0x666669",
+      "points": [
+        102,
+        102,
+        105
+      ]
+    },
+    {
+      "text": "①",
+      "form": null,
+      "bytes": "0xe291a0",
+      "points": [
+        9312
+      ]
+    },
+    {
+      "text": "①",
+      "form": "NFC",
+      "bytes": "0xe291a0",
+      "points": [
+        9312
+      ]
+    },
+    {
+      "text": "①",
+      "form": "NFD",
+      "bytes": "0xe291a0",
+      "points": [
+        9312
+      ]
+    },
+    {
+      "text": "①",
+      "form": "NFKC",
+      "bytes": "0x31",
+      "points": [
+        49
+      ]
+    },
+    {
+      "text": "①",
+      "form": "NFKD",
+      "bytes": "0x31",
+      "points": [
+        49
+      ]
+    },
+    {
+      "text": "ＡＢＣ",
+      "form": null,
+      "bytes": "0xefbca1efbca2efbca3",
+      "points": [
+        65313,
+        65314,
+        65315
+      ]
+    },
+    {
+      "text": "ＡＢＣ",
+      "form": "NFC",
+      "bytes": "0xefbca1efbca2efbca3",
+      "points": [
+        65313,
+        65314,
+        65315
+      ]
+    },
+    {
+      "text": "ＡＢＣ",
+      "form": "NFD",
+      "bytes": "0xefbca1efbca2efbca3",
+      "points": [
+        65313,
+        65314,
+        65315
+      ]
+    },
+    {
+      "text": "ＡＢＣ",
+      "form": "NFKC",
+      "bytes": "0x414243",
+      "points": [
+        65,
+        66,
+        67
+      ]
+    },
+    {
+      "text": "ＡＢＣ",
+      "form": "NFKD",
+      "bytes": "0x414243",
+      "points": [
+        65,
+        66,
+        67
+      ]
+    },
+    {
+      "text": "日本語 🍊",
+      "form": null,
+      "bytes": "0xe697a5e69cace8aa9e20f09f8d8a",
+      "points": [
+        26085,
+        26412,
+        35486,
+        32,
+        127818
+      ]
+    },
+    {
+      "text": "日本語 🍊",
+      "form": "NFC",
+      "bytes": "0xe697a5e69cace8aa9e20f09f8d8a",
+      "points": [
+        26085,
+        26412,
+        35486,
+        32,
+        127818
+      ]
+    },
+    {
+      "text": "日本語 🍊",
+      "form": "NFD",
+      "bytes": "0xe697a5e69cace8aa9e20f09f8d8a",
+      "points": [
+        26085,
+        26412,
+        35486,
+        32,
+        127818
+      ]
+    },
+    {
+      "text": "日本語 🍊",
+      "form": "NFKC",
+      "bytes": "0xe697a5e69cace8aa9e20f09f8d8a",
+      "points": [
+        26085,
+        26412,
+        35486,
+        32,
+        127818
+      ]
+    },
+    {
+      "text": "日本語 🍊",
+      "form": "NFKD",
+      "bytes": "0xe697a5e69cace8aa9e20f09f8d8a",
+      "points": [
+        26085,
+        26412,
+        35486,
+        32,
+        127818
+      ]
+    },
+    {
+      "text": "가",
+      "form": null,
+      "bytes": "0xeab080",
+      "points": [
+        44032
+      ]
+    },
+    {
+      "text": "가",
+      "form": "NFC",
+      "bytes": "0xeab080",
+      "points": [
+        44032
+      ]
+    },
+    {
+      "text": "가",
+      "form": "NFD",
+      "bytes": "0xe18480e185a1",
+      "points": [
+        4352,
+        4449
+      ]
+    },
+    {
+      "text": "가",
+      "form": "NFKC",
+      "bytes": "0xeab080",
+      "points": [
+        44032
+      ]
+    },
+    {
+      "text": "가",
+      "form": "NFKD",
+      "bytes": "0xe18480e185a1",
+      "points": [
+        4352,
+        4449
+      ]
+    },
+    {
+      "text": "가",
+      "form": null,
+      "bytes": "0xe18480e185a1",
+      "points": [
+        4352,
+        4449
+      ]
+    },
+    {
+      "text": "가",
+      "form": "NFC",
+      "bytes": "0xeab080",
+      "points": [
+        44032
+      ]
+    },
+    {
+      "text": "가",
+      "form": "NFD",
+      "bytes": "0xe18480e185a1",
+      "points": [
+        4352,
+        4449
+      ]
+    },
+    {
+      "text": "가",
+      "form": "NFKC",
+      "bytes": "0xeab080",
+      "points": [
+        44032
+      ]
+    },
+    {
+      "text": "가",
+      "form": "NFKD",
+      "bytes": "0xe18480e185a1",
+      "points": [
+        4352,
+        4449
+      ]
+    },
+    {
+      "text": "à̕",
+      "form": null,
+      "bytes": "0x61cc95cc80",
+      "points": [
+        97,
+        789,
+        768
+      ]
+    },
+    {
+      "text": "à̕",
+      "form": "NFC",
+      "bytes": "0xc3a0cc95",
+      "points": [
+        224,
+        789
+      ]
+    },
+    {
+      "text": "à̕",
+      "form": "NFD",
+      "bytes": "0x61cc80cc95",
+      "points": [
+        97,
+        768,
+        789
+      ]
+    },
+    {
+      "text": "à̕",
+      "form": "NFKC",
+      "bytes": "0xc3a0cc95",
+      "points": [
+        224,
+        789
+      ]
+    },
+    {
+      "text": "à̕",
+      "form": "NFKD",
+      "bytes": "0x61cc80cc95",
+      "points": [
+        97,
+        768,
+        789
+      ]
+    },
+    {
+      "text": "\u0000�􏿿",
+      "form": null,
+      "bytes": "0x00efbfbdf48fbfbf",
+      "points": [
+        0,
+        65533,
+        1114111
+      ]
+    },
+    {
+      "text": "\u0000�􏿿",
+      "form": "NFC",
+      "bytes": "0x00efbfbdf48fbfbf",
+      "points": [
+        0,
+        65533,
+        1114111
+      ]
+    },
+    {
+      "text": "\u0000�􏿿",
+      "form": "NFD",
+      "bytes": "0x00efbfbdf48fbfbf",
+      "points": [
+        0,
+        65533,
+        1114111
+      ]
+    },
+    {
+      "text": "\u0000�􏿿",
+      "form": "NFKC",
+      "bytes": "0x00efbfbdf48fbfbf",
+      "points": [
+        0,
+        65533,
+        1114111
+      ]
+    },
+    {
+      "text": "\u0000�􏿿",
+      "form": "NFKD",
+      "bytes": "0x00efbfbdf48fbfbf",
+      "points": [
+        0,
+        65533,
+        1114111
+      ]
+    },
+    {
+      "text": "ﷺ",
+      "form": null,
+      "bytes": "0xefb7ba",
+      "points": [
+        65018
+      ]
+    },
+    {
+      "text": "ﷺ",
+      "form": "NFC",
+      "bytes": "0xefb7ba",
+      "points": [
+        65018
+      ]
+    },
+    {
+      "text": "ﷺ",
+      "form": "NFD",
+      "bytes": "0xefb7ba",
+      "points": [
+        65018
+      ]
+    },
+    {
+      "text": "ﷺ",
+      "form": "NFKC",
+      "bytes": "0xd8b5d984d98920d8a7d984d984d98720d8b9d984d98ad98720d988d8b3d984d985",
+      "points": [
+        1589,
+        1604,
+        1609,
+        32,
+        1575,
+        1604,
+        1604,
+        1607,
+        32,
+        1593,
+        1604,
+        1610,
+        1607,
+        32,
+        1608,
+        1587,
+        1604,
+        1605
+      ]
+    },
+    {
+      "text": "ﷺ",
+      "form": "NFKD",
+      "bytes": "0xd8b5d984d98920d8a7d984d984d98720d8b9d984d98ad98720d988d8b3d984d985",
+      "points": [
+        1589,
+        1604,
+        1609,
+        32,
+        1575,
+        1604,
+        1604,
+        1607,
+        32,
+        1593,
+        1604,
+        1610,
+        1607,
+        32,
+        1608,
+        1587,
+        1604,
+        1605
+      ]
+    }
+  ],
+  "decoding": [
+    {
+      "hex": "0x",
+      "text": ""
+    },
+    {
+      "hex": "0x00",
+      "text": "\u0000"
+    },
+    {
+      "hex": "0x616263",
+      "text": "abc"
+    },
+    {
+      "hex": "0xc3a9",
+      "text": "é"
+    },
+    {
+      "hex": "0xf09f8d8a",
+      "text": "🍊"
+    },
+    {
+      "hex": "0x80",
+      "error": true
+    },
+    {
+      "hex": "0xff",
+      "error": true
+    },
+    {
+      "hex": "0xc080",
+      "error": true
+    },
+    {
+      "hex": "0xc1bf",
+      "error": true
+    },
+    {
+      "hex": "0xe08080",
+      "error": true
+    },
+    {
+      "hex": "0xf0808080",
+      "error": true
+    },
+    {
+      "hex": "0xeda080",
+      "error": true
+    },
+    {
+      "hex": "0xedb080",
+      "error": true
+    },
+    {
+      "hex": "0xf4908080",
+      "error": true
+    },
+    {
+      "hex": "0xf888808080",
+      "error": true
+    },
+    {
+      "hex": "0xc2",
+      "error": true
+    },
+    {
+      "hex": "0xe282",
+      "error": true
+    },
+    {
+      "hex": "0xf09f8d",
+      "error": true
+    },
+    {
+      "hex": "0xc220",
+      "error": true
+    },
+    {
+      "hex": "0xe24180",
+      "error": true
+    },
+    {
+      "hex": "0x61628063",
+      "error": true
+    }
+  ],
+  "surrogates": [
+    {
+      "units": [
+        55296
+      ],
+      "error": true
+    },
+    {
+      "units": [
+        56320
+      ],
+      "bytes": "0xedb080"
+    },
+    {
+      "units": [
+        97,
+        56320,
+        98
+      ],
+      "bytes": "0x61edb08062"
+    },
+    {
+      "units": [
+        55296,
+        97
+      ],
+      "error": true
+    },
+    {
+      "units": [
+        55356,
+        57162
+      ],
+      "bytes": "0xf09f8d8a"
+    }
+  ],
+  "uuids": [
+    {
+      "input": "0x00000000000000000000000000000000",
+      "uuid": "00000000-0000-4000-8000-000000000000",
+      "referenceMutatedInput": "0x00000000000040008000000000000000"
+    },
+    {
+      "input": "0xffffffffffffffffffffffffffffffff",
+      "uuid": "ffffffff-ffff-4fff-bfff-ffffffffffff",
+      "referenceMutatedInput": "0xffffffffffff4fffbfffffffffffffff"
+    },
+    {
+      "input": "0x000102030405060708090a0b0c0d0e0f",
+      "uuid": "00010203-0405-4607-8809-0a0b0c0d0e0f",
+      "referenceMutatedInput": "0x000102030405460788090a0b0c0d0e0f"
+    },
+    {
+      "input": "0xa5b48796e1f0c3d22d3c0f1e69784b5a",
+      "uuid": "a5b48796-e1f0-43d2-ad3c-0f1e69784b5a",
+      "referenceMutatedInput": "0xa5b48796e1f043d2ad3c0f1e69784b5a"
+    }
+  ],
+  "hashes": [
+    {
+      "hex": "0x",
+      "ripemd160": "0x9c1185a5c5e9fc54612808977ee8f548b2258d31"
+    },
+    {
+      "hex": "0x00",
+      "ripemd160": "0xc81b94933420221a7ac004a90242d8b1d3e5070d"
+    },
+    {
+      "hex": "0x616263",
+      "ripemd160": "0x8eb208f7e05d987a9b044a8e98c6b087f15a0bfc"
+    },
+    {
+      "hex": "0x000102ff",
+      "ripemd160": "0xea081363ff1934d0243cc3bdfe51ff9678dc0723"
+    },
+    {
+      "hex": "0x",
+      "ripemd160": "0x9c1185a5c5e9fc54612808977ee8f548b2258d31"
+    },
+    {
+      "hex": "0x51692051756169",
+      "ripemd160": "0x4ee483846d8c16c40b3841fb0e2f587b3fa1ebb4"
+    },
+    {
+      "hex": "0xc3a9",
+      "ripemd160": "0x955b38b84ca8505cfe67af5af20e7dc143825780"
+    },
+    {
+      "hex": "0x65cc81",
+      "ripemd160": "0x21732483b4fb06ed9968ce25c0a1178beada533b"
+    },
+    {
+      "hex": "0xe284ab",
+      "ripemd160": "0x03430727dc513e128a4f80781df6511e1dbc3ebe"
+    },
+    {
+      "hex": "0x41cc8a",
+      "ripemd160": "0x63df5a396ea41ff6c473b76c9915d29155a6caee"
+    },
+    {
+      "hex": "0xefac83",
+      "ripemd160": "0x1f65522f593a764fcbd1104448875ca703c52fdc"
+    },
+    {
+      "hex": "0xe291a0",
+      "ripemd160": "0x32cc6795d57879c75e2515e09e1313665ddebfbe"
+    },
+    {
+      "hex": "0xefbca1efbca2efbca3",
+      "ripemd160": "0xe380463b112101dc54c05693ff52e0c530607b91"
+    },
+    {
+      "hex": "0xe697a5e69cace8aa9e20f09f8d8a",
+      "ripemd160": "0xc223913cc2deca64fe46fba68d8afb8e5453bcba"
+    },
+    {
+      "hex": "0xeab080",
+      "ripemd160": "0xf71556c06ee82f09835fea3f5b1d44f598b3dc13"
+    },
+    {
+      "hex": "0xe18480e185a1",
+      "ripemd160": "0x823ff64c84477eec9a9c6613ec974369f55d4946"
+    },
+    {
+      "hex": "0x61cc95cc80",
+      "ripemd160": "0x2df7b60e0eb443266bbf92aa10e49da2f2ae7b4c"
+    },
+    {
+      "hex": "0x00efbfbdf48fbfbf",
+      "ripemd160": "0x3ee984d7fdb1646cf76e710a97d2e229a9516d4b"
+    },
+    {
+      "hex": "0xefb7ba",
+      "ripemd160": "0x2f9f1182979fc52cf69d0fa9765560cc9c7b91c1"
+    }
+  ],
+  "ids": [
+    {
+      "text": "",
+      "id": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+    },
+    {
+      "text": "Qi Quai",
+      "id": "0x86eaf3df790ee6a6dc9cd691688f418f8044fbf4afd1ad5e1afd38b62a9282d7"
+    },
+    {
+      "text": "é",
+      "id": "0xe9076b2429006c3cfc23780a3ab7db373ff2200f3ee9a6c58ef84bd1c9118372"
+    },
+    {
+      "text": "é",
+      "id": "0xa06e9f5487b3aaae3568df886912a848c792a24dab3e3d42eb0077671680f132"
+    },
+    {
+      "text": "Å",
+      "id": "0x7b4f97f02a107d68c95e2465b88c21cb8201a585c57b800ff65977cdf7c0381a"
+    },
+    {
+      "text": "Å",
+      "id": "0xd8b3963eecb39f727ae69f346d2194362dbce01496621a0aa80c1468fa6773b5"
+    },
+    {
+      "text": "ﬃ",
+      "id": "0x8889f127df5d538b3a219fd7abdc3f637462d44e45d3338c52eddac6ae5297f9"
+    },
+    {
+      "text": "①",
+      "id": "0xc64db0450dd62cc5d9ec27de912fd7e3d61cfc782578db3af705b21d64d8e562"
+    },
+    {
+      "text": "ＡＢＣ",
+      "id": "0xdc204be2052b8d33b1c8663101d755fa37898ce50ee40fc0a5cc7675d4c6722a"
+    },
+    {
+      "text": "日本語 🍊",
+      "id": "0x7b366fd565f7c25a0b32b86c8b1139a83c2849becff353eee5a51b8d6a147e1a"
+    },
+    {
+      "text": "가",
+      "id": "0x0119d2dff431255bc64c8d1576831ee6c003667f533641063de1a2757f4debad"
+    },
+    {
+      "text": "가",
+      "id": "0x9e5bb1cf36ee11983af172c0c2dc6f93fc6ff837dbd6776d0ee2a84f833b2935"
+    },
+    {
+      "text": "à̕",
+      "id": "0x77ecc61f1a9d590634c177eb50566f716f39782eb900bdd8fc8de843ba4e3730"
+    },
+    {
+      "text": "\u0000�􏿿",
+      "id": "0x718f5ddc48a08df85596ed6768491baa8d769e5c7d6a1c98bc9d89faa1d9ab2b"
+    },
+    {
+      "text": "ﷺ",
+      "id": "0x5a3f9a59f8b74dcf941593c5ac4f662b0209e2d761577c528f3155743a3e12dc"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # quai-primitives
 
-Initial address and shard foundations for the Quai Rust SDK. This crate is
+Address, shard, exact amount, byte and text utilities for the Quai Rust SDK. This crate is
 experimental and is not published or approved for production wallet use.
 
 - `Address` stores any 20-byte address and enforces the pinned quais.js
@@ -104,3 +104,39 @@ let total = price.checked_mul(count, Rounding::Exact)?;
 assert_eq!(total.to_chain_units(Unit::QUAI)?.to_string(), "3750000000000000000");
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
+
+
+### Text and strict checksum imports
+
+`to_utf8_bytes(text, form)` and `to_utf8_code_points(text, form)` preserve exact
+text with `None`, or apply explicit `Utf8Normalization::{Nfc,Nfd,Nfkc,Nfkd}`.
+Input and normalized output each have a 1 MiB byte bound; expansion stops at the
+limit. `UTF8_UNICODE_VERSION` exposes the library's table version (17.0.0 in the
+locked build), independent of a browser's JavaScript engine. Code-point results
+contain Unicode scalars and can occupy up to 4 MiB plus bounded temporary bytes.
+`to_utf8_string` borrows only valid bounded UTF-8. It rejects invalid continuations,
+overlong encodings, surrogate scalars and truncation; there is no silent skip or
+replacement callback. Rust strings cannot represent unpaired UTF-16 surrogates.
+
+`uuid_v4(&[u8; 16])` sets version/variant bits in a copy and returns canonical UUID
+text. It never mutates caller bytes, truncates other input lengths or generates
+entropy. The crypto crate's `fill_random` supplies explicit OS/Web Crypto entropy.
+
+`Address::from_checksummed_str` requires exact prefixed checksum spelling, matching
+`validateAddress`. Ordinary `parse::<Address>()` accepts uniform-case/unprefixed
+input with mixed-case checksum checks; its `is_ok()` implements `isAddress`.
+`Address::ledger` replaces raw `isQiAddress`/`isQuaiAddress` string heuristics;
+`Address::zone` supplies the other part of `getAddressDetails`. Typed ledger
+addresses add known-zone validation. `to_checksum` formats the already validated
+20-byte value; arbitrary malformed strings are not silently repaired.
+
+Dynamic `AddressLike`/Promise resolution stays in caller Rust code: await the
+value, obtain the wallet/contract address, then pass a typed address. There is no
+implicit network/name resolution. Transfer/conversion constructors choose the
+actual signed wire type; address-only `getTxType` inference is deliberately
+omitted because its Qi-to-Quai result is not the signed outer Qi conversion type.
+
+Existing exact CREATE/CREATE2 predictors correspond to `getCreateAddress` and
+`getCreate2Address`, with u64 nonces and fixed-size salt/hash inputs. Typed
+`Address::ZERO`, `Hash32::ZERO`, SDK `U256::MAX`, and `parse_quai("1")` cover the
+zero address/hash, maximum unsigned integer and 10^18 base-unit constants.

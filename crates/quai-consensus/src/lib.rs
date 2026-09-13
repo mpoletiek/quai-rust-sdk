@@ -43,8 +43,9 @@ pub enum TransactionError {
     /// A signature failed validation or recovery.
     #[error("transaction signature validation failed")]
     InvalidSignature,
-    /// Multi-input key aggregation has not yet been qualified by this implementation.
-    #[error("multi-input signing requires a qualified MuSig implementation")]
+    /// A single-input signing method was given multiple inputs. Use the explicit
+    /// ordered local-key aggregation signing path for such transactions.
+    #[error("multi-input transaction requires explicit ordered-key signing")]
     MultiInputSigningUnavailable,
 }
 

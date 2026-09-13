@@ -13,7 +13,15 @@ fuzz_target!(|data: &[u8]| {
         let encoded = encode_base58(data).unwrap();
         assert_eq!(decode_base58_bytes(&encoded).unwrap(), data);
     }
+    let _ = to_utf8_string(data);
     if let Ok(text) = std::str::from_utf8(data) {
+        for form in [None,Some(Utf8Normalization::Nfc),Some(Utf8Normalization::Nfd),Some(Utf8Normalization::Nfkc),Some(Utf8Normalization::Nfkd)] {
+            if let Ok(bytes) = to_utf8_bytes(text,form) {
+                let normalized = to_utf8_string(&bytes).unwrap();
+                assert_eq!(to_utf8_bytes(normalized,form).unwrap(),bytes);
+                assert_eq!(to_utf8_code_points(text,form).unwrap(),normalized.chars().map(u32::from).collect::<Vec<_>>());
+            }
+        }
         let _ = get_bytes(text);
         let _ = decode_base64(text);
         let _ = decode_base58_bytes(text);

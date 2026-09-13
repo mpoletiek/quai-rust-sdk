@@ -95,6 +95,18 @@ impl Address {
         self.to_string()
     }
 
+    /// Parse only the exact `0x`-prefixed checksum spelling, matching the pinned
+    /// `validateAddress` policy. Ordinary `FromStr` also accepts uniform case and
+    /// an omitted prefix; this explicit strict import rejects those spellings
+    /// whenever they differ from the canonical checksum string.
+    pub fn from_checksummed_str(text: &str) -> Result<Self, AddressError> {
+        let address: Self = text.parse()?;
+        if address.to_checksum() != text {
+            return Err(AddressError::InvalidChecksum);
+        }
+        Ok(address)
+    }
+
     fn checksum_bytes(self) -> [u8; 42] {
         const HEX: &[u8; 16] = b"0123456789abcdef";
         let mut output = [0; 42];

@@ -51,6 +51,11 @@ pub fn sha512(data: &[u8]) -> [u8; 64] {
     Sha512::digest(data).into()
 }
 
+/// Compute the RIPEMD-160 digest of exact bytes, matching the pinned reference.
+pub fn ripemd160(data: &[u8]) -> [u8; 20] {
+    ripemd::Ripemd160::digest(data).into()
+}
+
 /// Compute HMAC-SHA256. Treat the returned bytes as secret when used as key material.
 pub fn hmac_sha256(key: &[u8], data: &[u8]) -> [u8; 32] {
     // HMAC accepts keys of every length, including zero.

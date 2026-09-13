@@ -1,0 +1,175 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "c06dbdee8a69b7aa34d64387201ab0de782318c1",
+  "testedWorkingTree": true,
+  "reference": "quais@1.0.0-alpha.57",
+  "referenceFixtureSha256": "609146d1ba8caf416fbeb2415772898ee2064b430211cea8c879476f82beeed4",
+  "vectors": {
+    "normalization": 75,
+    "utf8Decoding": 21,
+    "utf16Surrogates": 5,
+    "uuid": 4,
+    "ripemd160": 19,
+    "utf8IdentifierHash": 15
+  },
+  "normalizationUnicodeVersion": "17.0.0",
+  "changes": [
+    "Bounded explicit normalization, strict borrowed UTF-8 and scalar extraction",
+    "Immutable exactly-16-byte UUID-v4 formatting",
+    "RIPEMD-160 and shared native/Web Crypto entropy fill; failure erases partial output",
+    "Exact checksum-only address import and 44 explicit utility/address/constant mappings",
+    "Corrected stale documentation for existing browser entropy and explicit ordered multi-input signing"
+  ],
+  "validation": {
+    "nativePrimitivesCryptoTests": 42,
+    "actualChromiumSdkWorkerTests": 8,
+    "nativeWorkspaceClippyWarningsDenied": "passed",
+    "portableSdkWasmAllTargetsClippyWarningsDenied": "passed",
+    "nativeWorkspaceRustdocWarningsDenied": "passed",
+    "referenceNodeTests": 97,
+    "verifiedReferenceSourceFiles": 153,
+    "packageFileMirrors": 63
+  },
+  "fuzz": {
+    "recordedAt": "2026-09-13T07:46:48.292011+00:00",
+    "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+    "fuzzLockSha256": "d6ee6a295246aae181e637a4a62c7b3c6e9636e6acbaf210d608a72728cbba98",
+    "sdkLockSha256": "23e5d30c8d68ca0225745105c4ccacbfac66114f395e4eb92fedf3b8ab717ed7",
+    "targets": [
+      {
+        "name": "encoding",
+        "binarySha256": "8fed60e20590939566d40feb8c2cfaba5830fdd1c7e5b6bdaea5a7e8efeb6bd1",
+        "seconds": 120,
+        "exitCode": 0,
+        "addressSanitizer": true,
+        "initialCorpusFiles": 58,
+        "finalCorpusFiles": 496,
+        "executions": 234442,
+        "coverageCounters": 1484,
+        "features": 4882,
+        "rssMiB": 446
+      }
+    ],
+    "leakSanitizer": false,
+    "sanitizerEnvironment": "ASAN_OPTIONS=detect_leaks=0: sandbox process inspection limitation; AddressSanitizer enabled, no leak-clean qualification."
+  },
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "c06dbdee8a69b7aa34d64387201ab0de782318c1",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 62000,
+        "sha256": "3830102015d0bec136bbba6b965b32f5435e118a5c538bfc0ad5dcefa258272c"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45024,
+        "sha256": "1f6f352065e11a4335ea0fa8507745d56a63d18feaa34db483b1ced5b91756b1"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 126468,
+        "sha256": "dda21824369dde7793bdb0f426d061dcab9f9a1bd9da17d924978f22b5ad9a71"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45655,
+        "sha256": "d0e903027764c33c0e92a4bdb20648b9270f1d0e7a353440575f3cc10c7b0cdc"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47994,
+        "sha256": "fc60ff7d754c3f08ef09ee554f4022c710255fe4a3f78f8a71a568846c91c8ed"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 119037,
+        "sha256": "b902e2c2283c8bc99d03d4706f94e4fecc7a4cb10094028b6407254e18cbb77c"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 131452,
+        "sha256": "28e0aef6f1878e80acc13b2aae98f2141b09bc56dcf604ec8774344fd64fbcf1"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 74950,
+        "sha256": "d0a4b0a73ca0a85dcb3e6a9c4fad7f08b7d77f8126d74e4d355140bb78ca2ddc"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24519,
+        "sha256": "9c0af7cb584e687b5d0873acbc665aabb1b55512a227b9966032077c5fd4061b"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34222,
+        "sha256": "8ebe90396ef74cfa68b61a728cda2aee16e41ace35d3f8fd1f98b2525aa81543"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 232655,
+        "sha256": "c663f054200fdf524679255e26b0502d352ea433eff01c166f9f4520c6f79f0f"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39312,
+        "sha256": "319d7e524c83802f52d89e2de3dbb862c6fe403a46385e65aa053e87a3ff079c"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "evidence": [
+    "crates/quai-primitives/tests/text.rs",
+    "crates/quai-primitives/tests/primitives.rs#explicit_checksum_import_requires_exact_reference_spelling",
+    "crates/quai-crypto/tests/utilities.rs",
+    "crates/quai-crypto/src/entropy.rs",
+    "crates/quai-sdk/tests/browser_discovery.rs#worker_text_hash_uuid_and_entropy_utilities_match_native_contracts"
+  ],
+  "limits": [
+    "Rust strings exclude unpaired UTF-16 surrogates; strict decoding offers no silent replacement or skip callback",
+    "Normalization table version is explicit and independent of JavaScript engine; fixtures use stable common cases",
+    "Entropy checks qualify API behavior and backend use, not statistical entropy quality or every browser runtime",
+    "Other wallet/browser/release gates remain open; this is not a feature-complete or production-security declaration",
+    "No transaction submission or package publication occurred"
+  ]
+}

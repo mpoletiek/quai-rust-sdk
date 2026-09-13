@@ -19,7 +19,7 @@ Targets:
   It deliberately does not execute attacker-selected expensive KDF parameters.
 
 - `encoding`: bounded hex/Base64/Base58 roundtrips, bytes32 UTF-8 and signed-width
-  boundaries, plus hostile decoder inputs.
+  boundaries, strict UTF-8 and bounded normalization idempotence/scalar roundtrips, plus hostile decoder inputs.
 - `head_state`: canonical bounded ancestry restoration, expected-network identity and
   exact byte roundtrips (163,887-byte mutation limit, including the full cursor).
 - `fixed`: exact fixed-point import/format roundtrips, floor/ceiling ordering,

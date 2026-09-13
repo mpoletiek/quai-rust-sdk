@@ -242,3 +242,30 @@ fn deterministic_byte_patterns_round_trip_without_panics() {
         assert_eq!(Address::try_from(bytes.as_slice()).unwrap(), address);
     }
 }
+
+#[test]
+fn explicit_checksum_import_requires_exact_reference_spelling() {
+    for expected in include_str!("fixtures/accounts.txt").lines() {
+        assert_eq!(
+            Address::from_checksummed_str(expected)
+                .unwrap()
+                .to_checksum(),
+            expected
+        );
+        assert!(Address::from_checksummed_str(&expected[2..]).is_err());
+        for alternative in [
+            expected.to_lowercase(),
+            format!("0x{}", expected[2..].to_uppercase()),
+        ] {
+            assert_eq!(
+                Address::from_checksummed_str(&alternative).is_ok(),
+                alternative == expected
+            );
+        }
+    }
+    assert_eq!(
+        Address::from_checksummed_str(&Address::ZERO.to_checksum()).unwrap(),
+        Address::ZERO
+    );
+    assert!(Address::from_checksummed_str("0x00").is_err());
+}

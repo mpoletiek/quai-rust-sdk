@@ -1994,6 +1994,7 @@ dependencies = [
  "k256",
  "musig2",
  "quai-primitives",
+ "ripemd",
  "serde_json",
  "sha2 0.10.9",
  "tiny-keccak",
@@ -2045,6 +2046,7 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tiny-keccak",
+ "unicode-normalization",
 ]
 
 [[package]]

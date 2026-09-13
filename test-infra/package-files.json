@@ -244,6 +244,14 @@
     {
       "source": "compatibility/fixtures/packed.json",
       "destination": "crates/quai-abi/tests/fixtures/shared/compatibility/fixtures/packed.json"
+    },
+    {
+      "source": "compatibility/fixtures/text-crypto.json",
+      "destination": "crates/quai-primitives/tests/fixtures/shared/compatibility/fixtures/text-crypto.json"
+    },
+    {
+      "source": "compatibility/fixtures/text-crypto.json",
+      "destination": "crates/quai-crypto/tests/fixtures/shared/compatibility/fixtures/text-crypto.json"
     }
   ]
 }

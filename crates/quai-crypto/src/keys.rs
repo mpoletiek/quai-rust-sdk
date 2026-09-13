@@ -102,7 +102,8 @@ impl SecretKey {
     /// Sign exact bytes with BIP340, obtaining fresh auxiliary entropy from the OS.
     ///
     /// No implicit SHA-256 pass is added. For transaction use, pass the exact
-    /// protocol-specified digest, which has not yet been node-qualified here.
+    /// protocol-specified digest. The consensus crate supplies transaction-bound
+    /// signing; this primitive does not validate transaction semantics.
     pub fn sign_schnorr(&self, message: &[u8]) -> Result<SchnorrSignature, CryptoError> {
         let mut auxiliary = Zeroizing::new([0; 32]);
         getrandom::fill(auxiliary.as_mut()).map_err(|_| CryptoError::RandomnessUnavailable)?;

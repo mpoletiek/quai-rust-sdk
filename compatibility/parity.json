@@ -10365,12 +10365,19 @@
         "(address: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::to_checksum"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Formats a validated 20-byte value; no unvalidated arbitrary string normalization. Explicit raw-byte construction is available independently of checksum parsing."
     },
     {
       "id": ".:formatQi",
@@ -10970,12 +10977,21 @@
         "(address: string): AddressDetails | null"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::ledger",
+        "quai_primitives::Address::zone",
+        "quai_primitives::Ledger"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated 20-byte address before ledger/zone inspection; JS substring heuristics may classify malformed strings. Ledger checks alone do not imply known/active zone; typed QiAddress/QuaiAddress additionally require known zone."
     },
     {
       "id": ".:getBigInt",
@@ -11046,12 +11062,18 @@
         "(_from: string, _salt: BytesLike, _initCodeHash: BytesLike): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::create2_address"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/amounts.rs#contract_predictions_preserve_exact_code_and_record_legacy_difference"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Exact byte inputs and u64 nonce / 32-byte salt and init-code hash prevent implicit JS nonce wrapping or length coercion. Prediction is separate from ledger/zone grinding and successful deployment. Existing independent Go/JS vectors cover both algorithms; getContractAddress leading-zero legacy defect is handled separately."
     },
     {
       "id": ".:getCreateAddress",
@@ -11062,12 +11084,18 @@
         "(tx: { from: string; nonce: BigNumberish; data: string | null; }): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::contract_address"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/amounts.rs#contract_predictions_preserve_exact_code_and_record_legacy_difference"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Exact byte inputs and u64 nonce / 32-byte salt and init-code hash prevent implicit JS nonce wrapping or length coercion. Prediction is separate from ledger/zone grinding and successful deployment. Existing independent Go/JS vectors cover both algorithms; getContractAddress leading-zero legacy defect is handled separately."
     },
     {
       "id": ".:getNumber",
@@ -11094,12 +11122,23 @@
         "(from: string | null, to: string | null): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction",
+        "quai_consensus::QuaiToQiTransaction",
+        "quai_consensus::QiTransaction",
+        "quai_consensus::QiConversionTransaction"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "No address-only transaction-type inference: callers choose the explicit transfer/conversion type. The JS heuristic returns 1 for Qi-to-Quai addresses, which is not the signed outer Qi conversion wire type. Rust uses validated type-2 specialized Qi operations and type-0 account operations; type 1 denotes external transactions."
     },
     {
       "id": ".:getUint",
@@ -12534,12 +12573,18 @@
         "(value: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::keccak256(text.as_bytes())"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/utilities.rs#ripemd160_and_utf8_identifier_hashes_match_pinned_reference"
+      ],
+      "docs": [
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact UTF-8 text identifier hash is explicit composition; a 32-byte result replaces the JS hex string. No normalization or decoding of hex-looking text."
     },
     {
       "id": ".:Indexed",
@@ -13280,12 +13325,19 @@
         "(value: any): value is string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "str::parse::<quai_primitives::Address>().is_ok()"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Typed string parsing replaces JS any/coercions. Syntax and mixed-case checksum are checked; known zone is a separate check."
     },
     {
       "id": ".:isAddressable",
@@ -13392,12 +13444,21 @@
         "(address: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::ledger",
+        "quai_primitives::Address::zone",
+        "quai_primitives::Ledger"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated 20-byte address before ledger/zone inspection; JS substring heuristics may classify malformed strings. Ledger checks alone do not imply known/active zone; typed QiAddress/QuaiAddress additionally require known zone."
     },
     {
       "id": ".:isQuaiAddress",
@@ -13408,12 +13469,21 @@
         "(address: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::ledger",
+        "quai_primitives::Address::zone",
+        "quai_primitives::Ledger"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated 20-byte address before ledger/zone inspection; JS substring heuristics may classify malformed strings. Ledger checks alone do not imply known/active zone; typed QiAddress/QuaiAddress additionally require known zone."
     },
     {
       "id": ".:JsonFragment",
@@ -17903,12 +17973,18 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::U256::MAX"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/amounts.rs#amount_boundary_roundtrips_without_floating_point"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Typed exact U256 maximum instead of JS bigint."
     },
     {
       "id": ".:MessagePrefix",
@@ -17917,12 +17993,18 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::MESSAGE_PREFIX"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Borrowed bytes with the pinned Ethereum Signed Message prefix; exact message byte length, not Unicode character count, is hashed."
     },
     {
       "id": ".:MinedBlock",
@@ -22151,12 +22233,21 @@
         "(length: number): Uint8Array"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::fill_random",
+        "quai_crypto::MAX_RANDOM_BYTES"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/utilities.rs",
+        "crates/quai-crypto/src/entropy.rs",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_text_hash_uuid_and_entropy_utilities_match_native_contracts"
+      ],
+      "docs": [
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Fills caller-owned bytes, bounded to 65,536 per request; native OS/Web Crypto backend, no PRNG or global backend override. Oversize fails before mutation; entropy failures erase partial output."
     },
     {
       "id": ".:recoverAddress",
@@ -22203,12 +22294,21 @@
         "(target: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Callers explicitly await their own futures or obtain addresses from typed wallet/contract objects, then validate. No JS duck typing, Promise coercion, or implicit network/name resolution. Zero-address destination policy is application-owned."
     },
     {
       "id": ".:Result",
@@ -22935,12 +23035,18 @@
         "(_data: BytesLike): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::ripemd160"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/utilities.rs"
+      ],
+      "docs": [
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact-byte RIPEMD-160 with fixed 20-byte result; fixed Rust backend and no global JS lock/register replacement hook."
     },
     {
       "id": ".:scrypt",
@@ -26140,12 +26246,18 @@
         "(str: string, form?: UnicodeNormalizationForm): Uint8Array"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::to_utf8_bytes"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/text.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Rust valid UTF-8 input and explicit normalization enum; bounds input and normalized output to 1 MiB. Uses published UTF8_UNICODE_VERSION tables; rejects expansion overflow. No unpaired UTF-16 surrogate strings are representable."
     },
     {
       "id": ".:toUtf8CodePoints",
@@ -26156,12 +26268,18 @@
         "(str: string, form?: UnicodeNormalizationForm): Array<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::to_utf8_code_points"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/text.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Vec<u32> Unicode scalars from explicit optional normalization; same 1 MiB text bounds and no unpaired surrogate input."
     },
     {
       "id": ".:toUtf8String",
@@ -26172,12 +26290,19 @@
         "(bytes: BytesLike, onError?: Utf8ErrorFunc): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::to_utf8_string",
+        "quai_primitives::EncodingError"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/text.rs#strict_decoding_rejects_invalid_scalars_overlongs_and_truncation"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Strict bounded borrowed UTF-8 with sanitized typed errors. No JS onError callback, silent skip, overlong recovery or replacement policy; callers must choose any lossy text conversion separately."
     },
     {
       "id": ".:toZone",
@@ -30120,12 +30245,19 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Utf8Normalization",
+        "quai_primitives::UTF8_UNICODE_VERSION"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/text.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Nfc/Nfd/Nfkc/Nfkd enum rather than string union; Option::None preserves input. Library table version is explicit rather than inherited from JS engine."
     },
     {
       "id": ".:UnknownError",
@@ -30256,12 +30388,19 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::to_utf8_string",
+        "quai_primitives::EncodingError"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/text.rs#strict_decoding_rejects_invalid_scalars_overlongs_and_truncation"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Strict bounded borrowed UTF-8 with sanitized typed errors. No JS onError callback, silent skip, overlong recovery or replacement policy; callers must choose any lossy text conversion separately."
     },
     {
       "id": ".:Utf8ErrorReason",
@@ -30270,12 +30409,19 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::to_utf8_string",
+        "quai_primitives::EncodingError"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/text.rs#strict_decoding_rejects_invalid_scalars_overlongs_and_truncation"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Strict bounded borrowed UTF-8 with sanitized typed errors. No JS onError callback, silent skip, overlong recovery or replacement policy; callers must choose any lossy text conversion separately."
     },
     {
       "id": ".:UTXO",
@@ -30404,12 +30550,18 @@
         "(randomBytes: BytesLike): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::uuid_v4"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/text.rs#uuid_sets_version_and_variant_without_mutating_callers_entropy"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Exactly 16 caller-provided bytes with version/variant bits set in a copy; no mutation of caller input or truncation/acceptance of other lengths."
     },
     {
       "id": ".:validateAddress",
@@ -30420,12 +30572,18 @@
         "(address: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::from_checksummed_str"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/primitives.rs#explicit_checksum_import_requires_exact_reference_spelling"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Returns typed Address or AddressError and requires exact prefixed checksum spelling; ordinary FromStr intentionally accepts uniform-case and unprefixed input separately."
     },
     {
       "id": ".:verifyMessage",
@@ -32923,12 +33081,19 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::parse_quai(\"1\")",
+        "quai_primitives::Unit::QUAI"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/amounts.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Exact 10^18 conversion through the Quai unit API instead of an Ethereum-named JS constant; no floating point."
     },
     {
       "id": ".:Wordlist",
@@ -33321,12 +33486,19 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::ZERO"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Fixed-size typed zero address instead of a hex string; destination policy remains explicit."
     },
     {
       "id": ".:ZeroHash",
@@ -33335,12 +33507,18 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Hash32::ZERO"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/src/hash.rs#tests::exact_width_roundtrip_and_rejection"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Fixed 32-byte typed zero hash instead of a hex string."
     },
     {
       "id": ".:zeroPadBytes",
@@ -39891,12 +40069,19 @@
         "(address: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::to_checksum"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Formats a validated 20-byte value; no unvalidated arbitrary string normalization. Explicit raw-byte construction is available independently of checksum parsing."
     },
     {
       "id": "./address:getAddress",
@@ -39951,12 +40136,18 @@
         "(_from: string, _salt: BytesLike, _initCodeHash: BytesLike): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::create2_address"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/amounts.rs#contract_predictions_preserve_exact_code_and_record_legacy_difference"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Exact byte inputs and u64 nonce / 32-byte salt and init-code hash prevent implicit JS nonce wrapping or length coercion. Prediction is separate from ledger/zone grinding and successful deployment. Existing independent Go/JS vectors cover both algorithms; getContractAddress leading-zero legacy defect is handled separately."
     },
     {
       "id": "./address:getCreateAddress",
@@ -39967,12 +40158,18 @@
         "(tx: { from: string; nonce: BigNumberish; data: string | null; }): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::contract_address"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/amounts.rs#contract_predictions_preserve_exact_code_and_record_legacy_difference"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Exact byte inputs and u64 nonce / 32-byte salt and init-code hash prevent implicit JS nonce wrapping or length coercion. Prediction is separate from ledger/zone grinding and successful deployment. Existing independent Go/JS vectors cover both algorithms; getContractAddress leading-zero legacy defect is handled separately."
     },
     {
       "id": "./address:isAddress",
@@ -39983,12 +40180,19 @@
         "(value: any): value is string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "str::parse::<quai_primitives::Address>().is_ok()"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Typed string parsing replaces JS any/coercions. Syntax and mixed-case checksum are checked; known zone is a separate check."
     },
     {
       "id": "./address:isAddressable",
@@ -40015,12 +40219,21 @@
         "(address: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::ledger",
+        "quai_primitives::Address::zone",
+        "quai_primitives::Ledger"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated 20-byte address before ledger/zone inspection; JS substring heuristics may classify malformed strings. Ledger checks alone do not imply known/active zone; typed QiAddress/QuaiAddress additionally require known zone."
     },
     {
       "id": "./address:isQuaiAddress",
@@ -40031,12 +40244,21 @@
         "(address: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::ledger",
+        "quai_primitives::Address::zone",
+        "quai_primitives::Ledger"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated 20-byte address before ledger/zone inspection; JS substring heuristics may classify malformed strings. Ledger checks alone do not imply known/active zone; typed QiAddress/QuaiAddress additionally require known zone."
     },
     {
       "id": "./address:recoverAddress",
@@ -40069,12 +40291,21 @@
         "(target: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address",
+        "quai_primitives::QuaiAddress",
+        "quai_primitives::QiAddress"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Callers explicitly await their own futures or obtain addresses from typed wallet/contract objects, then validate. No JS duck typing, Promise coercion, or implicit network/name resolution. Zero-address destination policy is application-owned."
     },
     {
       "id": "./address:validateAddress",
@@ -40085,12 +40316,18 @@
         "(address: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::from_checksummed_str"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/primitives.rs#explicit_checksum_import_requires_exact_reference_spelling"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Returns typed Address or AddressError and requires exact prefixed checksum spelling; ordinary FromStr intentionally accepts uniform-case and unprefixed input separately."
     },
     {
       "id": "./constants:AllowedCoinType",
@@ -40141,12 +40378,18 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::U256::MAX"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/amounts.rs#amount_boundary_roundtrips_without_floating_point"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Typed exact U256 maximum instead of JS bigint."
     },
     {
       "id": "./constants:MessagePrefix",
@@ -40155,12 +40398,18 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::MESSAGE_PREFIX"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Borrowed bytes with the pinned Ethereum Signed Message prefix; exact message byte length, not Unicode character count, is hashed."
     },
     {
       "id": "./constants:MinInt256",
@@ -40271,12 +40520,19 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::parse_quai(\"1\")",
+        "quai_primitives::Unit::QUAI"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/amounts.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Exact 10^18 conversion through the Quai unit API instead of an Ethereum-named JS constant; no floating point."
     },
     {
       "id": "./constants:ZeroAddress",
@@ -40285,12 +40541,19 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::ZERO"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Fixed-size typed zero address instead of a hex string; destination policy remains explicit."
     },
     {
       "id": "./constants:ZeroHash",
@@ -40299,12 +40562,18 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Hash32::ZERO"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/src/hash.rs#tests::exact_width_roundtrip_and_rejection"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Fixed 32-byte typed zero hash instead of a hex string."
     },
     {
       "id": "./constants:Zone",
@@ -43552,12 +43821,21 @@
         "(length: number): Uint8Array"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::fill_random",
+        "quai_crypto::MAX_RANDOM_BYTES"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/utilities.rs",
+        "crates/quai-crypto/src/entropy.rs",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_text_hash_uuid_and_entropy_utilities_match_native_contracts"
+      ],
+      "docs": [
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Fills caller-owned bytes, bounded to 65,536 per request; native OS/Web Crypto backend, no PRNG or global backend override. Oversize fails before mutation; entropy failures erase partial output."
     },
     {
       "id": "./crypto:ripemd160",
@@ -43568,12 +43846,18 @@
         "(_data: BytesLike): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::ripemd160"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/utilities.rs"
+      ],
+      "docs": [
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact-byte RIPEMD-160 with fixed 20-byte result; fixed Rust backend and no global JS lock/register replacement hook."
     },
     {
       "id": "./crypto:scrypt",
@@ -44084,12 +44368,18 @@
         "(value: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::keccak256(text.as_bytes())"
+      ],
+      "feature": "crypto",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/utilities.rs#ripemd160_and_utf8_identifier_hashes_match_pinned_reference"
+      ],
+      "docs": [
+        "crates/quai-crypto/README.md"
+      ],
+      "deviation": "Exact UTF-8 text identifier hash is explicit composition; a 32-byte result replaces the JS hex string. No normalization or decoding of hex-looking text."
     },
     {
       "id": "./hash:solidityPacked",
@@ -61578,12 +61868,21 @@
         "(address: string): AddressDetails | null"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::Address::ledger",
+        "quai_primitives::Address::zone",
+        "quai_primitives::Ledger"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/differential.rs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated 20-byte address before ledger/zone inspection; JS substring heuristics may classify malformed strings. Ledger checks alone do not imply known/active zone; typed QiAddress/QuaiAddress additionally require known zone."
     },
     {
       "id": "./utils:getBigInt",
@@ -61670,12 +61969,23 @@
         "(from: string | null, to: string | null): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction",
+        "quai_consensus::QuaiToQiTransaction",
+        "quai_consensus::QiTransaction",
+        "quai_consensus::QiConversionTransaction"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "No address-only transaction-type inference: callers choose the explicit transfer/conversion type. The JS heuristic returns 1 for Qi-to-Quai addresses, which is not the signed outer Qi conversion wire type. Rust uses validated type-2 specialized Qi operations and type-0 account operations; type 1 denotes external transactions."
     },
     {
       "id": "./utils:getUint",
@@ -62329,12 +62639,18 @@
         "(randomBytes: BytesLike): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::uuid_v4"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/text.rs#uuid_sets_version_and_variant_without_mutating_callers_entropy"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Exactly 16 caller-provided bytes with version/variant bits set in a copy; no mutation of caller input or truncation/acceptance of other lengths."
     },
     {
       "id": "./utils:zeroPadBytes",

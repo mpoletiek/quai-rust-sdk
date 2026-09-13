@@ -23,7 +23,7 @@ The public API provides:
   tweaks using maintained k256 operations, including identity/zero rejection.
 - Ordered MuSig public-key aggregation and local signing when one process owns
   every input key; key order and duplicates are preserved.
-- Keccak256, SHA256, SHA512, HMAC-SHA256/HMAC-SHA512 and constant-time HMAC tag
+- Keccak256, SHA256, SHA512, RIPEMD160, HMAC-SHA256/HMAC-SHA512 and constant-time HMAC tag
   verification. Derived HMAC output bytes remain the caller's responsibility.
 
 Password-based KDF policies, encrypted key storage, HD derivation, typed-data
@@ -111,3 +111,18 @@ reuse prevention across participants. Those protocols remain separate work.
 The independent [Go oracle](../../test-infra/go-oracle/README.md) verifies both
 JS protocol signatures and captured signatures produced by this local Rust API.
 Neither musig2 nor this integration has been independently audited for the SDK.
+
+
+`ripemd160` hashes exact bytes into `[u8; 20]`. The reference text `id` helper is
+`keccak256(text.as_bytes())`: no hex decoding or implicit normalization occurs.
+`MESSAGE_PREFIX` retains the pinned Ethereum personal-sign prefix as bytes; the
+message hash uses byte length. Crypto backends are fixed Rust implementations,
+without JavaScript global registration/locking hooks.
+
+`fill_random(&mut bytes)` fills at most 65,536 caller-owned bytes using the native
+OS or browser Web Crypto. An oversize request leaves the destination untouched;
+a backend failure clears partial output and returns `RandomnessUnavailable`.
+No PRNG fallback exists. Successful caller buffers remain caller-owned sensitive
+material. Native boundary and failure tests plus actual Chromium worker execution
+cover this API; those checks do not constitute statistical entropy certification
+or qualification of every browser engine.

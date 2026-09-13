@@ -305,3 +305,25 @@ async fn worker_restores_public_ancestry_from_indexeddb_and_revalidates_node() {
     );
     assert!(reopened.read().await.unwrap().unwrap().bytes.is_none());
 }
+
+#[wasm_bindgen_test]
+fn worker_text_hash_uuid_and_entropy_utilities_match_native_contracts() {
+    use quai_sdk::primitives::{
+        Utf8Normalization, hexlify, to_utf8_bytes, to_utf8_code_points, to_utf8_string, uuid_v4,
+    };
+    let normalized = to_utf8_bytes("e\u{301} ﬃ", Some(Utf8Normalization::Nfkc)).unwrap();
+    assert_eq!(to_utf8_string(&normalized).unwrap(), "é ffi");
+    assert_eq!(to_utf8_code_points("🍊", None).unwrap(), [0x1f34a]);
+    assert!(to_utf8_string(&[0xed, 0xa0, 0x80]).is_err());
+    assert_eq!(uuid_v4(&[0; 16]), "00000000-0000-4000-8000-000000000000");
+    assert_eq!(
+        hexlify(&quai_sdk::crypto::ripemd160(b"abc")).unwrap(),
+        "0x8eb208f7e05d987a9b044a8e98c6b087f15a0bfc"
+    );
+    let mut random = [0; 32];
+    quai_sdk::crypto::fill_random(&mut random).unwrap();
+    assert!(random.iter().any(|b| *b != 0));
+    let mut oversized = vec![17; quai_sdk::crypto::MAX_RANDOM_BYTES + 1];
+    assert!(quai_sdk::crypto::fill_random(&mut oversized).is_err());
+    assert!(oversized.iter().all(|b| *b == 17));
+}

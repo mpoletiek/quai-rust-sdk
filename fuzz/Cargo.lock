@@ -1745,6 +1745,7 @@ dependencies = [
  "k256",
  "musig2",
  "quai-primitives",
+ "ripemd",
  "sha2 0.10.9",
  "tiny-keccak",
  "zeroize",
@@ -1793,6 +1794,7 @@ dependencies = [
  "ruint",
  "thiserror",
  "tiny-keccak",
+ "unicode-normalization",
 ]
 
 [[package]]

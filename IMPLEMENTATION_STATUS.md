@@ -421,3 +421,13 @@ JS accepts through coercion or widened array integer ranges. Shared resource
 limits, signed array padding, fixed-byte right padding, dynamic-field ambiguity
 and reference-only nested/dynamic array extensions have dedicated tests. Canonical
 ABI and EIP-712 paths remain the structured contract/signing APIs.
+
+
+The text/crypto utility expansion adds explicit bounded Unicode normalization,
+strict UTF-8 decoding/code points, immutable UUID-v4 formatting, RIPEMD-160,
+shared OS/Web Crypto entropy filling and exact checksum-only address import.
+Published-reference fixtures cover 75 normalization cases, 21 decoding cases,
+five surrogate cases, four UUIDs, 19 RIPEMD inputs and 15 UTF-8 identifier hashes.
+44 related utility/address/constant declarations now map to concrete APIs or
+explicit typed-Rust differences; no malformed-address heuristics, global crypto
+backend overrides or silent lossy decoding were introduced.

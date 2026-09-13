@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run browser wasm tests against an isolated public-data-only loopback RPC fixture."""
 import http.server
+import websocket_fixture
 import argparse
 import json
 import os
@@ -18,6 +19,12 @@ class Fixture(http.server.BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
     def do_OPTIONS(self):
         self.send_response(204); self.cors(); self.send_header('Content-Length', '0'); self.end_headers()
+    def do_GET(self):
+        if self.path.startswith('/socket/'):
+            websocket_fixture.serve(self)
+        else:
+            self.send_error(404)
+
     def do_POST(self):
         length = int(self.headers.get('Content-Length', '0'))
         if not 0 < length < 65536:

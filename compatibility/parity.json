@@ -31083,12 +31083,21 @@
         "new (url: string | string[] | WebSocketLike | WebSocketCreator, network?: Networkish, options?: JsonRpcApiProviderOptions): WebSocketProvider"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::BrowserWebSocketTransport::connect",
+        "quai_rpc::WsTransport::connect",
+        "quai_provider::Provider::new"
+      ],
+      "feature": "websocket",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/socket.rs",
+        "crates/quai-browser/tests/socket.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit exact-endpoint transport plus chain-bound typed Provider; no URL array, arbitrary JS WebSocket factory, network inference or implicit reconnect/write replay."
     },
     {
       "id": ".:WebSocketProvider:instance:_clearTimeout",
@@ -31651,12 +31660,19 @@
         "(): Promise<void>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::BrowserWebSocketTransport::close"
+      ],
+      "feature": "websocket",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/socket.rs",
+        "crates/quai-browser/tests/socket.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Synchronous local close invalidates shared session and pending operations; RAII closes on last owner drop, without awaiting remote close acknowledgement."
     },
     {
       "id": ".:WebSocketProvider:instance:destroyed",
@@ -32783,12 +32799,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::BrowserWebSocketTransport::is_open"
+      ],
+      "feature": "websocket",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/socket.rs",
+        "crates/quai-browser/tests/socket.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Raw browser/native socket is intentionally private to preserve bounded request/subscription ownership; exposes local open state, explicit requests and subscriptions."
     },
     {
       "id": ".:WebSocketProvider:instance:zoneFromAddress",
@@ -55886,12 +55909,21 @@
         "new (url: string | string[] | WebSocketLike | WebSocketCreator, network?: Networkish, options?: JsonRpcApiProviderOptions): WebSocketProvider"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::BrowserWebSocketTransport::connect",
+        "quai_rpc::WsTransport::connect",
+        "quai_provider::Provider::new"
+      ],
+      "feature": "websocket",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/socket.rs",
+        "crates/quai-browser/tests/socket.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit exact-endpoint transport plus chain-bound typed Provider; no URL array, arbitrary JS WebSocket factory, network inference or implicit reconnect/write replay."
     },
     {
       "id": "./providers:WebSocketProvider:instance:_clearTimeout",
@@ -56454,12 +56486,19 @@
         "(): Promise<void>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::BrowserWebSocketTransport::close"
+      ],
+      "feature": "websocket",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/socket.rs",
+        "crates/quai-browser/tests/socket.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Synchronous local close invalidates shared session and pending operations; RAII closes on last owner drop, without awaiting remote close acknowledgement."
     },
     {
       "id": "./providers:WebSocketProvider:instance:destroyed",
@@ -57586,12 +57625,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::BrowserWebSocketTransport::is_open"
+      ],
+      "feature": "websocket",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/socket.rs",
+        "crates/quai-browser/tests/socket.test.mjs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Raw browser/native socket is intentionally private to preserve bounded request/subscription ownership; exposes local open state, explicit requests and subscriptions."
     },
     {
       "id": "./providers:WebSocketProvider:instance:zoneFromAddress",

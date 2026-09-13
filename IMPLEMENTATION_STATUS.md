@@ -20,7 +20,7 @@ criteria FC01–FC12. Historical test/node results below retain their recorded s
 | Selection | Full input-denomination capacity across recipient/change, fee convergence and eligibility checks; explicit all-eligible sweep/aggregation policies. Existing 69 JS vectors plus capacity/aggregation regressions pass |
 | Signers | Local chain-bound and watch-only adapters, offline Quai/single-input Qi signing and personal-message signing; consensus supports ordered local multi-input Qi signing |
 | HTTP/provider | Exact direct URLs and gateway routes, strict envelopes and U256 quantities, bounded native transport, typed headers/account calls/transactions/ETXs/receipts/outpoints, account broadcast ambiguity and canonicality-checked receipt polling |
-| WebSocket | Native bounded session and subscription implementation; deterministic loopback tests and a real LAN mainnet head notification passed; bounded reconnect and canonical head replay are implemented |
+| WebSocket | Native and browser/worker bounded sessions; browser cancellation/queue ownership tested in actual Chromium. Native bounded session and subscription implementation; deterministic loopback tests and a real LAN mainnet head notification passed; bounded reconnect and canonical head replay are implemented |
 | Durable state | SQLite schema v4 candidate/ETX observation caches with revision checks, claims/cursors, specialized signed-byte custody, canonical inclusion reconciliation and conservative reorg invalidation, unsigned nonce recovery and authenticated backup |
 | ABI/typed data | Bounded canonical ABI/interface/EIP-712 implementation, typed contract calls/ERC-20 helpers, bounded event queries retaining reorg metadata, same-zone CREATE grinding with required access list |
 | Account workflow | Durable prepare/sign/submit, exact conversion simulation, nonce claims, unsigned restart preparation and explicit nonce-gap repair; fee-only candidate families, restart recovery and explicit cross-zone prepare/resume |
@@ -333,3 +333,17 @@ ordinary calls and deployments. It rechecks mandatory entries, repeats discovery
 when nonce allocation advances the estimate nonce, and freezes the result before
 signing. Reopened broadcast does not rediscover. Isolated generic WQUAI approval
 acceptance passed at block 26 with exact fee/state/custody checks.
+
+## Browser WebSocket completion
+
+The browser crate now supplies an explicit `BrowserWebSocketTransport` and owned
+`BrowserSubscription` without Window or Tokio dependencies. Requests, subscriptions,
+queued bytes and outgoing buffers have separate limits; cancelled registrations
+close the connection, and lost/overflowed notifications mark the stream lagged.
+No requests are automatically replayed. The latest window suite passes 16 tests,
+the dedicated-worker suite 10, and the JS bridge suite 12; strict Wasm Clippy passes.
+See [browser lifecycle documentation](crates/quai-browser/README.md#websocket) and
+[retained evidence](test-infra/reports/browser-websocket-2026-09-13.json).
+This closes the browser WebSocket transport gap; complete persistent browser wallet
+integration, real extension testing and browser reconnect/head-following orchestration
+remain separate work.

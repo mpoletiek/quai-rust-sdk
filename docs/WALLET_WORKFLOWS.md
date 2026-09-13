@@ -514,3 +514,12 @@ simulates the origin; it does not prove destination execution or access needs.
 The [isolated acceptance](../test-infra/local-chain/access-evidence/README.md)
 starts with an empty generic contract access list, signs the discovered list,
 broadcasts in a separate process and checks actual state, fees and reopened custody.
+
+## Browser WebSocket subscriptions
+
+`quai_browser::BrowserWebSocketTransport::connect` creates an explicit bounded
+ws/wss session usable by `Provider` in a window or worker. `subscribe` returns an
+owned stream; `next` distinguishes a quiet timeout from lost history, and
+`unsubscribe` awaits remote cleanup. Reconcile canonical history after
+`SubscriptionLagged` or disconnect before consuming new heads as continuous.
+See the [example and lifecycle limits](../crates/quai-browser/README.md#websocket).

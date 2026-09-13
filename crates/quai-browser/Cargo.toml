@@ -1,6 +1,6 @@
 [package]
 name = "quai-browser"
-description = "Browser Fetch and explicit injected-provider adapters for Quai"
+description = "Browser Fetch, WebSocket and explicit injected-provider adapters for Quai"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

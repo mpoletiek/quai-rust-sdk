@@ -436,3 +436,6 @@ async fn indexeddb_snapshots_are_atomic_scoped_persistent_and_keep_tombstone_rev
         3
     );
 }
+
+#[path = "support/socket.rs"]
+mod socket_tests;

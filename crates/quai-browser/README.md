@@ -1,8 +1,8 @@
 # quai-browser
 
-Concrete wasm32 adapters for browser Fetch and an explicitly supplied Quai wallet provider. This unpublished alpha adds browser transport and a small permission API; it does not make the native wallet/storage stack browser compatible.
+Concrete wasm32 adapters for browser Fetch, WebSocket and an explicitly supplied Quai wallet provider. This unpublished alpha adds browser transport and a small permission API; it does not make the native wallet/storage stack browser compatible.
 
-The crate exposes `BrowserConfig` and sanitized `BrowserError` on all targets. `BrowserFetchTransport`, `InjectedProvider` and `fill_random` exist only on wasm32. There is no native browser stub silently substituting another transport. Both adapters implement the existing non-`Send` wasm `quai_rpc::Transport` contract and can be used with `Provider` and explicit `Routing` without enabling native HTTP or wallet features.
+The crate exposes `BrowserConfig`, `BrowserSocketConfig` and sanitized `BrowserError` on all targets. `BrowserFetchTransport`, `BrowserWebSocketTransport`, `BrowserSubscription`, `InjectedProvider` and `fill_random` exist only on wasm32. There is no native browser stub silently substituting another transport. The transport adapters implement the existing non-`Send` wasm `quai_rpc::Transport` contract and can be used with `Provider` and explicit `Routing` without enabling native HTTP or wallet features.
 
 ## Fetch
 
@@ -26,6 +26,56 @@ Direct routing preserves the URL and port, corresponding to `use_pathing: false`
 Requests use POST JSON, `credentials: omit`, no referrer, `cache: no-store`, and `redirect: error`. Response bodies are streamed into a byte budget before UTF-8 decoding and strict JSON-RPC envelope validation. Duplicate envelope fields, wrong IDs, conflicting result/error and malformed UTF-8 fail closed. Request serialization also has a byte limit. Each request owns an AbortController; timeout, returned-future drop and completion abort it and release local capacity. No automatic retries occur. Aborting a submitted RPC does not prove that the node did not execute it.
 
 Default limits are 10 seconds per RPC, 1 MiB outgoing JSON, 2 MiB response data and eight concurrent operations shared across clones. Excess concurrency fails immediately with `AtCapacity`/`Busy`. Limits describe encoded payloads; JS strings, parsed objects and temporary buffers occupy additional memory. Browser timer throttling or page suspension can delay deadlines; these are event-loop deadlines, not guarantees while execution is suspended.
+
+## WebSocket
+
+```rust,ignore
+use quai_browser::{BrowserSocketConfig, BrowserWebSocketTransport};
+use quai_rpc::Endpoint;
+use serde_json::json;
+
+let socket = BrowserWebSocketTransport::connect(
+    Endpoint::parse("ws://127.0.0.1:8200")?,
+    BrowserSocketConfig::default(),
+).await?;
+let mut heads = socket.subscribe(json!(["newHeads"])).await?;
+let head = heads.next().await?;
+heads.unsubscribe().await?;
+socket.close();
+```
+
+The non-`Send` transport works in windows and dedicated workers without Tokio.
+Compose it with `Provider` and routing to the exact connected endpoint; a different
+endpoint is rejected. Raw subscribe/unsubscribe RPCs are rejected by `Transport`:
+use the subscription API so remote registrations have bounded local ownership.
+`close()` closes all clones and subscriptions; last-owner drop closes the session.
+`is_open()` reports local connection state, not node liveness or chain identity.
+
+Requests share the Fetch configuration defaults: eight in flight, ten-second
+opening/request/notification deadlines, 1 MiB outgoing and 2 MiB incoming messages.
+Socket defaults add 16 subscriptions, 64 queued notifications per subscription
+and 8 MiB of total queued notification bytes. Configuration bounds outgoing socket
+buffers and completed response/notification delivery budgets. A completed request
+retains its Rust capacity permit until its future completes or is dropped.
+The browser allocates complete WebSocket messages before the SDK can inspect them;
+these limits cannot bound the browser's frame assembly or native networking memory.
+
+Registration happens before delivering the subscribe response, preserving an
+immediate notification. Queue overflow poisons that stream with `SubscriptionLagged`.
+Cancelling after a notification has been delivered but before Rust consumes it also
+marks the stream lagged; cancelling a still-waiting read releases its waiter.
+A quiet read timeout leaves the subscription usable. A cancelled subscribe closes
+the session because its remote ID may be unknown. Dropping a subscription sends one
+bounded cleanup request; failed, cancelled, oversized or capacity-blocked cleanup
+closes the shared session. Explicit unsubscribe requires a successful node response.
+
+Malformed envelopes, wrong/future IDs, duplicate known JSON fields and binary or
+oversized messages fail closed. Cancelled request replies are never reassigned.
+No reconnect or write replay occurs. On disconnection/lag, applications must open a
+new session and reconcile canonical history through the provider before treating
+new notifications as continuous. Browser WebSocket controls cookies, Origin, TLS
+and handshake policy; it does not expose Fetch's credential/redirect controls or
+arbitrary handshake headers. Page suspension can delay timers and notifications.
 
 ## Injected wallet
 
@@ -60,9 +110,9 @@ providers without removable event listeners are rechecked explicitly.
 
 ## Verified tests and reproduction
 
-On 2026-09-11 the crate compiled with Rust 1.97.1 for `wasm32-unknown-unknown` and ran in actual headless Chromium through wasm-bindgen-test 0.3.78. Tests use a separate loopback HTTP server with CORS plus a synthetic injected wallet object; they do not load a real wallet extension. Signing uses already-public fixture scalars; entropy tests use ephemeral unfunded keys.
+On 2026-09-13 the crate compiled with Rust 1.97.1 for `wasm32-unknown-unknown` and ran in actual headless Chromium through wasm-bindgen-test 0.3.78. Tests use a separate loopback HTTP server with CORS plus a synthetic injected wallet object; they do not load a real wallet extension. Signing uses already-public fixture scalars; entropy tests use ephemeral unfunded keys.
 
-Browser tests cover real Fetch path/query and ID validation, refused redirects, streamed oversize data, deadlines and future cancellation, concurrency capacity, exact injected shard and account/signing arguments, no automatic prompts, chain mismatch, user-rejection redaction, malformed/accessor results, unauthorized or wrong-zone signing, non-ASCII signatures, and secure entropy. Five dedicated-worker tests verify Fetch/provider composition, timeout, Web Crypto, HD Qi grinding, verified legacy-keystore decryption and native Rust crypto running inside WebAssembly without Window or Tokio. Additional native tests exercise limits, permission allowlists, bounded JSON serialization and envelope validation.
+Browser tests cover real Fetch path/query and ID validation, refused redirects, streamed oversize data, deadlines and future cancellation, concurrency capacity, exact injected shard and account/signing arguments, no automatic prompts, chain mismatch, user-rejection redaction, malformed/accessor results, unauthorized or wrong-zone signing, non-ASCII signatures, and secure entropy. Ten dedicated-worker tests include five WebSocket lifecycle/protocol tests and verify Fetch/provider composition, timeout, Web Crypto, HD Qi grinding, verified legacy-keystore decryption and native Rust crypto running inside WebAssembly without Window or Tokio. The window suite passes 16 tests, including five real WebSocket tests shared with the worker suite. Twelve Node bridge tests additionally cover queue budgets and cancellation between JS delivery and Rust resumption. Additional native tests exercise limits, permission allowlists, bounded JSON serialization and envelope validation.
 
 With Rust's wasm target, matching wasm-bindgen CLI 0.2.128 and Chromium/chromedriver installed:
 
@@ -77,7 +127,7 @@ CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER=wasm-bindgen-test-runner \
 
 The runner creates and removes its own server, chooses an unused loopback port, and uses an isolated browser profile through chromedriver. `CHROMEDRIVER` and `WASM_BINDGEN_TEST_WEBDRIVER_JSON` can override browser setup. In this development environment, the matching official wasm standard library and prebuilt wasm-bindgen release tools were installed under `/tmp`; system Rust and browser profiles were untouched. Native tests and wasm clippy are separate commands; ordinary native `cargo test` does not execute browser tests.
 
-The browser bridge is packaged at `src/bridge.js` and imported through wasm-bindgen's module mechanism. Downstream wasm-bindgen packaging must copy its generated JS snippets alongside the wasm artifact. Browser-specific dependency code is target gated. Browser WS, real injected-wallet interoperability, remote-node browser CORS, general worker orchestration, Firefox/Safari, and background-tab behavior remain unverified. Scoped IndexedDB CAS,
+The browser bridges are packaged at `src/bridge.js` and `src/socket.js` and imported through wasm-bindgen's module mechanism. Downstream wasm-bindgen packaging must copy its generated JS snippets alongside the wasm artifact. Browser-specific dependency code is target gated. Real injected-wallet interoperability, remote-node browser CORS, general worker orchestration, Firefox/Safari, and background-tab behavior remain unverified. Scoped IndexedDB CAS,
 independent-tab conflicts and tombstones are tested; these checks do not establish
 complete wallet restore/reservation semantics.
 

@@ -1,0 +1,55 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "736cfa3b28326771af5eb246f2a102037c773b80",
+  "testedWorkingTree": true,
+  "runtime": "Rust 1.97.1, wasm-bindgen 0.2.128, actual headless Chromium window and dedicated worker",
+  "tests": {
+    "window": {
+      "passed": 16,
+      "failed": 0
+    },
+    "worker": {
+      "passed": 10,
+      "failed": 0
+    },
+    "nodeBridge": {
+      "passed": 12,
+      "failed": 0
+    },
+    "nativeBrowserCrate": {
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "checks": {
+    "nativeClippyWarningsDenied": "passed",
+    "wasmClippyAllTargetsWarningsDenied": "passed",
+    "nativeRustdocWarningsDenied": "passed",
+    "wasmRustdocWarningsDenied": "passed",
+    "packageFileMirrors": 59
+  },
+  "evidence": [
+    "crates/quai-browser/tests/support/socket.rs",
+    "crates/quai-browser/tests/socket.test.mjs",
+    "crates/quai-browser/tests/websocket_fixture.py"
+  ],
+  "covered": [
+    "out-of-order request IDs and late cancelled replies",
+    "opening, request and subscription cancellation",
+    "JS-delivery/Rust-resumption ownership races",
+    "outgoing buffer and completed-future capacity",
+    "per-subscription notification count and total UTF-8 queue bytes",
+    "immediate registration notifications",
+    "quiet timeout and explicit reconnect",
+    "malformed, duplicate, future-ID, binary and oversized messages",
+    "explicit unsubscribe and bounded best-effort cleanup",
+    "Provider exact endpoint and expected chain composition"
+  ],
+  "limitations": [
+    "Loopback synthetic node, not remote browser CORS/handshake or funded-node acceptance",
+    "Browser native frame assembly occurs before application size checks",
+    "No automatic reconnect, canonical head follower or write replay",
+    "No real injected extension, Firefox/Safari or suspended-page qualification",
+    "Opaque IndexedDB is not complete browser wallet reservation/restore integration"
+  ]
+}

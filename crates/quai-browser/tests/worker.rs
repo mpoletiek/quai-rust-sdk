@@ -166,3 +166,6 @@ fn worker_legacy_keystore_decryption_checks_mnemonic_ownership() {
         KeystoreError::Authentication
     );
 }
+
+#[path = "support/socket.rs"]
+mod socket_tests;

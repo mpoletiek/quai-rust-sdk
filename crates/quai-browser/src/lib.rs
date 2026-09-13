@@ -268,3 +268,82 @@ mod tests {
 mod storage;
 #[cfg(target_arch = "wasm32")]
 pub use storage::{BrowserSnapshot, BrowserSnapshotStore, BrowserStorageScope};
+
+/// Browser WebSocket request and notification resource limits.
+#[derive(Clone, Copy, Debug)]
+pub struct BrowserSocketConfig {
+    /// Request size, response size, deadline and shared concurrency limits.
+    pub rpc: BrowserConfig,
+    /// Active plus pending subscriptions, 1..=128.
+    pub max_subscriptions: usize,
+    /// Queued notifications per subscription, 1..=1024.
+    pub max_notifications: usize,
+    /// Total queued UTF-8 notification bytes across the session, at most 128 MiB.
+    pub max_queued_bytes: usize,
+}
+impl Default for BrowserSocketConfig {
+    fn default() -> Self {
+        Self {
+            rpc: BrowserConfig::default(),
+            max_subscriptions: 16,
+            max_notifications: 64,
+            max_queued_bytes: 8 * 1024 * 1024,
+        }
+    }
+}
+impl BrowserSocketConfig {
+    /// Validate without opening a socket or accessing browser globals.
+    pub fn validate(&self) -> Result<(), BrowserError> {
+        self.rpc.validate()?;
+        if self
+            .rpc
+            .max_request_bytes
+            .checked_mul(self.rpc.max_in_flight)
+            .is_none_or(|n| n > 128 * 1024 * 1024)
+            || self
+                .rpc
+                .max_response_bytes
+                .checked_mul(self.max_subscriptions)
+                .is_none_or(|n| n > 128 * 1024 * 1024)
+            || !(1..=128).contains(&self.max_subscriptions)
+            || !(1..=1024).contains(&self.max_notifications)
+            || !(1..=128 * 1024 * 1024).contains(&self.max_queued_bytes)
+        {
+            return Err(BrowserError::InvalidConfig);
+        }
+        Ok(())
+    }
+}
+#[cfg(target_arch = "wasm32")]
+mod socket;
+#[cfg(target_arch = "wasm32")]
+pub use socket::{BrowserSubscription, BrowserWebSocketTransport};
+
+#[cfg(test)]
+mod socket_config_tests {
+    use super::*;
+    #[test]
+    fn socket_limits_bound_outgoing_buffers_and_notification_state() {
+        let mut config = BrowserSocketConfig::default();
+        config.validate().unwrap();
+        config.rpc.max_request_bytes = 16 * 1024 * 1024;
+        config.rpc.max_response_bytes = 1;
+        config.rpc.max_in_flight = 128;
+        assert!(config.validate().is_err());
+        config.rpc.max_in_flight = 8;
+        config.validate().unwrap();
+        for (subscriptions, notifications, bytes) in [
+            (0, 1, 1),
+            (129, 1, 1),
+            (1, 0, 1),
+            (1, 1025, 1),
+            (1, 1, 0),
+            (1, 1, usize::MAX),
+        ] {
+            config.max_subscriptions = subscriptions;
+            config.max_notifications = notifications;
+            config.max_queued_bytes = bytes;
+            assert!(config.validate().is_err());
+        }
+    }
+}

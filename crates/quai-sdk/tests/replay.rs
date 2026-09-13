@@ -62,18 +62,45 @@ impl Transport for Mock {
 struct Database(PathBuf);
 impl Database {
     fn new() -> Self {
-        Self(std::env::temp_dir().join(format!(
-                "quai-replay-{}-{}.sqlite",
-                std::process::id(),
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_nanos()
-            )))
+        Self::at_time(
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos(),
+        )
+    }
+    fn at_time(timestamp: u128) -> Self {
+        static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+        let path = std::env::temp_dir().join(format!(
+            "quai-replay-{}-{}-{}.sqlite",
+            std::process::id(),
+            timestamp,
+            NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
+        ));
+        // Wall-clock precision differs across platforms; parallel tests must
+        // never share or delete a database even when their timestamps match.
+        std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&path)
+            .unwrap();
+        Self(path)
     }
     fn open(&self) -> SqliteStore {
         SqliteStore::open(&self.0, scope()).unwrap()
     }
+}
+#[test]
+fn replay_test_databases_are_isolated_even_with_identical_clock_values() {
+    let first = Database::at_time(0);
+    let second = Database::at_time(0);
+    assert_ne!(first.0, second.0);
+    let mut store = first.open();
+    store.invalidate_snapshot(0).unwrap();
+    assert_eq!(second.open().observation_generation().unwrap(), 0);
+    drop(store);
+    drop(first);
+    assert_eq!(second.open().observation_generation().unwrap(), 0);
 }
 impl Drop for Database {
     fn drop(&mut self) {

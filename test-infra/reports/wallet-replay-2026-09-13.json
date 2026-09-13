@@ -33,5 +33,14 @@
     "Latest-only outpoint RPC cannot reconstruct historical balances from headers",
     "HeadTracker ancestry window is in-memory; restart requires a trusted checkpoint",
     "No terminal signed-claim release or write replay; deep reorg and sustained real-node soak remain qualification gates"
-  ]
+  ],
+  "ciFollowup": {
+    "run": 34742286321,
+    "linux": "passed",
+    "windows": "passed",
+    "browser": "passed",
+    "macos": "Two replay fixture failures consistent with identical wall-clock filenames and cross-test database interference. Replaced clock-only naming with an atomic sequence and exclusive file creation. Added equal-clock isolation regression.",
+    "localReplayTestsAfterFix": 3,
+    "macosRerun": "pending"
+  }
 }

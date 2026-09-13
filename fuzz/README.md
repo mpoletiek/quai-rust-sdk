@@ -13,7 +13,7 @@ Targets:
   transaction identity. Signature verification stays enabled.
 - `abi`: bounded type/interface/typed-data parsing, RPC-document hash stability,
   and exact canonical ABI re-encoding for selected static/dynamic/nested types,
-  plus bounded type-correct defaults and Solidity artifact imports.
+  plus bounded type-correct defaults, packed encoding/hash composition and Solidity artifact imports.
 - `wallet_import`: legacy keystore parsing/resource bounds, public payment-code
   roundtrips, extended-key/mnemonic and public-key/signature import boundaries.
   It deliberately does not execute attacker-selected expensive KDF parameters.

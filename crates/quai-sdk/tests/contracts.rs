@@ -292,3 +292,43 @@ async fn prepared_access_declarations_survive_simulation_and_reject_oversize() {
     assert_eq!(params[1], "0x64");
     assert!(call.with_access_list(vec![entry; 10000]).is_err());
 }
+
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+fn packed_encoding_and_hashes_are_available_in_the_portable_facade() {
+    use quai_sdk::abi::{
+        AbiType, solidity_packed, solidity_packed_keccak256, solidity_packed_sha256,
+    };
+    let types: Vec<AbiType> = ["int16", "bytes1", "uint16", "string"]
+        .iter()
+        .map(|s| s.parse().unwrap())
+        .collect();
+    let values = [
+        json!("-1"),
+        json!("0x42"),
+        json!("3"),
+        json!("Hello, world!"),
+    ];
+    assert_eq!(
+        quai_sdk::primitives::hexlify(&solidity_packed(&types, &values).unwrap()).unwrap(),
+        "0xffff42000348656c6c6f2c20776f726c6421"
+    );
+    assert_eq!(
+        quai_sdk::primitives::hexlify(&solidity_packed_keccak256(&types, &values).unwrap())
+            .unwrap(),
+        "0xa61ecacd5de1490dcd3f7dad8f517cb383f00d6839207a7d8587ded6965e7889"
+    );
+    assert_eq!(
+        quai_sdk::primitives::hexlify(&solidity_packed_sha256(&types, &values).unwrap()).unwrap(),
+        "0xff14471951451962996f0a30b1545597babb982d18bf27c04e4fa2f0a6b40195"
+    );
+    let array_types: Vec<AbiType> = ["int8[]", "bytes2[]"]
+        .iter()
+        .map(|s| s.parse().unwrap())
+        .collect();
+    let packed = solidity_packed(&array_types, &[json!(["-128"]), json!(["0x0001"])]).unwrap();
+    assert_eq!(&packed[..31], &[255; 31]);
+    assert_eq!(packed[31], 128);
+    assert_eq!(&packed[32..34], &[0, 1]);
+    assert_eq!(&packed[34..], &[0; 30]);
+}

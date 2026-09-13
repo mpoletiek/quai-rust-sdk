@@ -25689,12 +25689,19 @@
         "(types: ReadonlyArray<string>, values: ReadonlyArray<any>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::solidity_packed"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/packed.rs",
+        "crates/quai-sdk/tests/contracts.rs#packed_encoding_and_hashes_are_available_in_the_portable_facade"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Bounded typed Rust values and byte/32-byte hash results instead of JS coercions/hex strings. Exact packed layout and both hashes match 341 successful pinned cases; 172 invalid or stricter inputs fail, including 66 JS-accepted coercions/element-width cases. Declared integer widths remain checked inside arrays. Nested arrays and unpadded dynamic element arrays retain explicit pinned-helper extensions, not Solidity compiler qualification. No packed decoding or substitution for canonical ABI/EIP-712."
     },
     {
       "id": ".:solidityPackedKeccak256",
@@ -25705,12 +25712,19 @@
         "(types: ReadonlyArray<string>, values: ReadonlyArray<any>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::solidity_packed_keccak256"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/packed.rs",
+        "crates/quai-sdk/tests/contracts.rs#packed_encoding_and_hashes_are_available_in_the_portable_facade"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Bounded typed Rust values and byte/32-byte hash results instead of JS coercions/hex strings. Exact packed layout and both hashes match 341 successful pinned cases; 172 invalid or stricter inputs fail, including 66 JS-accepted coercions/element-width cases. Declared integer widths remain checked inside arrays. Nested arrays and unpadded dynamic element arrays retain explicit pinned-helper extensions, not Solidity compiler qualification. No packed decoding or substitution for canonical ABI/EIP-712."
     },
     {
       "id": ".:solidityPackedSha256",
@@ -25721,12 +25735,19 @@
         "(types: ReadonlyArray<string>, values: ReadonlyArray<any>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::solidity_packed_sha256"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/packed.rs",
+        "crates/quai-sdk/tests/contracts.rs#packed_encoding_and_hashes_are_available_in_the_portable_facade"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Bounded typed Rust values and byte/32-byte hash results instead of JS coercions/hex strings. Exact packed layout and both hashes match 341 successful pinned cases; 172 invalid or stricter inputs fail, including 66 JS-accepted coercions/element-width cases. Declared integer widths remain checked inside arrays. Nested arrays and unpadded dynamic element arrays retain explicit pinned-helper extensions, not Solidity compiler qualification. No packed decoding or substitution for canonical ABI/EIP-712."
     },
     {
       "id": ".:stripZerosLeft",
@@ -44079,12 +44100,19 @@
         "(types: ReadonlyArray<string>, values: ReadonlyArray<any>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::solidity_packed"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/packed.rs",
+        "crates/quai-sdk/tests/contracts.rs#packed_encoding_and_hashes_are_available_in_the_portable_facade"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Bounded typed Rust values and byte/32-byte hash results instead of JS coercions/hex strings. Exact packed layout and both hashes match 341 successful pinned cases; 172 invalid or stricter inputs fail, including 66 JS-accepted coercions/element-width cases. Declared integer widths remain checked inside arrays. Nested arrays and unpadded dynamic element arrays retain explicit pinned-helper extensions, not Solidity compiler qualification. No packed decoding or substitution for canonical ABI/EIP-712."
     },
     {
       "id": "./hash:solidityPackedKeccak256",
@@ -44095,12 +44123,19 @@
         "(types: ReadonlyArray<string>, values: ReadonlyArray<any>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::solidity_packed_keccak256"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/packed.rs",
+        "crates/quai-sdk/tests/contracts.rs#packed_encoding_and_hashes_are_available_in_the_portable_facade"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Bounded typed Rust values and byte/32-byte hash results instead of JS coercions/hex strings. Exact packed layout and both hashes match 341 successful pinned cases; 172 invalid or stricter inputs fail, including 66 JS-accepted coercions/element-width cases. Declared integer widths remain checked inside arrays. Nested arrays and unpadded dynamic element arrays retain explicit pinned-helper extensions, not Solidity compiler qualification. No packed decoding or substitution for canonical ABI/EIP-712."
     },
     {
       "id": "./hash:solidityPackedSha256",
@@ -44111,12 +44146,19 @@
         "(types: ReadonlyArray<string>, values: ReadonlyArray<any>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::solidity_packed_sha256"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/packed.rs",
+        "crates/quai-sdk/tests/contracts.rs#packed_encoding_and_hashes_are_available_in_the_portable_facade"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Bounded typed Rust values and byte/32-byte hash results instead of JS coercions/hex strings. Exact packed layout and both hashes match 341 successful pinned cases; 172 invalid or stricter inputs fail, including 66 JS-accepted coercions/element-width cases. Declared integer widths remain checked inside arrays. Nested arrays and unpadded dynamic element arrays retain explicit pinned-helper extensions, not Solidity compiler qualification. No packed decoding or substitution for canonical ABI/EIP-712."
     },
     {
       "id": "./hash:TypedDataDomain",

@@ -310,3 +310,35 @@ bounds repeated empty tuples, whose ABI encoding consumes zero bytes. The shared
 single-value constructor remains `AbiValue::default_for`. Tests compare 107 pinned
 JS default sequences and their complete encoded bytes, plus independent aggregate
 budget boundaries.
+
+
+### Packed encoding and hashes
+
+`solidity_packed`, `solidity_packed_keccak256` and `solidity_packed_sha256` accept
+validated `AbiType` slices and exact JSON values. Scalars use their declared byte
+widths; integer/address/bool/fixed-bytes array elements use 32 bytes with the
+appropriate left or right padding. Dynamic data carries no length prefix.
+341 pinned JS cases match bytes and both hashes; 172 invalid or stricter cases
+are rejected, including 66 that JS accepts through coercion or widened array
+integer ranges. Rust always checks the declared element width and boolean kind.
+Shared ABI field, node, text and canonical-encoded-size limits apply before the
+packed output allocation; tuples, including tuple types in empty arrays, fail.
+
+```rust
+use quai_abi::{AbiType, solidity_packed};
+let types: Vec<AbiType> = ["int16", "bytes1", "uint16", "string"]
+    .iter().map(|s| s.parse().unwrap()).collect();
+let values = serde_json::json!(["-1", "0x42", "3", "Hello, world!"]);
+let bytes = solidity_packed(&types, values.as_array().unwrap()).unwrap();
+assert_eq!(quai_primitives::hexlify(&bytes).unwrap(),
+           "0xffff42000348656c6c6f2c20776f726c6421");
+```
+
+These helpers preserve pinned quais.js extensions: nested arrays flatten, and
+string/bytes array elements remain raw and unpadded. Those inputs are not a
+Solidity compiler compatibility claim. See the
+[Solidity packed-mode specification](https://docs.soliditylang.org/en/latest/abi-spec.html#non-standard-packed-mode)
+for the compiler's scope. Packed dynamic fields are ambiguous: `["a", "bc"]`
+and `["ab", "c"]` produce the same bytes. Use canonical `AbiCoder` or EIP-712
+for structured signing where field boundaries must be preserved. No packed
+decoder is provided.

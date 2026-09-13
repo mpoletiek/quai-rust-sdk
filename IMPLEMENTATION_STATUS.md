@@ -413,3 +413,11 @@ old ancestry while preserving signed custody. Current-state refresh remains
 explicit, and a fork deeper than retained history still requires recovery from
 an older trusted checkpoint. This does not supply unavailable historical UTXOs
 or terminal signed-claim release.
+
+
+Packed ABI encoding and Keccak/SHA-256 helpers now cover 513 pinned JS observations:
+341 exact byte/hash matches and 172 explicit rejections, including 66 inputs that
+JS accepts through coercion or widened array integer ranges. Shared resource
+limits, signed array padding, fixed-byte right padding, dynamic-field ambiguity
+and reference-only nested/dynamic array extensions have dedicated tests. Canonical
+ABI and EIP-712 paths remain the structured contract/signing APIs.

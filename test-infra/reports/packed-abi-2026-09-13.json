@@ -1,0 +1,170 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "cdb291757cf3b5c7d327c85243fb1a532a496f3a",
+  "testedWorkingTree": true,
+  "reference": "quais@1.0.0-alpha.57",
+  "referenceFixtureSha256": "57c953000316604d2ac04da7302ee389bc7e0a9b03b5194c4ce864148fe3cd59",
+  "vectors": {
+    "total": 513,
+    "exactByteAndBothHashMatches": 341,
+    "rejected": 172,
+    "referenceAcceptsButRustRejects": 66
+  },
+  "changes": [
+    "Bounded packed ABI encoding and Keccak-256/SHA-256 helpers",
+    "Strict declared integer widths inside arrays, actual booleans and unsupported tuple rejection",
+    "Explicit reference-only nested-array flattening and raw string/bytes array element behavior",
+    "Six exact reference export mappings and dedicated fuzz seeds"
+  ],
+  "validation": {
+    "nativeAbiTests": 31,
+    "nativeFacadeContractTests": 6,
+    "actualChromiumContractWorkerTests": 6,
+    "nativeAbiSdkClippyWarningsDenied": "passed",
+    "portableSdkWasmAllTargetsClippyWarningsDenied": "passed",
+    "nativeAbiSdkRustdocWarningsDenied": "passed",
+    "referenceNodeTests": 97,
+    "packageFileMirrors": 61,
+    "verifiedReferenceSourceFiles": 153
+  },
+  "fuzz": {
+    "recordedAt": "2026-09-13T07:30:38.550586+00:00",
+    "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+    "fuzzLockSha256": "2518ec727771e14e7ca319fee01cec09a375c7c27ae77b15c66348cb2c19feb6",
+    "sdkLockSha256": "66e841dd4cb444bb97645dbdf1ecd104c46fe153b910d80c3f12ded1aa518f63",
+    "targets": [
+      {
+        "name": "abi",
+        "binarySha256": "1015cae0d634170f6227e3df0d632a9e7eb335e014354aec6849c207a0828fec",
+        "seconds": 120,
+        "exitCode": 0,
+        "addressSanitizer": true,
+        "initialCorpusFiles": 274,
+        "finalCorpusFiles": 1944,
+        "executions": 366764,
+        "coverageCounters": 6056,
+        "features": 22288,
+        "rssMiB": 494
+      }
+    ],
+    "leakSanitizer": false,
+    "sanitizerEnvironment": "ASAN_OPTIONS=detect_leaks=0: sandbox process inspection limitation; AddressSanitizer enabled, no leak-clean qualification."
+  },
+  "evidence": [
+    "crates/quai-abi/tests/packed.rs",
+    "crates/quai-sdk/tests/contracts.rs#packed_encoding_and_hashes_are_available_in_the_portable_facade",
+    "compatibility/fixtures/packed.json"
+  ],
+  "limits": [
+    "Packed values with multiple dynamic fields are ambiguous; not a structured signing encoding or canonical calldata",
+    "Reference helper nested/dynamic-element arrays are not Solidity compiler qualification",
+    "The shared canonical ABI resource bounds can reject inputs whose packed output alone would fit",
+    "Independent compiler acceptance, other browser engines and external security review remain separate",
+    "No contract transaction or package publication occurred"
+  ],
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "cdb291757cf3b5c7d327c85243fb1a532a496f3a",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 55255,
+        "sha256": "fa73bba5058a69725417695f2b64ac44542f63ffbc12886dbcecd8eae2fe75c7"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 44954,
+        "sha256": "4b89dcdc65db698ea524bdfe356ac1450eb357d532a1fc990e248a78daee5235"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 126349,
+        "sha256": "a6e7e211b67f32aeeccf68dfcbb992a6f1ec3ce85730acfdc8155baaac4188b4"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45477,
+        "sha256": "1bc72912b1e1db6701bed091695d4b2587dfd5c8dcc12901e78fac8efa78f5ae"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 42911,
+        "sha256": "7d9811c9b7c33d829b1c2fc3f19e9abde76521521c70bb73982ced0fbcef38cb"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 118669,
+        "sha256": "958545f207c8860144fcbad42fb1f6305f9dae3401c0588f9353850931b77422"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 131318,
+        "sha256": "91d6f85430749f203bdfda02e7fbe0e05ecfb2fd4a6cfa6dd458883cb661dbac"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 74945,
+        "sha256": "195b3601b0485b5e96b3dab7fc8a0a8e118c6fbfeda7d363abc6825a6ff53231"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24386,
+        "sha256": "fe3006e7758b3fc59dd40a21c7abcb5148b737d613f8152c81a9eb668b41bba7"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34221,
+        "sha256": "c1862d23a687f2f59d8facb0608baf25147cfbaa4605aa28addd62a57c5234bb"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 232654,
+        "sha256": "a80cd122feac7c9da997d76700e5d23591bf2036590bd0de0ac3c67b8c7c449e"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39239,
+        "sha256": "a074e926ba7bc03ea0ab39946f744801a02b4bf1a0c5e91764d6e9342974abb9"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  }
+}

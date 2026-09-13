@@ -240,6 +240,10 @@
     {
       "source": "compatibility/fixtures/browser-requests.json",
       "destination": "crates/quai-browser/tests/fixtures/shared/compatibility/fixtures/browser-requests.json"
+    },
+    {
+      "source": "compatibility/fixtures/packed.json",
+      "destination": "crates/quai-abi/tests/fixtures/shared/compatibility/fixtures/packed.json"
     }
   ]
 }

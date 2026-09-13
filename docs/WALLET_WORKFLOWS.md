@@ -581,3 +581,14 @@ readonly, cryptographically verified lookup and inspect `matches_request()` to
 identify wallet changes before tracking the actual receipt. Timeouts/cancellation
 cannot prove rejection; an unknown hash may require consulting wallet activity.
 See [the full acknowledgement/recovery contract](../crates/quai-browser/README.md#wallet-mediated-sending).
+
+
+## Packed contract/hash utilities
+
+The ABI facade exposes `solidity_packed`, `solidity_packed_keccak256` and
+`solidity_packed_sha256`, validated against 513 pinned reference observations.
+They preserve declared-width scalar encoding and 32-byte primitive array padding,
+with explicit strict Rust values and documented reference-helper extensions.
+See [packed encoding semantics](../crates/quai-abi/README.md#packed-encoding-and-hashes).
+These bytes are not canonical contract calldata or an unambiguous structured
+signing format; normal calls continue to use `AbiCoder` and typed intents.

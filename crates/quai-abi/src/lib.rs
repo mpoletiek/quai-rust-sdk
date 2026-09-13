@@ -8,6 +8,8 @@ pub use artifact::SolidityArtifact;
 mod typed_value;
 pub use typed_value::AbiValue;
 mod codec;
+mod packed;
+pub use packed::{solidity_packed, solidity_packed_keccak256, solidity_packed_sha256};
 mod document;
 mod interface;
 mod schema;

@@ -10,7 +10,7 @@
     "verify": "node scripts/verify-reference.mjs",
     "fixtures": "node scripts/generate-fixtures.mjs",
     "inventory": "node scripts/inventory.mjs",
-    "generate": "npm run fixtures && npm run inventory && node scripts/generate-transactions.mjs && node scripts/generate-selection.mjs && node scripts/generate-amounts.mjs && node scripts/generate-keystore.mjs && node scripts/generate-encoding.mjs && node scripts/generate-fixed.mjs && node scripts/generate-typed-values.mjs && node scripts/generate-artifacts.mjs && node scripts/generate-key-metadata.mjs && node scripts/generate-qi-use-hints.mjs && node scripts/generate-qi-messages.mjs && node scripts/generate-browser-requests.mjs",
+    "generate": "npm run fixtures && npm run inventory && node scripts/generate-transactions.mjs && node scripts/generate-selection.mjs && node scripts/generate-amounts.mjs && node scripts/generate-keystore.mjs && node scripts/generate-encoding.mjs && node scripts/generate-fixed.mjs && node scripts/generate-typed-values.mjs && node scripts/generate-artifacts.mjs && node scripts/generate-key-metadata.mjs && node scripts/generate-qi-use-hints.mjs && node scripts/generate-qi-messages.mjs && node scripts/generate-browser-requests.mjs && node scripts/generate-packed.mjs",
     "parity": "node scripts/parity.mjs",
     "test": "node --test scripts/*.test.mjs",
     "oracle": "node scripts/oracle.mjs",

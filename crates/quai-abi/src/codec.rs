@@ -182,7 +182,7 @@ fn measure(ty: &AbiType, value: &Value, depth: usize) -> Result<usize, AbiError>
         }
     }
 }
-fn primitive_word(ty: &AbiType, value: &Value) -> Result<[u8; 32], AbiError> {
+pub(crate) fn primitive_word(ty: &AbiType, value: &Value) -> Result<[u8; 32], AbiError> {
     let mut word = [0; 32];
     match ty.kind {
         Kind::Int(signed, bits) => {

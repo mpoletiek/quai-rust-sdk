@@ -168,5 +168,20 @@
     ],
     "leakSanitizer": false,
     "sanitizerEnvironment": "ASAN_OPTIONS=detect_leaks=0: sandbox process inspection limitation; AddressSanitizer enabled, no leak-clean qualification."
+  },
+  "ciVerified": {
+    "run": 34745128884,
+    "commit": "cdb291757cf3b5c7d327c85243fb1a532a496f3a",
+    "result": "success",
+    "jobs": [
+      "native Linux",
+      "native macOS",
+      "native Windows",
+      "browser",
+      "packaged-consumer",
+      "reference-and-harness",
+      "dependency-advisories",
+      "fuzz-smoke"
+    ]
   }
 }

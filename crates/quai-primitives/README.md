@@ -67,3 +67,40 @@ explicit deviation. Rust byte slices replace JS BytesLike aliases/coercions.
 `mask`. `encode_bytes32` allows at most 31 UTF-8 bytes; decoding requires a final
 zero byte and strict UTF-8, strips trailing padding and preserves internal nulls.
 Eighty generated pinned-JS vectors cover these boundaries and zero preservation.
+
+## Checked fixed-point arithmetic
+
+`FixedPoint` stores an exact signed or unsigned integer field with an explicit
+`FixedFormat` (8..256 bits, byte aligned, 0..80 decimals; default `fixed128x18`).
+Parsing, byte import, exact scaled-unit import, addition, subtraction,
+multiplication, division, rescaling, numeric comparison and chain-unit conversion
+are supported. Arithmetic requires matching formats; comparison uses exact
+numeric value across formats. Wide intermediates preserve valid results that
+would otherwise overflow during multiplication or rescaling.
+
+Multiplication, division and rescaling take `Rounding`: exact, toward zero,
+floor, ceiling, nearest ties to even, or nearest ties toward positive infinity.
+Overflow always fails, including rounding at a field boundary. Unsafe wrapping
+arithmetic and implicit floating-point conversion are intentionally absent;
+use exact decimal strings or integer units. `from_bytes` accepts at most 32
+bytes, ignores redundant leading zeros and interprets signed patterns at the
+full format width. `to_bytes` emits the complete field width. Guarded JavaScript
+constructors and loose numeric/format coercions become validated Rust types.
+
+The pinned reference's `floor` and `ceiling` discard their sign adjustment,
+and its negative `round` truncates the adjusted negative integer toward zero.
+Rust implements mathematical floor/ceiling and the selected rounding policy.
+`compatibility/fixtures/fixed.json` retains these reference observations and
+independent expectations, alongside matching parse, arithmetic and byte vectors.
+`tests/fixed.rs` verifies the differences explicitly. Decimal display follows
+the existing exact units formatter; no floating-point arithmetic is involved.
+
+```rust
+use quai_primitives::{FixedPoint, Rounding, Unit};
+let format = "fixed128x18".parse()?;
+let price = FixedPoint::parse("1.25", format)?;
+let count = FixedPoint::parse("3", format)?;
+let total = price.checked_mul(count, Rounding::Exact)?;
+assert_eq!(total.to_chain_units(Unit::QUAI)?.to_string(), "3750000000000000000");
+# Ok::<(), Box<dyn std::error::Error>>(())
+```

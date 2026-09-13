@@ -8,6 +8,8 @@
 //! Address strings use the same mixed-case Keccak checksum as `quais.js`.
 //! Lowercase and uppercase inputs are accepted; mixed-case inputs are checked.
 
+mod fixed;
+pub use fixed::{FixedError, FixedFormat, FixedPoint, Rounding};
 mod encoding;
 pub use encoding::{
     EncodingError, MAX_BASE58_BYTES, MAX_ENCODING_BYTES, concat_bytes, data_slice, decode_base58,

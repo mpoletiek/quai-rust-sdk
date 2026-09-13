@@ -60,3 +60,22 @@ methods remain visible RPC errors and are never reported as empty pools.
 Run the read-only `quai-sdk` example `inspect_pool` with `QUAI_RPC_URL` and
 `QUAI_EXPECTED_CHAIN_ID`. It reports topology, pool counts and pending-header size
 and performs a zero-value access-list simulation; it never signs or submits.
+
+`MinedBlock::{Latest,Number,Hash}` selects a positive-height mined zone block.
+`mined_block` returns full executed transactions with validated block identity,
+location, ordered inclusions, uniqueness and chain IDs. `block_hashes` requests
+only the ordered unique nonzero transaction hashes, saving response size; it
+cannot validate transaction inclusion fields omitted by that response.
+`header_by_hash` checks the exact requested hash and zone. Hash lookup can return
+an orphan; compare with `header_at` when canonicality matters. Budgets are
+explicit (1..4096 transactions); genesis uses the root genesis API, and pending
+work retains its separate protobuf API. Null remains unavailable and node errors
+propagate. These APIs do not treat emitted outbound ETXs as executions.
+`quai-sdk --example inspect_blocks` exercises all three forms without submission.
+
+Receipt status `2` is preserved as `ReceiptOutcome::Locked`. Conversion tracking
+returns `ConversionEffect::Locked`; neither state establishes current maturity.
+Qi credit observation also inspects canonical failed conversions, since the
+pinned node may create some outputs before gas exhaustion produces status `0`.
+Attribution remains bound to the signed beneficiary/refund and final ETX hash;
+missing value is reported as unobserved. Unknown receipt statuses remain errors.

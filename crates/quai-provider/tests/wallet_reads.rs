@@ -412,7 +412,7 @@ fn transaction_variants_fail_closed_and_preserve_pending_and_wide_amounts() {
 fn receipt_rejects_ethereum_bloom_wrong_status_and_log_association() {
     for (key, value) in [
         ("logsBloom", json!(format!("0x{}", "00".repeat(256)))),
-        ("status", json!("0x2")),
+        ("status", json!("0x3")),
         ("root", json!(HASH)),
         ("etxType", Value::Null),
         ("blockHash", Value::Null),

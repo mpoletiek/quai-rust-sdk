@@ -35,7 +35,9 @@ pub struct QiCreditObservation {
 }
 impl<T: Transport> Provider<T> {
     /// Observe a signed conversion/refund and attribute current Qi outputs to its
-    /// final executed hash. Quai destination/account credits return no Qi result.
+    /// final executed hash. Locked and failed receipts are inspected too: the
+    /// pinned node can create partial outputs before reporting execution failure.
+    /// Quai destination/account credits return no Qi result.
     pub async fn observe_conversion_qi_credit(
         &self,
         reference: &ConversionReference,
@@ -47,6 +49,14 @@ impl<T: Transport> Provider<T> {
         let beneficiary = match observation.effect {
             Some(ConversionEffect::ConversionReported) => Some(reference.destination()),
             Some(ConversionEffect::RefundReported { beneficiary }) => Some(beneficiary),
+            Some(
+                ConversionEffect::Locked { etx_type: 2 }
+                | ConversionEffect::ExecutionFailed { etx_type: 2 },
+            ) => Some(reference.destination()),
+            Some(
+                ConversionEffect::Locked { etx_type: 5 }
+                | ConversionEffect::ExecutionFailed { etx_type: 5 },
+            ) => Some(reference.refund_destination()),
             _ => None,
         }
         .and_then(|address| QiAddress::try_from(address).ok());
@@ -99,7 +109,7 @@ impl<T: Transport> Provider<T> {
                 && execution.receipt.as_ref().is_some_and(|r| {
                     matches!(
                         r.outcome,
-                        ReceiptOutcome::Succeeded | ReceiptOutcome::Failed
+                        ReceiptOutcome::Succeeded | ReceiptOutcome::Failed | ReceiptOutcome::Locked
                     )
                 })
             {

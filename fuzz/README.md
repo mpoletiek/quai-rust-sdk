@@ -8,7 +8,7 @@ not selected.
 
 Targets:
 
-- `transactions`: canonical Quai, ordinary Qi and explicit conversion decoders;
+- `transactions`: canonical Quai, ordinary Qi, explicit conversion and wrapping decoders;
   every successful decode must reproduce the exact input bytes and produce its
   transaction identity. Signature verification stays enabled.
 - `abi`: bounded type/interface/typed-data parsing, RPC-document hash stability,
@@ -16,6 +16,11 @@ Targets:
 - `wallet_import`: legacy keystore parsing/resource bounds, public payment-code
   roundtrips, extended-key/mnemonic and public-key/signature import boundaries.
   It deliberately does not execute attacker-selected expensive KDF parameters.
+
+- `encoding`: bounded hex/Base64/Base58 roundtrips, bytes32 UTF-8 and signed-width
+  boundaries, plus hostile decoder inputs.
+- `fixed`: exact fixed-point import/format roundtrips, floor/ceiling ordering,
+  and arithmetic checked against independent i128 calculations.
 
 `seed-corpus.py` derives the checked-in starter corpus from already-public JS/Go
 compatibility fixtures plus malformed inputs. It never reads wallets or nodes.
@@ -58,3 +63,12 @@ inside the restricted sandbox could not complete LeakSanitizer process inspectio
 it was not counted as passing. The successful rerun used permitted local process
 inspection without disabling either sanitizer. This is a short smoke run, not
 evidence of exhaustive parser coverage or leak freedom.
+
+The September 12 extension ran the first four targets for 300 seconds each,
+completing **11,116,595 executions** without a sanitizer failure. The retained
+`test-infra/reports/extended-fuzz-2026-09-12.json` identifies each binary and lockfile.
+The separate 300-second fixed-point run completed **1,101,348 executions** with
+exit 0; it has its own report and binary identity. These are
+bounded parser/arithmetic runs, not a substitute for stateful fault testing or
+independent security review. `--report PATH` retains additional runs without
+replacing the earlier smoke evidence. CI builds and runs all five targets.

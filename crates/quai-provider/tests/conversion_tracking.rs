@@ -940,6 +940,28 @@ async fn conversion_qi_credit_uses_signed_refund_beneficiary_and_rejects_overcre
     assert_eq!(credit.beneficiary.address(), beneficiary);
     assert_ne!(beneficiary, reference.destination());
     assert_eq!(credit.locked_qits, U256::from(1));
+    for status in ["0x0", "0x2"] {
+        let final_hash = credit.transaction_hash.to_string();
+        mock.0
+            .lock()
+            .unwrap()
+            .receipts
+            .get_mut(&final_hash)
+            .unwrap()["status"] = json!(status);
+        let (observed, current) = provider(&mock)
+            .observe_conversion_qi_credit(&reference, request(), 16)
+            .await
+            .unwrap();
+        assert_eq!(
+            observed.effect,
+            Some(if status == "0x2" {
+                ConversionEffect::Locked { etx_type: 5 }
+            } else {
+                ConversionEffect::ExecutionFailed { etx_type: 5 }
+            })
+        );
+        assert_eq!(current.unwrap().beneficiary.address(), beneficiary);
+    }
     // A source claiming more output value than the final ETX cannot be accepted.
     let (mock, reference) = external_fixture(false);
     mock.0.lock().unwrap().outpoints[0]["denomination"] = json!("0xe");
@@ -1053,4 +1075,58 @@ async fn cross_zone_qi_credit_keeps_original_output_identity_and_converts_denomi
     assert_eq!(credit.outputs[0].outpoint.index, 1);
     assert_eq!(credit.unlocked_qits, U256::from(1000));
     assert_eq!(credit.unobserved_qits, U256::ZERO);
+}
+
+#[tokio::test]
+async fn locked_and_failed_conversion_receipts_preserve_current_partial_qi_outputs() {
+    for status in ["0x0", "0x2"] {
+        let mock = Mock::new();
+        let reference = reference(false);
+        let key = reference.correlation().originating_tx_hash.to_string();
+        let final_hash;
+        {
+            let mut state = mock.0.lock().unwrap();
+            let tx = state.block["transactions"]
+                .as_array_mut()
+                .unwrap()
+                .iter_mut()
+                .find(|t| t["originatingTxHash"] == key)
+                .unwrap();
+            tx["etxType"] = json!("0x2");
+            final_hash = tx["hash"].as_str().unwrap().to_owned();
+            state.receipts.get_mut(&final_hash).unwrap()["status"] = json!(status);
+            state.receipts.get_mut(&final_hash).unwrap()["etxType"] = json!("0x2");
+            state.outpoints =
+                json!([{"txHash":final_hash,"index":"0x0","denomination":"0x0","lock":"0x20"}]);
+        }
+        let (observed, credit) = provider(&mock)
+            .observe_conversion_qi_credit(&reference, request(), 16)
+            .await
+            .unwrap();
+        assert_eq!(
+            observed.effect,
+            Some(if status == "0x2" {
+                ConversionEffect::Locked { etx_type: 2 }
+            } else {
+                ConversionEffect::ExecutionFailed { etx_type: 2 }
+            })
+        );
+        let credit = credit.unwrap();
+        assert_eq!(credit.beneficiary.address(), reference.destination());
+        assert_eq!(credit.locked_qits, U256::from(1));
+        assert_eq!(credit.transaction_hash.to_string(), final_hash);
+        assert_eq!(observed.spendability, ConversionSpendability::Unverified);
+    }
+    let (mock, reference) = external_fixture(false);
+    for receipt in mock.0.lock().unwrap().receipts.values_mut() {
+        if receipt["type"] == "0x1" {
+            receipt["status"] = json!("0x2");
+        }
+    }
+    let (observed, credit) = provider(&mock)
+        .observe_external_qi_credit(&reference, request(), 16)
+        .await
+        .unwrap();
+    assert_eq!(observed.outcome, Some(ReceiptOutcome::Locked));
+    assert_eq!(credit.unwrap().locked_qits, U256::from(1000));
 }

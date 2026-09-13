@@ -1,13 +1,12 @@
 //! Bounded source-reported conversion correlation, without finality or maturity claims.
 use crate::{
     Provider, ProviderError, Receipt, ReceiptOutcome, RpcData, Transaction, TransactionDetails,
-    TransactionKind, types,
+    TransactionKind,
 };
 use quai_consensus::{QuaiToQiTransaction, SignedQiConversionTransaction, SignedQuaiTransaction};
 use quai_primitives::{Address, Hash32, Ledger, QuaiAddress, Zone};
 use quai_rpc::{Transport, U256};
 use serde_json::{Map, Value, json};
-use std::collections::BTreeSet;
 
 /// A source-reported zone block identity, not a verified chain proof.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -183,6 +182,10 @@ impl ConversionReference {
     pub fn destination(&self) -> Address {
         self.destination
     }
+    /// Original refund beneficiary from the signed sender or conversion data.
+    pub fn refund_destination(&self) -> Address {
+        self.refund
+    }
     fn check_etx(&self, transaction: &Transaction, origin: bool) -> Result<u64, ProviderError> {
         let TransactionDetails::External(etx) = &transaction.details else {
             return Err(invalid_result("conversion transaction is not external"));
@@ -253,6 +256,11 @@ pub enum ConversionEffect {
         /// Preserved numeric external subtype.
         etx_type: u64,
     },
+    /// Status two explicitly reports locked value; it does not establish current maturity.
+    Locked {
+        /// Preserved conversion or refund subtype.
+        etx_type: u64,
+    },
     /// A legacy post-state root cannot be interpreted as a status by this observer.
     LegacyOutcome {
         /// Preserved numeric external subtype.
@@ -296,17 +304,6 @@ fn invalid_request(message: &'static str) -> ProviderError {
 fn invalid_result(message: &'static str) -> ProviderError {
     ProviderError::InvalidResult(message)
 }
-fn take(object: &mut Map<String, Value>, field: &'static str) -> Result<Value, ProviderError> {
-    object
-        .remove(field)
-        .ok_or(invalid_result("missing block field"))
-}
-fn object(value: Value) -> Result<Map<String, Value>, ProviderError> {
-    match value {
-        Value::Object(object) => Ok(object),
-        _ => Err(invalid_result("expected block object")),
-    }
-}
 fn block_ref(header: crate::ZoneHeader) -> BlockReference {
     BlockReference {
         number: header.number,
@@ -331,104 +328,6 @@ impl EtxScanRequest {
     }
 }
 impl<T: Transport> Provider<T> {
-    /// Read executed transactions at one explicit zone height, validating every
-    /// inclusion/index, chain ID and block hash. Unknown block fields are retained.
-    /// This is a node claim; canonicality can change immediately after the read.
-    pub async fn block_with_transactions(
-        &self,
-        zone: Zone,
-        number: u64,
-        max_transactions: usize,
-    ) -> Result<Option<TransactionBlock>, ProviderError> {
-        if number == 0 || number > i64::MAX as u64 || !(1..=4096).contains(&max_transactions) {
-            return Err(invalid_request("invalid bounded block request"));
-        }
-        let value = self
-            .read(
-                zone.into(),
-                "quai_getBlockByNumber",
-                json!([format!("{number:#x}"), true]),
-            )
-            .await?;
-        if value.is_null() {
-            return Ok(None);
-        }
-        let mut fields = object(value)?;
-        let hash = types::hash(take(&mut fields, "hash")?)?;
-        let work = object(take(&mut fields, "woHeader")?)?;
-        let reported_hash = types::hash(
-            work.get("hash")
-                .cloned()
-                .ok_or(invalid_result("missing work hash"))?,
-        )?;
-        let reported_number = types::uint64(
-            work.get("number")
-                .cloned()
-                .ok_or(invalid_result("missing work number"))?,
-        )?;
-        let parent_hash = types::hash(
-            work.get("parentHash")
-                .cloned()
-                .ok_or(invalid_result("missing parent hash"))?,
-        )?;
-        let location = types::data(
-            work.get("location")
-                .cloned()
-                .ok_or(invalid_result("missing work location"))?,
-        )?;
-        let expected_location = [zone.byte() >> 4, zone.byte() & 15];
-        if hash != reported_hash
-            || hash == Hash32::ZERO
-            || number != reported_number
-            || location.bytes() != expected_location
-        {
-            return Err(invalid_result("block identity or location mismatch"));
-        }
-        fields.insert("woHeader".into(), Value::Object(work));
-        let Value::Array(values) = take(&mut fields, "transactions")? else {
-            return Err(invalid_result("expected full block transactions"));
-        };
-        if values.len() > max_transactions {
-            return Err(invalid_result("block transaction budget exceeded"));
-        }
-        let mut transactions = Vec::with_capacity(values.len());
-        let mut hashes = BTreeSet::new();
-        for (index, value) in values.into_iter().enumerate() {
-            let transaction = Transaction::try_from(value)?;
-            let expected = crate::Inclusion {
-                block_hash: hash,
-                block_number: number,
-                transaction_index: index as u64,
-            };
-            if transaction.inclusion != Some(expected)
-                || !hashes.insert(transaction.hash)
-                || transaction.hash == Hash32::ZERO
-            {
-                return Err(invalid_result("block transaction inclusion mismatch"));
-            }
-            let chain = match &transaction.details {
-                TransactionDetails::Quai(tx) => Some(tx.chain_id),
-                TransactionDetails::Qi(tx) => Some(tx.chain_id),
-                TransactionDetails::External(_) => None,
-            };
-            if let Some(actual) = chain
-                && actual != self.expected_chain_id
-            {
-                return Err(ProviderError::ChainMismatch {
-                    expected: self.expected_chain_id,
-                    actual,
-                });
-            }
-            transactions.push(transaction);
-        }
-        Ok(Some(TransactionBlock {
-            block: BlockReference { number, hash },
-            parent_hash,
-            zone,
-            transactions,
-            extensions: fields,
-        }))
-    }
     /// Correlate a stable ETX key across a bounded contiguous canonical-number range.
     /// Full executed transactions are inspected; outboundEtxs are never mistaken
     /// for destination executions. Missing history yields explicit partial coverage.
@@ -647,6 +546,7 @@ impl<T: Transport> Provider<T> {
                     Some(ReceiptOutcome::Failed) => {
                         ConversionEffect::ExecutionFailed { etx_type: subtype }
                     }
+                    Some(ReceiptOutcome::Locked) => ConversionEffect::Locked { etx_type: subtype },
                     Some(ReceiptOutcome::PostState(_)) => {
                         ConversionEffect::LegacyOutcome { etx_type: subtype }
                     }

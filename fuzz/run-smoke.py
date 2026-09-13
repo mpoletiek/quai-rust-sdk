@@ -2,11 +2,11 @@
 """Run already-built sanitizer fuzz targets for bounded time on copied public corpora."""
 import argparse,datetime,hashlib,json,os,pathlib,re,shutil,subprocess,tempfile
 root=pathlib.Path(__file__).resolve().parent
-parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--seconds',type=int,default=30);parser.add_argument('--target',action='append',choices=['transactions','abi','wallet_import']);args=parser.parse_args()
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--seconds',type=int,default=30);parser.add_argument('--target',action='append',choices=['transactions','abi','wallet_import','encoding','fixed']);parser.add_argument('--report',type=pathlib.Path,default=root/'smoke-results.json');args=parser.parse_args()
 if not 1<=args.seconds<=600:parser.error('seconds must be 1..600')
 report={'recordedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'kind':'bounded sanitizer fuzz smoke; not sustained security qualification','fuzzLockSha256':hashlib.sha256((root/'Cargo.lock').read_bytes()).hexdigest(),'sdkLockSha256':hashlib.sha256((root.parent/'Cargo.lock').read_bytes()).hexdigest(),'targets':[]}
 failed=False
-for target in args.target or ['transactions','abi','wallet_import']:
+for target in args.target or ['transactions','abi','wallet_import','encoding','fixed']:
  binary=root/'target'/'x86_64-unknown-linux-gnu'/'release'/target
  if not binary.is_file():raise SystemExit('build missing target: '+str(binary))
  symbols=subprocess.run(['nm',str(binary)],capture_output=True,check=True,text=True).stdout
@@ -25,5 +25,5 @@ for target in args.target or ['transactions','abi','wallet_import']:
   if done:row.update(executions=int(done[-1][0]),coverageCounters=int(done[-1][1]),features=int(done[-1][2]),rssMiB=int(done[-1][3]))
   report['targets'].append(row);print(json.dumps(row),flush=True)
   if result.returncode:print(log[-1800:],flush=True);failed=True
-(root/'smoke-results.json').write_text(json.dumps(report,indent=2)+'\n')
+args.report.write_text(json.dumps(report,indent=2)+'\n')
 raise SystemExit(1 if failed else 0)

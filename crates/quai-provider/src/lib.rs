@@ -4,6 +4,8 @@ use quai_rpc::{QuantityError, RouteError, Routing, RpcError, Transport, U256, pa
 use serde_json::{Value, json};
 use thiserror::Error;
 
+mod blocks;
+pub use blocks::{BlockHashes, MinedBlock};
 mod qi_credit;
 pub use qi_credit::QiCreditObservation;
 mod external_tracking;

@@ -1,0 +1,60 @@
+{
+  "recordedAt": "2026-09-13T01:31:07.806161+00:00",
+  "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+  "fuzzLockSha256": "b8d0f59a3d43ef103fbbe31e7d35db68f0a811de02b094bc3d803cb025fd775c",
+  "sdkLockSha256": "c6e3777daa1bbc8c9990aeacf570ed0bbc3bc19a3e6d46461230322cd47c30a4",
+  "targets": [
+    {
+      "name": "transactions",
+      "binarySha256": "77c49b5c918576187f9e4bc128c6e94acc523850d2f6c9723f2b8a7f956131f5",
+      "seconds": 300,
+      "exitCode": 0,
+      "addressSanitizer": true,
+      "initialCorpusFiles": 58,
+      "finalCorpusFiles": 1076,
+      "executions": 1981438,
+      "coverageCounters": 3929,
+      "features": 10321,
+      "rssMiB": 495
+    },
+    {
+      "name": "abi",
+      "binarySha256": "1836b8c5d1b37de484f7679bb3f6fc10b878ea01677ee2fd51d89aefdccc986c",
+      "seconds": 300,
+      "exitCode": 0,
+      "addressSanitizer": true,
+      "initialCorpusFiles": 94,
+      "finalCorpusFiles": 1975,
+      "executions": 2529569,
+      "coverageCounters": 5016,
+      "features": 17828,
+      "rssMiB": 510
+    },
+    {
+      "name": "wallet_import",
+      "binarySha256": "f4dfcb34eca37b45cce577d4da47cc1d81a633231deda613f08b8ea153e557e5",
+      "seconds": 300,
+      "exitCode": 0,
+      "addressSanitizer": true,
+      "initialCorpusFiles": 49,
+      "finalCorpusFiles": 1483,
+      "executions": 3836191,
+      "coverageCounters": 2280,
+      "features": 7980,
+      "rssMiB": 498
+    },
+    {
+      "name": "encoding",
+      "binarySha256": "57f3b59aa53b625381d69b078801db8d0606542fa7e737b579c0f7977adbd238",
+      "seconds": 300,
+      "exitCode": 0,
+      "addressSanitizer": true,
+      "initialCorpusFiles": 26,
+      "finalCorpusFiles": 198,
+      "executions": 2769397,
+      "coverageCounters": 763,
+      "features": 2434,
+      "rssMiB": 456
+    }
+  ]
+}

@@ -525,6 +525,8 @@ pub enum ReceiptOutcome {
     Failed,
     /// Node reports status one.
     Succeeded,
+    /// Node reports status two: value is locked, not currently spendable.
+    Locked,
     /// Legacy receipt supplies a post-state root instead of status.
     PostState(Hash32),
 }
@@ -593,6 +595,7 @@ impl TryFrom<Value> for Receipt {
             (Some(status), None) => match uint64(status)? {
                 0 => ReceiptOutcome::Failed,
                 1 => ReceiptOutcome::Succeeded,
+                2 => ReceiptOutcome::Locked,
                 _ => return Err(invalid("invalid receipt status")),
             },
             (None, Some(root)) => ReceiptOutcome::PostState(hash(root)?),

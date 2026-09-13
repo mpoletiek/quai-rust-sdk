@@ -163,3 +163,24 @@ records 305 workspace reported passes, zero failures, four ignored integration
 tests, strict native/Wasm Clippy, rustdoc and real browser/worker results.
 The parity tracker reconciles 30 encoding and 264 provider declarations with
 explicit typed-Rust differences; its remaining rows are still tracked.
+
+
+## Fixed-point arithmetic and mined-block reads
+
+Checked fixed-point arithmetic now covers validated formats, exact imports,
+arithmetic with explicit rounding, rescaling and numeric comparisons. A retained
+172-vector JS corpus records matching behavior and deliberate corrections to
+negative rounding and floor/ceiling defects. Fields are bounded to 256 bits and
+80 decimals; unsafe wrapping and implicit floating-point amounts remain explicit
+Rust deviations.
+
+Mined zone blocks can be read by latest, number or hash, as full executed
+transactions or ordered hashes. Exact header-by-hash lookup and the read-only
+`inspect_blocks` example are included. The example passed against the isolated
+chain and LAN mainnet node; neither probe submitted transactions. Pending work
+and root/region block views retain their documented qualification boundaries.
+
+Receipt status 2 now remains `Locked`; conversion/refund and redemption credit
+queries preserve locked states and inspect partial outputs after failed execution.
+Tests cover both ledgers' conversion beneficiaries and the original Qi refund
+address, without treating missing indexed outputs as lost funds.

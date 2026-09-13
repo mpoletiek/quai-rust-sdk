@@ -43,3 +43,17 @@ path = "fuzz_targets/wallet_import.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "encoding"
+path = "fuzz_targets/encoding.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fixed"
+path = "fuzz_targets/fixed.rs"
+test = false
+doc = false
+bench = false

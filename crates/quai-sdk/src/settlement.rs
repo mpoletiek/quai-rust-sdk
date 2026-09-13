@@ -95,7 +95,7 @@ pub async fn track_settlement<T: Transport>(
     };
     let scan_end = scan.as_ref().and_then(|s| s.last_block).map(block);
     let execution = scan.as_ref().and_then(|s| s.execution.as_ref()).map(|e| {
-        json!({"hash": e.transaction.hash.to_string(), "block": e.transaction.inclusion.map(|i| block(quai_provider::BlockReference { number: i.block_number, hash: i.block_hash })), "outcome": e.receipt.as_ref().map(|r| match r.outcome { quai_provider::ReceiptOutcome::Succeeded => "succeeded", quai_provider::ReceiptOutcome::Failed => "failed", quai_provider::ReceiptOutcome::PostState(_) => "legacy" })})
+        json!({"hash": e.transaction.hash.to_string(), "block": e.transaction.inclusion.map(|i| block(quai_provider::BlockReference { number: i.block_number, hash: i.block_hash })), "outcome": e.receipt.as_ref().map(|r| match r.outcome { quai_provider::ReceiptOutcome::Succeeded => "succeeded", quai_provider::ReceiptOutcome::Failed => "failed", quai_provider::ReceiptOutcome::Locked => "locked", quai_provider::ReceiptOutcome::PostState(_) => "legacy" })})
     });
     let credit = qi_credit.as_ref().map(|c| json!({"beneficiary": c.beneficiary.to_string(), "head": block(c.head), "locked_qits": c.locked_qits.to_string(), "unlocked_qits": c.unlocked_qits.to_string(), "unobserved_qits": c.unobserved_qits.to_string()}));
     let (label, etx_index) = match kind {

@@ -1,0 +1,70 @@
+{
+  "recordedAt": "2026-09-13T01:57:55.483521+00:00",
+  "scope": "Checked fixed-point arithmetic, mined zone blocks and headers by hash, explicit locked receipt status and partial Qi conversion credits",
+  "validation": {
+    "workspace_after_fixed_point": {
+      "reported_passes": 309,
+      "failures": 0,
+      "ignored": 4
+    },
+    "provider_after_block_and_receipt_changes": {
+      "reported_passes": 77,
+      "failures": 0,
+      "ignored": 3
+    },
+    "sdk_after_block_and_receipt_changes": {
+      "reported_passes": 47,
+      "failures": 0,
+      "ignored": 0
+    },
+    "final_conversion_regressions": {
+      "reported_passes": 15,
+      "failures": 0,
+      "ignored": 1
+    },
+    "pinned_js_fixed_vectors": 172,
+    "strict_native_and_wasm_clippy": "passed",
+    "rustdoc_warnings_denied": "passed",
+    "chromium_browser_tests": 11,
+    "chromium_worker_tests": 5,
+    "reference_script_tests": "passed"
+  },
+  "read_only_node_probes": {
+    "isolated_development_profile": {
+      "canonical_at_recheck": true,
+      "chain": "1337",
+      "executed_transactions": 1,
+      "hash": "0x0000129b3544220eb62e9ae4d671c4fd43d41b6f135e677897dc2185d254882c",
+      "height": 7,
+      "representations_agree": true,
+      "submitted": false
+    },
+    "lan_mainnet": {
+      "canonical_at_recheck": true,
+      "chain": "9",
+      "executed_transactions": 0,
+      "hash": "0xd1106069130e9d3010286941b339dfc82df0237f00744a3eef43c11c22e3666a",
+      "height": 10067921,
+      "representations_agree": true,
+      "submitted": false
+    }
+  },
+  "fuzz_reports": [
+    "extended-fuzz-2026-09-12.json",
+    "fixed-fuzz-2026-09-12.json"
+  ],
+  "reference_source": {
+    "quais": "1.0.0-alpha.57",
+    "go_quai": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+    "locked_status": "core/types/receipt.go:53; internal/quaiapi/quai_api.go:1869",
+    "partial_conversion_outputs": "core/state_processor.go:875-925"
+  },
+  "limitations": [
+    "Node responses are source observations, not consensus or finality proofs.",
+    "Development node has explicit harness patches; mainnet probe submitted no transaction.",
+    "Fixed fields are bounded to 256 bits; JavaScript unsafe wrapping and floating-point coercions are deliberate deviations.",
+    "Pending and root/region full-block views remain outside mined zone block APIs.",
+    "Bounded sanitizer runs do not qualify stateful persistence, fault/reorg soak or independent security review."
+  ],
+  "releaseQualified": false
+}

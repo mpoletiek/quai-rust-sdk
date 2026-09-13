@@ -719,12 +719,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": ".:AbstractProvider:instance:getBlockNumber",
@@ -3575,12 +3583,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": ".:BrowserProvider:instance:getBlockNumber",
@@ -9483,12 +9499,18 @@
         "new (guard: any, value: bigint, format: any): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:_value",
@@ -9497,12 +9519,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::units"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:add",
@@ -9513,12 +9541,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_add"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:addUnsafe",
@@ -9530,11 +9564,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
     },
     {
       "id": ".:FixedNumber:instance:ceiling",
@@ -9545,12 +9583,18 @@
         "(): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::ceiling"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Correct mathematical rounding with explicit policy; regression fixtures retain and verify pinned JS sign-adjustment/truncation defects."
     },
     {
       "id": ".:FixedNumber:instance:cmp",
@@ -9561,12 +9605,18 @@
         "(other: FixedNumber): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::compare"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": ".:FixedNumber:instance:decimals",
@@ -9575,12 +9625,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedFormat::unit"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:div",
@@ -9591,12 +9647,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_div"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Explicit Rounding::TowardZero or Exact reproduces supported reference precision policy; overflow always fails. Additional rounding modes are explicit."
     },
     {
       "id": ".:FixedNumber:instance:divSignal",
@@ -9607,12 +9669,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_div"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Explicit Rounding::TowardZero or Exact reproduces supported reference precision policy; overflow always fails. Additional rounding modes are explicit."
     },
     {
       "id": ".:FixedNumber:instance:divUnsafe",
@@ -9624,11 +9692,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
     },
     {
       "id": ".:FixedNumber:instance:eq",
@@ -9639,12 +9711,18 @@
         "(other: FixedNumber): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::eq"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": ".:FixedNumber:instance:floor",
@@ -9655,12 +9733,18 @@
         "(): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::floor"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Correct mathematical rounding with explicit policy; regression fixtures retain and verify pinned JS sign-adjustment/truncation defects."
     },
     {
       "id": ".:FixedNumber:instance:format",
@@ -9669,12 +9753,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::format"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:gt",
@@ -9685,12 +9775,18 @@
         "(other: FixedNumber): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::gt"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": ".:FixedNumber:instance:gte",
@@ -9701,12 +9797,18 @@
         "(other: FixedNumber): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::ge"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": ".:FixedNumber:instance:isNegative",
@@ -9717,12 +9819,18 @@
         "(): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::is_negative"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:isZero",
@@ -9733,12 +9841,18 @@
         "(): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::is_zero"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:lt",
@@ -9749,12 +9863,18 @@
         "(other: FixedNumber): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::lt"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": ".:FixedNumber:instance:lte",
@@ -9765,12 +9885,18 @@
         "(other: FixedNumber): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::le"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": ".:FixedNumber:instance:mul",
@@ -9781,12 +9907,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_mul"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Explicit Rounding::TowardZero or Exact reproduces supported reference precision policy; overflow always fails. Additional rounding modes are explicit."
     },
     {
       "id": ".:FixedNumber:instance:mulSignal",
@@ -9797,12 +9929,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_mul"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Explicit Rounding::TowardZero or Exact reproduces supported reference precision policy; overflow always fails. Additional rounding modes are explicit."
     },
     {
       "id": ".:FixedNumber:instance:mulUnsafe",
@@ -9814,11 +9952,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
     },
     {
       "id": ".:FixedNumber:instance:round",
@@ -9829,12 +9971,18 @@
         "(decimals?: number): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::round"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Correct mathematical rounding with explicit policy; regression fixtures retain and verify pinned JS sign-adjustment/truncation defects."
     },
     {
       "id": ".:FixedNumber:instance:signed",
@@ -9843,12 +9991,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedFormat::signed"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:sub",
@@ -9859,12 +10013,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_sub"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:subUnsafe",
@@ -9876,11 +10036,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
     },
     {
       "id": ".:FixedNumber:instance:toFormat",
@@ -9891,12 +10055,18 @@
         "(format: FixedFormat): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::with_format"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Explicit Rounding::TowardZero or Exact reproduces supported reference precision policy; overflow always fails. Additional rounding modes are explicit."
     },
     {
       "id": ".:FixedNumber:instance:toString",
@@ -9907,12 +10077,18 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::to_string"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:toUnsafeFloat",
@@ -9924,11 +10100,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
     },
     {
       "id": ".:FixedNumber:instance:value",
@@ -9937,12 +10117,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::units"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:instance:width",
@@ -9951,12 +10137,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedFormat::width"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:static:fromBytes",
@@ -9967,12 +10159,18 @@
         "(_value: BytesLike, _format?: FixedFormat): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::from_bytes"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. At most 32 input bytes, redundant leading zeros accepted, signed patterns use complete field width."
     },
     {
       "id": ".:FixedNumber:static:fromString",
@@ -9983,12 +10181,18 @@
         "(_value: string, _format?: FixedFormat): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::parse"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:FixedNumber:static:fromValue",
@@ -9999,12 +10203,18 @@
         "(_value: BigNumberish, _decimals?: Numeric, _format?: FixedFormat): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::from_scaled_units"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": ".:formatMixedCaseChecksumAddress",
@@ -13557,12 +13767,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": ".:JsonRpcApiProvider:instance:getBlockNumber",
@@ -15231,12 +15449,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": ".:JsonRpcProvider:instance:getBlockNumber",
@@ -23830,12 +24056,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": ".:SocketProvider:instance:getBlockNumber",
@@ -30358,12 +30592,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": ".:WebSocketProvider:instance:getBlockNumber",
@@ -42782,12 +43024,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": "./providers:AbstractProvider:instance:getBlockNumber",
@@ -44675,12 +44925,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": "./providers:BrowserProvider:instance:getBlockNumber",
@@ -46439,12 +46697,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": "./providers:JsonRpcApiProvider:instance:getBlockNumber",
@@ -48113,12 +48379,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": "./providers:JsonRpcProvider:instance:getBlockNumber",
@@ -51837,12 +52111,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": "./providers:SocketProvider:instance:getBlockNumber",
@@ -54287,12 +54569,20 @@
         "(shard: Shard, block: BlockTag | string, prefetchTxs?: boolean): Promise<null | Block>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::mined_block",
+        "quai_provider::Provider::block_hashes",
+        "quai_provider::Provider::header_by_hash"
+      ],
+      "feature": "provider",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/blocks.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Typed bounded positive-height mined zone blocks by latest/number/hash, full transactions or hash-only. Pending work uses a separate protobuf API; root/region full-block views and JS lazy Block methods remain unmapped. Hash lookup does not imply canonicality."
     },
     {
       "id": "./providers:WebSocketProvider:instance:getBlockNumber",
@@ -58242,12 +58532,18 @@
         "new (guard: any, value: bigint, format: any): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:_value",
@@ -58256,12 +58552,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::units"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:add",
@@ -58272,12 +58574,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_add"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:addUnsafe",
@@ -58289,11 +58597,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
     },
     {
       "id": "./utils:FixedNumber:instance:ceiling",
@@ -58304,12 +58616,18 @@
         "(): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::ceiling"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Correct mathematical rounding with explicit policy; regression fixtures retain and verify pinned JS sign-adjustment/truncation defects."
     },
     {
       "id": "./utils:FixedNumber:instance:cmp",
@@ -58320,12 +58638,18 @@
         "(other: FixedNumber): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::compare"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": "./utils:FixedNumber:instance:decimals",
@@ -58334,12 +58658,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedFormat::unit"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:div",
@@ -58350,12 +58680,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_div"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Explicit Rounding::TowardZero or Exact reproduces supported reference precision policy; overflow always fails. Additional rounding modes are explicit."
     },
     {
       "id": "./utils:FixedNumber:instance:divSignal",
@@ -58366,12 +58702,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_div"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Explicit Rounding::TowardZero or Exact reproduces supported reference precision policy; overflow always fails. Additional rounding modes are explicit."
     },
     {
       "id": "./utils:FixedNumber:instance:divUnsafe",
@@ -58383,11 +58725,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
     },
     {
       "id": "./utils:FixedNumber:instance:eq",
@@ -58398,12 +58744,18 @@
         "(other: FixedNumber): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::eq"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": "./utils:FixedNumber:instance:floor",
@@ -58414,12 +58766,18 @@
         "(): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::floor"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Correct mathematical rounding with explicit policy; regression fixtures retain and verify pinned JS sign-adjustment/truncation defects."
     },
     {
       "id": "./utils:FixedNumber:instance:format",
@@ -58428,12 +58786,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::format"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:gt",
@@ -58444,12 +58808,18 @@
         "(other: FixedNumber): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::gt"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": "./utils:FixedNumber:instance:gte",
@@ -58460,12 +58830,18 @@
         "(other: FixedNumber): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::ge"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": "./utils:FixedNumber:instance:isNegative",
@@ -58476,12 +58852,18 @@
         "(): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::is_negative"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:isZero",
@@ -58492,12 +58874,18 @@
         "(): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::is_zero"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:lt",
@@ -58508,12 +58896,18 @@
         "(other: FixedNumber): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::lt"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": "./utils:FixedNumber:instance:lte",
@@ -58524,12 +58918,18 @@
         "(other: FixedNumber): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::le"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Rust exact numeric Eq/Ord comparisons support unequal scales; arithmetic requires matching formats."
     },
     {
       "id": "./utils:FixedNumber:instance:mul",
@@ -58540,12 +58940,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_mul"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Explicit Rounding::TowardZero or Exact reproduces supported reference precision policy; overflow always fails. Additional rounding modes are explicit."
     },
     {
       "id": "./utils:FixedNumber:instance:mulSignal",
@@ -58556,12 +58962,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_mul"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Explicit Rounding::TowardZero or Exact reproduces supported reference precision policy; overflow always fails. Additional rounding modes are explicit."
     },
     {
       "id": "./utils:FixedNumber:instance:mulUnsafe",
@@ -58573,11 +58985,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
     },
     {
       "id": "./utils:FixedNumber:instance:round",
@@ -58588,12 +59004,18 @@
         "(decimals?: number): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::round"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Correct mathematical rounding with explicit policy; regression fixtures retain and verify pinned JS sign-adjustment/truncation defects."
     },
     {
       "id": "./utils:FixedNumber:instance:signed",
@@ -58602,12 +59024,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedFormat::signed"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:sub",
@@ -58618,12 +59046,18 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::checked_sub"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:subUnsafe",
@@ -58635,11 +59069,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
     },
     {
       "id": "./utils:FixedNumber:instance:toFormat",
@@ -58650,12 +59088,18 @@
         "(format: FixedFormat): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::with_format"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Explicit Rounding::TowardZero or Exact reproduces supported reference precision policy; overflow always fails. Additional rounding modes are explicit."
     },
     {
       "id": "./utils:FixedNumber:instance:toString",
@@ -58666,12 +59110,18 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::to_string"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:toUnsafeFloat",
@@ -58683,11 +59133,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
     },
     {
       "id": "./utils:FixedNumber:instance:value",
@@ -58696,12 +59150,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::units"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:instance:width",
@@ -58710,12 +59170,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedFormat::width"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:static:fromBytes",
@@ -58726,12 +59192,18 @@
         "(_value: BytesLike, _format?: FixedFormat): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::from_bytes"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. At most 32 input bytes, redundant leading zeros accepted, signed patterns use complete field width."
     },
     {
       "id": "./utils:FixedNumber:static:fromString",
@@ -58742,12 +59214,18 @@
         "(_value: string, _format?: FixedFormat): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::parse"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:FixedNumber:static:fromValue",
@@ -58758,12 +59236,18 @@
         "(_value: BigNumberish, _decimals?: Numeric, _format?: FixedFormat): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::FixedPoint::from_scaled_units"
+      ],
+      "feature": "primitives",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/fixed.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md"
+      ],
+      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Exact integer/string API; guarded constructors and cosmetic or numeric JS coercions are not mirrored."
     },
     {
       "id": "./utils:formatQi",

@@ -19,7 +19,7 @@ counts are not a defensible percentage of engineering or security completion.
 
 | Area | Available now | Missing before wallet completion |
 |---|---|---|
-| Addresses/amounts | Checksums, public-key address/recovery, exact decimals and contract prediction | Fixed-number arithmetic, remaining utility mappings and higher-level deployment lifecycle; bounded byte encodings and signed-width conversions are implemented |
+| Addresses/amounts | Checksums, public-key address/recovery, exact decimals and contract prediction | Remaining utility mappings and higher-level deployment lifecycle; checked fixed-point arithmetic, bounded byte encodings and signed-width conversions are implemented |
 | Keys/identity | OS key entropy, ECDSA/Schnorr/ordered local aggregation, all BIP39 wordlists/passphrases, BIP32 | Broader browser/platform qualification and independent security review |
 | Quai wallets | Local/watch-only and HD signing, durable account/conversion sessions, master-xprv restore and unsigned nonce-gap repair | Terminal lifecycle and funded Orchard workflows; both-ledger candidate families are durable |
 | Quai transactions | Canonical protobuf, nonce claims, offline signing, exact stored broadcast, confirmation polling | Terminal/reorg policy qualification and full supported extensions; candidate families and bounded ETX tracking are implemented |

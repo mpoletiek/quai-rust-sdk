@@ -826,3 +826,15 @@ and share large values with `Arc`/`Rc` as appropriate. Native WebSocket `is_open
 reports observed local session state, matching the browser socket convenience.
 See [provider lifecycle and parity](docs/PROVIDER_PARITY.md) for API usage and the
 mapping of JS initialization, callbacks, options and transport internals.
+
+
+## ABI parameter reflection, gas hints and named results
+
+The ABI layer now exposes named input/output parameter trees, individual fragment
+formatting and exact function/constructor gas metadata. `AbiResult` supports eager
+named decoding for calls, returns, custom errors and events, with checked slices,
+name-preserving filtering and collision-safe object views. Parameter walks support
+sync and non-Send async callbacks, exact named tuples and aggregate resource
+limits. Gas hints remain metadata; contract transaction fee policy is unchanged.
+See [ABI reflection and result parity](docs/ABI_REFLECTION_PARITY.md) for API
+mappings, examples of the parameter syntax, limits and published JavaScript defects.

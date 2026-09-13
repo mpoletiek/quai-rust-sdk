@@ -1,0 +1,1 @@
+function f(uint x) view returns (uint y) @100

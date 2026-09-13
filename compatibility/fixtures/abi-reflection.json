@@ -1,0 +1,164 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "notes": "Published parameter JSON drops outer indexed metadata on arrays; Rust retains it. Published fragments with gas bigint throw when formatted as JSON; Rust formats exact decimal string metadata.",
+  "parameters": [
+    {
+      "text": "uint amount",
+      "full": "uint256 amount",
+      "minimal": "uint256",
+      "signature": "uint256",
+      "json": {
+        "type": "uint256",
+        "name": "amount"
+      }
+    },
+    {
+      "text": "tuple(uint count,address who)[] indexed rows",
+      "full": "(uint256 count, address who)[] indexed rows",
+      "minimal": "(uint256,address)[] indexed",
+      "signature": "(uint256,address)[]",
+      "json": {
+        "type": "tuple[]",
+        "name": "rows",
+        "components": [
+          {
+            "type": "uint256",
+            "name": "count"
+          },
+          {
+            "type": "address",
+            "name": "who"
+          }
+        ]
+      }
+    },
+    {
+      "text": "tuple(bytes blob,tuple(bool enabled,int8 delta)[2] nested) root",
+      "full": "(bytes blob, (bool enabled, int8 delta)[2] nested) root",
+      "minimal": "(bytes,(bool,int8)[2])",
+      "signature": "(bytes,(bool,int8)[2])",
+      "json": {
+        "type": "tuple",
+        "name": "root",
+        "components": [
+          {
+            "type": "bytes",
+            "name": "blob"
+          },
+          {
+            "type": "tuple[2]",
+            "name": "nested",
+            "components": [
+              {
+                "type": "bool",
+                "name": "enabled"
+              },
+              {
+                "type": "int8",
+                "name": "delta"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "text": "bytes32[0][] values",
+      "full": "bytes32[0][] values",
+      "minimal": "bytes32[0][]",
+      "signature": "bytes32[0][]",
+      "json": {
+        "type": "bytes32[0][]",
+        "name": "values"
+      }
+    },
+    {
+      "text": "address indexed",
+      "full": "address indexed",
+      "minimal": "address indexed",
+      "signature": "address",
+      "json": {
+        "type": "address",
+        "name": "",
+        "indexed": true
+      }
+    },
+    {
+      "text": "tuple() empty",
+      "full": "() empty",
+      "minimal": "()",
+      "signature": "()",
+      "json": {
+        "type": "tuple",
+        "name": "empty",
+        "components": []
+      }
+    }
+  ],
+  "gas": [
+    {
+      "text": "function f(uint x) view returns (uint y) @100",
+      "full": "function f(uint256 x) view returns (uint256 y) @100",
+      "minimal": "function f(uint256) view returns (uint256) @100",
+      "gas": "100"
+    },
+    {
+      "text": "function f() @0",
+      "full": "function f() @0",
+      "minimal": "function f() @0",
+      "gas": "0"
+    },
+    {
+      "text": "constructor(uint x) payable @200",
+      "full": "constructor(uint256 x) payable @200",
+      "minimal": "constructor(uint256) payable @200",
+      "gas": "200"
+    },
+    {
+      "text": "function f() @115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "full": "function f() @115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "minimal": "function f() @115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "gas": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    }
+  ],
+  "abi": [
+    "function f(uint length,bytes payload) returns (uint then,tuple(uint count,address who) detail)",
+    "error Denied(uint code,bytes reason)",
+    "event Changed(string indexed label,uint value)"
+  ],
+  "call": {
+    "values": [
+      "42",
+      "0x1234"
+    ],
+    "data": "0xcdc9dc79000000000000000000000000000000000000000000000000000000000000002a000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000021234000000000000000000000000000000000000000000000000000000000000"
+  },
+  "returns": {
+    "values": [
+      "99",
+      [
+        "7",
+        "0x0011223344556677889900112233445566778899"
+      ]
+    ],
+    "data": "0x000000000000000000000000000000000000000000000000000000000000006300000000000000000000000000000000000000000000000000000000000000070000000000000000000000000011223344556677889900112233445566778899"
+  },
+  "error": {
+    "values": [
+      "3",
+      "0xab"
+    ],
+    "data": "0x64c16677000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001ab00000000000000000000000000000000000000000000000000000000000000"
+  },
+  "event": {
+    "values": [
+      "label",
+      "8"
+    ],
+    "data": "0x0000000000000000000000000000000000000000000000000000000000000008",
+    "topics": [
+      "0x85e36a562d1c7ed4672811f57ea38c497ca810840834c98f76fe41455781246c",
+      "0x1b036544434cea9770a413fd03e0fb240e1ccbd10a452f7dba85c8eca9ca3eda"
+    ]
+  }
+}

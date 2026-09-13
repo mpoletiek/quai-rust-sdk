@@ -8,10 +8,11 @@ use serde_json::{Value, json};
 impl AbiInterface {
     /// Parse explicit source-like function, event, error, constructor, fallback and
     /// receive declarations. Bare function signatures are also accepted. Supports
-    /// named nested tuples/arrays, indexed event fields, returns and mutability.
+    /// named nested tuples/arrays, indexed event fields, returns, mutability and
+    /// trailing nonnegative U256 `@gas` hints for functions and constructors.
     /// At most 1,024 fragments, 4,096 bytes each, 65,536 combined ASCII bytes and
     /// 1,024 parameter/array nodes per fragment. No Solidity source, comments,
-    /// structs, gas annotations, function bodies or unknown modifiers are accepted.
+    /// structs, function bodies or unknown modifiers are accepted.
     /// Every entry must validate; invalid fragments are never silently discarded.
     pub fn from_human_readable(fragments: &[&str]) -> Result<Self, AbiError> {
         if fragments.len() > MAX_FIELDS {
@@ -92,6 +93,10 @@ impl AbiInterface {
                     out.push(" returns ")?;
                     out.params(object.get("outputs"), minimal)?;
                 }
+            }
+            if let Some(gas) = crate::interface::gas_hint(object)? {
+                out.push(" @")?;
+                out.push(&gas.to_string())?;
             }
             total = total.checked_add(out.0.len()).ok_or(AbiError::Limit)?;
             if total > MAX_DATA_BYTES {
@@ -319,9 +324,28 @@ impl<'a> Parser<'a> {
         let mut visibility = None;
         let mut outputs = None;
         let mut anonymous = false;
+        let mut gas = None;
         loop {
             self.space();
             if self.pos == self.text.len() {
+                break;
+            }
+            if self.text.as_bytes()[self.pos] == b'@' {
+                if !matches!(kind, "function" | "constructor") {
+                    return Err(AbiError::Schema);
+                }
+                self.pos += 1;
+                self.space();
+                let start = self.pos;
+                while self.pos < self.text.len() && self.text.as_bytes()[self.pos].is_ascii_digit()
+                {
+                    self.pos += 1;
+                }
+                gas = Some(&self.text[start..self.pos]);
+                self.space();
+                if self.pos != self.text.len() {
+                    return Err(AbiError::Schema);
+                }
                 break;
             }
             let word = self.word()?;
@@ -345,6 +369,9 @@ impl<'a> Parser<'a> {
             }
         }
         let mut value = json!({"type":kind});
+        if let Some(gas) = gas {
+            value["gas"] = json!(gas);
+        }
         if let Some(name) = name {
             value["name"] = json!(name);
         }
@@ -380,4 +407,25 @@ impl<'a> Parser<'a> {
         }
         Ok(value)
     }
+}
+
+pub(crate) fn parameter(text: &str, event: bool) -> Result<Value, AbiError> {
+    if text.len() > 4096 {
+        return Err(AbiError::Limit);
+    }
+    if !text.is_ascii() {
+        return Err(AbiError::Schema);
+    }
+    let wrapped = format!("({text})");
+    let mut parser = Parser {
+        text: &wrapped,
+        pos: 0,
+        nodes: 0,
+    };
+    let mut values = parser.params(event, 0)?;
+    parser.space();
+    if parser.pos != wrapped.len() || values.len() != 1 {
+        return Err(AbiError::Schema);
+    }
+    Ok(values.remove(0))
 }

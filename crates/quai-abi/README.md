@@ -397,7 +397,9 @@ mutability and ordinary source storage/visibility modifiers are supported.
 Every declaration is validated; malformed fragments are never silently skipped.
 Duplicate overload signatures, duplicate field names and conflicting modifiers
 fail. This parses ABI declarations, not Solidity source: comments, function
-bodies, struct definitions and gas annotations are unsupported.
+bodies and struct definitions are unsupported. Functions and constructors accept
+trailing nonnegative U256 `@gas` hints as metadata only; hints never set transaction
+gas limits.
 
 ```rust
 use quai_abi::AbiInterface;
@@ -438,3 +440,29 @@ Tests cover 180 pinned full/minimal/selector cases, 31 explicit rejection cases,
 additional depth/width/count limits, source metadata and overload order. The same
 suite runs through the SDK in actual Chromium workers; a contract facade test
 checks exact calldata, maximum U256 return decoding and explicit block selection.
+
+
+## Parameter reflection and named decoding
+
+`AbiParameter` exposes validated names, canonical types, tuple components, array
+children and optional indexed/internalType metadata. Construct a parameter with
+`from_json` or `from_human_readable`, or borrow function/event/error/constructor
+`input_parameters` and function `output_parameters`. `format(AbiFormat)` supports
+Signature, Full, Minimal and Json; compiled declarations also format individually.
+`AbiInterface::declarations` borrows original validated metadata in input order.
+Gas annotations export as exact decimal metadata and never affect selectors.
+
+Function `decode_call_named`/`decode_returns_named`, error `decode_named` and event
+`decode_log_named` return `AbiResult<T>` after eager canonical validation. Values
+remain ordered; `get_value` uses exact unique names, `to_object` requires all names,
+and `slice`/`filter` retain metadata. Nested tuple values stay positional arrays
+with names available in the parameter tree. Indexed compound event values remain
+hashes. Generic `from_items` limits field/name counts, not heap bytes within `T`.
+
+`AbiParameter::walk`/`walk_async` validate the entire shape before processing leaves,
+accept positional or exact named tuples, and enforce aggregate input/output
+node/text/depth limits. Async callbacks run sequentially without Send or an
+executor requirement. Callback side effects cannot be rolled back; transformed
+leaf values require `AbiCoder::encode` validation before use as ABI arguments.
+Rust maps preserve prototype-like names, and JSON formatting retains indexed array
+flags and gas hints which the published JavaScript formatter mishandles.

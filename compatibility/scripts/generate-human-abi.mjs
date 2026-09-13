@@ -45,9 +45,9 @@ const reject=[
  'event A(uint a) payable', 'error A(uint a) view', 'constructor() view', 'receive(uint x) payable',
  'receive() nonpayable', 'fallback(uint x)', 'fallback(bytes) returns (uint)', 'fallback() view',
  'function a(uint7 x)', 'function a(bytes33 x)', 'function a(uint[01] x)', 'function a(uint[-1] x)',
- 'function a(tuple(uint x, uint x) t)', 'function a(uint x) @100',
+ 'function a(tuple(uint x, uint x) t)', 'function a(uint x) @-100',
  'struct Thing(uint x)', 'function a(uint x) { }', 'function a(uint x);', 'function a(uint x) // comment',
  'function a(string 名称)', 'event A(uint indexed a,uint indexed b,uint indexed c,uint indexed d)',
 ];
-writeFileSync(new URL('../fixtures/human-abi.json',import.meta.url),JSON.stringify({reference:'quais@1.0.0-alpha.57',note:'Formatting/selector vectors from pinned Fragment/Interface; malformed or unsupported source declarations explicitly reject in Rust. Constructor JSON undefined string normalized to nonpayable; event array indexed flags restored from parsed Fragment metadata because pinned JSON formatting drops them. Gas annotations and source bodies are outside this ABI parser.',vectors,reject},null,2)+'\n');
+writeFileSync(new URL('../fixtures/human-abi.json',import.meta.url),JSON.stringify({reference:'quais@1.0.0-alpha.57',note:'Formatting/selector vectors from pinned Fragment/Interface; malformed or unsupported source declarations explicitly reject in Rust. Constructor JSON undefined string normalized to nonpayable; event array indexed flags restored from parsed Fragment metadata because pinned JSON formatting drops them. Source bodies are outside this ABI parser; gas metadata has separate reflection vectors.',vectors,reject},null,2)+'\n');
 console.log(`Generated ${vectors.length} human ABI formatting cases and ${reject.length} Rust rejection cases`);

@@ -1,0 +1,1 @@
+{"type": "tuple[]", "name": "rows", "components": [{"type": "uint256", "name": "count"}, {"type": "address", "name": "who"}]}

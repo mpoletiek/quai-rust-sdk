@@ -13,6 +13,10 @@ pub use packed::{solidity_packed, solidity_packed_keccak256, solidity_packed_sha
 mod document;
 mod human;
 mod interface;
+mod parameter;
+pub use parameter::{AbiFormat, AbiParameter};
+mod result;
+pub use result::AbiResult;
 mod workflows;
 pub use workflows::{
     AbiFilterTopic, AbiFilterValue, MAX_FILTER_ALTERNATIVES, ParsedCall, ParsedLog, ParsedRevert,

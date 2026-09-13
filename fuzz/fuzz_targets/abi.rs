@@ -1,15 +1,32 @@
 #![no_main]
 use libfuzzer_sys::fuzz_target;
-use quai_abi::{AbiCoder,AbiType,AbiInterface,AbiValue,SolidityArtifact,TypedData};
+use quai_abi::{AbiCoder,AbiType,AbiInterface,AbiValue,SolidityArtifact,TypedData,AbiParameter,AbiFormat,AbiResult};
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
+ for event in [false,true] {
+  if let Ok(p)=AbiParameter::from_json(data,event) {let json=p.format(AbiFormat::Json).unwrap();assert_eq!(AbiParameter::from_json(json.as_bytes(),event).unwrap(),p);}
+  if let Ok(text)=std::str::from_utf8(data) {if let Ok(p)=AbiParameter::from_human_readable(text,event) {let json=p.format(AbiFormat::Json).unwrap();assert_eq!(AbiParameter::from_json(json.as_bytes(),event).unwrap(),p);}}
+ }
+
  if let Ok(text)=std::str::from_utf8(data){if let Ok(ty)=AbiType::parse(text){if let Ok(value)=AbiValue::default_for(ty){let encoded=value.encode().unwrap();assert_eq!(AbiCoder::decode(std::slice::from_ref(value.abi_type()),&encoded).unwrap(),vec![value.value().clone()]);}}}
  if let Ok(text)=std::str::from_utf8(data){if let Ok(types)=text.split('\n').take(1025).map(AbiType::parse).collect::<Result<Vec<_>,_>>(){if let Ok(values)=AbiCoder::default_values(&types){let encoded=AbiCoder::encode(&types,&values).unwrap();assert_eq!(AbiCoder::decode(&types,&encoded).unwrap(),values);}}}
  if let Ok(value)=serde_json::from_slice::<serde_json::Value>(data){
+  if let Some(parameter)=value.get("parameter") {
+   if let Ok(p)=AbiParameter::from_json(&serde_json::to_vec(parameter).unwrap(),true) {
+    if let Ok(walked)=p.walk(&value["value"],|_,v|Ok(v.clone())) {assert_eq!(p.walk(&walked,|_,v|Ok(v.clone())).unwrap(),walked);}
+   }
+  }
+  if let (Some(items),Some(names))=(value.get("items").and_then(|v|v.as_array()),value.get("names").and_then(|v|v.as_array())) {
+   if items.len()<=1025 && names.len()<=1025 {
+    if let Ok(names)=names.iter().map(|v|if v.is_null(){Ok(None)}else{v.as_str().map(|s|Some(s.to_owned())).ok_or(())}).collect::<Result<Vec<_>,_>>() {
+     if let Ok(result)=AbiResult::from_items(items.clone(),names) {assert_eq!(result.slice(0..items.len()).unwrap().values(),items);for (i,name) in result.names().iter().enumerate(){if let Some(name)=name {assert_eq!(result.get_value(name),Some(&items[i]));}}}
+    }
+   }
+  }
   if let Some(document)=value.get("abi") {
    if let Ok(interface)=AbiInterface::from_json(&serde_json::to_vec(document).unwrap()) {
     if let Some(bytes)=value.get("data").and_then(|v|v.as_str()).and_then(|s|quai_primitives::get_bytes(s).ok()) {
-     if let Ok(call)=interface.parse_call(&bytes){assert_eq!(call.function.encode_call(&call.arguments).unwrap(),bytes);}
+     if let Ok(call)=interface.parse_call(&bytes){assert_eq!(call.function.encode_call(&call.arguments).unwrap(),bytes);assert_eq!(call.function.decode_call_named(&bytes).unwrap().values(),call.arguments);}
      let _=interface.parse_revert(&bytes);
      if let Some(topics)=value.get("topics").and_then(|v|v.as_array()) {
       if topics.len()<=5 {if let Ok(topics)=topics.iter().map(|v|v.as_str().ok_or(()).and_then(|s|s.parse::<quai_primitives::Hash32>().map_err(|_|()))).collect::<Result<Vec<_>,_>>() {let _=interface.parse_log(&topics,&bytes);}}
@@ -36,6 +53,13 @@ fuzz_target!(|data:&[u8]| {
  }
  let _=AbiInterface::default().parse_revert(data);
  if let Ok(interface)=AbiInterface::from_json(data){
+  for style in [AbiFormat::Full,AbiFormat::Minimal,AbiFormat::Json,AbiFormat::Signature] {
+   for f in interface.functions().take(3) {let _=f.format(style);}
+   for e in interface.errors().take(3) {let _=e.format(style);}
+   for e in interface.events().take(3) {let _=e.format(style);}
+   if let Some(c)=interface.constructor(){let _=c.format(style);}
+  }
+
   if let Ok(json)=interface.format_json(){let restored=AbiInterface::from_json(json.as_bytes()).unwrap();assert_eq!(restored.format_json().unwrap(),json);}
   let _=interface.format_human_readable(false);let _=interface.format_human_readable(true);
  }

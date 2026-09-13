@@ -865,3 +865,28 @@ and all extracted package checks pass. See [the provider guide](docs/PROVIDER_PA
 702 declarations are reconciled; counts are 66 implemented, 2,372 deviation,
 64 partial and 1,426 pending. ABI/reflection and remaining response/utility family
 review continue; these counts are not a feature-completion percentage.
+
+
+## ABI reflection and named results — 2026-09-13
+
+Added `AbiParameter` metadata/formatting/traversal, `AbiResult` named decoded values
+and exact function/constructor gas annotations. All four compiled declaration
+kinds expose named parameter trees and individual formats; interfaces expose
+immutable original declaration metadata. Async walks support non-Send callbacks
+and enforce aggregate input/output budgets. Gas remains descriptive metadata.
+
+Seven new ABI tests and the existing readable-ABI suite pass natively and as ten
+shared Chromium-worker tests. The full native ABI suite has 45 passing tests.
+Four published-source regressions document exact encodings and formatter/result
+defects. ABI AddressSanitizer fuzzing completed 552,498 executions over 120 seconds
+without failure; this bounded smoke run is not sustained security qualification.
+Strict native/Wasm Clippy and warnings-denied documentation checks pass. Detailed
+API differences and limits are in [ABI reflection parity](docs/ABI_REFLECTION_PARITY.md).
+
+The 360 reviewed declarations close 338 pending and four partial rows. The ledger
+now has 66 implemented, 2,714 deviation, 60 partial and 1,088 pending entries;
+typed-data, transaction/contract response and remaining utility reviews continue.
+
+The ABI batch also passes extracted-source package rehearsal for all twelve crate
+archives, three consumer profiles, twelve native target compilations and two Wasm
+target compilations. This does not publish packages or certify docs.rs execution.

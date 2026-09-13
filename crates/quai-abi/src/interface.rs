@@ -1,8 +1,10 @@
 use crate::{
-    AbiCoder, AbiError, AbiType, MAX_DEPTH, MAX_FIELDS, TypedDataError, indexed_event_topic, keccak,
+    AbiCoder, AbiError, AbiFormat, AbiParameter, AbiResult, AbiType, MAX_DEPTH, MAX_FIELDS,
+    TypedDataError, indexed_event_topic, keccak,
 };
 use quai_primitives::Hash32;
-use serde_json::{Map, Value};
+use ruint::aliases::U256;
+use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Solidity's declared function/constructor/fallback mutability.
@@ -25,11 +27,30 @@ pub struct AbiFunction {
     signature: String,
     selector: [u8; 4],
     inputs: Vec<AbiType>,
+    input_parameters: Vec<AbiParameter>,
     outputs: Vec<AbiType>,
+    output_parameters: Vec<AbiParameter>,
     names: Vec<String>,
+    output_names: Vec<String>,
+    gas_hint: Option<U256>,
     mutability: StateMutability,
 }
 impl AbiFunction {
+    /// Format this declaration alone, including nested names and exact gas hints.
+    pub fn format(&self, style: AbiFormat) -> Result<String, AbiError> {
+        if style == AbiFormat::Signature {
+            return Ok(self.signature.clone());
+        }
+        let mut value = json!({"type":"function", "name":self.name,
+            "inputs":self.input_parameters.iter().map(AbiParameter::json).collect::<Vec<_>>(),
+            "outputs":self.output_parameters.iter().map(AbiParameter::json).collect::<Vec<_>>(),
+            "stateMutability":mutability_name(self.mutability)});
+        if let Some(gas) = self.gas_hint {
+            value["gas"] = json!(gas.to_string());
+        }
+        format_fragment(value, style)
+    }
+
     /// Function name without parameter types.
     pub fn name(&self) -> &str {
         &self.name
@@ -42,7 +63,11 @@ impl AbiFunction {
     pub const fn selector(&self) -> [u8; 4] {
         self.selector
     }
-    /// Positional input types.
+    /// Named parameter tree, including tuple components and compiler metadata.
+    pub fn input_parameters(&self) -> &[AbiParameter] {
+        &self.input_parameters
+    }
+    /// Positional input types in declaration order.
     pub fn inputs(&self) -> &[AbiType] {
         &self.inputs
     }
@@ -50,7 +75,27 @@ impl AbiFunction {
     pub fn input_names(&self) -> &[String] {
         &self.names
     }
-    /// Positional return types.
+    /// Original output names; empty names remain empty.
+    pub fn output_names(&self) -> &[String] {
+        &self.output_names
+    }
+    /// Optional ABI gas annotation, as metadata only. Does not set a transaction limit.
+    pub const fn gas_hint(&self) -> Option<U256> {
+        self.gas_hint
+    }
+    /// Decode named input fields after canonical selector and encoding checks.
+    pub fn decode_call_named(&self, data: &[u8]) -> Result<AbiResult, AbiError> {
+        AbiResult::decoded(self.decode_call(data)?, &self.names)
+    }
+    /// Decode named return fields with eager canonical validation.
+    pub fn decode_returns_named(&self, data: &[u8]) -> Result<AbiResult, AbiError> {
+        AbiResult::decoded(self.decode_returns(data)?, &self.output_names)
+    }
+    /// Named return parameter tree.
+    pub fn output_parameters(&self) -> &[AbiParameter] {
+        &self.output_parameters
+    }
+    /// Positional return types in declaration order.
     pub fn outputs(&self) -> &[AbiType] {
         &self.outputs
     }
@@ -83,8 +128,22 @@ pub struct AbiCustomError {
     signature: String,
     selector: [u8; 4],
     inputs: Vec<AbiType>,
+    input_parameters: Vec<AbiParameter>,
+    names: Vec<String>,
 }
 impl AbiCustomError {
+    /// Format this error declaration; signature mode omits names and the keyword.
+    pub fn format(&self, style: AbiFormat) -> Result<String, AbiError> {
+        if style == AbiFormat::Signature {
+            return Ok(self.signature.clone());
+        }
+        format_fragment(
+            json!({"type":"error","name":self.name,
+            "inputs":self.input_parameters.iter().map(AbiParameter::json).collect::<Vec<_>>()}),
+            style,
+        )
+    }
+
     /// Declared error name.
     pub fn name(&self) -> &str {
         &self.name
@@ -97,9 +156,21 @@ impl AbiCustomError {
     pub const fn selector(&self) -> [u8; 4] {
         self.selector
     }
-    /// Positional error fields.
+    /// Named parameter tree, including tuple components and compiler metadata.
+    pub fn input_parameters(&self) -> &[AbiParameter] {
+        &self.input_parameters
+    }
+    /// Positional input types in declaration order.
     pub fn inputs(&self) -> &[AbiType] {
         &self.inputs
+    }
+    /// Original error field names in declaration order.
+    pub fn input_names(&self) -> &[String] {
+        &self.names
+    }
+    /// Decode named fields after selector and canonical encoding validation.
+    pub fn decode_named(&self, data: &[u8]) -> Result<AbiResult, AbiError> {
+        AbiResult::decoded(self.decode(data)?, &self.names)
     }
     /// Encode selector-prefixed custom-error data.
     pub fn encode(&self, values: &[Value]) -> Result<Vec<u8>, AbiError> {
@@ -127,10 +198,24 @@ pub struct AbiEvent {
     signature: String,
     topic: Hash32,
     inputs: Vec<AbiType>,
+    input_parameters: Vec<AbiParameter>,
     indexed: Vec<bool>,
+    names: Vec<String>,
     anonymous: bool,
 }
 impl AbiEvent {
+    /// Format this event declaration, retaining indexed flags on array fields.
+    pub fn format(&self, style: AbiFormat) -> Result<String, AbiError> {
+        if style == AbiFormat::Signature {
+            return Ok(self.signature.clone());
+        }
+        format_fragment(
+            json!({"type":"event","name":self.name,"anonymous":self.anonymous,
+            "inputs":self.input_parameters.iter().map(AbiParameter::json).collect::<Vec<_>>()}),
+            style,
+        )
+    }
+
     /// Declared event name.
     pub fn name(&self) -> &str {
         &self.name
@@ -143,9 +228,25 @@ impl AbiEvent {
     pub const fn topic_hash(&self) -> Hash32 {
         self.topic
     }
-    /// All event argument types in declaration order.
+    /// Named parameter tree, including tuple components and compiler metadata.
+    pub fn input_parameters(&self) -> &[AbiParameter] {
+        &self.input_parameters
+    }
+    /// Positional input types in declaration order.
     pub fn inputs(&self) -> &[AbiType] {
         &self.inputs
+    }
+    /// Original event names in declaration order.
+    pub fn input_names(&self) -> &[String] {
+        &self.names
+    }
+    /// Decode a named event result, retaining indexed compound fields as hashes.
+    pub fn decode_log_named(
+        &self,
+        topics: &[Hash32],
+        data: &[u8],
+    ) -> Result<AbiResult<AbiEventValue>, AbiError> {
+        AbiResult::decoded(self.decode_log(topics, data)?, &self.names)
     }
     /// Indexed flags in the same order as the input types.
     pub fn indexed(&self) -> &[bool] {
@@ -225,12 +326,41 @@ impl AbiEvent {
 #[derive(Clone, Debug)]
 pub struct AbiConstructor {
     inputs: Vec<AbiType>,
+    input_parameters: Vec<AbiParameter>,
+    names: Vec<String>,
+    gas_hint: Option<U256>,
     mutability: StateMutability,
 }
 impl AbiConstructor {
-    /// Constructor input types in declaration order.
+    /// Format this constructor. Signature mode rejects because constructors have
+    /// no callable selector; gas metadata is exported as an exact decimal string.
+    pub fn format(&self, style: AbiFormat) -> Result<String, AbiError> {
+        if style == AbiFormat::Signature {
+            return Err(AbiError::Schema);
+        }
+        let mut value = json!({"type":"constructor", "stateMutability":mutability_name(self.mutability),
+            "inputs":self.input_parameters.iter().map(AbiParameter::json).collect::<Vec<_>>()});
+        if let Some(gas) = self.gas_hint {
+            value["gas"] = json!(gas.to_string());
+        }
+        format_fragment(value, style)
+    }
+
+    /// Named parameter tree, including tuple components and compiler metadata.
+    pub fn input_parameters(&self) -> &[AbiParameter] {
+        &self.input_parameters
+    }
+    /// Positional input types in declaration order.
     pub fn inputs(&self) -> &[AbiType] {
         &self.inputs
+    }
+    /// Original constructor argument names.
+    pub fn input_names(&self) -> &[String] {
+        &self.names
+    }
+    /// Optional ABI gas annotation; never an automatic deployment gas limit.
+    pub const fn gas_hint(&self) -> Option<U256> {
+        self.gas_hint
     }
     /// Whether the declaration permits value with deployment.
     pub const fn state_mutability(&self) -> StateMutability {
@@ -254,6 +384,13 @@ pub struct AbiInterface {
     receive: bool,
 }
 impl AbiInterface {
+    /// Borrow all validated original declarations in input order, including
+    /// fallback and receive metadata. Compiled function/event/error iterators
+    /// provide typed lookup views; this slice also retains optional JSON fields.
+    pub fn declarations(&self) -> &[Value] {
+        &self.declarations
+    }
+
     /// Parse a standard JSON ABI array, rejecting duplicates and unknown shapes.
     /// Human-readable string fragments are not accepted by this entry point.
     pub fn from_json(bytes: &[u8]) -> Result<Self, AbiError> {
@@ -282,6 +419,7 @@ impl AbiInterface {
                             "inputs",
                             "outputs",
                             "stateMutability",
+                            "gas",
                             "constant",
                             "payable",
                         ],
@@ -296,8 +434,12 @@ impl AbiInterface {
                         signature: signature.clone(),
                         selector,
                         inputs: input.types,
+                        input_parameters: input.parameters,
                         outputs: output.types,
+                        output_parameters: output.parameters,
                         names: input.names,
+                        output_names: output.names,
+                        gas_hint: gas_hint(object)?,
                         mutability: mutability(object)?,
                     };
                     if result.functions.insert(signature, item).is_some() {
@@ -318,7 +460,9 @@ impl AbiInterface {
                                 name,
                                 signature,
                                 selector,
+                                names: input.names,
                                 inputs: input.types,
+                                input_parameters: input.parameters,
                             },
                         )
                         .is_some()
@@ -345,7 +489,9 @@ impl AbiInterface {
                                 name,
                                 signature,
                                 topic,
+                                names: input.names,
                                 inputs: input.types,
+                                input_parameters: input.parameters,
                                 indexed: input.indexed,
                                 anonymous,
                             },
@@ -356,8 +502,11 @@ impl AbiInterface {
                     }
                 }
                 "constructor" => {
-                    keys(object, &["type", "inputs", "stateMutability", "payable"])?;
-                    let inputs = params(object.get("inputs"), false, 0)?.types;
+                    keys(
+                        object,
+                        &["type", "inputs", "stateMutability", "payable", "gas"],
+                    )?;
+                    let input = params(object.get("inputs"), false, 0)?;
                     let state = mutability(object)?;
                     if matches!(state, StateMutability::Pure | StateMutability::View)
                         || result.constructor.is_some()
@@ -365,7 +514,10 @@ impl AbiInterface {
                         return Err(AbiError::Schema);
                     }
                     result.constructor = Some(AbiConstructor {
-                        inputs,
+                        inputs: input.types,
+                        input_parameters: input.parameters,
+                        names: input.names,
+                        gas_hint: gas_hint(object)?,
                         mutability: state,
                     });
                 }
@@ -575,12 +727,17 @@ pub(crate) fn mutability(object: &Map<String, Value>) -> Result<StateMutability,
     }
     Ok(state)
 }
-struct Parameters {
+pub(crate) struct Parameters {
+    pub(crate) parameters: Vec<AbiParameter>,
     types: Vec<AbiType>,
     names: Vec<String>,
     indexed: Vec<bool>,
 }
-fn params(value: Option<&Value>, event: bool, depth: usize) -> Result<Parameters, AbiError> {
+pub(crate) fn params(
+    value: Option<&Value>,
+    event: bool,
+    depth: usize,
+) -> Result<Parameters, AbiError> {
     if depth > MAX_DEPTH {
         return Err(AbiError::Limit);
     }
@@ -594,6 +751,7 @@ fn params(value: Option<&Value>, event: bool, depth: usize) -> Result<Parameters
         return Err(AbiError::Limit);
     }
     let mut result = Parameters {
+        parameters: Vec::new(),
         types: Vec::new(),
         names: Vec::new(),
         indexed: Vec::new(),
@@ -621,6 +779,7 @@ fn params(value: Option<&Value>, event: bool, depth: usize) -> Result<Parameters
             return Err(AbiError::Schema);
         }
         let text = text(p, "type")?;
+        let mut reflected = Vec::new();
         let ty = if let Some(suffix) = text.strip_prefix("tuple") {
             if !suffix.is_empty() && !suffix.starts_with('[') {
                 return Err(AbiError::Schema);
@@ -630,6 +789,7 @@ fn params(value: Option<&Value>, event: bool, depth: usize) -> Result<Parameters
                 false,
                 depth + 1,
             )?;
+            reflected = components.parameters;
             let inner = AbiType::tuple(components.types)?;
             AbiType::parse(&format!("{inner}{suffix}"))?
         } else {
@@ -638,6 +798,15 @@ fn params(value: Option<&Value>, event: bool, depth: usize) -> Result<Parameters
             }
             AbiType::parse(text)?
         };
+        result.parameters.push(AbiParameter::new(
+            ty.clone(),
+            name.into(),
+            indexed,
+            p.get("internalType")
+                .and_then(Value::as_str)
+                .map(str::to_owned),
+            reflected,
+        ));
         result.types.push(ty);
         result.names.push(name.into());
         result.indexed.push(indexed.unwrap_or(false));
@@ -650,4 +819,56 @@ fn params(value: Option<&Value>, event: bool, depth: usize) -> Result<Parameters
         return Err(AbiError::Limit);
     }
     Ok(result)
+}
+
+// Exact nonnegative integer gas metadata; JSON numbers must be integral and fit u64.
+pub(crate) fn gas_hint(object: &Map<String, Value>) -> Result<Option<U256>, AbiError> {
+    match object.get("gas") {
+        None | Some(Value::Null) => Ok(None),
+        Some(Value::Number(n)) => n.as_u64().map(U256::from).map(Some).ok_or(AbiError::Schema),
+        Some(Value::String(s)) => {
+            let (digits, radix) = s.strip_prefix("0x").map_or((s.as_str(), 10), |s| (s, 16));
+            if digits.is_empty()
+                || digits.len() > 78
+                || !digits.bytes().all(|b| {
+                    if radix == 16 {
+                        b.is_ascii_hexdigit()
+                    } else {
+                        b.is_ascii_digit()
+                    }
+                })
+            {
+                return Err(AbiError::Schema);
+            }
+            U256::from_str_radix(digits, radix)
+                .map(Some)
+                .map_err(|_| AbiError::Schema)
+        }
+        _ => Err(AbiError::Schema),
+    }
+}
+
+fn mutability_name(state: StateMutability) -> &'static str {
+    match state {
+        StateMutability::Pure => "pure",
+        StateMutability::View => "view",
+        StateMutability::Payable => "payable",
+        StateMutability::Nonpayable => "nonpayable",
+    }
+}
+fn format_fragment(value: Value, style: AbiFormat) -> Result<String, AbiError> {
+    if style == AbiFormat::Json {
+        let text = value.to_string();
+        if text.len() > crate::MAX_DATA_BYTES {
+            return Err(AbiError::Limit);
+        }
+        return Ok(text);
+    }
+    let interface = AbiInterface {
+        declarations: vec![value],
+        ..AbiInterface::default()
+    };
+    Ok(interface
+        .format_human_readable(style == AbiFormat::Minimal)?
+        .remove(0))
 }

@@ -336,6 +336,18 @@
     {
       "source": "crates/quai-provider/tests/fixtures/conversion-block16.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-provider/tests/fixtures/conversion-block16.json"
+    },
+    {
+      "source": "compatibility/fixtures/abi-reflection.json",
+      "destination": "crates/quai-abi/tests/fixtures/shared/compatibility/fixtures/abi-reflection.json"
+    },
+    {
+      "source": "crates/quai-abi/tests/reflection.rs",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-abi/tests/reflection.rs"
+    },
+    {
+      "source": "compatibility/fixtures/abi-reflection.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-abi/tests/fixtures/shared/compatibility/fixtures/abi-reflection.json"
     }
   ]
 }

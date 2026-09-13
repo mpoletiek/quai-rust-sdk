@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 2372 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 64 | A mapping exists with unfinished behavior or scope |
-| `pending` | 1426 | No completed row-level reconciliation; not proof of absence |
+| `deviation` | 2714 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 60 | A mapping exists with unfinished behavior or scope |
+| `pending` | 1088 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -234,7 +234,6 @@ root/subpath exports account for much of the volume.
 <!-- parity-family-table:start -->
 | Export family | Pending | Partial | Implemented | Deviation |
 | --- | ---: | ---: | ---: | ---: |
-| `Result` | 88 | 0 | 0 | 0 |
 | `FetchRequest` | 64 | 0 | 0 | 0 |
 | `QuaiTransaction` | 46 | 10 | 0 | 0 |
 | `BaseContract` | 50 | 4 | 0 | 2 |
@@ -243,20 +242,11 @@ root/subpath exports account for much of the volume.
 | `Contract` | 46 | 4 | 0 | 2 |
 | `QiTransaction` | 36 | 10 | 0 | 0 |
 | `QiTransactionResponse` | 40 | 0 | 0 | 0 |
-| `FunctionFragment` | 38 | 0 | 0 | 0 |
 | `TypedDataEncoder` | 14 | 20 | 0 | 2 |
 | `FetchResponse` | 32 | 0 | 0 | 0 |
-| `ParamType` | 32 | 0 | 0 | 0 |
 | `Signature` | 32 | 0 | 0 | 0 |
-| `EventFragment` | 30 | 0 | 0 | 0 |
-| `ConstructorFragment` | 26 | 0 | 0 | 0 |
-| `ErrorFragment` | 26 | 0 | 0 | 0 |
 | `ContractEventPayload` | 24 | 0 | 0 | 0 |
-| `FallbackFragment` | 24 | 0 | 0 | 0 |
-| `StructFragment` | 24 | 0 | 0 | 0 |
-| `NamedFragment` | 22 | 0 | 0 | 0 |
 | `BaseWallet` | 20 | 0 | 0 | 0 |
-| `Fragment` | 20 | 0 | 0 | 0 |
 | `LangEs` | 20 | 0 | 0 | 0 |
 | `LangEn` | 18 | 0 | 0 | 0 |
 | `SocketEventSubscriber` | 18 | 0 | 0 | 0 |
@@ -272,13 +262,11 @@ root/subpath exports account for much of the volume.
 | `BIP44` | 12 | 0 | 0 | 0 |
 | `UnmanagedSubscriber` | 12 | 0 | 0 | 0 |
 | `Wordlist` | 12 | 0 | 0 | 0 |
-| `AbiCoder` | 6 | 2 | 0 | 6 |
 | `AggregateCoinSelector` | 8 | 0 | 0 | 0 |
 | `ContractFactory` | 0 | 8 | 0 | 18 |
 | `EventPayload` | 8 | 0 | 0 | 0 |
 | `FetchCancelSignal` | 8 | 0 | 0 | 0 |
 | `FeeData` | 6 | 0 | 0 | 0 |
-| `Interface` | 2 | 2 | 0 | 68 |
 | `AccessList` | 2 | 0 | 0 | 0 |
 | `AccessListEntry` | 2 | 0 | 0 | 0 |
 | `accessListify` | 2 | 0 | 0 | 0 |
@@ -486,3 +474,20 @@ passive account listing, native WebSocket state inspection and a portable bounde
 promise resolvers are replaced by explicit Rust transport/runtime composition.
 Local buffering is supported even though published socket subscribers reject it.
 No transaction is resubmitted or nonce released by connection/event recovery.
+
+
+## ABI reflection and result review — 2026-09-13
+
+Named call/return/error/event results, parameter trees, individual fragment
+formatting, bounded sync/async walking and exact gas metadata now have Rust APIs
+and native/browser evidence. The [ABI reflection review](docs/ABI_REFLECTION_PARITY.md)
+records source defects (gas JSON serialization, indexed array metadata loss and
+prototype-key omission), eager decoding and explicit Rust collection/type choices.
+Gas hints do not change transaction fee policy. Standalone named tuple metadata
+covers published StructFragment fields; its JavaScript formatter is unfinished.
+
+This review reconciles 360 declarations, closing 338 pending and four partial
+entries. The current ledger has **66 implemented, 2,714 deviation, 60 partial and
+1,088 pending** declarations. Counts include repeated exports and inherited
+language methods; they are not independent feature percentages. Complete parity
+and production release qualification are not claimed.

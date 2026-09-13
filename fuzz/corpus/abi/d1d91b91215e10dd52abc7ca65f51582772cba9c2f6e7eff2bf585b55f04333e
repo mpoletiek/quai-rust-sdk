@@ -1,0 +1,1 @@
+{"type": "tuple", "name": "root", "components": [{"type": "bytes", "name": "blob"}, {"type": "tuple[2]", "name": "nested", "components": [{"type": "bool", "name": "enabled"}, {"type": "int8", "name": "delta"}]}]}

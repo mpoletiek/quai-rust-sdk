@@ -4,3 +4,6 @@
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_dedicated_worker);
 #[path = "fixtures/shared/crates/quai-abi/tests/human.rs"]
 mod shared;
+
+#[path = "fixtures/shared/crates/quai-abi/tests/reflection.rs"]
+mod reflection;

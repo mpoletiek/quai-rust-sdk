@@ -1,0 +1,10 @@
+import {FunctionFragment,ConstructorFragment,ParamType,Interface} from 'quais';
+import {writeFileSync} from 'node:fs';
+const parameters=['uint amount','tuple(uint count,address who)[] indexed rows','tuple(bytes blob,tuple(bool enabled,int8 delta)[2] nested) root','bytes32[0][] values','address indexed','tuple() empty'];
+const param=parameters.map(text=>{const p=ParamType.from(text,true);return {text,full:p.format('full'),minimal:p.format('minimal'),signature:p.format('sighash'),json:JSON.parse(p.format('json'))};});
+const gas=['function f(uint x) view returns (uint y) @100','function f() @0','constructor(uint x) payable @200','function f() @'+((1n<<256n)-1n)].map(text=>{const f=(text.startsWith('constructor')?ConstructorFragment:FunctionFragment).from(text);return {text,full:f.format('full'),minimal:f.format('minimal'),gas:String(f.gas)};});
+const abi=['function f(uint length,bytes payload) returns (uint then,tuple(uint count,address who) detail)','error Denied(uint code,bytes reason)','event Changed(string indexed label,uint value)'];
+const iface=new Interface(abi),values=['42','0x1234'],returns=['99',['7','0x0011223344556677889900112233445566778899']],error=['3','0xab'],event=['label','8'];
+const fixture={reference:'quais@1.0.0-alpha.57',notes:'Published parameter JSON drops outer indexed metadata on arrays; Rust retains it. Published fragments with gas bigint throw when formatted as JSON; Rust formats exact decimal string metadata.',parameters:param,gas,abi,call:{values,data:iface.encodeFunctionData('f',values)},returns:{values:returns,data:iface.encodeFunctionResult('f',returns)},error:{values:error,data:iface.encodeErrorResult('Denied',error)},event:{values:event,...iface.encodeEventLog('Changed',event)}};
+writeFileSync(new URL('../fixtures/abi-reflection.json',import.meta.url),JSON.stringify(fixture,null,2)+'\n');
+console.log(`Generated ${param.length} parameter and ${gas.length} gas vectors plus named call/return/error/event encodings`);

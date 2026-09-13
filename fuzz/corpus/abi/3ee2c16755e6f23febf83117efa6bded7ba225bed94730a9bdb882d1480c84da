@@ -1,0 +1,1 @@
+{"parameter": {"type": "tuple[]", "components": [{"type": "uint", "name": "n"}, {"type": "string", "name": "label"}]}, "value": [{"n": 7, "label": "a"}]}

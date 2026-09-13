@@ -128,3 +128,17 @@ skip blocks. No pending transaction or write request is replayed. Application
 state must undo/apply each returned page and persist its checkpoint before asking
 for another page. A cloned `HeadTracker` can be polled and adopted after a durable
 application commit. The tracker itself is not a wallet database or consensus proof.
+
+### Browser persistence
+
+`BrowserSnapshotStore` commits opaque public state or caller-encrypted envelopes
+in IndexedDB. `BrowserStorageScope` separates chain, genesis, zone and wallet;
+applications should bind the same scope into encrypted associated data. Whole
+snapshots use atomic compare-and-exchange revisions, with committed completion,
+size limits, quota/schema errors and tombstones that preserve revision history.
+Concurrent tabs/workers must reload and merge after `StorageConflict`; the adapter
+never silently overwrites another writer. Dropping an in-flight write does not
+prove rollback, so read its revision before retrying. Clones share the database
+handle, which closes after the last drop or a database version change. This is a
+persistence boundary for application snapshots, not the native SQLite wallet's
+schema or an implicit plaintext key store.

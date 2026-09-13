@@ -72,6 +72,7 @@ jobs:
           with open(os.environ['GITHUB_ENV'], 'a') as output:
               output.write(f'CHROMEDRIVER={driver}\nWASM_BINDGEN_TEST_WEBDRIVER_JSON={config}\n')
           PYTHON
+      - run: python3 crates/quai-browser/tests/run_storage.py
       - run: python3 crates/quai-browser/tests/run_browser.py
         env:
           CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner

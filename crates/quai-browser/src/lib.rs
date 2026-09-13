@@ -65,6 +65,12 @@ impl BrowserConfig {
 /// Sanitized browser failures. No provider strings, payloads, keys or URLs are retained.
 #[derive(Debug, thiserror::Error)]
 pub enum BrowserError {
+    /// IndexedDB open/transaction/schema/quota failure; no remote text is retained.
+    #[error("browser snapshot storage failed")]
+    Storage,
+    /// A concurrent writer or stale tab changed the snapshot revision.
+    #[error("browser snapshot revision conflict")]
+    StorageConflict,
     /// Configuration or endpoint does not match this adapter.
     #[error("invalid browser adapter configuration")]
     InvalidConfig,
@@ -251,3 +257,8 @@ mod tests {
         }
     }
 }
+
+#[cfg(target_arch = "wasm32")]
+mod storage;
+#[cfg(target_arch = "wasm32")]
+pub use storage::{BrowserSnapshot, BrowserSnapshotStore, BrowserStorageScope};

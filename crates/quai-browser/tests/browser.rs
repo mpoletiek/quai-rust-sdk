@@ -362,3 +362,76 @@ async fn account_chain_and_disconnect_events_invalidate_pending_signatures_and_c
     drop(clone);
     assert_eq!(listener_count(&value), 0);
 }
+
+#[wasm_bindgen_test(async)]
+async fn indexeddb_snapshots_are_atomic_scoped_persistent_and_keep_tombstone_revisions() {
+    use quai_browser::{BrowserSnapshotStore, BrowserStorageScope};
+    let scope = BrowserStorageScope {
+        chain_id: U256::from(15000),
+        genesis: quai_primitives::Hash32::from_bytes([1; 32]),
+        zone: Zone::Cyprus1,
+        wallet: quai_primitives::Hash32::from_bytes([2; 32]),
+    };
+    let mut random = [0; 8];
+    fill_random(&mut random).unwrap();
+    let name = format!("snapshot-test-{}", u64::from_be_bytes(random));
+    let first = BrowserSnapshotStore::open(&name, scope, 1024)
+        .await
+        .unwrap();
+    let second = BrowserSnapshotStore::open(&name, scope, 1024)
+        .await
+        .unwrap();
+    assert!(first.read().await.unwrap().is_none());
+    let (a, b) = futures_util::join!(
+        first.compare_exchange(None, Some(b"public-a")),
+        second.compare_exchange(None, Some(b"public-b"))
+    );
+    assert_eq!(usize::from(a.is_ok()) + usize::from(b.is_ok()), 1);
+    assert!(
+        matches!(a, Err(BrowserError::StorageConflict))
+            || matches!(b, Err(BrowserError::StorageConflict))
+    );
+    let record = second.read().await.unwrap().unwrap();
+    assert_eq!(record.revision, 1);
+    assert!(matches!(
+        record.bytes.as_deref(),
+        Some(b"public-a") | Some(b"public-b")
+    ));
+    let other = BrowserSnapshotStore::open(
+        &name,
+        BrowserStorageScope {
+            wallet: quai_primitives::Hash32::from_bytes([3; 32]),
+            ..scope
+        },
+        1024,
+    )
+    .await
+    .unwrap();
+    assert!(other.read().await.unwrap().is_none());
+    assert!(
+        first
+            .compare_exchange(Some(1), Some(&[0; 1025]))
+            .await
+            .is_err()
+    );
+    assert_eq!(first.compare_exchange(Some(1), None).await.unwrap(), 2);
+    assert!(matches!(
+        second.compare_exchange(None, Some(b"stale")).await,
+        Err(BrowserError::StorageConflict)
+    ));
+    drop(first);
+    drop(second);
+    let reopened = BrowserSnapshotStore::open(&name, scope, 1024)
+        .await
+        .unwrap();
+    let record = reopened.read().await.unwrap().unwrap();
+    assert_eq!(record.revision, 2);
+    assert!(record.bytes.is_none());
+    assert_eq!(
+        reopened
+            .compare_exchange(Some(2), Some(b"restored"))
+            .await
+            .unwrap(),
+        3
+    );
+}

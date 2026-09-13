@@ -1,5 +1,7 @@
 //! Contract calldata, mutability, sender scope and typed ERC-20 return validation.
 #![cfg(feature = "abi")]
+#[cfg(target_arch = "wasm32")]
+wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_dedicated_worker);
 use quai_sdk::contracts::{ContractError, DeploymentSearch, Erc20, prepare_deployment};
 use quai_sdk::provider::BlockTag;
 use quai_sdk::rpc::{RpcError, Transport};
@@ -27,7 +29,8 @@ fn provider(mock: Mock) -> Provider<Mock> {
 }
 const CONTRACT: &str = "0x0011223344556677889900112233445566778899";
 const OWNER: &str = "0x0000000000000000000000000000000000000001";
-#[tokio::test]
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 async fn token_balance_is_exact_and_account_call_is_block_pinned() {
     let mock = Mock::default();
     let provider = provider(mock.clone());
@@ -56,7 +59,8 @@ async fn token_balance_is_exact_and_account_call_is_block_pinned() {
         format!("0x70a08231{}1", "0".repeat(63))
     );
 }
-#[tokio::test]
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 async fn exact_approval_is_offline_and_write_call_requires_explicit_simulation() {
     let mock = Mock::default();
     let provider = provider(mock.clone());
@@ -115,7 +119,8 @@ async fn exact_approval_is_offline_and_write_call_requires_explicit_simulation()
     ));
 }
 
-#[test]
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 fn deployment_grinds_exact_code_and_includes_mandatory_created_address_access() {
     let interface=quai_sdk::abi::AbiInterface::from_json(br#"[{"type":"constructor","stateMutability":"nonpayable","inputs":[{"name":"value","type":"uint256"}]}]"#).unwrap();
     let sender = OWNER.parse::<quai_sdk::QuaiAddress>().unwrap();
@@ -190,7 +195,8 @@ fn deployment_grinds_exact_code_and_includes_mandatory_created_address_access() 
     ));
 }
 
-#[test]
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 fn deployment_builder_matches_actual_local_node_accepted_fixture() {
     let fixture: Value = serde_json::from_str(include_str!(
         "fixtures/shared/test-infra/local-chain/acceptance-fixtures.json"
@@ -238,7 +244,8 @@ fn deployment_builder_matches_actual_local_node_accepted_fixture() {
     assert_eq!(fixture["failedDeploymentReceipt"]["status"], "0x0");
 }
 
-#[tokio::test]
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 async fn prepared_access_declarations_survive_simulation_and_reject_oversize() {
     let mock = Mock::default();
     let provider = provider(mock.clone());

@@ -18,6 +18,20 @@ export function fixtureProvider(mode) {
             if (payload.method === 'quai_requestAccounts' || payload.method === 'quai_accounts') return mode === 'unavailable' ? [] : ['0x0049cda3305ccb9cb23e7ce2528cef555e9a5b32'];
             if (payload.method === 'personal_sign' && mode === 'change_during_sign') this.emit('accountsChanged');
             if (payload.method === 'quai_signTypedData_v4' && mode === 'change_during_sign') this.emit('chainChanged');
+            if (payload.method === 'quai_sendRawTransaction') {
+                if (mode === 'change_during_send') this.emit('disconnect');
+                if (mode === 'reject_send') throw {code:4200,message:'SECRET_PROVIDER_DATA'};
+                if (mode === 'hang_send') return new Promise(resolve => {pending=resolve;});
+                if (mode === 'wrong_ack') return '0x'+'00'.repeat(32);
+                return this.signature;
+            }
+            if (payload.method === 'quai_signTransaction') {
+                if (mode === 'change_during_sign') this.emit('chainChanged');
+                if (mode === 'unsupported_sign') throw {code:4200,message:'SECRET_PROVIDER_DATA'};
+                if (mode === 'deny_sign') throw {code:4001,message:'SECRET_PROVIDER_DATA'};
+                if (mode === 'hang_sign') return new Promise(resolve => {pending=resolve;});
+                return this.signature;
+            }
             if (payload.method === 'personal_sign') return mode === 'unicode_signature' ? '0x' + '11'.repeat(63) + 'éé' : this.signature;
             if (payload.method === 'quai_signTypedData_v4') return this.signature;
             if (mode === 'oversize') return 'x'.repeat(10000);

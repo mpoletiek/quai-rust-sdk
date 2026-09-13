@@ -1,0 +1,129 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "7dbe0a804457c91fce1c0c1cad3288f85d549d10",
+  "testedWorkingTree": true,
+  "reference": "quais@1.0.0-alpha.57",
+  "pinnedRpcRequestShapes": 3,
+  "signedQiSubmissionFixtures": 4,
+  "actualChromium": {
+    "window": 23,
+    "worker": 17,
+    "contractWorker": 5,
+    "eventWorker": 2,
+    "failed": 0
+  },
+  "nativeBrowserTests": 3,
+  "nativeContractEventTests": 7,
+  "nodeBridgeTests": 12,
+  "referenceNodeTests": 3,
+  "checks": {
+    "wasmBrowserAllTargetsClippyWarningsDenied": "passed",
+    "portableSdkWasmAllTargetsClippyWarningsDenied": "passed",
+    "nativeBrowserClippyWarningsDenied": "passed",
+    "wasmBrowserRustdocWarningsDenied": "passed",
+    "sourceReferenceFilesVerified": 153,
+    "packageFileMirrors": 60,
+    "extractedNativePackages": 12,
+    "extractedConsumers": [
+      "minimal",
+      "default",
+      "full"
+    ],
+    "extractedWasmAllTargetChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    }
+  },
+  "packageQualification": {
+    "sourceCommit": "7dbe0a804457c91fce1c0c1cad3288f85d549d10",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 55258,
+        "sha256": "5cba5203da857bfca306e57c62529a0e26bb6109debc65651095db51e1d02b4a"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 44955,
+        "sha256": "1b6ac8181b0b7eafe925655953511bc0d34a2fbd03f6936ce66733242c8f7a1b"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 123005,
+        "sha256": "f46e768ad7ce5fb60facf18f19c829984c088d5519dd677aca0492dbf42007a3"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45479,
+        "sha256": "e9b8996826b507011031ce6e8e9478d525d1465eae09981a3469754695caaa76"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 42913,
+        "sha256": "c03e5dbab16e170f0f61d6c6981744935aa1b51317f493c0ae04d79773420627"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 116392,
+        "sha256": "111e4b383207bb1e709b2ca5bb5a59748c7f331d2652a693cebddad8589a4419"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 91829,
+        "sha256": "9b8523b5c97fab078d5b991c1b4b4c5dc4325d34a73ec086ccc61a6b1b5c067e"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 70183,
+        "sha256": "c25c43da7092e53bca9ebc2b8eacc1e06754cdffd2c59eec452774c1a66f93c0"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24386,
+        "sha256": "fd08d0cf31dd9671a48ebdc5ef841a7e41d653acb25b95b37b56afcf36ed18a7"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34223,
+        "sha256": "732d0063a16093314c735e601fd97a8a63eefd1be6eac6a0f8d7bedc8ac49545"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 230130,
+        "sha256": "2e6c52030afbad2710f77f2984b1bb9bc28d51f4bf04181ee78a4148c5e8823e"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39240,
+        "sha256": "90a5c9f89ed30ebb9d88274f65adff20614ae86d80684f612c3fe91fd3deacbd"
+      }
+    ]
+  },
+  "evidence": [
+    "crates/quai-browser/tests/support/injected_transaction.rs",
+    "compatibility/fixtures/browser-requests.json",
+    "crates/quai-sdk/tests/contracts.rs",
+    "crates/quai-sdk/tests/events.rs"
+  ],
+  "limits": [
+    "Synthetic explicitly supplied provider, not a real extension or funded node",
+    "No automatic nonce/gas population, permission request or write retry",
+    "Real wallets may not implement offline transaction signing or raw submission",
+    "Direct wallet-mediated quai_sendTransaction remains a separate implementation gap",
+    "Full browser wallet reservation and backup integration remains open",
+    "Extracted Wasm targets compile; their runtime tests run from the repository with the same source/fixtures"
+  ]
+}

@@ -439,3 +439,6 @@ async fn indexeddb_snapshots_are_atomic_scoped_persistent_and_keep_tombstone_rev
 
 #[path = "support/socket.rs"]
 mod socket_tests;
+
+#[path = "support/injected_transaction.rs"]
+mod injected_transaction_tests;

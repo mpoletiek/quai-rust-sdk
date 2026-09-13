@@ -236,6 +236,10 @@
     {
       "source": "test-infra/local-chain/wqi-evidence/wqi-redemption-receipt.json",
       "destination": "crates/quai-provider/tests/fixtures/shared/test-infra/local-chain/wqi-evidence/wqi-redemption-receipt.json"
+    },
+    {
+      "source": "compatibility/fixtures/browser-requests.json",
+      "destination": "crates/quai-browser/tests/fixtures/shared/compatibility/fixtures/browser-requests.json"
     }
   ]
 }

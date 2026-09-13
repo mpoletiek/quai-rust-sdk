@@ -548,3 +548,12 @@ not supply historical UTXOs: replay does not invent outpoint deltas absent from
 the node. Retain an explicit trusted checkpoint for restart; the in-memory
 ancestry window itself is not persisted or included in backups. No replay path
 broadcasts transactions or releases signed claims.
+
+## Signing and submitting through an injected browser wallet
+
+`InjectedProvider::sign_quai_transaction` validates a fully populated account
+transaction and independently verifies the returned signature and exact payload.
+After preserving the signed bytes in application state, compose
+`signed_submission_transport()` with `Provider` for exact-hash acknowledgement and
+ambiguous-send handling. The capability also accepts locally signed ordinary Qi,
+conversions and wrapping. See the [example and extension support boundary](../crates/quai-browser/README.md#injected-transaction-signing-and-submission).

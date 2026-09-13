@@ -169,3 +169,6 @@ fn worker_legacy_keystore_decryption_checks_mnemonic_ownership() {
 
 #[path = "support/socket.rs"]
 mod socket_tests;
+
+#[path = "support/injected_transaction.rs"]
+mod injected_transaction_tests;

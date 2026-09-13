@@ -2,7 +2,7 @@
 
 Concrete wasm32 adapters for browser Fetch, WebSocket and an explicitly supplied Quai wallet provider. This unpublished alpha adds browser transport and a small permission API; it does not make the native wallet/storage stack browser compatible.
 
-The crate exposes `BrowserConfig`, `BrowserSocketConfig` and sanitized `BrowserError` on all targets. `BrowserFetchTransport`, `BrowserWebSocketTransport`, `BrowserSubscription`, `InjectedProvider` and `fill_random` exist only on wasm32. There is no native browser stub silently substituting another transport. The transport adapters implement the existing non-`Send` wasm `quai_rpc::Transport` contract and can be used with `Provider` and explicit `Routing` without enabling native HTTP or wallet features.
+The crate exposes `BrowserConfig`, `BrowserSocketConfig` and sanitized `BrowserError` on all targets. `BrowserFetchTransport`, `BrowserWebSocketTransport`, `BrowserSubscription`, `InjectedProvider`, `InjectedSubmissionTransport` and `fill_random` exist only on wasm32. There is no native browser stub silently substituting another transport. The transport adapters implement the existing non-`Send` wasm `quai_rpc::Transport` contract and can be used with `Provider` and explicit `Routing` without enabling native HTTP or wallet features.
 
 ## Fetch
 
@@ -93,10 +93,52 @@ The explicitly invoked wallet APIs are:
 
 Provider errors retain only a safe numeric code, including EIP-1193 user rejection 4001 and unsupported method 4200. Provider messages, data and request payloads never enter error strings. Injected results use a bounded JSON-only serializer that rejects cycles, accessors, custom prototypes, BigInt and unsafe integer numbers; chain/amount quantities remain hex strings. Memory already allocated by an injected provider is outside this adapter's control.
 
-Dropping or timing out an injected request ends this adapter's wait. EIP-1193 has no cancellation primitive that retracts a wallet approval dialog or operation. No account/signature request is retried automatically. Generic `quai_sendTransaction`/`quai_sendRawTransaction`, transaction signing, chain switching, permission enumeration/revocation, and wallet discovery remain unimplemented. Passive account/chain/disconnect
+Dropping or timing out an injected request ends this adapter's wait. EIP-1193 has no cancellation primitive that retracts a wallet approval dialog or operation. No account/signature request is retried automatically. Generic `quai_sendTransaction`, chain switching, permission enumeration/revocation and wallet discovery remain unimplemented. Exact transaction signing and opt-in signed-payload submission are described below. Passive account/chain/disconnect
 monitoring is available through `context_revision()` and
 `monitors_context_events()`. A changed context rejects an in-flight signature;
 providers without removable event listeners are rechecked explicitly.
+
+## Injected transaction signing and submission
+
+`InjectedProvider::sign_quai_transaction(address, &transaction)` requests
+`quai_signTransaction` for an already-populated type-0 transaction. It checks the
+chain, configured sender zone, exposed account and complete request budget before
+signing. The returned canonical signed protobuf must recover the requested sender
+and match every unsigned field: chain, nonce, destination, value, gas, gas price,
+data and ordered access-list entries/storage keys. The adapter rejects wallet
+changes to those fields and any changed account/chain context. There is no implicit
+nonce allocation, fee estimation, signing retry or broadcast. Unsupported method
+4200 and user rejection 4001 remain sanitized numeric errors.
+
+For explicit submission, create `injected.signed_submission_transport()` and
+compose it with the ordinary `quai_provider::Provider` and exact endpoint routing.
+This capability forwards `quai_sendRawTransaction` only after validating canonical
+signed Quai or Qi bytes, chain and origin zone. The original injected transport
+keeps its read-only allowlist. Ordinary Qi, Qi conversion and Qi wrapping variants
+use the same high-level broadcast APIs as native transports:
+
+```rust,ignore
+let signed = injected.sign_quai_transaction(address, &transaction).await?;
+// Persist the exact signed bytes and claims in the application's wallet state.
+let provider = quai_provider::Provider::new(
+    injected.signed_submission_transport(), routing, expected_chain_id,
+);
+let acknowledgement = provider.broadcast(&signed).await?;
+```
+
+The provider checks the acknowledged hash against the locally computed ID. A
+remote error, timeout, malformed/wrong acknowledgement or context change after
+submission begins preserves that expected ID as an ambiguous outcome. No write is
+retried. Keep the ID and signed bytes before awaiting: dropping a future cancels
+only the local wait and does not retract submission or an extension's approval UI.
+
+The pinned JS signer accepts draft requests through `quai_sendTransaction`; Rust
+uses explicit exact signing followed by verified raw submission. Applications own
+preparation, durable reservations and confirmation/recovery. A real extension may
+not implement signing or raw submission: these methods are tested with an explicit
+synthetic provider in Chromium, not qualified against a live wallet extension.
+Injected Qi signing remains unsupported by the pinned reference; local verified Qi
+signatures can be submitted through the explicit transport.
 
 ## Browser boundaries
 
@@ -112,7 +154,7 @@ providers without removable event listeners are rechecked explicitly.
 
 On 2026-09-13 the crate compiled with Rust 1.97.1 for `wasm32-unknown-unknown` and ran in actual headless Chromium through wasm-bindgen-test 0.3.78. Tests use a separate loopback HTTP server with CORS plus a synthetic injected wallet object; they do not load a real wallet extension. Signing uses already-public fixture scalars; entropy tests use ephemeral unfunded keys.
 
-Browser tests cover real Fetch path/query and ID validation, refused redirects, streamed oversize data, deadlines and future cancellation, concurrency capacity, exact injected shard and account/signing arguments, no automatic prompts, chain mismatch, user-rejection redaction, malformed/accessor results, unauthorized or wrong-zone signing, non-ASCII signatures, and secure entropy. Ten dedicated-worker tests include five WebSocket lifecycle/protocol tests and verify Fetch/provider composition, timeout, Web Crypto, HD Qi grinding, verified legacy-keystore decryption and native Rust crypto running inside WebAssembly without Window or Tokio. The window suite passes 16 tests, including five real WebSocket tests shared with the worker suite. Twelve Node bridge tests additionally cover queue budgets and cancellation between JS delivery and Rust resumption. Additional native tests exercise limits, permission allowlists, bounded JSON serialization and envelope validation.
+Browser tests cover real Fetch path/query and ID validation, refused redirects, streamed oversize data, deadlines and future cancellation, concurrency capacity, exact injected shard and account/signing arguments, no automatic prompts, chain mismatch, user-rejection redaction, malformed/accessor results, unauthorized or wrong-zone signing, non-ASCII signatures, and secure entropy. Seventeen dedicated-worker tests include five WebSocket tests and seven injected transaction tests and verify Fetch/provider composition, timeout, Web Crypto, HD Qi grinding, verified legacy-keystore decryption and native Rust crypto running inside WebAssembly without Window or Tokio. The window suite passes 23 tests, including five real WebSocket tests and seven transaction signing/submission tests shared with the worker suite. Twelve Node bridge tests additionally cover queue budgets and cancellation between JS delivery and Rust resumption. Additional native tests exercise limits, permission allowlists, bounded JSON serialization and envelope validation.
 
 With Rust's wasm target, matching wasm-bindgen CLI 0.2.128 and Chromium/chromedriver installed:
 
@@ -123,6 +165,7 @@ CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER=wasm-bindgen-test-runner \
   python3 crates/quai-browser/tests/run_browser.py
 # Repeat with --suite worker for the dedicated-worker runtime tests.
 # --suite sdk-worker exercises portable account/Qi discovery and Qi message signing.
+# --suite sdk-contracts and --suite sdk-events exercise portable dapp workflows.
 ```
 
 The runner creates and removes its own server, chooses an unused loopback port, and uses an isolated browser profile through chromedriver. `CHROMEDRIVER` and `WASM_BINDGEN_TEST_WEBDRIVER_JSON` can override browser setup. In this development environment, the matching official wasm standard library and prebuilt wasm-bindgen release tools were installed under `/tmp`; system Rust and browser profiles were untouched. Native tests and wasm clippy are separate commands; ordinary native `cargo test` does not execute browser tests.

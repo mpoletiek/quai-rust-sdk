@@ -92,6 +92,8 @@ jobs:
           CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner
           WASM_BINDGEN_TEST_TIMEOUT: 90
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-worker
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-contracts
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-events
         env:
           CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner
           WASM_BINDGEN_TEST_TIMEOUT: 90
@@ -133,9 +135,9 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - run: rustup toolchain install 1.97.1 --profile minimal
+      - run: rustup toolchain install 1.97.1 --profile minimal --target wasm32-unknown-unknown
       - run: cargo fetch --locked
-      - run: python3 test-infra/package_rehearsal.py --report "$RUNNER_TEMP/quai-package-rehearsal.json"
+      - run: python3 test-infra/package_rehearsal.py --wasm --report "$RUNNER_TEMP/quai-package-rehearsal.json"
       - name: Show package validation log on failure
         if: failure()
         run: tail -100 "$RUNNER_TEMP/quai-package-rehearsal.log"

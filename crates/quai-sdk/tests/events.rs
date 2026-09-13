@@ -1,5 +1,7 @@
 //! Contract event association, strict ABI decoding and reorg metadata.
 #![cfg(feature = "abi")]
+#[cfg(target_arch = "wasm32")]
+wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_dedicated_worker);
 use quai_sdk::abi::{AbiEventValue, AbiInterface};
 use quai_sdk::contracts::{Contract, ContractError};
 use quai_sdk::primitives::Hash32;
@@ -51,7 +53,8 @@ fn provider(mock: Mock) -> Provider<Mock> {
         U256::from(9),
     )
 }
-#[tokio::test]
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 async fn query_binds_signature_and_emitter_and_preserves_hashed_values_and_removal() {
     let (mock, topics) = fixture();
     let p = provider(mock.clone());
@@ -110,7 +113,8 @@ async fn query_binds_signature_and_emitter_and_preserves_hashed_values_and_remov
     anonymous.topics.remove(0);
     assert!(contract.decode_event("Anonymous", anonymous).is_ok());
 }
-#[tokio::test]
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 async fn ambiguous_anonymous_queries_and_excess_filters_fail_before_io() {
     let (mock, _) = fixture();
     let p = provider(mock.clone());

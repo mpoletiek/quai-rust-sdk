@@ -370,3 +370,24 @@ writers, missing history, replay paging, wrong scope and restart custody.
 This delivers atomic reorg invalidation. Current discovery/settlement refresh is
 still explicit; header replay alone cannot reconstruct historical Qi balances,
 and durable ancestry-window restoration remains separate work.
+
+## Verified injected transaction operations
+
+The browser adapter now requests exact `quai_signTransaction` signing and verifies
+the returned canonical protobuf, recovered sender and every unsigned field.
+`InjectedSubmissionTransport` is an explicit capability for already-signed Quai,
+ordinary Qi, conversion and wrapping bytes; the typed Provider retains exact hash
+acknowledgement checks and ambiguous-send semantics. No draft transaction is
+silently populated or retried. Seven shared runtime tests cover three captured JS
+request shapes, field/order changes, permissions/context, malformed bytes,
+cancellation, all Qi variants and failed/wrong acknowledgements. Actual Chromium
+passes 23 window tests and 17 dedicated-worker tests. Real extension support and
+full persistent browser wallet reservations remain separate gates.
+
+Extracted package verification now compiles all Wasm browser and portable SDK
+test/example targets as well as the native consumer matrix. It caught and fixed
+Tokio-only attributes on otherwise portable contract/event tests: five contract
+and two event tests now also run in a real worker.
+[Retained evidence](test-infra/reports/injected-transactions-2026-09-13.json).
+Direct wallet-mediated `quai_sendTransaction` still needs a dedicated request and
+recovery contract for extensions which decline offline signing.

@@ -48,6 +48,8 @@ def patch_file(path, packages, roots):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report', type=Path, required=True)
+    parser.add_argument('--wasm', action='store_true',
+                        help='Also compile extracted browser/SDK targets for wasm32-unknown-unknown')
     args = parser.parse_args()
     report_path = args.report.resolve()
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -60,6 +62,7 @@ def main():
               'sourceCommit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
               'sourceDirty': bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT)),
               'packages': [], 'consumerTests': {}, 'packagedTargetChecks': {},
+              'packagedWasmChecks': {},
               'qualification': 'Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification.'}
     with tempfile.TemporaryDirectory(prefix='quai-package-rehearsal-') as work, log_path.open('w') as log:
         work = Path(work)
@@ -135,6 +138,18 @@ fn artifact_import() {
                  '--config', str(staged_patches), '--manifest-path',
                  str(staged_roots[package['name']] / 'Cargo.toml')], consumer, log, env)
             report['packagedTargetChecks'][package['name']] = 'passed'
+        if args.wasm:
+            for name, flags in [
+                ('quai-browser', []),
+                ('quai-sdk', ['--no-default-features', '--features',
+                              'browser,wallet,abi,payments,keystore']),
+            ]:
+                print(f'Checking packaged Wasm tests/examples: {name}', flush=True)
+                run(['cargo', 'check', '--offline', '--all-targets',
+                     '--target', 'wasm32-unknown-unknown', *flags,
+                     '--config', str(staged_patches), '--manifest-path',
+                     str(staged_roots[name] / 'Cargo.toml')], consumer, log, env)
+                report['packagedWasmChecks'][name] = 'passed'
         resolved = json.loads(subprocess.check_output(['cargo', 'metadata', '--offline', '--format-version', '1', '--config', str(staged_patches)], cwd=consumer, env=env, stderr=subprocess.DEVNULL))
         for package in resolved['packages']:
             if package['name'] in staged_roots and Path(package['manifest_path']).parent != staged_roots[package['name']]:

@@ -5,6 +5,8 @@ use quai_rpc::{Endpoint, RemoteError, RpcError, Transport, U256, parse_quantity}
 use serde_json::{Value, json};
 use std::{cell::Cell, fmt, rc::Rc};
 use wasm_bindgen::prelude::*;
+mod submission;
+pub use submission::InjectedSubmissionTransport;
 
 #[wasm_bindgen(module = "/src/bridge.js")]
 extern "C" {
@@ -467,6 +469,71 @@ impl InjectedProvider {
             return Err(BrowserError::InvalidResult);
         }
         Ok(signature)
+    }
+
+    /// Explicitly request signing of an exact, fully populated type-0 Quai
+    /// transaction. Does not estimate, fill fields, request accounts or broadcast.
+    /// Canonical returned protobuf must recover the requested exposed account
+    /// and match every unsigned field, including ordered access-list entries.
+    /// Dropping the future cannot retract an already displayed wallet approval.
+    pub async fn sign_quai_transaction(
+        &self,
+        address: QuaiAddress,
+        transaction: &quai_consensus::QuaiTransaction,
+    ) -> Result<quai_consensus::SignedQuaiTransaction, BrowserError> {
+        if transaction.chain_id != self.expected_chain || transaction.chain_id == U256::ZERO {
+            return Err(BrowserError::ChainMismatch);
+        }
+        if self.shard != Shard::Zone(address.zone()) {
+            return Err(BrowserError::InvalidConfig);
+        }
+        transaction
+            .unsigned_bytes()
+            .map_err(|_| BrowserError::InvalidConfig)?;
+        let access_list: Vec<_> = transaction.access_list.iter().map(|entry| {
+            json!({"address":entry.address.to_string(),"storageKeys":entry.storage_keys.iter().map(ToString::to_string).collect::<Vec<_>>()})
+        }).collect();
+        let mut rpc = json!({
+            "type":"0x0", "chainId":format!("{:#x}",transaction.chain_id),
+            "from":address.to_string().to_ascii_lowercase(),
+            "nonce":format!("{:#x}",transaction.nonce),
+            "value":format!("{:#x}",transaction.value),
+            "gas":format!("{:#x}",transaction.gas_limit),
+            "gasPrice":format!("{:#x}",transaction.gas_price),
+            "data":quai_primitives::hexlify(&transaction.data).map_err(|_|BrowserError::InvalidConfig)?,
+            "accessList":access_list,
+        });
+        if let Some(to) = transaction.to {
+            rpc["to"] = json!(to.to_string().to_ascii_lowercase());
+        }
+        let params = json!([rpc]);
+        // Check the exact outgoing envelope before even passive wallet reads.
+        encode(
+            &json!({"method":"quai_signTransaction","params":params,"shard":self.shard.encoded()}),
+            self.config.max_request_bytes,
+        )?;
+        let revision = self.context_revision();
+        self.check_chain().await?;
+        if !Self::accounts_from(self.raw("quai_accounts", json!([])).await?)?.contains(&address) {
+            return Err(BrowserError::AccountUnavailable);
+        }
+        if provider_changed(&self.watch.0, revision) {
+            return Err(BrowserError::ContextChanged);
+        }
+        let value = self.raw("quai_signTransaction", params).await?;
+        self.verify_context(revision, Some(address)).await?;
+        let bytes = value
+            .as_str()
+            .ok_or(BrowserError::InvalidResult)
+            .and_then(|text| {
+                quai_primitives::get_bytes(text).map_err(|_| BrowserError::InvalidResult)
+            })?;
+        let signed = quai_consensus::SignedQuaiTransaction::decode(&bytes)
+            .map_err(|_| BrowserError::InvalidResult)?;
+        if signed.from() != address || signed.transaction() != transaction {
+            return Err(BrowserError::InvalidResult);
+        }
+        Ok(signed)
     }
 }
 impl Transport for InjectedProvider {

@@ -67,7 +67,8 @@ Before publishing a new workspace, run:
 ```sh
 cargo fetch --locked
 python3 test-infra/sync_package_files.py --check
-python3 test-infra/package_rehearsal.py --report /tmp/quai-package-rehearsal.json
+rustup target add wasm32-unknown-unknown
+python3 test-infra/package_rehearsal.py --wasm --report /tmp/quai-package-rehearsal.json
 ```
 
 The rehearsal does not publish or use network access. Cargo creates all 12
@@ -75,7 +76,9 @@ archives with temporary workspace patches to resolve unpublished internal crates
 A clean consumer then resolves SDK dependencies exclusively to the extracted
 archives and runs minimal/default/full feature tests. It also compiles every
 packaged native test/example target with all features, catching references to
-files that were accidentally left outside a crate. Normal registry dependencies
+files that were accidentally left outside a crate. `--wasm` additionally compiles
+all extracted browser and portable SDK test/example targets for WebAssembly,
+including packaged JS modules and fixtures; CI enables this check. Normal registry dependencies
 must already be cached. The JSON report records package checksums, checkout
 identity/dirty state and each result; its sibling `.log` retains build output.
 The temporary extracted sources/build outputs are removed when the run ends.

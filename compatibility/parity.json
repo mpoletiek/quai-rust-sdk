@@ -2965,8 +2965,8 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::BrowserFetchTransport",
-        "quai_browser::InjectedProvider"
+        "quai_browser::InjectedProvider",
+        "quai_browser::InjectedSubmissionTransport"
       ],
       "feature": "browser",
       "status": "partial",
@@ -2976,7 +2976,7 @@
       "docs": [
         "crates/quai-browser/README.md"
       ],
-      "deviation": "Actual Chromium bounded fetch and explicit injected account/message/typed-data methods; real wallet discovery/interoperability, transaction authorization, lifecycle events and persistence remain open."
+      "deviation": "Explicit selected provider, fixed chain/shard, bounded verified account/message/typed-data/transaction signing, passive context events and opt-in signed submission. Full browser wallet-state persistence, discovery and real extension qualification remain open."
     },
     {
       "id": ".:BrowserProvider:instance:_clearTimeout",
@@ -3379,12 +3379,22 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::InjectedProvider::signed_submission_transport",
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "browser",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/injected_transaction.rs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit opt-in transport validates canonical signed bytes and origin/chain; typed Provider checks exact acknowledgement and retains local identity on ambiguous failures. No implicit retry or transaction-response object with bound provider methods."
     },
     {
       "id": ".:BrowserProvider:instance:calculateConversionAmount",
@@ -4025,12 +4035,19 @@
         "(address?: number | string): Promise<JsonRpcSigner>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::InjectedProvider::accounts",
+        "quai_browser::InjectedProvider::sign_quai_transaction"
+      ],
+      "feature": "browser",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/injected_transaction.rs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit exposed account per operation; no implicit account permission request, numeric account selection or provider-bound signer object. Signing rechecks chain/account context and independently verifies the returned payload."
     },
     {
       "id": ".:BrowserProvider:instance:getStorage",
@@ -16959,12 +16976,20 @@
         "(tx: TransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::InjectedProvider::sign_quai_transaction",
+        "quai_browser::InjectedProvider::signed_submission_transport",
+        "quai_provider::Provider::broadcast"
+      ],
+      "feature": "browser",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-browser/tests/support/injected_transaction.rs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Exact two-phase signing and verified raw submission are implemented. Direct wallet-mediated quai_sendTransaction remains open: extensions may expose sending while declining offline transaction signing. Caller owns durable preparation and confirmation; no implicit retries."
     },
     {
       "id": ".:JsonRpcSigner:instance:sendUncheckedTransaction",
@@ -16975,12 +17000,20 @@
         "(_tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::InjectedProvider::sign_quai_transaction",
+        "quai_browser::InjectedProvider::signed_submission_transport",
+        "quai_provider::Provider::broadcast"
+      ],
+      "feature": "browser",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-browser/tests/support/injected_transaction.rs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Exact two-phase signing and verified raw submission are implemented. Direct wallet-mediated quai_sendTransaction remains open: extensions may expose sending while declining offline transaction signing. Caller owns durable preparation and confirmation; no implicit retries."
     },
     {
       "id": ".:JsonRpcSigner:instance:signMessage",
@@ -17007,12 +17040,18 @@
         "(_tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::InjectedProvider::sign_quai_transaction"
+      ],
+      "feature": "browser",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/injected_transaction.rs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Fully populated typed Quai transaction with exact returned-field and recovered-sender verification. Same pinned quai_signTransaction request shape; bounded protobuf result instead of unchecked serialized string. Injected Qi signing absent in pinned reference."
     },
     {
       "id": ".:JsonRpcSigner:instance:signTypedData",
@@ -46331,8 +46370,8 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::BrowserFetchTransport",
-        "quai_browser::InjectedProvider"
+        "quai_browser::InjectedProvider",
+        "quai_browser::InjectedSubmissionTransport"
       ],
       "feature": "browser",
       "status": "partial",
@@ -46342,7 +46381,7 @@
       "docs": [
         "crates/quai-browser/README.md"
       ],
-      "deviation": "Actual Chromium bounded fetch and explicit injected account/message/typed-data methods; real wallet discovery/interoperability, transaction authorization, lifecycle events and persistence remain open."
+      "deviation": "Explicit selected provider, fixed chain/shard, bounded verified account/message/typed-data/transaction signing, passive context events and opt-in signed submission. Full browser wallet-state persistence, discovery and real extension qualification remain open."
     },
     {
       "id": "./providers:BrowserProvider:instance:_clearTimeout",
@@ -46745,12 +46784,22 @@
         "(zone: Zone, signedTx: string): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::InjectedProvider::signed_submission_transport",
+        "quai_provider::Provider::broadcast",
+        "quai_provider::Provider::broadcast_qi",
+        "quai_provider::Provider::broadcast_qi_conversion",
+        "quai_provider::Provider::broadcast_qi_wrapping"
+      ],
+      "feature": "browser",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/injected_transaction.rs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit opt-in transport validates canonical signed bytes and origin/chain; typed Provider checks exact acknowledgement and retains local identity on ambiguous failures. No implicit retry or transaction-response object with bound provider methods."
     },
     {
       "id": "./providers:BrowserProvider:instance:calculateConversionAmount",
@@ -47391,12 +47440,19 @@
         "(address?: number | string): Promise<JsonRpcSigner>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::InjectedProvider::accounts",
+        "quai_browser::InjectedProvider::sign_quai_transaction"
+      ],
+      "feature": "browser",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/injected_transaction.rs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Explicit exposed account per operation; no implicit account permission request, numeric account selection or provider-bound signer object. Signing rechecks chain/account context and independently verifies the returned payload."
     },
     {
       "id": "./providers:BrowserProvider:instance:getStorage",
@@ -51633,12 +51689,20 @@
         "(tx: TransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::InjectedProvider::sign_quai_transaction",
+        "quai_browser::InjectedProvider::signed_submission_transport",
+        "quai_provider::Provider::broadcast"
+      ],
+      "feature": "browser",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-browser/tests/support/injected_transaction.rs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Exact two-phase signing and verified raw submission are implemented. Direct wallet-mediated quai_sendTransaction remains open: extensions may expose sending while declining offline transaction signing. Caller owns durable preparation and confirmation; no implicit retries."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:sendUncheckedTransaction",
@@ -51649,12 +51713,20 @@
         "(_tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::InjectedProvider::sign_quai_transaction",
+        "quai_browser::InjectedProvider::signed_submission_transport",
+        "quai_provider::Provider::broadcast"
+      ],
+      "feature": "browser",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-browser/tests/support/injected_transaction.rs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Exact two-phase signing and verified raw submission are implemented. Direct wallet-mediated quai_sendTransaction remains open: extensions may expose sending while declining offline transaction signing. Caller owns durable preparation and confirmation; no implicit retries."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:signMessage",
@@ -51681,12 +51753,18 @@
         "(_tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_browser::InjectedProvider::sign_quai_transaction"
+      ],
+      "feature": "browser",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-browser/tests/support/injected_transaction.rs"
+      ],
+      "docs": [
+        "crates/quai-browser/README.md"
+      ],
+      "deviation": "Fully populated typed Quai transaction with exact returned-field and recovered-sender verification. Same pinned quai_signTransaction request shape; bounded protobuf result instead of unchecked serialized string. Injected Qi signing absent in pinned reference."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:signTypedData",

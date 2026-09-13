@@ -18,43 +18,7 @@ use quai_wallet::storage::{
 };
 use thiserror::Error;
 
-/// Explicit state source for account preflight. No automatic fallback occurs.
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
-pub enum AccountObservationPolicy {
-    /// Observe the node's pending state; propagate unsupported-RPC errors.
-    #[default]
-    Pending,
-    /// Pin all nonce, balance and simulation reads to a sampled latest height and
-    /// recheck its hash before returning. This excludes transactions in the pool;
-    /// durable local nonce claims still apply. Estimates remain advisory.
-    PinnedLatest,
-}
-
-/// Application-specified limits; there is no implicit unlimited-fee default.
-#[derive(Clone, Copy, Debug)]
-pub struct FeePolicy {
-    /// Maximum final gas limit, including the optional safety margin.
-    pub max_gas: u64,
-    /// Maximum accepted base units per gas.
-    pub max_gas_price: U256,
-    /// Maximum gas_limit * gas_price authorized in base units.
-    pub max_total_fee: U256,
-    /// Additional gas above the estimate, in basis points (0..=10,000).
-    pub gas_margin_bps: u16,
-}
-
-/// An ordinary same-zone account transfer or contract call.
-#[derive(Clone, Debug)]
-pub struct AccountIntent {
-    /// Exact destination. Deployment, cross-zone and conversion have separate workflows.
-    pub to: QuaiAddress,
-    /// Exact base-unit amount, never floating point.
-    pub value: U256,
-    /// Exact call bytes; retained in the reviewed/signed payload.
-    pub data: RpcData,
-    /// Ordered access declaration, retained without normalization.
-    pub access_list: Vec<AccessTuple>,
-}
+pub use crate::account_preflight::{AccountIntent, AccountObservationPolicy, FeePolicy};
 
 /// Errors never automatically release or replace signed reservations.
 #[derive(Debug, Error)]

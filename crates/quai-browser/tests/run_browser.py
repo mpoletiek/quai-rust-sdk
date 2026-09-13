@@ -30,7 +30,7 @@ class Fixture(http.server.BaseHTTPRequestHandler):
         if not 0 < length < 65536:
             self.send_error(400); return
         request = json.loads(self.rfile.read(length))
-        if self.path in ('/account', '/account-reorg', '/qi', '/qi-hints'):
+        if self.path in ('/account', '/account-reorg', '/account-preflight', '/qi', '/qi-hints'):
             result = self.account_result(request)
             if result is None:
                 self.send_error(400); return
@@ -58,6 +58,18 @@ class Fixture(http.server.BaseHTTPRequestHandler):
     def account_result(self, request):
         method, params = request.get('method'), request.get('params')
         if not isinstance(params, list): return None
+        if self.path == '/account-preflight':
+            if method == 'quai_chainId' and params == []: return '0x9'
+            if method == 'quai_getHeaderByNumber' and params in [['0x0'], ['latest']]:
+                if params == ['0x0']:
+                    return {'woHeader':{'hash':'0x'+'01'*32,'number':'0x0','location':'0x','parentHash':'0x'+'00'*32}}
+                return {'woHeader':{'hash':'0x'+'02'*32,'number':'0x10','location':'0x0000','parentHash':'0x'+'01'*32,'primeTerminusNumber':'0x4'},'gasLimit':'0x100000','stateLimit':'0x100000'}
+            if method == 'quai_gasPrice' and params == []: return '0x2'
+            if method in ('quai_getBalance','quai_getTransactionCount') and len(params) == 2 and params[1] == '0x10':
+                return '0xf4240' if method == 'quai_getBalance' else '0x5'
+            if method == 'quai_estimateGas' and len(params) == 2 and params[1] == '0x10' and params[0].get('nonce') == '0x8' and params[0].get('input') == '0x0102':
+                return '0x5209'
+            return None
         genesis = '0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b'
         if method == 'quai_chainId' and params == []: return '0x3a98'
         if self.path == '/qi-hints' and method == 'quai_getOutpointsByAddress' and len(params) == 1:
@@ -80,7 +92,7 @@ class Fixture(http.server.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody', 'sdk-account-backup', 'sdk-contract-code', 'sdk-qi-custody', 'sdk-portable-capture', 'sdk-allocation-merge'], default='browser')
+    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody', 'sdk-account-backup', 'sdk-contract-code', 'sdk-qi-custody', 'sdk-portable-capture', 'sdk-allocation-merge', 'sdk-account-preflight'], default='browser')
     arguments = parser.parse_args()
     root = pathlib.Path(__file__).resolve().parents[3]
     server = http.server.ThreadingHTTPServer(('127.0.0.1',0), Fixture)
@@ -107,7 +119,8 @@ if __name__ == '__main__':
                       'sdk-contract-code': ('contract_code', 'abi,browser'),
                       'sdk-qi-custody': ('qi_custody', 'backup,browser'),
                       'sdk-portable-capture': ('portable_capture', 'backup,browser'),
-                      'sdk-allocation-merge': ('allocation_merge', 'backup,browser')}
+                      'sdk-allocation-merge': ('allocation_merge', 'backup,browser'),
+                      'sdk-account-preflight': ('account_preflight', 'backup,browser,abi')}
         sdk_suite = sdk_suites.get(arguments.suite)
         command = ['cargo','test','-p','quai-sdk' if sdk_suite else 'quai-browser','--target','wasm32-unknown-unknown','--test',sdk_suite[0] if sdk_suite else arguments.suite,'--offline','--locked']
         if sdk_suite: command += ['--no-default-features','--features',sdk_suite[1]]

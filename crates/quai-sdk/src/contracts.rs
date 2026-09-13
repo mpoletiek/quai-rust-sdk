@@ -263,10 +263,10 @@ impl ContractCall {
     pub fn arguments(&self) -> Result<Vec<Value>, ContractError> {
         Ok(self.function.decode_call(self.data.bytes())?)
     }
-    /// Convert to the native durable account workflow without changing any call bytes.
-    #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
-    pub fn into_account_intent(self) -> crate::accounts::AccountIntent {
-        crate::accounts::AccountIntent {
+    /// Convert to portable/native account preparation without changing call bytes or access declarations.
+    #[cfg(feature = "wallet")]
+    pub fn into_account_intent(self) -> crate::account_preflight::AccountIntent {
+        crate::account_preflight::AccountIntent {
             to: self.to,
             value: self.value,
             data: self.data,

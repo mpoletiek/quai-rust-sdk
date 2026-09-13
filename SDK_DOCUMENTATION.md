@@ -112,9 +112,10 @@ signing/submission, or persisted wallet orchestration.
 | `quai-sdk` | Native sessions, browser books, contract/wrapper composition | [source](crates/quai-sdk/src/lib.rs) |
 
 Native facade modules are `accounts`, `qi`, `qi_discovery`, `payment_channels`,
-`recovery`, `settlement` and `deployments`. Portable modules include `discovery`,
+`recovery`, `settlement` and `deployments`. Portable modules include `account_preflight`, `discovery`,
 `contracts` and `wrappers`. Browser modules are `browser_addresses`,
-`browser_payments`, `browser_accounts`, `browser_qi` and `browser_backups`.
+`browser_payments`, `browser_accounts`, `browser_qi`, `browser_backups` and
+`browser_transactions`.
 Their precise feature gates are in the linked facade source.
 
 ## Networks, routing and providers
@@ -590,10 +591,12 @@ within one named database. No plaintext private origin belongs in these stores.
 `BrowserAccountBook` persists nonce custody and exact signing candidates.
 `BrowserQiBook` persists ownership/input custody, validates selected discovery
 inputs and signs ordinary/conversion/wrapping operations before returning bytes.
-The new capture/restore coordinator composes these stores. Full native
-`AccountSession`/`QiSession` fee/prepare/recovery orchestration is **not** exposed
-as an equivalent browser session; applications currently compose browser
-building blocks explicitly. Injected-wallet discovery, permission management
+The new capture/restore coordinator composes these stores. `browser_transactions::BrowserAccountSession` now prepares ordinary same/cross-zone
+Quai calls with exact-nonce fees, fixed review/signing and explicit persisted-root
+submission. `account_preflight::quote_account` is portable, and contract/wrapper
+intents retain their access lists. See [browser account workflow](docs/BROWSER_ACCOUNT_WORKFLOW.md).
+Native conversion/deployment/replacement orchestration and full browser Qi
+preparation/recovery still require integration. Injected-wallet discovery, permission management
 and automatic chain switching remain absent.
 
 ## Errors and operational limits

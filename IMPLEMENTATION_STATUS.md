@@ -617,3 +617,13 @@ The consolidated SDK guide and parity analysis cover every crate and workflow
 family, with a checked appendix of all pending/partial export families. This
 does not finish the 2,639 pending declaration reviews or browser session/network
 qualification gaps. See [atomic restore](docs/BROWSER_ATOMIC_RESTORE.md).
+
+## Portable account quotation and browser transaction workflow
+
+The shared `account_preflight` module now provides exact-nonce fee quotation with
+explicit limits, pending/pinned observations and surrounding network checks.
+`BrowserAccountSession` composes quotation with revision-fenced nonce reservation,
+fixed payload review/signing and explicit persisted-root broadcast/restart.
+Ordinary same/cross-zone calls and account-side wrapper operations are supported;
+full Qi and specialized account browser workflows remain in progress. See
+[browser account workflow](docs/BROWSER_ACCOUNT_WORKFLOW.md).

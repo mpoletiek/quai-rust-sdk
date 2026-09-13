@@ -702,3 +702,18 @@ one live provider test remained explicitly ignored. Strict native/Wasm SDK Clipp
 and warnings-denied rustdoc passed. These fixture tests do not qualify funded
 settlement. See `test-infra/reports/browser-settlement-2026-09-13.json`.
 Prior replacement commit `2cb10d1` passed GitHub run 34778526388.
+
+## Unknown account nonce competitors — September 13, 2026
+
+Added portable bounded discovery of mined same-sender/nonce transactions absent
+from registered candidate families, plus native successive-page waiting under
+an overall deadline. Matching signatures and hashes, receipts, page ancestry,
+canonical anchors and trusted genesis are checked. Results classify original,
+repriced, cancelled and replaced without adopting candidates or releasing claims.
+
+Six new Rust tests and seven receipt-wait regressions passed, plus five executable
+published-JS checks. Native provider and Wasm SDK strict Clippy and provider rustdoc
+passed. The 12-crate archive rehearsal passed all three extracted consumers, all
+12 native target checks and both Wasm target checks. Twelve response declaration
+rows now describe explicit API mappings and differences; unreviewed rows remain
+pending. See `test-infra/reports/account-nonce-replacements-2026-09-13.json`.

@@ -149,3 +149,9 @@ Without `polling`, callers can schedule individual portable observations. Wasm
 applications can use `quai_browser::wait_for_receipt` with bounded browser timers,
 an overall observable monotonic deadline and an explicit maximum poll count.
 That adapter does not require Tokio, submit transactions or release wallet claims.
+
+Account nonce competitors can be observed with `observe_account_replacements`
+from a trusted signed original and an explicit bounded block range. Matching RPC
+transactions are signature/hash verified; canonical anchors and receipts are
+rechecked. Native `wait_for_account_transaction` follows bounded pages under an
+overall timeout. Results never adopt unknown candidates or release wallet claims.

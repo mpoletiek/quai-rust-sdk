@@ -41,6 +41,95 @@ pub enum WaitError {
 }
 
 impl<T: Transport> Provider<T> {
+    /// Wait for the original or a mined same-sender/nonce competitor, including
+    /// candidates never registered by the wallet. Scans at most 256 blocks and
+    /// 65,536 executed transactions per page, with 4,096 per block. Retains the
+    /// next page anchor only within this future. Missing history does not advance
+    /// coverage; changed anchors return an error requiring explicit restart from
+    /// a trusted height. The overall timeout bounds reads and delays. A returned
+    /// failed receipt still consumes the nonce. This never adopts a candidate
+    /// into custody, releases a claim or submits a transaction.
+    pub async fn wait_for_account_transaction(
+        &self,
+        original: &quai_consensus::SignedQuaiTransaction,
+        genesis: Hash32,
+        start_block: u64,
+        config: WaitConfig,
+    ) -> Result<crate::AccountNonceCandidate, WaitError> {
+        if start_block == 0
+            || start_block > i64::MAX as u64
+            || config.confirmations == 0
+            || config.timeout.is_zero()
+            || config.poll_interval.is_zero()
+            || config.poll_interval > config.timeout
+            || tokio::time::Instant::now()
+                .checked_add(config.timeout)
+                .is_none()
+        {
+            return Err(WaitError::InvalidConfig);
+        }
+        let transaction_hash = original.hash().map_err(|_| WaitError::InvalidConfig)?;
+        if genesis == Hash32::ZERO || original.transaction().chain_id != self.expected_chain_id {
+            return Err(WaitError::InvalidConfig);
+        }
+        let zone = original.from().zone();
+        let mut last_observed_inclusion = None;
+        let work = async {
+            let mut from_block = start_block;
+            let mut preceding_block = None;
+            loop {
+                if let Some(head) = self.latest_header(zone).await?
+                    && head.number >= from_block
+                {
+                    let page = self
+                        .observe_account_replacements(
+                            original,
+                            genesis,
+                            crate::AccountReplacementScanRequest {
+                                from_block,
+                                to_block: head.number.min(from_block.saturating_add(255)),
+                                max_transactions_per_block: 4096,
+                                max_total_transactions: 65536,
+                                preceding_block,
+                            },
+                        )
+                        .await?;
+                    if let Some(candidate) = page.candidate {
+                        last_observed_inclusion = Some(candidate.inclusion);
+                        if candidate.receipt.is_some()
+                            && candidate.confirmations >= config.confirmations
+                        {
+                            return Ok(candidate);
+                        }
+                    } else if page.missing_block.is_none()
+                        && let Some(end) = page.scanned_through
+                    {
+                        preceding_block = Some(end);
+                        from_block = end
+                            .number
+                            .checked_add(1)
+                            .ok_or(ProviderError::ObservationChanged)?;
+                        // Drain already available pages without a polling delay.
+                        if from_block <= head.number {
+                            continue;
+                        }
+                    }
+                }
+                tokio::time::sleep(config.poll_interval).await;
+            }
+        };
+        match tokio::time::timeout(config.timeout, work).await {
+            Ok(result) => result.map_err(|source| WaitError::Provider {
+                transaction_hash,
+                source,
+            }),
+            Err(_) => Err(WaitError::Timeout {
+                transaction_hash,
+                last_observed_inclusion,
+            }),
+        }
+    }
+
     /// Wait for a receipt and observed confirmation depth, tolerating missing/reorged inclusion.
     ///
     /// Each candidate's block hash is checked against the canonical number lookup;

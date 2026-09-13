@@ -1,0 +1,131 @@
+{
+  "recordedAt": "2026-09-13T20:13:41.416819+00:00",
+  "baseCommit": "f8a3e7efb92fd227a0272519045ac3bd67f9de72",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    "crates/quai-provider/src/account_replacement.rs": "adaa64c864b64405b454d85892da9168e3f889666a90047aa73a28530fbf3f24",
+    "crates/quai-provider/src/wait.rs": "9727b127c25f104a2db477b493543f56db16693592eecfd4069956ac394ab4c4",
+    "crates/quai-provider/tests/account_replacement.rs": "178c93ce39fcda8d5e64d973924cd5e50f11f71789e70c245255154e07a9e2f0",
+    "compatibility/scripts/account-replacement.test.mjs": "b493c7bea581f96eca96d3729d6acd1922992e2aa92c882bfe1130e409ffc9aa"
+  },
+  "validation": {
+    "replacementTests": 6,
+    "existingConfirmationTests": 7,
+    "publishedJsBehaviorTests": 5,
+    "nativeProviderStrictClippy": "passed",
+    "wasmSdkStrictClippy": "passed",
+    "nativeProviderRustdocWarningsDenied": "passed",
+    "packageRehearsal": {
+      "schemaVersion": 1,
+      "published": false,
+      "networkAccess": false,
+      "sourceCommit": "f8a3e7efb92fd227a0272519045ac3bd67f9de72",
+      "sourceDirty": true,
+      "packages": [
+        {
+          "name": "quai-primitives",
+          "version": "0.1.0-alpha.1",
+          "bytes": 61984,
+          "sha256": "f035ab8a34763563d065b8529ddbdac537497744d102c419c93efe4027486e02"
+        },
+        {
+          "name": "quai-rpc",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45024,
+          "sha256": "5ab345791a3b771d6230c51f954dd10345b920545f7a87e17edb26cf45916e40"
+        },
+        {
+          "name": "quai-provider",
+          "version": "0.1.0-alpha.1",
+          "bytes": 135076,
+          "sha256": "763720ab05461ce32941c07d9dee8aa73789f5a1ad25d68a53023a75be00edd5"
+        },
+        {
+          "name": "quai-consensus",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45640,
+          "sha256": "65978ce9772a272967869696e665a37aeebb72b3825a8b7d02f4e6e4a12299ca"
+        },
+        {
+          "name": "quai-crypto",
+          "version": "0.1.0-alpha.1",
+          "bytes": 47978,
+          "sha256": "945c8ff93702586333f6527494596a087043f55133c38d3cca94f21ca9f3556c"
+        },
+        {
+          "name": "quai-sdk",
+          "version": "0.1.0-alpha.1",
+          "bytes": 242595,
+          "sha256": "6c6f5e7c07cf228d95462a9bca4670d6bbb213616cfd6ac6aa19a032c30a3a7c"
+        },
+        {
+          "name": "quai-abi",
+          "version": "0.1.0-alpha.1",
+          "bytes": 166092,
+          "sha256": "ffbe581d36ff1b0acadbb20712480256885485fca3cd750acfcc47f2f22be27f"
+        },
+        {
+          "name": "quai-browser",
+          "version": "0.1.0-alpha.1",
+          "bytes": 81593,
+          "sha256": "9f86e0cd798da5db73c338903311ed492984f016c522026261f96a06e14b75b2"
+        },
+        {
+          "name": "quai-signer",
+          "version": "0.1.0-alpha.1",
+          "bytes": 24517,
+          "sha256": "9d11598dce9e2f916ff1ec225941966dc05094d1fe2d55834ba59aa13afda01f"
+        },
+        {
+          "name": "quai-keystore",
+          "version": "0.1.0-alpha.1",
+          "bytes": 34224,
+          "sha256": "4b6afa51a25c904313a5c4b6fd43c34e758474c05ea5e35f8ee1a06e07d44562"
+        },
+        {
+          "name": "quai-wallet",
+          "version": "0.1.0-alpha.1",
+          "bytes": 270086,
+          "sha256": "4f039197037979aa6a7b920af48a3458ec8003894d618b36e5d2150c06425c06"
+        },
+        {
+          "name": "quai-payments",
+          "version": "0.1.0-alpha.1",
+          "bytes": 39335,
+          "sha256": "44f998da97302a954d73a1962eb168d7225d5a06d56123389ea4bcbdb3117512"
+        }
+      ],
+      "consumerTests": {
+        "minimal": "passed",
+        "default": "passed",
+        "full": "passed"
+      },
+      "packagedTargetChecks": {
+        "quai-primitives": "passed",
+        "quai-rpc": "passed",
+        "quai-provider": "passed",
+        "quai-consensus": "passed",
+        "quai-crypto": "passed",
+        "quai-sdk": "passed",
+        "quai-abi": "passed",
+        "quai-browser": "passed",
+        "quai-signer": "passed",
+        "quai-keystore": "passed",
+        "quai-wallet": "passed",
+        "quai-payments": "passed"
+      },
+      "packagedWasmChecks": {
+        "quai-browser": "passed",
+        "quai-sdk": "passed"
+      },
+      "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+    }
+  },
+  "parityRowsReviewed": 12,
+  "limitations": [
+    "Portable browser observer uses explicit page/timer policy; automatic successive-page waiter is native-only",
+    "No custody adoption or claim release from unknown competitor observations",
+    "Signed public-toy fixtures are not funded node replacement-policy qualification",
+    "Initial broad workspace run hit sandbox loopback permission errors in existing WebSocket tests; permitted full-suite rerun is recorded separately after completion"
+  ]
+}

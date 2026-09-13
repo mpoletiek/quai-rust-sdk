@@ -721,3 +721,14 @@ evidence. They supplement the generated native/browser signature reference.
 | Parity evidence | [analysis](SDK_PARITY_ANALYSIS.md), [machine-readable ledger](compatibility/parity.json), [reference lock](compatibility/reference-lock.json) |
 | Test provenance | [retained reports](test-infra/reports), [isolated chain](test-infra/local-chain/README.md), [CI](.github/workflows/ci.yml) |
 | Release/security | [security review](docs/SECURITY_REVIEW_2026-09-11.md), [dependency audit](docs/dependency-audit.md), [third-party notices](THIRD_PARTY_NOTICES.md) |
+
+## Unknown account nonce competitors
+
+`provider.observe_account_replacements(&signed_original, trusted_genesis, request)`
+scans an explicit bounded page for the original or a mined same-sender/nonce
+transaction, including unregistered repricing, cancellation or changed recipients.
+It verifies signatures and canonical associations without adopting candidates or
+releasing claims. Native `wait_for_account_transaction` follows bounded pages
+under an overall deadline; browser callers choose page/timer policy explicitly.
+See [account nonce replacement discovery](docs/ACCOUNT_NONCE_REPLACEMENTS.md) for
+coverage, missing receipts, reorg behavior and the published-reference differences.

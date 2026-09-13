@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 62 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 1059 | Documented replacement, stricter behavior, correction or omission |
+| `deviation` | 1071 | Documented replacement, stricter behavior, correction or omission |
 | `partial` | 168 | A mapping exists with unfinished behavior or scope |
-| `pending` | 2639 | No completed row-level reconciliation; not proof of absence |
+| `pending` | 2627 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -118,7 +118,7 @@ This analysis does not relabel unresolved rows to make the counts appear complet
 | Quai ↔ WQUAI | Configured deployment, deposit/withdraw and ERC-20 intents | Mainnet code observed; last Orchard WQUAI code check was empty; funded unmodified/testnet acceptance remains open |
 | ABI/interfaces | Canonical encoder/decoder, JSON/readable declarations, defaults, packed encoding, EIP-712, event filters and call/log/revert parsing | Positional values and explicit overloads replace JS Proxy/Result/Typed ergonomics; strict bounds and validation differ |
 | Contracts/deployments | Explicit contract calls/intents, ERC-20 helpers, artifacts, constructor data, address grinding, canonical code observations | No dynamic JS method/property generation; input artifacts must have resolved creation bytecode; execution qualification remains separate |
-| RPC and providers | Typed reads, block/pool/log/wallet APIs, exact signed broadcast, bounded receipts/head/ETX tracking | Many inherited hooks/response helpers still need declaration reconciliation; no fabricated `safe`/`finalized` or historical return-data capability |
+| RPC and providers | Typed reads, block/pool/log/wallet APIs, exact signed broadcast, bounded receipts/head/ETX tracking | Unregistered account nonce competitors now have bounded signed discovery and native waits; many inherited hooks/response helpers still need declaration reconciliation; no fabricated `safe`/`finalized` or historical return-data capability |
 | Native WebSocket | Bounded subscriptions, lag/disconnect reporting, reconnect and canonical replay with persistence fences | Complete automatic wallet-state application and terminal claim policy are unfinished |
 | Browser transport/signing | Actual Wasm Fetch/WS, workers, injected message/typed/transaction verification, explicit raw submission capability | No automatic wallet selection, chain switching or permission manager; real extensions/other engines need qualification |
 | Browser persistence | Durable allocation, account/Qi custody, consistent backup capture and atomic multi-journal live restore | Explicit enumeration; initialized targets required by the coordinator; account call/conversion/deployment fee/prepare/sign/root-submit orchestration now exists; account/Qi candidate reconciliation exists; Qi preparation now includes current discovery and persisted owners; destination observations now exist; native persisted destination cursors and general history compaction differ |
@@ -129,7 +129,8 @@ Evidence for the wallet rows is linked from [wallet workflows](docs/WALLET_WORKF
 [browser custody](docs/BROWSER_QI_CUSTODY.md), [atomic restore](docs/BROWSER_ATOMIC_RESTORE.md),
 [ABI](crates/quai-abi/README.md), [provider review](docs/PROVIDER_PARITY_REVIEW_2026-09-13.md)
 and [retained test reports](test-infra/reports). Per-declaration evidence is in the
-machine-readable ledger.
+machine-readable ledger. [Unknown account replacements](docs/ACCOUNT_NONCE_REPLACEMENTS.md)
+now have executable reference comparisons and typed observation/wait APIs.
 
 ## Concrete remaining gaps
 
@@ -144,7 +145,7 @@ gaps merely because they appear here.
 | --- | --- | --- |
 | Browser/native storage differences | Browser sessions compose discovery, account/Qi preparation, reviewed replacements, durable signing/submission, canonical reconciliation and signed-intent settlement; destination cursor persistence remains native-only | Browser callers must recheck explicit destination ranges after restart; native persisted cursors are an additional recovery convenience, not a proven missing quais.js behavior |
 | Automatic wallet reconciliation and terminal claim policy | Bounded canonical replay and conservative claims exist; applications still explicitly refresh/apply observations | Defined pending/replaced/dropped/reorg/terminal transitions with evidence-based claim handling and fault tests; disappearance alone must not permit reuse |
-| Row-level semantic parity review | 2639 pending and 168 partial declarations, including inherited provider and response helpers | Review each unique behavior, overload and inherited binding; map it to tested Rust behavior or justify a specific omission |
+| Row-level semantic parity review | 2627 pending and 168 partial declarations, including inherited provider and response helpers | Review each unique behavior, overload and inherited binding; map it to tested Rust behavior or justify a specific omission |
 | Injected-wallet convenience/interoperability | Provider selection is explicit; chain switching and permission management are absent | Implement selected supported extension operations with exact request/result/context tests, then qualify real extensions |
 | Payment notification automation | Version-one keys/channels work with explicit code exchange | A specified supported notification/exchange protocol, parser/construction/discovery tests and appropriate node/peer qualification; do not infer it from payment-code key derivation |
 | Browser journal lifetime management | IDs remain consumed under finite bounds; there is no general safe compaction/rotation workflow | A design retaining anti-reuse/claim guarantees across archival or successor journals, with restore/concurrency tests |
@@ -232,13 +233,13 @@ root/subpath exports account for much of the volume.
 | `Result` | 88 | 0 | 0 | 0 |
 | `FetchRequest` | 64 | 0 | 0 | 0 |
 | `ContractTransactionReceipt` | 58 | 0 | 0 | 0 |
-| `ContractTransactionResponse` | 58 | 0 | 0 | 0 |
 | `QiHDWallet` | 30 | 28 | 6 | 28 |
-| `QuaiTransactionResponse` | 58 | 0 | 0 | 0 |
 | `TransactionReceipt` | 58 | 0 | 0 | 0 |
 | `QuaiTransaction` | 46 | 10 | 0 | 0 |
 | `BaseContract` | 50 | 4 | 0 | 2 |
 | `HDNodeWallet` | 48 | 6 | 12 | 22 |
+| `ContractTransactionResponse` | 52 | 0 | 0 | 6 |
+| `QuaiTransactionResponse` | 52 | 0 | 0 | 6 |
 | `Contract` | 46 | 4 | 0 | 2 |
 | `Block` | 48 | 0 | 0 | 0 |
 | `Wallet` | 48 | 0 | 0 | 0 |

@@ -46,6 +46,7 @@ pub async fn track_family<T: Transport>(
     store: &mut SqliteStore,
     id: ReservationId,
 ) -> Result<FamilyUpdate, QiError> {
+    let generation = store.observation_generation()?;
     let root = store
         .signed_payload(id)?
         .ok_or(QiError::MissingSignedPayload)?;
@@ -64,7 +65,12 @@ pub async fn track_family<T: Transport>(
         Err(error) => {
             // A new candidate also prevents this stale attempt from invalidating
             // a newer family view, even if its cache has not yet been updated.
-            let _ = store.compare_exchange_family_observation(id, &hashes, expected, None);
+            let _ = store.compare_exchange_family_observation_scoped(
+                id,
+                &hashes,
+                (generation, expected),
+                None,
+            );
             return Err(error);
         }
     };
@@ -78,8 +84,12 @@ pub async fn track_family<T: Transport>(
         json!([hash.to_string(),value])
     }).collect();
     let payload = serde_json::to_vec(&json!({"version":1,"kind":"family","head":{"number":head.number,"hash":head.hash.to_string()},"canonical":canonical.map(|h|h.to_string()),"candidates":rows})).map_err(|_|QiError::InvalidPolicy)?;
-    let revision =
-        store.compare_exchange_family_observation(id, &hashes, expected, Some(&payload))?;
+    let revision = store.compare_exchange_family_observation_scoped(
+        id,
+        &hashes,
+        (generation, expected),
+        Some(&payload),
+    )?;
     Ok(FamilyUpdate {
         revision,
         candidates: observations,

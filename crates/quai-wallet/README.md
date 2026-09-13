@@ -171,3 +171,16 @@ and `derive_path`. Import xprv and xpub with their separate validated key types.
 Browser generation/entropy restoration is tested in a Chromium dedicated worker;
 React Native, other browser engines and suspended execution remain separate
 platform qualifications.
+
+### Reorg rollback and asynchronous observers
+
+`SqliteStore::invalidate_reorg_from` atomically invalidates origin inclusions in a
+caller-verified reorganized suffix, all public cache slots and current coins.
+Claims, exact signed bytes and address/nonce cursors remain held. Cache revisions
+and scope generation advance together; a failed SQL write or counter overflow
+rolls back the whole operation. The SDK's `recovery::reconcile_head_replay` supplies
+the canonical head validation and advances its cursor only after storage succeeds.
+
+Capture `observation_generation` before node reads and use scoped observation or
+inclusion CAS writes afterward. Checking only a cache revision cannot detect a
+reorg that occurred while the first observation of that slot was in flight.

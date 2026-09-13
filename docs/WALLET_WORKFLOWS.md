@@ -523,3 +523,28 @@ owned stream; `next` distinguishes a quiet timeout from lost history, and
 `unsubscribe` awaits remote cleanup. Reconcile canonical history after
 `SubscriptionLagged` or disconnect before consuming new heads as continuous.
 See the [example and lifecycle limits](../crates/quai-browser/README.md#websocket).
+
+## Applying head replays to native wallet state
+
+`recovery::reconcile_head_replay(&provider, &mut store, &mut tracker)` checks the
+store/tracker network identity and polls a cloned `HeadTracker`. When canonical
+history removes a suffix, one SQLite transaction reverts affected root inclusions
+to Submitted, invalidates the entire current coin snapshot and tombstones all
+public observation caches. It then advances the caller's head cursor. Missing
+history, failed writes and concurrent snapshot changes leave that cursor unchanged.
+
+Exact signed bytes, candidate families, input/nonce claims, addresses and allocation
+cursors survive rollback and restart. Cache revisions and the scope generation
+advance together. Built-in deployment, family, inclusion and settlement observers
+capture the scope generation before RPC calls and reject writes after it changes,
+including writes to previously nonexistent cache slots. Custom asynchronous
+observers should capture `observation_generation()` and use
+`compare_exchange_observation_scoped` or the corresponding family/inclusion method;
+the older slot-only convenience methods cannot fence a pre-RPC scope change.
+
+A returned `refresh_required` means requery current discoveries and operation
+observations before displaying updated balances or settlement. Added headers do
+not supply historical UTXOs: replay does not invent outpoint deltas absent from
+the node. Retain an explicit trusted checkpoint for restart; the in-memory
+ancestry window itself is not persisted or included in backups. No replay path
+broadcasts transactions or releases signed claims.

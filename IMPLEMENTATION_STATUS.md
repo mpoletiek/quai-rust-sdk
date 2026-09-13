@@ -356,3 +356,17 @@ allocation. All 107 pinned JS default sequences match after the documented integ
 representation normalization, including their exact encoded bytes. Empty tuples,
 zero-length arrays and aggregate limits have separate regressions. The single-value
 constructor uses the same bounded implementation.
+
+## Atomic wallet rollback from canonical replay
+
+`recovery::reconcile_head_replay` now applies reorganized head suffixes to native
+wallet state before advancing the in-memory cursor. One SQLite transaction removes
+affected inclusion observations, invalidates current coins and tombstones caches
+while retaining signed bytes, candidates, claims and allocation cursors. Scope
+generation checks fence delayed built-in RPC observers, including first writes to
+empty cache slots. Tests cover rollback faults, revision exhaustion, concurrent
+writers, missing history, replay paging, wrong scope and restart custody.
+
+This delivers atomic reorg invalidation. Current discovery/settlement refresh is
+still explicit; header replay alone cannot reconstruct historical Qi balances,
+and durable ancestry-window restoration remains separate work.

@@ -39,6 +39,11 @@ fn candidate_exists(
     }
 }
 impl SqliteStore {
+    /// Current scope generation without copying its UTXO snapshot. Capture this
+    /// before asynchronous observations and use the scoped CAS methods below.
+    pub fn observation_generation(&self) -> Result<u64> {
+        Ok(checkpoint_read(&self.connection, &self.key)?.0 as u64)
+    }
     /// Read a public observation for an exact persisted signed candidate and slot
     /// (for example, its external output index).
     /// Caches are excluded from full backups and cleared on restore; reconstruct
@@ -60,6 +65,8 @@ impl SqliteStore {
     /// `None` expected revision means never written; `None` payload invalidates.
     /// Concurrent observers must reread/revalidate after a revision conflict.
     /// No keys, credentials or private application content belong in this cache.
+    /// This slot-only convenience does not fence asynchronous scope changes;
+    /// capture `observation_generation` and use the scoped method for node reads.
     pub fn compare_exchange_observation(
         &mut self,
         id: ReservationId,
@@ -68,22 +75,36 @@ impl SqliteStore {
         expected_revision: Option<u64>,
         payload: Option<&[u8]>,
     ) -> Result<u64> {
+        self.compare_exchange_observation_scoped(
+            id,
+            candidate,
+            slot,
+            (self.observation_generation()?, expected_revision),
+            payload,
+        )
+    }
+    /// Commit only if both the pre-RPC scope generation and cache revision still
+    /// match. Reorg invalidation also fences observers whose cache slot has never
+    /// existed; a slot-only compare-and-swap cannot detect that race.
+    pub fn compare_exchange_observation_scoped(
+        &mut self,
+        id: ReservationId,
+        candidate: Hash32,
+        slot: u16,
+        expected: (u64, Option<u64>),
+        payload: Option<&[u8]>,
+    ) -> Result<u64> {
         if payload.is_some_and(|bytes| bytes.is_empty() || bytes.len() > 4096) {
             return Err(StorageError::Invalid);
         }
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        if checkpoint_read(&tx, &self.key)?.0 as u64 != expected.0 {
+            return Err(StorageError::StaleSnapshot);
+        }
         candidate_exists(&tx, &self.key, self.scope, id, candidate)?;
-        let revision = write_observation(
-            &tx,
-            &self.key,
-            id,
-            candidate,
-            slot,
-            expected_revision,
-            payload,
-        )?;
+        let revision = write_observation(&tx, &self.key, id, candidate, slot, expected.1, payload)?;
         tx.commit()?;
         Ok(revision)
     }
@@ -91,11 +112,28 @@ impl SqliteStore {
     /// old cache revision still match under the same SQLite writer lock.
     /// Slot 65535 on the root candidate is reserved for these summaries.
     /// Signed claims and payloads are never changed by this cache operation.
+    /// Use the scoped variant when a node observation spans asynchronous work.
     pub fn compare_exchange_family_observation(
         &mut self,
         id: ReservationId,
         expected_candidates: &[Hash32],
         expected_revision: Option<u64>,
+        payload: Option<&[u8]>,
+    ) -> Result<u64> {
+        self.compare_exchange_family_observation_scoped(
+            id,
+            expected_candidates,
+            (self.observation_generation()?, expected_revision),
+            payload,
+        )
+    }
+    /// Family CAS including the scope generation captured before node reads.
+    /// Rejects stale first-time observers after a reorg or wallet restore.
+    pub fn compare_exchange_family_observation_scoped(
+        &mut self,
+        id: ReservationId,
+        expected_candidates: &[Hash32],
+        expected: (u64, Option<u64>),
         payload: Option<&[u8]>,
     ) -> Result<u64> {
         if expected_candidates.is_empty()
@@ -107,6 +145,9 @@ impl SqliteStore {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        if checkpoint_read(&tx, &self.key)?.0 as u64 != expected.0 {
+            return Err(StorageError::StaleSnapshot);
+        }
         let root =
             signed_payload_read(&tx, &self.key, self.scope, id)?.ok_or(StorageError::Invalid)?;
         let variants = replacements::read_variants(&tx, &self.key, id)?;
@@ -132,7 +173,7 @@ impl SqliteStore {
             id,
             expected_candidates[0],
             u16::MAX,
-            expected_revision,
+            expected.1,
             payload,
         )?;
         tx.commit()?;

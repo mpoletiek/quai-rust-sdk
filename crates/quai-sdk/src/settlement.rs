@@ -107,6 +107,7 @@ async fn track_inner<T: Transport>(
         SettlementKind::CrossZoneQi { output_index } => output_index,
         _ => 0,
     };
+    let generation = store.observation_generation()?;
     let previous = store.observation_cache(id, candidate, slot)?;
     let expected = previous.as_ref().map(|v| v.revision);
     if expected_revision.is_some_and(|revision| expected != Some(revision)) {
@@ -119,7 +120,13 @@ async fn track_inner<T: Transport>(
         Err(error) => {
             // Never leave an old successful-looking observation in the cache
             // when this revalidation failed. A competing observer wins its CAS.
-            let _ = store.compare_exchange_observation(id, candidate, slot, expected, None);
+            let _ = store.compare_exchange_observation_scoped(
+                id,
+                candidate,
+                slot,
+                (generation, expected),
+                None,
+            );
             return Err(error);
         }
     };
@@ -146,8 +153,13 @@ async fn track_inner<T: Transport>(
         SettlementKind::CrossZoneQi { output_index } => ("cross_zone_qi", output_index),
     };
     let payload = serde_json::to_vec(&json!({"version": 1, "candidate": candidate.to_string(), "kind": label, "etx_index": etx_index, "zone": request.zone.byte(), "from": request.from, "to": request.to, "origin": origin_block, "scanned_through": scan_end, "execution": execution, "qi_credit": credit})).map_err(|_| QiError::InvalidPolicy)?;
-    let revision =
-        store.compare_exchange_observation(id, candidate, slot, expected, Some(&payload))?;
+    let revision = store.compare_exchange_observation_scoped(
+        id,
+        candidate,
+        slot,
+        (generation, expected),
+        Some(&payload),
+    )?;
     Ok(SettlementUpdate {
         revision,
         conversion,

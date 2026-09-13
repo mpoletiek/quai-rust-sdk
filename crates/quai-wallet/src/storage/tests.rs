@@ -1134,3 +1134,161 @@ fn schema_three_migrates_observation_cache_without_changing_signed_state() {
         Some((owner, nonce))
     );
 }
+
+#[test]
+fn reorg_invalidation_is_atomic_preserves_custody_and_fences_first_observers() {
+    let db = Database::new();
+    let mut store = db.open();
+    let generation = populate(&mut store);
+    let owner = QuaiAddress::try_from(metadata()[1].address()).unwrap();
+    let mut signed = Vec::new();
+    for (operation, inclusion) in [(id(94), block(4)), (id(95), block(6))] {
+        let nonce = store.reserve_nonce(operation, owner, 5).unwrap();
+        let root = account_transaction(nonce).sign(&signing_key(1)).unwrap();
+        store.commit_signed_quai(operation, &root).unwrap();
+        store
+            .observe_inclusion(operation, root.hash().unwrap(), inclusion)
+            .unwrap();
+        signed.push(root);
+    }
+    let outpoint = coins()[0].outpoint;
+    store
+        .reserve_qi(id(96), generation, U256::from(6), &[outpoint])
+        .unwrap();
+    store
+        .mark_signed(id(96), Hash32::from_bytes([96; 32]))
+        .unwrap();
+    let hash = signed[1].hash().unwrap();
+    store
+        .compare_exchange_observation(id(95), hash, 0, None, Some(b"old chain"))
+        .unwrap();
+    store
+        .compare_exchange_observation(id(95), hash, 1, None, None)
+        .unwrap();
+    let mut other = db.open();
+    let update = other
+        .invalidate_reorg_from(generation, U256::from(5))
+        .unwrap();
+    assert_eq!(
+        (update.generation, update.inclusions, update.caches),
+        (generation + 1, 1, 2)
+    );
+    assert!(store.snapshot().unwrap().checkpoint.is_none());
+    assert!(store.snapshot().unwrap().coins.is_empty());
+    assert_eq!(
+        store.reservation(id(94)).unwrap().unwrap().state,
+        ReservationState::Confirmed
+    );
+    assert_eq!(
+        store.reservation(id(95)).unwrap().unwrap().state,
+        ReservationState::Submitted
+    );
+    assert_eq!(
+        store.reservation(id(96)).unwrap().unwrap().state,
+        ReservationState::Signed
+    );
+    for slot in [0, 1] {
+        let cache = store
+            .observation_cache(id(95), hash, slot)
+            .unwrap()
+            .unwrap();
+        assert_eq!(cache.revision, 2);
+        assert!(cache.payload.is_none());
+    }
+    // A never-written slot has no revision tombstone. Scope generation must
+    // reject an observer which started before rollback nevertheless.
+    assert_eq!(
+        store.observe_inclusion_scoped(generation, id(95), hash, block(6)),
+        Err(StorageError::StaleSnapshot)
+    );
+    assert_eq!(
+        store.compare_exchange_observation_scoped(
+            id(95),
+            hash,
+            2,
+            (generation, None),
+            Some(b"stale")
+        ),
+        Err(StorageError::StaleSnapshot)
+    );
+    assert_eq!(
+        store.compare_exchange_family_observation_scoped(
+            id(95),
+            &[hash],
+            (generation, None),
+            Some(b"stale family")
+        ),
+        Err(StorageError::StaleSnapshot)
+    );
+    assert_eq!(
+        store.invalidate_reorg_from(generation, U256::from(5)),
+        Err(StorageError::StaleSnapshot)
+    );
+    assert_eq!(
+        store.invalidate_reorg_from(update.generation, U256::ZERO),
+        Err(StorageError::Invalid)
+    );
+    drop(store);
+    let mut store = db.open();
+    for (operation, root) in [id(94), id(95)].into_iter().zip(signed) {
+        assert_eq!(
+            store.signed_payload(operation).unwrap().unwrap(),
+            root.signed_bytes().unwrap()
+        );
+        assert!(store.reserved_nonce(operation).unwrap().is_some());
+        assert_eq!(
+            store.release_unsigned(operation),
+            Err(StorageError::Transition)
+        );
+    }
+    store
+        .replace_snapshot(&Snapshot {
+            scope: scope(),
+            generation: update.generation,
+            checkpoint: Some(block(7)),
+            coins: coins(),
+        })
+        .unwrap();
+    assert!(store.snapshot().unwrap().coins[0].reserved);
+    assert_eq!(
+        store.release_unsigned(id(96)),
+        Err(StorageError::Transition)
+    );
+}
+
+#[test]
+fn reorg_invalidation_rolls_back_on_write_fault_or_revision_exhaustion() {
+    let db = Database::new();
+    let mut store = db.open();
+    let generation = populate(&mut store);
+    let owner = QuaiAddress::try_from(metadata()[1].address()).unwrap();
+    let nonce = store.reserve_nonce(id(97), owner, 5).unwrap();
+    let root = account_transaction(nonce).sign(&signing_key(1)).unwrap();
+    let hash = root.hash().unwrap();
+    store.commit_signed_quai(id(97), &root).unwrap();
+    store.observe_inclusion(id(97), hash, block(6)).unwrap();
+    store
+        .compare_exchange_observation(id(97), hash, 0, None, Some(b"old"))
+        .unwrap();
+    store.connection.execute_batch("CREATE TRIGGER injected_reorg_fault BEFORE UPDATE ON observation_cache BEGIN SELECT RAISE(ABORT,'injected'); END;").unwrap();
+    assert_eq!(
+        store.invalidate_reorg_from(generation, U256::from(5)),
+        Err(StorageError::Database)
+    );
+    assert_eq!(
+        store.reservation(id(97)).unwrap().unwrap().inclusion,
+        Some(block(6))
+    );
+    assert_eq!(store.snapshot().unwrap().generation, generation);
+    assert_eq!(store.snapshot().unwrap().coins.len(), 2);
+    store.connection.execute_batch("DROP TRIGGER injected_reorg_fault; UPDATE observation_cache SET revision=9223372036854775807;").unwrap();
+    assert_eq!(
+        store.invalidate_reorg_from(generation, U256::from(5)),
+        Err(StorageError::Overflow)
+    );
+    assert_eq!(
+        store.reservation(id(97)).unwrap().unwrap().inclusion,
+        Some(block(6))
+    );
+    assert_eq!(store.snapshot().unwrap().checkpoint, Some(block(5)));
+}

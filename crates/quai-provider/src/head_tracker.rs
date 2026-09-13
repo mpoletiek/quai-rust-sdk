@@ -27,6 +27,14 @@ pub struct HeadTracker {
     page_size: usize,
 }
 impl HeadTracker {
+    /// Explicit zone whose linked history this cursor tracks.
+    pub fn zone(&self) -> Zone {
+        self.zone
+    }
+    /// Trusted genesis identity supplied when constructing this cursor.
+    pub fn genesis(&self) -> Hash32 {
+        self.genesis
+    }
     /// Start from a caller-trusted checkpoint. A reorg older than retained anchors
     /// returns `ReplayHistoryUnavailable`; explicitly restore an older checkpoint.
     /// Retain 2..=4096 anchors and replay 1..=256 blocks per page.

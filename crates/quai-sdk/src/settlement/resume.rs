@@ -143,6 +143,7 @@ pub async fn revalidate_settlement_cursor<T: Transport>(
         SettlementKind::CrossZoneQuai => ("cross_zone_quai", 0),
         SettlementKind::CrossZoneQi { output_index } => ("cross_zone_qi", output_index),
     };
+    let generation = store.observation_generation()?;
     let Some(cache) = store.observation_cache(id, candidate, slot)? else {
         return Ok(None);
     };
@@ -235,7 +236,13 @@ pub async fn revalidate_settlement_cursor<T: Transport>(
     }
     .await;
     if result.is_err() || (had_cursor && matches!(&result, Ok(None))) {
-        let _ = store.compare_exchange_observation(id, candidate, slot, Some(cache.revision), None);
+        let _ = store.compare_exchange_observation_scoped(
+            id,
+            candidate,
+            slot,
+            (generation, Some(cache.revision)),
+            None,
+        );
     }
     result
 }

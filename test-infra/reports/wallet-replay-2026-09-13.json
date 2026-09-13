@@ -1,0 +1,37 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "36a193d4dfbc5701cca8b9cc425f2a1898794d25",
+  "testedWorkingTree": true,
+  "changes": [
+    "Atomic SQLite reorg suffix invalidation for origin inclusions, current coins and all public caches",
+    "Retains exact signed bytes, candidate families, claims, addresses and nonce/derivation cursors",
+    "Built-in observation writes fenced by pre-RPC scope generation, including empty cache slots",
+    "HeadTracker advances only after successful storage application"
+  ],
+  "validation": {
+    "nativeWorkspaceAllFeatures": {
+      "passed": 358,
+      "failed": 0,
+      "ignoredExplicitLiveTests": 4
+    },
+    "newStorageRollbackTests": 2,
+    "newSdkReplayTests": 2,
+    "nativeWorkspaceClippyWarningsDenied": "passed",
+    "portableSdkWasmClippyWarningsDenied": "passed",
+    "nativeWorkspaceRustdocWarningsDenied": "passed",
+    "packageFileMirrors": 59,
+    "sdkWithoutDefaultFeaturesSqliteReplayTests": 2
+  },
+  "evidence": [
+    "crates/quai-wallet/src/storage/tests.rs#reorg_invalidation_is_atomic_preserves_custody_and_fences_first_observers",
+    "crates/quai-wallet/src/storage/tests.rs#reorg_invalidation_rolls_back_on_write_fault_or_revision_exhaustion",
+    "crates/quai-sdk/tests/replay.rs"
+  ],
+  "limits": [
+    "Trusted-node canonical samples are not chain proofs",
+    "Current discovery and settlement refresh remain explicit after changed heads",
+    "Latest-only outpoint RPC cannot reconstruct historical balances from headers",
+    "HeadTracker ancestry window is in-memory; restart requires a trusted checkpoint",
+    "No terminal signed-claim release or write replay; deep reorg and sustained real-node soak remain qualification gates"
+  ]
+}

@@ -1,5 +1,6 @@
 //! Bounded durable reconciliation of signed operations against a configured node.
 mod family;
+mod replay;
 use crate::qi::QiError;
 pub use family::{CandidateObservation, FamilyUpdate, track_family};
 use quai_consensus::{SignedQiOperation, SignedQuaiTransaction};
@@ -7,6 +8,7 @@ use quai_provider::{Provider, ReceiptOutcome, TransactionKind};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::Checkpoint;
 use quai_wallet::storage::{ReservationId, ReservationState, SqliteStore};
+pub use replay::{WalletReplayUpdate, reconcile_head_replay};
 
 /// Latest observation of an existing signed operation. Absence never releases claims.
 #[derive(Clone, Debug)]
@@ -36,6 +38,7 @@ pub async fn reconcile_operation<T: Transport>(
     store: &mut SqliteStore,
     id: ReservationId,
 ) -> Result<OperationObservation, QiError> {
+    let generation = store.observation_generation()?;
     let scope = store.scope();
     if provider.chain_id(scope.zone.into()).await? != scope.chain_id
         || provider.genesis_hash(scope.zone).await? != scope.genesis
@@ -150,7 +153,7 @@ pub async fn reconcile_operation<T: Transport>(
     {
         store.invalidate_inclusion(id, current)?;
     }
-    store.observe_inclusion(id, hash, block)?;
+    store.observe_inclusion_scoped(generation, id, hash, block)?;
     Ok(OperationObservation::Included {
         block,
         outcome: receipt.outcome,

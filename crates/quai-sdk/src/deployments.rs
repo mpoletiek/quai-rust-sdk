@@ -26,6 +26,7 @@ pub async fn track_deployment<T: Transport>(
     candidate: Hash32,
     expected_runtime: Option<Hash32>,
 ) -> Result<DeploymentUpdate, QiError> {
+    let generation = store.observation_generation()?;
     let previous = store.observation_cache(id, candidate, 0)?;
     let expected_revision = previous.as_ref().map(|c| c.revision);
     let result = async {
@@ -49,7 +50,13 @@ pub async fn track_deployment<T: Transport>(
     let (observation, address) = match result {
         Ok(value) => value,
         Err(error) => {
-            let _ = store.compare_exchange_observation(id, candidate, 0, expected_revision, None);
+            let _ = store.compare_exchange_observation_scoped(
+                id,
+                candidate,
+                0,
+                (generation, expected_revision),
+                None,
+            );
             return Err(error);
         }
     };
@@ -73,8 +80,13 @@ pub async fn track_deployment<T: Transport>(
         }
     };
     let payload=serde_json::to_vec(&json!({"version":1,"kind":"deployment","candidate":candidate.to_string(),"address":address.to_string(),"expected_runtime":expected_runtime.map(|h|h.to_string()),"observation":state})).map_err(|_|QiError::InvalidPolicy)?;
-    let revision =
-        store.compare_exchange_observation(id, candidate, 0, expected_revision, Some(&payload))?;
+    let revision = store.compare_exchange_observation_scoped(
+        id,
+        candidate,
+        0,
+        (generation, expected_revision),
+        Some(&payload),
+    )?;
     Ok(DeploymentUpdate {
         revision,
         observation,

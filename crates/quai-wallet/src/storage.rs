@@ -64,6 +64,8 @@ type Result<T> = std::result::Result<T, StorageError>;
 mod backup_state;
 mod observations;
 pub use observations::ObservationCache;
+mod replay;
+pub use replay::ReorgInvalidation;
 pub(crate) mod replacements;
 pub use replacements::{QuaiReplacement, ReplacementCandidate};
 pub(crate) mod payment;
@@ -1100,9 +1102,24 @@ impl SqliteStore {
         transaction: Hash32,
         block: Checkpoint,
     ) -> Result<()> {
+        self.observe_inclusion_scoped(self.observation_generation()?, id, transaction, block)
+    }
+    /// Record an inclusion only while the scope generation captured before its
+    /// asynchronous canonical reads still matches. Reorg and restore invalidation
+    /// prevent a delayed observer from reinstating an old-chain inclusion.
+    pub fn observe_inclusion_scoped(
+        &mut self,
+        expected_generation: u64,
+        id: ReservationId,
+        transaction: Hash32,
+        block: Checkpoint,
+    ) -> Result<()> {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        if checkpoint_read(&tx, &self.key)?.0 as u64 != expected_generation {
+            return Err(StorageError::StaleSnapshot);
+        }
         let old = reservation_read(&tx, &self.key, id)?.ok_or(StorageError::Transition)?;
         if old.state == ReservationState::Confirmed
             && old.transaction == Some(transaction)

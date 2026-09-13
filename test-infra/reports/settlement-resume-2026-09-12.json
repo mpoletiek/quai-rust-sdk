@@ -1,0 +1,26 @@
+{
+  "recordedAt": "2026-09-13T02:05:09.765175+00:00",
+  "scope": "Revalidated settlement continuation with revision-bound resume and concurrent-observer protection",
+  "sdk_all_features": {
+    "reported_passes": 50,
+    "failures": 0,
+    "ignored": 0
+  },
+  "strict_workspace_clippy": "passed",
+  "sdk_rustdoc_warnings_denied": "passed",
+  "targeted_restart_tests": 3,
+  "evidence": [
+    "actual SQLite reopen",
+    "stale revision rejects before source reads",
+    "execution block reread for maturity refresh",
+    "invalid/reorganized anchors tombstoned without releasing signed claims",
+    "concurrent cache write survives invalidation",
+    "concurrent cache write rejects resumed observation final CAS"
+  ],
+  "limitations": [
+    "Synthetic source headers and saved-page metadata, not funded wrapping or cross-zone qualification.",
+    "Only the saved requested range is covered; absence does not prove rejection.",
+    "A later reorg can invalidate a cursor; resumed tracking rechecks the signed intent and live anchors."
+  ],
+  "releaseQualified": false
+}

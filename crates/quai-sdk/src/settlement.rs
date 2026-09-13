@@ -1,4 +1,5 @@
 //! Restartable bounded settlement observation for exact persisted signed candidates.
+mod resume;
 use crate::qi::QiError;
 use quai_consensus::{SignedQiOperation, SignedQuaiTransaction};
 use quai_primitives::{Hash32, QuaiAddress};
@@ -8,6 +9,7 @@ use quai_provider::{
 };
 use quai_rpc::Transport;
 use quai_wallet::storage::{ObservationCache, ReservationId, SqliteStore};
+pub use resume::{SettlementCursor, revalidate_settlement_cursor};
 use serde_json::{Value, json};
 
 /// Explicit interpretation of a locally signed operation. No operation is inferred
@@ -66,6 +68,40 @@ pub async fn track_settlement<T: Transport>(
     request: EtxScanRequest,
     max_outputs: usize,
 ) -> Result<SettlementUpdate, QiError> {
+    track_inner(
+        provider,
+        store,
+        ObservationRequest {
+            id,
+            candidate,
+            kind,
+            request,
+            max_outputs,
+        },
+        None,
+    )
+    .await
+}
+struct ObservationRequest {
+    id: ReservationId,
+    candidate: Hash32,
+    kind: SettlementKind,
+    request: EtxScanRequest,
+    max_outputs: usize,
+}
+async fn track_inner<T: Transport>(
+    provider: &Provider<T>,
+    store: &mut SqliteStore,
+    input: ObservationRequest,
+    expected_revision: Option<u64>,
+) -> Result<SettlementUpdate, QiError> {
+    let ObservationRequest {
+        id,
+        candidate,
+        kind,
+        request,
+        max_outputs,
+    } = input;
     let slot = match kind {
         SettlementKind::WqiRedemption { etx_index, .. } => etx_index,
         SettlementKind::CrossZoneQi { output_index } => output_index,
@@ -73,6 +109,10 @@ pub async fn track_settlement<T: Transport>(
     };
     let previous = store.observation_cache(id, candidate, slot)?;
     let expected = previous.as_ref().map(|v| v.revision);
+    if expected_revision.is_some_and(|revision| expected != Some(revision)) {
+        return Err(quai_wallet::storage::StorageError::Conflict.into());
+    }
+
     let result = observe(provider, store, id, candidate, kind, request, max_outputs).await;
     let (conversion, external, qi_credit) = match result {
         Ok(value) => value,

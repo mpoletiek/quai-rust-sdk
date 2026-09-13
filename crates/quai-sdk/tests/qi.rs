@@ -1436,3 +1436,309 @@ async fn wrapping_observation_is_saved_before_return_and_survives_reopen() {
     assert!(cached["execution"].is_null());
     assert_eq!(reopened.reserved_outpoints(id(99)).unwrap().len(), 2);
 }
+
+async fn persisted_settlement_cursor_fixture() -> (Environment, quai_sdk::primitives::Hash32, Value)
+{
+    use quai_sdk::consensus::QiWrappingIntent;
+    use quai_sdk::qi::QiSpecialIntent;
+    let mut env = setup();
+    let change = pool(&mut env, 0);
+    refresh(&mut env);
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let prepared = session
+        .prepare_special(
+            id(97),
+            U256::from(5),
+            QiSpecialIntent::Wrapping(QiWrappingIntent {
+                destination: "0x0000000000000000000000000000000000000001"
+                    .parse()
+                    .unwrap(),
+                owner_contract: "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+                    .parse()
+                    .unwrap(),
+            }),
+            U256::from(5),
+            policy(),
+            change,
+        )
+        .await
+        .unwrap();
+    let hash = session.sign_special(&prepared).unwrap().hash().unwrap();
+    // Public synthetic saved-page metadata, with source headers supplied by Mock.
+    // This tests resumption mechanics, not a funded wrapping execution.
+    let payload = json!({"version":1,"candidate":hash.to_string(),"kind":"qi_wrapping","etx_index":0,"zone":0,"from":16,"to":16,"origin":{"number":16,"hash":CHECKPOINT},"scanned_through":{"number":16,"hash":CHECKPOINT},"execution":null,"qi_credit":null});
+    env.store
+        .compare_exchange_observation(
+            id(97),
+            hash,
+            0,
+            None,
+            Some(&serde_json::to_vec(&payload).unwrap()),
+        )
+        .unwrap();
+    (env, hash, payload)
+}
+#[tokio::test]
+async fn settlement_cursor_reopens_revalidates_and_preserves_revision_through_tracking() {
+    use quai_sdk::settlement::{SettlementKind, revalidate_settlement_cursor};
+    let (mut env, hash, _) = persisted_settlement_cursor_fixture().await;
+    let mut reopened = SqliteStore::open(&env.path, env.store.scope()).unwrap();
+    let cursor = revalidate_settlement_cursor(
+        &env.provider,
+        &mut reopened,
+        id(97),
+        hash,
+        SettlementKind::QiWrapping,
+        Zone::Cyprus1,
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    assert_eq!(cursor.scanned_through().number, 16);
+    assert!(cursor.execution().is_none());
+    let request = cursor.request(500, 16, 32).unwrap();
+    assert_eq!((request.from, request.to), (17, 272));
+    assert_eq!(
+        request.preceding_block.unwrap().hash.to_string(),
+        CHECKPOINT
+    );
+    for (through, per, total) in [
+        (16, 16, 32),
+        (500, 0, 32),
+        (500, 4097, 32),
+        (500, 16, 65537),
+    ] {
+        assert!(cursor.request(through, per, total).is_err());
+    }
+    let update = cursor
+        .track(&env.provider, &mut reopened, 18, 16, 32, 16)
+        .await
+        .unwrap();
+    assert_eq!(update.revision, 2); // Mock reports origin unavailable, never settled.
+    assert_eq!(reopened.reserved_outpoints(id(97)).unwrap().len(), 2);
+    let calls = env.mock.calls.lock().unwrap().len();
+    assert!(matches!(
+        cursor
+            .track(&env.provider, &mut env.store, 18, 16, 32, 16)
+            .await,
+        Err(QiError::Storage(
+            quai_sdk::wallet::storage::StorageError::Conflict
+        ))
+    ));
+    assert_eq!(env.mock.calls.lock().unwrap().len(), calls);
+    // A valid incomplete observation has no continuation and retains its UI cache.
+    assert!(
+        revalidate_settlement_cursor(
+            &env.provider,
+            &mut reopened,
+            id(97),
+            hash,
+            SettlementKind::QiWrapping,
+            Zone::Cyprus1
+        )
+        .await
+        .unwrap()
+        .is_none()
+    );
+    let cache = reopened
+        .observation_cache(id(97), hash, 0)
+        .unwrap()
+        .unwrap();
+    assert_eq!(cache.revision, 2);
+    assert!(cache.payload.is_some());
+}
+#[tokio::test]
+async fn settlement_cursor_rereads_execution_and_invalidates_reorg_or_wrong_identity() {
+    use quai_sdk::settlement::{SettlementKind, revalidate_settlement_cursor};
+    let (mut env, hash, mut payload) = persisted_settlement_cursor_fixture().await;
+    payload["execution"] =
+        json!({"hash":CHECKPOINT,"block":{"number":16,"hash":CHECKPOINT},"outcome":"locked"});
+    env.store
+        .compare_exchange_observation(
+            id(97),
+            hash,
+            0,
+            Some(1),
+            Some(&serde_json::to_vec(&payload).unwrap()),
+        )
+        .unwrap();
+    let cursor = revalidate_settlement_cursor(
+        &env.provider,
+        &mut env.store,
+        id(97),
+        hash,
+        SettlementKind::QiWrapping,
+        Zone::Cyprus1,
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    assert_eq!(cursor.execution().unwrap().number, 16);
+    let r = cursor.request(200, 16, 32).unwrap();
+    assert_eq!((r.from, r.to), (16, 16));
+    assert!(r.preceding_block.is_none());
+    env.mock.mode.store(5, Ordering::SeqCst);
+    assert!(
+        revalidate_settlement_cursor(
+            &env.provider,
+            &mut env.store,
+            id(97),
+            hash,
+            SettlementKind::QiWrapping,
+            Zone::Cyprus1
+        )
+        .await
+        .unwrap()
+        .is_none()
+    );
+    let cache = env
+        .store
+        .observation_cache(id(97), hash, 0)
+        .unwrap()
+        .unwrap();
+    assert_eq!(cache.revision, 3);
+    assert!(cache.payload.is_none());
+    assert!(env.store.signed_payload(id(97)).unwrap().is_some());
+    assert_eq!(env.store.reserved_outpoints(id(97)).unwrap().len(), 2);
+    env.mock.mode.store(0, Ordering::SeqCst);
+    payload["candidate"] = json!(GENESIS);
+    env.store
+        .compare_exchange_observation(
+            id(97),
+            hash,
+            0,
+            Some(3),
+            Some(&serde_json::to_vec(&payload).unwrap()),
+        )
+        .unwrap();
+    let calls = env.mock.calls.lock().unwrap().len();
+    assert!(
+        revalidate_settlement_cursor(
+            &env.provider,
+            &mut env.store,
+            id(97),
+            hash,
+            SettlementKind::QiWrapping,
+            Zone::Cyprus1
+        )
+        .await
+        .is_err()
+    );
+    assert_eq!(env.mock.calls.lock().unwrap().len(), calls);
+    assert!(
+        env.store
+            .observation_cache(id(97), hash, 0)
+            .unwrap()
+            .unwrap()
+            .payload
+            .is_none()
+    );
+}
+
+#[tokio::test]
+async fn settlement_cursor_cannot_clear_or_overwrite_a_concurrent_observer() {
+    use quai_sdk::settlement::{SettlementKind, revalidate_settlement_cursor};
+    #[derive(Clone)]
+    struct Racing {
+        inner: Mock,
+        path: std::path::PathBuf,
+        scope: NetworkScope,
+        candidate: quai_sdk::primitives::Hash32,
+        payload: Vec<u8>,
+        trigger: Arc<AtomicU8>,
+    }
+    impl Transport for Racing {
+        async fn request(
+            &self,
+            endpoint: &Endpoint,
+            method: &str,
+            params: Value,
+        ) -> Result<Value, RpcError> {
+            let trigger = self.trigger.load(Ordering::SeqCst);
+            if ((trigger == 1 && method == "quai_getHeaderByNumber" && params[0] != "0x0")
+                || (trigger == 2 && method == "quai_getTransactionReceipt"))
+                && self.trigger.swap(0, Ordering::SeqCst) != 0
+            {
+                let mut concurrent = SqliteStore::open(&self.path, self.scope).unwrap();
+                let cache = concurrent
+                    .observation_cache(id(97), self.candidate, 0)
+                    .unwrap()
+                    .unwrap();
+                concurrent
+                    .compare_exchange_observation(
+                        id(97),
+                        self.candidate,
+                        0,
+                        Some(cache.revision),
+                        Some(&self.payload),
+                    )
+                    .unwrap();
+            }
+            self.inner.request(endpoint, method, params).await
+        }
+    }
+    let (mut env, hash, payload) = persisted_settlement_cursor_fixture().await;
+    let race = Racing {
+        inner: env.mock.clone(),
+        path: env.path.clone(),
+        scope: env.store.scope(),
+        candidate: hash,
+        payload: serde_json::to_vec(&payload).unwrap(),
+        trigger: Arc::new(AtomicU8::new(1)),
+    };
+    let provider = Provider::new(
+        race.clone(),
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        U256::from(15000),
+    );
+    env.mock.mode.store(5, Ordering::SeqCst);
+    assert!(
+        revalidate_settlement_cursor(
+            &provider,
+            &mut env.store,
+            id(97),
+            hash,
+            SettlementKind::QiWrapping,
+            Zone::Cyprus1
+        )
+        .await
+        .unwrap()
+        .is_none()
+    );
+    let cache = env
+        .store
+        .observation_cache(id(97), hash, 0)
+        .unwrap()
+        .unwrap();
+    assert_eq!(cache.revision, 2);
+    assert!(cache.payload.is_some());
+    env.mock.mode.store(0, Ordering::SeqCst);
+    let cursor = revalidate_settlement_cursor(
+        &provider,
+        &mut env.store,
+        id(97),
+        hash,
+        SettlementKind::QiWrapping,
+        Zone::Cyprus1,
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    race.trigger.store(2, Ordering::SeqCst);
+    assert!(matches!(
+        cursor
+            .track(&provider, &mut env.store, 18, 16, 32, 16)
+            .await,
+        Err(QiError::Storage(
+            quai_sdk::wallet::storage::StorageError::Conflict
+        ))
+    ));
+    let cache = env
+        .store
+        .observation_cache(id(97), hash, 0)
+        .unwrap()
+        .unwrap();
+    assert_eq!(cache.revision, 3);
+    assert_eq!(cache.payload.unwrap(), race.payload);
+    assert_eq!(env.store.reserved_outpoints(id(97)).unwrap().len(), 2);
+}

@@ -184,3 +184,11 @@ Receipt status 2 now remains `Locked`; conversion/refund and redemption credit
 queries preserve locked states and inspect partial outputs after failed execution.
 Tests cover both ledgers' conversion beneficiaries and the original Qi refund
 address, without treating missing indexed outputs as lost funds.
+
+
+Destination scan resumption now revalidates saved origin/page/execution anchors
+and carries cache revisions through resumed tracking. Existing executions are
+reread for current receipts and output locks. Reorg/missing anchors require an
+explicit restart range, and concurrent observers cannot clear or overwrite one
+another's newer cache. This remains source observation, not historical recovery
+or finality qualification.

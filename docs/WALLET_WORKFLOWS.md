@@ -261,3 +261,29 @@ Applications must recheck their anchors before choosing continuation ranges.
 Errors attempt a revision-checked invalidation; signed claims never change.
 Caches are disposable and excluded from full backups; restore clears them and
 retains the exact signed candidates used to reconstruct references.
+
+
+## Resume a saved destination scan
+
+`settlement::revalidate_settlement_cursor` loads a candidate's public observation
+and checks its identity, network/genesis, origin, scanned page end and any
+execution block against the current source. It returns a `SettlementCursor` only
+when those anchors still agree. Missing or reorganized anchors require the
+application to restart its explicitly chosen range; an unavailable receipt is
+never interpreted as rejection or permission to repay.
+
+Use `SettlementCursor::track` to continue. It carries the saved revision through
+the next observation and final storage compare-and-exchange, so a stale cursor
+cannot overwrite another handle's newer result. Invalidation similarly targets
+only the revision originally read. The caller supplies an inclusive ending
+height and transaction budgets; pages contain at most 256 blocks. When an
+execution has already been found, the cursor rereads that one block to refresh
+its receipt and currently indexed output locks. Signed intent is reconstructed
+again before tracking; no cached summary authorizes a payment or claim release.
+
+Cursors cover the requested saved page, not complete wallet history. A valid
+incomplete observation keeps its UI summary but cannot produce a continuation.
+Caches remain excluded from backups; restored exact signed candidates can be
+tracked again with an explicit starting range. Tests use actual independent
+SQLite handles and synthetic source headers, including a concurrent write during
+reorg invalidation and another write during resumed observation.

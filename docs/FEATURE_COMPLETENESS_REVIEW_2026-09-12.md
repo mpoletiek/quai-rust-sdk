@@ -115,3 +115,8 @@ allocator request-ID history is outside the existing recovery format.
 Portable capture now carries authenticated prior address/payment inventory forward,
 preserving receive-key derivation proofs and maximum cursor floors after recovery.
 Transaction custody remains explicitly supplied by all current account/Qi journals.
+
+The browser backup collector now reads all explicitly selected HD/account/Qi/payment
+journals under a common revision-checked snapshot. It rejects concurrent mutation
+without retry and returns a guarded backup plus revision evidence. Coordinated live
+restore remains separate from read-only collection.

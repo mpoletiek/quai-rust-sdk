@@ -62,10 +62,25 @@ account/Qi journals fail atomically. Generate unique transaction operation IDs
 across each scope. A caller-selected Qi namespace is supplied again on restore;
 it is not a private ownership proof or an implicit allocation identity.
 
-These are detached snapshots. Applications must establish a consistent read across
-all live browser stores before calling this API; the pure capture method cannot
-synchronize writers or discover omitted databases. Automated browser collection
-and coordinated live restoration remain separate integration work.
+For live browser collection, enable SDK `backup,browser` and call
+`browser_backups::capture_wallet_backup` with `BrowserWalletCaptureSources`.
+Enumerate HD stores, account stores with exact owned public metadata, Qi stores,
+and payment stores with their guarded private owners. Supply frozen additional
+inventory and `previous_inventory` when applicable. The result contains a guarded
+`WalletBackup` and public `BrowserCapturedRevision` records; encrypt explicitly
+before persisting or exporting private material.
+
+The collector reads every selected journal, then re-reads every revision. Equal
+monotonic revisions establish a common point during collection for those states.
+Changes, missing/tombstoned stores or invalid data reject the whole attempt without
+automatic retry. It performs no storage writes; cancellation leaves the journals
+unchanged and drops its guarded private origins. Changes after the captured point
+require a newer backup. This does not discover omitted stores, synchronize chain
+observations, or protect against malicious same-origin database replacement.
+The pure capture API still requires caller-established snapshot consistency.
+
+Coordinated live restoration across all journal types remains separate integration
+work. The collector does not persist the backup or replace existing stores.
 
 Native and actual Chromium worker tests combine HD Quai/Qi owners, account and
 mixed HD/payment-input signed transactions, both payment directions, pending and
@@ -77,3 +92,7 @@ signed claims remain held. See the [retained report](../test-infra/reports/porta
 Repeated-recovery tests also verify preserved payment ownership proofs, deduplicated
 exposures, higher cursor floors and atomic rejection of conflicting ancestry/ranges.
 See [inventory carry-forward validation](../test-infra/reports/portable-inventory-recapture-2026-09-13.json).
+
+Actual worker tests collect all four journal types, reject a first or last journal
+changed between read phases, retain state after cancellation, and reject duplicate,
+over-limit or tombstoned sources. See [browser collection validation](../test-infra/reports/browser-wallet-collection-2026-09-13.json).

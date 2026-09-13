@@ -5,6 +5,8 @@ pub mod accounts;
 pub mod browser_accounts;
 #[cfg(all(target_arch = "wasm32", feature = "wallet", feature = "browser"))]
 pub mod browser_addresses;
+#[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
+pub mod browser_backups;
 #[cfg(all(
     target_arch = "wasm32",
     feature = "wallet",

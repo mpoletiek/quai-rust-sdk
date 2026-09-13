@@ -20,8 +20,8 @@ claims and signs transfer/conversion/wrapping bytes before returning them.
 
 Account-only and Qi-only authenticated backup capture and monotonic live journal
 merge are now implemented. [Combined portable recovery capture](PORTABLE_WALLET_CAPTURE.md)
-now includes all four journal types. Automated consistent browser collection and
-coordinated live restore still require integration; see the workflow's explicit capture boundary.
+now includes all four journal types, and the browser collector checks all selected
+revisions across two read phases. Coordinated live restore still requires integration; see the workflow's explicit capture boundary.
 
 **The target is a feature-complete SDK for both Quai and Qi wallet applications.**
 Keys, HD derivation, current gap-50 Qi discovery, mixed-origin signing, payment

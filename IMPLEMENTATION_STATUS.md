@@ -581,3 +581,12 @@ capture. It preserves maximum cursors, rejects conflicting ancestry/ranges, and
 re-proves ownership. Current account/Qi journals still supply transaction custody.
 See [workflow](docs/PORTABLE_WALLET_CAPTURE.md) and
 [validation](test-infra/reports/portable-inventory-recapture-2026-09-13.json).
+
+## Consistent browser wallet backup collection (2026-09-13)
+
+`browser_backups::capture_wallet_backup` collects explicitly selected HD/account/Qi/
+payment stores, then rechecks every monotonic revision before ownership-proved
+backup construction. Mutations, tombstones and bounds reject without retry; no
+storage writes occur. Actual worker tests cover every journal type, first/last
+revision races and cancellation. See [workflow](docs/PORTABLE_WALLET_CAPTURE.md)
+and [validation](test-infra/reports/browser-wallet-collection-2026-09-13.json).

@@ -148,3 +148,6 @@ endpoints for the read-only `inspect_pool` SDK example. This does not change
 consensus or fund a transaction; the node remains an isolated patched profile.
 The 2026-09-12 read reported height 7, empty account/Qi pools, a 1018-byte pending
 header and a 21000-gas zero-value access-list simulation.
+
+The [WQI flow](wqi-evidence/README.md) records native wrap, claim, redemption and
+locked wallet credit, including failed empty-access-list controls and SDK fixes.

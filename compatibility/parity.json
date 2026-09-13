@@ -17457,12 +17457,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Log::address"
+      ],
+      "feature": "provider",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/logs.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Validated Address preserves Quai contract and native Qi protocol-log emitters; no implicit contract coercion. Zone, exact filter and receipt/log association checks remain enforced."
     },
     {
       "id": ".:Log:instance:blockHash",
@@ -51712,12 +51718,18 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Log::address"
+      ],
+      "feature": "provider",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-provider/tests/logs.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md"
+      ],
+      "deviation": "Validated Address preserves Quai contract and native Qi protocol-log emitters; no implicit contract coercion. Zone, exact filter and receipt/log association checks remain enforced."
     },
     {
       "id": "./providers:Log:instance:blockHash",

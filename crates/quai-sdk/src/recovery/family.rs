@@ -105,8 +105,7 @@ impl SignedIntent {
             });
         }
         let qi = SignedQiOperation::decode(bytes)?;
-        if qi.transaction().chain_id != scope.chain_id
-            || qi.transaction().origin_zone().ok() != Some(scope.zone)
+        if qi.transaction().chain_id != scope.chain_id || qi.origin_zone().ok() != Some(scope.zone)
         {
             return Err(QiError::IdentityMismatch);
         }

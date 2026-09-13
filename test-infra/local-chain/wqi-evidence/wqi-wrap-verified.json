@@ -1,0 +1,12 @@
+{
+  "block": "0x000032d6f84dfaf06c224e243b40c60842fb669770491b0eb4a4ef8d2b0ad164",
+  "contract": "0x0007ba2A9A6e5559134Ff1153b8a7F271B44f827",
+  "destinationOutcome": "Some(Succeeded)",
+  "executionHash": "0x0076005894100e3d8ee86b28777680fb18522c2e31b9af2b9abbefb51fa29a7b",
+  "hash": "0x00d700c65b51dc50f7075e6d9d63a98695ca3387f1d174204a2e462f5a0fc057",
+  "height": 17,
+  "originHeight": "14",
+  "qualification": "isolated patched profile with legacy wrapping semantics; public fixture funds; locked redemption is not a mature spend",
+  "tokenAtoms": "0",
+  "unclaimedQits": "1000"
+}

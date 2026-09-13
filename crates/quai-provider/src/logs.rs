@@ -1,5 +1,5 @@
 use crate::{Log, Provider, ProviderError, types};
-use quai_primitives::{Hash32, QuaiAddress, Zone};
+use quai_primitives::{Address, Hash32, Zone};
 use quai_rpc::Transport;
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
@@ -34,8 +34,9 @@ pub struct LogFilter {
     pub zone: Zone,
     /// Explicit block selection.
     pub range: LogRange,
-    /// Emitting contracts, up to 128, all in this zone. Empty means any emitter.
-    pub addresses: Vec<QuaiAddress>,
+    /// EVM emitters or protocol Qi beneficiaries, up to 128, all in this zone.
+    /// Empty means any emitter on either ledger.
+    pub addresses: Vec<Address>,
     /// Up to four indexed topic filters, in positional order.
     pub topics: Vec<TopicMatch>,
 }
@@ -44,7 +45,10 @@ impl LogFilter {
         let invalid = ProviderError::InvalidRequest("invalid bounded log filter");
         if self.addresses.len() > 128
             || self.topics.len() > 4
-            || self.addresses.iter().any(|a| a.zone() != self.zone)
+            || self
+                .addresses
+                .iter()
+                .any(|a| a.zone().ok() != Some(self.zone))
         {
             return Err(invalid);
         }
@@ -84,7 +88,7 @@ impl LogFilter {
         Ok(value)
     }
     fn matches(&self, log: &Log) -> bool {
-        if log.address.zone() != self.zone
+        if log.address.zone().ok() != Some(self.zone)
             || (!self.addresses.is_empty() && !self.addresses.contains(&log.address))
             || self.topics.len() > log.topics.len()
         {

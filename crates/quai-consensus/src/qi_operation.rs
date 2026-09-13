@@ -3,7 +3,7 @@ use crate::{
     QiTransaction, SignedQiConversionTransaction, SignedQiTransaction, SignedQiWrappingTransaction,
     TransactionError,
 };
-use quai_primitives::Hash32;
+use quai_primitives::{Hash32, Zone};
 
 /// A verified signed operation. Classification never weakens ordinary signing.
 #[derive(Clone, Debug)]
@@ -35,6 +35,16 @@ impl SignedQiOperation {
             Self::Transfer(tx) => tx.transaction(),
             Self::Conversion(tx) => tx.transaction().transaction(),
             Self::Wrapping(tx) => tx.transaction().transaction(),
+        }
+    }
+    /// Validated input-origin zone using this operation's ledger/data rules.
+    /// Calling `QiTransaction::origin_zone` on the raw fields would instead
+    /// require an ordinary transfer and reject conversion/wrapping data.
+    pub fn origin_zone(&self) -> Result<Zone, TransactionError> {
+        match self {
+            Self::Transfer(tx) => tx.transaction().origin_zone(),
+            Self::Conversion(tx) => Ok(tx.transaction().origin_zone()),
+            Self::Wrapping(tx) => Ok(tx.transaction().origin_zone()),
         }
     }
     /// Locally verified transaction identity.

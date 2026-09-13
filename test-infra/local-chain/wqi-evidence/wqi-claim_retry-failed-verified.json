@@ -1,0 +1,9 @@
+{
+  "backingQits": "1000",
+  "claimsRetained": true,
+  "hash": "0x007000701c758e07a8a66043ef0c0c904ee913dafd97c4314cbcbe5d30a40b19",
+  "height": "19",
+  "outcome": "failed",
+  "reason": "missing lockup access declaration; simulation auto-discovers access while signed execution requires the address",
+  "tokenAtoms": "0"
+}

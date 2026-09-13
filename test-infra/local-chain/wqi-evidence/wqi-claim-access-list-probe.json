@@ -1,0 +1,37 @@
+{
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "quai_createAccessList",
+    "params": [
+      {
+        "from": "0x0049CdA3305ccB9cB23E7Ce2528ceF555E9a5B32",
+        "to": "0x0007ba2A9A6e5559134Ff1153b8a7F271B44f827",
+        "input": "0x29d07a51",
+        "gas": "0x1e8480",
+        "value": "0x0"
+      },
+      "latest"
+    ]
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "accessList": [
+        {
+          "address": "0x0007ba2A9A6e5559134Ff1153b8a7F271B44f827",
+          "storageKeys": [
+            "0x0000000000000000000000000000000000000000000000000000000000000005",
+            "0x5969d4d63cbc319590da8d1e9fa8756c817f98937a49005e1f5dce08a86bd08e"
+          ]
+        },
+        {
+          "address": "0x000000000000000000000000000000000000000A",
+          "storageKeys": []
+        }
+      ],
+      "gasUsed": "0xa24c"
+    }
+  }
+}

@@ -69,7 +69,7 @@ async fn explicit_endpoint_wallet_reads() {
                 from: height,
                 to: height,
             },
-            addresses: vec![address],
+            addresses: vec![address.address()],
             topics: vec![],
         })
         .await

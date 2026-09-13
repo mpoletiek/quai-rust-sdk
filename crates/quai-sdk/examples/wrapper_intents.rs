@@ -21,9 +21,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ),
     ] {
         println!(
-            "{name}: value={}, data={}",
+            "{name}: value={}, data={}, access_list={:?}",
             call.value(),
-            call.data().to_hex()
+            call.data().to_hex(),
+            call.access_list()
         );
         // With sqlite enabled: call.into_account_intent() feeds AccountSession::prepare.
     }

@@ -28,6 +28,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 mod wrapper_workflow;
+mod qi_wrapper_workflow;
 const GENESIS: &str = "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee";
 const ROOT: &str = "/tmp/quai-sdk-highlevel-wallets";
 fn key(n: u64) -> SecretKey {
@@ -559,6 +560,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 json!({"receipts":records,"runtime":runtime,"qiOutputAssertions":actual,"qualification":"isolated quiescent node only; no production pinned Qi source"}),
             )?;
         }
+        "wqi-probe" => qi_wrapper_workflow::probe(&provider, &signer).await?,
+        value if value.starts_with("wqi-deploy-") => qi_wrapper_workflow::deploy(value, &provider, &signer, &account_path).await?,
+        value if value.starts_with("wqi-") => qi_wrapper_workflow::workflow(value, &provider, &signer, &account_path, &qi_path, &wallet).await?,
         value if value.starts_with("wquai-") => wrapper_workflow::run(value, &provider, &signer, &account_path).await?,
         _ => return Err("unknown high-level mode".into()),
     }

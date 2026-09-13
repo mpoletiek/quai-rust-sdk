@@ -98,3 +98,14 @@ errors stop the wait. Dropping the future stops polling without affecting the
 signed transaction. This API handles known direct signed creations; existing
 contract addresses can still be read through `code`. Neither a receipt, runtime
 hash match nor a confirmation count proves contract safety or consensus finality.
+
+`Log::address` and `LogFilter::addresses` use the general `Address` type. Native
+redemption and lockup receipts can name Qi beneficiaries; these are protocol
+logs, not EVM contracts. Parsing still rejects unsupported zones and inconsistent
+receipt/log associations. Exact address/topic/range filters apply to both ledgers.
+Contract event adapters additionally require their configured Quai emitter.
+
+`wrapped_qi_deposit_optional` maps only the pinned node's exact absent-deposit
+error (`-32000`, `no wrapped Qi balance`, no data) to `None`; successful zero stays
+`Some(0)`. Other failures propagate. `wrapped_qi_deposit` retains its raw error
+behavior. Neither API establishes historical indexing or contract verification.

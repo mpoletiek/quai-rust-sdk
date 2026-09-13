@@ -1,0 +1,25 @@
+{
+  "block": "0x00001e0b8befbcc8af886f3ff52dc637de1665251c1322a4738dc42a09aff52c",
+  "contract": "0x0007ba2A9A6e5559134Ff1153b8a7F271B44f827",
+  "destinationOutcome": "Some(Succeeded)",
+  "executionHash": "0x000e00bcfb19536767d398099f9efff614a39e1ea2b707a6ddea0cd2845f6469",
+  "hash": "0x006b000d7997eaf9496cb09c06080cc39c6dd497a60a5091afa7d9e7dfd3996e",
+  "height": 25,
+  "lockedQits": "1000",
+  "originHeight": "21",
+  "otherSpendableQits": "8710",
+  "outputs": [
+    {
+      "denomination": 6,
+      "index": 0,
+      "lock": "241945",
+      "txHash": "0x000e00bcfb19536767d398099f9efff614a39e1ea2b707a6ddea0cd2845f6469"
+    }
+  ],
+  "prematurePrepareRejectedWithoutClaims": true,
+  "qualification": "isolated patched profile with legacy wrapping semantics; public fixture funds; locked redemption is not a mature spend",
+  "tokenAtoms": "0",
+  "unclaimedQits": "0",
+  "unlockedQits": "0",
+  "walletLockedQits": "1000"
+}

@@ -201,6 +201,7 @@ pub struct ContractCall {
     function: AbiFunction,
     value: U256,
     data: RpcData,
+    access_list: Vec<quai_consensus::AccessTuple>,
 }
 impl ContractCall {
     /// Exact called account.
@@ -219,6 +220,33 @@ impl ContractCall {
     pub fn data(&self) -> &RpcData {
         &self.data
     }
+    /// Ordered access declaration carried into simulation and durable signing.
+    pub fn access_list(&self) -> &[quai_consensus::AccessTuple] {
+        &self.access_list
+    }
+    /// Attach an explicit bounded declaration before review/signing. go-quai
+    /// requires called accounts in the signed list even when RPC simulation
+    /// discovers them automatically. No node discovery or reordering occurs here.
+    pub fn with_access_list(
+        mut self,
+        access_list: Vec<quai_consensus::AccessTuple>,
+    ) -> Result<Self, ContractError> {
+        let shape = quai_consensus::QuaiTransaction {
+            chain_id: U256::from(1),
+            nonce: 0,
+            to: Some(self.to.address()),
+            value: self.value,
+            gas_limit: 0,
+            gas_price: U256::ZERO,
+            data: self.data.bytes().to_vec(),
+            access_list,
+        };
+        shape
+            .unsigned_bytes()
+            .map_err(|_| ContractError::InvalidResult)?;
+        self.access_list = shape.access_list;
+        Ok(self)
+    }
     /// Decode exact arguments for an application review screen; values may be sensitive.
     pub fn arguments(&self) -> Result<Vec<Value>, ContractError> {
         Ok(self.function.decode_call(self.data.bytes())?)
@@ -230,7 +258,7 @@ impl ContractCall {
             to: self.to,
             value: self.value,
             data: self.data,
-            access_list: vec![],
+            access_list: self.access_list,
         }
     }
 }
@@ -262,7 +290,7 @@ impl<'a, T: Transport> Contract<'a, T> {
     /// Anonymous events are accepted here because the caller supplies the declaration;
     /// their topic layout cannot identify that declaration unambiguously on its own.
     pub fn decode_event(&self, event: &str, log: Log) -> Result<ContractEvent, ContractError> {
-        if log.address != self.address {
+        if log.address != self.address.address() {
             return Err(ContractError::CallMismatch);
         }
         let event = self.interface.event(event)?;
@@ -296,7 +324,7 @@ impl<'a, T: Transport> Contract<'a, T> {
             .logs(&LogFilter {
                 zone: self.address.zone(),
                 range,
-                addresses: vec![self.address],
+                addresses: vec![self.address.address()],
                 topics,
             })
             .await?
@@ -321,6 +349,7 @@ impl<'a, T: Transport> Contract<'a, T> {
             function: function.clone(),
             value,
             data,
+            access_list: vec![],
         })
     }
     /// Read a declared pure/view function at an explicit block. ABI declarations
@@ -366,6 +395,14 @@ impl<'a, T: Transport> Contract<'a, T> {
         request.value = Some(call.value);
         request.input = call.data.clone();
         request.gas = gas;
+        request.access_list = call
+            .access_list
+            .iter()
+            .map(|entry| quai_provider::AccessListItem {
+                address: entry.address,
+                storage_keys: entry.storage_keys.clone(),
+            })
+            .collect();
         let result = self.provider.call(&request, block).await?;
         Ok(function.decode_returns(result.bytes())?)
     }

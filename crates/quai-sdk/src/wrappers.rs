@@ -134,12 +134,13 @@ impl<'a, T: Transport> WrappedQi<'a, T> {
     /// Claim the signer's unclaimed protocol backing. The contract determines
     /// the amount at execution; query/simulate before authorizing this intent.
     pub fn claim_deposit(&self) -> Result<ContractCall, ContractError> {
-        self.contract.prepare("claimDeposit", &[], U256::ZERO)
+        self.protocol_call(self.contract.prepare("claimDeposit", &[], U256::ZERO)?)
     }
     /// Prepare redemption to a fresh same-zone Qi address. Input is Qits, converted
     /// exactly to WQI atoms. ETX gas is explicit and is not the origin gas limit.
     /// Rejects amounts with trimmed denominations and insufficient ETX output gas
-    /// under go-quai v0.56.0. A receipt still does not prove destination credit.
+    /// under go-quai v0.56.0. Retains the lockup access declaration. A receipt
+    /// still does not prove destination credit.
     pub fn unwrap(
         &self,
         beneficiary: QiAddress,
@@ -156,7 +157,7 @@ impl<'a, T: Transport> WrappedQi<'a, T> {
         if plan.discarded_qits != U256::ZERO || etx_gas < plan.minimum_etx_gas {
             return Err(ContractError::InvalidResult);
         }
-        self.contract.prepare(
+        self.protocol_call(self.contract.prepare(
             "unwrapQi",
             &[
                 json!(beneficiary.to_string()),
@@ -164,9 +165,20 @@ impl<'a, T: Transport> WrappedQi<'a, T> {
                 json!(etx_gas.to_string()),
             ],
             U256::ZERO,
-        )
+        )?)
+    }
+    fn protocol_call(&self, call: ContractCall) -> Result<ContractCall, ContractError> {
+        let mut bytes = [0; 20];
+        bytes[0] = self.contract.address().zone().byte();
+        bytes[19] = 0x0a;
+        call.with_access_list(vec![quai_consensus::AccessTuple {
+            address: quai_primitives::Address::from_bytes(bytes),
+            storage_keys: vec![],
+        }])
     }
     /// Observe unclaimed protocol backing in native Qits at an explicit selector.
+    /// The pinned node's exact absent-deposit response maps to zero; unrelated
+    /// transport, protocol and state errors remain failures.
     pub async fn unclaimed(
         &self,
         beneficiary: QuaiAddress,
@@ -174,8 +186,9 @@ impl<'a, T: Transport> WrappedQi<'a, T> {
     ) -> Result<U256, ContractError> {
         Ok(self
             .provider
-            .wrapped_qi_deposit(self.contract.address(), beneficiary, block)
-            .await?)
+            .wrapped_qi_deposit_optional(self.contract.address(), beneficiary, block)
+            .await?
+            .unwrap_or(U256::ZERO))
     }
     /// ERC-20 operations on wrapped token atoms, not native Qits.
     pub fn token(&self) -> Result<Erc20<'a, T>, ContractError> {

@@ -132,6 +132,28 @@ impl<T: Transport> Provider<T> {
             .await?,
         )
     }
+    /// Observe backing while preserving the pinned go-quai absence distinction.
+    /// Only error -32000 with the exact message `no wrapped Qi balance` and no
+    /// extra error data becomes None. Every other failure propagates. A successful
+    /// zero quantity remains Some(0). No historical coverage or code is inferred.
+    pub async fn wrapped_qi_deposit_optional(
+        &self,
+        owner: QuaiAddress,
+        beneficiary: QuaiAddress,
+        block: BlockTag,
+    ) -> Result<Option<U256>, ProviderError> {
+        match self.wrapped_qi_deposit(owner, beneficiary, block).await {
+            Ok(value) => Ok(Some(value)),
+            Err(ProviderError::Rpc(quai_rpc::RpcError::Remote(error)))
+                if error.code == -32000
+                    && error.message == "no wrapped Qi balance"
+                    && error.data.is_none() =>
+            {
+                Ok(None)
+            }
+            Err(error) => Err(error),
+        }
+    }
     /// Bounded group of latest-only address queries. Each response is a separate
     /// observation; this convenience method never claims an atomic snapshot.
     pub async fn outpoints_many(

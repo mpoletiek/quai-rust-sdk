@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 2026-09-12. The [audited plan](QUAI_RUST_SDK_PLAN.md) remains the full
+Updated 2026-09-13. The [audited plan](QUAI_RUST_SDK_PLAN.md) remains the full
 scope. **The SDK is under construction and has not passed the feature-complete,
 production-security or release gates.** All packages remain unpublished.
 The [feature completeness review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md)
@@ -314,3 +314,16 @@ RPC transcripts and checksummed evidence are retained in
 `test-infra/local-chain/wquai-evidence`. No verified source was available from the
 explorer and no mainnet transaction was submitted; contract review, funded
 Orchard and unmodified-node acceptance remain separate gates.
+
+## WQI execution fixes and isolated acceptance (2026-09-13)
+
+The [funded WQI flow](test-infra/local-chain/wqi-evidence/README.md) now passes
+native wrap, backing claim, token mint/burn and attributed locked Qi redemption.
+It exposed four fixed defects: exact absent-backing handling, specialized Qi
+origin validation in both recovery paths, mandatory lockup access declarations,
+and protocol receipt logs at Qi addresses. Captured failures and successful
+retries remain separate evidence. Native/browser callers can inspect and preserve
+`ContractCall::access_list`; `Log::address` and `LogFilter::addresses` now use
+`Address` so both ledgers are represented. Contract ABI event matching remains exact.
+The output lock at 241945 is observed; a mature redemption spend, modern fork
+qualification, unmodified-node/Orchard acceptance and contract audit remain open.

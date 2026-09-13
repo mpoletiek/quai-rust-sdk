@@ -1,0 +1,9 @@
+{
+  "backingQits": "1000",
+  "claimsRetained": true,
+  "hash": "0x0006007298d1a3da8cbf79941aa9a5bd26592b3cd5890d3c5a85fee5b1e2b2ea",
+  "height": "18",
+  "outcome": "failed",
+  "reason": "receipt consumed the entire 60937 gas limit; a successful read-only simulation did not predict execution success",
+  "tokenAtoms": "0"
+}

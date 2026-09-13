@@ -232,6 +232,10 @@
     {
       "source": "compatibility/fixtures/qi-messages.json",
       "destination": "crates/quai-signer/tests/fixtures/shared/compatibility/fixtures/qi-messages.json"
+    },
+    {
+      "source": "test-infra/local-chain/wqi-evidence/wqi-redemption-receipt.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/test-infra/local-chain/wqi-evidence/wqi-redemption-receipt.json"
     }
   ]
 }

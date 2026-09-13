@@ -1,0 +1,311 @@
+{
+  "baseCommit": "63d747fd5563693534034a74a46a38d67c703bee",
+  "testedWorkingTree": true,
+  "date": "2026-09-13",
+  "scope": "durable WQI deployment, native wrap, claim, redemption and locked Qi wallet rejection",
+  "chainId": 1337,
+  "genesis": "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee",
+  "nodeProfile": "isolated patched go-quai v0.56.0 f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "sourceVerified": false,
+  "runtimeAdjustment": "only three pinned PUSH32 permit cache operands: self, chain id, domain separator",
+  "operations": [
+    {
+      "operation": "deploy",
+      "block": "0x00001a3c63660221c778b28c729be71be09a09dc914b1db2a43ec83cb4f65da7",
+      "contract": "0x0007ba2A9A6e5559134Ff1153b8a7F271B44f827",
+      "hash": "0x005c00633e6f8ea9e28ca5124a5f73d806a6ae5eefb548f418e5f8b0b9099c5b",
+      "height": 13,
+      "initialTokenAtoms": "0",
+      "initialUnclaimedQits": "0",
+      "onlyPermitCacheRelocated": true,
+      "qualification": "isolated patched profile; unverified source; public fixture funds",
+      "runtimeHash": "0xc28c6e31b7d9849764747333859a2fb85a066574b91c554095a81fd5ffffbed6"
+    },
+    {
+      "operation": "wrap",
+      "block": "0x000032d6f84dfaf06c224e243b40c60842fb669770491b0eb4a4ef8d2b0ad164",
+      "contract": "0x0007ba2A9A6e5559134Ff1153b8a7F271B44f827",
+      "destinationOutcome": "Some(Succeeded)",
+      "executionHash": "0x0076005894100e3d8ee86b28777680fb18522c2e31b9af2b9abbefb51fa29a7b",
+      "hash": "0x00d700c65b51dc50f7075e6d9d63a98695ca3387f1d174204a2e462f5a0fc057",
+      "height": 17,
+      "originHeight": "14",
+      "qualification": "isolated patched profile with legacy wrapping semantics; public fixture funds; locked redemption is not a mature spend",
+      "tokenAtoms": "0",
+      "unclaimedQits": "1000"
+    },
+    {
+      "operation": "claim_access",
+      "block": "0x000035efca835441e84e1393ec00aa459784b3cf9ac00ac85b34cf6223c500b0",
+      "contract": "0x0007ba2A9A6e5559134Ff1153b8a7F271B44f827",
+      "hash": "0x0061007061c201e1ebd0b171a289bafaa59851cfb60efe148d705564cfd6d9d6",
+      "height": 20,
+      "originHeight": "20",
+      "qualification": "isolated patched profile with legacy wrapping semantics; public fixture funds; locked redemption is not a mature spend",
+      "tokenAtoms": "1000000000000000000",
+      "unclaimedQits": "0"
+    },
+    {
+      "operation": "unwrap",
+      "block": "0x00001e0b8befbcc8af886f3ff52dc637de1665251c1322a4738dc42a09aff52c",
+      "contract": "0x0007ba2A9A6e5559134Ff1153b8a7F271B44f827",
+      "destinationOutcome": "Some(Succeeded)",
+      "executionHash": "0x000e00bcfb19536767d398099f9efff614a39e1ea2b707a6ddea0cd2845f6469",
+      "hash": "0x006b000d7997eaf9496cb09c06080cc39c6dd497a60a5091afa7d9e7dfd3996e",
+      "height": 25,
+      "lockedQits": "1000",
+      "originHeight": "21",
+      "otherSpendableQits": "8710",
+      "outputs": [
+        {
+          "denomination": 6,
+          "index": 0,
+          "lock": "241945",
+          "txHash": "0x000e00bcfb19536767d398099f9efff614a39e1ea2b707a6ddea0cd2845f6469"
+        }
+      ],
+      "prematurePrepareRejectedWithoutClaims": true,
+      "qualification": "isolated patched profile with legacy wrapping semantics; public fixture funds; locked redemption is not a mature spend",
+      "tokenAtoms": "0",
+      "unclaimedQits": "0",
+      "unlockedQits": "0",
+      "walletLockedQits": "1000"
+    }
+  ],
+  "retainedFailedClaims": [
+    {
+      "backingQits": "1000",
+      "claimsRetained": true,
+      "hash": "0x0006007298d1a3da8cbf79941aa9a5bd26592b3cd5890d3c5a85fee5b1e2b2ea",
+      "height": "18",
+      "outcome": "failed",
+      "reason": "receipt consumed the entire 60937 gas limit; a successful read-only simulation did not predict execution success",
+      "tokenAtoms": "0"
+    },
+    {
+      "backingQits": "1000",
+      "claimsRetained": true,
+      "hash": "0x007000701c758e07a8a66043ef0c0c904ee913dafd97c4314cbcbe5d30a40b19",
+      "height": "19",
+      "outcome": "failed",
+      "reason": "missing lockup access declaration; simulation auto-discovers access while signed execution requires the address",
+      "tokenAtoms": "0"
+    }
+  ],
+  "sdkFixes": [
+    "exact absent WQI backing response",
+    "operation-aware Qi origin validation in both recovery paths",
+    "preserved contract call access declarations and automatic WQI lockup entry",
+    "both-ledger receipt log addresses with strict emitter/zone/association checks"
+  ],
+  "limitations": [
+    "public fixture funds only; no mainnet transaction",
+    "legacy wrapping and conversion-lock fork rules; no postfork or unmodified-node qualification",
+    "unlock height 241945 observed; mature redemption spend not performed",
+    "public explorer bytecode has no verified source"
+  ],
+  "evidence": [
+    {
+      "path": "test-infra/local-chain/wqi-evidence/mainnet-metadata-read.json",
+      "bytes": 503,
+      "sha256": "e27618ed418a1a23fc105752457de56404d8185db1085f07055b46900e553d02"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim-access-list-probe.json",
+      "bytes": 893,
+      "sha256": "076ddca1d99d74ef43b5be9eac7ebd3ff1409e137c9978651c706230cd653eb8"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim-broadcast-rpc.json",
+      "bytes": 7830,
+      "sha256": "37b8b06f1616eacdd23ba451667ae36b0c8bf5c769938fde97473535ac7c45a4"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim-failed-observed.json",
+      "bytes": 21999,
+      "sha256": "38556a6f143bc6d4705fe8adac31a33cb4886803fa1a2a9161bbc6e3f5797f7a"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim-failed-verified.json",
+      "bytes": 323,
+      "sha256": "59323509c64658f2bacaf24d443f317b64b11c2bc5d793882945537857f06d39"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim-gas-probes.json",
+      "bytes": 705,
+      "sha256": "e2cdabe0dc3b180d6db71aa7b0368edc2fa98a596a516b81423eee4fbf8128f2"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim-prepare-rpc.json",
+      "bytes": 24398,
+      "sha256": "631aa365c836f026230b63e6816e0748d53a58f5c5cce9d719d14d3a313af851"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim-signed.json",
+      "bytes": 615,
+      "sha256": "a060228e8efda558426f7285d88c8b8961ea0662830963a34baeb07ab96653cd"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim-verify-rpc.json",
+      "bytes": 51689,
+      "sha256": "6eecca45dd1d8f3e992acb36241a637b933e5095b8cd78f419153515b04867f1"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim_access-broadcast-rpc.json",
+      "bytes": 7876,
+      "sha256": "4d02e4997c7ea2289f1c61cf472b9161bcebe9dc02e24345aaed791ebb0e0ed1"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim_access-prepare-rpc.json",
+      "bytes": 24696,
+      "sha256": "3fb2e964939a8f0affe50b5e5551b40e259e65750f7ac1806d11850a64b07319"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim_access-signed.json",
+      "bytes": 661,
+      "sha256": "60aa3f9f319d9295ff0a4e408e428141110b355759852089af61d784170cbec6"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim_access-verified.json",
+      "bytes": 467,
+      "sha256": "dc290f568fa1ebad8a02281f709e84209f0f906165a7ba4f9381ff19a0804225"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim_access-verify-rpc.json",
+      "bytes": 49369,
+      "sha256": "1c5aa8495334bf308360d92601a55b61c36dd770d8ac35d759941c523802ee71"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim_retry-broadcast-rpc.json",
+      "bytes": 7828,
+      "sha256": "78bde0b893d44554b39bc3bf7073034c96bd7c2122655f825f46dac99adf5f1c"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim_retry-failed-verified.json",
+      "bytes": 322,
+      "sha256": "82133537278511e3964b4cfeb735bb26820824e78fdb998ac1b73009f162faf4"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim_retry-prepare-rpc.json",
+      "bytes": 24534,
+      "sha256": "6d7a87677fadc99d41a7f6bc68171f124a34f9661a0f3f13aece6666f775ea5c"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim_retry-signed.json",
+      "bytes": 613,
+      "sha256": "0be9f2fc88be4cdd5501cf888f5848cc46da6b7dd7c42a411ff219c234487729"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-claim_retry-verify-rpc.json",
+      "bytes": 51697,
+      "sha256": "164e9bca6623f2e9b86cc9f68d6c4887af78c0a7e6a8fe047ad97221427d5184"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-deploy-broadcast-rpc.json",
+      "bytes": 25386,
+      "sha256": "d6d46e8789294a10ce0dd1068b304d89c7acfd63c6bd961c122989adcc98005c"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-deploy-prepare-rpc.json",
+      "bytes": 44898,
+      "sha256": "3fa01df82ee37adaaee6a4761759fc82389123f375534846ea25b46b2949fa2a"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-deploy-signed.json",
+      "bytes": 32520,
+      "sha256": "9c3d830b1e214e24ed3e02bce32eaed9e1d0f0f08bec77afa7ba9a5b35b723a5"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-deploy-verified.json",
+      "bytes": 509,
+      "sha256": "d449ac0edb7e64dda018557c5dc3c071c31e7b80e6da09e55132bd40a598abe7"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-deploy-verify-rpc.json",
+      "bytes": 58950,
+      "sha256": "7d50224086ae95058c82297f776fc374ca4e59d9c51e6ae3697eab04ff5f659e"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-probe-rpc.json",
+      "bytes": 40152,
+      "sha256": "85c0ab089b9c06ece1f73856f2393dde44a1647396d9049a12fdaf6135bf047d"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-probe.json",
+      "bytes": 14781,
+      "sha256": "8914118d886528a287ba238ef00e74f0fe25c8fd10bc4afc2c5770e41dd588a3"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-redemption-receipt.json",
+      "bytes": 21519,
+      "sha256": "bdf1314f9fe8d9bb6522ab2f77f9795a148ab0bdc335b2a5a1f7c030e6da27ba"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-unwrap-broadcast-rpc.json",
+      "bytes": 8070,
+      "sha256": "bde0b93e440f943bec456fe88e64e1b18fe8cda413b2e4e80a8985a0fd89c875"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-unwrap-prepare-rpc.json",
+      "bytes": 24815,
+      "sha256": "55c2adade25f2a71207fb1cc07a7c5ebe1b7f00caba04961256dfc06add6aadc"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-unwrap-signed.json",
+      "bytes": 910,
+      "sha256": "35a71ec314aa5d9c827ef8857994e2cee4aa5eb05c968256f0da8a1390aa9de3"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-unwrap-verified.json",
+      "bytes": 923,
+      "sha256": "7ed608670c3a396412d1274521a21befca1d7b4de196ff1d6cfa1f8166102c50"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-unwrap-verify-rpc.json",
+      "bytes": 232958,
+      "sha256": "4f6fa153117f07e55c6f5ade5d3898323aadbdfe2ecdddb63a7df5b2479839d7"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-wrap-broadcast-rpc.json",
+      "bytes": 7992,
+      "sha256": "f2a3d4a798816e1044b04f72c65173c2890a8f89e2662c463e7f407fc1f48404"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-wrap-prepare-rpc.json",
+      "bytes": 58414,
+      "sha256": "9e2bc9a3ad313137c0924577ff52d6f065d7028d6f886e2325330c17bf942adf"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-wrap-signed.json",
+      "bytes": 753,
+      "sha256": "263a638499949e10008e2b2715db4a0c83e795d350eceb2eb9a321b8bc8294e8"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-wrap-verified.json",
+      "bytes": 584,
+      "sha256": "d62fdce98a67c634b13f773d33f044e00967357a2fba9724588e63e671b356ce"
+    },
+    {
+      "path": "test-infra/local-chain/wqi-evidence/wqi-wrap-verify-rpc.json",
+      "bytes": 140558,
+      "sha256": "d11f33e59d46e83ee73d5d4d4ad8b397e161ea4c8bfc15ae14043a23eab36141"
+    }
+  ],
+  "validation": {
+    "nativeWorkspaceReportedPasses": 348,
+    "nativeWorkspaceFailed": 0,
+    "nativeWorkspaceIgnored": 4,
+    "nativeClippy": "passed",
+    "wasmClippy": "passed",
+    "rustdocWarningsDenied": "passed",
+    "packagedCrates": 12,
+    "extractedConsumerConfigurations": [
+      "minimal",
+      "default",
+      "full"
+    ],
+    "packagedNativeTestsAndExamples": "compiled for all crates",
+    "pythonHarnessTests": 3,
+    "publicPackageMirrors": 59
+  }
+}

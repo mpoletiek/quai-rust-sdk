@@ -237,3 +237,51 @@ fn deployment_builder_matches_actual_local_node_accepted_fixture() {
     assert_eq!(fixture["deploymentReceipt"]["status"], "0x1");
     assert_eq!(fixture["failedDeploymentReceipt"]["status"], "0x0");
 }
+
+#[tokio::test]
+async fn prepared_access_declarations_survive_simulation_and_reject_oversize() {
+    let mock = Mock::default();
+    let provider = provider(mock.clone());
+    let token = Erc20::new(CONTRACT.parse().unwrap(), &provider).unwrap();
+    let owner = OWNER.parse().unwrap();
+    let call = token
+        .contract()
+        .prepare("balanceOf", &[json!(OWNER)], U256::ZERO)
+        .unwrap();
+    let entry = quai_sdk::consensus::AccessTuple {
+        address: "0x000000000000000000000000000000000000000A"
+            .parse()
+            .unwrap(),
+        storage_keys: vec![quai_sdk::primitives::Hash32::from_bytes([7; 32])],
+    };
+    let list = vec![entry.clone(), entry.clone()]; // Explicit order/duplicates are not silently normalized.
+    let prepared = call.clone().with_access_list(list.clone()).unwrap();
+    assert_eq!(prepared.access_list(), list);
+    token
+        .contract()
+        .simulate(
+            owner,
+            &prepared,
+            BlockTag::Number(U256::from(100)),
+            Some(100000),
+        )
+        .await
+        .unwrap();
+    let calls = mock.0.lock().unwrap();
+    let params = &calls
+        .iter()
+        .find(|(name, _)| name == "quai_call")
+        .unwrap()
+        .1;
+    assert_eq!(params[0]["accessList"].as_array().unwrap().len(), 2);
+    assert_eq!(
+        params[0]["accessList"][0]["address"],
+        entry.address.to_string()
+    );
+    assert_eq!(
+        params[0]["accessList"][1]["storageKeys"][0],
+        entry.storage_keys[0].to_string()
+    );
+    assert_eq!(params[1], "0x64");
+    assert!(call.with_access_list(vec![entry; 10000]).is_err());
+}

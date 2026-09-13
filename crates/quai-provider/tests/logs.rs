@@ -122,3 +122,67 @@ async fn invalid_log_bounds_fail_without_network_calls() {
     assert!(p.logs(&f).await.is_err());
     assert!(mock.calls.lock().unwrap().is_empty());
 }
+
+#[tokio::test]
+async fn qi_protocol_logs_are_distinct_from_contract_events_and_preserve_zone_checks() {
+    let qi = "0x00a8c6cf826b72080fa6f838a3329ec0b906b408";
+    let mut row = log();
+    row["address"] = json!(qi);
+    row["data"] = json!("0x03e8");
+    let p = provider(Mock {
+        logs: vec![row.clone()],
+        ..Default::default()
+    });
+    let mut f = filter();
+    assert!(p.logs(&f).await.is_err()); // An exact Quai filter must not match Qi.
+    f.addresses = vec![qi.parse().unwrap()];
+    let logs = p.logs(&f).await.unwrap();
+    assert_eq!(logs[0].address.ledger(), quai_primitives::Ledger::Qi);
+    assert_eq!(logs[0].data.bytes(), [3, 232]);
+    f.addresses.clear();
+    assert_eq!(p.logs(&f).await.unwrap().len(), 1);
+    for foreign in [
+        "0x0180000000000000000000000000000000000001",
+        "0xff80000000000000000000000000000000000001",
+    ] {
+        row["address"] = json!(foreign);
+        assert!(
+            provider(Mock {
+                logs: vec![row.clone()],
+                ..Default::default()
+            })
+            .logs(&f)
+            .await
+            .is_err()
+        );
+        let mut invalid = f.clone();
+        invalid.addresses = vec![foreign.parse().unwrap()];
+        assert!(p.logs(&invalid).await.is_err());
+    }
+}
+
+#[test]
+fn captured_redemption_receipt_accepts_qi_beneficiary_and_checks_log_association() {
+    let value: Value = serde_json::from_str(include_str!(
+        "fixtures/shared/test-infra/local-chain/wqi-evidence/wqi-redemption-receipt.json"
+    ))
+    .unwrap();
+    let receipt = quai_provider::Receipt::try_from(value.clone()).unwrap();
+    assert_eq!(receipt.outcome, quai_provider::ReceiptOutcome::Succeeded);
+    assert_eq!(receipt.logs.len(), 1);
+    assert_eq!(
+        receipt.logs[0].address.ledger(),
+        quai_primitives::Ledger::Qi
+    );
+    assert_eq!(receipt.logs[0].data.bytes(), [3, 232]);
+    assert_eq!(receipt.inclusion.block_number, 25);
+    for (field, replacement) in [
+        ("transactionHash", json!(Hash32::ZERO.to_string())),
+        ("blockHash", json!(Hash32::ZERO.to_string())),
+        ("blockNumber", json!("0x18")),
+    ] {
+        let mut wrong = value.clone();
+        wrong["logs"][0][field] = replacement;
+        assert!(quai_provider::Receipt::try_from(wrong).is_err());
+    }
+}

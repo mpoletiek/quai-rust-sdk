@@ -893,6 +893,41 @@ async fn specialized_operations_keep_exact_bytes_and_claims_across_restart() {
             recovered.broadcast(id(91)).await.unwrap().transaction_hash,
             signed.hash().unwrap()
         );
+        assert_eq!(signed.origin_zone().unwrap(), Zone::Cyprus1);
+        assert!(signed.transaction().origin_zone().is_err());
+        // Reopening must preserve specialized classification through BOTH recovery APIs.
+        let observed = Provider::new(
+            recovery_support::RecoveryMock {
+                base: env.mock.clone(),
+                receipt: recovery_support::receipt(
+                    signed.hash().unwrap().to_string(),
+                    2,
+                    None,
+                    None,
+                ),
+                change_head: false,
+                head_rechecked: Arc::new(std::sync::atomic::AtomicBool::new(false)),
+            },
+            Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+            env.store.scope().chain_id,
+        );
+        assert!(matches!(
+            quai_sdk::recovery::reconcile_operation(&observed, &mut reopened, id(91))
+                .await
+                .unwrap(),
+            quai_sdk::recovery::OperationObservation::Included {
+                confirmations: 2,
+                ..
+            }
+        ));
+        let family = quai_sdk::recovery::track_family(&observed, &mut reopened, id(91))
+            .await
+            .unwrap();
+        assert!(family.canonical.is_some());
+        assert_eq!(family.candidates.len(), 1);
+        assert_eq!(reopened.signed_payload(id(91)).unwrap().unwrap(), bytes);
+        assert_eq!(reopened.reserved_outpoints(id(91)).unwrap().len(), 2);
+        assert!(reopened.release_unsigned(id(91)).is_err());
     }
 }
 

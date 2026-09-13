@@ -1,0 +1,10 @@
+{
+  "block": "0x000035efca835441e84e1393ec00aa459784b3cf9ac00ac85b34cf6223c500b0",
+  "contract": "0x0007ba2A9A6e5559134Ff1153b8a7F271B44f827",
+  "hash": "0x0061007061c201e1ebd0b171a289bafaa59851cfb60efe148d705564cfd6d9d6",
+  "height": 20,
+  "originHeight": "20",
+  "qualification": "isolated patched profile with legacy wrapping semantics; public fixture funds; locked redemption is not a mature spend",
+  "tokenAtoms": "1000000000000000000",
+  "unclaimedQits": "0"
+}

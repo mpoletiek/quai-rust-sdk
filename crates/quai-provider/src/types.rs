@@ -501,8 +501,9 @@ impl TryFrom<Value> for Transaction {
 /// Contract log and its block/transaction association.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Log {
-    /// Emitting account.
-    pub address: QuaiAddress,
+    /// EVM account or native Qi beneficiary named by a protocol receipt log.
+    /// Qi redemption/lockup logs are emitted for Qi addresses, not contracts.
+    pub address: Address,
     /// At most four EVM topics.
     pub topics: Vec<Hash32>,
     /// Event data.
@@ -697,9 +698,8 @@ pub(crate) fn parse_outpoints(value: Value) -> Result<Vec<AddressOutpoint>, Prov
 }
 pub(crate) fn parse_log(value: Value) -> Result<Log, ProviderError> {
     let mut o = object(value)?;
-    let address = address(take(&mut o, "address")?)?
-        .try_into()
-        .map_err(|_| invalid("invalid log address"))?;
+    let address = address(take(&mut o, "address")?)?;
+    address.zone().map_err(|_| invalid("invalid log address"))?;
     let topics = array(take(&mut o, "topics")?, 4)?
         .into_iter()
         .map(hash)

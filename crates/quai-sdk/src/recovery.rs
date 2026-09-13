@@ -68,7 +68,7 @@ pub async fn reconcile_operation<T: Transport>(
             SignedQiOperation::decode(&bytes).map_err(|_| QiError::MissingSignedPayload)?;
         if signed.hash().ok() != Some(hash)
             || signed.transaction().chain_id != scope.chain_id
-            || signed.transaction().origin_zone().ok() != Some(scope.zone)
+            || signed.origin_zone().ok() != Some(scope.zone)
         {
             return Err(QiError::IdentityMismatch);
         }

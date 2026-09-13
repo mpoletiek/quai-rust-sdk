@@ -1,0 +1,11 @@
+{
+  "block": "0x00001a3c63660221c778b28c729be71be09a09dc914b1db2a43ec83cb4f65da7",
+  "contract": "0x0007ba2A9A6e5559134Ff1153b8a7F271B44f827",
+  "hash": "0x005c00633e6f8ea9e28ca5124a5f73d806a6ae5eefb548f418e5f8b0b9099c5b",
+  "height": 13,
+  "initialTokenAtoms": "0",
+  "initialUnclaimedQits": "0",
+  "onlyPermitCacheRelocated": true,
+  "qualification": "isolated patched profile; unverified source; public fixture funds",
+  "runtimeHash": "0xc28c6e31b7d9849764747333859a2fb85a066574b91c554095a81fd5ffffbed6"
+}

@@ -164,7 +164,8 @@ an implementation audit or funded workflow acceptance.
   `QiSpecialIntent::Wrapping`: exactly 20 owner-contract bytes and same-zone Quai
   beneficiary outputs. The operation remains distinct from 22-byte conversion
   data and ordinary empty-data Qi. Preparation uses an explicit Qit fee.
-- `WrappedQi::unclaimed` reads protocol backing in Qits; `claim_deposit` prepares
+- `WrappedQi::unclaimed` reads protocol backing in Qits (the exact pinned
+  `no wrapped Qi balance` error maps to zero; other errors propagate); `claim_deposit` prepares
   `claimDeposit()`. `token()` exposes ERC-20 balances, transfers and allowances.
 - `WrappedQi::unwrap` prepares `unwrapQi(address,uint256,uint64)`. Its input is
   native Qits, converted exactly to 18-decimal WQI atoms (1 Qit = 10^15 atoms).
@@ -179,7 +180,12 @@ an implementation audit or funded workflow acceptance.
   native call value. `token()` provides ERC-20 helpers.
 
 Contract calls feed `ContractCall::into_account_intent` and the durable account
-session. No wrapper helper signs or sends implicitly.
+session. WQI claim/redemption calls retain the zone's `0x0a` lockup contract
+in `ContractCall::access_list`; `into_account_intent` preserves that declaration.
+External signers must also copy it. A successful `quai_call` or gas estimate can
+automatically discover access and does not prove a signed empty list will execute.
+Generic calls can use `ContractCall::with_access_list` with explicit bounded,
+ordered entries; simulation preserves them. No wrapper helper signs or sends implicitly.
 
 ```sh
 cargo run -p quai-sdk --features abi --example wrapper_intents

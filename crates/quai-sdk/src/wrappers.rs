@@ -1,14 +1,15 @@
 //! Explicit WQI and WQUAI contract intents. No implicit signing or submission.
 use crate::contracts::{Contract, ContractCall, ContractError, Erc20};
 use quai_abi::AbiInterface;
-use quai_primitives::{QiAddress, QuaiAddress};
-use quai_provider::{BlockTag, Provider};
+use quai_primitives::{Hash32, QiAddress, QuaiAddress};
+use quai_provider::{BlockTag, ContractCodeObservation, Provider};
 use quai_rpc::{Transport, U256};
 use serde_json::json;
 
 /// User-confirmed WQI deployment on mainnet and Orchard Cyprus-1.
 pub const WQI_ADDRESS: &str = "0x002b2596EcF05C93a31ff916E8b456DF6C77c750";
-/// User-confirmed WQUAI deployment on mainnet and Orchard Cyprus-1.
+/// User-configured WQUAI address on mainnet and Orchard Cyprus-1. Code availability
+/// is network/block specific; use a checked binding before a funded workflow.
 pub const WQUAI_ADDRESS: &str = "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB";
 /// WQI has 18 token decimals while native Qi has 3: one Qit = 10^15 token atoms.
 pub const WQI_ATOMS_PER_QIT: u64 = 1_000_000_000_000_000;
@@ -81,6 +82,23 @@ pub struct WrappedQuai<'a, T> {
     provider: &'a Provider<T>,
 }
 impl<'a, T: Transport> WrappedQuai<'a, T> {
+    /// Bind only after checking nonempty code, trusted genesis and optional runtime
+    /// Keccak at a rechecked mined block. Retain the returned observation's scope
+    /// and block; this does not prove ABI/proxy semantics or future availability.
+    pub async fn new_verified(
+        address: QuaiAddress,
+        provider: &'a Provider<T>,
+        expected_genesis: Hash32,
+        expected_runtime: Option<Hash32>,
+        block: BlockTag,
+    ) -> Result<(Self, ContractCodeObservation), ContractError> {
+        let wrapper = Self::new(address, provider)?;
+        let observation = wrapper
+            .contract
+            .verify_deployment(expected_genesis, expected_runtime, block)
+            .await?;
+        Ok((wrapper, observation))
+    }
     /// Bind an explicitly selected deployment; verify its network/code separately.
     pub fn new(address: QuaiAddress, provider: &'a Provider<T>) -> Result<Self, ContractError> {
         Ok(Self {
@@ -120,6 +138,23 @@ pub struct WrappedQi<'a, T> {
     provider: &'a Provider<T>,
 }
 impl<'a, T: Transport> WrappedQi<'a, T> {
+    /// Bind only after checking nonempty code, trusted genesis and optional runtime
+    /// Keccak at a rechecked mined block. Native Qi wrapping remains a separate
+    /// reviewed protocol operation; code presence does not qualify its execution.
+    pub async fn new_verified(
+        address: QuaiAddress,
+        provider: &'a Provider<T>,
+        expected_genesis: Hash32,
+        expected_runtime: Option<Hash32>,
+        block: BlockTag,
+    ) -> Result<(Self, ContractCodeObservation), ContractError> {
+        let wrapper = Self::new(address, provider)?;
+        let observation = wrapper
+            .contract
+            .verify_deployment(expected_genesis, expected_runtime, block)
+            .await?;
+        Ok((wrapper, observation))
+    }
     /// Bind an explicitly selected deployment; no node calls occur here.
     pub fn new(address: QuaiAddress, provider: &'a Provider<T>) -> Result<Self, ContractError> {
         Ok(Self {

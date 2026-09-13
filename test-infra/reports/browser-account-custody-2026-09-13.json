@@ -167,5 +167,11 @@
       "quai-sdk": "passed"
     },
     "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "ciVerified": {
+    "commit": "9e445c78c01f70c715347fc10df6a50c0fa468d7",
+    "run": 34752318200,
+    "conclusion": "success",
+    "jobsSucceeded": 8
   }
 }

@@ -592,3 +592,10 @@ with explicit strict Rust values and documented reference-helper extensions.
 See [packed encoding semantics](../crates/quai-abi/README.md#packed-encoding-and-hashes).
 These bytes are not canonical contract calldata or an unambiguous structured
 signing format; normal calls continue to use `AbiCoder` and typed intents.
+
+## Checked contract deployments
+
+Use the [runtime-code preflight](CONTRACT_CODE_PREFLIGHT.md) before a funded wrapper
+workflow. It checks nonempty code, trusted genesis, an optional expected runtime
+hash and canonical block consistency. Offline wrapper constructors only encode
+intents; address constants alone do not prove code is deployed on a network.

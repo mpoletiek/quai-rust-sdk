@@ -1,0 +1,18 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "qualification": "Offline byte hashes only; no contract deployment or semantics claim.",
+  "vectors": [
+    {
+      "code": "0x",
+      "hash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+    },
+    {
+      "code": "0x00",
+      "hash": "0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a"
+    },
+    {
+      "code": "0x602a60005260206000f3",
+      "hash": "0x98e3a357b0a9519e7773d42cf7912a620a18c8f53cd8e1525ce5344917d07e76"
+    }
+  ]
+}

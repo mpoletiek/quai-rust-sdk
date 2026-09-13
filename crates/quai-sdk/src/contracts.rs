@@ -3,7 +3,7 @@ use quai_abi::{
     AbiError, AbiEventValue, AbiFilterTopic, AbiFilterValue, AbiFunction, AbiInterface,
     StateMutability,
 };
-use quai_primitives::QuaiAddress;
+use quai_primitives::{Hash32, QuaiAddress};
 use quai_provider::{
     BlockTag, CallRequest, Log, LogFilter, LogRange, Provider, ProviderError, RpcData, TopicMatch,
 };
@@ -47,6 +47,15 @@ pub enum ContractError {
     /// Event topic filters exceed the declared indexed field count.
     #[error("event filter exceeds its indexed field count")]
     InvalidEventFilter,
+    /// A checked binding requires nonempty runtime code at its observed block.
+    #[error("contract address has no deployed runtime code at the observed block")]
+    MissingCode,
+    /// Source genesis differs from the caller's explicitly trusted network identity.
+    #[error("contract deployment genesis mismatch")]
+    GenesisMismatch,
+    /// Nonempty runtime differs from the explicitly supplied expected Keccak hash.
+    #[error("contract runtime code hash mismatch")]
+    RuntimeMismatch,
 }
 
 /// Decoded event values together with their complete source association and removal flag.
@@ -288,6 +297,33 @@ impl<'a, T: Transport> Contract<'a, T> {
     /// Compiled exact ABI; caller supplies and trusts its semantics.
     pub fn interface(&self) -> &AbiInterface {
         &self.interface
+    }
+    /// Verify nonempty runtime at a rechecked mined block in the explicitly trusted
+    /// genesis. An optional runtime Keccak pins exact bytes, not proxy semantics or
+    /// future code. This observation does not authorize any later transaction.
+    pub async fn verify_deployment(
+        &self,
+        expected_genesis: Hash32,
+        expected_runtime: Option<Hash32>,
+        block: BlockTag,
+    ) -> Result<quai_provider::ContractCodeObservation, ContractError> {
+        if expected_genesis == Hash32::ZERO {
+            return Err(ContractError::InvalidDeployment);
+        }
+        let observation = self
+            .provider
+            .observe_contract_code(self.address, block, expected_runtime)
+            .await?;
+        if observation.genesis != expected_genesis {
+            return Err(ContractError::GenesisMismatch);
+        }
+        if observation.code.bytes.bytes().is_empty() {
+            return Err(ContractError::MissingCode);
+        }
+        if observation.code.matches_expected == Some(false) {
+            return Err(ContractError::RuntimeMismatch);
+        }
+        Ok(observation)
     }
     /// Decode an explicitly selected log, checking its emitter and exact ABI shape.
     /// Anonymous events are accepted here because the caller supplies the declaration;

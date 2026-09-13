@@ -1,0 +1,199 @@
+{
+  "date": "2026-09-13",
+  "recordedAt": "2026-09-13T10:57:45.600247+00:00",
+  "baseCommit": "06b9ba090d79c0650cdae8dcfc0d7820b8ac8867",
+  "testedWorkingTree": true,
+  "changes": [
+    "Canonical-block and genesis-rechecked runtime code observation using existing typed bounded RPC codecs",
+    "Checked contract/WQI/WQUAI bindings requiring code presence, explicit trusted genesis and optional runtime hash match",
+    "Offline wrapper intent construction remains available without RPC"
+  ],
+  "fixtureSha256": {
+    "test-infra/fixtures/contract-code.json": "5dddec703b489dd1276ddf7a16a0d6fca8522981fb23295df8af0cb402062165"
+  },
+  "validation": {
+    "nativeTests": 4,
+    "nativeElapsedSeconds": 0.02,
+    "actualChromiumWorkerTests": 4,
+    "workerElapsedSeconds": 0.07,
+    "pinnedRuntimeKeccakVectors": 3,
+    "nativeProviderSdkAllTargetsClippyWarningsDenied": "passed",
+    "wasmSdkAbiBrowserAllTargetsClippyWarningsDenied": "passed",
+    "nativeProviderSdkRustdocWarningsDenied": "passed",
+    "wasmSdkAbiBrowserRustdocWarningsDenied": "passed",
+    "workflowYamlDuplicateKeys": "passed",
+    "runnerPythonSyntax": "passed",
+    "packageFileMirrors": 78
+  },
+  "liveReadQualification": {
+    "sdkTestsPassed": 2,
+    "orchardSeconds": 3.35,
+    "mainnetSeconds": 0.1,
+    "transactionsSignedOrSubmitted": false,
+    "observations": [
+      {
+        "network": "orchard",
+        "address": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+        "block": 7786199,
+        "blockHash": "0x83039f872bd18eb3850df1e93e6b4fb2a2e845a55905c26b78903cb06f131f87",
+        "chainId": "15000",
+        "checkedBindingAccepted": true,
+        "genesis": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+        "kind": "WQI",
+        "runtimeBytes": 7255,
+        "runtimeKeccak256": "0x27886b0f8f6deb1f4c300206f4c0bcc749a3fba2d00bc2da38fe2d90f76c050a"
+      },
+      {
+        "network": "orchard",
+        "address": "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB",
+        "block": 7786199,
+        "blockHash": "0x83039f872bd18eb3850df1e93e6b4fb2a2e845a55905c26b78903cb06f131f87",
+        "chainId": "15000",
+        "checkedBindingAccepted": false,
+        "genesis": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+        "kind": "WQUAI",
+        "runtimeBytes": 0,
+        "runtimeKeccak256": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      },
+      {
+        "network": "mainnet",
+        "address": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+        "block": 10074525,
+        "blockHash": "0x9dc51752337a1c8aac8cd1268bd246935d12cdbf9ef630b4ad88599a84c257e7",
+        "chainId": "9",
+        "checkedBindingAccepted": true,
+        "genesis": "0xac81c28f1a72591b87b5f16c9793cdc0e87c45c6d426d1a364c3b8f6386b5b8b",
+        "kind": "WQI",
+        "runtimeBytes": 7255,
+        "runtimeKeccak256": "0xab2ed076d1d3fa4c5a99a450ff7dcfd7e24710348fef0af8cad3b0665e482c4d"
+      },
+      {
+        "network": "mainnet",
+        "address": "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB",
+        "block": 10074525,
+        "blockHash": "0x9dc51752337a1c8aac8cd1268bd246935d12cdbf9ef630b4ad88599a84c257e7",
+        "chainId": "9",
+        "checkedBindingAccepted": true,
+        "genesis": "0xac81c28f1a72591b87b5f16c9793cdc0e87c45c6d426d1a364c3b8f6386b5b8b",
+        "kind": "WQUAI",
+        "runtimeBytes": 2029,
+        "runtimeKeccak256": "0x72ebc2d882f6c49aa65b9be06e23d07516f7b34d144e132a154a3105eb2a88a9"
+      }
+    ]
+  },
+  "limitations": [
+    "Runtime code observations do not establish ABI/contract correctness, proxy semantics, finality or future availability.",
+    "The provider relies on the configured source and repeated canonical/genesis observations, not independent chain proofs.",
+    "Live checked bindings used no expected runtime hash: success establishes observed nonempty code in the expected network, not an independently trusted hash match.",
+    "Orchard WQUAI returned empty code and checked binding correctly rejected it; funded WQUAI testnet acceptance remains open.",
+    "Mainnet and Orchard WQI code hashes differ despite equal observed byte lengths; neither is installed as a global trusted-code constant.",
+    "Existing offline new constructors only prepare intents and do not automatically run preflight.",
+    "No new untrusted codec was added; bounded existing decoders and adversarial observation tests cover this composition. No additional local fuzz campaign is claimed.",
+    "No public-network transaction or funded operation was performed."
+  ],
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "06b9ba090d79c0650cdae8dcfc0d7820b8ac8867",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61986,
+        "sha256": "732a93e3d4171a45d8f6d35fde0e7cf29972f78f4014d8f1d77e346233a71d29"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45026,
+        "sha256": "f14a0f7b20ef43e1ad9d3e556af62f09c36dc73bc84d695d2b831175d2789bb4"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 129270,
+        "sha256": "279ee66550e52668c12cc5b4a1181af36b010026f7bcb9f0a98b56fc251a9228"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45642,
+        "sha256": "d162149e952804085ad5f6b8c2961dd54e0b3064e7b709e55721705a09383da6"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47979,
+        "sha256": "8340a1863ca40ac314bfd00692e04be265429f8830269efa9d8c6f01543ef409"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 178642,
+        "sha256": "412de121a1f006591d097f58837a3c596e87c36b933e6fd8d787679cd6a2f025"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 166094,
+        "sha256": "f65db388d70cd4034ae9c4bd62748645bf23f7605f4e842cfdee9ea2ec0562a5"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 78509,
+        "sha256": "610f679bfa007fcd2eb10d62e9c8484240da64cf65a9fc268f06eb0480d1f6d8"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24519,
+        "sha256": "05414b0c7a6b7671f9e84741bf677e450e1930ec034159a615a62c2e2e6aa53d"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34225,
+        "sha256": "e15ea7d52b6722b5f8c2073beb3f30b27d4abc185b191a9c301ed1ac4a68f977"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 258965,
+        "sha256": "c78cbd2e9d5b1cf34162a4f1f71ac041af5fcaa11e10330be4edaa8e64b69bb3"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39312,
+        "sha256": "5381bab41f4f39dfc46a9225351272a219188b9b1343833413ced489e279f737"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  }
+}

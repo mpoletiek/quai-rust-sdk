@@ -308,6 +308,10 @@
     {
       "source": "test-infra/fixtures/account-custody.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/account-custody.json"
+    },
+    {
+      "source": "test-infra/fixtures/contract-code.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/contract-code.json"
     }
   ]
 }

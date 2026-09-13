@@ -533,3 +533,13 @@ account, HD/payment allocation and Qi state remains separate work.
 [Account backup validation](test-infra/reports/browser-account-backup-2026-09-13.json)
 retains six native tests including SQLite restore, eight actual worker tests and
 a bounded sanitizer campaign, with the account-only capture boundary explicit.
+
+
+Contract runtime preflight now pins code reads to rechecked canonical block and
+genesis identities. Checked WQI/WQUAI bindings reject missing runtime, mismatched
+trusted genesis and optional expected-code mismatches before returning a wrapper.
+The offline constructors retain their intent-only behavior. Native and actual
+worker tests cover error/cancellation boundaries; read-only checks on Orchard and
+LAN mainnet retain exact block/code observations. Orchard WQUAI returned empty code
+and was explicitly rejected by the checked binding.
+[Workflow](docs/CONTRACT_CODE_PREFLIGHT.md).

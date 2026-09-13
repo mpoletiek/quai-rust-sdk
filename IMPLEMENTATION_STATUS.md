@@ -297,3 +297,11 @@ across all ten languages and five entropy lengths. Generation is portable to
 browser wasm through explicit Web Crypto support; worker coverage exercises all
 five word counts and English/Japanese/Spanish round trips. Passphrases remain
 caller-owned inputs and are not retained as mutable mnemonic properties.
+
+Native payment-channel enumeration now recovers registered peers and validated
+cursor generations after restart without a separately retained peer list. It is
+bounded and scoped to owner/account plus chain/genesis. Tests cover other zones,
+wrong owners/networks, unchanged database generations and corrupted metadata.
+Qi balance regressions now cover HD receive/change, imported and payment receive
+origins together, mutually exclusive claim/lock/expiry buckets, restart and
+invalidated snapshots. Refresh remains an explicit separate operation.

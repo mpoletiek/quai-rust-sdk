@@ -184,6 +184,43 @@ impl SqliteStore {
     ) -> Result<Option<VersionedPaymentChannel>> {
         read_channel(&self.connection, &self.key[..64], owner, peer)
     }
+    /// Enumerate this owner's registered channels after restart without knowing
+    /// their peer codes in advance. Results are ordered by peer-code bytes and
+    /// include validated metadata/generations for all zones on this chain/genesis.
+    /// At most 1,024 channels are returned; malformed rows fail the whole read.
+    /// This is a local read and neither opens channels nor advances cursors.
+    pub fn payment_channels(
+        &self,
+        owner: &PrivatePaymentCode,
+    ) -> Result<Vec<VersionedPaymentChannel>> {
+        let mut statement = self.connection.prepare(
+            "SELECT CASE WHEN length(peer_code)=80 THEN peer_code ELSE NULL END,generation,CASE WHEN length(metadata) BETWEEN 1 AND 4096 THEN metadata ELSE NULL END FROM payment_channels WHERE network=?1 AND local_code=?2 AND account=?3 ORDER BY peer_code LIMIT 1025"
+        )?;
+        let mut rows = statement.query(params![
+            &self.key[..64],
+            &owner.public_code().to_bytes()[..],
+            owner.account(),
+        ])?;
+        let mut channels = Vec::new();
+        while let Some(row) = rows.next()? {
+            if channels.len() == 1024 {
+                return Err(StorageError::Invalid);
+            }
+            let peer: [u8; 80] = array(&row.get::<_, Vec<u8>>(0)?)?;
+            let generation: i64 = row.get(1)?;
+            let metadata: Vec<u8> = row.get(2)?;
+            let channel =
+                PaymentChannel::from_json(owner, &metadata).map_err(|_| StorageError::Invalid)?;
+            if generation < 0 || channel.counterparty_code().to_bytes() != peer {
+                return Err(StorageError::Invalid);
+            }
+            channels.push(VersionedPaymentChannel {
+                channel,
+                generation: generation as u64,
+            });
+        }
+        Ok(channels)
+    }
     /// Create or CAS-import owner-validated metadata. Use None only for a new channel.
     /// Existing generations and every cursor must be respected; stale imports cannot
     /// rewind either direction/zone or revive exhausted cursors. All network snapshots
@@ -698,6 +735,96 @@ mod tests {
             PrivatePaymentCode::from_seed(&[1; 16], 0).unwrap(),
         )
     }
+    #[test]
+    fn channel_listing_recovers_peers_scopes_and_cursors_without_mutation() {
+        let db = Database::new();
+        let (owner, peer) = pair();
+        let second = PrivatePaymentCode::from_seed(&[2; 16], 0).unwrap();
+        let another_account = PrivatePaymentCode::from_seed(&[0; 16], 1).unwrap();
+        let mut store = db.open();
+        assert!(store.payment_channels(&owner).unwrap().is_empty());
+        for other in [&second, &peer] {
+            let mut channel = PaymentChannel::new(&owner, other.public_code().clone());
+            channel
+                .advance_cursor(&owner, PaymentDirection::Receive, Zone::Cyprus1, Some(27))
+                .unwrap();
+            store
+                .import_payment_channel(&owner, &channel, None)
+                .unwrap();
+        }
+        store
+            .import_payment_channel(
+                &another_account,
+                &PaymentChannel::new(&another_account, peer.public_code().clone()),
+                None,
+            )
+            .unwrap();
+        let before = store.snapshot().unwrap().generation;
+        let channels = store.payment_channels(&owner).unwrap();
+        assert_eq!(channels.len(), 2);
+        let actual: Vec<_> = channels
+            .iter()
+            .map(|v| v.channel.counterparty_code().to_bytes())
+            .collect();
+        let mut expected = vec![
+            peer.public_code().to_bytes(),
+            second.public_code().to_bytes(),
+        ];
+        expected.sort();
+        assert_eq!(actual, expected);
+        for value in &channels {
+            assert_eq!(value.generation, 0);
+            assert_eq!(
+                value
+                    .channel
+                    .next_index(PaymentDirection::Receive, Zone::Cyprus1),
+                Some(27)
+            );
+            assert_eq!(value.channel.local_code(), owner.public_code());
+        }
+        assert_eq!(store.payment_channels(&another_account).unwrap().len(), 1);
+        assert!(store.payment_channels(&peer).unwrap().is_empty());
+        assert_eq!(store.snapshot().unwrap().generation, before);
+        drop(store);
+        let reopened = db.open();
+        assert_eq!(reopened.payment_channels(&owner).unwrap().len(), 2);
+        // Channels are network-wide, while ordinary address scopes include a zone.
+        let other_zone = SqliteStore::open(
+            &db.0,
+            NetworkScope {
+                zone: Zone::Paxos1,
+                ..scope()
+            },
+        )
+        .unwrap();
+        assert_eq!(other_zone.payment_channels(&owner).unwrap().len(), 2);
+        for other_scope in [
+            NetworkScope {
+                chain_id: U256::from(9),
+                ..scope()
+            },
+            NetworkScope {
+                genesis: Hash32::from_bytes([2; 32]),
+                ..scope()
+            },
+        ] {
+            let other = SqliteStore::open(&db.0, other_scope).unwrap();
+            assert!(other.payment_channels(&owner).unwrap().is_empty());
+        }
+        // Corruption must not return an incomplete list that looks authoritative.
+        reopened
+            .connection
+            .execute(
+                "UPDATE payment_channels SET metadata=?1 WHERE peer_code=?2",
+                params![b"{}".as_slice(), &peer.public_code().to_bytes()[..]],
+            )
+            .unwrap();
+        assert!(matches!(
+            reopened.payment_channels(&owner),
+            Err(StorageError::Invalid)
+        ));
+    }
+
     #[test]
     fn restart_cancel_owner_and_stale_import_preserve_all_zone_cursors() {
         let db = Database::new();

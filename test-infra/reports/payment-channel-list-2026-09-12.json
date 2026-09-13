@@ -1,0 +1,17 @@
+{
+  "scope": "Native registered channel enumeration and all-origin Qi balance qualification",
+  "baseCommit": "ce9629c",
+  "testedWorkingTree": true,
+  "channelTests": {
+    "passed": 5,
+    "includes": "actual process contention, migration, restart, scoped peer enumeration and corrupted metadata"
+  },
+  "balanceRegression": "HD receive/change plus imported/payment origins; claim priority, lock/expiry, restart and invalidation passed",
+  "strictNativeClippy": "passed",
+  "networkTransactionsSubmitted": 0,
+  "limitations": [
+    "Local channel listing requires the private owner for existing metadata validation",
+    "Latest-only observations do not prove historical coverage",
+    "Balance queries require explicit refresh and height"
+  ]
+}

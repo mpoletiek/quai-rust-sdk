@@ -1927,3 +1927,111 @@ fn qi_message_resolver_checks_exact_hd_and_imported_ownership() {
         Err(QiError::IdentityMismatch)
     ));
 }
+
+#[cfg(feature = "payments")]
+#[test]
+fn balance_buckets_cover_all_origins_and_preserve_claim_priority() {
+    use quai_sdk::payments::{PaymentChannel, PaymentDirection, PrivatePaymentCode};
+    use quai_sdk::qi_discovery::qi_balance;
+    let mut env = setup();
+    let receive = env.store.addresses().unwrap()[0].clone();
+    let change = pool(&mut env, 1).addresses()[0].clone();
+    let mut scalar = [0; 32];
+    scalar[31] = 130;
+    let imported = PublicAddress::imported(
+        &quai_sdk::crypto::SecretKey::from_bytes(&scalar)
+            .unwrap()
+            .public_key(),
+    )
+    .unwrap();
+    let generation = env.store.snapshot().unwrap().generation;
+    env.store
+        .import_metadata(generation, std::slice::from_ref(&imported))
+        .unwrap();
+    let owner = PrivatePaymentCode::from_seed(&[1; 32], 0).unwrap();
+    let peer = PrivatePaymentCode::from_seed(&[2; 32], 0).unwrap();
+    env.store
+        .import_payment_channel(
+            &owner,
+            &PaymentChannel::new(&owner, peer.public_code().clone()),
+            None,
+        )
+        .unwrap();
+    let payment = env
+        .store
+        .allocate_payment_address(
+            &owner,
+            peer.public_code(),
+            PaymentDirection::Receive,
+            10_000,
+            || false,
+        )
+        .unwrap();
+    let mut snapshot = env.store.snapshot().unwrap();
+    snapshot.checkpoint = Some(Checkpoint {
+        hash: CHECKPOINT.parse().unwrap(),
+        height: U256::from(16),
+    });
+    snapshot.coins = [
+        receive.address(),
+        change.address(),
+        imported.address(),
+        payment.found.address.address(),
+    ]
+    .into_iter()
+    .enumerate()
+    .map(|(i, address)| {
+        let mut hash = [0; 32];
+        hash[3] = 0x80;
+        hash[31] = 140 + i as u8;
+        CandidateCoin {
+            outpoint: OutPoint {
+                transaction_hash: hash.into(),
+                index: 0,
+            },
+            address: address.try_into().unwrap(),
+            denomination: Denomination::new(i as u8).unwrap(),
+            unlock_height: if i == 1 { U256::from(32) } else { U256::ZERO },
+            expires_at: if i == 0 || i == 3 {
+                Some(U256::from(17))
+            } else {
+                None
+            },
+            reserved: false,
+        }
+    })
+    .collect();
+    let generation = env.store.replace_snapshot(&snapshot).unwrap();
+    env.store
+        .reserve_qi(
+            id(120),
+            generation,
+            U256::from(16),
+            &[snapshot.coins[3].outpoint],
+        )
+        .unwrap();
+    let balance = qi_balance(&mut env.store, U256::from(17)).unwrap();
+    assert_eq!(balance.total, U256::from(66));
+    assert_eq!(balance.spendable, U256::from(10));
+    assert_eq!(balance.locked, U256::from(5));
+    assert_eq!(balance.expired, U256::from(1));
+    assert_eq!(balance.reserved, U256::from(50));
+    assert_eq!(
+        balance.total,
+        balance.spendable + balance.locked + balance.expired + balance.reserved
+    );
+    assert!(env.mock.calls.lock().unwrap().is_empty()); // Explicit cached read.
+    let mut reopened = SqliteStore::open(&env.path, env.store.scope()).unwrap();
+    assert_eq!(qi_balance(&mut reopened, U256::from(17)).unwrap(), balance);
+    assert!(matches!(
+        qi_balance(&mut reopened, U256::from(15)),
+        Err(QiError::StaleSnapshot)
+    ));
+    let generation = reopened.snapshot().unwrap().generation;
+    reopened.invalidate_snapshot(generation).unwrap();
+    assert!(matches!(
+        qi_balance(&mut reopened, U256::from(17)),
+        Err(QiError::MissingSnapshot)
+    ));
+    assert_eq!(reopened.reserved_outpoints(id(120)).unwrap().len(), 1);
+}

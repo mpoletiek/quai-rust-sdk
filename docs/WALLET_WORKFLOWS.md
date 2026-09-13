@@ -449,3 +449,27 @@ This offline example uses an explicitly public toy key and emits a JSON message,
 public key and randomized signature for independent verification. Never fund its
 address. CI checks the output with the pinned JS Schnorr verifier; 16 JS wallet
 vectors exercise empty/Unicode/binary messages and both public-key parities.
+
+## Recover channel lists and read Qi balances
+
+`SqliteStore::payment_channels(owner)` enumerates the owner's registered peers
+without requiring the application to remember each peer code. It returns up to
+1,024 validated channels with their database generations, ordered by peer-code
+bytes. The chain, genesis and owner/account are checked; channel cursors span all
+zones on that network. No channel is opened and no cursor is advanced by listing.
+After restart, use each `counterparty_code()` with `payment_addresses`, channel
+refresh and explicit keyring loading. Malformed metadata fails the complete read.
+
+`qi_discovery::qi_balance(store, candidate_height)` sums every stored Qi origin,
+including receive/change, imported keys and registered payment receive addresses.
+It requires an available snapshot at or before the supplied height and performs
+no implicit RPC. Refresh explicitly first when current node state is required.
+`total` equals the mutually exclusive `spendable + reserved + locked + expired`
+buckets. Durable claims take priority; expiry uses an explicitly supplied profile,
+not a guessed node trim schedule. Unlock boundaries apply at the candidate height.
+
+The pinned wallet's `getBalanceForZone`, `getLockedBalance` and
+`getSpendableBalance` optionally refresh their own caches. Rust makes refresh and
+height explicit and excludes locally claimed or expired coins from spendable
+funds. These observations neither include pending incoming transactions nor prove
+that a node will still accept an output when it is eventually submitted.

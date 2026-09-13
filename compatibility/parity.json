@@ -19321,12 +19321,21 @@
         "(zone: Zone): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi_discovery::qi_balance",
+        "quai_sdk::qi_discovery::QiBalance",
+        "quai_sdk::qi_discovery::refresh_qi"
+      ],
+      "feature": "qi-balances",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs#balance_buckets_cover_all_origins_and_preserve_claim_priority",
+        "crates/quai-sdk/tests/qi.rs#current_gap_scan_and_refresh_queries_stored_addresses_and_preserves_claims"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit scoped snapshot/height and refresh instead of optional implicit RPC cache updates. All owned origins contribute exact Qits; durable claims and supplied expiry take precedence over lock/spendable categories. Pending incoming funds and historical snapshot claims are excluded."
     },
     {
       "id": ".:QiHDWallet:instance:getChangeAddressesForZone",
@@ -19417,12 +19426,21 @@
         "(zone: Zone, blockNumber?: number, useCachedOutpoints?: boolean): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi_discovery::qi_balance",
+        "quai_sdk::qi_discovery::QiBalance",
+        "quai_sdk::qi_discovery::refresh_qi"
+      ],
+      "feature": "qi-balances",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs#balance_buckets_cover_all_origins_and_preserve_claim_priority",
+        "crates/quai-sdk/tests/qi.rs#current_gap_scan_and_refresh_queries_stored_addresses_and_preserves_claims"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit scoped snapshot/height and refresh instead of optional implicit RPC cache updates. All owned origins contribute exact Qits; durable claims and supplied expiry take precedence over lock/spendable categories. Pending incoming funds and historical snapshot claims are excluded."
     },
     {
       "id": ".:QiHDWallet:instance:getNextAddress",
@@ -19658,12 +19676,21 @@
         "(zone: Zone, blockNumber?: number, useCachedOutpoints?: boolean): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi_discovery::qi_balance",
+        "quai_sdk::qi_discovery::QiBalance",
+        "quai_sdk::qi_discovery::refresh_qi"
+      ],
+      "feature": "qi-balances",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs#balance_buckets_cover_all_origins_and_preserve_claim_priority",
+        "crates/quai-sdk/tests/qi.rs#current_gap_scan_and_refresh_queries_stored_addresses_and_preserves_claims"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit scoped snapshot/height and refresh instead of optional implicit RPC cache updates. All owned origins contribute exact Qits; durable claims and supplied expiry take precedence over lock/spendable categories. Pending incoming funds and historical snapshot claims are excluded."
     },
     {
       "id": ".:QiHDWallet:instance:importOutpoints",
@@ -19732,12 +19759,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::payment_channels",
+        "quai_payments::PaymentChannel::counterparty_code"
+      ],
+      "feature": "payment-channels",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/payment.rs#channel_listing_recovers_peers_scopes_and_cursors_without_mutation"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit owner-validated database enumeration returning channel metadata/generations rather than mutable in-memory map keys. Bounded to 1,024 channels; deterministic peer-code order; no network request or opening side effect."
     },
     {
       "id": ".:QiHDWallet:instance:scan",
@@ -64519,12 +64553,21 @@
         "(zone: Zone): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi_discovery::qi_balance",
+        "quai_sdk::qi_discovery::QiBalance",
+        "quai_sdk::qi_discovery::refresh_qi"
+      ],
+      "feature": "qi-balances",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs#balance_buckets_cover_all_origins_and_preserve_claim_priority",
+        "crates/quai-sdk/tests/qi.rs#current_gap_scan_and_refresh_queries_stored_addresses_and_preserves_claims"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit scoped snapshot/height and refresh instead of optional implicit RPC cache updates. All owned origins contribute exact Qits; durable claims and supplied expiry take precedence over lock/spendable categories. Pending incoming funds and historical snapshot claims are excluded."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getChangeAddressesForZone",
@@ -64615,12 +64658,21 @@
         "(zone: Zone, blockNumber?: number, useCachedOutpoints?: boolean): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi_discovery::qi_balance",
+        "quai_sdk::qi_discovery::QiBalance",
+        "quai_sdk::qi_discovery::refresh_qi"
+      ],
+      "feature": "qi-balances",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs#balance_buckets_cover_all_origins_and_preserve_claim_priority",
+        "crates/quai-sdk/tests/qi.rs#current_gap_scan_and_refresh_queries_stored_addresses_and_preserves_claims"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit scoped snapshot/height and refresh instead of optional implicit RPC cache updates. All owned origins contribute exact Qits; durable claims and supplied expiry take precedence over lock/spendable categories. Pending incoming funds and historical snapshot claims are excluded."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextAddress",
@@ -64856,12 +64908,21 @@
         "(zone: Zone, blockNumber?: number, useCachedOutpoints?: boolean): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::qi_discovery::qi_balance",
+        "quai_sdk::qi_discovery::QiBalance",
+        "quai_sdk::qi_discovery::refresh_qi"
+      ],
+      "feature": "qi-balances",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/qi.rs#balance_buckets_cover_all_origins_and_preserve_claim_priority",
+        "crates/quai-sdk/tests/qi.rs#current_gap_scan_and_refresh_queries_stored_addresses_and_preserves_claims"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit scoped snapshot/height and refresh instead of optional implicit RPC cache updates. All owned origins contribute exact Qits; durable claims and supplied expiry take precedence over lock/spendable categories. Pending incoming funds and historical snapshot claims are excluded."
     },
     {
       "id": "./wallet:QiHDWallet:instance:importOutpoints",
@@ -64930,12 +64991,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::payment_channels",
+        "quai_payments::PaymentChannel::counterparty_code"
+      ],
+      "feature": "payment-channels",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/payment.rs#channel_listing_recovers_peers_scopes_and_cursors_without_mutation"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit owner-validated database enumeration returning channel metadata/generations rather than mutable in-memory map keys. Bounded to 1,024 channels; deterministic peer-code order; no network request or opening side effect."
     },
     {
       "id": "./wallet:QiHDWallet:instance:scan",

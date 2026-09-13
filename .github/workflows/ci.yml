@@ -44,6 +44,8 @@ jobs:
       - run: npm run generate --prefix compatibility
       - run: node test-infra/generate_address_allocation_fixtures.mjs
       - run: git diff --exit-code -- test-infra/fixtures/address-allocation.json
+      - run: node test-infra/generate_payment_allocation_fixtures.mjs
+      - run: git diff --exit-code -- test-infra/fixtures/payment-allocation.json
       - run: npm run wrapping --prefix compatibility
       - run: git diff --exit-code -- crates/quai-consensus/tests/wrapping-vectors.json crates/quai-sdk/tests/wrapper-calls.json
       - run: python3 test-infra/sync_package_files.py --check
@@ -102,6 +104,9 @@ jobs:
           WASM_BINDGEN_TEST_TIMEOUT: 180
           CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-allocations
+        env:
+          WASM_BINDGEN_TEST_TIMEOUT: 180
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-payment-allocations
         env:
           WASM_BINDGEN_TEST_TIMEOUT: 180
   fuzz-smoke:

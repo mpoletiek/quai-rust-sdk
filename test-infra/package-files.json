@@ -280,6 +280,10 @@
     {
       "source": "test-infra/fixtures/address-allocation.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/address-allocation.json"
+    },
+    {
+      "source": "test-infra/fixtures/payment-allocation.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/payment-allocation.json"
     }
   ]
 }

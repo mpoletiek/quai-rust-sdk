@@ -164,5 +164,11 @@
     "v3/v4/v5 fixtures are native-to-worker interoperability evidence, not independent implementation oracles.",
     "Browser tests use Chromium dedicated workers; other engines, suspension and real-extension integration remain separate.",
     "Bounded sanitizer and package checks are not sustained fuzz, soak, independent review or release certification."
-  ]
+  ],
+  "ciVerified": {
+    "runId": 34748431398,
+    "conclusion": "success",
+    "jobs": 8,
+    "retryReason": "dependency-advisories initially failed to acquire a runner after five attempts; rerun passed without code changes"
+  }
 }

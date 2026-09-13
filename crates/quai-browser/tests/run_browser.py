@@ -80,7 +80,7 @@ class Fixture(http.server.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations'], default='browser')
+    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations'], default='browser')
     arguments = parser.parse_args()
     root = pathlib.Path(__file__).resolve().parents[3]
     server = http.server.ThreadingHTTPServer(('127.0.0.1',0), Fixture)
@@ -98,7 +98,8 @@ if __name__ == '__main__':
                       'sdk-events': ('events', 'wallet,browser,abi'),
                       'sdk-keys': ('key_origins', 'wallet,browser,payments'),
                       'sdk-backups': ('portable_backups', 'backup,browser,payments'),
-                      'sdk-allocations': ('address_allocation', 'backup,browser')}
+                      'sdk-allocations': ('address_allocation', 'backup,browser'),
+                      'sdk-payment-allocations': ('payment_allocation', 'backup,browser,payments')}
         sdk_suite = sdk_suites.get(arguments.suite)
         command = ['cargo','test','-p','quai-sdk' if sdk_suite else 'quai-browser','--target','wasm32-unknown-unknown','--test',sdk_suite[0] if sdk_suite else arguments.suite,'--offline','--locked']
         if sdk_suite: command += ['--no-default-features','--features',sdk_suite[1]]

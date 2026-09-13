@@ -14,6 +14,8 @@ pub mod discovery;
 pub mod full_backup;
 mod hd;
 pub mod metadata;
+#[cfg(feature = "payments")]
+pub mod payment_allocation;
 pub mod qi_keys;
 mod selection;
 #[cfg(feature = "backup")]

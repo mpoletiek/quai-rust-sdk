@@ -20038,17 +20038,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::allocate_payment_address"
+        "quai_wallet::storage::SqliteStore::allocate_payment_address",
+        "quai_wallet::payment_allocation::PaymentAllocationBook",
+        "quai_sdk::browser_payments::BrowserPaymentBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet,payments; sqlite for native store; browser for Wasm store",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/src/storage/payment.rs"
+        "crates/quai-wallet/src/storage/payment.rs",
+        "crates/quai-sdk/tests/payment_allocation.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/WALLET_WORKFLOWS.md",
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Owner-checked registered channel, explicit receive direction and durable burned ranges."
+      "deviation": "Explicit registered owner/peer/account, network/zone, direction, caller ID and bounded search. Native SQLite or browser CAS burns whole ranges before search and commits destinations before return; exact-ID resume is idempotent, new requests never reuse prior destinations. No JS reuse-until-status-change policy, implicit code exchange, notification discovery or JS wallet serialization."
     },
     {
       "id": ".:QiHDWallet:instance:getNextSendAddress",
@@ -20060,17 +20064,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::payment_channels::payment_intent"
+        "quai_wallet::storage::SqliteStore::allocate_payment_address",
+        "quai_wallet::payment_allocation::PaymentAllocationBook",
+        "quai_sdk::browser_payments::BrowserPaymentBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet,payments; sqlite for native store; browser for Wasm store",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-wallet/src/storage/payment.rs",
+        "crates/quai-sdk/tests/payment_allocation.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/WALLET_WORKFLOWS.md",
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Registered peer and explicit number of fresh denomination destinations; no implicit code exchange or notification."
+      "deviation": "Explicit registered owner/peer/account, network/zone, direction, caller ID and bounded search. Native SQLite or browser CAS burns whole ranges before search and commits destinations before return; exact-ID resume is idempotent, new requests never reuse prior destinations. No JS reuse-until-status-change policy, implicit code exchange, notification discovery or JS wallet serialization."
     },
     {
       "id": ".:QiHDWallet:instance:getOutpoints",
@@ -66124,17 +66132,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::allocate_payment_address"
+        "quai_wallet::storage::SqliteStore::allocate_payment_address",
+        "quai_wallet::payment_allocation::PaymentAllocationBook",
+        "quai_sdk::browser_payments::BrowserPaymentBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet,payments; sqlite for native store; browser for Wasm store",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/src/storage/payment.rs"
+        "crates/quai-wallet/src/storage/payment.rs",
+        "crates/quai-sdk/tests/payment_allocation.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/WALLET_WORKFLOWS.md",
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Owner-checked registered channel, explicit receive direction and durable burned ranges."
+      "deviation": "Explicit registered owner/peer/account, network/zone, direction, caller ID and bounded search. Native SQLite or browser CAS burns whole ranges before search and commits destinations before return; exact-ID resume is idempotent, new requests never reuse prior destinations. No JS reuse-until-status-change policy, implicit code exchange, notification discovery or JS wallet serialization."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextSendAddress",
@@ -66146,17 +66158,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::payment_channels::payment_intent"
+        "quai_wallet::storage::SqliteStore::allocate_payment_address",
+        "quai_wallet::payment_allocation::PaymentAllocationBook",
+        "quai_sdk::browser_payments::BrowserPaymentBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet,payments; sqlite for native store; browser for Wasm store",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-wallet/src/storage/payment.rs",
+        "crates/quai-sdk/tests/payment_allocation.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/WALLET_WORKFLOWS.md",
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Registered peer and explicit number of fresh denomination destinations; no implicit code exchange or notification."
+      "deviation": "Explicit registered owner/peer/account, network/zone, direction, caller ID and bounded search. Native SQLite or browser CAS burns whole ranges before search and commits destinations before return; exact-ID resume is idempotent, new requests never reuse prior destinations. No JS reuse-until-status-change policy, implicit code exchange, notification discovery or JS wallet serialization."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getOutpoints",

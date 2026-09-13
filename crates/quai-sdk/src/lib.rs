@@ -3,6 +3,13 @@
 pub mod accounts;
 #[cfg(all(target_arch = "wasm32", feature = "wallet", feature = "browser"))]
 pub mod browser_addresses;
+#[cfg(all(
+    target_arch = "wasm32",
+    feature = "wallet",
+    feature = "browser",
+    feature = "payments"
+))]
+pub mod browser_payments;
 #[cfg(feature = "abi")]
 pub mod contracts;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]

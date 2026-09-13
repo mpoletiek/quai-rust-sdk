@@ -467,4 +467,14 @@ IDs across completion, abandonment, lost responses and restart. Actual worker te
 cover competing connections, cancellation after write dispatch, corrupt/tombstoned
 state, idempotent resume and initialization from authenticated backup floors.
 The 4,096-ID bound fails closed; this is address allocation, with UTXO/nonce claims
-and payment exposure journals still separate browser work.
+still separate browser work.
+
+
+Browser payment-code allocation now commits consumed raw ranges before search and
+verified destinations before return. Owner/account/peer/direction/network/zone
+identities prevent context substitution; completed imports re-derive exact public
+keys. Send destinations remain recipient owned. Worker tests cover competing
+connections, cancelled search, dropped write futures, restart, tombstones and
+authenticated backup floors. The public 1,024-ID journal retains abandoned IDs;
+full browser wallet state, nonce/UTXO claims and transaction orchestration remain
+open. [Retained evidence](test-infra/reports/browser-payment-allocation-2026-09-13.json).

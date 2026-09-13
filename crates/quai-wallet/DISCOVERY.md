@@ -160,5 +160,52 @@ Actual worker tests cover two independent connections, restart, completed-reques
 idempotency, cancellation after write dispatch, malformed state, tombstones and
 backup floors. Twenty-four independently encoded Node fixtures use pinned HD
 account/address pairs; this Rust journal has no claimed quais.js format counterpart.
-UTXO/nonce reservations, payment exposure allocation and full browser wallet-state
-merge remain separate integrations.
+UTXO/nonce reservations and full browser wallet-state merge remain separate
+integrations. Payment allocation is available as described below.
+
+
+## Portable payment destination allocation
+
+With `payments`, `payment_allocation::PaymentAllocationBook` retains an explicit
+owner account, peer code and send/receive direction for one network/zone. The
+Wasm facade `browser_payments::BrowserPaymentBook` adds IndexedDB atomic commits:
+`initialize(owner, prior_raw_index)`, then `allocate(owner, id, max_attempts,
+cancelled)`. The whole raw interval commits before secret-assisted search; the
+verified destination commits before return. Retain the ID through cancelled
+futures and lost responses, inspect `snapshot(owner)`, and explicitly `resume`
+or `abandon`. Neither IDs nor ranges become reusable. Concurrent stale writes
+return a conflict; they are not automatically retried.
+
+The adapter stores only public context and borrows the guarded private owner for
+each operation. Imports re-derive every completed destination and check the owner,
+account, peer, direction, ledger and zone. Receive records can be passed to
+`QiKeyring::import_payment_receive(owner, peer, index)` for explicit local signing.
+Send records are owned by the recipient and must not enter the local receive key
+inventory. Each direction/zone has an independent namespace. Run derivation and
+large journal validation in an application worker.
+
+A new namespace requires an explicit raw floor. `from_channel` preserves existing
+direction/zone cursors but its caller must establish network and freshness.
+With `backup`, `initialize_from_backup` checks the exact authenticated network and
+channel and preserves its consumed floor. It initializes only a never-written
+namespace, never replaces live records or tombstones, and does not copy historical
+exposures or transaction claims. Empty latest UTXOs are not evidence for zero.
+
+`QPAYABK1` is a Rust-specific public codec: 8-byte magic, 65-byte network scope
+(chain ID u256 big endian, genesis hash, zone byte), 32-byte identity, initial and
+next raw indexes (u32 big endian), and record count (u16 big endian). Identity is
+Keccak of UTF-8 `quai-rust/payment-allocation/v1`, owner code (80 bytes), account
+(u32 big endian), peer code (80 bytes), and direction (0 send, 1 receive).
+Each ID-sorted record has a 16-byte ID, start/end u32, status (0 pending,
+1 completed, 2 abandoned), and a u32 child index only for completed records.
+Import checks exact length, sorted unique IDs, complete gap-free interval coverage,
+limits and completed derivations. No claimed public point is trusted.
+
+The bound is 1,024 retained IDs and 29,811 encoded bytes, with at most 100,000
+candidates per range. `2^31` denotes exhaustion. Abandonment does not free capacity;
+there is no silent compaction or rollover. The codec provides neither encryption
+nor freshness; browser revisions fence cooperating writers. Actual Chromium
+worker tests exercise contention, dropped writes, restart, corruption/tombstones,
+backup floors and send/receive ownership. Twenty-four independent Node encodings
+use six pinned quais.js payment address vectors. Full live wallet state merge,
+UTXO/nonce custody and transaction orchestration remain separate work.

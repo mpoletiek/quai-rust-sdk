@@ -248,3 +248,8 @@ The facade's `browser_addresses::BrowserAddressBook` commits the range before
 search and the address before returning it, using IndexedDB CAS across tabs and
 workers. It refuses stale initialization/tombstones and can initialize floors from
 an authenticated full backup. See [durable allocation](DISCOVERY.md#portable-durable-hd-address-allocation).
+
+With `payments`, the portable `payment_allocation` module retains bounded public
+send/receive journals, explicit consumed ranges and verified destinations. The
+browser facade adds atomic persistence; authenticated backup cursor initialization
+requires `backup`. See [discovery and allocation](DISCOVERY.md).

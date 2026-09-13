@@ -1,24 +1,7 @@
 //! Public payment records and ownership checks shared by native and portable backups.
 use super::*;
-use quai_crypto::PublicKey;
+pub use crate::payment_allocation::PaymentAddressRecord;
 use quai_payments::{PaymentChannel, PaymentCode, PaymentDirection, PrivatePaymentCode};
-use quai_primitives::{QiAddress, Zone};
-/// Durable public exposure record; peer/owner context is supplied to the lookup API.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct PaymentAddressRecord {
-    /// Send or receive relative to the local owner.
-    pub direction: PaymentDirection,
-    /// Address zone.
-    pub zone: Zone,
-    /// Exact raw payment child index.
-    pub index: u32,
-    /// Validated Qi address.
-    pub address: QiAddress,
-    /// Matching full public point.
-    pub public_key: PublicKey,
-    /// Entire consumed raw interval.
-    pub burned: crate::discovery::IndexRange,
-}
 #[derive(Clone, Debug)]
 pub(crate) struct StoredPaymentChannel {
     pub network: [u8; 64],

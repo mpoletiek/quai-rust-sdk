@@ -1,0 +1,37 @@
+{
+  "recordedAt": "2026-09-13T02:29:29.548543+00:00",
+  "scope": "Signed-intent deployment/runtime observations, bounded waits and durable candidate caches",
+  "provider_and_sdk_regressions_before_wait_extension": {
+    "reported_passes": 133,
+    "failures": 0,
+    "ignored": 3
+  },
+  "final_deployment_provider_tests": 4,
+  "final_sdk_deployment_tests": 3,
+  "strict_native_and_wasm_clippy": "passed",
+  "rustdoc_warnings_denied": "passed",
+  "chromium_worker_tests": 5,
+  "local_chain_harness_tests": "passed",
+  "development_node": {
+    "block": "0x00000dc780e4d1b65e4dafa404ba06b9401da137b944173eaedbcfaabe4218fc",
+    "cacheRevision": 1,
+    "cacheSurvivesReopen": true,
+    "candidate": "0x007e003c178300c21caa2dd419127a16e8b6fb402d4e09c96a32bd4ccc6078ee",
+    "confirmations": 2,
+    "contract": "0x004C1e917c53fFE0bA85bA0Be73E03047ed455B6",
+    "height": 6,
+    "nonceClaimRetained": true,
+    "qualification": "isolated documented development profile; public fixture funds",
+    "runtime": "0x602a60005260206000f3",
+    "runtimeHash": "0x98e3a357b0a9519e7773d42cf7912a620a18c8f53cd8e1525ce5344917d07e76",
+    "runtimeMatchesExpected": true,
+    "submitted": false
+  },
+  "limitations": [
+    "Direct signed CREATE only; factory artifacts and existing-address-only code waits are separate.",
+    "Runtime is observed at inclusion-block end, not authenticated by a consensus proof.",
+    "The node is the documented isolated development profile, not unmodified/testnet acceptance.",
+    "Failures, empty/mismatched code and timeouts never release nonce claims or trigger submission."
+  ],
+  "releaseQualified": false
+}

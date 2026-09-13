@@ -2053,12 +2053,19 @@
         "(): null | ContractTransactionResponse"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::signed_payload",
+        "quai_provider::DeploymentReference::transaction_hash"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Deployment identity is recovered explicitly from durable signed candidates or supplied signed creation; connecting an arbitrary address does not infer its creation transaction."
     },
     {
       "id": ".:BaseContract:instance:emit",
@@ -2372,12 +2379,22 @@
         "(): Promise<BaseContract>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_deployment",
+        "quai_provider::Provider::wait_for_deployment",
+        "quai_sdk::deployments::track_deployment"
+      ],
+      "feature": "contracts",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/deployment.rs",
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Known direct signed creations use explicit scope/depth/timeouts and preserve failed, locked, empty-code and mismatch outcomes. Existing-address-only code waiting and generic JS contract runner behavior remain separate."
     },
     {
       "id": ".:BaseContract:static:buildClass",
@@ -5043,12 +5060,19 @@
         "(): null | ContractTransactionResponse"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::signed_payload",
+        "quai_provider::DeploymentReference::transaction_hash"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Deployment identity is recovered explicitly from durable signed candidates or supplied signed creation; connecting an arbitrary address does not infer its creation transaction."
     },
     {
       "id": ".:Contract:instance:emit",
@@ -5362,12 +5386,22 @@
         "(): Promise<Contract>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_deployment",
+        "quai_provider::Provider::wait_for_deployment",
+        "quai_sdk::deployments::track_deployment"
+      ],
+      "feature": "contracts",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/deployment.rs",
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Known direct signed creations use explicit scope/depth/timeouts and preserve failed, locked, empty-code and mismatch outcomes. Existing-address-only code waiting and generic JS contract runner behavior remain separate."
     },
     {
       "id": ".:ContractDeployTransaction",
@@ -5767,11 +5801,15 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "The pinned factory only checks an unused 46-character metadata property before send; it never encodes the value. Rust omits this non-wire metadata guard; exact signed deployment is independently node-tested."
     },
     {
       "id": ".:ContractFactory:instance:runner",
@@ -5797,11 +5835,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "The pinned factory only checks an unused 46-character metadata property before send; it never encodes the value. Rust omits this non-wire metadata guard; exact signed deployment is independently node-tested."
     },
     {
       "id": ".:ContractFactory:static:fromSolidity",
@@ -5828,12 +5870,20 @@
         "(transaction: { from: string; nonce: bigint; data: BytesLike; }): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::contract_address"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/amounts.rs",
+        "crates/quai-provider/tests/deployment.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Exact init code and u64 nonce follow the node CREATE formula; leading-zero init bytes are preserved, correcting the reference helper."
     },
     {
       "id": ".:ContractInterface",
@@ -39833,12 +39883,19 @@
         "(): null | ContractTransactionResponse"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::signed_payload",
+        "quai_provider::DeploymentReference::transaction_hash"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Deployment identity is recovered explicitly from durable signed candidates or supplied signed creation; connecting an arbitrary address does not infer its creation transaction."
     },
     {
       "id": "./contract:BaseContract:instance:emit",
@@ -40152,12 +40209,22 @@
         "(): Promise<BaseContract>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_deployment",
+        "quai_provider::Provider::wait_for_deployment",
+        "quai_sdk::deployments::track_deployment"
+      ],
+      "feature": "contracts",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/deployment.rs",
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Known direct signed creations use explicit scope/depth/timeouts and preserve failed, locked, empty-code and mismatch outcomes. Existing-address-only code waiting and generic JS contract runner behavior remain separate."
     },
     {
       "id": "./contract:BaseContract:static:buildClass",
@@ -40306,12 +40373,19 @@
         "(): null | ContractTransactionResponse"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::signed_payload",
+        "quai_provider::DeploymentReference::transaction_hash"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Deployment identity is recovered explicitly from durable signed candidates or supplied signed creation; connecting an arbitrary address does not infer its creation transaction."
     },
     {
       "id": "./contract:Contract:instance:emit",
@@ -40625,12 +40699,22 @@
         "(): Promise<Contract>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::observe_deployment",
+        "quai_provider::Provider::wait_for_deployment",
+        "quai_sdk::deployments::track_deployment"
+      ],
+      "feature": "contracts",
+      "status": "partial",
+      "test_ids": [
+        "crates/quai-provider/tests/deployment.rs",
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "crates/quai-provider/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Known direct signed creations use explicit scope/depth/timeouts and preserve failed, locked, empty-code and mismatch outcomes. Existing-address-only code waiting and generic JS contract runner behavior remain separate."
     },
     {
       "id": "./contract:ContractDeployTransaction",
@@ -41030,11 +41114,15 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "The pinned factory only checks an unused 46-character metadata property before send; it never encodes the value. Rust omits this non-wire metadata guard; exact signed deployment is independently node-tested."
     },
     {
       "id": "./contract:ContractFactory:instance:runner",
@@ -41060,11 +41148,15 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "The pinned factory only checks an unused 46-character metadata property before send; it never encodes the value. Rust omits this non-wire metadata guard; exact signed deployment is independently node-tested."
     },
     {
       "id": "./contract:ContractFactory:static:fromSolidity",
@@ -41091,12 +41183,20 @@
         "(transaction: { from: string; nonce: bigint; data: BytesLike; }): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::contract_address"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-primitives/tests/amounts.rs",
+        "crates/quai-provider/tests/deployment.rs"
+      ],
+      "docs": [
+        "crates/quai-primitives/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Exact init code and u64 nonce follow the node CREATE formula; leading-zero init bytes are preserved, correcting the reference helper."
     },
     {
       "id": "./contract:ContractInterface",

@@ -79,3 +79,22 @@ Qi credit observation also inspects canonical failed conversions, since the
 pinned node may create some outputs before gas exhaustion produces status `0`.
 Attribution remains bound to the signed beneficiary/refund and final ETX hash;
 missing value is reported as unobserved. Unknown receipt statuses remain errors.
+
+## Deployment observations
+
+`DeploymentReference::from_signed` binds direct creation to its exact signed
+hash, sender, nonce, full init code, expected zone and trusted genesis. It computes
+the Quai CREATE address locally. `observe_deployment` checks receipt identity,
+predicted contract and canonical inclusion, reads runtime code at that numeric
+block, and rechecks both inclusion and the sampled head. An optional expected
+runtime Keccak hash produces an explicit comparison; init code is not runtime
+code. Empty code, failed/locked/legacy outcomes, missing receipts and noncanonical
+inclusion remain distinct. Unknown or pruned state errors are propagated.
+
+Native `wait_for_deployment` uses the existing explicit `WaitConfig` limits.
+It tolerates missing/reorganized observations until the deadline and returns the
+observed execution outcome at the requested depth, including failures. Source
+errors stop the wait. Dropping the future stops polling without affecting the
+signed transaction. This API handles known direct signed creations; existing
+contract addresses can still be read through `code`. Neither a receipt, runtime
+hash match nor a confirmation count proves contract safety or consensus finality.

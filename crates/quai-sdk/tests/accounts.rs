@@ -333,19 +333,50 @@ async fn deployment_reserves_before_grinding_and_estimates_exact_nonce_code_and_
     let signed = session.sign(&prepared).unwrap();
     assert_eq!(signed.transaction(), prepared.transaction());
     assert!(session.broadcast(id).await.is_ok());
-    let calls = mock.calls.lock().unwrap();
-    let estimate = &calls
-        .iter()
-        .find(|(method, _)| method == "quai_estimateGas")
+    {
+        let calls = mock.calls.lock().unwrap();
+        let estimate = &calls
+            .iter()
+            .find(|(method, _)| method == "quai_estimateGas")
+            .unwrap()
+            .1[0];
+        assert_eq!(estimate["nonce"], "0x5");
+        assert!(estimate.get("to").is_none());
+        assert_eq!(estimate["input"], RpcData::new(data).unwrap().to_hex());
+        assert_eq!(estimate["accessList"][0]["address"], predicted.to_string());
+        assert_eq!(
+            store.signed_payload(id).unwrap().unwrap(),
+            signed.signed_bytes().unwrap()
+        );
+    }
+    let update = quai_sdk::deployments::track_deployment(
+        &provider,
+        &mut store,
+        id,
+        signed.hash().unwrap(),
+        None,
+    )
+    .await
+    .unwrap();
+    assert!(matches!(
+        update.observation,
+        quai_sdk::provider::DeploymentObservation::NoReceipt {
+            transaction_known: false
+        }
+    ));
+    let mut reopened =
+        SqliteStore::open(_directory.0.join("wallet.sqlite"), store.scope()).unwrap();
+    let cache = reopened
+        .observation_cache(id, signed.hash().unwrap(), 0)
         .unwrap()
-        .1[0];
-    assert_eq!(estimate["nonce"], "0x5");
-    assert!(estimate.get("to").is_none());
-    assert_eq!(estimate["input"], RpcData::new(data).unwrap().to_hex());
-    assert_eq!(estimate["accessList"][0]["address"], predicted.to_string());
+        .unwrap();
+    assert_eq!(cache.revision, update.revision);
+    let summary: Value = serde_json::from_slice(cache.payload.as_deref().unwrap()).unwrap();
+    assert_eq!(summary["address"], predicted.to_string());
+    assert_eq!(summary["observation"]["state"], "no_receipt");
     assert_eq!(
-        store.signed_payload(id).unwrap().unwrap(),
-        signed.signed_bytes().unwrap()
+        reopened.reservation(id).unwrap().unwrap().state,
+        ReservationState::Submitted
     );
 }
 
@@ -822,4 +853,34 @@ async fn settlement_reconstructs_durable_candidate_and_invalidates_stale_cache_o
         signed.signed_bytes().unwrap()
     );
     assert!(reopened.release_unsigned(id).is_err());
+}
+
+#[tokio::test]
+async fn deployment_tracking_rejects_noncreation_and_invalidates_only_public_cache() {
+    let (_directory, _mock, provider, signer, mut store) = setup();
+    let id = ReservationId([93; 16]);
+    let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
+    let prepared = session.prepare(id, intent(), policy()).await.unwrap();
+    let signed = session.sign(&prepared).unwrap();
+    let hash = signed.hash().unwrap();
+    store
+        .compare_exchange_observation(id, hash, 0, None, Some(b"{\"version\":1}"))
+        .unwrap();
+    assert!(
+        quai_sdk::deployments::track_deployment(&provider, &mut store, id, hash, None)
+            .await
+            .is_err()
+    );
+    let cache = store.observation_cache(id, hash, 0).unwrap().unwrap();
+    assert_eq!(cache.revision, 2);
+    assert!(cache.payload.is_none());
+    assert_eq!(
+        store.signed_payload(id).unwrap().unwrap(),
+        signed.signed_bytes().unwrap()
+    );
+    assert_eq!(
+        store.reservation(id).unwrap().unwrap().state,
+        ReservationState::Signed
+    );
+    assert!(store.release_unsigned(id).is_err());
 }

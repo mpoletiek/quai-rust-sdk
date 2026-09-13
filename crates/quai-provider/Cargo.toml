@@ -17,6 +17,7 @@ ws = ["quai-rpc/ws", "polling"]
 [dependencies]
 quai-primitives.workspace = true
 quai-consensus.workspace = true
+quai-crypto.workspace = true
 quai-rpc.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
@@ -25,7 +26,6 @@ thiserror.workspace = true
 tokio = { workspace = true, optional = true }
 
 [dev-dependencies]
-quai-crypto.workspace = true
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]

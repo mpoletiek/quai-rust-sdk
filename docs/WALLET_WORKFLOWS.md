@@ -287,3 +287,30 @@ Caches remain excluded from backups; restored exact signed candidates can be
 tracked again with an explicit starting range. Tests use actual independent
 SQLite handles and synthetic source headers, including a concurrent write during
 reorg invalidation and another write during resumed observation.
+
+## Confirm deployed runtime code
+
+Build a provider `DeploymentReference` from the exact signed creation, trusted
+genesis and optional expected runtime-code Keccak hash. `observe_deployment`
+returns source inclusion/code observations; native `wait_for_deployment` adds
+explicit confirmation, timeout and polling limits. Runtime code is queried at
+the inclusion block, so later code or empty code cannot silently substitute for
+what was observed there. Missing receipts, failed/locked outcomes, empty code,
+mismatched code and reorgs remain separate results.
+
+For native durable wallets, `deployments::track_deployment` reconstructs a root
+or replacement candidate from stored bytes and saves a compact public observation
+before returning. Runtime bytes are returned directly; the cache retains only
+length, hash and expected-hash comparison. It survives reopening the database;
+backup restore discards this reconstructible cache but retains signed candidates.
+Source/validation errors tombstone only the revision read by that observer and
+never release a nonce or trigger a broadcast. The isolated harness's
+`verify-deployment` mode verified this complete read/reopen path against the
+existing public fixture deployment without submitting a transaction.
+
+The pinned JS factory requires a 46-character `IPFSHash` property before sending,
+but does not encode or otherwise use it in the transaction. Rust does not require
+that unused metadata guard. Exact init code, constructor arguments, grinding,
+access list and fee authorization remain explicit and are tested against the
+node. Solidity artifact import and broader factory conveniences are tracked
+separately in the declaration inventory.

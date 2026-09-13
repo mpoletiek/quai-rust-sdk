@@ -464,6 +464,24 @@ async fn main() -> Result<(), Box<dyn Error>> {
             assert!(store.release_unsigned(ReservationId([4;16])).is_err());
             save("replacement-verified.json",json!({"canonical":observation.canonical.map(|h|h.to_string()),"observations":format!("{:?}",observation.candidates),"nonceClaimRetained":true,"signedCandidates":store.quai_replacements(ReservationId([4;16]))?.len()+1,"qualification":"isolated documented development profile; public fixture funds"}))?;
         }
+        "verify-deployment" => {
+            let record=read("deployment-signed.json")?;
+            let hash=record["hash"].as_str().ok_or("deployment hash")?.parse()?;
+            let runtime:RpcData="0x602a60005260206000f3".parse()?;
+            let expected_runtime=quai_sdk::primitives::Hash32::from_bytes(quai_sdk::crypto::keccak256(runtime.bytes()));
+            let mut store=SqliteStore::open(&account_path,scope())?;
+            let update=quai_sdk::deployments::track_deployment(&provider,&mut store,deploy_id,hash,Some(expected_runtime)).await?;
+            let quai_sdk::provider::DeploymentObservation::Included{block,outcome,confirmations,code:Some(code)}=update.observation else{return Err("deployment not observed with code".into());};
+            assert_eq!(outcome,quai_sdk::provider::ReceiptOutcome::Succeeded);
+            assert_eq!(code.bytes,runtime);assert_eq!(code.matches_expected,Some(true));
+            assert!(store.release_unsigned(deploy_id).is_err());drop(store);
+            let mut reopened=SqliteStore::open(&account_path,scope())?;
+            let cache=reopened.observation_cache(deploy_id,hash,0)?.ok_or("deployment cache missing")?;
+            assert_eq!(cache.revision,update.revision);
+            let summary:Value=serde_json::from_slice(cache.payload.as_deref().ok_or("deployment cache empty")?)?;
+            assert_eq!(summary["address"],record["contract"]);
+            save("deployment-verified.json",json!({"candidate":hash.to_string(),"contract":record["contract"],"height":block.number,"block":block.hash.to_string(),"confirmations":confirmations,"runtime":code.bytes.to_hex(),"runtimeHash":code.hash.to_string(),"runtimeMatchesExpected":code.matches_expected,"cacheRevision":cache.revision,"cacheSurvivesReopen":true,"nonceClaimRetained":true,"submitted":false,"qualification":"isolated documented development profile; public fixture funds"}))?;
+        }
         "verify" | "verify-qi" => {
             let mut records = vec![];
             for (file, path, id) in [

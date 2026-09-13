@@ -3,7 +3,7 @@
 import argparse,json,pathlib,shutil,subprocess
 HERE=pathlib.Path(__file__).resolve().parent
 CLIENT=pathlib.Path('/tmp/quai-sdk-highlevel-client')
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('command',choices=['build','run']);p.add_argument('--mode',choices=['init-fund','account-prepare','account-broadcast','qi-prepare','qi-broadcast','verify','verify-qi','replacement-prepare','replacement-broadcast','verify-replacement'])
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('command',choices=['build','run']);p.add_argument('--mode',choices=['init-fund','account-prepare','account-broadcast','qi-prepare','qi-broadcast','verify','verify-qi','replacement-prepare','replacement-broadcast','verify-replacement','verify-deployment'])
 a=p.parse_args()
 if a.command=='run' and not a.mode:p.error('run requires explicit --mode')
 if CLIENT.exists() and (not (CLIENT/'Cargo.toml').is_file() or 'name="quai-highlevel-acceptance"' not in (CLIENT/'Cargo.toml').read_text()):raise ValueError('refusing unrelated existing client directory')

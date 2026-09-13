@@ -202,3 +202,12 @@ as deliberate differences. The extended ABI/default fuzz run completed 2,485,442
 executions with no sanitizer failure. A CI-only Chromium profile deletion race
 was reproduced deterministically and fixed without suppressing storage assertions
 or permission errors.
+
+
+Direct signed deployments now have intent-bound receipt/runtime observation and
+bounded native waits, plus durable candidate reconstruction/cache persistence.
+Runtime is queried at the inclusion block; mismatched/empty code and failed,
+locked, missing or reorganized execution remain explicit. The existing public
+fixture deployment at block 6 passed the SDK observer and database reopen checks
+on the isolated development node, with two sampled confirmations and no new
+submission. Funded Orchard/unmodified-node qualification remains separate.

@@ -19,7 +19,7 @@ counts are not a defensible percentage of engineering or security completion.
 
 | Area | Available now | Missing before wallet completion |
 |---|---|---|
-| Addresses/amounts | Checksums, public-key address/recovery, exact decimals and contract prediction | Remaining utility mappings and higher-level deployment lifecycle; checked fixed-point arithmetic, bounded byte encodings and signed-width conversions are implemented |
+| Addresses/amounts | Checksums, public-key address/recovery, exact decimals and contract prediction | Remaining utility mappings; checked fixed-point arithmetic, bounded byte encodings and signed-width conversions are implemented |
 | Keys/identity | OS key entropy, ECDSA/Schnorr/ordered local aggregation, all BIP39 wordlists/passphrases, BIP32 | Broader browser/platform qualification and independent security review |
 | Quai wallets | Local/watch-only and HD signing, durable account/conversion sessions, master-xprv restore and unsigned nonce-gap repair | Terminal lifecycle and funded Orchard workflows; both-ledger candidate families are durable |
 | Quai transactions | Canonical protobuf, nonce claims, offline signing, exact stored broadcast, confirmation polling | Terminal/reorg policy qualification and full supported extensions; candidate families and bounded ETX tracking are implemented |
@@ -32,7 +32,7 @@ counts are not a defensible percentage of engineering or security completion.
 | Backup/persistence | Authenticated native seed/master/imported-key backups, seed/master payment channels, exact signed conversion/wrapping bytes, monotonic claims/cursors and inclusion invalidation | Complete browser wallet integration and terminal/reorg lifecycle; imported payment-account origins, candidate backups and scoped IndexedDB snapshots are implemented |
 | Wallet RPC | Existing typed reads plus conversion rates/calculation, specialized account estimation, wrapped deposits, bounded multi-address outpoints and strict inclusive delta queries | Remaining RPC mapping and verified historical index profiles |
 | Live wallet state | Native WS tested on LAN/Orchard, bounded subscriptions, canonical head replay with reconnect, receipt polling | Complete pending/replaced/dropped/reorg wallet state machine and cross-zone tracking |
-| Contracts/dapps | Bounded ABI/EIP-712, ERC-20 calls/intents, events, durable account deployment preparation with CREATE grinding/access list, verified injected message/typed signatures | Deployment/code confirmation and reorg tracking, high-level account node compatibility, real injected-extension qualification and broader dapp workflows |
+| Contracts/dapps | Bounded ABI/EIP-712, ERC-20 calls/intents, events, durable account deployment preparation with CREATE grinding/access list, verified injected message/typed signatures | Funded Orchard acceptance, real injected-extension qualification and broader dapp workflows; signed-intent deployment/code observation, bounded waits and durable caches are implemented |
 | Platforms/release | Linux native tests, JS+Go differential oracles, real reads/subscriptions | Real Chromium Fetch/injected/HD-signing worker tests pass; Windows/macOS, unmodified/testnet acceptance, fuzz/fault/reorg/soak, benchmarks, security review and packaging |
 
 History must report the limits of the connected node or required indexer. A

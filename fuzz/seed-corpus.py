@@ -45,6 +45,10 @@ for row in load('compatibility/fixtures/encoding.json')['strings']:put('encoding
 for row in load('compatibility/fixtures/text-crypto.json')['texts']:put('encoding',row['text'].encode())
 for row in load('compatibility/fixtures/text-crypto.json')['decoding']:put('encoding',hexbytes(row['hex']))
 for row in load('compatibility/fixtures/artifacts.json')['vectors']:put('abi',json.dumps(row['output']).encode())
+for row in load('compatibility/fixtures/human-abi.json')['vectors']:
+ put('abi',row['text'].encode())
+ put('abi',json.dumps([row['abi']]).encode())
+for text in load('compatibility/fixtures/human-abi.json')['reject']:put('abi',text.encode())
 for row in load('compatibility/fixtures/typed-values.json')['vectors']:put('abi',row['type'].encode())
 for row in load('compatibility/fixtures/typed-values.json')['defaults']:put('abi','\n'.join(row['types']).encode())
 packed=load('compatibility/fixtures/packed.json')['vectors']

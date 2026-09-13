@@ -1,0 +1,1 @@
+[{"type": "function", "name": "bytesWidth", "constant": false, "payable": false, "inputs": [{"type": "bytes8", "name": "data"}], "outputs": [{"type": "bytes8", "name": "result"}]}]

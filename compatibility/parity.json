@@ -13158,12 +13158,20 @@
         "(minimal?: boolean): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::format_human_readable"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/human.rs",
+        "crates/quai-sdk/tests/human_abi.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit minimal/full choice, original declaration order, canonical type spelling, nested names/indexed flags/returns/mutability; bounded output. No gas annotations or arbitrary Solidity source; errors are typed."
     },
     {
       "id": ".:Interface:instance:formatJson",
@@ -13174,12 +13182,20 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::format_json"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/human.rs",
+        "crates/quai-sdk/tests/human_abi.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Lossless validated JSON metadata export retaining declaration order, names, internalType and optional legacy flags. JSON key order and optional field spelling need not match JS; never emits constructor undefined mutability or drops indexed-array flags. Bounded output."
     },
     {
       "id": ".:Interface:instance:fragments",
@@ -13548,19 +13564,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::AbiInterface::from_json"
+        "quai_abi::AbiInterface::from_json",
+        "quai_abi::AbiInterface::from_human_readable"
       ],
       "feature": "abi",
       "status": "deviation",
       "test_ids": [
-        "crates/quai-abi/tests/workflows.rs",
-        "crates/quai-abi/tests/abi.rs",
-        "crates/quai-sdk/tests/events.rs"
+        "crates/quai-abi/tests/human.rs",
+        "crates/quai-sdk/tests/human_abi.rs",
+        "crates/quai-sdk/tests/contracts.rs"
       ],
       "docs": [
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Strict bounded JSON ABI parsing or ordinary Rust cloning. Human-readable fragment import and formatting remain separate work."
+      "deviation": "Explicit bounded JSON or readable declaration input, or ordinary Rust cloning. Unknown/malformed declarations fail the whole import instead of JS warning-and-skip; duplicate signatures/names and conflicting modifiers rejected. No mixed heterogeneous JS values, source bodies, comments or gas annotations."
     },
     {
       "id": ".:InterfaceAbi",
@@ -36089,12 +36106,20 @@
         "(minimal?: boolean): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::format_human_readable"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/human.rs",
+        "crates/quai-sdk/tests/human_abi.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit minimal/full choice, original declaration order, canonical type spelling, nested names/indexed flags/returns/mutability; bounded output. No gas annotations or arbitrary Solidity source; errors are typed."
     },
     {
       "id": "./abi:Interface:instance:formatJson",
@@ -36105,12 +36130,20 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::format_json"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/human.rs",
+        "crates/quai-sdk/tests/human_abi.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Lossless validated JSON metadata export retaining declaration order, names, internalType and optional legacy flags. JSON key order and optional field spelling need not match JS; never emits constructor undefined mutability or drops indexed-array flags. Bounded output."
     },
     {
       "id": "./abi:Interface:instance:fragments",
@@ -36479,19 +36512,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::AbiInterface::from_json"
+        "quai_abi::AbiInterface::from_json",
+        "quai_abi::AbiInterface::from_human_readable"
       ],
       "feature": "abi",
       "status": "deviation",
       "test_ids": [
-        "crates/quai-abi/tests/workflows.rs",
-        "crates/quai-abi/tests/abi.rs",
-        "crates/quai-sdk/tests/events.rs"
+        "crates/quai-abi/tests/human.rs",
+        "crates/quai-sdk/tests/human_abi.rs",
+        "crates/quai-sdk/tests/contracts.rs"
       ],
       "docs": [
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Strict bounded JSON ABI parsing or ordinary Rust cloning. Human-readable fragment import and formatting remain separate work."
+      "deviation": "Explicit bounded JSON or readable declaration input, or ordinary Rust cloning. Unknown/malformed declarations fail the whole import instead of JS warning-and-skip; duplicate signatures/names and conflicting modifiers rejected. No mixed heterogeneous JS values, source bodies, comments or gas annotations."
     },
     {
       "id": "./abi:InterfaceAbi",

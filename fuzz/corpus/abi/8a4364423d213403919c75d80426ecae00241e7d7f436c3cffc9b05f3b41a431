@@ -1,0 +1,1 @@
+event A(uint indexed a,uint indexed b,uint indexed c,uint indexed d)

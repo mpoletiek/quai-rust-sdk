@@ -1,0 +1,1 @@
+[{"type": "function", "name": "widths", "constant": true, "stateMutability": "view", "payable": false, "inputs": [{"type": "uint64[2][]", "name": "values"}], "outputs": [{"type": "uint64", "name": "result"}]}]

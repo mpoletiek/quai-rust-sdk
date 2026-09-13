@@ -478,3 +478,12 @@ connections, cancelled search, dropped write futures, restart, tombstones and
 authenticated backup floors. The public 1,024-ID journal retains abandoned IDs;
 full browser wallet state, nonce/UTXO claims and transaction orchestration remain
 open. [Retained evidence](test-infra/reports/browser-payment-allocation-2026-09-13.json).
+
+
+ABI interfaces now import bounded readable declarations and format full/minimal
+fragments in declaration order. JSON export preserves validated parameter/tuple
+names, internal types and legacy flags; invalid fragments fail the whole import.
+180 pinned formatting/selector cases and 31 rejection cases cover this addition,
+with shared actual-worker tests and exact contract-facade calldata/block checks.
+Gas annotations, Solidity source parsing and implicit JavaScript coercions remain
+explicit exclusions. [Retained evidence](test-infra/reports/readable-abi-2026-09-13.json).

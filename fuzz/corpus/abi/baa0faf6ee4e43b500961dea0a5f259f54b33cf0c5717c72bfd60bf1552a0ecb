@@ -1,0 +1,1 @@
+function bytesWidth(bytes1 data) returns (bytes1 result)

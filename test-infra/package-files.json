@@ -284,6 +284,18 @@
     {
       "source": "test-infra/fixtures/payment-allocation.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/payment-allocation.json"
+    },
+    {
+      "source": "compatibility/fixtures/human-abi.json",
+      "destination": "crates/quai-abi/tests/fixtures/human-abi.json"
+    },
+    {
+      "source": "crates/quai-abi/tests/human.rs",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-abi/tests/human.rs"
+    },
+    {
+      "source": "compatibility/fixtures/human-abi.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-abi/tests/fixtures/human-abi.json"
     }
   ]
 }

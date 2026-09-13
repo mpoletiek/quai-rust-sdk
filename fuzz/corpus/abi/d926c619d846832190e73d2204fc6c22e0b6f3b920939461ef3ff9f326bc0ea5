@@ -1,0 +1,1 @@
+[{"type": "function", "name": "locations", "constant": false, "stateMutability": "payable", "payable": true, "inputs": [{"type": "bytes", "name": "input"}, {"type": "address", "name": "receiver"}], "outputs": [{"type": "bytes", "name": "output"}]}]

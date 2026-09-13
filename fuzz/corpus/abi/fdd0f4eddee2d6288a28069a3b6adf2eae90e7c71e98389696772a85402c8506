@@ -1,0 +1,1 @@
+[{"type": "function", "name": "names", "constant": false, "payable": false, "inputs": [{"type": "uint256", "name": "_value"}, {"type": "address", "name": "$owner"}], "outputs": []}]

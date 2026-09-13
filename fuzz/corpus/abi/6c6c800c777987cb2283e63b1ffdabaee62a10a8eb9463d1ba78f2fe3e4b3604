@@ -1,0 +1,1 @@
+function widths(uint232[2][] values) view returns (uint232 result)

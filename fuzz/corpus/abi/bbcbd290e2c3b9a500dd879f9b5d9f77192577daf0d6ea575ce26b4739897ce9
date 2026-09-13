@@ -1,0 +1,1 @@
+[{"type": "function", "name": "unnamed", "constant": false, "payable": false, "inputs": [{"type": "tuple[]", "name": "", "components": [{"type": "uint256", "name": ""}, {"type": "address", "name": ""}]}, {"type": "bytes32[0]", "name": ""}], "outputs": [{"type": "int256", "name": ""}]}]

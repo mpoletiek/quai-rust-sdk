@@ -1,0 +1,1 @@
+[{"type": "event", "anonymous": false, "name": "Width", "inputs": [{"type": "int240", "name": "value", "indexed": true}]}]

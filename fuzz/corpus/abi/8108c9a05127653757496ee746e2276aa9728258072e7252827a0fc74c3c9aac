@@ -1,0 +1,1 @@
+[{"type": "error", "name": "Denied", "inputs": [{"type": "address", "name": "who"}, {"type": "tuple", "name": "detail", "components": [{"type": "uint256", "name": "code"}, {"type": "string", "name": "reason"}]}]}]

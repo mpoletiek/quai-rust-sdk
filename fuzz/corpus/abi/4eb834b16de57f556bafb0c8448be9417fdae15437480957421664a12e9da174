@@ -1,0 +1,1 @@
+event Width(uint96 indexed value)

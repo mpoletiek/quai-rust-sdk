@@ -1,0 +1,1 @@
+function locations(bytes calldata input, address payable receiver) external payable returns (bytes memory output)

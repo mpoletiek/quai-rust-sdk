@@ -1,0 +1,1 @@
+function legacy(uint value) constant returns (uint answer)

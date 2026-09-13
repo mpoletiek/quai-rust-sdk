@@ -148,8 +148,8 @@ the expected address through quai-crypto.
 
 Fixture signing uses public toy key 1. It must never be funded. Tests establish
 agreement with these references, not node transaction acceptance or production
-wallet safety. Name-resolution visitors, packed ABI helpers and human-readable interface
-fragments remain separate work.
+wallet safety. Name-resolution visitors remain separate work. Packed ABI and
+readable interface declarations are described below.
 
 ## Solidity ABI codec and contract interfaces
 
@@ -384,5 +384,57 @@ provides a presence check; each declaration exposes its name. Ordered `functions
 `errors` and `events` iterators replace callbacks; constructor, fallback mutability
 and receive are explicit getters. `AbiCoder` is a stateless standalone codec,
 including the parameter encode/decode operations; no replaceable instance coder
-is stored. JSON parsing or ordinary Rust cloning replaces `Interface.from`;
-human-readable interface import/formatting remains separate work.
+is stored. Explicit JSON/readable parsing or ordinary Rust cloning replaces
+`Interface.from`.
+
+
+## Readable declarations and formatting
+
+`AbiInterface::from_human_readable(&[&str])` accepts explicit function, event,
+error, constructor, fallback and receive fragments, plus bare function signatures.
+Named nested tuples and arrays, indexed event parameters, function returns,
+mutability and ordinary source storage/visibility modifiers are supported.
+Every declaration is validated; malformed fragments are never silently skipped.
+Duplicate overload signatures, duplicate field names and conflicting modifiers
+fail. This parses ABI declarations, not Solidity source: comments, function
+bodies, struct definitions and gas annotations are unsupported.
+
+```rust
+use quai_abi::AbiInterface;
+let interface = AbiInterface::from_human_readable(&[
+    "function balanceOf(address owner) view returns (uint balance)",
+    "event Transfer(address indexed from, address indexed to, uint amount)",
+])?;
+assert_eq!(interface.function("balanceOf")?.selector(), [0x70, 0xa0, 0x82, 0x31]);
+let full = interface.format_human_readable(false)?;
+let minimal = interface.format_human_readable(true)?;
+let json = interface.format_json()?;
+let restored = AbiInterface::from_json(json.as_bytes())?;
+assert_eq!(restored.format_human_readable(false)?, full);
+# Ok::<(), quai_abi::AbiError>(())
+```
+
+Readable formatting preserves declaration order, canonical types, indexed flags,
+mutability and returns. Full mode retains parameter names including tuple fields
+and return names; minimal mode omits names and comma spacing. JSON export retains
+validated source metadata including `internalType`, names, optional legacy flags
+and original type spelling. It does not reproduce JavaScript object-key order,
+constructor `"undefined"` mutability or the pinned formatter's lost indexed flags
+on event arrays. The independent fixtures record those two upstream JSON
+normalizations explicitly. Source-only memory/calldata/storage, payable address
+annotations and public/external visibility do not affect ABI encoding. Fallback
+byte parameter names are omitted, matching the pinned fragment representation.
+
+Import is bounded to 1,024 fragments, 4,096 ASCII bytes per fragment and 65,536
+combined bytes, with at most 1,024 parameter/array syntax nodes per fragment and
+64 nesting levels. The existing JSON/type/expanded-value limits also apply.
+Formatted output is capped at one MiB. A large named JSON declaration may format
+to more than the readable import budget; JSON remains its lossless metadata
+round-trip format. `format_json` does not establish contract provenance, deployed
+code or execution behavior. Contract calls use the same compiled ABI after
+readable import or JSON restore.
+
+Tests cover 180 pinned full/minimal/selector cases, 31 explicit rejection cases,
+additional depth/width/count limits, source metadata and overload order. The same
+suite runs through the SDK in actual Chromium workers; a contract facade test
+checks exact calldata, maximum U256 return decoding and explicit block selection.

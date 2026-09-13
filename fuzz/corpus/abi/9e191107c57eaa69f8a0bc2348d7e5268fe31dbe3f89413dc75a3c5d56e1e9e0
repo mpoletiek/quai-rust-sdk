@@ -1,0 +1,1 @@
+[{"type": "function", "name": "transfer", "constant": false, "stateMutability": "payable", "payable": true, "inputs": [{"type": "address", "name": "to"}, {"type": "uint256", "name": "amount"}, {"type": "bytes", "name": "memo"}], "outputs": [{"type": "bool", "name": "success"}]}]

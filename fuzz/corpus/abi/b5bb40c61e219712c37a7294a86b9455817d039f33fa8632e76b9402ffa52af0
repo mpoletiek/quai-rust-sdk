@@ -1,0 +1,1 @@
+error Denied(address who, tuple(uint code, string reason) detail)

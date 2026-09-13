@@ -1,0 +1,4573 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "note": "Formatting/selector vectors from pinned Fragment/Interface; malformed or unsupported source declarations explicitly reject in Rust. Constructor JSON undefined string normalized to nonpayable; event array indexed flags restored from parsed Fragment metadata because pinned JSON formatting drops them. Gas annotations and source bodies are outside this ABI parser.",
+  "vectors": [
+    {
+      "text": "function transfer(address to, uint amount) returns (bool success)",
+      "full": "function transfer(address to, uint256 amount) returns (bool success)",
+      "minimal": "function transfer(address,uint256) returns (bool)",
+      "abi": {
+        "type": "function",
+        "name": "transfer",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "address",
+            "name": "to"
+          },
+          {
+            "type": "uint256",
+            "name": "amount"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bool",
+            "name": "success"
+          }
+        ]
+      },
+      "signature": "transfer(address,uint256)",
+      "selector": "0xa9059cbb",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function transfer(address to, uint amount, bytes memo) payable returns (bool success)",
+      "full": "function transfer(address to, uint256 amount, bytes memo) payable returns (bool success)",
+      "minimal": "function transfer(address,uint256,bytes) payable returns (bool)",
+      "abi": {
+        "type": "function",
+        "name": "transfer",
+        "constant": false,
+        "stateMutability": "payable",
+        "payable": true,
+        "inputs": [
+          {
+            "type": "address",
+            "name": "to"
+          },
+          {
+            "type": "uint256",
+            "name": "amount"
+          },
+          {
+            "type": "bytes",
+            "name": "memo"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bool",
+            "name": "success"
+          }
+        ]
+      },
+      "signature": "transfer(address,uint256,bytes)",
+      "selector": "0xbe45fd62",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function nested(tuple(uint n, tuple(address who, string label)[] rows)[2][] input) view returns (tuple(bytes32 id, uint count) result)",
+      "full": "function nested((uint256 n, (address who, string label)[] rows)[2][] input) view returns ((bytes32 id, uint256 count) result)",
+      "minimal": "function nested((uint256,(address,string)[])[2][]) view returns ((bytes32,uint256))",
+      "abi": {
+        "type": "function",
+        "name": "nested",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "tuple[2][]",
+            "name": "input",
+            "components": [
+              {
+                "type": "uint256",
+                "name": "n"
+              },
+              {
+                "type": "tuple[]",
+                "name": "rows",
+                "components": [
+                  {
+                    "type": "address",
+                    "name": "who"
+                  },
+                  {
+                    "type": "string",
+                    "name": "label"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "type": "tuple",
+            "name": "result",
+            "components": [
+              {
+                "type": "bytes32",
+                "name": "id"
+              },
+              {
+                "type": "uint256",
+                "name": "count"
+              }
+            ]
+          }
+        ]
+      },
+      "signature": "nested((uint256,(address,string)[])[2][])",
+      "selector": "0x203c8432",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function blank() pure",
+      "full": "function blank() pure",
+      "minimal": "function blank() pure",
+      "abi": {
+        "type": "function",
+        "name": "blank",
+        "constant": true,
+        "stateMutability": "pure",
+        "payable": false,
+        "inputs": [],
+        "outputs": []
+      },
+      "signature": "blank()",
+      "selector": "0xe66632fb",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function locations(bytes calldata input, address payable receiver) external payable returns (bytes memory output)",
+      "full": "function locations(bytes input, address receiver) payable returns (bytes output)",
+      "minimal": "function locations(bytes,address) payable returns (bytes)",
+      "abi": {
+        "type": "function",
+        "name": "locations",
+        "constant": false,
+        "stateMutability": "payable",
+        "payable": true,
+        "inputs": [
+          {
+            "type": "bytes",
+            "name": "input"
+          },
+          {
+            "type": "address",
+            "name": "receiver"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes",
+            "name": "output"
+          }
+        ]
+      },
+      "signature": "locations(bytes,address)",
+      "selector": "0x1a854bbb",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function legacy(uint value) constant returns (uint answer)",
+      "full": "function legacy(uint256 value) view returns (uint256 answer)",
+      "minimal": "function legacy(uint256) view returns (uint256)",
+      "abi": {
+        "type": "function",
+        "name": "legacy",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "value"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint256",
+            "name": "answer"
+          }
+        ]
+      },
+      "signature": "legacy(uint256)",
+      "selector": "0x788243d5",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Transfer(address indexed from, address indexed to, uint value)",
+      "full": "event Transfer(address indexed from, address indexed to, uint256 value)",
+      "minimal": "event Transfer(address indexed,address indexed,uint256)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Transfer",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "from",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "to",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "value"
+          }
+        ]
+      },
+      "signature": "Transfer(address,address,uint256)",
+      "selector": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Nested(tuple(uint n, address who)[] indexed rows, bytes32 indexed tag, string value)",
+      "full": "event Nested((uint256 n, address who)[] indexed rows, bytes32 indexed tag, string value)",
+      "minimal": "event Nested((uint256,address)[] indexed,bytes32 indexed,string)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Nested",
+        "inputs": [
+          {
+            "type": "tuple[]",
+            "name": "rows",
+            "components": [
+              {
+                "type": "uint256",
+                "name": "n"
+              },
+              {
+                "type": "address",
+                "name": "who"
+              }
+            ],
+            "indexed": true
+          },
+          {
+            "type": "bytes32",
+            "name": "tag",
+            "indexed": true
+          },
+          {
+            "type": "string",
+            "name": "value"
+          }
+        ]
+      },
+      "signature": "Nested((uint256,address)[],bytes32,string)",
+      "selector": "0x8608a8e7f1b174317c2ea7db7651ef32bf46c17d0c8028a337994746f42a3bbd",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": [
+        0
+      ]
+    },
+    {
+      "text": "error Denied(address who, tuple(uint code, string reason) detail)",
+      "full": "error Denied(address who, (uint256 code, string reason) detail)",
+      "minimal": "error Denied(address,(uint256,string))",
+      "abi": {
+        "type": "error",
+        "name": "Denied",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "who"
+          },
+          {
+            "type": "tuple",
+            "name": "detail",
+            "components": [
+              {
+                "type": "uint256",
+                "name": "code"
+              },
+              {
+                "type": "string",
+                "name": "reason"
+              }
+            ]
+          }
+        ]
+      },
+      "signature": "Denied(address,(uint256,string))",
+      "selector": "0x559a08e4",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "constructor(address owner, tuple(uint limit, bytes data) options) payable",
+      "full": "constructor(address owner, (uint256 limit, bytes data) options) payable",
+      "minimal": "constructor(address,(uint256,bytes)) payable",
+      "abi": {
+        "type": "constructor",
+        "stateMutability": "payable",
+        "payable": true,
+        "inputs": [
+          {
+            "type": "address",
+            "name": "owner"
+          },
+          {
+            "type": "tuple",
+            "name": "options",
+            "components": [
+              {
+                "type": "uint256",
+                "name": "limit"
+              },
+              {
+                "type": "bytes",
+                "name": "data"
+              }
+            ]
+          }
+        ]
+      },
+      "signature": null,
+      "selector": null,
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "constructor()",
+      "full": "constructor()",
+      "minimal": "constructor()",
+      "abi": {
+        "type": "constructor",
+        "stateMutability": "nonpayable",
+        "payable": false,
+        "inputs": []
+      },
+      "signature": null,
+      "selector": null,
+      "normalizedConstructor": true,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "fallback()",
+      "full": "fallback()",
+      "minimal": "fallback()",
+      "abi": {
+        "type": "fallback",
+        "stateMutability": "nonpayable"
+      },
+      "signature": null,
+      "selector": null,
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "fallback() payable",
+      "full": "fallback() payable",
+      "minimal": "fallback() payable",
+      "abi": {
+        "type": "fallback",
+        "stateMutability": "payable"
+      },
+      "signature": null,
+      "selector": null,
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "fallback(bytes data) payable returns (bytes result)",
+      "full": "fallback() payable",
+      "minimal": "fallback() payable",
+      "abi": {
+        "type": "fallback",
+        "stateMutability": "payable"
+      },
+      "signature": null,
+      "selector": null,
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "receive() payable",
+      "full": "receive() payable",
+      "minimal": "receive() payable",
+      "abi": {
+        "type": "receive",
+        "stateMutability": "payable"
+      },
+      "signature": null,
+      "selector": null,
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function unnamed((uint,address)[], bytes32[0]) returns (int)",
+      "full": "function unnamed((uint256, address)[], bytes32[0]) returns (int256)",
+      "minimal": "function unnamed((uint256,address)[],bytes32[0]) returns (int256)",
+      "abi": {
+        "type": "function",
+        "name": "unnamed",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "tuple[]",
+            "name": "",
+            "components": [
+              {
+                "type": "uint256",
+                "name": ""
+              },
+              {
+                "type": "address",
+                "name": ""
+              }
+            ]
+          },
+          {
+            "type": "bytes32[0]",
+            "name": ""
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int256",
+            "name": ""
+          }
+        ]
+      },
+      "signature": "unnamed((uint256,address)[],bytes32[0])",
+      "selector": "0x8a55a920",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Empty()",
+      "full": "event Empty()",
+      "minimal": "event Empty()",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Empty",
+        "inputs": []
+      },
+      "signature": "Empty()",
+      "selector": "0x3db2a12a1fcfb6e2e0de8666c64b3244166edb7b25b200204a8d0cca9b65cf37",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "error Empty()",
+      "full": "error Empty()",
+      "minimal": "error Empty()",
+      "abi": {
+        "type": "error",
+        "name": "Empty",
+        "inputs": []
+      },
+      "signature": "Empty()",
+      "selector": "0x3db2a12a",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function emptyTuple(()) returns (())",
+      "full": "function emptyTuple(()) returns (())",
+      "minimal": "function emptyTuple(()) returns (())",
+      "abi": {
+        "type": "function",
+        "name": "emptyTuple",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "tuple",
+            "name": "",
+            "components": []
+          }
+        ],
+        "outputs": [
+          {
+            "type": "tuple",
+            "name": "",
+            "components": []
+          }
+        ]
+      },
+      "signature": "emptyTuple(())",
+      "selector": "0xf6d1ab0c",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function names(uint _value, address $owner) public",
+      "full": "function names(uint256 _value, address $owner)",
+      "minimal": "function names(uint256,address)",
+      "abi": {
+        "type": "function",
+        "name": "names",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "_value"
+          },
+          {
+            "type": "address",
+            "name": "$owner"
+          }
+        ],
+        "outputs": []
+      },
+      "signature": "names(uint256,address)",
+      "selector": "0x62d27405",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int8[2][] values) view returns (int8 result)",
+      "full": "function widths(int8[2][] values) view returns (int8 result)",
+      "minimal": "function widths(int8[2][]) view returns (int8)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int8[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int8",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int8[2][])",
+      "selector": "0xc9f9fac9",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int8 indexed value)",
+      "full": "event Width(int8 indexed value)",
+      "minimal": "event Width(int8 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int8",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int8)",
+      "selector": "0x131d326bdfd95ae585ceab8b96c0fec10c60619854f0078691aa41d5956214c1",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint8[2][] values) view returns (uint8 result)",
+      "full": "function widths(uint8[2][] values) view returns (uint8 result)",
+      "minimal": "function widths(uint8[2][]) view returns (uint8)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint8[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint8",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint8[2][])",
+      "selector": "0x019bb237",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint8 indexed value)",
+      "full": "event Width(uint8 indexed value)",
+      "minimal": "event Width(uint8 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint8",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint8)",
+      "selector": "0x8f66f8092a2bc01b5bc35d6241216b1c34d08fb2d34ae9b47213923e49993fa5",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int16[2][] values) view returns (int16 result)",
+      "full": "function widths(int16[2][] values) view returns (int16 result)",
+      "minimal": "function widths(int16[2][]) view returns (int16)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int16[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int16",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int16[2][])",
+      "selector": "0x21822c09",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int16 indexed value)",
+      "full": "event Width(int16 indexed value)",
+      "minimal": "event Width(int16 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int16",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int16)",
+      "selector": "0x7d37b1d2c05bee9479ab0e12819edeee932c0c18a1e48a6bc866877779396e56",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint16[2][] values) view returns (uint16 result)",
+      "full": "function widths(uint16[2][] values) view returns (uint16 result)",
+      "minimal": "function widths(uint16[2][]) view returns (uint16)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint16[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint16",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint16[2][])",
+      "selector": "0x89a0ac77",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint16 indexed value)",
+      "full": "event Width(uint16 indexed value)",
+      "minimal": "event Width(uint16 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint16",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint16)",
+      "selector": "0x1c3855f6f654704cea2daa8c99ceaed8dd523a6fad08536091f988535423a2ea",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int24[2][] values) view returns (int24 result)",
+      "full": "function widths(int24[2][] values) view returns (int24 result)",
+      "minimal": "function widths(int24[2][]) view returns (int24)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int24[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int24",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int24[2][])",
+      "selector": "0x1b2f4613",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int24 indexed value)",
+      "full": "event Width(int24 indexed value)",
+      "minimal": "event Width(int24 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int24",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int24)",
+      "selector": "0x0f2df0a99d0e8cb95a73899ece6291b4ee86428543bf0020495ac1abee84adc8",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint24[2][] values) view returns (uint24 result)",
+      "full": "function widths(uint24[2][] values) view returns (uint24 result)",
+      "minimal": "function widths(uint24[2][]) view returns (uint24)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint24[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint24",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint24[2][])",
+      "selector": "0x059d0434",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint24 indexed value)",
+      "full": "event Width(uint24 indexed value)",
+      "minimal": "event Width(uint24 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint24",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint24)",
+      "selector": "0x96c53843a2644d8a02152cf4d68588cc33dfc46d321c3851218eab31b3f68876",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int32[2][] values) view returns (int32 result)",
+      "full": "function widths(int32[2][] values) view returns (int32 result)",
+      "minimal": "function widths(int32[2][]) view returns (int32)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int32[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int32",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int32[2][])",
+      "selector": "0x638a87cf",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int32 indexed value)",
+      "full": "event Width(int32 indexed value)",
+      "minimal": "event Width(int32 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int32",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int32)",
+      "selector": "0x2898b9a5b5de2106779c07e3f08ffc41282ced32cd05281817a2e07f8b8b90db",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint32[2][] values) view returns (uint32 result)",
+      "full": "function widths(uint32[2][] values) view returns (uint32 result)",
+      "minimal": "function widths(uint32[2][]) view returns (uint32)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint32[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint32",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint32[2][])",
+      "selector": "0x0a942321",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint32 indexed value)",
+      "full": "event Width(uint32 indexed value)",
+      "minimal": "event Width(uint32 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint32",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint32)",
+      "selector": "0xe1b2abc027e1beaa76544f4fd051a6e924bc7fb5f3785c0250adc571ea8cdafa",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int40[2][] values) view returns (int40 result)",
+      "full": "function widths(int40[2][] values) view returns (int40 result)",
+      "minimal": "function widths(int40[2][]) view returns (int40)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int40[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int40",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int40[2][])",
+      "selector": "0xdb6c8450",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int40 indexed value)",
+      "full": "event Width(int40 indexed value)",
+      "minimal": "event Width(int40 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int40",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int40)",
+      "selector": "0x17dd0819f98fd081e5655ecd8df66b6f49489b44a3326e74ae35a30aa1fd4b25",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint40[2][] values) view returns (uint40 result)",
+      "full": "function widths(uint40[2][] values) view returns (uint40 result)",
+      "minimal": "function widths(uint40[2][]) view returns (uint40)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint40[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint40",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint40[2][])",
+      "selector": "0xe1512066",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint40 indexed value)",
+      "full": "event Width(uint40 indexed value)",
+      "minimal": "event Width(uint40 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint40",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint40)",
+      "selector": "0x464db58abb6b7f658b5f138d6a5c524f8d926c8bb16c4113affe0715d7f3bee3",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int48[2][] values) view returns (int48 result)",
+      "full": "function widths(int48[2][] values) view returns (int48 result)",
+      "minimal": "function widths(int48[2][]) view returns (int48)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int48[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int48",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int48[2][])",
+      "selector": "0xac73a6cf",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int48 indexed value)",
+      "full": "event Width(int48 indexed value)",
+      "minimal": "event Width(int48 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int48",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int48)",
+      "selector": "0x9eeb2d2c348872380035728caf63644ddb79af0ee83b764b23c2b60646755cbe",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint48[2][] values) view returns (uint48 result)",
+      "full": "function widths(uint48[2][] values) view returns (uint48 result)",
+      "minimal": "function widths(uint48[2][]) view returns (uint48)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint48[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint48",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint48[2][])",
+      "selector": "0xa0c05801",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint48 indexed value)",
+      "full": "event Width(uint48 indexed value)",
+      "minimal": "event Width(uint48 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint48",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint48)",
+      "selector": "0x221ed06182f808a0ccb359c9073c0db6fd3e542782f6bbef469a5591ac12df7f",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int56[2][] values) view returns (int56 result)",
+      "full": "function widths(int56[2][] values) view returns (int56 result)",
+      "minimal": "function widths(int56[2][]) view returns (int56)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int56[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int56",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int56[2][])",
+      "selector": "0xd0ce0707",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int56 indexed value)",
+      "full": "event Width(int56 indexed value)",
+      "minimal": "event Width(int56 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int56",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int56)",
+      "selector": "0xb05eee488611305fe3d4ef504263669410ff3c101f6f23cb55be14e110611fbd",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint56[2][] values) view returns (uint56 result)",
+      "full": "function widths(uint56[2][] values) view returns (uint56 result)",
+      "minimal": "function widths(uint56[2][]) view returns (uint56)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint56[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint56",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint56[2][])",
+      "selector": "0x7cd0b413",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint56 indexed value)",
+      "full": "event Width(uint56 indexed value)",
+      "minimal": "event Width(uint56 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint56",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint56)",
+      "selector": "0xb84ab5ef9729198c2d5b3352dcce2ef144398cd1a2f7256701bd681024dc243e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int64[2][] values) view returns (int64 result)",
+      "full": "function widths(int64[2][] values) view returns (int64 result)",
+      "minimal": "function widths(int64[2][]) view returns (int64)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int64[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int64",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int64[2][])",
+      "selector": "0x5363512c",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int64 indexed value)",
+      "full": "event Width(int64 indexed value)",
+      "minimal": "event Width(int64 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int64",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int64)",
+      "selector": "0x3d8d4109eb7e5f48679c86717daf4e67285978ff4f14443c3e39e40fba3aff38",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint64[2][] values) view returns (uint64 result)",
+      "full": "function widths(uint64[2][] values) view returns (uint64 result)",
+      "minimal": "function widths(uint64[2][]) view returns (uint64)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint64[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint64",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint64[2][])",
+      "selector": "0x8e05984e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint64 indexed value)",
+      "full": "event Width(uint64 indexed value)",
+      "minimal": "event Width(uint64 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint64",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint64)",
+      "selector": "0x6a0684371f4fcaaff147f0cb91ebb8eb908c0ae9abc8a645ff9e24240e98dd90",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int72[2][] values) view returns (int72 result)",
+      "full": "function widths(int72[2][] values) view returns (int72 result)",
+      "minimal": "function widths(int72[2][]) view returns (int72)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int72[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int72",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int72[2][])",
+      "selector": "0x0c1e7e72",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int72 indexed value)",
+      "full": "event Width(int72 indexed value)",
+      "minimal": "event Width(int72 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int72",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int72)",
+      "selector": "0x8424c91d485781d2e8afbf386637af9a2c046bab798675a7ba1bd2cef482eb0d",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint72[2][] values) view returns (uint72 result)",
+      "full": "function widths(uint72[2][] values) view returns (uint72 result)",
+      "minimal": "function widths(uint72[2][]) view returns (uint72)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint72[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint72",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint72[2][])",
+      "selector": "0xaf065f57",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint72 indexed value)",
+      "full": "event Width(uint72 indexed value)",
+      "minimal": "event Width(uint72 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint72",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint72)",
+      "selector": "0xe50d65535fa3baa5da0adcd19a4119123269923b01635032e2bd7e77017930ef",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int80[2][] values) view returns (int80 result)",
+      "full": "function widths(int80[2][] values) view returns (int80 result)",
+      "minimal": "function widths(int80[2][]) view returns (int80)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int80[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int80",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int80[2][])",
+      "selector": "0x6a02cb64",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int80 indexed value)",
+      "full": "event Width(int80 indexed value)",
+      "minimal": "event Width(int80 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int80",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int80)",
+      "selector": "0x5adcf8367f06d3dc838e91377c589668cb343a42234efef5cfe9337aaadfa493",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint80[2][] values) view returns (uint80 result)",
+      "full": "function widths(uint80[2][] values) view returns (uint80 result)",
+      "minimal": "function widths(uint80[2][]) view returns (uint80)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint80[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint80",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint80[2][])",
+      "selector": "0x938c0717",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint80 indexed value)",
+      "full": "event Width(uint80 indexed value)",
+      "minimal": "event Width(uint80 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint80",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint80)",
+      "selector": "0xa9072f9e0fab60e71cd4794415e04f53f163496eefa07d2945e5940eb29af51e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int88[2][] values) view returns (int88 result)",
+      "full": "function widths(int88[2][] values) view returns (int88 result)",
+      "minimal": "function widths(int88[2][]) view returns (int88)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int88[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int88",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int88[2][])",
+      "selector": "0xe46d456f",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int88 indexed value)",
+      "full": "event Width(int88 indexed value)",
+      "minimal": "event Width(int88 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int88",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int88)",
+      "selector": "0x076438c770c86c506345a3ecd3fc14e39c85dba0f984f1f0bc3e05b4d2143217",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint88[2][] values) view returns (uint88 result)",
+      "full": "function widths(uint88[2][] values) view returns (uint88 result)",
+      "minimal": "function widths(uint88[2][]) view returns (uint88)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint88[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint88",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint88[2][])",
+      "selector": "0xeb062624",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint88 indexed value)",
+      "full": "event Width(uint88 indexed value)",
+      "minimal": "event Width(uint88 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint88",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint88)",
+      "selector": "0xeb3376c69fc81ad09cadf5ff4331b4f27585f28d0d82adc3d8b17b5d0d4ec13e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int96[2][] values) view returns (int96 result)",
+      "full": "function widths(int96[2][] values) view returns (int96 result)",
+      "minimal": "function widths(int96[2][]) view returns (int96)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int96[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int96",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int96[2][])",
+      "selector": "0xc445105e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int96 indexed value)",
+      "full": "event Width(int96 indexed value)",
+      "minimal": "event Width(int96 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int96",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int96)",
+      "selector": "0xa805c1e6dd948787a0046c0b27b0387124c68c0d4ae3662f2a0cb429c3a370a4",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint96[2][] values) view returns (uint96 result)",
+      "full": "function widths(uint96[2][] values) view returns (uint96 result)",
+      "minimal": "function widths(uint96[2][]) view returns (uint96)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint96[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint96",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint96[2][])",
+      "selector": "0x5745bd5a",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint96 indexed value)",
+      "full": "event Width(uint96 indexed value)",
+      "minimal": "event Width(uint96 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint96",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint96)",
+      "selector": "0x5e9f2f46fa6c519b611f35957aa647ef6829b7b2c8d3cc80c02f4696e4fe6485",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int104[2][] values) view returns (int104 result)",
+      "full": "function widths(int104[2][] values) view returns (int104 result)",
+      "minimal": "function widths(int104[2][]) view returns (int104)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int104[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int104",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int104[2][])",
+      "selector": "0x837c0105",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int104 indexed value)",
+      "full": "event Width(int104 indexed value)",
+      "minimal": "event Width(int104 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int104",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int104)",
+      "selector": "0xcc3bf4a0792fb34292b086970cd876494e2e8d8816f6bbe887977202b40782a8",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint104[2][] values) view returns (uint104 result)",
+      "full": "function widths(uint104[2][] values) view returns (uint104 result)",
+      "minimal": "function widths(uint104[2][]) view returns (uint104)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint104[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint104",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint104[2][])",
+      "selector": "0x0fe93a82",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint104 indexed value)",
+      "full": "event Width(uint104 indexed value)",
+      "minimal": "event Width(uint104 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint104",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint104)",
+      "selector": "0x7fbfa1754a1d05fafbac3dacd6b6ac4843d38e45d68e5e57b2ada815e10d5b62",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int112[2][] values) view returns (int112 result)",
+      "full": "function widths(int112[2][] values) view returns (int112 result)",
+      "minimal": "function widths(int112[2][]) view returns (int112)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int112[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int112",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int112[2][])",
+      "selector": "0x0eb2cbb7",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int112 indexed value)",
+      "full": "event Width(int112 indexed value)",
+      "minimal": "event Width(int112 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int112",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int112)",
+      "selector": "0x772b7cef85151c65442aac31146bb8f953639a57ec3f39074e274d0eb7e14113",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint112[2][] values) view returns (uint112 result)",
+      "full": "function widths(uint112[2][] values) view returns (uint112 result)",
+      "minimal": "function widths(uint112[2][]) view returns (uint112)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint112[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint112",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint112[2][])",
+      "selector": "0x5025a483",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint112 indexed value)",
+      "full": "event Width(uint112 indexed value)",
+      "minimal": "event Width(uint112 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint112",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint112)",
+      "selector": "0x32cd67e09157f66aa2901d504440d223e89f8d3c705355c0f00e61c3dcf9ac2c",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int120[2][] values) view returns (int120 result)",
+      "full": "function widths(int120[2][] values) view returns (int120 result)",
+      "minimal": "function widths(int120[2][]) view returns (int120)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int120[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int120",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int120[2][])",
+      "selector": "0x9fcc0cef",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int120 indexed value)",
+      "full": "event Width(int120 indexed value)",
+      "minimal": "event Width(int120 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int120",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int120)",
+      "selector": "0x7a1d08bdb6b8a0e8cce061809901c9e31781f478f338e722705f13301c7047da",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint120[2][] values) view returns (uint120 result)",
+      "full": "function widths(uint120[2][] values) view returns (uint120 result)",
+      "minimal": "function widths(uint120[2][]) view returns (uint120)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint120[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint120",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint120[2][])",
+      "selector": "0x2fb95718",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint120 indexed value)",
+      "full": "event Width(uint120 indexed value)",
+      "minimal": "event Width(uint120 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint120",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint120)",
+      "selector": "0xab3720233d8dbb0a660e6a607b0f29c4f36576e793b83dff4928b0ba1a3dc061",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int128[2][] values) view returns (int128 result)",
+      "full": "function widths(int128[2][] values) view returns (int128 result)",
+      "minimal": "function widths(int128[2][]) view returns (int128)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int128[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int128",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int128[2][])",
+      "selector": "0x77ff2148",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int128 indexed value)",
+      "full": "event Width(int128 indexed value)",
+      "minimal": "event Width(int128 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int128",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int128)",
+      "selector": "0xe33e918a73bd8585ea1f105e6d340a06a951dfef141cfe6fd721f8caf552e4cd",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint128[2][] values) view returns (uint128 result)",
+      "full": "function widths(uint128[2][] values) view returns (uint128 result)",
+      "minimal": "function widths(uint128[2][]) view returns (uint128)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint128[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint128",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint128[2][])",
+      "selector": "0x9c7ea4fd",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint128 indexed value)",
+      "full": "event Width(uint128 indexed value)",
+      "minimal": "event Width(uint128 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint128",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint128)",
+      "selector": "0xb0929d4a3c09c6154ad30dfdab30a6aa46f3ba443f4738917af3341a31646a39",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int136[2][] values) view returns (int136 result)",
+      "full": "function widths(int136[2][] values) view returns (int136 result)",
+      "minimal": "function widths(int136[2][]) view returns (int136)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int136[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int136",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int136[2][])",
+      "selector": "0xe09ba7ca",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int136 indexed value)",
+      "full": "event Width(int136 indexed value)",
+      "minimal": "event Width(int136 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int136",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int136)",
+      "selector": "0xcd8173964fdca8b2b7b97b1c7adcfd88cfe76e45c9a30305d41b4e7de301009f",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint136[2][] values) view returns (uint136 result)",
+      "full": "function widths(uint136[2][] values) view returns (uint136 result)",
+      "minimal": "function widths(uint136[2][]) view returns (uint136)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint136[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint136",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint136[2][])",
+      "selector": "0xe119c809",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint136 indexed value)",
+      "full": "event Width(uint136 indexed value)",
+      "minimal": "event Width(uint136 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint136",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint136)",
+      "selector": "0xb40c414120b57b3ec8a091aa0b4e9f02f7989cb15d989c529cd79428a8078fed",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int144[2][] values) view returns (int144 result)",
+      "full": "function widths(int144[2][] values) view returns (int144 result)",
+      "minimal": "function widths(int144[2][]) view returns (int144)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int144[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int144",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int144[2][])",
+      "selector": "0x7a547397",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int144 indexed value)",
+      "full": "event Width(int144 indexed value)",
+      "minimal": "event Width(int144 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int144",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int144)",
+      "selector": "0x2f5deb53f179b858c634c04b464463476e8c59821e97fb38e7645fd54963963d",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint144[2][] values) view returns (uint144 result)",
+      "full": "function widths(uint144[2][] values) view returns (uint144 result)",
+      "minimal": "function widths(uint144[2][]) view returns (uint144)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint144[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint144",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint144[2][])",
+      "selector": "0xb12fba07",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint144 indexed value)",
+      "full": "event Width(uint144 indexed value)",
+      "minimal": "event Width(uint144 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint144",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint144)",
+      "selector": "0x4b72c5efdcd156b42210224c6d9662c844f0107f23b21deb78061e387de7c91b",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int152[2][] values) view returns (int152 result)",
+      "full": "function widths(int152[2][] values) view returns (int152 result)",
+      "minimal": "function widths(int152[2][]) view returns (int152)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int152[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int152",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int152[2][])",
+      "selector": "0x8db87eb7",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int152 indexed value)",
+      "full": "event Width(int152 indexed value)",
+      "minimal": "event Width(int152 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int152",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int152)",
+      "selector": "0x8e6e7afaac08d23171485df43f3ee8ab6c502dab3f03c3e6ecee15ced46e7b54",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint152[2][] values) view returns (uint152 result)",
+      "full": "function widths(uint152[2][] values) view returns (uint152 result)",
+      "minimal": "function widths(uint152[2][]) view returns (uint152)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint152[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint152",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint152[2][])",
+      "selector": "0x9eea8add",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint152 indexed value)",
+      "full": "event Width(uint152 indexed value)",
+      "minimal": "event Width(uint152 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint152",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint152)",
+      "selector": "0x030d0f40803291df334d6e671300f10a323c23d04d68de3a414d655b228e1958",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int160[2][] values) view returns (int160 result)",
+      "full": "function widths(int160[2][] values) view returns (int160 result)",
+      "minimal": "function widths(int160[2][]) view returns (int160)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int160[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int160",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int160[2][])",
+      "selector": "0x1fb53d0e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int160 indexed value)",
+      "full": "event Width(int160 indexed value)",
+      "minimal": "event Width(int160 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int160",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int160)",
+      "selector": "0x1e143e9c6781378099235f5f6aecde8dfef0957da9f36017ebdfe038a077c851",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint160[2][] values) view returns (uint160 result)",
+      "full": "function widths(uint160[2][] values) view returns (uint160 result)",
+      "minimal": "function widths(uint160[2][]) view returns (uint160)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint160[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint160",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint160[2][])",
+      "selector": "0xfe09cab6",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint160 indexed value)",
+      "full": "event Width(uint160 indexed value)",
+      "minimal": "event Width(uint160 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint160",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint160)",
+      "selector": "0x20376b5e7175962e48afd64c2da205e6341878ce3624140e481e2d9fc9ae7f79",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int168[2][] values) view returns (int168 result)",
+      "full": "function widths(int168[2][] values) view returns (int168 result)",
+      "minimal": "function widths(int168[2][]) view returns (int168)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int168[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int168",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int168[2][])",
+      "selector": "0xa1dc8d4b",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int168 indexed value)",
+      "full": "event Width(int168 indexed value)",
+      "minimal": "event Width(int168 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int168",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int168)",
+      "selector": "0xfb29c723bde06ff20fc8a24b612583b0ddb53582a4bcf9e413a5ca3506519b4a",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint168[2][] values) view returns (uint168 result)",
+      "full": "function widths(uint168[2][] values) view returns (uint168 result)",
+      "minimal": "function widths(uint168[2][]) view returns (uint168)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint168[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint168",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint168[2][])",
+      "selector": "0x872bb402",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint168 indexed value)",
+      "full": "event Width(uint168 indexed value)",
+      "minimal": "event Width(uint168 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint168",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint168)",
+      "selector": "0xcda1376d53f9db4dbbdf4488d660cdd1de38a457ebb308167f06167b13a129b1",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int176[2][] values) view returns (int176 result)",
+      "full": "function widths(int176[2][] values) view returns (int176 result)",
+      "minimal": "function widths(int176[2][]) view returns (int176)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int176[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int176",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int176[2][])",
+      "selector": "0x3efc7ca1",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int176 indexed value)",
+      "full": "event Width(int176 indexed value)",
+      "minimal": "event Width(int176 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int176",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int176)",
+      "selector": "0x5216aaaf48f06bcecb28f0323fb51e643241f256a17ff7a91ed1d5fb9ba35c97",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint176[2][] values) view returns (uint176 result)",
+      "full": "function widths(uint176[2][] values) view returns (uint176 result)",
+      "minimal": "function widths(uint176[2][]) view returns (uint176)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint176[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint176",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint176[2][])",
+      "selector": "0xd3c0e85e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint176 indexed value)",
+      "full": "event Width(uint176 indexed value)",
+      "minimal": "event Width(uint176 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint176",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint176)",
+      "selector": "0x271a6031fd38795e822b34aeb59dd3da4ecfb70a46ee98c1c03962fd15ae9ea6",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int184[2][] values) view returns (int184 result)",
+      "full": "function widths(int184[2][] values) view returns (int184 result)",
+      "minimal": "function widths(int184[2][]) view returns (int184)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int184[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int184",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int184[2][])",
+      "selector": "0x95f9d420",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int184 indexed value)",
+      "full": "event Width(int184 indexed value)",
+      "minimal": "event Width(int184 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int184",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int184)",
+      "selector": "0x3f99f7d59c6fc1d9ab892f3d8f9e01d59918dae19bcf131abea84bd604eb8ca1",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint184[2][] values) view returns (uint184 result)",
+      "full": "function widths(uint184[2][] values) view returns (uint184 result)",
+      "minimal": "function widths(uint184[2][]) view returns (uint184)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint184[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint184",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint184[2][])",
+      "selector": "0x85d24cc7",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint184 indexed value)",
+      "full": "event Width(uint184 indexed value)",
+      "minimal": "event Width(uint184 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint184",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint184)",
+      "selector": "0xe9624bbc3d0104b268b94de4358c83633c777cf692edfba9945b343285e52640",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int192[2][] values) view returns (int192 result)",
+      "full": "function widths(int192[2][] values) view returns (int192 result)",
+      "minimal": "function widths(int192[2][]) view returns (int192)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int192[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int192",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int192[2][])",
+      "selector": "0x6c428fbe",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int192 indexed value)",
+      "full": "event Width(int192 indexed value)",
+      "minimal": "event Width(int192 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int192",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int192)",
+      "selector": "0x3ca6106afb8c017ba60978127accf1ea68fdbdcb23a204dee91752343aae842a",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint192[2][] values) view returns (uint192 result)",
+      "full": "function widths(uint192[2][] values) view returns (uint192 result)",
+      "minimal": "function widths(uint192[2][]) view returns (uint192)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint192[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint192",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint192[2][])",
+      "selector": "0x0844cb73",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint192 indexed value)",
+      "full": "event Width(uint192 indexed value)",
+      "minimal": "event Width(uint192 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint192",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint192)",
+      "selector": "0xbd7bd8dd947b4cfac7a7d1d1a35e5132e1d6495f4b1e0e93551533b861503791",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int200[2][] values) view returns (int200 result)",
+      "full": "function widths(int200[2][] values) view returns (int200 result)",
+      "minimal": "function widths(int200[2][]) view returns (int200)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int200[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int200",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int200[2][])",
+      "selector": "0xdd541b90",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int200 indexed value)",
+      "full": "event Width(int200 indexed value)",
+      "minimal": "event Width(int200 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int200",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int200)",
+      "selector": "0xe9ec9cc4d441cd7479f6fa7b0d5cfcc2190095b7213fcb17189e36ba7736873f",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint200[2][] values) view returns (uint200 result)",
+      "full": "function widths(uint200[2][] values) view returns (uint200 result)",
+      "minimal": "function widths(uint200[2][]) view returns (uint200)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint200[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint200",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint200[2][])",
+      "selector": "0x67df2790",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint200 indexed value)",
+      "full": "event Width(uint200 indexed value)",
+      "minimal": "event Width(uint200 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint200",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint200)",
+      "selector": "0xb33d33531db2f84540678282547bc5001a30d00bd3377c3651a6ae68858e0685",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int208[2][] values) view returns (int208 result)",
+      "full": "function widths(int208[2][] values) view returns (int208 result)",
+      "minimal": "function widths(int208[2][]) view returns (int208)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int208[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int208",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int208[2][])",
+      "selector": "0xf19ed728",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int208 indexed value)",
+      "full": "event Width(int208 indexed value)",
+      "minimal": "event Width(int208 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int208",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int208)",
+      "selector": "0x1f1b18da7c7d81a8a50d7780eef6151e61426395a2cba184663d1a2c5605a03f",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint208[2][] values) view returns (uint208 result)",
+      "full": "function widths(uint208[2][] values) view returns (uint208 result)",
+      "minimal": "function widths(uint208[2][]) view returns (uint208)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint208[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint208",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint208[2][])",
+      "selector": "0x34c4987c",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint208 indexed value)",
+      "full": "event Width(uint208 indexed value)",
+      "minimal": "event Width(uint208 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint208",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint208)",
+      "selector": "0xf31aba1eb2f68f18a8331445612c58494944606dae5ec6ac2f902661f8996b6f",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int216[2][] values) view returns (int216 result)",
+      "full": "function widths(int216[2][] values) view returns (int216 result)",
+      "minimal": "function widths(int216[2][]) view returns (int216)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int216[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int216",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int216[2][])",
+      "selector": "0x4c348962",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int216 indexed value)",
+      "full": "event Width(int216 indexed value)",
+      "minimal": "event Width(int216 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int216",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int216)",
+      "selector": "0xc0c5dc1ef3071009fc2dba7a6c838295caccb0b365a9d4775e9b132f2e05c272",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint216[2][] values) view returns (uint216 result)",
+      "full": "function widths(uint216[2][] values) view returns (uint216 result)",
+      "minimal": "function widths(uint216[2][]) view returns (uint216)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint216[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint216",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint216[2][])",
+      "selector": "0x83302554",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint216 indexed value)",
+      "full": "event Width(uint216 indexed value)",
+      "minimal": "event Width(uint216 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint216",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint216)",
+      "selector": "0x7b1e50b9c656925f511de315f281e9f9c18d65f08f79a9536e413cecbb947685",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int224[2][] values) view returns (int224 result)",
+      "full": "function widths(int224[2][] values) view returns (int224 result)",
+      "minimal": "function widths(int224[2][]) view returns (int224)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int224[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int224",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int224[2][])",
+      "selector": "0x284457ed",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int224 indexed value)",
+      "full": "event Width(int224 indexed value)",
+      "minimal": "event Width(int224 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int224",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int224)",
+      "selector": "0xa63cc59cc3eca63c057a2409b52fa81f9c86950a69919444c32dfd138b3e09f5",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint224[2][] values) view returns (uint224 result)",
+      "full": "function widths(uint224[2][] values) view returns (uint224 result)",
+      "minimal": "function widths(uint224[2][]) view returns (uint224)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint224[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint224",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint224[2][])",
+      "selector": "0x4a198d10",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint224 indexed value)",
+      "full": "event Width(uint224 indexed value)",
+      "minimal": "event Width(uint224 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint224",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint224)",
+      "selector": "0x14c62b4b2c8766953569d314a8eae42f63f5824fe36e6575b63915ba24ccb000",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int232[2][] values) view returns (int232 result)",
+      "full": "function widths(int232[2][] values) view returns (int232 result)",
+      "minimal": "function widths(int232[2][]) view returns (int232)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int232[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int232",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int232[2][])",
+      "selector": "0xf5c5ab42",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int232 indexed value)",
+      "full": "event Width(int232 indexed value)",
+      "minimal": "event Width(int232 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int232",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int232)",
+      "selector": "0xd36a8bcebc80f0552f356b969e7736587f6671506c0d4ec5a29d634f0a6fb2c1",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint232[2][] values) view returns (uint232 result)",
+      "full": "function widths(uint232[2][] values) view returns (uint232 result)",
+      "minimal": "function widths(uint232[2][]) view returns (uint232)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint232[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint232",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint232[2][])",
+      "selector": "0x924e487f",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint232 indexed value)",
+      "full": "event Width(uint232 indexed value)",
+      "minimal": "event Width(uint232 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint232",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint232)",
+      "selector": "0x03b79bbd04da0fd741a504ce639b535d1a9d43f3247e4aae802956dc52eaa3b1",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int240[2][] values) view returns (int240 result)",
+      "full": "function widths(int240[2][] values) view returns (int240 result)",
+      "minimal": "function widths(int240[2][]) view returns (int240)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int240[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int240",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int240[2][])",
+      "selector": "0xc7ba911b",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int240 indexed value)",
+      "full": "event Width(int240 indexed value)",
+      "minimal": "event Width(int240 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int240",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int240)",
+      "selector": "0x0b56ac4849d08d4d20e034033baa275cabf356d9e6cc98a99de94acd564c8f30",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint240[2][] values) view returns (uint240 result)",
+      "full": "function widths(uint240[2][] values) view returns (uint240 result)",
+      "minimal": "function widths(uint240[2][]) view returns (uint240)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint240[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint240",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint240[2][])",
+      "selector": "0x45873760",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint240 indexed value)",
+      "full": "event Width(uint240 indexed value)",
+      "minimal": "event Width(uint240 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint240",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint240)",
+      "selector": "0xd325bc7316e24187ece0e68e1a40d1b765db83ad90794e2c3af374ea5ab0db97",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int248[2][] values) view returns (int248 result)",
+      "full": "function widths(int248[2][] values) view returns (int248 result)",
+      "minimal": "function widths(int248[2][]) view returns (int248)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int248[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int248",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int248[2][])",
+      "selector": "0xfbf65362",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int248 indexed value)",
+      "full": "event Width(int248 indexed value)",
+      "minimal": "event Width(int248 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int248",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int248)",
+      "selector": "0xc03fc6ad0fbabb9df23813e279fea34c1c15de2a97c064f534920584f7d8af5f",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint248[2][] values) view returns (uint248 result)",
+      "full": "function widths(uint248[2][] values) view returns (uint248 result)",
+      "minimal": "function widths(uint248[2][]) view returns (uint248)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint248[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint248",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint248[2][])",
+      "selector": "0x95fcd48a",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint248 indexed value)",
+      "full": "event Width(uint248 indexed value)",
+      "minimal": "event Width(uint248 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint248",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint248)",
+      "selector": "0xe16708b05ed289c69a43feab937df852934f8e9a3d49200e742b3c46d13ca365",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(int256[2][] values) view returns (int256 result)",
+      "full": "function widths(int256[2][] values) view returns (int256 result)",
+      "minimal": "function widths(int256[2][]) view returns (int256)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "int256[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "int256",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(int256[2][])",
+      "selector": "0x19f00fe4",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(int256 indexed value)",
+      "full": "event Width(int256 indexed value)",
+      "minimal": "event Width(int256 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "int256",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(int256)",
+      "selector": "0x488835e2675178b440eb581b8b8f195fbf7ce95aca98cf3ac557d01a45478eba",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function widths(uint256[2][] values) view returns (uint256 result)",
+      "full": "function widths(uint256[2][] values) view returns (uint256 result)",
+      "minimal": "function widths(uint256[2][]) view returns (uint256)",
+      "abi": {
+        "type": "function",
+        "name": "widths",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "inputs": [
+          {
+            "type": "uint256[2][]",
+            "name": "values"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "uint256",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "widths(uint256[2][])",
+      "selector": "0xa94cd043",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "event Width(uint256 indexed value)",
+      "full": "event Width(uint256 indexed value)",
+      "minimal": "event Width(uint256 indexed)",
+      "abi": {
+        "type": "event",
+        "anonymous": false,
+        "name": "Width",
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "value",
+            "indexed": true
+          }
+        ]
+      },
+      "signature": "Width(uint256)",
+      "selector": "0xd9fe7dbbe8bd8e307a7710abb04dfbe406ccdc67a6aff083673fc25c8d9bcd47",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes1 data) returns (bytes1 result)",
+      "full": "function bytesWidth(bytes1 data) returns (bytes1 result)",
+      "minimal": "function bytesWidth(bytes1) returns (bytes1)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes1",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes1",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes1)",
+      "selector": "0x3fe8da8e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes2 data) returns (bytes2 result)",
+      "full": "function bytesWidth(bytes2 data) returns (bytes2 result)",
+      "minimal": "function bytesWidth(bytes2) returns (bytes2)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes2",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes2",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes2)",
+      "selector": "0xf039078e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes3 data) returns (bytes3 result)",
+      "full": "function bytesWidth(bytes3 data) returns (bytes3 result)",
+      "minimal": "function bytesWidth(bytes3) returns (bytes3)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes3",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes3",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes3)",
+      "selector": "0x14b5c0c4",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes4 data) returns (bytes4 result)",
+      "full": "function bytesWidth(bytes4 data) returns (bytes4 result)",
+      "minimal": "function bytesWidth(bytes4) returns (bytes4)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes4",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes4",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes4)",
+      "selector": "0xe76fe4cd",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes5 data) returns (bytes5 result)",
+      "full": "function bytesWidth(bytes5 data) returns (bytes5 result)",
+      "minimal": "function bytesWidth(bytes5) returns (bytes5)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes5",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes5",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes5)",
+      "selector": "0x3704088c",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes6 data) returns (bytes6 result)",
+      "full": "function bytesWidth(bytes6 data) returns (bytes6 result)",
+      "minimal": "function bytesWidth(bytes6) returns (bytes6)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes6",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes6",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes6)",
+      "selector": "0xdc6a7df2",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes7 data) returns (bytes7 result)",
+      "full": "function bytesWidth(bytes7 data) returns (bytes7 result)",
+      "minimal": "function bytesWidth(bytes7) returns (bytes7)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes7",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes7",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes7)",
+      "selector": "0xd13d7bc7",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes8 data) returns (bytes8 result)",
+      "full": "function bytesWidth(bytes8 data) returns (bytes8 result)",
+      "minimal": "function bytesWidth(bytes8) returns (bytes8)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes8",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes8",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes8)",
+      "selector": "0xdc443734",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes9 data) returns (bytes9 result)",
+      "full": "function bytesWidth(bytes9 data) returns (bytes9 result)",
+      "minimal": "function bytesWidth(bytes9) returns (bytes9)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes9",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes9",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes9)",
+      "selector": "0x8ee301d7",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes10 data) returns (bytes10 result)",
+      "full": "function bytesWidth(bytes10 data) returns (bytes10 result)",
+      "minimal": "function bytesWidth(bytes10) returns (bytes10)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes10",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes10",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes10)",
+      "selector": "0x9ad6555b",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes11 data) returns (bytes11 result)",
+      "full": "function bytesWidth(bytes11 data) returns (bytes11 result)",
+      "minimal": "function bytesWidth(bytes11) returns (bytes11)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes11",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes11",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes11)",
+      "selector": "0xc51b8043",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes12 data) returns (bytes12 result)",
+      "full": "function bytesWidth(bytes12 data) returns (bytes12 result)",
+      "minimal": "function bytesWidth(bytes12) returns (bytes12)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes12",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes12",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes12)",
+      "selector": "0xce12cd60",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes13 data) returns (bytes13 result)",
+      "full": "function bytesWidth(bytes13 data) returns (bytes13 result)",
+      "minimal": "function bytesWidth(bytes13) returns (bytes13)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes13",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes13",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes13)",
+      "selector": "0x9b38ddbb",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes14 data) returns (bytes14 result)",
+      "full": "function bytesWidth(bytes14 data) returns (bytes14 result)",
+      "minimal": "function bytesWidth(bytes14) returns (bytes14)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes14",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes14",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes14)",
+      "selector": "0xc6b402d4",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes15 data) returns (bytes15 result)",
+      "full": "function bytesWidth(bytes15 data) returns (bytes15 result)",
+      "minimal": "function bytesWidth(bytes15) returns (bytes15)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes15",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes15",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes15)",
+      "selector": "0xf1b6faf2",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes16 data) returns (bytes16 result)",
+      "full": "function bytesWidth(bytes16 data) returns (bytes16 result)",
+      "minimal": "function bytesWidth(bytes16) returns (bytes16)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes16",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes16",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes16)",
+      "selector": "0x2a439814",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes17 data) returns (bytes17 result)",
+      "full": "function bytesWidth(bytes17 data) returns (bytes17 result)",
+      "minimal": "function bytesWidth(bytes17) returns (bytes17)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes17",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes17",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes17)",
+      "selector": "0x0d09f2b5",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes18 data) returns (bytes18 result)",
+      "full": "function bytesWidth(bytes18 data) returns (bytes18 result)",
+      "minimal": "function bytesWidth(bytes18) returns (bytes18)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes18",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes18",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes18)",
+      "selector": "0xfa3513c2",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes19 data) returns (bytes19 result)",
+      "full": "function bytesWidth(bytes19 data) returns (bytes19 result)",
+      "minimal": "function bytesWidth(bytes19) returns (bytes19)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes19",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes19",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes19)",
+      "selector": "0x02e5737f",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes20 data) returns (bytes20 result)",
+      "full": "function bytesWidth(bytes20 data) returns (bytes20 result)",
+      "minimal": "function bytesWidth(bytes20) returns (bytes20)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes20",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes20",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes20)",
+      "selector": "0x95ec0857",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes21 data) returns (bytes21 result)",
+      "full": "function bytesWidth(bytes21 data) returns (bytes21 result)",
+      "minimal": "function bytesWidth(bytes21) returns (bytes21)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes21",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes21",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes21)",
+      "selector": "0x708fb68b",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes22 data) returns (bytes22 result)",
+      "full": "function bytesWidth(bytes22 data) returns (bytes22 result)",
+      "minimal": "function bytesWidth(bytes22) returns (bytes22)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes22",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes22",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes22)",
+      "selector": "0x0771f11d",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes23 data) returns (bytes23 result)",
+      "full": "function bytesWidth(bytes23 data) returns (bytes23 result)",
+      "minimal": "function bytesWidth(bytes23) returns (bytes23)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes23",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes23",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes23)",
+      "selector": "0xbc76669f",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes24 data) returns (bytes24 result)",
+      "full": "function bytesWidth(bytes24 data) returns (bytes24 result)",
+      "minimal": "function bytesWidth(bytes24) returns (bytes24)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes24",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes24",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes24)",
+      "selector": "0x885f1283",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes25 data) returns (bytes25 result)",
+      "full": "function bytesWidth(bytes25 data) returns (bytes25 result)",
+      "minimal": "function bytesWidth(bytes25) returns (bytes25)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes25",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes25",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes25)",
+      "selector": "0x275f3531",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes26 data) returns (bytes26 result)",
+      "full": "function bytesWidth(bytes26 data) returns (bytes26 result)",
+      "minimal": "function bytesWidth(bytes26) returns (bytes26)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes26",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes26",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes26)",
+      "selector": "0xb742be28",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes27 data) returns (bytes27 result)",
+      "full": "function bytesWidth(bytes27 data) returns (bytes27 result)",
+      "minimal": "function bytesWidth(bytes27) returns (bytes27)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes27",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes27",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes27)",
+      "selector": "0xe8a29b4e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes28 data) returns (bytes28 result)",
+      "full": "function bytesWidth(bytes28 data) returns (bytes28 result)",
+      "minimal": "function bytesWidth(bytes28) returns (bytes28)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes28",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes28",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes28)",
+      "selector": "0x1d70c521",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes29 data) returns (bytes29 result)",
+      "full": "function bytesWidth(bytes29 data) returns (bytes29 result)",
+      "minimal": "function bytesWidth(bytes29) returns (bytes29)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes29",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes29",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes29)",
+      "selector": "0x178d7b73",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes30 data) returns (bytes30 result)",
+      "full": "function bytesWidth(bytes30 data) returns (bytes30 result)",
+      "minimal": "function bytesWidth(bytes30) returns (bytes30)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes30",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes30",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes30)",
+      "selector": "0xdae3e84e",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes31 data) returns (bytes31 result)",
+      "full": "function bytesWidth(bytes31 data) returns (bytes31 result)",
+      "minimal": "function bytesWidth(bytes31) returns (bytes31)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes31",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes31",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes31)",
+      "selector": "0x713d0ff9",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    },
+    {
+      "text": "function bytesWidth(bytes32 data) returns (bytes32 result)",
+      "full": "function bytesWidth(bytes32 data) returns (bytes32 result)",
+      "minimal": "function bytesWidth(bytes32) returns (bytes32)",
+      "abi": {
+        "type": "function",
+        "name": "bytesWidth",
+        "constant": false,
+        "payable": false,
+        "inputs": [
+          {
+            "type": "bytes32",
+            "name": "data"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "bytes32",
+            "name": "result"
+          }
+        ]
+      },
+      "signature": "bytesWidth(bytes32)",
+      "selector": "0xf5685c27",
+      "normalizedConstructor": false,
+      "normalizedIndexedArrays": []
+    }
+  ],
+  "reject": [
+    "",
+    "function",
+    "function a(uint x,)",
+    "function a(,uint x)",
+    "function a(uint x) garbage",
+    "function a(uint x) payable view",
+    "function a() public external",
+    "function a() returns () returns ()",
+    "function a(uint x,uint x)",
+    "function a(uint indexed x)",
+    "event A(uint indexed indexed x)",
+    "event A(uint a) payable",
+    "error A(uint a) view",
+    "constructor() view",
+    "receive(uint x) payable",
+    "receive() nonpayable",
+    "fallback(uint x)",
+    "fallback(bytes) returns (uint)",
+    "fallback() view",
+    "function a(uint7 x)",
+    "function a(bytes33 x)",
+    "function a(uint[01] x)",
+    "function a(uint[-1] x)",
+    "function a(tuple(uint x, uint x) t)",
+    "function a(uint x) @100",
+    "struct Thing(uint x)",
+    "function a(uint x) { }",
+    "function a(uint x);",
+    "function a(uint x) // comment",
+    "function a(string 名称)",
+    "event A(uint indexed a,uint indexed b,uint indexed c,uint indexed d)"
+  ]
+}

@@ -1,0 +1,1 @@
+[{"type": "constructor", "stateMutability": "payable", "payable": true, "inputs": [{"type": "address", "name": "owner"}, {"type": "tuple", "name": "options", "components": [{"type": "uint256", "name": "limit"}, {"type": "bytes", "name": "data"}]}]}]

@@ -1,0 +1,1 @@
+[{"type": "event", "anonymous": false, "name": "Nested", "inputs": [{"type": "tuple[]", "name": "rows", "components": [{"type": "uint256", "name": "n"}, {"type": "address", "name": "who"}], "indexed": true}, {"type": "bytes32", "name": "tag", "indexed": true}, {"type": "string", "name": "value"}]}]

@@ -1,0 +1,1 @@
+[{"type": "function", "name": "emptyTuple", "constant": false, "payable": false, "inputs": [{"type": "tuple", "name": "", "components": []}], "outputs": [{"type": "tuple", "name": "", "components": []}]}]

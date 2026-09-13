@@ -1,0 +1,1 @@
+[{"type": "function", "name": "widths", "constant": true, "stateMutability": "view", "payable": false, "inputs": [{"type": "int32[2][]", "name": "values"}], "outputs": [{"type": "int32", "name": "result"}]}]

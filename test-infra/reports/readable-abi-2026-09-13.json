@@ -1,0 +1,170 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "a9a4312a0260b063a69e6abe80a842387dd6d717",
+  "testedWorkingTree": true,
+  "changes": [
+    "Bounded source-like ABI declaration parser with nested names, tuples, arrays, modifiers and exact whole-import validation",
+    "Full/minimal fragment formatting in declaration order and lossless validated JSON metadata export",
+    "Shared native/worker formatting and hostile-input tests; contract facade calldata/return/block integration",
+    "Explicit pinned JS constructor mutability and event-array indexed-flag JSON normalization in independent fixtures"
+  ],
+  "fixturesSha256": {
+    "compatibility/fixtures/human-abi.json": "4596e7d8803a2487babe26f1585e99e80c5a78a5ee84db9d26f55403876fb695"
+  },
+  "validation": {
+    "pinnedFormattingSelectorCases": 180,
+    "explicitRejectionCases": 31,
+    "nativeAbiTests": 38,
+    "nativeSdkSharedAbiTests": 3,
+    "nativeSdkContractTests": 7,
+    "actualChromiumWorkerSharedAbiTests": 3,
+    "actualChromiumWorkerContractTests": 7,
+    "sharedWorkerSuiteElapsedSeconds": 0.27,
+    "contractWorkerSuiteElapsedSeconds": 0.1,
+    "nativeAbiSdkAllTargetsClippyWarningsDenied": "passed",
+    "portableSdkWasmAllTargetsClippyWarningsDenied": "passed after replacing a test-only temporary Vec with an equivalent fixed array",
+    "nativeAbiSdkRustdocWarningsDenied": "passed",
+    "portableSdkWasmRustdocWarningsDenied": "passed",
+    "pinnedSourceHashes": 153,
+    "nodeRegressionTests": 97,
+    "ciYamlDuplicateKeyCheck": "passed",
+    "pythonScriptsCompile": "passed",
+    "packageFileMirrors": 74
+  },
+  "fuzz": {
+    "recordedAt": "2026-09-13T09:38:43.537063+00:00",
+    "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+    "fuzzLockSha256": "bbbfa14ce3f8959e01343505be9acdc2daebe6c3f77070bf3a2a9b39a7fe5a5b",
+    "sdkLockSha256": "23e5d30c8d68ca0225745105c4ccacbfac66114f395e4eb92fedf3b8ab717ed7",
+    "targets": [
+      {
+        "name": "abi",
+        "binarySha256": "b38532f1cf47ba74ca855cd113dccc8417949334f32125be097bb5963501be64",
+        "seconds": 120,
+        "exitCode": 0,
+        "addressSanitizer": true,
+        "initialCorpusFiles": 706,
+        "finalCorpusFiles": 2968,
+        "executions": 638998,
+        "coverageCounters": 7631,
+        "features": 28738,
+        "rssMiB": 519
+      }
+    ],
+    "leakSanitizer": false,
+    "sanitizerEnvironment": "ASAN_OPTIONS=detect_leaks=0: sandbox process inspection limitation; AddressSanitizer enabled, no leak-clean qualification.",
+    "addedCoverage": "Readable declaration parsing, full/minimal formatting, lossless JSON export/import roundtrips, and existing ABI/schema/codecs. Fixed 65536-byte fuzz input cap."
+  },
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "a9a4312a0260b063a69e6abe80a842387dd6d717",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61987,
+        "sha256": "166e3b75500a9a01b868757c538ae03780f242588235a0443f2889bd76b0bd5a"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45024,
+        "sha256": "4df3e1c860cccb4bf6567f71c66aa48c1825ca398c5b2c55ec3744a425775c26"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 126470,
+        "sha256": "0e1a66c42bd78c12221fcc880f7becd927c368ffc3f440e17598edb14b053345"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45642,
+        "sha256": "421598319462f3d14e123e3265cb2d4e688636532c57361fb16f8336833d3a01"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47978,
+        "sha256": "095c76685a0cfa98afe2a5f3f0903343c8030fafa1a31421a7da4b5cf14f2bb7"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 159326,
+        "sha256": "9da1ea3b09e3711c5b1fc78bd322701edb5d88374df5b4be4bc5d14ac6a384fb"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 166105,
+        "sha256": "3151a9373c3b9c609f71e665ac72bd67154e10da64849eb3cfd30fd3f8c0af4d"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 75071,
+        "sha256": "27e72d37c5cef8878139c4de33671836019b17090992d2f80d742a766ee7cf08"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24518,
+        "sha256": "db7576b5a5529369aadb8c3c753cf64064bc5d79c62edd9e3451c44bbd578bc8"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34222,
+        "sha256": "fa00513314949ef3308245121cdc3e99b250df144499bd3752b254787647d7d9"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 252477,
+        "sha256": "1678669cad7cff37a0872b083b866f45b187cbfbd0d6460654bcfecb76947c63"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39310,
+        "sha256": "22610c4a7e9779eddf84b6e4358266c1f70d136fd61cf55ea150680cbf9b0635"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "limitations": [
+    "The package rehearsal archived the same production source before the test-only temporary Vec-to-array Clippy correction; final mirrored tests compiled under strict Wasm Clippy. GitHub package verification checks the committed source.",
+    "Readable input is bounded to 4096 ASCII bytes per fragment and 65536 combined; large named JSON metadata may require JSON for lossless roundtrip.",
+    "No Solidity source bodies, comments, struct declarations, gas annotations, mixed arbitrary JS values or warning-and-skip parsing.",
+    "JSON output retains validated source metadata; it does not reproduce pinned JS serialization defects or byte/key ordering.",
+    "Actual Chromium worker, mocks, bounded fuzz and package checks are not deployed-contract execution, other-browser, sustained fuzz, independent security review or release certification."
+  ]
+}

@@ -1,0 +1,1 @@
+function names(uint _value, address $owner) public

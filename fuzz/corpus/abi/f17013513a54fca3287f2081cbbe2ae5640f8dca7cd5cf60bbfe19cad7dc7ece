@@ -1,0 +1,1 @@
+fallback(bytes data) payable returns (bytes result)

@@ -1,0 +1,1 @@
+function nested(tuple(uint n, tuple(address who, string label)[] rows)[2][] input) view returns (tuple(bytes32 id, uint count) result)

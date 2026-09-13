@@ -1,0 +1,1 @@
+[{"type": "event", "anonymous": false, "name": "Transfer", "inputs": [{"type": "address", "name": "from", "indexed": true}, {"type": "address", "name": "to", "indexed": true}, {"type": "uint256", "name": "value"}]}]

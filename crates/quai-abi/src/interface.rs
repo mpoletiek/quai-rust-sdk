@@ -245,6 +245,7 @@ impl AbiConstructor {
 /// Bounded validated JSON ABI. Name/selector collisions never silently choose a declaration.
 #[derive(Clone, Debug, Default)]
 pub struct AbiInterface {
+    pub(crate) declarations: Vec<Value>,
     functions: BTreeMap<String, AbiFunction>,
     errors: BTreeMap<String, AbiCustomError>,
     events: BTreeMap<String, AbiEvent>,
@@ -388,6 +389,7 @@ impl AbiInterface {
                 _ => return Err(AbiError::Schema),
             }
         }
+        result.declarations = entries.clone();
         Ok(result)
     }
     /// Look up an unambiguous function name or canonicalizable signature.
@@ -544,7 +546,7 @@ fn boolean(object: &Map<String, Value>, key: &str) -> Result<Option<bool>, AbiEr
         .map(|v| v.as_bool().ok_or(AbiError::Schema))
         .transpose()
 }
-fn mutability(object: &Map<String, Value>) -> Result<StateMutability, AbiError> {
+pub(crate) fn mutability(object: &Map<String, Value>) -> Result<StateMutability, AbiError> {
     let payable = boolean(object, "payable")?;
     let constant = boolean(object, "constant")?;
     let state = match object.get("stateMutability") {

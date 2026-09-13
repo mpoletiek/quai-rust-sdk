@@ -57,3 +57,7 @@ at the same nonce/block as fee preparation, retaining mandatory caller entries.
 A nonce advanced by durable allocation triggers discovery again before review.
 `Preserve` is the default. Generated entries are part of the frozen prepared and
 signed payload; replacements and restart broadcast never rediscover access.
+
+Contract interfaces accept `abi::AbiInterface::from_human_readable` for bounded
+named Solidity ABI declarations. Full/minimal formatting and lossless JSON
+metadata export preserve declaration order; malformed entries fail the import.

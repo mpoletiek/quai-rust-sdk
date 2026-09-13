@@ -1,0 +1,1 @@
+event Width(uint48 indexed value)

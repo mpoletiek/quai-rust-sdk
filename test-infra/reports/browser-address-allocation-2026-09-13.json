@@ -158,5 +158,10 @@
     "Retained journal capacity is 4096 IDs; abandonment never rewinds or frees capacity.",
     "Node fixtures independently encode the documented Rust-only journal format; this is not a quais.js journal interoperability claim.",
     "Chromium worker checks and bounded sanitizer smoke do not establish other browser, sustained fuzz, independent review or production qualification."
-  ]
+  ],
+  "ciVerified": {
+    "runId": 34749398609,
+    "conclusion": "success",
+    "jobs": 8
+  }
 }

@@ -31,6 +31,43 @@ const CONTRACT: &str = "0x0011223344556677889900112233445566778899";
 const OWNER: &str = "0x0000000000000000000000000000000000000001";
 #[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn readable_abi_survives_metadata_export_and_drives_exact_contract_calls() {
+    use quai_sdk::abi::AbiInterface;
+    use quai_sdk::contracts::Contract;
+    let mock = Mock::default();
+    let provider = provider(mock.clone());
+    let interface = AbiInterface::from_human_readable(&[
+        "function balanceOf(address owner) view returns (uint balance)",
+        "event Transfer(address indexed from, address indexed to, uint amount)",
+    ])
+    .unwrap();
+    let exported = interface.format_json().unwrap();
+    let restored = AbiInterface::from_json(exported.as_bytes()).unwrap();
+    let contract = Contract::new(CONTRACT.parse().unwrap(), restored, &provider);
+    let result = contract
+        .call(
+            OWNER.parse().unwrap(),
+            "balanceOf",
+            &[json!(OWNER)],
+            BlockTag::Number(U256::from(100)),
+        )
+        .await
+        .unwrap();
+    assert_eq!(result, [json!(U256::MAX.to_string())]);
+    assert_eq!(
+        contract.interface().format_human_readable(false).unwrap()[0],
+        "function balanceOf(address owner) view returns (uint256 balance)"
+    );
+    let calls = mock.0.lock().unwrap();
+    assert_eq!(calls.len(), 2);
+    assert_eq!(
+        calls[1].1[0]["input"],
+        format!("0x70a08231{}1", "0".repeat(63))
+    );
+    assert_eq!(calls[1].1[1], "0x64");
+}
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 async fn token_balance_is_exact_and_account_call_is_block_pinned() {
     let mock = Mock::default();
     let provider = provider(mock.clone());

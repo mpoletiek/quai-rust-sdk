@@ -35,7 +35,18 @@ fuzz_target!(|data:&[u8]| {
   }
  }
  let _=AbiInterface::default().parse_revert(data);
- let _=AbiInterface::from_json(data);
+ if let Ok(interface)=AbiInterface::from_json(data){
+  if let Ok(json)=interface.format_json(){let restored=AbiInterface::from_json(json.as_bytes()).unwrap();assert_eq!(restored.format_json().unwrap(),json);}
+  let _=interface.format_human_readable(false);let _=interface.format_human_readable(true);
+ }
+ if let Ok(text)=std::str::from_utf8(data){
+  if let Ok(interface)=AbiInterface::from_human_readable(&[text]){
+   let json=interface.format_json().unwrap();let restored=AbiInterface::from_json(json.as_bytes()).unwrap();
+   for minimal in [false,true]{let formatted=interface.format_human_readable(minimal).unwrap();assert_eq!(formatted,restored.format_human_readable(minimal).unwrap());
+    let refs:Vec<_>=formatted.iter().map(String::as_str).collect();if let Ok(again)=AbiInterface::from_human_readable(&refs){assert_eq!(again.format_human_readable(minimal).unwrap(),formatted);}
+   }
+  }
+ }
  let _=SolidityArtifact::from_json(data);
  if let Ok(doc)=TypedData::from_json(data){if let Ok(rpc)=doc.to_rpc_json(){assert_eq!(TypedData::from_json(rpc.as_bytes()).unwrap().signing_hash(),doc.signing_hash());}}
  for expression in ["uint256","bytes","string","uint256[]","(address,bytes,uint256[])","bytes[][]","uint256[0][]"]{

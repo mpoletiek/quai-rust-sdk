@@ -11,6 +11,7 @@ mod codec;
 mod packed;
 pub use packed::{solidity_packed, solidity_packed_keccak256, solidity_packed_sha256};
 mod document;
+mod human;
 mod interface;
 mod workflows;
 pub use workflows::{

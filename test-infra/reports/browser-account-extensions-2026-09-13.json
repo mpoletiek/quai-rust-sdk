@@ -1,0 +1,137 @@
+{
+  "recordedAt": "2026-09-13T18:59:22.986295+00:00",
+  "baseCommit": "13bcd00aabbc8a83bc64144a039e0205385e7fda",
+  "testedWorkingTree": true,
+  "changes": [
+    "Portable and browser Quai-to-Qi conversion preparation with exact value, Qi recipient, slippage and nonce",
+    "Browser deployment preparation checks frozen nonce, sender and CREATE prediction",
+    "Shared native/browser access discovery requires every mandatory address and key"
+  ],
+  "sourceSha256": {
+    "crates/quai-sdk/src/account_preflight.rs": "87fc99a1720ce49912ecc186357f53e4f94c3d260577daf7462699baa0d04cbc",
+    "crates/quai-sdk/src/accounts/access.rs": "153e9c2030dfda14430e1a07705a1236709ef0b84b95524042ce1b34dbc6e854",
+    "crates/quai-sdk/src/browser_transactions.rs": "d5feea48040c4c3ba18bac32c3f3b398ee8dfb7236046314186e2dbbd434ce6a",
+    "crates/quai-sdk/src/contracts.rs": "4b5c1ac1739ebf552c7499cb4de38ccd6b9628a1eebdd19af19baa84ef9d64a1",
+    "crates/quai-sdk/tests/account_preflight.rs": "bbc6cb1a3dcc060e8cab1eb9d44df12131cff4d1904ca5e674b60036e1e474dc"
+  },
+  "validation": {
+    "portableNativeTests": 7,
+    "nativeAccountRegressionTests": 20,
+    "chromiumWorkerTests": 12,
+    "workerElapsedSeconds": 2.22,
+    "nativeAndWasmStrictClippy": "passed",
+    "nativeAndWasmRustdocWarningsDenied": "passed",
+    "docsParityPackageMirrors": "passed"
+  },
+  "packageRehearsal": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "13bcd00aabbc8a83bc64144a039e0205385e7fda",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61983,
+        "sha256": "fc933860d7a6d6166d17dea5a1e5c3bfad2f65686e7f6f520a7a94048f6781e1"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45024,
+        "sha256": "33cfb0a2c346c1f2e5aee9770a4255e6f8722c91860d90a80e0fd223fd6ee79f"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 129262,
+        "sha256": "19bc87faedab42c29b249ecba164bfcf5edc4006b76bd1d2c17d617950760f33"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45641,
+        "sha256": "d96d49b7a8e79db744ee0ac5b2b98de4e75e926b913fcb12cd81efa79c6934e3"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47977,
+        "sha256": "889078eaa783f0e3dc15e5fe65bc35a54d153bf68c232bbaa2c8380497451261"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 214649,
+        "sha256": "a25a3b66f2ef7ea0d64e9b9b3962c66d9b92aa169d25c10216c0ca3f833ea087"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 166090,
+        "sha256": "5814388a18fd9bf32e448d9e359879c5016e5fe565d3e2e822c6b5a398893186"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 81565,
+        "sha256": "09943111f25334fba92e34c306528c7e4629ea2a6f6b74584524e467f4f1e1c8"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24517,
+        "sha256": "d8e6ca16d1cda89541c0afe37442b01c9dbee83a3ef20b41cccff75dfda71039"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34221,
+        "sha256": "cf7c0b881928d8483807d6711439dad4698d3010da610de7cb2a1706c5484d71"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 270089,
+        "sha256": "c5adc92b5e92fe15a996b4968888e18708bb70845d201870ecb4488c39697894"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39335,
+        "sha256": "bc6b5b8b8e8fd6e5c70397682b8d569a600a69b976085f1ec8e4f66fa5be677f"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "limitations": [
+    "Mock RPC acceptance and actual Chromium/Fetch/IndexedDB checks, not funded node acceptance",
+    "Browser replacement/recovery and full Qi orchestration still in progress",
+    "Pending and latest-only observations are not atomic snapshots or finality guarantees",
+    "Existing formats composed; no new parser or wire format and no new fuzz campaign"
+  ]
+}

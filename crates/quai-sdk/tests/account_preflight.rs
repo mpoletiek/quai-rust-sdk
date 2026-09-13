@@ -3,10 +3,14 @@
 #[cfg(target_arch = "wasm32")]
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_dedicated_worker);
 use quai_sdk::account_preflight::{
-    AccountIntent, AccountNonce, AccountObservationPolicy, AccountPreflightError, FeePolicy,
-    quote_account,
+    AccountAccessListPolicy, AccountIntent, AccountNonce, AccountObservationPolicy,
+    AccountPreflightError, FeePolicy, QuaiConversionIntent, quote_account,
+    quote_account_with_access, quote_quai_conversion,
 };
-use quai_sdk::consensus::{AccessTuple, SignedQuaiTransaction};
+use quai_sdk::consensus::{
+    AccessTuple, ConversionSlippage, MIN_QUAI_CONVERSION_VALUE, QuaiToQiTransaction,
+    SignedQuaiTransaction,
+};
 use quai_sdk::crypto::SecretKey;
 use quai_sdk::primitives::{Hash32, QuaiAddress};
 use quai_sdk::provider::RpcData;
@@ -123,11 +127,32 @@ impl Transport for Mock {
                     return Ok(json!("0x5"));
                 }
                 "quai_gasPrice" => return Ok(json!(if s.mode == 5 { "0x4" } else { "0x2" })),
-                "quai_getBalance" => return Ok(json!(if s.mode == 6 { "0x1" } else { "0xf4240" })),
+                "quai_getBalance" => {
+                    return Ok(json!(match s.mode {
+                        6 => "0x1",
+                        11 => "0x20000000000000000",
+                        _ => "0xf4240",
+                    }));
+                }
+                "quai_createAccessList" => {
+                    let mut entries = params[0]["accessList"].as_array().unwrap().clone();
+                    if s.mode == 12 {
+                        entries.clear();
+                    } else if s.mode == 13 {
+                        entries[0]["storageKeys"] = json!([]);
+                    } else {
+                        entries.push(json!({"address": sender().to_string(), "storageKeys": [hash(7).to_string()]}));
+                    }
+                    return Ok(json!({"accessList": entries, "gasUsed": "0x5209"}));
+                }
                 "quai_estimateGas" => {
                     stall = s.mode == 7;
                     if !stall {
-                        return Ok(json!("0x5209"));
+                        return Ok(json!(match s.mode {
+                            9 => "0x0",
+                            10 => "0xffffffffffffffff",
+                            _ => "0x5209",
+                        }));
                     }
                 }
                 "quai_sendRawTransaction" => {
@@ -288,6 +313,254 @@ async fn rejects_changed_identity_heads_limits_and_unsupported_pending_without_f
     assert!(fresh.state().calls.is_empty());
 }
 
+#[cfg(feature = "abi")]
+fn deployment(nonce: u64) -> quai_sdk::contracts::PreparedDeployment {
+    quai_sdk::contracts::prepare_deployment(
+        &quai_sdk::abi::AbiInterface::from_json(b"[]").unwrap(),
+        &[0, 0x60, 0, 0x60, 0, 0xf3],
+        &[],
+        sender(),
+        scope().chain_id,
+        nonce,
+        U256::ZERO,
+        quai_sdk::contracts::DeploymentSearch {
+            start_salt: 0,
+            max_attempts: 10_000,
+        },
+        || false,
+    )
+    .unwrap()
+}
+#[cfg(feature = "abi")]
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn deployment_quotes_keep_nonce_prediction_init_code_and_required_access() {
+    let m = Mock::default();
+    let draft = deployment(8);
+    let predicted = draft.address();
+    let init = draft.init_data().to_vec();
+    let quote = quai_sdk::account_preflight::quote_deployment(
+        &m.provider(),
+        scope(),
+        sender(),
+        draft,
+        AccountObservationPolicy::Pending,
+        fee(),
+    )
+    .await
+    .unwrap();
+    assert_eq!(quote.transaction().to, None);
+    assert_eq!(quote.transaction().nonce, 8);
+    assert_eq!(quote.transaction().data, init);
+    assert_eq!(
+        quote.transaction().access_list[0].address,
+        predicted.address()
+    );
+    assert_eq!(
+        quai_sdk::primitives::contract_address(sender().address(), 8, &init),
+        predicted.address()
+    );
+    assert_eq!(quote.transaction().data[0], 0);
+    let other = "0x0000000000000000000000000000000000000001"
+        .parse()
+        .unwrap();
+    let fresh = Mock::default();
+    assert!(
+        quai_sdk::account_preflight::quote_deployment(
+            &fresh.provider(),
+            scope(),
+            other,
+            deployment(8),
+            AccountObservationPolicy::Pending,
+            fee()
+        )
+        .await
+        .is_err()
+    );
+    assert!(fresh.state().calls.is_empty());
+    assert!(
+        quai_sdk::account_preflight::quote_deployment(
+            &fresh.provider(),
+            scope(),
+            sender(),
+            deployment(4),
+            AccountObservationPolicy::Pending,
+            fee()
+        )
+        .await
+        .is_err()
+    );
+}
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn access_discovery_preserves_required_coverage_and_estimates_the_final_list() {
+    for mode in [0, 12, 13] {
+        let m = Mock::default();
+        m.state().mode = mode;
+        let result = quote_account_with_access(
+            &m.provider(),
+            scope(),
+            sender(),
+            intent(),
+            AccountNonce::Exact(8),
+            AccountObservationPolicy::PinnedLatest,
+            fee(),
+            AccountAccessListPolicy::Discover,
+        )
+        .await;
+        let state = m.state();
+        let (_, discover) = state
+            .calls
+            .iter()
+            .find(|(method, _)| method == "quai_createAccessList")
+            .unwrap();
+        assert_eq!(discover[0]["nonce"], "0x8");
+        assert_eq!(discover[1], "0x10");
+        if mode == 0 {
+            let quote = result.unwrap();
+            assert_eq!(quote.transaction().access_list.len(), 2);
+            assert_eq!(quote.transaction().access_list[1].storage_keys, [hash(7)]);
+            let (_, estimate) = state
+                .calls
+                .iter()
+                .find(|(method, _)| method == "quai_estimateGas")
+                .unwrap();
+            assert_eq!(estimate[0]["accessList"].as_array().unwrap().len(), 2);
+        } else {
+            assert!(matches!(result, Err(AccountPreflightError::Invalid)));
+            assert!(
+                !state
+                    .calls
+                    .iter()
+                    .any(|(method, _)| method == "quai_estimateGas")
+            );
+        }
+    }
+}
+
+fn conversion() -> QuaiConversionIntent {
+    QuaiConversionIntent {
+        destination: "0x00edf2d16afbc028fb1e879559b07997af79539f"
+            .parse()
+            .unwrap(),
+        value: U256::from(MIN_QUAI_CONVERSION_VALUE),
+        slippage: ConversionSlippage::new(1234).unwrap(),
+    }
+}
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn conversion_preserves_exact_native_value_recipient_slippage_and_nonce() {
+    let m = Mock::default();
+    m.state().mode = 11;
+    let q = quote_quai_conversion(
+        &m.provider(),
+        scope(),
+        sender(),
+        conversion(),
+        AccountNonce::AtLeast(8),
+        AccountObservationPolicy::PinnedLatest,
+        fee(),
+    )
+    .await
+    .unwrap();
+    let typed = QuaiToQiTransaction::new(q.transaction().clone()).unwrap();
+    assert_eq!(typed.destination(), conversion().destination);
+    assert_eq!(typed.slippage(), conversion().slippage);
+    let signed = typed.sign(&key()).unwrap();
+    assert_eq!(
+        SignedQuaiTransaction::decode(&signed.signed_bytes().unwrap())
+            .unwrap()
+            .hash()
+            .unwrap(),
+        signed.hash().unwrap()
+    );
+    let state = m.state();
+    let (_, params) = state
+        .calls
+        .iter()
+        .find(|(method, _)| method == "quai_estimateGas")
+        .unwrap();
+    assert_eq!(params[0]["to"], conversion().destination.to_string());
+    assert_eq!(params[0]["value"], format!("{:#x}", conversion().value));
+    assert_eq!(params[0]["input"], "0x04d2");
+    assert_eq!(params[0]["nonce"], "0x8");
+    assert_eq!(params[0]["txType"], 0);
+    assert_eq!(params[1], "0x10");
+    assert!(state.sends.is_empty());
+}
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn conversion_invalid_intents_and_fee_arithmetic_fail_closed() {
+    for wrong_zone in [false, true] {
+        let m = Mock::default();
+        let mut bad = conversion();
+        if wrong_zone {
+            bad.destination = "0x0180000000000000000000000000000000000000"
+                .parse()
+                .unwrap();
+        } else {
+            bad.value -= U256::from(1);
+        }
+        assert!(matches!(
+            quote_quai_conversion(
+                &m.provider(),
+                scope(),
+                sender(),
+                bad,
+                AccountNonce::AtLeast(0),
+                AccountObservationPolicy::Pending,
+                fee()
+            )
+            .await,
+            Err(AccountPreflightError::Invalid)
+        ));
+        assert!(m.state().calls.is_empty());
+    }
+    let m = Mock::default();
+    assert!(matches!(
+        quote_quai_conversion(
+            &m.provider(),
+            scope(),
+            sender(),
+            conversion(),
+            AccountNonce::Exact(5),
+            AccountObservationPolicy::Pending,
+            fee()
+        )
+        .await,
+        Err(AccountPreflightError::InsufficientBalance)
+    ));
+    for mode in [9, 10, 0] {
+        let m = Mock::default();
+        m.state().mode = mode;
+        let mut i = intent();
+        if mode == 0 {
+            i.value = U256::MAX;
+        }
+        let mut limits = fee();
+        limits.max_gas = u64::MAX;
+        assert!(matches!(
+            quote_account(
+                &m.provider(),
+                scope(),
+                sender(),
+                i,
+                AccountNonce::Exact(5),
+                AccountObservationPolicy::Pending,
+                limits
+            )
+            .await,
+            Err(AccountPreflightError::FeeLimit)
+        ));
+        assert!(
+            !m.state()
+                .calls
+                .iter()
+                .any(|(method, _)| method == "quai_getBalance")
+        );
+    }
+}
+
 #[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
 mod browser {
     use super::*;
@@ -364,6 +637,110 @@ mod browser {
         }
         assert!(reopened.release_unsigned(id(1)).await.is_err());
         assert!(session.prepare(id(1), intent(), fee()).await.is_err());
+    }
+    #[cfg(feature = "abi")]
+    #[wasm_bindgen_test::wasm_bindgen_test]
+    async fn deployment_requires_retained_nonce_and_signs_the_discovered_access_list() {
+        let m = Mock::default();
+        let p = m.provider();
+        let book = BrowserAccountBook::open(&name(), scope(), key().public_key())
+            .await
+            .unwrap();
+        book.initialize(8).await.unwrap();
+        let session = BrowserAccountSession::new(&p, &book)
+            .with_access_list_policy(AccountAccessListPolicy::Discover);
+        assert!(
+            session
+                .prepare_deployment(id(11), deployment(8), fee())
+                .await
+                .is_err()
+        );
+        assert!(m.state().calls.is_empty());
+        assert_eq!(book.reserve_nonce(id(11), 5).await.unwrap(), 8);
+        assert!(
+            session
+                .prepare_deployment(id(11), deployment(9), fee())
+                .await
+                .is_err()
+        );
+        assert!(m.state().calls.is_empty());
+        let before = book.snapshot().await.unwrap().revision;
+        m.state().mode = 12;
+        assert!(
+            session
+                .prepare_deployment(id(11), deployment(8), fee())
+                .await
+                .is_err()
+        );
+        assert_eq!(book.snapshot().await.unwrap().revision, before);
+        m.state().mode = 0;
+        let prepared = session
+            .prepare_deployment(id(11), deployment(8), fee())
+            .await
+            .unwrap();
+        let signer = LocalSigner::new(key(), scope().chain_id).unwrap();
+        let signed = prepared.sign(&signer).await.unwrap();
+        assert_eq!(signed.transaction().access_list.len(), 2);
+        let expected = quai_sdk::primitives::contract_address(
+            sender().address(),
+            8,
+            &signed.transaction().data,
+        );
+        assert_eq!(signed.transaction().access_list[0].address, expected);
+        assert_eq!(signed.transaction().to, None);
+        assert_eq!(
+            session.broadcast(id(11)).await.unwrap().transaction_hash,
+            signed.hash().unwrap()
+        );
+        assert_eq!(book.snapshot().await.unwrap().book.next_nonce(), 9);
+    }
+    #[wasm_bindgen_test::wasm_bindgen_test]
+    async fn conversion_reprepare_sign_and_replay_retain_the_reviewed_destination() {
+        let m = Mock::default();
+        m.state().mode = 11;
+        let p = m.provider();
+        let name = name();
+        let book = BrowserAccountBook::open(&name, scope(), key().public_key())
+            .await
+            .unwrap();
+        book.initialize(8).await.unwrap();
+        let session = BrowserAccountSession::new(&p, &book);
+        session
+            .prepare_conversion(id(10), conversion(), fee())
+            .await
+            .unwrap();
+        let reopened = BrowserAccountBook::open(&name, scope(), key().public_key())
+            .await
+            .unwrap();
+        let session = BrowserAccountSession::new(&p, &reopened);
+        let prepared = session
+            .prepare_conversion_reserved(id(10), conversion(), fee())
+            .await
+            .unwrap();
+        assert_eq!(prepared.transaction().nonce, 8);
+        assert_eq!(reopened.snapshot().await.unwrap().book.next_nonce(), 9);
+        let signed = prepared
+            .sign(&LocalSigner::new(key(), scope().chain_id).unwrap())
+            .await
+            .unwrap();
+        assert_eq!(
+            signed.transaction().to,
+            Some(conversion().destination.address())
+        );
+        assert_eq!(
+            signed.transaction().data,
+            conversion().slippage.to_be_bytes()
+        );
+        m.state().mode = 8;
+        assert!(session.broadcast(id(10)).await.is_err());
+        m.state().mode = 11;
+        assert_eq!(
+            session.broadcast(id(10)).await.unwrap().transaction_hash,
+            signed.hash().unwrap()
+        );
+        let state = m.state();
+        assert_eq!(state.sends.len(), 2);
+        assert_eq!(state.sends[0], state.sends[1]);
     }
     #[wasm_bindgen_test::wasm_bindgen_test]
     async fn preparation_races_cancellation_and_fee_failures_cannot_reserve_unreviewed_nonces() {

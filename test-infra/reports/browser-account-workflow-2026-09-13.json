@@ -133,5 +133,10 @@
     "A conflict does not retry; cancellation after a write/send dispatch requires explicit ID recovery",
     "Submission tests use a mock, while Fetch and IndexedDB run in actual Chromium; no funded node acceptance claimed",
     "No new parser or wire format and no new fuzz campaign; existing codec validation is composed with asynchronous workflow tests"
-  ]
+  ],
+  "githubCI": {
+    "commit": "13bcd00aabbc8a83bc64144a039e0205385e7fda",
+    "runId": 34775551910,
+    "allEightJobs": "success"
+  }
 }

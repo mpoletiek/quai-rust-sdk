@@ -88,6 +88,11 @@ pub struct PreparedDeployment {
     attempts: u32,
 }
 impl PreparedDeployment {
+    /// Fixed sender nonce used for grinding. Changing it changes the predicted address.
+    pub fn nonce(&self) -> u64 {
+        self.transaction.nonce
+    }
+
     /// Expected contract account for the exact reserved nonce and init data.
     pub fn address(&self) -> QuaiAddress {
         self.address

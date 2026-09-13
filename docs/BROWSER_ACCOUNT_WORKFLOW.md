@@ -40,14 +40,41 @@ so WQUAI deposit/withdraw, WQI claim/redemption and ordinary contract/ERC-20 cal
 retain native value, calldata and required access declarations. These are account
 contract calls, distinct from native Qi wrapping or Quai-to-Qi conversion.
 
+`prepare_conversion(id, QuaiConversionIntent, fee_policy)` prepares same-zone
+Quai-to-Qi conversion. Specify the Qi destination, native Its value (at least
+`MIN_QUAI_CONVERSION_VALUE`, 10 Quai), and `ConversionSlippage::new` in
+30..=9000 ten-thousandths. The specialized estimator receives that exact recipient,
+value, reserved nonce and two-byte slippage payload. `prepare_conversion_reserved`
+reuses a retained unsigned nonce after restart. Review, sign and broadcast use the
+same account journal; origin inclusion alone does not establish Qi maturity.
+
+For deployment, first retain a nonce with `BrowserAccountBook::reserve_nonce`
+using the explicitly observed network nonce. Pass the returned nonce, book sender
+and chain ID to `contracts::prepare_deployment` with constructor inputs and a
+bounded `DeploymentSearch`. Then pass that frozen result and the same reservation
+ID to `session.prepare_deployment`. The session rejects another nonce, sender or
+chain and rechecks the predicted CREATE address. It estimates the exact init code
+(including leading zero bytes and grind suffix), retaining the mandatory predicted
+address in the access list. Failure leaves the unsigned reservation available for
+explicit recovery; it never silently regrinds at a new nonce.
+
+`with_access_list_policy(AccountAccessListPolicy::Discover)` enables explicit
+access-list discovery for calls and deployments at the final nonce and chosen
+block. The returned list must cover every supplied address and storage key,
+including CREATE and wrapper lockup requirements. Missing coverage rejects before
+fee estimation. The resulting ordered list is shown in the prepared transaction
+and signed unchanged. The default `Preserve` makes no discovery request;
+conversion envelopes always retain their typed declaration.
+
 `account_preflight::quote_account` exposes the same bounded quotation independently
 of storage on native and Wasm. `AccountNonce::AtLeast` uses an explicit retained
 floor; `Exact` supports an existing reservation. A quote alone reserves nothing.
-There is no implicit access-list discovery or node-local signer.
+`quote_account_with_access`, `quote_quai_conversion` and `quote_deployment` expose
+the corresponding portable read-only paths. There is no node-local signer.
 
-This initial workflow covers ordinary same/cross-zone Quai transfers and calls,
-including account-side wrapper operations. Native conversion/deployment planners,
-replacement candidate selection, destination settlement and full browser Qi
+This workflow covers same/cross-zone Quai transfers, contract/wrapper calls,
+Quai-to-Qi conversion and deployment. Replacement candidate selection, destination
+settlement and full browser Qi
 preparation/recovery still require their own integration. The root broadcast
 method does not silently select a replacement. Current balances and fee estimates
 are advisory observations; preparing several operations does not reserve aggregate

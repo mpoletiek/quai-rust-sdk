@@ -1,7 +1,8 @@
 //! Browser account prepare/review/sign and explicit persisted submission.
 use crate::account_preflight::{
-    AccountIntent, AccountNonce, AccountObservationPolicy, AccountPreflightError, AccountQuote,
-    FeePolicy, check_network, quote_account,
+    AccountAccessListPolicy, AccountIntent, AccountNonce, AccountObservationPolicy,
+    AccountOperationIntent, AccountPreflightError, AccountQuote, FeePolicy, QuaiConversionIntent,
+    check_network, quote_operation,
 };
 use crate::browser_accounts::{BrowserAccountBook, BrowserAccountError};
 use quai_consensus::{QuaiTransaction, SignedQuaiTransaction};
@@ -67,6 +68,7 @@ pub struct BrowserAccountSession<'a, T> {
     provider: &'a Provider<T>,
     book: &'a BrowserAccountBook,
     observation: AccountObservationPolicy,
+    access: AccountAccessListPolicy,
 }
 impl<'a, T: Transport> BrowserAccountSession<'a, T> {
     /// Bind explicit application-owned objects. No prompt or network access occurs.
@@ -75,11 +77,18 @@ impl<'a, T: Transport> BrowserAccountSession<'a, T> {
             provider,
             book,
             observation: AccountObservationPolicy::Pending,
+            access: AccountAccessListPolicy::Preserve,
         }
     }
     /// Choose pending or explicitly pinned latest observations, without fallback.
     pub fn with_observation_policy(mut self, policy: AccountObservationPolicy) -> Self {
         self.observation = policy;
+        self
+    }
+    /// Discover access requirements for ordinary calls and deployments before
+    /// estimation. Conversion envelopes retain their typed access declarations.
+    pub fn with_access_list_policy(mut self, policy: AccountAccessListPolicy) -> Self {
+        self.access = policy;
         self
     }
     /// Prepare an ordinary same-zone account transfer or contract call. Estimate
@@ -129,8 +138,78 @@ impl<'a, T: Transport> BrowserAccountSession<'a, T> {
         reuse: bool,
         cross_zone: bool,
     ) -> Result<PreparedBrowserAccountTransaction, BrowserTransactionError> {
+        self.prepare_operation(
+            id,
+            AccountOperationIntent::Call(intent),
+            fee,
+            reuse,
+            cross_zone,
+        )
+        .await
+    }
+    /// Prepare a same-zone Quai-to-Qi conversion with explicit native value and
+    /// slippage. The specialized estimator receives the real Qi recipient, nonce
+    /// and payload. Signing/submission reuse the durable account custody workflow.
+    pub async fn prepare_conversion(
+        &self,
+        id: ReservationId,
+        intent: QuaiConversionIntent,
+        fee: FeePolicy,
+    ) -> Result<PreparedBrowserAccountTransaction, BrowserTransactionError> {
+        self.prepare_operation(
+            id,
+            AccountOperationIntent::Conversion(intent),
+            fee,
+            false,
+            false,
+        )
+        .await
+    }
+    /// Reprepare an explicitly retained unsigned conversion nonce after restart.
+    pub async fn prepare_conversion_reserved(
+        &self,
+        id: ReservationId,
+        intent: QuaiConversionIntent,
+        fee: FeePolicy,
+    ) -> Result<PreparedBrowserAccountTransaction, BrowserTransactionError> {
+        self.prepare_operation(
+            id,
+            AccountOperationIntent::Conversion(intent),
+            fee,
+            true,
+            false,
+        )
+        .await
+    }
+    /// Prepare the offline-ground deployment at an already reserved nonce. The
+    /// same ID and nonce must have been retained before grinding. Changed sender,
+    /// scope, reservation or init-code prediction rejects without reallocation.
+    #[cfg(feature = "abi")]
+    pub async fn prepare_deployment(
+        &self,
+        id: ReservationId,
+        deployment: crate::contracts::PreparedDeployment,
+        fee: FeePolicy,
+    ) -> Result<PreparedBrowserAccountTransaction, BrowserTransactionError> {
+        self.prepare_operation(
+            id,
+            AccountOperationIntent::Deployment(deployment),
+            fee,
+            true,
+            false,
+        )
+        .await
+    }
+    async fn prepare_operation(
+        &self,
+        id: ReservationId,
+        intent: AccountOperationIntent,
+        fee: FeePolicy,
+        reuse: bool,
+        cross_zone: bool,
+    ) -> Result<PreparedBrowserAccountTransaction, BrowserTransactionError> {
         let mut snapshot = self.book.snapshot().await?;
-        if (snapshot.book.address().zone() != intent.to.zone()) != cross_zone {
+        if (snapshot.book.address().zone() != intent.zone()) != cross_zone {
             return Err(AccountPreflightError::Invalid.into());
         }
         let nonce = if reuse {
@@ -146,7 +225,7 @@ impl<'a, T: Transport> BrowserAccountSession<'a, T> {
             }
             AccountNonce::AtLeast(snapshot.book.next_nonce())
         };
-        let quote = quote_account(
+        let quote = quote_operation(
             self.provider,
             snapshot.book.scope(),
             snapshot.book.address(),
@@ -154,6 +233,7 @@ impl<'a, T: Transport> BrowserAccountSession<'a, T> {
             nonce,
             self.observation,
             fee,
+            self.access,
         )
         .await?;
         if !reuse {

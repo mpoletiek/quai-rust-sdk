@@ -5,7 +5,7 @@
 //! are observations, not reservations of account balance or guarantees of mining.
 mod access;
 pub use access::AccountAccessListPolicy;
-use quai_consensus::{AccessTuple, QuaiTransaction, SignedQuaiTransaction};
+use quai_consensus::{QuaiTransaction, SignedQuaiTransaction};
 use quai_primitives::{Hash32, QuaiAddress};
 use quai_provider::{
     AccessListItem, BlockTag, BroadcastError, BroadcastResult, CallRequest, Provider,

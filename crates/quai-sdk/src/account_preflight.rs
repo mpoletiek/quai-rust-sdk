@@ -1,6 +1,6 @@
 //! Portable, exact-nonce account preparation without storage or signing side effects.
-use quai_consensus::{AccessTuple, QuaiTransaction};
-use quai_primitives::{Hash32, QuaiAddress};
+use quai_consensus::{AccessTuple, ConversionSlippage, QuaiToQiTransaction, QuaiTransaction};
+use quai_primitives::{Hash32, QiAddress, QuaiAddress, Zone};
 use quai_provider::{AccessListItem, BlockTag, CallRequest, Provider, ProviderError, RpcData};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::NetworkScope;
@@ -30,6 +30,16 @@ pub struct FeePolicy {
     pub gas_margin_bps: u16,
 }
 
+/// Explicit access-list behavior for ordinary calls and deployment preparation.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum AccountAccessListPolicy {
+    /// Retain the exact application-supplied ordered entries.
+    #[default]
+    Preserve,
+    /// Discover at the final nonce and state selector, requiring coverage of every
+    /// supplied address and storage key. Review the resulting list before signing.
+    Discover,
+}
 /// An ordinary same-zone account transfer or contract call.
 #[derive(Clone, Debug)]
 pub struct AccountIntent {
@@ -41,6 +51,33 @@ pub struct AccountIntent {
     pub data: RpcData,
     /// Ordered access declaration, retained without normalization.
     pub access_list: Vec<AccessTuple>,
+}
+
+/// Explicit same-zone account-ledger conversion into Qi.
+#[derive(Clone, Debug)]
+pub struct QuaiConversionIntent {
+    /// Same-zone Qi recipient.
+    pub destination: QiAddress,
+    /// Native Its amount; the typed conversion minimum applies.
+    pub value: U256,
+    /// Exact controller slippage encoded in the signed two-byte payload.
+    pub slippage: ConversionSlippage,
+}
+pub(crate) enum AccountOperationIntent {
+    Call(AccountIntent),
+    Conversion(QuaiConversionIntent),
+    #[cfg(feature = "abi")]
+    Deployment(crate::contracts::PreparedDeployment),
+}
+impl AccountOperationIntent {
+    pub(crate) fn zone(&self) -> Zone {
+        match self {
+            Self::Call(v) => v.to.zone(),
+            Self::Conversion(v) => v.destination.zone(),
+            #[cfg(feature = "abi")]
+            Self::Deployment(v) => v.address().zone(),
+        }
+    }
 }
 
 /// Source of the final nonce used for every simulation request.
@@ -107,6 +144,104 @@ pub async fn quote_account<T: Transport>(
     observation: AccountObservationPolicy,
     policy: FeePolicy,
 ) -> Result<AccountQuote, AccountPreflightError> {
+    quote_operation(
+        provider,
+        scope,
+        sender,
+        AccountOperationIntent::Call(intent),
+        nonce,
+        observation,
+        policy,
+        AccountAccessListPolicy::Preserve,
+    )
+    .await
+}
+/// Ordinary quotation with explicit access-list discovery. Required entries must
+/// remain covered; no fallback to the supplied list occurs on node failure.
+#[allow(clippy::too_many_arguments)]
+pub async fn quote_account_with_access<T: Transport>(
+    provider: &Provider<T>,
+    scope: NetworkScope,
+    sender: QuaiAddress,
+    intent: AccountIntent,
+    nonce: AccountNonce,
+    observation: AccountObservationPolicy,
+    policy: FeePolicy,
+    access: AccountAccessListPolicy,
+) -> Result<AccountQuote, AccountPreflightError> {
+    quote_operation(
+        provider,
+        scope,
+        sender,
+        AccountOperationIntent::Call(intent),
+        nonce,
+        observation,
+        policy,
+        access,
+    )
+    .await
+}
+/// Estimate a typed Quai-to-Qi conversion without substituting an account
+/// destination or dropping its slippage payload. Uses the same exact nonce,
+/// fee bounds and network/head checks as ordinary account quotation. Quotes
+/// reserve nothing and do not establish destination maturity or final value.
+pub async fn quote_quai_conversion<T: Transport>(
+    provider: &Provider<T>,
+    scope: NetworkScope,
+    sender: QuaiAddress,
+    intent: QuaiConversionIntent,
+    nonce: AccountNonce,
+    observation: AccountObservationPolicy,
+    policy: FeePolicy,
+) -> Result<AccountQuote, AccountPreflightError> {
+    quote_operation(
+        provider,
+        scope,
+        sender,
+        AccountOperationIntent::Conversion(intent),
+        nonce,
+        observation,
+        policy,
+        AccountAccessListPolicy::Preserve,
+    )
+    .await
+}
+/// Quote frozen deployment init code at its exact nonce, validating the predicted
+/// address against the sender. The caller must reserve that nonce before grinding;
+/// this read-only operation does not create or repair a reservation.
+#[cfg(feature = "abi")]
+pub async fn quote_deployment<T: Transport>(
+    provider: &Provider<T>,
+    scope: NetworkScope,
+    sender: QuaiAddress,
+    deployment: crate::contracts::PreparedDeployment,
+    observation: AccountObservationPolicy,
+    policy: FeePolicy,
+) -> Result<AccountQuote, AccountPreflightError> {
+    let nonce = AccountNonce::Exact(deployment.nonce());
+    quote_operation(
+        provider,
+        scope,
+        sender,
+        AccountOperationIntent::Deployment(deployment),
+        nonce,
+        observation,
+        policy,
+        AccountAccessListPolicy::Preserve,
+    )
+    .await
+}
+#[allow(clippy::too_many_arguments)]
+pub(crate) async fn quote_operation<T: Transport>(
+    provider: &Provider<T>,
+    scope: NetworkScope,
+    sender: QuaiAddress,
+    intent: AccountOperationIntent,
+    nonce: AccountNonce,
+    observation: AccountObservationPolicy,
+    policy: FeePolicy,
+    access: AccountAccessListPolicy,
+) -> Result<AccountQuote, AccountPreflightError> {
     use AccountPreflightError as E;
     if scope.chain_id == U256::ZERO || scope.genesis == Hash32::ZERO || sender.zone() != scope.zone
     {
@@ -115,16 +250,51 @@ pub async fn quote_account<T: Transport>(
     if policy.max_gas == 0 || policy.gas_margin_bps > 10_000 {
         return Err(E::FeeLimit);
     }
-    let mut transaction = QuaiTransaction {
-        chain_id: scope.chain_id,
-        nonce: u64::MAX,
-        to: Some(intent.to.address()),
-        value: intent.value,
-        gas_limit: policy.max_gas,
-        gas_price: U256::MAX,
-        data: intent.data.bytes().to_vec(),
-        access_list: intent.access_list,
+    let conversion = matches!(&intent, AccountOperationIntent::Conversion(_));
+    if conversion && intent.zone() != scope.zone {
+        return Err(E::Invalid);
+    }
+    let mut transaction = match intent {
+        AccountOperationIntent::Call(v) => QuaiTransaction {
+            chain_id: scope.chain_id,
+            nonce: u64::MAX,
+            to: Some(v.to.address()),
+            value: v.value,
+            gas_limit: policy.max_gas,
+            gas_price: U256::MAX,
+            data: v.data.bytes().to_vec(),
+            access_list: v.access_list,
+        },
+        AccountOperationIntent::Conversion(v) => QuaiTransaction {
+            chain_id: scope.chain_id,
+            nonce: u64::MAX,
+            to: Some(v.destination.address()),
+            value: v.value,
+            gas_limit: policy.max_gas,
+            gas_price: U256::MAX,
+            data: v.slippage.to_be_bytes().to_vec(),
+            access_list: vec![],
+        },
+        #[cfg(feature = "abi")]
+        AccountOperationIntent::Deployment(v) => {
+            let predicted = v.address();
+            let tx = v
+                .into_transaction(policy.max_gas, U256::MAX)
+                .map_err(|_| E::Invalid)?;
+            if tx.chain_id != scope.chain_id
+                || predicted.zone() != scope.zone
+                || !matches!(nonce, AccountNonce::Exact(n) if n == tx.nonce)
+                || quai_primitives::contract_address(sender.address(), tx.nonce, &tx.data)
+                    != predicted.address()
+            {
+                return Err(E::Invalid);
+            }
+            tx
+        }
     };
+    if conversion {
+        QuaiToQiTransaction::new(transaction.clone()).map_err(|_| E::Invalid)?;
+    }
     transaction.unsigned_bytes().map_err(|_| E::Invalid)?;
     check_network(provider, scope).await?;
     let header = match observation {
@@ -149,24 +319,36 @@ pub async fn quote_account<T: Transport>(
     if transaction.gas_price > policy.max_gas_price {
         return Err(E::FeeLimit);
     }
-    let request = CallRequest {
-        from: sender,
-        to: Some(intent.to),
-        gas: Some(policy.max_gas),
-        gas_price: Some(transaction.gas_price),
-        value: Some(intent.value),
-        nonce: Some(transaction.nonce),
-        input: intent.data,
-        access_list: transaction
-            .access_list
-            .iter()
-            .map(|a| AccessListItem {
-                address: a.address,
-                storage_keys: a.storage_keys.clone(),
-            })
-            .collect(),
+    let estimate = if conversion {
+        let typed = QuaiToQiTransaction::new(transaction.clone()).map_err(|_| E::Invalid)?;
+        provider
+            .estimate_quai_conversion_gas(sender, &typed, block)
+            .await?
+    } else {
+        let mut request = CallRequest {
+            from: sender,
+            to: transaction
+                .to
+                .map(QuaiAddress::try_from)
+                .transpose()
+                .map_err(|_| E::Invalid)?,
+            gas: Some(policy.max_gas),
+            gas_price: Some(transaction.gas_price),
+            value: Some(transaction.value),
+            nonce: Some(transaction.nonce),
+            input: RpcData::new(transaction.data.clone())?,
+            access_list: transaction
+                .access_list
+                .iter()
+                .map(|a| AccessListItem {
+                    address: a.address,
+                    storage_keys: a.storage_keys.clone(),
+                })
+                .collect(),
+        };
+        populate_access(provider, access, &mut request, &mut transaction, block).await?;
+        provider.estimate_gas(&request, block).await?
     };
-    let estimate = provider.estimate_gas(&request, block).await?;
     let gas =
         (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);
     if gas == 0 || gas > u128::from(policy.max_gas) {
@@ -210,5 +392,48 @@ pub(crate) async fn check_network<T: Transport>(
     {
         return Err(AccountPreflightError::ObservationChanged);
     }
+    Ok(())
+}
+
+/// Shared access population for native and browser preparation. Replacement
+/// candidates must never call this helper since their access lists are fixed.
+pub(crate) async fn populate_access<T: Transport>(
+    provider: &Provider<T>,
+    policy: AccountAccessListPolicy,
+    request: &mut CallRequest,
+    transaction: &mut QuaiTransaction,
+    block: BlockTag,
+) -> Result<(), AccountPreflightError> {
+    if policy == AccountAccessListPolicy::Preserve {
+        return Ok(());
+    }
+    let generated = provider.create_access_list(request, block).await?;
+    let mut coverage = std::collections::BTreeMap::<_, std::collections::BTreeSet<_>>::new();
+    for entry in &generated.access_list {
+        coverage
+            .entry(entry.address)
+            .or_default()
+            .extend(entry.storage_keys.iter().copied());
+    }
+    for required in &request.access_list {
+        let Some(keys) = coverage.get(&required.address) else {
+            return Err(AccountPreflightError::Invalid);
+        };
+        if required.storage_keys.iter().any(|key| !keys.contains(key)) {
+            return Err(AccountPreflightError::Invalid);
+        }
+    }
+    transaction.access_list = generated
+        .access_list
+        .iter()
+        .map(|entry| AccessTuple {
+            address: entry.address,
+            storage_keys: entry.storage_keys.clone(),
+        })
+        .collect();
+    transaction
+        .unsigned_bytes()
+        .map_err(|_| AccountPreflightError::Invalid)?;
+    request.access_list = generated.access_list;
     Ok(())
 }

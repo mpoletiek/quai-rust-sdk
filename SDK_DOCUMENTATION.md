@@ -591,11 +591,13 @@ within one named database. No plaintext private origin belongs in these stores.
 `BrowserAccountBook` persists nonce custody and exact signing candidates.
 `BrowserQiBook` persists ownership/input custody, validates selected discovery
 inputs and signs ordinary/conversion/wrapping operations before returning bytes.
-The new capture/restore coordinator composes these stores. `browser_transactions::BrowserAccountSession` now prepares ordinary same/cross-zone
+The new capture/restore coordinator composes these stores. `browser_transactions::BrowserAccountSession` now prepares same/cross-zone
 Quai calls with exact-nonce fees, fixed review/signing and explicit persisted-root
 submission. `account_preflight::quote_account` is portable, and contract/wrapper
 intents retain their access lists. See [browser account workflow](docs/BROWSER_ACCOUNT_WORKFLOW.md).
-Native conversion/deployment/replacement orchestration and full browser Qi
+Browser conversions and nonce-bound deployments share this workflow, with optional
+access-list discovery that preserves required entries. Replacement/settlement
+recovery and full browser Qi
 preparation/recovery still require integration. Injected-wallet discovery, permission management
 and automatic chain switching remain absent.
 

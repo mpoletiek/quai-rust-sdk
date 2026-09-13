@@ -627,3 +627,19 @@ fixed payload review/signing and explicit persisted-root broadcast/restart.
 Ordinary same/cross-zone calls and account-side wrapper operations are supported;
 full Qi and specialized account browser workflows remain in progress. See
 [browser account workflow](docs/BROWSER_ACCOUNT_WORKFLOW.md).
+
+## Browser account conversion, deployment and access discovery
+
+Portable quotation and the durable browser session now support exact Quai-to-Qi
+value/destination/slippage and nonce-bound deployment preparation. Optional access
+list discovery is shared with the native session and cannot discard mandatory
+addresses or storage keys. Conversion fee arithmetic, leading-zero CREATE bytes,
+reserved nonce mismatch, ambiguous-send replay and discovery rejection are covered
+by seven portable native tests and twelve actual Chromium worker tests. All twenty
+native account regression tests pass. Native/Wasm strict Clippy and rustdoc pass.
+The prior account-workflow commit `13bcd00` passed all eight CI jobs in run
+`34775551910`. Full browser Qi and account replacement/recovery integration remain
+in progress; synthetic fixtures do not establish funded node acceptance.
+All twelve source archives, three fresh extracted consumers, twelve native and two
+Wasm packaged-target checks passed. Evidence is retained in
+[test-infra/reports/browser-account-extensions-2026-09-13.json](test-infra/reports/browser-account-extensions-2026-09-13.json).

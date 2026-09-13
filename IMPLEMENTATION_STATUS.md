@@ -572,3 +572,12 @@ restore/recapture and browser initialization across all journal types are tested
 See [workflow and format boundaries](docs/PORTABLE_WALLET_CAPTURE.md) and
 [validation](test-infra/reports/portable-wallet-capture-2026-09-13.json). Automated
 consistent browser collection and coordinated live restore remain open.
+
+## Portable recovery inventory carry-forward (2026-09-13)
+
+Combined capture now accepts authenticated `previous_inventory`: owned addresses,
+HD burned floors, payment channels and earlier exposures survive successor-journal
+capture. It preserves maximum cursors, rejects conflicting ancestry/ranges, and
+re-proves ownership. Current account/Qi journals still supply transaction custody.
+See [workflow](docs/PORTABLE_WALLET_CAPTURE.md) and
+[validation](test-infra/reports/portable-inventory-recapture-2026-09-13.json).

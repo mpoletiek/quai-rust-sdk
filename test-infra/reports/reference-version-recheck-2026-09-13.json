@@ -1,0 +1,17 @@
+{
+  "observedAt": "2026-09-13T14:40:15.015728+00:00",
+  "source": "https://registry.npmjs.org/quais",
+  "method": "npm view quais dist-tags --json; npm view quais@1.0.0-alpha.57 version dist.integrity gitHead --json",
+  "distTags": {
+    "latest": "1.0.0-alpha.57"
+  },
+  "package": {
+    "version": "1.0.0-alpha.57",
+    "dist.integrity": "sha512-asseq9pWXSwr9+FNOsIa7e4H4b+tKSIDOVh16xjwAtzqNS9zYsYAQak/OJzMKbvehzgurqF/7GcTOQb9RrYt1Q==",
+    "gitHead": "3bd0bf5b077f4aa5fab480474e3982e50e1af506"
+  },
+  "matchesLockedIntegrity": true,
+  "comparisonBaseline": "Published quais@1.0.0-alpha.57; source-only unpublished declarations are tracked separately.",
+  "inspectedSourceCheckout": "94e32c7eb9960de36054135c40a341c44c84f922",
+  "note": "The npm package gitHead differs from the separately inspected source checkout. Published API/behavior comparisons use the locked npm tarball; unpublished source-only methods remain explicitly distinguished."
+}

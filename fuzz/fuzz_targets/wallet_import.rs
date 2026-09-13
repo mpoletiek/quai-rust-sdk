@@ -22,6 +22,7 @@ fuzz_target!(|data:&[u8]| {
    // Fixed public toy ownership proofs only; arbitrary valid public origins may be unowned.
    let origins=keys.iter().map(quai_wallet::full_backup::BackupOrigin::from_private_key).collect();
    if let Ok(backup)=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{qi:&[&book],..Default::default()},origins){
+    let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{qi:&[&book],previous_inventory:Some(&backup),..Default::default()},keys.iter().map(quai_wallet::full_backup::BackupOrigin::from_private_key).collect()).unwrap();
     let restored=quai_wallet::qi_custody::QiOperationBook::from_backup(&backup,scope,identity).unwrap();
     let report=book.merge_backup(&backup).unwrap();assert_eq!(report.operations_added,0);assert_eq!(report.candidates_added,0);assert_eq!(book.export_state().unwrap(),restored.export_state().unwrap());
    }
@@ -37,6 +38,7 @@ fuzz_target!(|data:&[u8]| {
    assert_eq!(book.export_state().unwrap(),data);assert_eq!(book.scope(),scope);
    // Ownership proof and public-state merge only; never execute a password KDF.
    let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{accounts:&[quai_wallet::full_backup::AccountCustodyCapture{book:&book,address:&quai_wallet::metadata::PublicAddress::imported(&owner).unwrap()}],..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_private_key(&key)]).unwrap();
+   let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{accounts:&[quai_wallet::full_backup::AccountCustodyCapture{book:&book,address:&quai_wallet::metadata::PublicAddress::imported(&owner).unwrap()}],previous_inventory:Some(&backup),..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_private_key(&key)]).unwrap();
    let restored=quai_wallet::account_custody::AccountOperationBook::from_backup(&backup,scope,owner).unwrap();
    let report=book.merge_backup(&backup).unwrap();assert_eq!(report.operations_added,0);assert_eq!(report.candidates_added,0);assert_eq!(book.export_state().unwrap(),restored.export_state().unwrap());
   }
@@ -53,6 +55,9 @@ fuzz_target!(|data:&[u8]| {
     assert_eq!(book.export_state(),data);assert_eq!(book.scope(),scope);
     let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{payments:&[&book],..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_seed(&[1;16]).unwrap()]).unwrap();
     let restored=quai_wallet::payment_allocation::PaymentAllocationBook::from_backup(&backup,scope,owner,peer.clone(),direction).unwrap();assert_eq!(restored.next_index(),book.next_index());
+    let again=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{payments:&[&restored],previous_inventory:Some(&backup),..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_seed(&[1;16]).unwrap()]).unwrap();
+    assert_eq!(again.payment_exposures().count(),backup.payment_exposures().count());
+    assert_eq!(quai_wallet::payment_allocation::PaymentAllocationBook::from_backup(&again,scope,owner,peer.clone(),direction).unwrap().next_index(),book.next_index());
    }
   }}
  }

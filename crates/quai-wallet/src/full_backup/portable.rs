@@ -30,6 +30,11 @@ pub struct PortableWalletCapture<'a> {
     pub qi: &'a [&'a QiOperationBook],
     /// Payment channel cursors and completed send/receive exposures.
     pub payments: &'a [&'a PaymentAllocationBook],
+    /// Carry forward owned address inventory, HD burned floors, payment channels
+    /// and exposures from an authenticated earlier backup. Custody must still be
+    /// supplied through every current account/Qi journal; old operation records and
+    /// nonce claims are deliberately not copied by this inventory-only field.
+    pub previous_inventory: Option<&'a WalletBackup>,
     /// Previously known owned addresses absent from the current journals, for
     /// example inventory retained after initializing allocators from an old backup.
     pub additional_addresses: &'a [(NetworkScope, PublicAddress)],
@@ -77,8 +82,8 @@ impl WalletBackup {
     ///
     /// Duplicate journal namespaces, conflicting origins or operation IDs, unowned
     /// addresses and full-backup bounds reject the whole capture. Frozen input
-    /// journals total at most 16 MiB and 128 descriptors; normal backup limits also
-    /// apply. This method cannot establish freshness of independently read stores.
+    /// journals plus the optional previous inventory's encoded backup total at
+    /// most 16 MiB and 128 journal descriptors; normal backup limits also apply. This method cannot establish freshness of independently read stores.
     pub fn capture_portable(
         inputs: PortableWalletCapture<'_>,
         origins: Vec<BackupOrigin>,
@@ -98,7 +103,11 @@ impl WalletBackup {
             return Err(WalletBackupError::InvalidInput);
         }
         let mut seen = BTreeSet::new();
-        let mut bytes = 0usize;
+        let mut bytes = inputs
+            .previous_inventory
+            .map(|b| b.encode().map(|bytes| bytes.len()))
+            .transpose()?
+            .unwrap_or(0);
         let mut include =
             |kind: u8, scope: NetworkScope, identity: Hash32, size: usize| -> Result<()> {
                 bytes = bytes
@@ -127,6 +136,13 @@ impl WalletBackup {
             include(3, b.scope(), b.identity(), b.export_state().len())?;
         }
         let mut scopes = BTreeMap::new();
+        if let Some(previous) = inputs.previous_inventory {
+            for old in &previous.state.scopes {
+                let scope = scope_state(&mut scopes, old.scope)?;
+                scope.addresses.extend(old.addresses.iter().cloned());
+                scope.derivation.extend(old.derivation.iter().cloned());
+            }
+        }
         for b in inputs.allocations {
             let scope = scope_state(&mut scopes, b.scope())?;
             for change in [false, true] {
@@ -189,6 +205,18 @@ impl WalletBackup {
         }
         let mut channels = BTreeMap::new();
         let mut exposures = Vec::new();
+        if let Some(previous) = inputs.previous_inventory {
+            for stored in &previous.state.channels {
+                let owner = origins
+                    .iter()
+                    .filter_map(|o| o.payment_code(stored.account).ok())
+                    .find(|o| o.public_code().to_bytes() == stored.local)
+                    .ok_or(WalletBackupError::Ownership)?;
+                let key = (stored.network, stored.local, stored.peer, stored.account);
+                channels.insert(key, stored.checked(&owner)?);
+            }
+            exposures.extend(previous.state.exposures.iter().cloned());
+        }
         for b in inputs.payments {
             let owner = origins
                 .iter()
@@ -207,7 +235,10 @@ impl WalletBackup {
             let channel = channels
                 .entry(key)
                 .or_insert_with(|| PaymentChannel::new(&owner, b.peer().clone()));
-            let next = (b.next_index() < 1 << 31).then_some(b.next_index());
+            let next = match channel.next_index(b.direction(), b.scope().zone) {
+                Some(old) if b.next_index() < 1 << 31 => Some(old.max(b.next_index())),
+                _ => None,
+            };
             channel
                 .advance_cursor(&owner, b.direction(), b.scope().zone, next)
                 .map_err(|_| WalletBackupError::InvalidInput)?;
@@ -246,12 +277,42 @@ impl WalletBackup {
                 addresses.insert(public.address(), public);
             }
             scope.addresses = addresses.into_values().collect();
-            scope
-                .derivation
-                .sort_by_key(|d| (d.coin.number(), d.account, d.change));
+            let mut derivation: BTreeMap<_, DerivationState> = BTreeMap::new();
+            for cursor in scope.derivation.drain(..) {
+                let key = (cursor.coin.number(), cursor.account, cursor.change);
+                if let Some(old) = derivation.get_mut(&key) {
+                    if old.xpub != cursor.xpub {
+                        return Err(WalletBackupError::Ownership);
+                    }
+                    old.next_index = old.next_index.max(cursor.next_index);
+                } else {
+                    derivation.insert(key, cursor);
+                }
+            }
+            scope.derivation = derivation.into_values().collect();
             scope.nonces.sort_by_key(|n| n.address);
             scope.operations.sort_by_key(|o| o.record.id.0);
         }
+        let mut unique_exposures: BTreeMap<_, StoredPaymentExposure> = BTreeMap::new();
+        for exposure in exposures {
+            let key = (
+                exposure.network,
+                exposure.local,
+                exposure.peer,
+                exposure.account,
+                crate::state::payment::direction_byte(exposure.record.direction),
+                exposure.record.zone.byte(),
+                exposure.record.index,
+            );
+            if unique_exposures
+                .get(&key)
+                .is_some_and(|old| old.record != exposure.record)
+            {
+                return Err(WalletBackupError::InvalidInput);
+            }
+            unique_exposures.insert(key, exposure);
+        }
+        let exposures = unique_exposures.into_values().collect();
         let channels = channels
             .into_iter()
             .map(|((network, local, peer, account), channel)| {

@@ -111,3 +111,7 @@ restore encrypted captures to native SQLite. See [retained backup validation](..
 HD/account/Qi/payment cursor, custody and exposure state in one authenticated
 backup. Detached input collection still requires caller-established consistency;
 allocator request-ID history is outside the existing recovery format.
+
+Portable capture now carries authenticated prior address/payment inventory forward,
+preserving receive-key derivation proofs and maximum cursor floors after recovery.
+Transaction custody remains explicitly supplied by all current account/Qi journals.

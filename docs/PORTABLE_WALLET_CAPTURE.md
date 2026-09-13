@@ -15,6 +15,11 @@ Tokio nor a network provider; the same API runs in a dedicated browser worker.
   and transfer/conversion/wrapping candidate bytes.
 - `payments`: owner/peer/direction journals, combining zone cursors into owned
   payment channels and preserving completed send/receive exposures.
+- `previous_inventory`: an authenticated previous backup's owned addresses, HD
+  burned floors, payment channels and exposures. This carries derivation proofs
+  forward when recovered allocators have no earlier request history. Current
+  account/Qi journals must still supply all custody; this field does not copy old
+  transaction operations or nonce claims.
 - `additional_addresses`: owned address inventory retained outside those journals,
   including addresses recovered from an older backup before starting new allocators.
 
@@ -41,8 +46,16 @@ completed address/exposure inventory, but not allocator request IDs or pending
 search work. Start new allocation IDs above the restored floors; retain the
 public journal separately when exact pending-request resumption is required.
 
-Capture accepts at most 128 journal descriptors totaling 16 MiB of encoded public
-journal state, plus up to 100,000 supplied inventory entries. Full-backup limits
+With `previous_inventory`, HD/payment floors take the maximum across old and new
+state, and exhausted cursors stay exhausted. Exact duplicate addresses/exposures
+are retained once. Conflicting HD xpubs, public origins or alternate burned ranges
+for the same payment child reject the entire capture. All retained public records
+are proved again against the new capture's explicit secret origins. Pass every
+current custody journal even when supplying a previous inventory.
+
+Capture accepts at most 128 journal descriptors. Encoded public journals plus the
+optional previous backup's encoded size total at most 16 MiB, with up to 100,000
+supplied inventory entries. Full-backup limits
 also apply: 64 network/zone scopes, 16 secret origins, 100,000 total records and
 16 MiB encoded plaintext. Duplicate journals or conflicting operation IDs across
 account/Qi journals fail atomically. Generate unique transaction operation IDs
@@ -60,3 +73,7 @@ abandoned ranges, and exhaustion across zones/networks. Encryption restores both
 ledgers and channels to SQLite and recaptures them with the same seed ownership.
 The browser test initializes all journal types in one database and verifies that
 signed claims remain held. See the [retained report](../test-infra/reports/portable-wallet-capture-2026-09-13.json).
+
+Repeated-recovery tests also verify preserved payment ownership proofs, deduplicated
+exposures, higher cursor floors and atomic rejection of conflicting ancestry/ranges.
+See [inventory carry-forward validation](../test-infra/reports/portable-inventory-recapture-2026-09-13.json).

@@ -1,0 +1,157 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "2070384d2d34264f54edb62515f5d74026f56267",
+  "testedWorkingTree": true,
+  "changes": [
+    "Carry authenticated prior address inventory, HD burned floors, payment channels and exposure proofs into a successor recovery capture",
+    "Preserve maximum old/new HD/payment cursor floors and exhausted states",
+    "Deduplicate identical exposures and reject conflicting public origins, account xpubs and burned ranges",
+    "Re-prove carried inventory against explicit private origins; require current account/Qi journals for transaction custody"
+  ],
+  "validation": {
+    "nativeTestsWithBackupAndSqlite": 6,
+    "nativeElapsedSeconds": 22.3,
+    "actualChromiumWorkerTests": 7,
+    "workerElapsedSeconds": 55.36,
+    "nativeWalletSdkAllTargetsClippyWarningsDenied": "passed",
+    "wasmSdkBackupBrowserAllTargetsClippyWarningsDenied": "passed",
+    "nativeWalletSdkRustdocWarningsDenied": "passed",
+    "wasmSdkBackupBrowserRustdocWarningsDenied": "passed",
+    "packageFileMirrors": 79
+  },
+  "fuzz": {
+    "recordedAt": "2026-09-13T14:37:24.972209+00:00",
+    "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+    "fuzzLockSha256": "bbbfa14ce3f8959e01343505be9acdc2daebe6c3f77070bf3a2a9b39a7fe5a5b",
+    "sdkLockSha256": "23e5d30c8d68ca0225745105c4ccacbfac66114f395e4eb92fedf3b8ab717ed7",
+    "targets": [
+      {
+        "name": "wallet_import",
+        "binarySha256": "913de1513749ff8a433851fc272e2709164e1a7a641c681b19c7415e4022796a",
+        "seconds": 120,
+        "exitCode": 0,
+        "addressSanitizer": true,
+        "initialCorpusFiles": 144,
+        "finalCorpusFiles": 829,
+        "executions": 83633,
+        "coverageCounters": 10880,
+        "features": 26151,
+        "rssMiB": 387
+      }
+    ]
+  },
+  "limitations": [
+    "The prior-inventory field copies no previous transaction operations or nonce claims. All current account/Qi journals must be explicitly supplied.",
+    "Automated consistent collection across browser stores and coordinated live restoration remain separate work.",
+    "The existing recovery format preserves allocation floors and inventory, not old allocator request IDs or pending search work.",
+    "Prior backup encoded size plus selected public journals share the 16 MiB input budget; normal full-backup limits remain.",
+    "Fuzz recapture uses fixed toy ownership and the same validated predecessor; conflicting ancestry/ranges are covered deterministically.",
+    "The sanitizer run is a bounded smoke with a 65536-byte input cap, no attacker-selected password KDF and LeakSanitizer disabled.",
+    "No public-network transaction or real funds used."
+  ],
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "2070384d2d34264f54edb62515f5d74026f56267",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61991,
+        "sha256": "13957cb13a751b910f9c3796c3eabba933312dc085426612f6eb5f5cefc03598"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45023,
+        "sha256": "a4d0401d3dc9da126150fa6c4852092f41b02501e985603193b84b6ec75b99c0"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 129260,
+        "sha256": "cb2517451f43d945546efbdb62f6689ca8b0666b4d0f45ab0dada114aa224c58"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45644,
+        "sha256": "a6f181de8ae1fdd98aa6e37ac6e457ffb0c2a4e672f7a5678ecfcab64214ac1f"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47980,
+        "sha256": "372c0d9de40df488135f02004c34838ecc5f4a89e664eba51b929ce967fb7307"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 195378,
+        "sha256": "5739502939328c3aadc38aedc2cbaed9aa19715d300625bab6cf47b80219e0f1"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 166098,
+        "sha256": "8a226406aecd9e5ab6cfb86c8a861b16a7dee97b78fa935d93fa4aa46e66593a"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 78533,
+        "sha256": "c76eab217dc8a47ea0507840f2c8c6c2401f3557f904465483f41f5397300cd4"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24520,
+        "sha256": "08764bac86a7d6e77a53d38fae6e29810d11e0b397b7fb731b3a6f740e658bc6"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34225,
+        "sha256": "5fb3b4c99a269bd17bac510b8ca7d6f3bb9a17b04e06d2d46cc697e0141fd9db"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 269300,
+        "sha256": "af6c33e55a9d7374c7f2053a16f960e9d7e02680e1b9fd5dc1b9a1fa5b76690f"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39314,
+        "sha256": "0364687bd6738ce787122ca425f6993c24f457b4e1825ac8966cead632567ed1"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  }
+}

@@ -554,3 +554,225 @@ async fn combined_backup_initializes_all_browser_journals_without_losing_custody
     assert!(qi.release_unsigned(id(101)).await.is_err());
     assert!(account.release_unsigned(id(100)).await.is_err());
 }
+
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+fn repeated_recovery_keeps_old_payment_proofs_and_maximum_cursor_floors() {
+    let f = Fixture::new();
+    let previous = f.capture();
+    let hd: Vec<_> =
+        f.hd.iter()
+            .map(|b| {
+                AddressAllocationBook::from_backup(&previous, scope(), b.account().clone()).unwrap()
+            })
+            .collect();
+    let payments: Vec<_> = f
+        .payments
+        .iter()
+        .map(|b| {
+            PaymentAllocationBook::from_backup(
+                &previous,
+                scope(),
+                &f.owner,
+                b.peer().clone(),
+                b.direction(),
+            )
+            .unwrap()
+        })
+        .collect();
+    let accounts = [AccountCustodyCapture {
+        book: &f.account,
+        address: &f.account_address,
+    }];
+    let allocations: Vec<_> = hd.iter().collect();
+    let payment_refs: Vec<_> = payments.iter().collect();
+    let without = PortableWalletCapture {
+        allocations: &allocations,
+        accounts: &accounts,
+        qi: &[&f.qi],
+        payments: &payment_refs,
+        ..Default::default()
+    };
+    assert!(
+        WalletBackup::capture_portable(without, vec![BackupOrigin::from_seed(&[1; 16]).unwrap()])
+            .is_err()
+    );
+    let with = PortableWalletCapture {
+        allocations: &allocations,
+        accounts: &accounts,
+        qi: &[&f.qi],
+        payments: &payment_refs,
+        previous_inventory: Some(&previous),
+        ..Default::default()
+    };
+    let recaptured =
+        WalletBackup::capture_portable(with, vec![BackupOrigin::from_seed(&[1; 16]).unwrap()])
+            .unwrap();
+    f.verify(&recaptured);
+    // Capturing the original completed journals again deduplicates exact exposures.
+    let same = WalletBackup::capture_portable(
+        PortableWalletCapture {
+            allocations: &[&f.hd[0], &f.hd[1]],
+            accounts: &accounts,
+            qi: &[&f.qi],
+            payments: &[&f.payments[0], &f.payments[1]],
+            previous_inventory: Some(&previous),
+            ..Default::default()
+        },
+        vec![BackupOrigin::from_seed(&[1; 16]).unwrap()],
+    )
+    .unwrap();
+    f.verify(&same);
+    // Deliberately older cursor inputs cannot rewind the retained inventory floor.
+    let stale_hd = AddressAllocationBook::new(scope(), f.hd[0].account().clone(), 0, 0).unwrap();
+    let stale_payment = PaymentAllocationBook::new(
+        scope(),
+        &f.owner,
+        f.payments[0].peer().clone(),
+        PaymentDirection::Send,
+        0,
+    )
+    .unwrap();
+    let protected = WalletBackup::capture_portable(
+        PortableWalletCapture {
+            allocations: &[&stale_hd],
+            accounts: &accounts,
+            qi: &[&f.qi],
+            payments: &[&stale_payment],
+            previous_inventory: Some(&previous),
+            ..Default::default()
+        },
+        vec![BackupOrigin::from_seed(&[1; 16]).unwrap()],
+    )
+    .unwrap();
+    f.verify(&protected);
+    // This inventory field does not silently copy transaction custody: callers supply all live journals.
+    let inventory = WalletBackup::capture_portable(
+        PortableWalletCapture {
+            previous_inventory: Some(&previous),
+            ..Default::default()
+        },
+        vec![BackupOrigin::from_seed(&[1; 16]).unwrap()],
+    )
+    .unwrap();
+    assert_eq!(
+        inventory.scope_state(scope()).unwrap().operations().count(),
+        0
+    );
+    assert_eq!(
+        inventory
+            .scope_state(scope())
+            .unwrap()
+            .nonce_cursors()
+            .count(),
+        0
+    );
+    assert_eq!(inventory.payment_exposures().count(), 2);
+    assert!(
+        WalletBackup::capture_portable(
+            PortableWalletCapture {
+                previous_inventory: Some(&previous),
+                ..Default::default()
+            },
+            vec![BackupOrigin::from_seed(&[2; 16]).unwrap()]
+        )
+        .is_err()
+    );
+}
+
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+fn retained_inventory_rejects_conflicting_ancestry_and_exposure_ranges() {
+    use quai_sdk::wallet::payment_allocation::PaymentAllocationStatus;
+    let f = Fixture::new();
+    let previous = f.capture();
+    let wrong_account = HdWallet::from_seed(&[2; 16], CoinType::Quai)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let conflicting = AddressAllocationBook::new(scope(), wrong_account, 10000, 0).unwrap();
+    assert!(
+        WalletBackup::capture_portable(
+            PortableWalletCapture {
+                allocations: &[&conflicting],
+                previous_inventory: Some(&previous),
+                ..Default::default()
+            },
+            vec![
+                BackupOrigin::from_seed(&[1; 16]).unwrap(),
+                BackupOrigin::from_seed(&[2; 16]).unwrap()
+            ]
+        )
+        .is_err()
+    );
+    let PaymentAllocationStatus::Completed(old) = &f.payments[0]
+        .allocation(PaymentAllocationId(id(1).0))
+        .unwrap()
+        .status
+    else {
+        panic!("fixture exposure")
+    };
+    assert!(old.index > 0);
+    let mut different = PaymentAllocationBook::new(
+        scope(),
+        &f.owner,
+        f.payments[0].peer().clone(),
+        PaymentDirection::Send,
+        1,
+    )
+    .unwrap();
+    different
+        .reserve(PaymentAllocationId(id(7).0), old.index)
+        .unwrap();
+    different
+        .complete(&f.owner, PaymentAllocationId(id(7).0), old.index)
+        .unwrap();
+    assert!(
+        WalletBackup::capture_portable(
+            PortableWalletCapture {
+                payments: &[&different],
+                previous_inventory: Some(&previous),
+                ..Default::default()
+            },
+            vec![BackupOrigin::from_seed(&[1; 16]).unwrap()]
+        )
+        .is_err()
+    );
+    let mut advanced_hd = f.hd[0].clone();
+    advanced_hd
+        .reserve(AddressAllocationId(id(9).0), false, 25)
+        .unwrap();
+    let mut advanced_payment = f.payments[0].clone();
+    advanced_payment
+        .reserve(PaymentAllocationId(id(9).0), 25)
+        .unwrap();
+    let newer = WalletBackup::capture_portable(
+        PortableWalletCapture {
+            allocations: &[&advanced_hd],
+            payments: &[&advanced_payment],
+            previous_inventory: Some(&previous),
+            ..Default::default()
+        },
+        vec![BackupOrigin::from_seed(&[1; 16]).unwrap()],
+    )
+    .unwrap();
+    assert_eq!(
+        AddressAllocationBook::from_backup(&newer, scope(), advanced_hd.account().clone())
+            .unwrap()
+            .next_index(false),
+        advanced_hd.next_index(false)
+    );
+    assert_eq!(
+        PaymentAllocationBook::from_backup(
+            &newer,
+            scope(),
+            &f.owner,
+            advanced_payment.peer().clone(),
+            PaymentDirection::Send
+        )
+        .unwrap()
+        .next_index(),
+        advanced_payment.next_index()
+    );
+    assert_eq!(newer.payment_exposures().count(), 2);
+}

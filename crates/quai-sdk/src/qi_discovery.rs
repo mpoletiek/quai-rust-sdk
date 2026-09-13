@@ -10,8 +10,7 @@ use quai_wallet::storage::{PublicAddress, Snapshot, SqliteStore};
 use quai_wallet::{AccountPublic, CandidateCoin, CoinType, Search, WalletError};
 use std::collections::BTreeSet;
 
-/// Consecutive matching Qi addresses without current outpoints before gap stop.
-pub const DEFAULT_QI_GAP: u32 = 50;
+pub use crate::discovery::DEFAULT_QI_GAP;
 
 /// Mutually exclusive current-snapshot balance buckets in native Qits.
 /// Durable claims take precedence over lock/expiry categories.

@@ -5,7 +5,7 @@ pub mod accounts;
 pub mod contracts;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod deployments;
-#[cfg(all(feature = "wallet", not(target_arch = "wasm32")))]
+#[cfg(feature = "wallet")]
 pub mod discovery;
 #[cfg(all(feature = "sqlite", feature = "payments", not(target_arch = "wasm32")))]
 pub mod payment_channels;

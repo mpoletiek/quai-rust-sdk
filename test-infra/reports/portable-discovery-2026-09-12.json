@@ -1,0 +1,12 @@
+{
+  "nativeDiscoveryTests": 5,
+  "finalNetworkSwitchRegression": "passed",
+  "chromiumSdkWorkerTests": 3,
+  "existingChromiumBrowserTests": 11,
+  "strictNativeClippy": "passed",
+  "strictSdkWasmClippy": "passed",
+  "strictSdkRustdoc": "passed",
+  "defaultGapTest": "100 empty matching addresses, 50 per branch, with raw index skips",
+  "localRead": "portable-qi-read-2026-09-12.json",
+  "qualification": "Current-state source observations and explicit bounded coverage; no historical/atomic recovery, portable reservation engine or real extension qualification."
+}

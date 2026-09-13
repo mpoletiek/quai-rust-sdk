@@ -249,3 +249,21 @@ are crate-local and 56 mirrored fixture/license files are checked against their
 origins. An isolated CI job repeats the offline rehearsal after dependency fetch.
 No crate was published; registry bootstrap, release approval, docs.rs and
 independent security qualification remain separate gates.
+
+
+The account RPC discovery source now works with non-Send browser transports as
+well as native providers. A wasm-specific SDK test target avoids native Tokio
+runtime features and runs the complete account-xpub/Fetch/numbered-state scan in
+a Chromium dedicated worker. Three actual worker tests passed, including a changed
+checkpoint and explicit history/cancellation failures. The browser CI job now
+runs these facade-level tests in addition to the transport and worker suites.
+
+
+Portable Qi account discovery now needs only an account xpub and provider,
+including Browser Fetch. It retains compact current outputs/locks, enforces
+address and total-output budgets, checks duplicate references and before/after
+network/head identity, and returns raw-index continuations. Native tests observed
+exactly 50 empty matching addresses on each branch; dedicated-worker tests cover
+a funded-address gap reset and lock boundary. `watch_qi` is a read-only native
+example requiring no SQLite store. Fully spent history, atomic historical
+snapshots and browser claim/state integration remain explicit separate limits.

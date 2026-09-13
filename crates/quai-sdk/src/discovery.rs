@@ -1,4 +1,9 @@
-//! Block-pinned account observations for the wallet's bounded discovery engine.
+//! Portable numbered account observations and bounded current Qi outpoint discovery.
+mod qi;
+pub use qi::{
+    CurrentQiAddress, CurrentQiDiscovery, CurrentQiOutput, DEFAULT_QI_GAP, ObservedQiBalance,
+    QiDiscoveryError, QiDiscoveryOptions, discover_qi,
+};
 use quai_primitives::QuaiAddress;
 use quai_provider::{BlockTag, Provider};
 use quai_rpc::{Transport, U256};
@@ -7,6 +12,15 @@ use quai_wallet::discovery::{
     ObservationSource, ScopedCheckpoint,
 };
 use quai_wallet::{CoinType, DerivedAddress};
+
+#[cfg(not(target_arch = "wasm32"))]
+use std::marker::Sync as SourceConcurrency;
+// Browser transports own thread-local JS handles; native discovery futures
+// retain their existing Send/Sync contract.
+#[cfg(target_arch = "wasm32")]
+trait SourceConcurrency {}
+#[cfg(target_arch = "wasm32")]
+impl<T> SourceConcurrency for T {}
 
 /// Account-ledger observation source backed by explicit numbered RPC reads.
 ///
@@ -40,7 +54,7 @@ impl<'a, T: Transport> AccountRpcSource<'a, T> {
         Ok(())
     }
 }
-impl<T: Transport + Sync> ObservationSource for AccountRpcSource<'_, T> {
+impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_, T> {
     fn history_capability(&self, _: NetworkScope, _: CoinType) -> HistoryCapability {
         HistoryCapability::CurrentStateOnly
     }

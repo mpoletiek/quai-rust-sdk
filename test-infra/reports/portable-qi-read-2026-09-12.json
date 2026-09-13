@@ -1,0 +1,29 @@
+{
+  "observation": {
+    "addresses": 129,
+    "block_hash": "0x0000129b3544220eb62e9ae4d671c4fd43d41b6f135e677897dc2185d254882c",
+    "candidate_height": "8",
+    "chain_id": "1337",
+    "genesis": "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee",
+    "head": "7",
+    "history": "current outpoints only; empty addresses can have spent history",
+    "locked_qits": "0",
+    "next_index": [
+      34307,
+      24947
+    ],
+    "outputs": 1,
+    "stopped": [
+      "GapLimit",
+      "GapLimit"
+    ],
+    "submitted": false,
+    "total_qits": "10000",
+    "unlocked_qits": "10000"
+  },
+  "elapsedSeconds": 4.766,
+  "childCpuSeconds": 4.707,
+  "buildProfile": "release; Rust 1.97.1",
+  "fixtureAccount": "public seed 0x07 repeated 32 bytes, m/44'/969'/0'",
+  "qualification": "Read-only scan against the documented patched development chain; no signing or submission; not historical/atomic recovery or a portable performance guarantee."
+}

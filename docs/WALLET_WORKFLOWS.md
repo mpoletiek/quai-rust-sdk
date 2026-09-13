@@ -355,3 +355,50 @@ the receipt's ledger and account fields against the stored signed bytes and
 rechecks the confirmation head before recording inclusion. It does not select
 replacement winners. Neither API unlocks spent claims, rebroadcasts transactions,
 or treats confirmation counts as irreversible finality.
+
+
+## Browser account discovery
+
+`discovery::AccountRpcSource` is available with `wallet` on native and wasm32.
+Compose it with a `Provider<BrowserFetchTransport>` and pass it to
+`wallet::discovery::discover` with an account xpub and explicit index bounds.
+The source queries balance/nonce at a numbered block, validates network identity,
+and rechecks canonicality around its reads. Browser transports retain their
+thread-local JS handles; native discovery keeps its Send/Sync requirements.
+No signer or native async runtime is required for this observation workflow.
+
+The current-state source refuses `require_history = true` and does not interpret
+zero balances/nonces as proof of no historical activity. Qi still uses the
+separate current-outpoint workflow rather than this block-pinned account source.
+Actual Chromium dedicated-worker tests cover complete facade discovery and
+checkpoint changes; run `run_browser.py --suite sdk-worker` with the existing
+wasm runner setup. This does not add browser SQLite sessions or a complete
+portable wallet-state engine.
+
+
+`discovery::discover_qi` provides a portable account-xpub current-outpoint scan.
+`QiDiscoveryOptions::default()` uses gap 50 independently for receive and change,
+explicit raw ranges of one million each, and separate address/output budgets.
+Set `gap_limit: None` for a bounded deep scan. The result preserves actual child
+indices, empty matching addresses, fixed denominations and reported unlock
+heights; it discards arbitrary RPC extensions and rejects duplicate outputs
+across addresses. Network identity is checked before and after scanning.
+
+The initial, final and numbered heads must agree for `balance_at` to succeed.
+A cancelled scan returns continuation metadata with unchecked canonicality;
+head changes return `CanonicalStatus::Changed`. Neither can produce a checked
+balance summary. Reported unlocked value still needs local reservation, expiry
+and node-state checks before spending. Header agreement does not make multiple
+latest-only RPC reads atomic or establish historical usage beyond the bounds.
+Native durable import/refresh continues to use `qi_discovery::scan_and_refresh_qi`;
+browser applications own persistence and reservation reconciliation.
+
+For a read-only native scan without SQLite or private keys:
+
+```sh
+cargo run -p quai-sdk --example watch_qi -- RPC_URL CHAIN_ID_HEX GENESIS_HASH ZONE ACCOUNT_INDEX ACCOUNT_XPUB
+```
+
+Supply the trusted network genesis and a depth-three Qi account xpub, with its
+correct account index. The example reports bounded coverage and exact Qit totals
+without printing the xpub, deriving private keys or submitting transactions.

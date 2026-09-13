@@ -29,7 +29,7 @@ Browser consumers use `default-features = false` and choose the portable feature
 they need. SQLite sessions and native HTTP/WebSocket transports are target gated.
 The native examples include `offline_wallet`, `qi_scan`, `payment_codes`,
 `wrapper_intents`, `artifact_deployment`, `read_network`, `inspect_pool` and
-`inspect_blocks`; check each example's feature and endpoint requirements.
+`inspect_blocks` and the account-xpub `watch_qi`; check each example's feature and endpoint requirements.
 
 Qi amounts use fixed denominations. Current discovery scans receive and change
 branches with a default gap of 50 matching addresses, with explicit deeper ranges.

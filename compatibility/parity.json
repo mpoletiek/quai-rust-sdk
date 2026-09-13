@@ -19459,17 +19459,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::snapshot"
+        "quai_wallet::storage::SqliteStore::snapshot",
+        "quai_sdk::discovery::discover_qi",
+        "quai_sdk::discovery::CurrentQiDiscovery"
       ],
-      "feature": "sqlite,wallet,payments",
+      "feature": "wallet (portable); sqlite (durable native)",
       "status": "partial",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/discovery.rs",
+        "crates/quai-sdk/tests/browser_discovery.rs"
       ],
       "docs": [
         "docs/WALLET_WORKFLOWS.md"
       ],
-      "deviation": "Stored current coin observations preserve locks and reservations; refresh is explicit."
+      "deviation": "Stored current coin observations preserve locks and reservations; refresh is explicit. Portable native/wasm scanning returns compact outpoints, raw-index coverage and checked current-head status without requiring a signer or SQLite; local claims remain application-owned."
     },
     {
       "id": ".:QiHDWallet:instance:getPaymentChannelAddressesForZone",
@@ -19638,17 +19642,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi_discovery::scan_and_refresh_qi"
+        "quai_sdk::qi_discovery::scan_and_refresh_qi",
+        "quai_sdk::discovery::discover_qi",
+        "quai_sdk::discovery::CurrentQiDiscovery"
       ],
-      "feature": "sqlite,wallet,payments",
+      "feature": "wallet (portable); sqlite (durable native)",
       "status": "partial",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/discovery.rs",
+        "crates/quai-sdk/tests/browser_discovery.rs"
       ],
       "docs": [
         "docs/WALLET_WORKFLOWS.md"
       ],
-      "deviation": "Current outpoint gap defaults to 50 matching addresses on each branch; explicit raw ranges support deep recovery. Does not claim full historical recovery."
+      "deviation": "Current outpoint gap defaults to 50 matching addresses on each branch; explicit raw ranges support deep recovery. Does not claim full historical recovery. Portable native/wasm scanning returns compact outpoints, raw-index coverage and checked current-head status without requiring a signer or SQLite; local claims remain application-owned."
     },
     {
       "id": ".:QiHDWallet:instance:sendTransaction",
@@ -64472,17 +64480,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::snapshot"
+        "quai_wallet::storage::SqliteStore::snapshot",
+        "quai_sdk::discovery::discover_qi",
+        "quai_sdk::discovery::CurrentQiDiscovery"
       ],
-      "feature": "sqlite,wallet,payments",
+      "feature": "wallet (portable); sqlite (durable native)",
       "status": "partial",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/discovery.rs",
+        "crates/quai-sdk/tests/browser_discovery.rs"
       ],
       "docs": [
         "docs/WALLET_WORKFLOWS.md"
       ],
-      "deviation": "Stored current coin observations preserve locks and reservations; refresh is explicit."
+      "deviation": "Stored current coin observations preserve locks and reservations; refresh is explicit. Portable native/wasm scanning returns compact outpoints, raw-index coverage and checked current-head status without requiring a signer or SQLite; local claims remain application-owned."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getPaymentChannelAddressesForZone",
@@ -64651,17 +64663,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi_discovery::scan_and_refresh_qi"
+        "quai_sdk::qi_discovery::scan_and_refresh_qi",
+        "quai_sdk::discovery::discover_qi",
+        "quai_sdk::discovery::CurrentQiDiscovery"
       ],
-      "feature": "sqlite,wallet,payments",
+      "feature": "wallet (portable); sqlite (durable native)",
       "status": "partial",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/discovery.rs",
+        "crates/quai-sdk/tests/browser_discovery.rs"
       ],
       "docs": [
         "docs/WALLET_WORKFLOWS.md"
       ],
-      "deviation": "Current outpoint gap defaults to 50 matching addresses on each branch; explicit raw ranges support deep recovery. Does not claim full historical recovery."
+      "deviation": "Current outpoint gap defaults to 50 matching addresses on each branch; explicit raw ranges support deep recovery. Does not claim full historical recovery. Portable native/wasm scanning returns compact outpoints, raw-index coverage and checked current-head status without requiring a signer or SQLite; local claims remain application-owned."
     },
     {
       "id": "./wallet:QiHDWallet:instance:sendTransaction",

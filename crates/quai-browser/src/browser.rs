@@ -6,7 +6,11 @@ use serde_json::{Value, json};
 use std::{cell::Cell, fmt, rc::Rc};
 use wasm_bindgen::prelude::*;
 mod submission;
+mod wallet_send;
 pub use submission::InjectedSubmissionTransport;
+pub use wallet_send::{
+    WalletSendAcknowledgement, WalletSendError, WalletSendIdentity, WalletSendObservation,
+};
 
 #[wasm_bindgen(module = "/src/bridge.js")]
 extern "C" {
@@ -471,16 +475,12 @@ impl InjectedProvider {
         Ok(signature)
     }
 
-    /// Explicitly request signing of an exact, fully populated type-0 Quai
-    /// transaction. Does not estimate, fill fields, request accounts or broadcast.
-    /// Canonical returned protobuf must recover the requested exposed account
-    /// and match every unsigned field, including ordered access-list entries.
-    /// Dropping the future cannot retract an already displayed wallet approval.
-    pub async fn sign_quai_transaction(
+    fn transaction_params(
         &self,
         address: QuaiAddress,
         transaction: &quai_consensus::QuaiTransaction,
-    ) -> Result<quai_consensus::SignedQuaiTransaction, BrowserError> {
+        method: &str,
+    ) -> Result<Value, BrowserError> {
         if transaction.chain_id != self.expected_chain || transaction.chain_id == U256::ZERO {
             return Err(BrowserError::ChainMismatch);
         }
@@ -509,9 +509,22 @@ impl InjectedProvider {
         let params = json!([rpc]);
         // Check the exact outgoing envelope before even passive wallet reads.
         encode(
-            &json!({"method":"quai_signTransaction","params":params,"shard":self.shard.encoded()}),
+            &json!({"method":method,"params":params,"shard":self.shard.encoded()}),
             self.config.max_request_bytes,
         )?;
+        Ok(params)
+    }
+    /// Explicitly request signing of an exact, fully populated type-0 Quai
+    /// transaction. Does not estimate, fill fields, request accounts or broadcast.
+    /// Canonical returned protobuf must recover the requested exposed account
+    /// and match every unsigned field, including ordered access-list entries.
+    /// Dropping the future cannot retract an already displayed wallet approval.
+    pub async fn sign_quai_transaction(
+        &self,
+        address: QuaiAddress,
+        transaction: &quai_consensus::QuaiTransaction,
+    ) -> Result<quai_consensus::SignedQuaiTransaction, BrowserError> {
+        let params = self.transaction_params(address, transaction, "quai_signTransaction")?;
         let revision = self.context_revision();
         self.check_chain().await?;
         if !Self::accounts_from(self.raw("quai_accounts", json!([])).await?)?.contains(&address) {

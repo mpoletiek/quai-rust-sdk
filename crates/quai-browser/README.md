@@ -93,7 +93,7 @@ The explicitly invoked wallet APIs are:
 
 Provider errors retain only a safe numeric code, including EIP-1193 user rejection 4001 and unsupported method 4200. Provider messages, data and request payloads never enter error strings. Injected results use a bounded JSON-only serializer that rejects cycles, accessors, custom prototypes, BigInt and unsafe integer numbers; chain/amount quantities remain hex strings. Memory already allocated by an injected provider is outside this adapter's control.
 
-Dropping or timing out an injected request ends this adapter's wait. EIP-1193 has no cancellation primitive that retracts a wallet approval dialog or operation. No account/signature request is retried automatically. Generic `quai_sendTransaction`, chain switching, permission enumeration/revocation and wallet discovery remain unimplemented. Exact transaction signing and opt-in signed-payload submission are described below. Passive account/chain/disconnect
+Dropping or timing out an injected request ends this adapter's wait. EIP-1193 has no cancellation primitive that retracts a wallet approval dialog or operation. No account/signature request is retried automatically. Generic transport calls remain restricted. Direct wallet-mediated sending, exact transaction signing and opt-in signed-payload submission are described below; chain switching, permission enumeration/revocation and wallet discovery remain unimplemented. Passive account/chain/disconnect
 monitoring is available through `context_revision()` and
 `monitors_context_events()`. A changed context rejects an in-flight signature;
 providers without removable event listeners are rechecked explicitly.
@@ -132,13 +132,65 @@ submission begins preserves that expected ID as an ambiguous outcome. No write i
 retried. Keep the ID and signed bytes before awaiting: dropping a future cancels
 only the local wait and does not retract submission or an extension's approval UI.
 
-The pinned JS signer accepts draft requests through `quai_sendTransaction`; Rust
-uses explicit exact signing followed by verified raw submission. Applications own
+For exact signing, Rust separates signing from verified raw submission. The direct
+wallet-mediated alternative below uses `quai_sendTransaction`. Applications own
 preparation, durable reservations and confirmation/recovery. A real extension may
 not implement signing or raw submission: these methods are tested with an explicit
 synthetic provider in Chromium, not qualified against a live wallet extension.
 Injected Qi signing remains unsupported by the pinned reference; local verified Qi
 signatures can be submitted through the explicit transport.
+
+## Wallet-mediated sending
+
+Some extensions expose `quai_sendTransaction` while declining offline signing.
+`InjectedProvider::send_quai_transaction(address, &transaction)` supports this
+flow with a fully populated request and explicit chain/account checks. It does
+not request additional accounts, populate omitted fields or retry the send.
+Retain `WalletSendIdentity::new(address, &transaction)` before awaiting: it stores
+the requested account, chain, nonce and unsigned signing digest. **That digest is
+not a transaction ID.** Keep the full request in application state as well.
+
+A successful call returns `WalletSendAcknowledgement`, containing the original
+request and a structurally valid wallet-reported hash. It is not proof of exact
+signing or inclusion. `acknowledgement.observe(&provider)` makes one readonly
+lookup and reconstructs canonical signed bytes from the RPC transaction fields.
+The recovered sender and computed hash must match the node's claimed identity.
+`matches_request()` then explicitly reports whether every field and sender match
+the original request. The actual verified signed transaction remains available
+when the wallet changed fields; changes are never silently treated as exact signing.
+Node inclusion metadata still needs separate canonical receipt/confirmation checks.
+
+```rust,ignore
+let identity = quai_browser::WalletSendIdentity::new(address, &transaction)?;
+// Persist identity and the complete request before dispatch.
+let acknowledgement = injected.send_quai_transaction(address, &transaction).await?;
+// Persist the reported hash for later readonly reconciliation.
+if let Some(observed) = acknowledgement.observe(&provider).await? {
+    let exact = observed.matches_request();
+    let actual = observed.signed();
+    // Present any wallet changes and track this actual transaction's receipt.
+}
+```
+
+`WalletSendError::Preflight` means no transaction request was dispatched. Once
+dispatch begins, failures—including wallet rejection, timeout and context change—
+are conservatively `Ambiguous`, retaining the original request identity and any
+parseable reply hash. Dropping the future does not retract an approval or send.
+Without a returned hash, consult the wallet's activity and the account's node
+history; the requested nonce/digest alone cannot prove what the wallet submitted.
+Do not automatically retry or release claims based on an absent transaction.
+A lookup returning `None` means not indexed at that node, not definitively dropped.
+`WalletSendAcknowledgement::from_reported_hash` reconstructs the unverified handle
+from the saved request and reply hash after restart or an ambiguous error; it still
+requires readonly signed-transaction verification.
+
+The pinned Pelagus source exposes wallet-mediated sending but does not forward
+all request fields (including nonce/access list) in that path. This is why exact
+matching is an observation result, not a promise made at request time. Current
+runtime tests use a synthetic selected provider; real extension interoperability
+remains unqualified. The request method and quantity/access-list shapes follow
+pinned quais.js; automatic unbounded post-send polling is replaced with explicit
+bounded reads. Chain switching/discovery and full browser wallet state remain open.
 
 ## Browser boundaries
 
@@ -154,7 +206,7 @@ signatures can be submitted through the explicit transport.
 
 On 2026-09-13 the crate compiled with Rust 1.97.1 for `wasm32-unknown-unknown` and ran in actual headless Chromium through wasm-bindgen-test 0.3.78. Tests use a separate loopback HTTP server with CORS plus a synthetic injected wallet object; they do not load a real wallet extension. Signing uses already-public fixture scalars; entropy tests use ephemeral unfunded keys.
 
-Browser tests cover real Fetch path/query and ID validation, refused redirects, streamed oversize data, deadlines and future cancellation, concurrency capacity, exact injected shard and account/signing arguments, no automatic prompts, chain mismatch, user-rejection redaction, malformed/accessor results, unauthorized or wrong-zone signing, non-ASCII signatures, and secure entropy. Seventeen dedicated-worker tests include five WebSocket tests and seven injected transaction tests and verify Fetch/provider composition, timeout, Web Crypto, HD Qi grinding, verified legacy-keystore decryption and native Rust crypto running inside WebAssembly without Window or Tokio. The window suite passes 23 tests, including five real WebSocket tests and seven transaction signing/submission tests shared with the worker suite. Twelve Node bridge tests additionally cover queue budgets and cancellation between JS delivery and Rust resumption. Additional native tests exercise limits, permission allowlists, bounded JSON serialization and envelope validation.
+Browser tests cover real Fetch path/query and ID validation, refused redirects, streamed oversize data, deadlines and future cancellation, concurrency capacity, exact injected shard and account/signing arguments, no automatic prompts, chain mismatch, user-rejection redaction, malformed/accessor results, unauthorized or wrong-zone signing, non-ASCII signatures, and secure entropy. Twenty-two dedicated-worker tests include five WebSocket tests and twelve injected transaction tests and verify Fetch/provider composition, timeout, Web Crypto, HD Qi grinding, verified legacy-keystore decryption and native Rust crypto running inside WebAssembly without Window or Tokio. The window suite passes 28 tests, including five real WebSocket tests and twelve transaction signing/submission tests shared with the worker suite. Twelve Node bridge tests additionally cover queue budgets and cancellation between JS delivery and Rust resumption. Additional native tests exercise limits, permission allowlists, bounded JSON serialization and envelope validation.
 
 With Rust's wasm target, matching wasm-bindgen CLI 0.2.128 and Chromium/chromedriver installed:
 

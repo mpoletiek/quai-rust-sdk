@@ -41,6 +41,13 @@
     "browser": "passed",
     "macos": "Two replay fixture failures consistent with identical wall-clock filenames and cross-test database interference. Replaced clock-only naming with an atomic sequence and exclusive file creation. Added equal-clock isolation regression.",
     "localReplayTestsAfterFix": 3,
-    "macosRerun": "pending"
+    "macosRerun": {
+      "run": 34743298214,
+      "commit": "de8858ba3036126f58cf631a609956c6cd1b3bf9",
+      "macos": "passed",
+      "linux": "passed",
+      "windows": "passed",
+      "otherJobFailures": "Browser runner and extracted-package toolchain selection; addressed in the direct-send followup."
+    }
   }
 }

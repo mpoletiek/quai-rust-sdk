@@ -13,6 +13,7 @@ from pathlib import Path, PurePosixPath
 import subprocess
 import tarfile
 import tempfile
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -54,6 +55,11 @@ def main():
     report_path = args.report.resolve()
     report_path.parent.mkdir(parents=True, exist_ok=True)
     log_path = report_path.with_suffix('.log')
+    # Cargo commands below also run outside the checkout, where rustup cannot
+    # discover this repository's toolchain file. Preserve the same toolchain for
+    # extracted consumers (including their installed Wasm standard library).
+    toolchain = tomllib.loads((ROOT / 'rust-toolchain.toml').read_text())['toolchain']['channel']
+    os.environ.setdefault('RUSTUP_TOOLCHAIN', toolchain)
     subprocess.run(['python3', str(ROOT / 'test-infra/sync_package_files.py'), '--check'], check=True)
     metadata = json.loads(subprocess.check_output(
         ['cargo', 'metadata', '--no-deps', '--format-version', '1', '--offline'], cwd=ROOT))

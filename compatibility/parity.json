@@ -2976,7 +2976,7 @@
       "docs": [
         "crates/quai-browser/README.md"
       ],
-      "deviation": "Explicit selected provider, fixed chain/shard, bounded verified account/message/typed-data/transaction signing, passive context events and opt-in signed submission. Full browser wallet-state persistence, discovery and real extension qualification remain open."
+      "deviation": "Explicit selected provider, fixed chain/shard, bounded verified message/typed/transaction signing, passive context events, direct wallet-mediated sends with readonly verification and opt-in signed submission. Full browser wallet-state persistence, discovery and real extension qualification remain open."
     },
     {
       "id": ".:BrowserProvider:instance:_clearTimeout",
@@ -16977,19 +16977,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::InjectedProvider::sign_quai_transaction",
-        "quai_browser::InjectedProvider::signed_submission_transport",
-        "quai_provider::Provider::broadcast"
+        "quai_browser::InjectedProvider::send_quai_transaction",
+        "quai_browser::WalletSendAcknowledgement::observe",
+        "quai_provider::Transaction::verified_quai"
       ],
       "feature": "browser",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-browser/tests/support/injected_transaction.rs"
+        "crates/quai-browser/tests/support/injected_transaction.rs",
+        "crates/quai-provider/tests/verified_transaction.rs"
       ],
       "docs": [
-        "crates/quai-browser/README.md"
+        "crates/quai-browser/README.md",
+        "crates/quai-provider/README.md"
       ],
-      "deviation": "Exact two-phase signing and verified raw submission are implemented. Direct wallet-mediated quai_sendTransaction remains open: extensions may expose sending while declining offline transaction signing. Caller owns durable preparation and confirmation; no implicit retries."
+      "deviation": "Fully populated quai_sendTransaction request after chain/account checks, with no implicit retries. Typed acknowledgement preserves original request and wallet-reported hash; one-shot readonly observation independently verifies signed bytes and exposes exact-request matching. No unbounded automatic lookup polling, hidden field population or provider-bound transaction response. Unknown outcomes retain request identity even without a returned hash."
     },
     {
       "id": ".:JsonRpcSigner:instance:sendUncheckedTransaction",
@@ -17001,19 +17003,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::InjectedProvider::sign_quai_transaction",
-        "quai_browser::InjectedProvider::signed_submission_transport",
-        "quai_provider::Provider::broadcast"
+        "quai_browser::InjectedProvider::send_quai_transaction",
+        "quai_browser::WalletSendAcknowledgement::observe",
+        "quai_provider::Transaction::verified_quai"
       ],
       "feature": "browser",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-browser/tests/support/injected_transaction.rs"
+        "crates/quai-browser/tests/support/injected_transaction.rs",
+        "crates/quai-provider/tests/verified_transaction.rs"
       ],
       "docs": [
-        "crates/quai-browser/README.md"
+        "crates/quai-browser/README.md",
+        "crates/quai-provider/README.md"
       ],
-      "deviation": "Exact two-phase signing and verified raw submission are implemented. Direct wallet-mediated quai_sendTransaction remains open: extensions may expose sending while declining offline transaction signing. Caller owns durable preparation and confirmation; no implicit retries."
+      "deviation": "Fully populated quai_sendTransaction request after chain/account checks, with no implicit retries. Typed acknowledgement preserves original request and wallet-reported hash; one-shot readonly observation independently verifies signed bytes and exposes exact-request matching. No unbounded automatic lookup polling, hidden field population or provider-bound transaction response. Unknown outcomes retain request identity even without a returned hash."
     },
     {
       "id": ".:JsonRpcSigner:instance:signMessage",
@@ -46381,7 +46385,7 @@
       "docs": [
         "crates/quai-browser/README.md"
       ],
-      "deviation": "Explicit selected provider, fixed chain/shard, bounded verified account/message/typed-data/transaction signing, passive context events and opt-in signed submission. Full browser wallet-state persistence, discovery and real extension qualification remain open."
+      "deviation": "Explicit selected provider, fixed chain/shard, bounded verified message/typed/transaction signing, passive context events, direct wallet-mediated sends with readonly verification and opt-in signed submission. Full browser wallet-state persistence, discovery and real extension qualification remain open."
     },
     {
       "id": "./providers:BrowserProvider:instance:_clearTimeout",
@@ -51690,19 +51694,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::InjectedProvider::sign_quai_transaction",
-        "quai_browser::InjectedProvider::signed_submission_transport",
-        "quai_provider::Provider::broadcast"
+        "quai_browser::InjectedProvider::send_quai_transaction",
+        "quai_browser::WalletSendAcknowledgement::observe",
+        "quai_provider::Transaction::verified_quai"
       ],
       "feature": "browser",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-browser/tests/support/injected_transaction.rs"
+        "crates/quai-browser/tests/support/injected_transaction.rs",
+        "crates/quai-provider/tests/verified_transaction.rs"
       ],
       "docs": [
-        "crates/quai-browser/README.md"
+        "crates/quai-browser/README.md",
+        "crates/quai-provider/README.md"
       ],
-      "deviation": "Exact two-phase signing and verified raw submission are implemented. Direct wallet-mediated quai_sendTransaction remains open: extensions may expose sending while declining offline transaction signing. Caller owns durable preparation and confirmation; no implicit retries."
+      "deviation": "Fully populated quai_sendTransaction request after chain/account checks, with no implicit retries. Typed acknowledgement preserves original request and wallet-reported hash; one-shot readonly observation independently verifies signed bytes and exposes exact-request matching. No unbounded automatic lookup polling, hidden field population or provider-bound transaction response. Unknown outcomes retain request identity even without a returned hash."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:sendUncheckedTransaction",
@@ -51714,19 +51720,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::InjectedProvider::sign_quai_transaction",
-        "quai_browser::InjectedProvider::signed_submission_transport",
-        "quai_provider::Provider::broadcast"
+        "quai_browser::InjectedProvider::send_quai_transaction",
+        "quai_browser::WalletSendAcknowledgement::observe",
+        "quai_provider::Transaction::verified_quai"
       ],
       "feature": "browser",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-browser/tests/support/injected_transaction.rs"
+        "crates/quai-browser/tests/support/injected_transaction.rs",
+        "crates/quai-provider/tests/verified_transaction.rs"
       ],
       "docs": [
-        "crates/quai-browser/README.md"
+        "crates/quai-browser/README.md",
+        "crates/quai-provider/README.md"
       ],
-      "deviation": "Exact two-phase signing and verified raw submission are implemented. Direct wallet-mediated quai_sendTransaction remains open: extensions may expose sending while declining offline transaction signing. Caller owns durable preparation and confirmation; no implicit retries."
+      "deviation": "Fully populated quai_sendTransaction request after chain/account checks, with no implicit retries. Typed acknowledgement preserves original request and wallet-reported hash; one-shot readonly observation independently verifies signed bytes and exposes exact-request matching. No unbounded automatic lookup polling, hidden field population or provider-bound transaction response. Unknown outcomes retain request identity even without a returned hash."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:signMessage",

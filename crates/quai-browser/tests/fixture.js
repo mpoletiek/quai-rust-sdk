@@ -8,6 +8,7 @@ export function fixtureProvider(mode) {
         removeListener(event, fn) { listeners.get(event)?.delete(fn); },
         emit(event) { for (const fn of listeners.get(event) || []) fn(); },
         listenerCount() { return [...listeners.values()].reduce((n, set) => n + set.size, 0); },
+        transaction: null,
         signature: "0x" + "11".repeat(64) + "1b",
         finish(value) { pending?.(value); },
         async request(payload) {
@@ -18,6 +19,14 @@ export function fixtureProvider(mode) {
             if (payload.method === 'quai_requestAccounts' || payload.method === 'quai_accounts') return mode === 'unavailable' ? [] : ['0x0049cda3305ccb9cb23e7ce2528cef555e9a5b32'];
             if (payload.method === 'personal_sign' && mode === 'change_during_sign') this.emit('accountsChanged');
             if (payload.method === 'quai_signTypedData_v4' && mode === 'change_during_sign') this.emit('chainChanged');
+            if (payload.method === 'quai_getTransactionByHash') return this.transaction;
+            if (payload.method === 'quai_sendTransaction') {
+                if (mode === 'wallet_context_change') this.emit('accountsChanged');
+                if (mode === 'wallet_denied') throw {code:4001,message:'SECRET_PROVIDER_DATA'};
+                if (mode === 'wallet_unsupported') throw {code:4200,message:'SECRET_PROVIDER_DATA'};
+                if (mode === 'wallet_hang') return new Promise(resolve => {pending=resolve;});
+                return this.signature;
+            }
             if (payload.method === 'quai_sendRawTransaction') {
                 if (mode === 'change_during_send') this.emit('disconnect');
                 if (mode === 'reject_send') throw {code:4200,message:'SECRET_PROVIDER_DATA'};
@@ -48,3 +57,5 @@ export function setSignature(provider, signature) { provider.signature = signatu
 
 export function listenerCount(provider) { return provider.listenerCount(); }
 export function emitContextChange(provider, event) { provider.emit(event); }
+
+export function setTransaction(provider, json) { provider.transaction = JSON.parse(json); }

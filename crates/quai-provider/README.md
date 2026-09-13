@@ -109,3 +109,14 @@ Contract event adapters additionally require their configured Quai emitter.
 error (`-32000`, `no wrapped Qi balance`, no data) to `None`; successful zero stays
 `Some(0)`. Other failures propagate. `wrapped_qi_deposit` retains its raw error
 behavior. Neither API establishes historical indexing or contract verification.
+
+### Verifying an account transaction lookup
+
+`Transaction::verified_quai` reconstructs canonical signed type-0 protobuf from
+reported fields and verifies the recovered sender and locally computed hash.
+It enforces transaction/access-list budgets before cloning RPC metadata and
+accepts the pinned Quai recovery values 0/1. The default RPC parser still only
+validates structure; verification is explicit. A valid signature/hash does not
+establish canonical inclusion, confirmation or success. Tests reconstruct a
+retained mainnet transaction and reject changed fields, signatures and oversized
+caller-built metadata.

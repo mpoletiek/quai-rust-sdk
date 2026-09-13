@@ -1,0 +1,147 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "de8858ba3036126f58cf631a609956c6cd1b3bf9",
+  "testedWorkingTree": true,
+  "changes": [
+    "Explicit wallet-mediated quai_sendTransaction with preflight versus ambiguous outcomes and no automatic retry",
+    "Restorable reported-hash acknowledgement, readonly observation, cryptographic RPC transaction reconstruction and comparison of every requested field",
+    "Browser runner defaults applied to all suites; pinned toolchain retained for extracted-package checks outside repository"
+  ],
+  "validation": {
+    "actualChromiumWindow": 28,
+    "actualChromiumWorker": 22,
+    "sdkDiscoveryWorker": 6,
+    "sdkContractWorker": 5,
+    "nativeProviderTransactionAndWalletReads": 20,
+    "pythonHarnessTests": 18,
+    "wasmBrowserAllTargetsClippyWarningsDenied": "passed",
+    "nativeProviderAllTargetsClippyWarningsDenied": "passed",
+    "nativeProviderRustdocWarningsDenied": "passed",
+    "wasmBrowserProviderRustdocWarningsDenied": "passed",
+    "packageFileMirrors": 60
+  },
+  "evidence": [
+    "crates/quai-browser/tests/support/injected_transaction.rs",
+    "crates/quai-provider/tests/verified_transaction.rs",
+    "crates/quai-provider/tests/fixtures/lan-mainnet.json"
+  ],
+  "ciFollowup": {
+    "run": 34743298214,
+    "nativeLinuxMacosWindows": "passed",
+    "browserFailure": "SDK worker step lacked Wasm runner; runner script now supplies its default",
+    "packageFailure": "Extracted consumer outside checkout selected default Rust without Wasm target; rehearsal now preserves repository toolchain"
+  },
+  "limits": [
+    "Synthetic injected provider; actual extension and funded wallet submission are not qualified",
+    "Wallet-mediated send may alter fields; acknowledgement is not proof of exact signing or inclusion",
+    "Missing indexed transaction does not imply dropped; cancellation or errors after dispatch do not release nonce or claims",
+    "Unknown wallet hash may require wallet activity or account history; original unsigned digest alone does not identify a changed signed transaction",
+    "Full browser wallet reservations and backup integration remain open",
+    "No package published or mainnet transaction submitted"
+  ],
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "de8858ba3036126f58cf631a609956c6cd1b3bf9",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 55258,
+        "sha256": "a11512eae7565b0867b0da75a26898cd0ebf9f635eb57e59c8cefcbefcd0079d"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 44955,
+        "sha256": "37178412b1719bae6ecb64f53b3be58d34df5f7f037901b6c79b7858b96e2085"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 124465,
+        "sha256": "f23ceb7a32e9428e4c648063f9b76ba67cddc15b277b8c7599636a2ed6b8d436"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45480,
+        "sha256": "9121b409c5f10bf6a7004eacb86fb4ca0205e55313ee3ce58542459e63b75f44"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 42915,
+        "sha256": "8ea1ba44ba6819fed000013b5c4a1f3c7f3838a8a0afa7cbf7ed8bd1ca5f4ee6"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 116381,
+        "sha256": "e11f388447081afc9d44277b402c446555df4ae04b094bd1a734124de900dcc4"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 91830,
+        "sha256": "d4d2563fedf128725bb85785980a24cb2eea56c13caa23038a4225e877bc93af"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 74945,
+        "sha256": "ff2528bb1821b34b24704f6dfb3675c85e4bfa960cb283bfd4108f494ec19adb"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24386,
+        "sha256": "37b5896052c22c74246616b6a38f3a8031004376cce261d702b3f3568279e753"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34218,
+        "sha256": "5f33bd9b7ed00ece59a16d91abf93f85aaac4d19ef421b3809b07f6d61b3daf7"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 230127,
+        "sha256": "5bab478fe476742e3a9115b82ef61bd74b425fedff98e7d1f75be60f523a8f82"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39241,
+        "sha256": "e9fec4ee22c83249d001af90d57f382fb919bdb5b715e93cf79ab323eb9cd784"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  }
+}

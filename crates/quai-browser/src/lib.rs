@@ -15,7 +15,9 @@ use serde_json::Value;
 mod browser;
 #[cfg(target_arch = "wasm32")]
 pub use browser::{
-    BrowserFetchTransport, InjectedProvider, InjectedSubmissionTransport, fill_random,
+    BrowserFetchTransport, InjectedProvider, InjectedSubmissionTransport,
+    WalletSendAcknowledgement, WalletSendError, WalletSendIdentity, WalletSendObservation,
+    fill_random,
 };
 #[cfg(target_arch = "wasm32")]
 pub use quai_signer::{DomainPolicy, TypedData};

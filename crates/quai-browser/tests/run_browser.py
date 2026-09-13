@@ -86,6 +86,7 @@ if __name__ == '__main__':
     server = http.server.ThreadingHTTPServer(('127.0.0.1',0), Fixture)
     thread = threading.Thread(target=server.serve_forever,daemon=True); thread.start()
     env = os.environ.copy()
+    env.setdefault('CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER', 'wasm-bindgen-test-runner')
     env['QUAI_BROWSER_FIXTURE_URL'] = 'http://127.0.0.1:%d' % server.server_address[1]
     env.setdefault('WASM_BINDGEN_USE_BROWSER','1')
     env.setdefault('WASM_BINDGEN_TEST_TIMEOUT','30')

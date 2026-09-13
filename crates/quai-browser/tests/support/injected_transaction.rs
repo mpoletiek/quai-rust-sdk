@@ -17,6 +17,8 @@ extern "C" {
     fn call_count(provider: &JsValue) -> usize;
     #[wasm_bindgen(js_name=callJson)]
     fn call_json(provider: &JsValue, index: usize) -> String;
+    #[wasm_bindgen(js_name=setTransaction)]
+    fn set_transaction(provider: &JsValue, value: &str);
     #[wasm_bindgen(js_name=finishProvider)]
     fn finish_provider(provider: &JsValue);
 }
@@ -419,4 +421,269 @@ async fn injected_submission_errors_retain_exact_id_and_never_retry() {
         .unwrap_err();
     assert!(!error.acceptance_is_ambiguous());
     assert_eq!(call_count(&wallet), 0);
+}
+
+fn transaction_rpc(signed: &quai_consensus::SignedQuaiTransaction) -> Value {
+    let tx = signed.transaction();
+    let compact = signed.signature().to_compact();
+    json!({"type":"0x0","hash":signed.hash().unwrap().to_string(),"blockHash":null,"blockNumber":null,"transactionIndex":null,"from":signed.from().to_string(),"to":tx.to.map(|a|a.to_string()),"chainId":format!("{:#x}",tx.chain_id),"nonce":format!("{:#x}",tx.nonce),"gas":format!("{:#x}",tx.gas_limit),"gasPrice":format!("{:#x}",tx.gas_price),"value":format!("{:#x}",tx.value),"input":quai_primitives::hexlify(&tx.data).unwrap(),"accessList":tx.access_list.iter().map(|a|json!({"address":a.address.to_string(),"storageKeys":a.storage_keys.iter().map(ToString::to_string).collect::<Vec<_>>()})).collect::<Vec<_>>(),"v":format!("{:#x}",signed.signature().recovery_id()),"r":format!("{:#x}",U256::from_be_slice(&compact[..32])),"s":format!("{:#x}",U256::from_be_slice(&compact[32..]))})
+}
+fn read_provider(injected: &InjectedProvider) -> quai_provider::Provider<InjectedProvider> {
+    quai_provider::Provider::new(
+        injected.clone(),
+        quai_rpc::Routing::direct("https://wallet.invalid/cyprus1", Zone::Cyprus1.into()).unwrap(),
+        U256::from(15000),
+    )
+}
+#[wasm_bindgen_test(async)]
+async fn wallet_send_needs_no_offline_signing_and_verifies_observed_exact_transaction() {
+    let (injected, wallet) = setup("unsupported_sign", BrowserConfig::default());
+    let tx = tx();
+    let signed = tx.sign(&key(805)).unwrap();
+    set_signature(&wallet, &signed.hash().unwrap().to_string());
+    let identity = quai_browser::WalletSendIdentity::new(address(), &tx).unwrap();
+    let acknowledgement = injected
+        .send_quai_transaction(address(), &tx)
+        .await
+        .unwrap();
+    assert_eq!(acknowledgement.identity(), identity);
+    assert_eq!(acknowledgement.reported_hash(), signed.hash().unwrap());
+    assert_eq!(acknowledgement.requested_transaction(), &tx);
+    let reported = acknowledgement.reported_hash();
+    drop(acknowledgement);
+    let acknowledgement = quai_browser::WalletSendAcknowledgement::from_reported_hash(
+        address(),
+        tx.clone(),
+        reported,
+    )
+    .unwrap();
+    let provider = read_provider(&injected);
+    assert!(acknowledgement.observe(&provider).await.unwrap().is_none());
+    set_transaction(&wallet, &transaction_rpc(&signed).to_string());
+    let observed = acknowledgement.observe(&provider).await.unwrap().unwrap();
+    assert!(observed.matches_request());
+    assert_eq!(
+        observed.signed().signed_bytes().unwrap(),
+        signed.signed_bytes().unwrap()
+    );
+    assert!(observed.inclusion().is_none());
+    let calls = requests(&wallet);
+    assert_eq!(
+        calls
+            .iter()
+            .filter(|r| r["method"] == "quai_sendTransaction")
+            .count(),
+        1
+    );
+    assert!(!calls.iter().any(|r| matches!(
+        r["method"].as_str(),
+        Some("quai_signTransaction" | "quai_sendRawTransaction" | "quai_requestAccounts")
+    )));
+    let fixture: Value = serde_json::from_str(include_str!(
+        "../fixtures/shared/compatibility/fixtures/browser-requests.json"
+    ))
+    .unwrap();
+    assert_eq!(
+        calls
+            .iter()
+            .find(|r| r["method"] == "quai_sendTransaction")
+            .unwrap()["params"],
+        json!([fixture["vectors"][0]["request"]])
+    );
+}
+#[wasm_bindgen_test(async)]
+async fn wallet_send_reports_wallet_changes_and_rejects_forged_node_signature_fields() {
+    let (injected, wallet) = setup("normal", BrowserConfig::default());
+    let requested = tx();
+    let provider = read_provider(&injected);
+    for change in 0..7 {
+        let mut actual = requested.clone();
+        match change {
+            0 => actual.nonce += 1,
+            1 => actual.gas_limit += 1,
+            2 => actual.gas_price += U256::from(1),
+            3 => actual.value += U256::from(1),
+            4 => actual.to = None,
+            5 => actual.data.push(0),
+            _ => actual.access_list.push(AccessTuple {
+                address: address().address(),
+                storage_keys: vec![],
+            }),
+        };
+        let signed = actual.sign(&key(805)).unwrap();
+        set_signature(&wallet, &signed.hash().unwrap().to_string());
+        set_transaction(&wallet, &transaction_rpc(&signed).to_string());
+        let acknowledgement = injected
+            .send_quai_transaction(address(), &requested)
+            .await
+            .unwrap();
+        let observed = acknowledgement.observe(&provider).await.unwrap().unwrap();
+        assert!(!observed.matches_request());
+        assert_eq!(observed.signed().transaction(), &actual);
+    }
+    let signed = requested.sign(&key(805)).unwrap();
+    set_signature(&wallet, &signed.hash().unwrap().to_string());
+    let acknowledgement = injected
+        .send_quai_transaction(address(), &requested)
+        .await
+        .unwrap();
+    let mut forged = transaction_rpc(&signed);
+    forged["nonce"] = json!("0x8");
+    set_transaction(&wallet, &forged.to_string());
+    assert!(acknowledgement.observe(&provider).await.is_err());
+}
+#[wasm_bindgen_test(async)]
+async fn wallet_send_distinguishes_preflight_and_ambiguous_outcomes_and_retains_reply_hash() {
+    use quai_browser::WalletSendError;
+    let transaction = tx();
+    let identity = quai_browser::WalletSendIdentity::new(address(), &transaction).unwrap();
+    let hash = transaction.sign(&key(805)).unwrap().hash().unwrap();
+    for mode in [
+        "wallet_denied",
+        "wallet_unsupported",
+        "wallet_hang",
+        "wallet_context_change",
+    ] {
+        let (injected, wallet) = setup(
+            mode,
+            BrowserConfig {
+                request_timeout_ms: 100,
+                ..Default::default()
+            },
+        );
+        set_signature(&wallet, &hash.to_string());
+        let error = injected
+            .send_quai_transaction(address(), &transaction)
+            .await
+            .unwrap_err();
+        assert!(error.acceptance_is_ambiguous());
+        assert!(!error.to_string().contains("SECRET"));
+        let WalletSendError::Ambiguous {
+            identity: retained,
+            reported_hash,
+            ..
+        } = error
+        else {
+            unreachable!()
+        };
+        assert_eq!(retained, identity);
+        assert_eq!(
+            reported_hash,
+            if mode == "wallet_context_change" {
+                Some(hash)
+            } else {
+                None
+            }
+        );
+        assert_eq!(
+            requests(&wallet)
+                .iter()
+                .filter(|r| r["method"] == "quai_sendTransaction")
+                .count(),
+            1
+        );
+    }
+    let (injected, wallet) = setup("unavailable", BrowserConfig::default());
+    let error = injected
+        .send_quai_transaction(address(), &transaction)
+        .await
+        .unwrap_err();
+    assert!(!error.acceptance_is_ambiguous());
+    assert!(
+        !requests(&wallet)
+            .iter()
+            .any(|r| r["method"] == "quai_sendTransaction")
+    );
+    let (injected, wallet) = setup("normal", BrowserConfig::default());
+    let mut wrong = transaction.clone();
+    wrong.chain_id = U256::from(9);
+    assert!(
+        !injected
+            .send_quai_transaction(address(), &wrong)
+            .await
+            .unwrap_err()
+            .acceptance_is_ambiguous()
+    );
+    assert_eq!(call_count(&wallet), 0);
+}
+#[wasm_bindgen_test(async)]
+async fn wallet_send_rejects_malformed_and_wrong_ledger_or_zone_acknowledgements() {
+    let (injected, wallet) = setup("normal", BrowserConfig::default());
+    let transaction = tx();
+    let mut wrong_zone = *transaction.sign(&key(805)).unwrap().hash().unwrap().bytes();
+    wrong_zone[0] = 1;
+    assert!(
+        quai_browser::WalletSendAcknowledgement::from_reported_hash(
+            address(),
+            transaction.clone(),
+            Hash32::from_bytes(wrong_zone),
+        )
+        .is_err()
+    );
+    let mut qi = wrong_zone;
+    qi[0] = 0;
+    qi[1] |= 0x80;
+    for value in [
+        "0x17".to_owned(),
+        "not a hash".to_owned(),
+        Hash32::ZERO.to_string(),
+        Hash32::from_bytes(wrong_zone).to_string(),
+        Hash32::from_bytes(qi).to_string(),
+    ] {
+        set_signature(&wallet, &value);
+        assert!(
+            injected
+                .send_quai_transaction(address(), &transaction)
+                .await
+                .unwrap_err()
+                .acceptance_is_ambiguous()
+        );
+    }
+}
+#[wasm_bindgen_test(async)]
+async fn wallet_send_cancellation_retains_caller_identity_and_does_not_resubmit() {
+    let (injected, wallet) = setup(
+        "wallet_hang",
+        BrowserConfig {
+            request_timeout_ms: 100,
+            max_in_flight: 1,
+            ..Default::default()
+        },
+    );
+    let transaction = tx();
+    let identity = quai_browser::WalletSendIdentity::new(address(), &transaction).unwrap();
+    let mut pending = Box::pin(injected.send_quai_transaction(address(), &transaction));
+    for _ in 0..64 {
+        assert!(futures_util::poll!(&mut pending).is_pending());
+        wasm_bindgen_futures::JsFuture::from(js_sys::Promise::resolve(&JsValue::NULL))
+            .await
+            .unwrap();
+        if requests(&wallet)
+            .iter()
+            .any(|r| r["method"] == "quai_sendTransaction")
+        {
+            break;
+        }
+    }
+    assert_eq!(
+        requests(&wallet)
+            .iter()
+            .filter(|r| r["method"] == "quai_sendTransaction")
+            .count(),
+        1
+    );
+    drop(pending);
+    finish_provider(&wallet);
+    assert!(injected.accounts().await.is_ok());
+    assert_eq!(
+        identity.signing_digest,
+        transaction.signing_digest().unwrap()
+    );
+    assert_eq!(
+        requests(&wallet)
+            .iter()
+            .filter(|r| r["method"] == "quai_sendTransaction")
+            .count(),
+        1
+    );
 }

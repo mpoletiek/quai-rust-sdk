@@ -557,3 +557,14 @@ After preserving the signed bytes in application state, compose
 `signed_submission_transport()` with `Provider` for exact-hash acknowledgement and
 ambiguous-send handling. The capability also accepts locally signed ordinary Qi,
 conversions and wrapping. See the [example and extension support boundary](../crates/quai-browser/README.md#injected-transaction-signing-and-submission).
+
+## Wallet-owned approval and sending
+
+For extensions which only expose `quai_sendTransaction`, use
+`InjectedProvider::send_quai_transaction` with the full explicit request. Save its
+`WalletSendIdentity` first, then save the acknowledgement's reported hash. The
+identity's signing digest is not a signed transaction ID. Use `observe` for one
+readonly, cryptographically verified lookup and inspect `matches_request()` to
+identify wallet changes before tracking the actual receipt. Timeouts/cancellation
+cannot prove rejection; an unknown hash may require consulting wallet activity.
+See [the full acknowledgement/recovery contract](../crates/quai-browser/README.md#wallet-mediated-sending).

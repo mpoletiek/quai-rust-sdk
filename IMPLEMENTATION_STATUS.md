@@ -391,3 +391,15 @@ and two event tests now also run in a real worker.
 [Retained evidence](test-infra/reports/injected-transactions-2026-09-13.json).
 Direct wallet-mediated `quai_sendTransaction` still needs a dedicated request and
 recovery contract for extensions which decline offline signing.
+
+## Wallet-mediated sends and independent transaction verification
+
+`InjectedProvider::send_quai_transaction` now supports the extension's direct
+`quai_sendTransaction` approval flow without requiring offline signing. It returns
+a typed acknowledgement preserving the original request; explicit readonly
+observation reconstructs verified signed bytes and exposes whether all requested
+fields matched. Preflight failures and ambiguous post-dispatch outcomes are
+separate, and original account/nonce/digest metadata survives errors without a
+returned hash. No send is automatically retried. `Transaction::verified_quai`
+also verifies a retained actual mainnet transaction and rejects mutated fields.
+Browser state persistence and real extension qualification remain separate gates.

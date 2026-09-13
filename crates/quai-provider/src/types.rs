@@ -417,6 +417,73 @@ pub struct Transaction {
     pub extensions: Extensions,
 }
 impl Transaction {
+    /// Reconstruct and verify canonical type-0 signed bytes from RPC fields.
+    /// Checks the recovered sender and locally computed transaction hash against
+    /// the reported values. Inclusion metadata remains a separate node claim.
+    /// Only canonical Quai recovery values 0/1 are accepted.
+    pub fn verified_quai(&self) -> Result<quai_consensus::SignedQuaiTransaction, ProviderError> {
+        let TransactionDetails::Quai(fields) = &self.details else {
+            return Err(invalid("expected signed Quai transaction"));
+        };
+        if fields.access_list.len() > quai_consensus::MAX_TRANSACTION_MESSAGES {
+            return Err(invalid("oversized Quai access list"));
+        }
+        let mut messages = 2usize;
+        let mut payload = self.input.bytes().len();
+        for entry in &fields.access_list {
+            messages = messages
+                .checked_add(1)
+                .and_then(|n| n.checked_add(entry.storage_keys.len()))
+                .ok_or_else(|| invalid("oversized Quai access list"))?;
+            payload = entry
+                .storage_keys
+                .len()
+                .checked_mul(32)
+                .and_then(|n| n.checked_add(20))
+                .and_then(|n| n.checked_add(payload))
+                .ok_or_else(|| invalid("oversized Quai access list"))?;
+            if messages > quai_consensus::MAX_TRANSACTION_MESSAGES
+                || payload > quai_consensus::MAX_TRANSACTION_BYTES
+            {
+                return Err(invalid("oversized Quai access list"));
+            }
+        }
+        let transaction = quai_consensus::QuaiTransaction {
+            chain_id: fields.chain_id,
+            nonce: fields.nonce,
+            to: fields.to,
+            value: fields.value,
+            gas_limit: fields.gas,
+            gas_price: fields.gas_price,
+            data: self.input.bytes().to_vec(),
+            access_list: fields
+                .access_list
+                .iter()
+                .map(|entry| quai_consensus::AccessTuple {
+                    address: entry.address,
+                    storage_keys: entry.storage_keys.clone(),
+                })
+                .collect(),
+        };
+        if fields.signature.v > U256::from(1) {
+            return Err(invalid("invalid Quai recovery value"));
+        }
+        let mut compact = [0; 64];
+        compact[..32].copy_from_slice(&fields.signature.r.to_be_bytes::<32>());
+        compact[32..].copy_from_slice(&fields.signature.s.to_be_bytes::<32>());
+        let signature = quai_crypto::RecoverableSignature::from_compact(
+            &compact,
+            fields.signature.v.to::<u8>(),
+        )
+        .map_err(|_| invalid("invalid Quai signature"))?;
+        let signed = transaction
+            .attach_signature(signature)
+            .map_err(|_| invalid("invalid Quai signature"))?;
+        if signed.from() != fields.from || signed.hash().ok() != Some(self.hash) {
+            return Err(invalid("Quai signature or transaction identity mismatch"));
+        }
+        Ok(signed)
+    }
     /// Return the validated discriminator.
     pub fn kind(&self) -> TransactionKind {
         match self.details {

@@ -1,10 +1,14 @@
-//! Authenticated native wallet-state backups. Old QUAISEED envelopes remain separate.
+//! Portable authenticated wallet-state backups, with optional native capture/restore.
+//! Old QUAISEED envelopes remain separate.
 //! Plaintext serialization is explicit, bounded and zeroized; no wallet serde is exposed.
-use crate::storage::{
-    Checkpoint, DerivationState, KeyOrigin, NetworkScope, NonceState, OperationState,
-    PublicAddress, PublicWalletState, Reservation, ReservationId, ReservationState, ScopeState,
-    SqliteStore, StorageError,
+use crate::discovery::{Checkpoint, NetworkScope};
+use crate::metadata::{KeyOrigin, PublicAddress, StorageError};
+use crate::state::{DerivationState, NonceState, OperationState, PublicWalletState, ScopeState};
+pub use crate::state::{
+    QuaiReplacement, ReplacementCandidate, Reservation, ReservationId, ReservationState,
 };
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+use crate::storage::SqliteStore;
 use crate::{AccountPublic, BackupKdf, CoinType, ExtendedPrivateKey};
 use chacha20poly1305::{AeadInOut, KeyInit, Tag, XChaCha20Poly1305, XNonce};
 use quai_consensus::{MAX_TRANSACTION_BYTES, OutPoint, U256};
@@ -18,6 +22,12 @@ use thiserror::Error;
 use zeroize::Zeroizing;
 
 mod payment;
+mod views;
+pub use crate::state::payment::PaymentAddressRecord;
+pub use views::{
+    BackupDerivationCursor, BackupOperation, BackupPaymentChannel, BackupPaymentExposure,
+    BackupScope,
+};
 
 const MAGIC: &[u8; 8] = b"QUAIWALT";
 const HEADER: usize = 68;
@@ -207,7 +217,7 @@ impl BackupOrigin {
             .map_err(|_| WalletBackupError::Ownership)
     }
 }
-/// Complete supported native public state and its explicit secret owners. Capture
+/// Complete supported public state and its explicit secret owners. Native capture
 /// includes every network/zone scope in the selected database, not just its bound scope.
 /// UTXO snapshots/checkpoints are intentionally invalidated during restore.
 pub struct WalletBackup {
@@ -237,6 +247,7 @@ pub struct RestoreReport {
 impl WalletBackup {
     /// Capture all database scopes atomically. Every HD/imported address and bound
     /// account xpub must be proved by one of the explicit supplied secret origins.
+    #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
     pub fn capture(store: &mut SqliteStore, origins: Vec<BackupOrigin>) -> Result<Self> {
         let state = store.capture_public_state()?;
         let backup = Self { origins, state };
@@ -254,6 +265,7 @@ impl WalletBackup {
     /// Validate all secret/public derivations before the atomic database merge.
     /// Existing cursors never decrease and conflicting operation records fail the
     /// entire restore. No existing claim is released or erased by backup import.
+    #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
     pub fn restore(&self, store: &mut SqliteStore) -> Result<RestoreReport> {
         let payment_owners = self.validate()?;
         let mut signed = 0;
@@ -496,7 +508,7 @@ impl WalletBackup {
                     return Err(WalletBackupError::InvalidInput);
                 }
                 if !operation.replacements.is_empty() {
-                    crate::storage::replacements::validate_family(
+                    crate::state::replacements::validate_family(
                         operation
                             .payload
                             .as_deref()
@@ -865,7 +877,7 @@ impl WalletBackup {
                         if length == 0 || length > MAX_TRANSACTION_BYTES {
                             return Err(WalletBackupError::InvalidInput);
                         }
-                        replacements.push(crate::storage::QuaiReplacement {
+                        replacements.push(crate::state::QuaiReplacement {
                             parent,
                             payload: reader.take(length)?.to_vec(),
                         });
@@ -1068,5 +1080,5 @@ impl<'a> Reader<'a> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "sqlite", not(target_arch = "wasm32")))]
 mod tests;

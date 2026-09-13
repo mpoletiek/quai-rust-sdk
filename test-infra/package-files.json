@@ -256,6 +256,26 @@
     {
       "source": "compatibility/fixtures/abi-workflows.json",
       "destination": "crates/quai-abi/tests/fixtures/shared/compatibility/fixtures/abi-workflows.json"
+    },
+    {
+      "source": "crates/quai-wallet/tests/full-backup-vector.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-wallet/tests/full-backup-vector.json"
+    },
+    {
+      "source": "crates/quai-wallet/tests/full-backup-v2-vector.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-wallet/tests/full-backup-v2-vector.json"
+    },
+    {
+      "source": "crates/quai-wallet/tests/full-backup-v3-portable.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-wallet/tests/full-backup-v3-portable.json"
+    },
+    {
+      "source": "crates/quai-wallet/tests/full-backup-v4-portable.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-wallet/tests/full-backup-v4-portable.json"
+    },
+    {
+      "source": "crates/quai-wallet/tests/full-backup-v5-portable.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-wallet/tests/full-backup-v5-portable.json"
     }
   ]
 }

@@ -6,6 +6,7 @@
 
 pub use crate::discovery::{Checkpoint, NetworkScope};
 pub use crate::metadata::{KeyOrigin, PublicAddress, StorageError};
+pub use crate::state::{Reservation, ReservationId, ReservationState};
 use crate::{AccountPublic, CandidateCoin, CoinType};
 use quai_consensus::{
     Denomination, MAX_TRANSACTION_BYTES, OutPoint, SignedQiTransaction, SignedQuaiTransaction, U256,
@@ -40,11 +41,8 @@ pub use head_state::{HeadReplayCommit, HeadReplayState, MAX_HEAD_REPLAY_BYTES};
 pub(crate) mod replacements;
 pub use replacements::{QuaiReplacement, ReplacementCandidate};
 pub(crate) mod payment;
-pub(crate) use backup_state::{
-    DerivationState, NonceState, OperationState, PublicWalletState, ScopeState,
-};
+pub(crate) use backup_state::PublicWalletState;
 pub use payment::{PaymentAddressAllocation, PaymentAddressRecord, VersionedPaymentChannel};
-pub(crate) use payment::{StoredPaymentChannel, StoredPaymentExposure};
 
 /// Atomic scanner snapshot. Importing this requires exact scope and prior generation.
 #[derive(Clone, Debug)]
@@ -58,37 +56,6 @@ pub struct Snapshot {
     /// Public UTXO candidates; reserved flags are computed from durable claims on reads.
     pub coins: Vec<CandidateCoin>,
 }
-/// Caller-generated unique 128-bit operation identifier; never reuse, including after release.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct ReservationId(pub [u8; 16]);
-/// Durable monotonic operation state.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-#[repr(i64)]
-pub enum ReservationState {
-    /// Unsigned; may be explicitly released before exposing a signed transaction.
-    Reserved = 0,
-    /// Signed transaction may have escaped; claim cannot be released.
-    Signed = 1,
-    /// Submission was attempted/observed; claim cannot be released.
-    Submitted = 2,
-    /// Caller observed inclusion; claim remains held across reorgs.
-    Confirmed = 3,
-    /// Explicitly released while unsigned. ID remains consumed.
-    Released = 4,
-}
-/// Durable operation record with optional public transaction/block observation.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Reservation {
-    /// Unique caller-assigned operation ID.
-    pub id: ReservationId,
-    /// Current state.
-    pub state: ReservationState,
-    /// Immutable transaction hash recorded before a signature is exposed.
-    pub transaction: Option<Hash32>,
-    /// Caller-observed inclusion, without a storage-layer proof of finality.
-    pub inclusion: Option<Checkpoint>,
-}
-
 /// A fresh public address, returned only after its range and metadata are durable.
 #[derive(Clone, Debug)]
 pub struct AllocatedAddress {

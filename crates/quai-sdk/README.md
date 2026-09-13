@@ -19,6 +19,7 @@ assert_eq!(address.zone(), Zone::Cyprus1);
 | `http` | Native HTTP provider transport |
 | `ws` | Native WebSocket subscriptions and head following |
 | `wallet` | BIP39/BIP32, exact Qi selection, consensus and local/watch-only signing |
+| `backup` | Portable authenticated full-wallet decryption/encryption and read-only custody/cursor inspection |
 | `sqlite` | Native account/Qi sessions, gap-50 current discovery, durable candidates and recovery |
 | `abi` | ABI/EIP-712 values, artifacts, deployments and WQI/WQUAI adapters |
 | `payments` | BIP47 payment codes; native registered-channel workflows also require `sqlite` |

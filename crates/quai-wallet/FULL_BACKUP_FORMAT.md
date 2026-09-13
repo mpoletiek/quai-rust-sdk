@@ -1,9 +1,10 @@
-# QUAIWALT v1/v2 — supported native database state and secret origins
+# QUAIWALT v1–v5 — authenticated wallet state and secret origins
 
 This is a separate format from the existing fixed-size `QUAISEED` v1 seed backup.
 `full_backup::{BackupOrigin, WalletBackup, EncryptedWalletBackup}` is available
-only with native `sqlite`. It captures all scopes in one selected native wallet
-database and explicit supplied secret origins. It does **not** inventory arbitrary
+with the portable `backup` feature, including browser workers. Native `sqlite`
+enables that feature and adds atomic capture/restore for all scopes in one selected
+wallet database and explicit supplied secret origins. It does **not** inventory arbitrary
 application state, external payment channels, other databases, devices or files.
 Do not describe it as a complete backup of an application that owns such state.
 
@@ -15,10 +16,10 @@ Do not describe it as a complete backup of an application that owns such state.
 | BIP39 mnemonic plus passphrase | Effective 64-byte seed after wordlist/passphrase normalization | Same HD identity; original phrase, language label and passphrase are not retained |
 | Depth-zero master xprv | Full private master and chain code | Re-derive accounts/children; explicit guarded `export_master_xprv` |
 | Imported or generated standalone private key | Exact scalar through guarded `SecretBytes` | Validate public ownership; recover guarded `SecretKey` |
-| Account/coin-level xprv | Unsupported | Reject; never reinterpret as a master |
+| BIP44 account/coin-level xprv | Unsupported | Reject; never reinterpret as a master |
 | Watch-only/public-only ownership | Unsupported in this encrypted spending-backup API | Every included HD/imported public record must have a supplied secret owner |
 | SQLite-registered BIP47 channels backed by supplied seeds or master xprvs | v2 preserves all owner/peer/account identities, eighteen cursors, burned exposure ranges and public destinations | Re-derive m/47'/969'/account'; validate exact owner, peer and every receive/send point |
-| Standalone account-level private payment nodes | Unsupported | Preserve separately; never reinterpret as a seed/master |
+| Depth-three BIP47 account xprv | v3 preserves exact key and asserted account | Validate hardened account and explicit m/47'/969' ancestry assertion; never reinterpret as a BIP44 master |
 | External application-held payment channels | Not inventoried | Explicitly register/import into this database before capture, or back up separately |
 
 A seed origin can cover both coin types and all included accounts/zones. A backup
@@ -185,3 +186,32 @@ separate unchanged API with its own independent fixture. V2 tests additionally c
 registered receive ownership, tampered channel/exposure records, unsupported payment
 origins, independent ciphertext, authenticated header downgrade rejection, v1 import
 into a channel-bearing target and stale restore without address reuse.
+
+
+## Portable decryption and inspection
+
+The `backup` feature enables the same bounded QUAIWALT v1–v5 decryption,
+ownership verification and fresh encryption on native Rust and WebAssembly.
+`scope_state` returns borrowed addresses, exact raw derivation cursors, nonce
+cursors and original reservation records with all signed candidate bytes.
+`payment_channels` and `payment_exposures` retain their network, owner, peer,
+account, direction and burned-range context. Access does not mutate the backup,
+allocate indexes/nonces, submit transactions or establish current spendability.
+Origin exports retain their guarded secret wrappers and the backup's Debug stays
+redacted. Run memory-hard operations in an application-managed worker.
+
+Existing native capture and monotonic restore still use SQLite transactions.
+Shared public records, payment proofs and candidate validation have moved out of
+the backend; no database schema or encrypted-format change was made. Portable
+inspection is not a live wallet-store restore: applications must not overwrite a
+newer cursor or release a signed claim based on an older backup. Complete browser
+reservation and merge integration remains separate work.
+
+Two independent Python/Argon2/libsodium v1/v2 vectors and three deterministic
+native-Rust v3/v4/v5 fixtures execute in native and actual Chromium worker tests.
+The latter are cross-platform interoperability evidence, not independent oracles.
+They retain payment account/exposure ownership, account candidates/nonces, and Qi
+candidates/claims plus a burned HD change range. Public test secrets only.
+`test-infra/generate_portable_backup_fixtures.py` explicitly regenerates v3/v4/v5
+through native tests; it never reads a user's wallet or exposes a production API
+for deterministic encryption randomness.

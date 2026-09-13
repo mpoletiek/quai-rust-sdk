@@ -148,7 +148,7 @@ fn artifact_import() {
             for name, flags in [
                 ('quai-browser', []),
                 ('quai-sdk', ['--no-default-features', '--features',
-                              'browser,wallet,abi,payments,keystore']),
+                              'browser,wallet,abi,payments,keystore,backup']),
             ]:
                 print(f'Checking packaged Wasm tests/examples: {name}', flush=True)
                 run(['cargo', 'check', '--offline', '--all-targets',

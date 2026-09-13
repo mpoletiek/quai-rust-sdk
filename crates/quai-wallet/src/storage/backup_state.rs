@@ -1,45 +1,12 @@
 //! Strictly typed public storage export/import; never stores secret origin bytes.
 use super::*;
+pub(crate) use crate::state::{
+    DerivationState, NonceState, OperationState, PublicWalletState, ScopeState,
+};
 
 const MAX_SCOPES: usize = 64;
 const MAX_RECORDS: usize = 100_000;
 
-#[derive(Clone, Debug)]
-pub(crate) struct PublicWalletState {
-    pub scopes: Vec<ScopeState>,
-    pub channels: Vec<StoredPaymentChannel>,
-    pub exposures: Vec<StoredPaymentExposure>,
-}
-#[derive(Clone, Debug)]
-pub(crate) struct ScopeState {
-    pub scope: NetworkScope,
-    pub addresses: Vec<PublicAddress>,
-    pub derivation: Vec<DerivationState>,
-    pub nonces: Vec<NonceState>,
-    pub operations: Vec<OperationState>,
-}
-#[derive(Clone, Debug)]
-pub(crate) struct DerivationState {
-    pub coin: CoinType,
-    pub account: u32,
-    pub change: bool,
-    pub xpub: String,
-    pub next_index: u32,
-}
-#[derive(Clone, Debug)]
-pub(crate) struct NonceState {
-    pub address: QuaiAddress,
-    pub next_nonce: u64,
-}
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub(crate) struct OperationState {
-    pub record: Reservation,
-    pub kind: u8,
-    pub qi: Vec<(OutPoint, Address)>,
-    pub nonce: Option<(QuaiAddress, u64)>,
-    pub payload: Option<Vec<u8>>,
-    pub replacements: Vec<QuaiReplacement>,
-}
 impl SqliteStore {
     pub(crate) fn capture_public_state(&mut self) -> Result<PublicWalletState> {
         let tx = self.connection.transaction()?;

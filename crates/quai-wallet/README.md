@@ -1,8 +1,8 @@
 # quai-wallet foundation
 
 This crate implements offline BIP39/BIP32 derivation for Quai coin type 994 and
-Qi coin type 969, bounded discovery, and optional native wallet-state persistence
-and authenticated backup. Signing workflows and provider adapters live in other
+Qi coin type 969, bounded discovery, optional native wallet-state persistence
+and portable authenticated backup. Signing workflows and provider adapters live in other
 SDK crates. This crate does not implement verified chain-proof recovery. Bounded watch-only discovery and durable fresh
 address allocation are documented in [DISCOVERY.md](DISCOVERY.md). Optional native
 `sqlite` storage provides public metadata, snapshot generations, durable outpoint
@@ -228,6 +228,15 @@ The SDK's `payments` feature also enables this integration when `wallet` is acti
 Actual Chromium worker tests cover HD/imported/payment ownership, ordered mixed
 Qi signing, malformed/forged metadata, and IndexedDB reopen with revision fencing.
 Public metadata alone never grants signing authority. Persistent browser nonce and
-UTXO reservations, full backup integration and real extension qualification remain
+UTXO reservations, full state merge and real extension qualification remain
 separate work; the existing native durable wallet workflows continue to own those
 transaction lifecycle guarantees.
+
+
+The `backup` feature now makes `full_backup` encryption, decryption, ownership
+verification and borrowed state inspection available without SQLite, including in
+workers. Native `sqlite` enables it automatically and keeps atomic capture/restore.
+`WalletBackup::scope_state` exposes owned addresses, derivation/nonce cursors and
+retained signed claims/candidates; payment channel/exposure views retain their
+complete context. These are authenticated historical records, not live balances
+or permission to rewind current state. See [QUAIWALT](FULL_BACKUP_FORMAT.md).

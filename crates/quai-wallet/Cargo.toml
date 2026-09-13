@@ -10,7 +10,8 @@ publish.workspace = true
 
 [features]
 default = []
-sqlite = ["dep:rusqlite", "payments"]
+sqlite = ["dep:rusqlite", "backup"]
+backup = ["payments"]
 payments = ["dep:quai-payments"]
 
 [dependencies]

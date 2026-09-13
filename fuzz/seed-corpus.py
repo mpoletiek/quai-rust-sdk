@@ -27,6 +27,8 @@ for row in load('crates/quai-keystore/tests/fixtures/keystores.json')['vectors']
 for row in load('crates/quai-crypto/tests/fixtures/quais-crypto.json')['vectors']:
  for key in ['compressed','uncompressed','signature']:
   if isinstance(row.get(key),str):put('wallet_import',hexbytes(row[key]))
+for name in ['full-backup-vector.json','full-backup-v2-vector.json','full-backup-v3-portable.json','full-backup-v4-portable.json','full-backup-v5-portable.json']:
+ put('wallet_import',hexbytes(load('crates/quai-wallet/tests/'+name)['envelope']))
 for row in load('crates/quai-wallet/tests/reference.json')['grinding']:
  public=b'QADDR001'+hexbytes(row['publicKey'])
  put('wallet_import',public+bytes([0]))

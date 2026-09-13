@@ -1,0 +1,168 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "888237dea73dca22b7a4b59c20b5c267a0afdf6a",
+  "testedWorkingTree": true,
+  "changes": [
+    "Portable backup feature for authenticated QUAIWALT v1-v5 decryption/encryption and ownership validation",
+    "Shared public reservation/candidate/payment records and validation outside SQLite, retaining native capture/restore semantics",
+    "Borrowed scope/address/derivation/nonce/custody/candidate/payment context inspection",
+    "Deterministic public native-to-worker v3/v4/v5 fixtures and explicit regeneration tool; independent Python v1/v2 vectors retained"
+  ],
+  "fixturesSha256": {
+    "crates/quai-wallet/tests/full-backup-v2-vector.json": "628a2cf6e83552e0508e8147bb92a900a2a2350ded9cc4b9045af810e6dc7ce7",
+    "crates/quai-wallet/tests/full-backup-v3-portable.json": "4d158c5718366c85a24db401c070daabdcd37eac5c5df739f969d476c6d2c0ce",
+    "crates/quai-wallet/tests/full-backup-v4-portable.json": "5235c3b937f6b0d2f806effd952896d1743ab5d4486faf2e4b5b69a974888c75",
+    "crates/quai-wallet/tests/full-backup-v5-portable.json": "7cb74b6a29fc5b4299265e9da95d535b278e941db9edec86b32de7da62c5fda2",
+    "crates/quai-wallet/tests/full-backup-vector.json": "9e66a646f873dbab54bb95cbc0854edca7310856a1754b5f5e56e9ad0a782b14"
+  },
+  "validation": {
+    "nativeWalletReportedPassesIncludingSubprocessSummaries": 72,
+    "nativeFullBackupGenerationTests": 13,
+    "nativePortableBackupTests": 7,
+    "actualChromiumWorkerBackupTests": 7,
+    "workerSuiteElapsedSeconds": 48.23,
+    "nativeWalletSdkAllTargetsClippyWarningsDenied": "passed",
+    "portableSdkWasmAllTargetsClippyWarningsDenied": "passed",
+    "nativeWalletSdkRustdocWarningsDenied": "passed",
+    "portableWalletBackupWasmRustdocWarningsDenied": "passed",
+    "ciYamlDuplicateKeyCheck": "passed",
+    "pythonScriptsCompile": "passed",
+    "packageFileMirrors": 69
+  },
+  "fuzz": {
+    "recordedAt": "2026-09-13T08:38:57.012024+00:00",
+    "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+    "fuzzLockSha256": "bbbfa14ce3f8959e01343505be9acdc2daebe6c3f77070bf3a2a9b39a7fe5a5b",
+    "sdkLockSha256": "23e5d30c8d68ca0225745105c4ccacbfac66114f395e4eb92fedf3b8ab717ed7",
+    "targets": [
+      {
+        "name": "wallet_import",
+        "binarySha256": "92d692865ad22506be752230fbdca6cea70e6fc334d3da242051a90f8d424183",
+        "seconds": 120,
+        "exitCode": 0,
+        "addressSanitizer": true,
+        "initialCorpusFiles": 66,
+        "finalCorpusFiles": 1573,
+        "executions": 1873309,
+        "coverageCounters": 2763,
+        "features": 9583,
+        "rssMiB": 500
+      }
+    ],
+    "leakSanitizer": false,
+    "sanitizerEnvironment": "ASAN_OPTIONS=detect_leaks=0: sandbox process inspection limitation; AddressSanitizer enabled, no leak-clean qualification.",
+    "addedCoverage": "Structural encrypted envelope import only; fuzz target never executes an attacker-selected KDF or bypasses authentication."
+  },
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "888237dea73dca22b7a4b59c20b5c267a0afdf6a",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61987,
+        "sha256": "16a9e4865424221a0ddbd1d32cad97b9b186f622ba7278d06f576b25a8ed1e18"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45026,
+        "sha256": "9850b606162611b494fea621bf1cfa5b9287c10195056cdf28f3888a5fbd739e"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 126469,
+        "sha256": "42028f66d121253a0a6fb2d1f8a609e4338db79fb20f55da1db51d3f6244b02b"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45641,
+        "sha256": "044561f08a5a6f7e79b39edee7e7a95f5fbf17eeeafdee107ee12236d4ce6cbc"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47979,
+        "sha256": "e4ee29a4b7c6d0b6191903f72a00a2ee680f239e0f5a9b31ac14f7320806c69c"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 132507,
+        "sha256": "c840494c87611d624c95b077de0bad0dabfacdd717da689ee11b4ef602e9e3e8"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 150803,
+        "sha256": "8e337467f32a2f4de8d10f6ae7778ec29f20b243b7ae8905b1b3439051e98901"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 75010,
+        "sha256": "e2d847fa701f264397ea89943ae16b5ba985cc56a6c66a4161ce24cf0ba99166"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24518,
+        "sha256": "a67f985600ab8f1f31ebd2383947fca58cc0b96fb1643da9843c85af47c0c9ef"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34224,
+        "sha256": "2897a7901e6c84d50d6f5b1447ba1baaee6d720315f01677c74978ac85518942"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 242813,
+        "sha256": "ca0969527425bed0bec1f72fbc25ff257794066231e0c3988b413c22b5cd5c58"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39311,
+        "sha256": "598af4ad7a55a19a38afbe892ba27960e2b5e0dba9b9e30565513e8f41299012"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "limitations": [
+    "Backup records are authenticated historical custody, not live spendability, freshness or finality.",
+    "Native SQLite still owns atomic capture/monotonic merge; complete browser reservations and live state merge remain open.",
+    "v3/v4/v5 fixtures are native-to-worker interoperability evidence, not independent implementation oracles.",
+    "Browser tests use Chromium dedicated workers; other engines, suspension and real-extension integration remain separate.",
+    "Bounded sanitizer and package checks are not sustained fuzz, soak, independent review or release certification."
+  ]
+}

@@ -15,7 +15,7 @@ pub struct NetworkScope {
     /// Zone whose state is stored.
     pub zone: Zone,
 }
-#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+#[cfg(feature = "backup")]
 impl NetworkScope {
     pub(crate) fn key(self) -> [u8; 65] {
         let mut key = [0; 65];

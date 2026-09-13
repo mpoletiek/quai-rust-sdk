@@ -1,7 +1,7 @@
 //! Authenticated v2 registered-channel extension. Secret owners never enter SQLite.
 use super::*;
-use crate::storage::payment::{cursor_value, direction_byte, direction_from, validate_exposure};
-use crate::storage::{PaymentAddressRecord, StoredPaymentChannel, StoredPaymentExposure};
+use crate::state::payment::{PaymentAddressRecord, StoredPaymentChannel, StoredPaymentExposure};
+use crate::state::payment::{cursor_value, direction_byte, direction_from, validate_exposure};
 use quai_crypto::PublicKey;
 use quai_payments::{PaymentCode, PaymentDirection, PrivatePaymentCode};
 

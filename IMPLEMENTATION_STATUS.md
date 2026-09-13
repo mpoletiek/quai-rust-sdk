@@ -449,3 +449,13 @@ HD/imported/BIP47 ownership, ordered multi-input signing and IndexedDB reopen/CA
 The new public metadata encoding is bounded and does not authenticate ancestry or
 grant signing authority. Full persistent browser wallet lifecycle remains open.
 [Retained evidence](test-infra/reports/portable-key-origins-2026-09-13.json).
+
+
+Authenticated full-wallet backup handling is now portable through `backup`.
+Shared public records, candidate validation and BIP47 exposure proofs no longer
+depend on SQLite; native capture/monotonic restore keep their transaction boundary.
+Seven actual worker tests cover QUAIWALT v1–v5, native-to-worker custody and cursor
+inspection, payment-account ownership, tamper rejection and fresh encryption.
+This closes envelope/inspection portability; live browser state merge, reservations
+and complete recovery orchestration remain open.
+[Retained evidence](test-infra/reports/portable-full-backups-2026-09-13.json).

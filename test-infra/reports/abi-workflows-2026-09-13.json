@@ -164,5 +164,10 @@
     "Revert payloads are unauthenticated; no finality or execution claim.",
     "Pinned JS filter bugs/coercion deliberately not reproduced; human-readable interface formatting/import and broader parity remain separate.",
     "Sanitizer smoke and package checks are bounded engineering evidence, not independent security or release certification."
-  ]
+  ],
+  "ciVerified": {
+    "headCommit": "c695f5f6fc0bdcb3616a0be9e211d762a45c5021",
+    "runId": 34747324865,
+    "conclusion": "success"
+  }
 }

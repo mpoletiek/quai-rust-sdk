@@ -823,6 +823,7 @@ fn imported_payment_account_origin_v3_roundtrips_and_cannot_be_downgraded() {
         .unwrap();
     let backup = WalletBackup::capture(&mut store, vec![origin]).unwrap();
     assert_eq!(backup.version(), 3);
+    write_portable_fixture_if_requested(&backup);
     let plaintext = backup.encode().unwrap();
     assert!(WalletBackup::decode_version(&plaintext, 2).is_err());
     let restored = WalletBackup::decode_version(&plaintext, 3).unwrap();
@@ -893,6 +894,7 @@ fn replacement_family_v4_roundtrips_without_discarding_candidates_or_nonce_claim
         .unwrap();
     let backup = WalletBackup::capture(&mut store, vec![seed_origin()]).unwrap();
     assert_eq!(backup.version(), 4);
+    write_portable_fixture_if_requested(&backup);
     let bytes = backup.encode().unwrap();
     assert!(WalletBackup::decode_version(&bytes, 3).is_err());
     let restored = WalletBackup::decode_version(&bytes, 4).unwrap();
@@ -960,8 +962,13 @@ fn qi_candidate_backup_v5_preserves_graph_and_claims_and_rejects_mutated_inputs(
             .is_err()
     );
     assert_eq!(store.replacement_candidates(id(91)).unwrap().len(), 1);
+    let public = seed_origin().account_public(CoinType::Qi, 0).unwrap();
+    store
+        .allocate_address(&public, true, 10_000, || false)
+        .unwrap();
     let backup = WalletBackup::capture(&mut store, vec![seed_origin()]).unwrap();
     assert_eq!(backup.version(), 5);
+    write_portable_fixture_if_requested(&backup);
     let bytes = backup.encode().unwrap();
     assert!(WalletBackup::decode_version(&bytes, 4).is_err());
     let encrypted = backup
@@ -1002,4 +1009,31 @@ fn qi_candidate_backup_v5_preserves_graph_and_claims_and_rejects_mutated_inputs(
             .is_none()
     );
     assert_eq!(target.replacement_candidates(id(91)).unwrap().len(), 1);
+}
+
+// Explicit test-infra generation only; every origin above is a public toy fixture.
+fn write_portable_fixture_if_requested(backup: &WalletBackup) {
+    let Ok(directory) = std::env::var("QUAI_PORTABLE_BACKUP_FIXTURE_DIR") else {
+        return;
+    };
+    let version = backup.version();
+    let envelope = backup
+        .encrypt_with_randomness(PASSWORD, BackupKdf::default(), [version; 16], [version; 24])
+        .unwrap();
+    fn hex(bytes: &[u8]) -> String {
+        bytes.iter().map(|b| format!("{b:02x}")).collect()
+    }
+    let scopes: Vec<_> = backup.state.scopes.iter().map(|scope| serde_json::json!({
+        "chainId":scope.scope.chain_id.to_string(),"genesis":scope.scope.genesis.to_string(),"zone":scope.scope.zone.byte(),
+        "addresses":scope.addresses.iter().map(|a|hex(&a.export_metadata())).collect::<Vec<_>>(),
+        "derivation":scope.derivation.iter().map(|c|serde_json::json!({"coin":c.coin.number(),"account":c.account,"change":c.change,"xpub":c.xpub,"nextIndex":c.next_index})).collect::<Vec<_>>(),
+        "nonces":scope.nonces.iter().map(|n|serde_json::json!([n.address.to_string(),n.next_nonce.to_string()])).collect::<Vec<_>>(),
+        "operations":scope.operations.iter().map(|op|serde_json::json!({"id":hex(&op.record.id.0),"state":op.record.state as i64,"hash":op.record.transaction.map(|h|h.to_string()),"qiClaims":op.qi.iter().map(|(point,address)|serde_json::json!([point.transaction_hash.to_string(),point.index,address.to_string()])).collect::<Vec<_>>(),"nonce":op.nonce.map(|(address,nonce)|serde_json::json!([address.to_string(),nonce.to_string()])),"payload":op.payload.as_ref().map(|b|hex(b)),"replacements":op.replacements.iter().map(|v|serde_json::json!({"parent":v.parent.to_string(),"payload":hex(&v.payload)})).collect::<Vec<_>>() })).collect::<Vec<_>>()
+    })).collect();
+    let value = serde_json::json!({"version":version,"publicTestSecretsOnly":true,"provenance":"Native Rust full-backup fixture for cross-platform decoding; not an independent format oracle.","password":std::str::from_utf8(PASSWORD).unwrap(),"envelope":hex(envelope.as_bytes()),"scopes":scopes,"channels":backup.state.channels.len(),"exposures":backup.state.exposures.len()});
+    std::fs::write(
+        std::path::Path::new(&directory).join(format!("full-backup-v{version}-portable.json")),
+        serde_json::to_string_pretty(&value).unwrap() + "\n",
+    )
+    .unwrap();
 }

@@ -6,6 +6,7 @@ use quai_wallet::{Mnemonic,Language,ExtendedPrivateKey,ExtendedPublicKey};
 use quai_crypto::{PublicKey,RecoverableSignature,SchnorrSignature};
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
+ if let Ok(backup)=quai_wallet::full_backup::EncryptedWalletBackup::from_bytes(data){assert_eq!(backup.as_bytes(),data);}
  let _=Keystore::from_json(data,KdfLimits::default()); // no attacker-selected expensive KDF execution
  if let Ok(code)=PaymentCode::from_bytes(data){assert_eq!(PaymentCode::from_base58(&code.to_base58()).unwrap(),code);}
  if let Ok(address)=quai_wallet::metadata::PublicAddress::from_metadata(data){assert_eq!(address.export_metadata(),data);assert_eq!(PublicKey::from_sec1_bytes(address.public_key()).unwrap().address(),address.address());}

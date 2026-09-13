@@ -1850,6 +1850,7 @@ dependencies = [
  "hmac 0.12.1",
  "quai-consensus",
  "quai-crypto",
+ "quai-payments",
  "quai-primitives",
  "sha2 0.10.9",
  "thiserror",

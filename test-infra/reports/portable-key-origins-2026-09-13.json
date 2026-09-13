@@ -154,5 +154,10 @@
     "Ordered signing uses public toy fixtures and is not funded node acceptance.",
     "Full browser reservation and encrypted wallet-state restore integration remain open.",
     "Bounded fuzz and platform tests are not sustained soak, independent review or release certification."
-  ]
+  ],
+  "ciVerified": {
+    "headCommit": "888237dea73dca22b7a4b59c20b5c267a0afdf6a",
+    "runId": 34747765302,
+    "conclusion": "success"
+  }
 }

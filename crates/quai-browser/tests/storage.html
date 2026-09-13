@@ -1,6 +1,6 @@
 <!doctype html><meta charset="utf-8"><title>IndexedDB SDK regression</title>
 <pre id="result">RUNNING</pre><script type="module">
-import {openSnapshotStore,readSnapshot,compareExchangeSnapshot,closeSnapshotStore} from '../src/storage.js';
+import {openSnapshotStore,readSnapshot,compareExchangeSnapshot,compareExchangeSnapshots,closeSnapshotStore} from '../src/storage.js';
 const check=(ok,message)=>{if(!ok)throw Error(message);};
 try {
  const name='public-test-'+crypto.randomUUID(),scope='public-network-wallet';
@@ -19,6 +19,36 @@ try {
  const other=await openSnapshotStore(name,'other-wallet',1024);check(await readSnapshot(other)===null,'wallet isolation');
  closeSnapshotStore(a);closeSnapshotStore(b);closeSnapshotStore(other);
  const reopened=await openSnapshotStore(name,scope,1024);check((await readSnapshot(reopened)).revision===2,'reopen');closeSnapshotStore(reopened);
+ // Seed only public tombstones in one owned fixture transaction to exercise the exact slot boundary.
+ const fullName='full-'+crypto.randomUUID();
+ const first=await openSnapshotStore(fullName,'next-a',16*1024*1024),last=await openSnapshotStore(fullName,'next-b',16*1024*1024);
+ await new Promise((resolve,reject)=>{
+   const tx=first.db.transaction('quai_snapshots','readwrite'),store=tx.objectStore('quai_snapshots');
+   for(let i=0;i<2047;i++)store.put({scope:'old-'+i,revision:1,bytes:null});
+   tx.oncomplete=resolve;tx.onabort=reject;
+ });
+ const refused=await Promise.allSettled([compareExchangeSnapshots([first,last],[-1,-1],[new Uint8Array([1]),new Uint8Array([2])])]);
+ check(refused[0].status==='rejected','batch slot limit');
+ check(await readSnapshot(first)===null && await readSnapshot(last)===null,'slot failure rolls back every new key');
+ check(await compareExchangeSnapshot(first,-1,new Uint8Array([3]))===1,'last free slot');
+ const full=await Promise.allSettled([compareExchangeSnapshot(last,-1,null)]);
+ check(full[0].status==='rejected' && await readSnapshot(last)===null,'single tombstone consumes a slot');
+ check(await compareExchangeSnapshot(first,1,null)===2,'updates allowed at capacity');
+ // Both corruption and exhausted revision abort an otherwise valid earlier update.
+ for(const revision of [Number.MAX_SAFE_INTEGER,0]){
+   await new Promise((resolve,reject)=>{
+     const tx=first.db.transaction('quai_snapshots','readwrite');
+     tx.objectStore('quai_snapshots').put({scope:'old-0',revision,bytes:null});
+     tx.oncomplete=resolve;tx.onabort=reject;
+   });
+   const broken=await openSnapshotStore(fullName,'old-0',1024);
+   const attempt=await Promise.allSettled([compareExchangeSnapshots([first,broken],[2,revision===0?1:revision],[new Uint8Array([9]),null])]);
+   check(attempt[0].status==='rejected' && (await readSnapshot(first)).revision===2,'invalid later record rolls back');
+   closeSnapshotStore(broken);
+ }
+ const tooBig=await Promise.allSettled([compareExchangeSnapshots([first,last],[2,-1],[new Uint8Array(9*1024*1024),new Uint8Array(9*1024*1024)])]);
+ check(tooBig[0].status==='rejected' && (await readSnapshot(first)).revision===2,'combined byte budget');
+ closeSnapshotStore(first);closeSnapshotStore(last);
  document.querySelector('#result').textContent='PASSED';
  await fetch('/result',{method:'POST',body:'PASSED'});
 } catch(error) {const result='FAILED '+String(error?.message||error?.quaiBrowserError||error);document.querySelector('#result').textContent=result;await fetch('/result',{method:'POST',body:result});}

@@ -271,7 +271,10 @@ mod tests {
 #[cfg(target_arch = "wasm32")]
 mod storage;
 #[cfg(target_arch = "wasm32")]
-pub use storage::{BrowserSnapshot, BrowserSnapshotStore, BrowserStorageScope};
+pub use storage::{
+    BrowserSnapshot, BrowserSnapshotStore, BrowserSnapshotUpdate, BrowserStorageScope,
+    compare_exchange_snapshots,
+};
 
 /// Browser WebSocket request and notification resource limits.
 #[derive(Clone, Copy, Debug)]

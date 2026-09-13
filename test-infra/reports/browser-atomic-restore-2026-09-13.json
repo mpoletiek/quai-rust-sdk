@@ -1,0 +1,160 @@
+{
+  "recordedAt": "2026-09-13T15:37:30.066571+00:00",
+  "baseCommit": "3fc69a508b1c925b6194cb3a2dc6b2bde4476f61",
+  "testedWorkingTree": true,
+  "changes": [
+    "Atomic revision-checked IndexedDB updates across up to 128 namespaces in one named database",
+    "Coordinated owned live backup merges across HD/payment/account/Qi journals",
+    "Enforce the previously documented 2048-slot database capacity for single and batch writes, including tombstones",
+    "Consolidated SDK documentation, feature comparison and checked pending/partial-family appendix"
+  ],
+  "sourceSha256": {
+    "crates/quai-browser/src/storage.js": "85834fa455adfc0236a0830c4fd003d3e7bb5db2eb08695eb8443625f7d6d4fa",
+    "crates/quai-browser/src/storage.rs": "8c632f9f3429b2ad97be406dccaa30dde59048c0febb321d965658f2fe8c7bf7",
+    "crates/quai-sdk/src/browser_backups.rs": "55dcd313e5eca7f9eea13d6451c4efaa6c6dfd15e9ca225bfa98630947ea71c3",
+    "SDK_DOCUMENTATION.md": "65e1305b274065b7e976b91627e48c921fc8e4ae3865562f309bd7d1d5260872",
+    "SDK_PARITY_ANALYSIS.md": "87f045885687d8a42dcdf523a0424285332000b27ef8f9031a933a6d9cc7df97"
+  },
+  "validation": {
+    "nativeWorkspaceAllFeatures": "passed",
+    "nativeReportedTestsExcludingThreeSubprocessSummaries": 451,
+    "additionalSubprocessChecks": 3,
+    "explicitlyIgnoredLiveTests": 5,
+    "chromiumWorkerTests": 23,
+    "chromiumWorkerSeconds": 4.89,
+    "chromiumPortableWalletTests": 9,
+    "chromiumPortableWalletSeconds": 95.71,
+    "chromiumRawIndexedDb": "passed: single/batch conflicts, capacity rollback, tombstones, exhausted/corrupt revisions, aggregate bytes, reopen",
+    "nativeWorkspaceAllTargetsAllFeaturesClippyWarningsDenied": "passed",
+    "wasmSdkBrowserBackupAllTargetsClippyWarningsDenied": "passed",
+    "nativeWorkspaceRustdocWarningsDenied": "passed",
+    "wasmSdkBrowserBackupRustdocWarningsDenied": "passed",
+    "workflowYamlDuplicateKeys": "passed",
+    "pythonSyntax": "passed",
+    "documentationLinksAndParityAppendix": "passed",
+    "fmtAndDiffChecks": "passed",
+    "packageFileMirrors": 80
+  },
+  "packageRehearsal": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "3fc69a508b1c925b6194cb3a2dc6b2bde4476f61",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61986,
+        "sha256": "62c55fd53a4f615aa635e96dec613f97c52d170dc2ca87551c2eedba6ee4fb67"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45026,
+        "sha256": "4b30e70d79d02ea9bca87dc89fba477cd1f3dc8905816ea75452e1dc07fa533a"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 129262,
+        "sha256": "afbf18d66315149bde5abd8ceddb8e70c2fd1426b13d8b06d72f183914e0cb85"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45641,
+        "sha256": "dc1787b417d7c77a2eb64c2c61faf798921e007efbe0e77467f66aa217ed02fb"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47979,
+        "sha256": "f4ec24e73489ce72b67bf0a10338585e42eae575529a65ff76fa482e23dd7f87"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 205140,
+        "sha256": "20366c3c04e68292471813a41625bbcb191ab7cc2975de2daeef4eda16c966cf"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 166092,
+        "sha256": "b0a94cd353f615b9fd87cc7678b443dc9666f46717e0efc07573e5e2876972c9"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 81429,
+        "sha256": "c3279e35af4eac4a0b045e4ff1b3d0d436aad7bd8ac1bcb66b13fa02a584f097"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24519,
+        "sha256": "0a0f93882ffbdf511587d4317a01f6333f09844259eb115ca32ec88730eadb63"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34223,
+        "sha256": "3a58bd3b8e31d6aca92cfa45d3dab7a412e28ef143bd1fb61487dab8b4ddfea2"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 270098,
+        "sha256": "bd1fb57474bf034ad3a91a1da4b698ae96bf202642cc06f6dfe92fe0284bdd10"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39347,
+        "sha256": "239c9d424a39b177dcb75cec80382847588f63e1e891ea3ed46f6196e9c94e33"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "parityLedger": {
+    "totalRows": 3928,
+    "implemented": 62,
+    "partial": 168,
+    "deviation": 1059,
+    "pending": 2639,
+    "completeParityEstablished": false
+  },
+  "limitations": [
+    "Only explicitly selected initialized SDK journals restore; omitted stores are not discovered",
+    "One named database per atomic transaction; cancellation after dispatch may commit all selected writes",
+    "No transaction submission, chain snapshot, automatic signed-claim release or hostile-origin rollback protection",
+    "Complete browser prepare/fee/recovery sessions and declaration reconciliation remain unfinished",
+    "No new fuzz campaign: this batch composes existing validated codecs with real IndexedDB transaction tests",
+    "The first native whole-workspace attempt lacked permission for loopback listeners; the complete rerun with owned-loopback permission passed",
+    "Funded unmodified/testnet, broader platform/fault/soak and independent security qualification remain open"
+  ]
+}

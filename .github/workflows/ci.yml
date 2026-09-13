@@ -58,6 +58,7 @@ jobs:
       - run: git diff --exit-code -- crates/quai-consensus/tests/wrapping-vectors.json crates/quai-sdk/tests/wrapper-calls.json
       - run: python3 test-infra/sync_package_files.py --check
       - run: npm run parity --prefix compatibility
+      - run: python3 test-infra/check_sdk_docs.py
       - run: git diff --exit-code -- compatibility/api-inventory.json compatibility/fixtures/
       - name: Verify Rust Qi message signing with the pinned JS backend
         run: |

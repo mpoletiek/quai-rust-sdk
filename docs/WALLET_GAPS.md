@@ -146,4 +146,6 @@ behavior. See [implementation status](../IMPLEMENTATION_STATUS.md) and the
 [Live allocation restore](BROWSER_ALLOCATION_RESTORE.md) now merges authenticated
 HD/payment floors while preserving IDs and completed exposures. Versioned sealed
 history prevents stale pending work from exposing an address after restore.
-Coordinated atomic restoration across journals remains open.
+[Coordinated atomic restoration](BROWSER_ATOMIC_RESTORE.md) now commits selected
+initialized journals in one revision-checked IndexedDB transaction. Automatic
+store enumeration and the complete browser prepare/fee/recovery session remain open.

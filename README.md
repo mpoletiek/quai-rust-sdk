@@ -8,6 +8,8 @@ and browser adapters.
 **Development status:** `0.1.0-alpha.1`, with breaking changes expected. This
 project is not feature complete or production-qualified for real-fund custody.
 The repository is MIT licensed; crates.io publication remains disabled.
+Read the [complete SDK guide](SDK_DOCUMENTATION.md) and
+[quais.js comparison, gaps and Rust additions](SDK_PARITY_ANALYSIS.md).
 See [implementation status](IMPLEMENTATION_STATUS.md),
 [feature completeness review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md), [wallet gaps](docs/WALLET_GAPS.md)
 and the [security review](docs/SECURITY_REVIEW_2026-09-11.md) before integrating it.
@@ -38,7 +40,7 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 The branch follows ongoing development. For reproducible integrations, replace
 `branch` with an explicitly reviewed `rev` and commit your application's lockfile.
-A private repository requires authenticated Git access. A neighboring checkout can
+A neighboring checkout can
 instead use `quai-sdk = { path = "../quai-rust-sdk/crates/quai-sdk" }`.
 
 ### Read a node
@@ -104,6 +106,7 @@ The facade crate is named **`quai-sdk`**. Its default features are `http` and `w
 | `abi` | ABI/EIP-712 support and contract, token, event and deployment helpers |
 | `payments` | BIP47 codes and derivation; with `sqlite`, channel scan and send preparation |
 | `keystore` | Legacy v3 JSON keystore import and native export |
+| `backup` | Portable authenticated full-wallet capture/restore; includes `wallet,payments` |
 | `browser` | Wasm Fetch and injected-wallet adapters |
 
 For a browser build, disable native defaults and select the capabilities you need:

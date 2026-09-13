@@ -124,3 +124,10 @@ restore remains separate from read-only collection.
 HD/payment journals now support authenticated live floor merge with retained IDs,
 completed addresses/exposures, abandoned pending work and strict versioned history.
 Both browser adapters use CAS. See [allocation recovery](BROWSER_ALLOCATION_RESTORE.md).
+
+September 13 follow-up: selected browser HD/payment/account/Qi live backup merges
+now commit atomically across one named IndexedDB database, with cancellation,
+conflict and bounded-capacity tests. See [atomic restore](BROWSER_ATOMIC_RESTORE.md).
+The [consolidated SDK guide](../SDK_DOCUMENTATION.md) and
+[parity analysis](../SDK_PARITY_ANALYSIS.md) retain explicit unfinished workflow,
+declaration-review and qualification work.

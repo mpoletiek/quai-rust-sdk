@@ -172,3 +172,127 @@ mod socket_tests;
 
 #[path = "support/injected_transaction.rs"]
 mod injected_transaction_tests;
+
+#[wasm_bindgen_test(async)]
+async fn worker_atomic_snapshot_batch_rolls_back_conflicts_and_survives_cancellation() {
+    use quai_browser::{
+        BrowserError, BrowserSnapshotStore, BrowserSnapshotUpdate, BrowserStorageScope,
+        compare_exchange_snapshots,
+    };
+    use quai_primitives::{Hash32, Zone};
+    use std::{future::Future, task::Poll};
+    let mut random = [0; 8];
+    fill_random(&mut random).unwrap();
+    let name = format!("batch-{}", u64::from_be_bytes(random));
+    let scope = |n| BrowserStorageScope {
+        chain_id: U256::from(15000),
+        genesis: Hash32::from_bytes([1; 32]),
+        zone: Zone::Cyprus1,
+        wallet: Hash32::from_bytes([n; 32]),
+    };
+    let a = BrowserSnapshotStore::open(&name, scope(2), 1024)
+        .await
+        .unwrap();
+    let b = BrowserSnapshotStore::open(&name, scope(3), 1024)
+        .await
+        .unwrap();
+    let alias = BrowserSnapshotStore::open(&name, scope(2), 1024)
+        .await
+        .unwrap();
+    let other = BrowserSnapshotStore::open(&format!("{name}-other"), scope(3), 1024)
+        .await
+        .unwrap();
+    let update = |store, expected| BrowserSnapshotUpdate {
+        store,
+        expected,
+        bytes: Some(&b"new"[..]),
+    };
+    assert_eq!(
+        compare_exchange_snapshots(&[update(&a, None), update(&b, None)])
+            .await
+            .unwrap(),
+        vec![1, 1]
+    );
+    // First put can have been queued before the second read discovers a conflict.
+    assert!(matches!(
+        compare_exchange_snapshots(&[update(&a, Some(1)), update(&b, None)]).await,
+        Err(BrowserError::StorageConflict)
+    ));
+    assert_eq!(a.read().await.unwrap().unwrap().revision, 1);
+    assert_eq!(b.read().await.unwrap().unwrap().revision, 1);
+    for invalid in [
+        vec![update(&a, Some(1)), update(&alias, Some(1))],
+        vec![update(&a, Some(1)), update(&other, None)],
+        vec![update(&a, Some(0))],
+    ] {
+        assert!(matches!(
+            compare_exchange_snapshots(&invalid).await,
+            Err(BrowserError::InvalidConfig)
+        ));
+    }
+    assert!(other.read().await.unwrap().is_none());
+    assert!(compare_exchange_snapshots(&[]).await.is_err());
+    assert!(
+        compare_exchange_snapshots(&(0..129).map(|_| update(&a, Some(1))).collect::<Vec<_>>())
+            .await
+            .is_err()
+    );
+    let oversized = [0; 1025];
+    assert!(
+        compare_exchange_snapshots(&[
+            update(&a, Some(1)),
+            BrowserSnapshotUpdate {
+                store: &b,
+                expected: Some(1),
+                bytes: Some(&oversized)
+            }
+        ])
+        .await
+        .is_err()
+    );
+    // Two competing whole-wallet writers produce exactly one complete winner.
+    let updates = [update(&a, Some(1)), update(&b, Some(1))];
+    let (x, y) = futures_util::future::join(
+        compare_exchange_snapshots(&updates),
+        compare_exchange_snapshots(&updates),
+    )
+    .await;
+    assert_eq!(usize::from(x.is_ok()) + usize::from(y.is_ok()), 1);
+    assert_eq!(a.read().await.unwrap().unwrap().revision, 2);
+    assert_eq!(b.read().await.unwrap().unwrap().revision, 2);
+    let tombstones = [
+        BrowserSnapshotUpdate {
+            store: &a,
+            expected: Some(2),
+            bytes: None,
+        },
+        BrowserSnapshotUpdate {
+            store: &b,
+            expected: Some(2),
+            bytes: None,
+        },
+    ];
+    let mut cancelled = Box::pin(compare_exchange_snapshots(&tombstones));
+    assert!(
+        std::future::poll_fn(|cx| Poll::Ready(cancelled.as_mut().poll(cx)))
+            .await
+            .is_pending()
+    );
+    drop(cancelled);
+    // Read transactions queue behind the dispatched write, even after Rust cancellation.
+    for store in [&a, &b] {
+        let value = store.read().await.unwrap().unwrap();
+        assert_eq!(value.revision, 3);
+        assert!(value.bytes.is_none());
+    }
+    assert!(matches!(
+        compare_exchange_snapshots(&[update(&a, None), update(&b, None)]).await,
+        Err(BrowserError::StorageConflict)
+    ));
+    assert_eq!(
+        compare_exchange_snapshots(&[update(&a, Some(3)), update(&b, Some(3))])
+            .await
+            .unwrap(),
+        vec![4, 4]
+    );
+}

@@ -122,13 +122,14 @@ cargo clippy -p quai-payments -p quai-crypto --all-targets -- -D warnings
 Every included seed/key is publicly known test material and must never be
 funded. These results do not establish node acceptance, notification-protocol
 privacy or production wallet safety. Version-two/Bitmessage features, blinded
-notification construction, notification transaction parsing, discovery/gap
-status management, persistent spend reservations and network integration remain
-separate work. No browser runtime qualification is claimed for this crate yet.
+notification construction, notification transaction parsing and automatic peer discovery remain separate
+work. Native gap scanning and spend reservations live in the facade; actual
+Chromium worker tests cover derivation, allocation and recovery. Other engines
+and production notification protocols remain unqualified.
 
 `from_master_xprv` derives the same payment identity as its original seed.
 `from_account_xprv` validates depth/account while explicitly trusting the omitted
-ancestry; standalone account origins are not supported by full-wallet backup.
+ancestry; full-wallet backup v3 and later support these explicit account origins.
 The [facade workflow guide](../../docs/WALLET_WORKFLOWS.md) covers registered
 channel send destinations, current receive scanning and spending through a
 verified local keyring. Those network/storage workflows live outside this crate.

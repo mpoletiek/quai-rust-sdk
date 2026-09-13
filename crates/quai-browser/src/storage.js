@@ -51,16 +51,51 @@ function operation(handle,mode,callback){
 }
 export function readSnapshot(handle){return operation(handle,'readonly',(_,record)=>record);}
 export function compareExchangeSnapshot(handle,expected,bytes){
-    if(!Number.isSafeInteger(expected) || expected < -1 || expected > MAX_REVISION || (bytes!==null && (!(bytes instanceof Uint8Array) || bytes.byteLength>handle.maxBytes)))return Promise.reject(fail('invalid'));
-    // Copy before waiting for a transaction so caller mutation cannot change its payload.
-    const copy=bytes===null?null:bytes.slice();
-    return operation(handle,'readwrite',(store,record)=>{
-        if((record===null?-1:record.revision)!==expected)throw fail('storage_conflict');
-        if(record?.revision===MAX_REVISION)throw fail('storage');
-        const revision=(record?.revision||0)+1;
-        store.put({scope:handle.scope,revision,bytes:copy});
-        return revision;
-    });
+    return compareExchangeSnapshots([handle],[expected],[bytes]).then(revisions=>revisions[0]);
 }
 export function snapshotRevision(record){return record.revision;}
 export function snapshotBytes(record){return record.bytes;}
+
+// All keys must live in one named database. Separate connections are supported;
+// IndexedDB serializes overlapping read/write transactions across tabs/workers.
+export function compareExchangeSnapshots(handles,expected,values){
+    if(!Array.isArray(handles) || handles.length<1 || handles.length>128 || expected.length!==handles.length || values.length!==handles.length)return Promise.reject(fail('invalid'));
+    const keys=new Set(), copies=[];
+    let total=0;
+    for(let i=0;i<handles.length;i++){
+        const h=handles[i], b=values[i], e=expected[i];
+        if(h.closed)return Promise.reject(fail('storage'));
+        if(h.db.name!==handles[0].db.name || keys.has(h.scope) || !Number.isSafeInteger(e) || (e!==-1 && e<1) || e>MAX_REVISION
+            || (b!==null && (!(b instanceof Uint8Array) || b.byteLength>h.maxBytes)))return Promise.reject(fail('invalid'));
+        keys.add(h.scope);total+=b===null?0:b.byteLength;
+        if(total>16*1024*1024)return Promise.reject(fail('invalid'));
+        copies.push(b===null?null:b.slice());
+    }
+    return new Promise((resolve,reject)=>{
+        let tx,failure;const revisions=new Array(handles.length);
+        try{tx=handles[0].db.transaction(STORE,'readwrite',{durability:'strict'});}catch(_){reject(fail('storage'));return;}
+        tx.oncomplete=()=>resolve(revisions);
+        tx.onabort=()=>reject(failure||fail('storage'));
+        tx.onerror=()=>{};
+        try{
+            const store=tx.objectStore(STORE);
+            const countRequest=store.count();
+            countRequest.onsuccess=()=>{
+            let slots=countRequest.result;
+            handles.forEach((h,i)=>{
+                const request=store.get(h.scope);
+                request.onsuccess=()=>{
+                    try{
+                        const record=checked(request.result,h);
+                        if((record===null?-1:record.revision)!==expected[i])throw fail('storage_conflict');
+                        if(record?.revision===MAX_REVISION)throw fail('storage');
+                        if(record===null && ++slots>2048)throw fail('storage');
+                        revisions[i]=(record?.revision||0)+1;
+                        store.put({scope:h.scope,revision:revisions[i],bytes:copies[i]});
+                    }catch(error){failure=error?.quaiBrowserError?error:fail('storage');tx.abort();}
+                };
+            });
+            };
+        }catch(_){failure=fail('storage');tx.abort();}
+    });
+}

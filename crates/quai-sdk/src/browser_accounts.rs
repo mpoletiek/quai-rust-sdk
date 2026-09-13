@@ -40,7 +40,7 @@ pub struct BrowserAccountSnapshot {
 /// is performed; this layer can retain transfers, conversions and deployments.
 #[derive(Clone)]
 pub struct BrowserAccountBook {
-    store: BrowserSnapshotStore,
+    pub(crate) store: BrowserSnapshotStore,
     scope: NetworkScope,
     owner: PublicKey,
 }

@@ -98,3 +98,5 @@ See [inventory carry-forward validation](../test-infra/reports/portable-inventor
 Actual worker tests collect all four journal types, reject a first or last journal
 changed between read phases, retain state after cancellation, and reject duplicate,
 over-limit or tombstoned sources. See [browser collection validation](../test-infra/reports/browser-wallet-collection-2026-09-13.json).
+
+For coordinated live restoration, see [atomic browser restore](BROWSER_ATOMIC_RESTORE.md).

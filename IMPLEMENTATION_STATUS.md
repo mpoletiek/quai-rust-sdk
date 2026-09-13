@@ -7,6 +7,10 @@ The [feature completeness review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md
 separates implemented primitives from missing workflows and records completion
 criteria FC01–FC12. Historical test/node results below retain their recorded scope.
 
+The [SDK integration guide](SDK_DOCUMENTATION.md) covers the current public
+capabilities; the [comparison](SDK_PARITY_ANALYSIS.md) calls out gaps, deliberate
+differences and Rust additions without treating pending declarations as complete.
+
 ## Implemented and locally exercised
 
 | Area | Delivered behavior and evidence |
@@ -600,3 +604,16 @@ keeping strict new-range coverage; v1 parsing is unchanged. Independent fixtures
 and native/worker race tests are retained in [validation](test-infra/reports/browser-allocation-restore-2026-09-13.json).
 See [workflow](docs/BROWSER_ALLOCATION_RESTORE.md). Atomic multi-journal restoration
 remains separate work.
+
+## Atomic browser recovery and consolidated documentation
+
+`browser_backups::merge_wallet_backup` now validates and atomically merges selected
+initialized HD/payment allocation and account/Qi custody journals in one IndexedDB
+transaction. Concurrent changes, duplicate/cross-database targets or invalid
+merges reject without partial state. The shared storage path now enforces the
+previously documented 2,048-namespace limit, including tombstones.
+
+The consolidated SDK guide and parity analysis cover every crate and workflow
+family, with a checked appendix of all pending/partial export families. This
+does not finish the 2,639 pending declaration reviews or browser session/network
+qualification gaps. See [atomic restore](docs/BROWSER_ATOMIC_RESTORE.md).

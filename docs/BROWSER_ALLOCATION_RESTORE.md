@@ -39,11 +39,14 @@ Retain earlier owned addresses and payment exposures using the combined capture'
 `previous_inventory` field. Merging a cursor into a live allocator does not copy
 all earlier inventory into that allocator. See [portable wallet capture](PORTABLE_WALLET_CAPTURE.md).
 
-These adapters make each individual journal restore atomic. Coordinated restoration
-of several journals still requires an atomic batch integration; do not interpret
-several separate successful calls as one database-wide transaction.
+These adapters make each individual journal restore atomic. Use the facade
+[atomic restore coordinator](BROWSER_ATOMIC_RESTORE.md) to combine selected
+journals in one database transaction; separate calls remain separate commits.
 
 Independent Node fixtures cover 48 merged states using pinned quais.js derivations.
 Native and actual Chromium worker tests verify exact framing, preserved IDs,
 exhaustion, malformed history, reopening and allocation-versus-restore CAS races.
 Existing v1 allocation tests remain enabled. [Retained validation](../test-infra/reports/browser-allocation-restore-2026-09-13.json).
+
+[Atomic multi-journal restore](BROWSER_ATOMIC_RESTORE.md) composes these merges
+with account/Qi custody in one IndexedDB transaction.

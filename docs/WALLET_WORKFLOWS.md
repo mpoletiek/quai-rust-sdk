@@ -157,7 +157,9 @@ User-confirmed addresses for mainnet and Orchard, Cyprus-1:
 `wrappers::{WQI_ADDRESS, WQUAI_ADDRESS}` expose these constants; adapters also
 accept an explicit deployment address. Mainnet code presence was observed for
 both; the [read-only report](../test-infra/reports/wrapper-deployments-2026-09-12.json)
-records runtime SHA-256 values. Orchard returned HTTP 403. Code presence is not
+records runtime SHA-256 values. Later [public mainnet reads](../test-infra/reports/mainnet-public-read-recheck-2026-09-13.json)
+confirmed both deployments. The last retained Orchard code check found empty
+WQUAI code; Orchard was subsequently reported under maintenance. Code presence is not
 an implementation audit or funded workflow acceptance.
 
 - Native Qi wrapping uses `QiWrappingTransaction` or

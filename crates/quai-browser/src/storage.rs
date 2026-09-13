@@ -18,6 +18,12 @@ extern "C" {
         expected: f64,
         bytes: &JsValue,
     ) -> Result<JsValue, JsValue>;
+    #[wasm_bindgen(catch,js_name=compareExchangeSnapshots)]
+    async fn compare_exchanges(
+        handles: &js_sys::Array,
+        expected: &js_sys::Array,
+        values: &js_sys::Array,
+    ) -> Result<JsValue, JsValue>;
     #[wasm_bindgen(js_name=snapshotRevision)]
     fn revision(record: &JsValue) -> f64;
     #[wasm_bindgen(js_name=snapshotBytes)]
@@ -60,9 +66,64 @@ pub struct BrowserSnapshotStore {
     handle: Rc<Handle>,
     max_bytes: usize,
 }
+/// One entry in an atomic multi-journal commit. Bytes must be public or encrypted.
+pub struct BrowserSnapshotUpdate<'a> {
+    /// Target namespace; all entries must share one named database.
+    pub store: &'a BrowserSnapshotStore,
+    /// Exact current revision, or None for a never-written namespace.
+    pub expected: Option<u64>,
+    /// New bytes, or None to retain a deletion tombstone.
+    pub bytes: Option<&'a [u8]>,
+}
+/// Commit 1..=128 distinct namespaces in one IndexedDB transaction, with a
+/// combined 16 MiB payload limit. Any conflict/error aborts every update. Returns
+/// revisions in input order. Cross-database updates and duplicate keys reject.
+/// Cancellation after dispatch may commit all entries: re-read before retrying.
+pub async fn compare_exchange_snapshots(
+    updates: &[BrowserSnapshotUpdate<'_>],
+) -> Result<Vec<u64>, BrowserError> {
+    if updates.is_empty() || updates.len() > 128 {
+        return Err(BrowserError::InvalidConfig);
+    }
+    let mut total = 0usize;
+    for update in updates {
+        let size = update.bytes.map_or(0, <[u8]>::len);
+        total = total.checked_add(size).ok_or(BrowserError::InvalidConfig)?;
+        if total > 16 * 1024 * 1024
+            || size > update.store.max_bytes
+            || update
+                .expected
+                .is_some_and(|r| r == 0 || r > 9_007_199_254_740_991)
+        {
+            return Err(BrowserError::InvalidConfig);
+        }
+    }
+    let handles = js_sys::Array::new();
+    let expected = js_sys::Array::new();
+    let values = js_sys::Array::new();
+    for update in updates {
+        handles.push(&update.store.handle.0);
+        expected.push(&JsValue::from_f64(
+            update.expected.map_or(-1.0, |r| r as f64),
+        ));
+        values.push(
+            &update
+                .bytes
+                .map_or(JsValue::NULL, |b| js_sys::Uint8Array::from(b).into()),
+        );
+    }
+    let result = compare_exchanges(&handles, &expected, &values)
+        .await
+        .map_err(storage_error)?;
+    js_sys::Array::from(&result)
+        .iter()
+        .map(|r| r.as_f64().map(|r| r as u64).ok_or(BrowserError::Storage))
+        .collect()
+}
 impl BrowserSnapshotStore {
     /// Open a named store without account prompts. No localStorage fallback exists.
     /// `max_bytes` is 1..=16 MiB; names contain 1..=128 ASCII letters/digits/_/-.
+    /// A database permits 2048 namespaces, including deletion tombstones.
     pub async fn open(
         name: &str,
         scope: BrowserStorageScope,

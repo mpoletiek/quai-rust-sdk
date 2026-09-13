@@ -40,7 +40,7 @@ pub struct BrowserPaymentSnapshot {
 /// account, peer, direction and network/zone. No transaction or private-key custody.
 #[derive(Clone)]
 pub struct BrowserPaymentBook {
-    store: BrowserSnapshotStore,
+    pub(crate) store: BrowserSnapshotStore,
     scope: NetworkScope,
     local: PaymentCode,
     account: u32,

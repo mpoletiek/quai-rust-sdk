@@ -78,7 +78,9 @@ than silently incrementing its index. Paths are bounded to the BIP32 depth
 limit. Mnemonic parsing accepts surrounding/repeated Unicode whitespace; this
 is more permissive than some reference wordlist splitters, and seeds derive
 from the canonical validated phrase. Native authenticated full-wallet backups and portable mnemonic generation are
-available; complete browser wallet restore/reservation integration is separate.
+available. Browser custody and atomic recovery are described in the
+[SDK guide](../../SDK_DOCUMENTATION.md); complete browser session orchestration
+remains separate.
 
 The underlying bip32 0.5.3 master API accepts only 16/32/64-byte seeds. This
 crate applies the standard HMAC-SHA512 `Bitcoin seed` master derivation for the
@@ -227,10 +229,10 @@ The SDK's `payments` feature also enables this integration when `wallet` is acti
 
 Actual Chromium worker tests cover HD/imported/payment ownership, ordered mixed
 Qi signing, malformed/forged metadata, and IndexedDB reopen with revision fencing.
-Public metadata alone never grants signing authority. Persistent browser nonce and
-UTXO reservations, full state merge and real extension qualification remain
-separate work; the existing native durable wallet workflows continue to own those
-transaction lifecycle guarantees.
+Public metadata alone never grants signing authority. Browser nonce/input custody,
+compatible signed-candidate merge and atomic multi-journal restore are now
+implemented in the facade. Complete browser fee/prepare/recovery orchestration
+and real extension qualification remain open.
 
 
 The `backup` feature now makes `full_backup` encryption, decryption, ownership

@@ -42,7 +42,7 @@ pub struct BrowserQiSnapshot {
 /// No network, fee quote, address allocation or implicit transaction send occurs.
 #[derive(Clone)]
 pub struct BrowserQiBook {
-    store: BrowserSnapshotStore,
+    pub(crate) store: BrowserSnapshotStore,
     scope: NetworkScope,
     identity: Hash32,
 }

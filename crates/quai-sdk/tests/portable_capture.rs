@@ -585,6 +585,82 @@ async fn combined_backup_initializes_all_browser_journals_without_losing_custody
     .unwrap();
     f.verify(&captured.backup);
     assert_eq!(captured.revisions.len(), 6);
+    use quai_sdk::browser_backups::{BrowserWalletRestoreTargets, merge_wallet_backup};
+    hd_stores[0]
+        .reserve(AddressAllocationId(id(110).0), false, 5)
+        .await
+        .unwrap();
+    payment_stores[0]
+        .reserve(&f.owner, PaymentAllocationId(id(111).0), 5)
+        .await
+        .unwrap();
+    let hd_refs: Vec<_> = hd_stores.iter().collect();
+    let payment_refs: Vec<_> = payment_stores
+        .iter()
+        .map(|book| BrowserPaymentCapture {
+            book,
+            owner: &f.owner,
+        })
+        .collect();
+    let restored = merge_wallet_backup(
+        BrowserWalletRestoreTargets {
+            allocations: &hd_refs,
+            accounts: &[&account],
+            qi: &[&qi],
+            payments: &payment_refs,
+        },
+        &backup,
+    )
+    .await
+    .unwrap();
+    assert_eq!(restored.revisions, vec![3, 2, 2, 2, 3, 2]);
+    assert_eq!(restored.abandoned_allocations, 2);
+    assert_eq!(restored.accounts.len(), 1);
+    assert_eq!(restored.qi.len(), 1);
+    assert!(
+        hd_stores[0]
+            .reserve(AddressAllocationId(id(110).0), false, 1)
+            .await
+            .is_err()
+    );
+    assert!(
+        payment_stores[0]
+            .reserve(&f.owner, PaymentAllocationId(id(111).0), 1)
+            .await
+            .is_err()
+    );
+    assert!(qi.release_unsigned(id(101)).await.is_err());
+    assert!(account.release_unsigned(id(100)).await.is_err());
+    // A duplicate or missing late target leaves even the first prepared HD journal unchanged.
+    let before = hd_stores[0].snapshot().await.unwrap().revision;
+    assert!(
+        merge_wallet_backup(
+            BrowserWalletRestoreTargets {
+                allocations: &[&hd_stores[0], &hd_stores[0]],
+                accounts: &[&account],
+                ..Default::default()
+            },
+            &backup
+        )
+        .await
+        .is_err()
+    );
+    let missing = BrowserQiBook::open(&format!("{name}-missing"), scope(), f.qi.identity())
+        .await
+        .unwrap();
+    assert!(
+        merge_wallet_backup(
+            BrowserWalletRestoreTargets {
+                allocations: &[&hd_stores[0]],
+                qi: &[&missing],
+                ..Default::default()
+            },
+            &backup
+        )
+        .await
+        .is_err()
+    );
+    assert_eq!(hd_stores[0].snapshot().await.unwrap().revision, before);
     assert!(format!("{captured:?}").contains("WalletBackup([REDACTED])"));
     for r in &captured.revisions {
         assert_eq!(r.scope, scope());
@@ -947,4 +1023,110 @@ async fn browser_capture_rejects_concurrent_changes_and_cancellation_is_read_onl
     assert!(capture_wallet_backup(sources(), origins()).await.is_err());
     assert!(qi.initialize_from_backup(&previous).await.is_err());
     assert_eq!(account.snapshot().await.unwrap().revision, before);
+}
+
+#[cfg(all(target_arch = "wasm32", feature = "browser"))]
+#[wasm_bindgen_test::wasm_bindgen_test]
+async fn coordinated_restore_rejects_stale_reads_without_partial_custody_writes() {
+    use quai_sdk::browser::{BrowserError, BrowserSnapshotStore, BrowserStorageScope};
+    use quai_sdk::browser_accounts::BrowserAccountBook;
+    use quai_sdk::browser_backups::{
+        BrowserBackupError, BrowserWalletRestoreTargets, merge_wallet_backup,
+    };
+    use quai_sdk::browser_qi::BrowserQiBook;
+    use std::{future::Future, pin::Pin, task::Poll};
+    async fn once<F: Future>(mut f: Pin<&mut F>) -> Poll<F::Output> {
+        std::future::poll_fn(|cx| Poll::Ready(f.as_mut().poll(cx))).await
+    }
+    let f = Fixture::new();
+    let backup = f.capture();
+    let mut random = [0; 16];
+    quai_sdk::crypto::fill_random(&mut random).unwrap();
+    let name = format!("restore-race-{:x}", u128::from_be_bytes(random));
+    let account = BrowserAccountBook::open(&name, scope(), f.account.owner())
+        .await
+        .unwrap();
+    let qi = BrowserQiBook::open(&name, scope(), f.qi.identity())
+        .await
+        .unwrap();
+    account.initialize_from_backup(&backup).await.unwrap();
+    qi.initialize_from_backup(&backup).await.unwrap();
+    let raw_scope = |wallet| BrowserStorageScope {
+        chain_id: scope().chain_id,
+        genesis: scope().genesis,
+        zone: scope().zone,
+        wallet,
+    };
+    let raw_account = BrowserSnapshotStore::open(
+        &name,
+        raw_scope(AccountOperationBook::account_identity(f.account.owner())),
+        16 * 1024 * 1024,
+    )
+    .await
+    .unwrap();
+    let raw_qi = BrowserSnapshotStore::open(
+        &name,
+        raw_scope(QiOperationBook::storage_identity(f.qi.identity())),
+        16 * 1024 * 1024,
+    )
+    .await
+    .unwrap();
+    let accounts = [&account];
+    let qis = [&qi];
+    let targets = || BrowserWalletRestoreTargets {
+        accounts: &accounts,
+        qi: &qis,
+        ..Default::default()
+    };
+    let mut merge = Box::pin(merge_wallet_backup(targets(), &backup));
+    assert!(once(merge.as_mut()).await.is_pending());
+    raw_account.read().await.unwrap();
+    assert!(once(merge.as_mut()).await.is_pending());
+    raw_qi.read().await.unwrap();
+    account.reserve_nonce(id(112), 0).await.unwrap();
+    assert!(matches!(
+        merge.await,
+        Err(BrowserBackupError::Browser(BrowserError::StorageConflict))
+    ));
+    assert_eq!(qi.snapshot().await.unwrap().revision, 1);
+    assert_eq!(account.snapshot().await.unwrap().revision, 2);
+    assert_eq!(
+        merge_wallet_backup(targets(), &backup)
+            .await
+            .unwrap()
+            .revisions,
+        vec![3, 2]
+    );
+    assert!(
+        account
+            .snapshot()
+            .await
+            .unwrap()
+            .book
+            .operation(id(112))
+            .is_some()
+    );
+    let mut cancelled = Box::pin(merge_wallet_backup(targets(), &backup));
+    assert!(once(cancelled.as_mut()).await.is_pending());
+    drop(cancelled);
+    assert_eq!(account.snapshot().await.unwrap().revision, 3);
+    assert_eq!(qi.snapshot().await.unwrap().revision, 2);
+    let elsewhere = BrowserQiBook::open(&format!("{name}-elsewhere"), scope(), f.qi.identity())
+        .await
+        .unwrap();
+    elsewhere.initialize_from_backup(&backup).await.unwrap();
+    assert!(matches!(
+        merge_wallet_backup(
+            BrowserWalletRestoreTargets {
+                accounts: &accounts,
+                qi: &[&elsewhere],
+                ..Default::default()
+            },
+            &backup
+        )
+        .await,
+        Err(BrowserBackupError::Browser(BrowserError::InvalidConfig))
+    ));
+    assert_eq!(account.snapshot().await.unwrap().revision, 3);
+    assert_eq!(elsewhere.snapshot().await.unwrap().revision, 1);
 }

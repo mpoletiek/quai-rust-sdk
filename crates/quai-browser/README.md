@@ -233,7 +233,7 @@ Sources: pinned quais.js `src/providers/provider-browser.ts` and `provider-jsonr
 `BrowserSnapshotStore::open` requires an explicit database and scope (chain,
 genesis, zone and wallet identity). `read` returns opaque bytes plus their
 revision; `compare_exchange` writes only if the expected revision still matches.
-An empty payload preserves a tombstone revision so stale tabs cannot recreate
+`None` bytes preserves a tombstone revision so stale tabs cannot recreate
 deleted state. Clones share a handle, and dropping the last handle closes it.
 
 Records are bounded to 16 MiB and the database to 2,048 scope slots. The adapter
@@ -274,3 +274,18 @@ receipts and canonical heads, delayed inclusion, explicit limits, provider error
 stalled reads, dropped futures and cancellation of actual Fetch with immediate
 reuse of its sole request permit. Node tests check timer bounds and cleanup. The
 native waiter retains seven canonicality/timeout/cancellation regressions.
+
+## Atomic multi-journal updates
+
+`compare_exchange_snapshots` accepts 1–128 `BrowserSnapshotUpdate` entries in one
+named database, including separate open connections. It rejects duplicate scopes,
+cross-database targets, stale revisions, oversized combined payloads and new
+slots beyond the shared 2,048-record limit. Tombstones consume slots. Existing
+records can update at capacity. Any failure aborts the whole transaction; total
+payload is bounded to 16 MiB. The single-record API uses the same implementation.
+Cancellation after dispatch may commit all entries; re-read before retrying.
+
+The facade's `browser_backups::merge_wallet_backup` validates owned recovery
+merges across initialized HD, account, Qi and payment books before this commit.
+See [atomic restore](../../docs/BROWSER_ATOMIC_RESTORE.md) and the
+[SDK guide](../../SDK_DOCUMENTATION.md).

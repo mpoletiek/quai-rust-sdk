@@ -1,4 +1,4 @@
-//! Consistent read-only collection of explicitly selected browser wallet journals.
+//! Consistent collection and atomic recovery merge of selected browser journals.
 use crate::browser_accounts::{BrowserAccountBook, BrowserAccountError};
 use crate::browser_addresses::{BrowserAddressBook, BrowserAddressError};
 use crate::browser_payments::{BrowserPaymentBook, BrowserPaymentError};
@@ -13,9 +13,12 @@ use quai_wallet::full_backup::{
 };
 use quai_wallet::metadata::{PublicAddress, StorageError};
 
-/// Errors never trigger an automatic retry, backup overwrite or storage mutation.
+/// Errors never trigger an automatic retry. Failed restore transactions commit no updates.
 #[derive(Debug, thiserror::Error)]
 pub enum BrowserBackupError {
+    /// Atomic storage transaction failed or conflicted.
+    #[error(transparent)]
+    Browser(#[from] quai_browser::BrowserError),
     /// HD journal read/validation failed.
     #[error(transparent)]
     Address(#[from] BrowserAddressError),
@@ -34,6 +37,107 @@ pub enum BrowserBackupError {
     /// A bound was exceeded or a selected journal changed during collection.
     #[error(transparent)]
     State(#[from] StorageError),
+}
+
+/// Explicit initialized targets for a coordinated live recovery merge. Every
+/// target must share one named IndexedDB database. Omitted stores are untouched;
+/// enumerate all relevant wallet journals before resuming wallet operations.
+#[derive(Default)]
+pub struct BrowserWalletRestoreTargets<'a> {
+    /// HD journals whose burned floors and retained request IDs are preserved.
+    pub allocations: &'a [&'a BrowserAddressBook],
+    /// Account journals whose compatible signed candidate families are united.
+    pub accounts: &'a [&'a BrowserAccountBook],
+    /// Qi journals whose input claims and compatible candidates are united.
+    pub qi: &'a [&'a BrowserQiBook],
+    /// Payment journals and exact private owners for exposure validation.
+    pub payments: &'a [BrowserPaymentCapture<'a>],
+}
+
+/// Result of one committed recovery transaction. No network submission occurs.
+#[derive(Debug)]
+pub struct BrowserWalletRestore {
+    /// New revisions in allocation, account, Qi, then payment input order.
+    pub revisions: Vec<u64>,
+    /// Pending HD/payment requests sealed as abandoned; IDs stay consumed.
+    pub abandoned_allocations: usize,
+    /// Per-account merge effects in account input order.
+    pub accounts: Vec<quai_wallet::account_custody::AccountMergeReport>,
+    /// Per-Qi merge effects in Qi input order.
+    pub qi: Vec<quai_wallet::qi_custody::QiMergeReport>,
+}
+
+/// Merge an authenticated recovery backup into all selected live journals in one
+/// revision-checked IndexedDB transaction. All ownership/state checks finish
+/// before any write. Any concurrent change, duplicate namespace, cross-database
+/// target or invalid merge aborts the entire restore; no automatic retry occurs.
+///
+/// Signed claims remain held, chain observations are discarded, and pending
+/// allocation ranges become burned history. Retain the backup's prior inventory
+/// when capturing successor backups. This does not discover omitted journals or
+/// initialize missing/tombstoned stores. Cancellation after dispatch can commit
+/// the whole transaction: re-read every target before deciding whether to retry.
+pub async fn merge_wallet_backup(
+    targets: BrowserWalletRestoreTargets<'_>,
+    backup: &WalletBackup,
+) -> Result<BrowserWalletRestore, BrowserBackupError> {
+    use quai_browser::{BrowserSnapshotUpdate, compare_exchange_snapshots};
+    let count = targets
+        .allocations
+        .len()
+        .checked_add(targets.accounts.len())
+        .and_then(|n| n.checked_add(targets.qi.len()))
+        .and_then(|n| n.checked_add(targets.payments.len()))
+        .ok_or(StorageError::Invalid)?;
+    if count == 0 || count > MAX_PORTABLE_CAPTURE_JOURNALS {
+        return Err(StorageError::Invalid.into());
+    }
+    let mut prepared = Vec::with_capacity(count);
+    let mut total = 0;
+    let mut report = BrowserWalletRestore {
+        revisions: Vec::new(),
+        abandoned_allocations: 0,
+        accounts: Vec::new(),
+        qi: Vec::new(),
+    };
+    for target in targets.allocations {
+        let mut snapshot = target.snapshot().await?;
+        report.abandoned_allocations += snapshot.book.merge_backup(backup)?;
+        let bytes = snapshot.book.export_state();
+        account_size(&mut total, bytes.len())?;
+        prepared.push((&target.store, snapshot.revision, bytes));
+    }
+    for target in targets.accounts {
+        let mut snapshot = target.snapshot().await?;
+        report.accounts.push(snapshot.book.merge_backup(backup)?);
+        let bytes = snapshot.book.export_state()?;
+        account_size(&mut total, bytes.len())?;
+        prepared.push((&target.store, snapshot.revision, bytes));
+    }
+    for target in targets.qi {
+        let mut snapshot = target.snapshot().await?;
+        report.qi.push(snapshot.book.merge_backup(backup)?);
+        let bytes = snapshot.book.export_state()?;
+        account_size(&mut total, bytes.len())?;
+        prepared.push((&target.store, snapshot.revision, bytes));
+    }
+    for target in targets.payments {
+        let mut snapshot = target.book.snapshot(target.owner).await?;
+        report.abandoned_allocations += snapshot.book.merge_backup(target.owner, backup)?;
+        let bytes = snapshot.book.export_state();
+        account_size(&mut total, bytes.len())?;
+        prepared.push((&target.book.store, snapshot.revision, bytes));
+    }
+    let updates: Vec<_> = prepared
+        .iter()
+        .map(|(store, revision, bytes)| BrowserSnapshotUpdate {
+            store,
+            expected: Some(*revision),
+            bytes: Some(bytes),
+        })
+        .collect();
+    report.revisions = compare_exchange_snapshots(&updates).await?;
+    Ok(report)
 }
 /// Account store and its explicit private-origin descriptor.
 #[derive(Clone, Copy)]

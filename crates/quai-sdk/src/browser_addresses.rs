@@ -39,7 +39,7 @@ pub struct BrowserAddressSnapshot {
 /// No nonce, UTXO, secret backup, payment-channel or transaction state is held here.
 #[derive(Clone)]
 pub struct BrowserAddressBook {
-    store: BrowserSnapshotStore,
+    pub(crate) store: BrowserSnapshotStore,
     scope: NetworkScope,
     account: AccountPublic,
 }

@@ -11,6 +11,8 @@
 pub mod account_custody;
 pub mod allocation;
 mod backup;
+#[cfg(feature = "backup")]
+mod custody_codec;
 pub mod discovery;
 #[cfg(feature = "backup")]
 pub mod full_backup;
@@ -18,6 +20,8 @@ mod hd;
 pub mod metadata;
 #[cfg(feature = "payments")]
 pub mod payment_allocation;
+#[cfg(feature = "backup")]
+pub mod qi_custody;
 pub mod qi_keys;
 mod selection;
 #[cfg(feature = "backup")]

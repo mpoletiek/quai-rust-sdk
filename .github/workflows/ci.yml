@@ -46,6 +46,8 @@ jobs:
       - run: git diff --exit-code -- test-infra/fixtures/address-allocation.json
       - run: node test-infra/generate_contract_code_fixtures.mjs
       - run: git diff --exit-code -- test-infra/fixtures/contract-code.json
+      - run: node test-infra/generate_qi_custody_fixtures.mjs
+      - run: git diff --exit-code -- test-infra/fixtures/qi-custody.json
       - run: node test-infra/generate_account_custody_fixtures.mjs
       - run: git diff --exit-code -- test-infra/fixtures/account-custody.json
       - run: node test-infra/generate_payment_allocation_fixtures.mjs
@@ -105,6 +107,9 @@ jobs:
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-events
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-human-abi
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-receipts
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-qi-custody
+        env:
+          WASM_BINDGEN_TEST_TIMEOUT: 180
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-account-custody
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-account-backup
         env:

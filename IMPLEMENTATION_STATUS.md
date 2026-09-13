@@ -543,3 +543,13 @@ worker tests cover error/cancellation boundaries; read-only checks on Orchard an
 LAN mainnet retain exact block/code observations. Orchard WQUAI returned empty code
 and was explicitly rejected by the checked binding.
 [Workflow](docs/CONTRACT_CODE_PREFLIGHT.md).
+
+## Browser Qi custody (2026-09-13)
+
+Portable and IndexedDB journals now retain exact Qi inputs, public HD/imported/payment
+origins and transfer/conversion/wrapping candidate bytes. Discovery reservation checks
+locks, trusted derivation and the pre-discovery revision. Local signing persists bytes
+before returning; concurrent/cancelled writes and reorgs retain custody. Native v5
+backup initialization drops observations. See [workflow](docs/BROWSER_QI_CUSTODY.md)
+and [validation](test-infra/reports/browser-qi-custody-2026-09-13.json). Qi backup
+capture/live merge and complete multi-journal browser wallet capture remain open.

@@ -12,6 +12,8 @@ pub mod browser_addresses;
     feature = "payments"
 ))]
 pub mod browser_payments;
+#[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
+pub mod browser_qi;
 #[cfg(feature = "abi")]
 pub mod contracts;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]

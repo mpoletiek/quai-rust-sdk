@@ -3,10 +3,11 @@
 //! These mutations are in memory. A durable adapter must commit the complete book
 //! before exposing a nonce or signed payload. Current balances, pending nonces and
 //! canonical inclusion are caller observations, never established by this journal.
+use crate::custody_codec::{Reader, Writer};
 use crate::discovery::{Checkpoint, NetworkScope};
 use crate::metadata::StorageError;
 pub use crate::state::{QuaiReplacement, ReservationId, ReservationState};
-use quai_consensus::{MAX_TRANSACTION_BYTES, SignedQuaiTransaction, U256};
+use quai_consensus::{SignedQuaiTransaction, U256};
 use quai_crypto::PublicKey;
 use quai_primitives::{Hash32, QuaiAddress};
 use std::collections::{BTreeMap, BTreeSet};
@@ -552,50 +553,5 @@ impl AccountOperationBook {
         }
         book.validate()?;
         Ok(book)
-    }
-}
-struct Writer(Vec<u8>);
-impl Writer {
-    fn put(&mut self, bytes: &[u8]) -> Result<()> {
-        if bytes.len() > MAX_ACCOUNT_CUSTODY_BYTES - self.0.len() {
-            return Err(StorageError::Invalid);
-        }
-        self.0.extend_from_slice(bytes);
-        Ok(())
-    }
-    fn blob(&mut self, bytes: &[u8]) -> Result<()> {
-        if bytes.len() > MAX_TRANSACTION_BYTES {
-            return Err(StorageError::Invalid);
-        }
-        self.put(&(bytes.len() as u32).to_be_bytes())?;
-        self.put(bytes)
-    }
-}
-struct Reader<'a>(&'a [u8]);
-impl<'a> Reader<'a> {
-    fn take(&mut self, n: usize) -> Result<&'a [u8]> {
-        let (head, tail) = self.0.split_at_checked(n).ok_or(StorageError::Invalid)?;
-        self.0 = tail;
-        Ok(head)
-    }
-    fn array<const N: usize>(&mut self) -> Result<[u8; N]> {
-        self.take(N)?.try_into().map_err(|_| StorageError::Invalid)
-    }
-    fn byte(&mut self) -> Result<u8> {
-        Ok(self.array::<1>()?[0])
-    }
-    fn flag(&mut self) -> Result<bool> {
-        match self.byte()? {
-            0 => Ok(false),
-            1 => Ok(true),
-            _ => Err(StorageError::Invalid),
-        }
-    }
-    fn blob(&mut self) -> Result<&'a [u8]> {
-        let n = u32::from_be_bytes(self.array()?) as usize;
-        if n > MAX_TRANSACTION_BYTES {
-            return Err(StorageError::Invalid);
-        }
-        self.take(n)
     }
 }

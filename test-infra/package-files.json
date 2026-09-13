@@ -312,6 +312,10 @@
     {
       "source": "test-infra/fixtures/contract-code.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/contract-code.json"
+    },
+    {
+      "source": "test-infra/fixtures/qi-custody.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/qi-custody.json"
     }
   ]
 }

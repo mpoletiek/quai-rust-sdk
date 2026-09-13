@@ -6,6 +6,11 @@ use quai_wallet::{Mnemonic,Language,ExtendedPrivateKey,ExtendedPublicKey};
 use quai_crypto::{PublicKey,RecoverableSignature,SchnorrSignature};
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
+ if data.starts_with(b"QQICUBK1") {
+  let scope=quai_wallet::discovery::NetworkScope{chain_id:quai_consensus::U256::from(15000),genesis:quai_primitives::Hash32::from_bytes([1;32]),zone:quai_primitives::Zone::Cyprus1};
+  let identity=quai_primitives::Hash32::from_bytes([7;32]);
+  if let Ok(book)=quai_wallet::qi_custody::QiOperationBook::from_state(data,scope,identity){assert_eq!(book.export_state().unwrap(),data);assert_eq!(book.scope(),scope);assert_eq!(book.identity(),identity);}
+ }
  if data.starts_with(b"QACCTBK1") {
   // Fixed public toy owner; no attacker-selected derivation or KDF.
   let mut secret=[0;32];secret[30]=3;secret[31]=0x25;

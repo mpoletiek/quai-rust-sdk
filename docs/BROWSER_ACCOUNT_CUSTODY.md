@@ -70,8 +70,8 @@ omitted. Keep those other journals/backups independently; this method does not
 claim to capture a complete browser wallet. A browser snapshot revision identifies
 when the account capture was read; later writes may require a newer backup.
 
-Qi outpoint custody and complete browser prepare/fee/recovery orchestration remain
-separate work. IndexedDB records are public application state, not authenticated
+See [Qi custody](BROWSER_QI_CUSTODY.md) for durable browser input claims. Complete
+browser prepare/fee/recovery orchestration remains separate work. IndexedDB records are public application state, not authenticated
 against malicious replacement or rollback by code with the same browser origin.
 
 Tests use public toy identities which must never be funded. Eight independent

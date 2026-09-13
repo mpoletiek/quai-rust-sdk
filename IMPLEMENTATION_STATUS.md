@@ -820,3 +820,18 @@ and [retained evidence](test-infra/reports/legacy-wallet-migration-2026-09-13.js
 Ledger counts are 66 implemented, 1,366 deviation, 126 partial and 2,370 pending.
 This closes the specialized HD wallet migration gap; the broader parity audit
 and release qualification remain in progress.
+
+## 2026-09-13: portable remote account signer and external custody
+
+Added `RpcAccountSigner` for native/Wasm remote signing, verified messages and
+exact transaction responses, finite remote unlock and independently observed send
+acknowledgements. Requests are bounded, network/account checked and never retried;
+dispatched failures retain ambiguity. Prepared native/browser account operations
+can persist externally signed exact bytes against their live reservation.
+
+Seven shared protocol tests pass natively and in Chromium workers, three published
+JavaScript request tests pass, and custody regressions pass (21 native account
+and 15 browser preflight tests). Strict native/Wasm Clippy and warnings-denied
+rustdoc pass. [The guide](docs/RPC_SIGNER.md) records API and behavior differences.
+Forty declaration rows are reconciled; counts are 66 implemented, 1,400 deviation,
+126 partial and 2,336 pending. Broader parity and release qualification continue.

@@ -52,6 +52,9 @@ pub mod qi_preflight;
 pub mod qi_replacement;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod recovery;
+/// Portable verified remote account signing and submission acknowledgements.
+#[cfg(feature = "wallet")]
+pub mod rpc_signer;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod settlement;
 /// Portable destination observations from exact signed payloads.

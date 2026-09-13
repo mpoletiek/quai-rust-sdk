@@ -780,3 +780,18 @@ Both pinned quais.js HD `xPub()` methods return xprv, despite their names. Rust'
 `root_public_key` always returns a public key. Neuter the reference result before
 using it as a public migration trust anchor; the Rust public-key importer rejects
 raw xprv strings.
+
+## Remote account signing and external custody
+
+`rpc_signer::RpcAccountSigner` supports verified personal and typed-data signatures,
+exact remote Quai transaction signing, finite-duration account unlocking and
+wallet-mediated submission acknowledgements on native and Wasm transports.
+`RpcSignerError::dispatched` preserves the distinction between preflight failure
+and a potentially accepted request. No request is automatically retried.
+
+Native and browser prepared account transactions accept verified external bytes
+through `commit_external_signature`; the exact reviewed fields and live reservation
+must still match before persistence. Wallet-mediated sends instead return a
+`RemoteSendAcknowledgement` for independent signed-transaction observation and
+explicit comparison with the original request. See [remote signer documentation](docs/RPC_SIGNER.md)
+for construction, durable workflow, cancellation, limits and quais.js differences.

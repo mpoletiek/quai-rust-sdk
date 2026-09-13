@@ -680,6 +680,47 @@ mod browser {
         format!("account-session-{:x}", u128::from_be_bytes(b))
     }
     #[wasm_bindgen_test::wasm_bindgen_test]
+    async fn external_signature_commit_preserves_review_and_durable_nonce_claim() {
+        let m = Mock::default();
+        let p = m.provider();
+        let name = name();
+        let book = BrowserAccountBook::open(&name, scope(), key().public_key())
+            .await
+            .unwrap();
+        book.initialize(8).await.unwrap();
+        let session = BrowserAccountSession::new(&p, &book);
+        let prepared = session.prepare(id(90), intent(), fee()).await.unwrap();
+        let mut changed = prepared.transaction().clone();
+        changed.value += U256::from(1);
+        assert!(
+            prepared
+                .commit_external_signature(&changed.sign(&key()).unwrap())
+                .await
+                .is_err()
+        );
+        assert_eq!(
+            book.snapshot()
+                .await
+                .unwrap()
+                .book
+                .operation(id(90))
+                .unwrap()
+                .state,
+            ReservationState::Reserved
+        );
+        let signed = prepared.transaction().sign(&key()).unwrap();
+        prepared.commit_external_signature(&signed).await.unwrap();
+        let reopened = BrowserAccountBook::open(&name, scope(), key().public_key())
+            .await
+            .unwrap();
+        let snapshot = reopened.snapshot().await.unwrap();
+        let operation = snapshot.book.operation(id(90)).unwrap();
+        assert_eq!(operation.state, ReservationState::Signed);
+        assert_eq!(operation.payload, Some(signed.signed_bytes().unwrap()));
+        assert!(reopened.release_unsigned(id(90)).await.is_err());
+        assert!(m.state().sends.is_empty());
+    }
+    #[wasm_bindgen_test::wasm_bindgen_test]
     async fn prepare_review_sign_and_ambiguous_submission_recover_exact_bytes_after_reopen() {
         let m = Mock::default();
         let p = m.provider();

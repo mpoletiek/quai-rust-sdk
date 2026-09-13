@@ -18229,12 +18229,22 @@
         "new (provider: JsonRpcApiProvider<any>, address: string): JsonRpcSigner"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::new"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Immutable remote account/network binding; offline construction, no implicit permission request."
     },
     {
       "id": ".:JsonRpcSigner:instance:_getAddress",
@@ -18245,12 +18255,22 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::QuaiAddress"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Concrete address parsing replaces Promise/Addressable coercion."
     },
     {
       "id": ".:JsonRpcSigner:instance:_legacySignMessage",
@@ -18261,12 +18281,22 @@
         "(_message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::legacy_sign"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Exact quai_sign parameter order; caller supplies expected digest to avoid guessing server prefix/hash semantics; signature is recovered."
     },
     {
       "id": ".:JsonRpcSigner:instance:address",
@@ -18275,12 +18305,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::address"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Concrete typed public account; no implicit asynchronous coercion."
     },
     {
       "id": ".:JsonRpcSigner:instance:call",
@@ -18291,12 +18331,22 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::call"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Compose bound provider and typed CallRequest with explicit account and simulation block."
     },
     {
       "id": ".:JsonRpcSigner:instance:connect",
@@ -18307,12 +18357,22 @@
         "(provider: null | Provider): Signer"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::new"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Immutable binding; construct a new adapter explicitly. Published JsonRpcSigner.connect also rejects reconnect."
     },
     {
       "id": ".:JsonRpcSigner:instance:createAccessList",
@@ -18323,12 +18383,22 @@
         "(tx: QuaiTransactionRequest): Promise<AccessList>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Compose bound provider and typed CallRequest; preserve required ordered access-list entries and report errors."
     },
     {
       "id": ".:JsonRpcSigner:instance:estimateGas",
@@ -18339,12 +18409,22 @@
         "(tx: TransactionRequest): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_gas"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Compose bound provider and typed CallRequest with explicit account, exact fields and simulation block."
     },
     {
       "id": ".:JsonRpcSigner:instance:getAddress",
@@ -18355,12 +18435,22 @@
         "(): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::address"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Concrete typed public account; synchronous lookup."
     },
     {
       "id": ".:JsonRpcSigner:instance:getNonce",
@@ -18371,12 +18461,22 @@
         "(blockTag?: BlockTag): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::transaction_count"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Compose bound provider with concrete account and explicit block selector; durable account preflight applies monotonic nonce floors separately."
     },
     {
       "id": ".:JsonRpcSigner:instance:populateCall",
@@ -18387,12 +18487,23 @@
         "(tx: TransactionRequest): Promise<TransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_sdk::rpc_signer::RpcAccountSigner::address"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Construct typed simulation request explicitly with signer address; no Promise/Addressable coercion or hidden field defaults."
     },
     {
       "id": ".:JsonRpcSigner:instance:populateQuaiTransaction",
@@ -18403,12 +18514,23 @@
         "(tx: QuaiTransactionRequest): Promise<QuaiTransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::account_preflight::quote_account",
+        "quai_sdk::account_preflight::quote_account_with_access"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Explicit exact intent, nonce/observation policy and fee caps replace implicit provider population. Nonce zero is preserved; quote does not reserve or send."
     },
     {
       "id": ".:JsonRpcSigner:instance:provider",
@@ -18417,12 +18539,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::provider"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Borrowed typed provider bound to the same transport/routes and configured chain."
     },
     {
       "id": ".:JsonRpcSigner:instance:sendTransaction",
@@ -18434,21 +18566,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::InjectedProvider::send_quai_transaction",
-        "quai_browser::WalletSendAcknowledgement::observe",
-        "quai_provider::Transaction::verified_quai"
+        "quai_sdk::rpc_signer::RpcAccountSigner::send_transaction",
+        "quai_sdk::rpc_signer::RemoteSendAcknowledgement::observe"
       ],
-      "feature": "browser",
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
       "status": "deviation",
       "test_ids": [
-        "crates/quai-browser/tests/support/injected_transaction.rs",
-        "crates/quai-provider/tests/verified_transaction.rs"
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
       ],
       "docs": [
-        "crates/quai-browser/README.md",
-        "crates/quai-provider/README.md"
+        "docs/RPC_SIGNER.md"
       ],
-      "deviation": "Fully populated quai_sendTransaction request after chain/account checks, with no implicit retries. Typed acknowledgement preserves original request and wallet-reported hash; one-shot readonly observation independently verifies signed bytes and exposes exact-request matching. No unbounded automatic lookup polling, hidden field population or provider-bound transaction response. Unknown outcomes retain request identity even without a returned hash."
+      "deviation": "Explicit wallet-mediated send returns an unverified acknowledgement; one independent observation verifies signed identity and reports changed fields. No hidden indefinite indexing wait, automatic retry or nonce release."
     },
     {
       "id": ".:JsonRpcSigner:instance:sendUncheckedTransaction",
@@ -18460,21 +18593,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::InjectedProvider::send_quai_transaction",
-        "quai_browser::WalletSendAcknowledgement::observe",
-        "quai_provider::Transaction::verified_quai"
+        "quai_sdk::rpc_signer::RpcAccountSigner::send_transaction",
+        "quai_sdk::rpc_signer::RemoteSendIdentity"
       ],
-      "feature": "browser",
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
       "status": "deviation",
       "test_ids": [
-        "crates/quai-browser/tests/support/injected_transaction.rs",
-        "crates/quai-provider/tests/verified_transaction.rs"
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
       ],
       "docs": [
-        "crates/quai-browser/README.md",
-        "crates/quai-provider/README.md"
+        "docs/RPC_SIGNER.md"
       ],
-      "deviation": "Fully populated quai_sendTransaction request after chain/account checks, with no implicit retries. Typed acknowledgement preserves original request and wallet-reported hash; one-shot readonly observation independently verifies signed bytes and exposes exact-request matching. No unbounded automatic lookup polling, hidden field population or provider-bound transaction response. Unknown outcomes retain request identity even without a returned hash."
+      "deviation": "Retain request identity before dispatch; return structurally checked unverified hash acknowledgement. No unchecked hash-as-proof API; cancellation and failed post-checks remain ambiguous."
     },
     {
       "id": ".:JsonRpcSigner:instance:signMessage",
@@ -18485,12 +18619,22 @@
         "(_message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::sign_message"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Exact personal_sign parameter order; Rust recovers the exact digest/account and brackets dispatch with chain/genesis/account checks."
     },
     {
       "id": ".:JsonRpcSigner:instance:signTransaction",
@@ -18502,17 +18646,23 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::InjectedProvider::sign_quai_transaction"
+        "quai_sdk::rpc_signer::RpcAccountSigner::sign_transaction",
+        "quai_sdk::accounts::AccountSession::commit_external_signature",
+        "quai_sdk::browser_transactions::PreparedBrowserAccountTransaction::commit_external_signature"
       ],
-      "feature": "browser",
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
       "status": "deviation",
       "test_ids": [
-        "crates/quai-browser/tests/support/injected_transaction.rs"
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
       ],
       "docs": [
-        "crates/quai-browser/README.md"
+        "docs/RPC_SIGNER.md"
       ],
-      "deviation": "Fully populated typed Quai transaction with exact returned-field and recovered-sender verification. Same pinned quai_signTransaction request shape; bounded protobuf result instead of unchecked serialized string. Injected Qi signing absent in pinned reference."
+      "deviation": "Exact populated Quai transaction; canonical protobuf, sender and every unsigned field verified. Remote errors retain dispatch ambiguity; external custody commit is separate. Qi remote signing is absent in published JS too."
     },
     {
       "id": ".:JsonRpcSigner:instance:signTypedData",
@@ -18523,12 +18673,22 @@
         "(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, _value: Record<string, any>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::sign_typed_data"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "EIP-712 v4 JSON request with explicit domain policy and recovered signature verification."
     },
     {
       "id": ".:JsonRpcSigner:instance:unlock",
@@ -18539,12 +18699,22 @@
         "(password: string): Promise<boolean>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::unlock"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Explicit remote unlock with finite 1..3600-second duration; published JS sends null duration. Password is transport-owned JSON and excluded from adapter diagnostics."
     },
     {
       "id": ".:JsonRpcSigner:instance:zoneFromAddress",
@@ -18555,12 +18725,22 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::QuaiAddress::zone"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Validated typed address determines its zone synchronously."
     },
     {
       "id": ".:JsonRpcTransactionRequest",
@@ -55292,12 +55472,22 @@
         "new (provider: JsonRpcApiProvider<any>, address: string): JsonRpcSigner"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::new"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Immutable remote account/network binding; offline construction, no implicit permission request."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:_getAddress",
@@ -55308,12 +55498,22 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::QuaiAddress"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Concrete address parsing replaces Promise/Addressable coercion."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:_legacySignMessage",
@@ -55324,12 +55524,22 @@
         "(_message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::legacy_sign"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Exact quai_sign parameter order; caller supplies expected digest to avoid guessing server prefix/hash semantics; signature is recovered."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:address",
@@ -55338,12 +55548,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::address"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Concrete typed public account; no implicit asynchronous coercion."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:call",
@@ -55354,12 +55574,22 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::call"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Compose bound provider and typed CallRequest with explicit account and simulation block."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:connect",
@@ -55370,12 +55600,22 @@
         "(provider: null | Provider): Signer"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::new"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Immutable binding; construct a new adapter explicitly. Published JsonRpcSigner.connect also rejects reconnect."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:createAccessList",
@@ -55386,12 +55626,22 @@
         "(tx: QuaiTransactionRequest): Promise<AccessList>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Compose bound provider and typed CallRequest; preserve required ordered access-list entries and report errors."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:estimateGas",
@@ -55402,12 +55652,22 @@
         "(tx: TransactionRequest): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::estimate_gas"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Compose bound provider and typed CallRequest with explicit account, exact fields and simulation block."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:getAddress",
@@ -55418,12 +55678,22 @@
         "(): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::address"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Concrete typed public account; synchronous lookup."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:getNonce",
@@ -55434,12 +55704,22 @@
         "(blockTag?: BlockTag): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::transaction_count"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Compose bound provider with concrete account and explicit block selector; durable account preflight applies monotonic nonce floors separately."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:populateCall",
@@ -55450,12 +55730,23 @@
         "(tx: TransactionRequest): Promise<TransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_sdk::rpc_signer::RpcAccountSigner::address"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Construct typed simulation request explicitly with signer address; no Promise/Addressable coercion or hidden field defaults."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:populateQuaiTransaction",
@@ -55466,12 +55757,23 @@
         "(tx: QuaiTransactionRequest): Promise<QuaiTransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::account_preflight::quote_account",
+        "quai_sdk::account_preflight::quote_account_with_access"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Explicit exact intent, nonce/observation policy and fee caps replace implicit provider population. Nonce zero is preserved; quote does not reserve or send."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:provider",
@@ -55480,12 +55782,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::provider"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Borrowed typed provider bound to the same transport/routes and configured chain."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:sendTransaction",
@@ -55497,21 +55809,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::InjectedProvider::send_quai_transaction",
-        "quai_browser::WalletSendAcknowledgement::observe",
-        "quai_provider::Transaction::verified_quai"
+        "quai_sdk::rpc_signer::RpcAccountSigner::send_transaction",
+        "quai_sdk::rpc_signer::RemoteSendAcknowledgement::observe"
       ],
-      "feature": "browser",
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
       "status": "deviation",
       "test_ids": [
-        "crates/quai-browser/tests/support/injected_transaction.rs",
-        "crates/quai-provider/tests/verified_transaction.rs"
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
       ],
       "docs": [
-        "crates/quai-browser/README.md",
-        "crates/quai-provider/README.md"
+        "docs/RPC_SIGNER.md"
       ],
-      "deviation": "Fully populated quai_sendTransaction request after chain/account checks, with no implicit retries. Typed acknowledgement preserves original request and wallet-reported hash; one-shot readonly observation independently verifies signed bytes and exposes exact-request matching. No unbounded automatic lookup polling, hidden field population or provider-bound transaction response. Unknown outcomes retain request identity even without a returned hash."
+      "deviation": "Explicit wallet-mediated send returns an unverified acknowledgement; one independent observation verifies signed identity and reports changed fields. No hidden indefinite indexing wait, automatic retry or nonce release."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:sendUncheckedTransaction",
@@ -55523,21 +55836,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::InjectedProvider::send_quai_transaction",
-        "quai_browser::WalletSendAcknowledgement::observe",
-        "quai_provider::Transaction::verified_quai"
+        "quai_sdk::rpc_signer::RpcAccountSigner::send_transaction",
+        "quai_sdk::rpc_signer::RemoteSendIdentity"
       ],
-      "feature": "browser",
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
       "status": "deviation",
       "test_ids": [
-        "crates/quai-browser/tests/support/injected_transaction.rs",
-        "crates/quai-provider/tests/verified_transaction.rs"
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
       ],
       "docs": [
-        "crates/quai-browser/README.md",
-        "crates/quai-provider/README.md"
+        "docs/RPC_SIGNER.md"
       ],
-      "deviation": "Fully populated quai_sendTransaction request after chain/account checks, with no implicit retries. Typed acknowledgement preserves original request and wallet-reported hash; one-shot readonly observation independently verifies signed bytes and exposes exact-request matching. No unbounded automatic lookup polling, hidden field population or provider-bound transaction response. Unknown outcomes retain request identity even without a returned hash."
+      "deviation": "Retain request identity before dispatch; return structurally checked unverified hash acknowledgement. No unchecked hash-as-proof API; cancellation and failed post-checks remain ambiguous."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:signMessage",
@@ -55548,12 +55862,22 @@
         "(_message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::sign_message"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Exact personal_sign parameter order; Rust recovers the exact digest/account and brackets dispatch with chain/genesis/account checks."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:signTransaction",
@@ -55565,17 +55889,23 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_browser::InjectedProvider::sign_quai_transaction"
+        "quai_sdk::rpc_signer::RpcAccountSigner::sign_transaction",
+        "quai_sdk::accounts::AccountSession::commit_external_signature",
+        "quai_sdk::browser_transactions::PreparedBrowserAccountTransaction::commit_external_signature"
       ],
-      "feature": "browser",
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
       "status": "deviation",
       "test_ids": [
-        "crates/quai-browser/tests/support/injected_transaction.rs"
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
       ],
       "docs": [
-        "crates/quai-browser/README.md"
+        "docs/RPC_SIGNER.md"
       ],
-      "deviation": "Fully populated typed Quai transaction with exact returned-field and recovered-sender verification. Same pinned quai_signTransaction request shape; bounded protobuf result instead of unchecked serialized string. Injected Qi signing absent in pinned reference."
+      "deviation": "Exact populated Quai transaction; canonical protobuf, sender and every unsigned field verified. Remote errors retain dispatch ambiguity; external custody commit is separate. Qi remote signing is absent in published JS too."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:signTypedData",
@@ -55586,12 +55916,22 @@
         "(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, _value: Record<string, any>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::sign_typed_data"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "EIP-712 v4 JSON request with explicit domain policy and recovered signature verification."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:unlock",
@@ -55602,12 +55942,22 @@
         "(password: string): Promise<boolean>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::rpc_signer::RpcAccountSigner::unlock"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Explicit remote unlock with finite 1..3600-second duration; published JS sends null duration. Password is transport-owned JSON and excluded from adapter diagnostics."
     },
     {
       "id": "./providers:JsonRpcSigner:instance:zoneFromAddress",
@@ -55618,12 +55968,22 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_primitives::QuaiAddress::zone"
+      ],
+      "feature": "wallet (sqlite for native custody; backup,browser for browser custody)",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/rpc-signer.test.mjs",
+        "crates/quai-sdk/tests/rpc_signer.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/RPC_SIGNER.md"
+      ],
+      "deviation": "Validated typed address determines its zone synchronously."
     },
     {
       "id": "./providers:JsonRpcTransactionRequest",

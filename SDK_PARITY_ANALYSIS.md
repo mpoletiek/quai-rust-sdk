@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 1366 | Documented replacement, stricter behavior, correction or omission |
+| `deviation` | 1400 | Documented replacement, stricter behavior, correction or omission |
 | `partial` | 126 | A mapping exists with unfinished behavior or scope |
-| `pending` | 2370 | No completed row-level reconciliation; not proof of absence |
+| `pending` | 2336 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -254,7 +254,6 @@ root/subpath exports account for much of the volume.
 | `EventLog` | 42 | 0 | 0 | 0 |
 | `QiTransactionResponse` | 40 | 0 | 0 | 0 |
 | `FunctionFragment` | 38 | 0 | 0 | 0 |
-| `JsonRpcSigner` | 34 | 0 | 0 | 6 |
 | `TypedDataEncoder` | 14 | 20 | 0 | 2 |
 | `UndecodedEventLog` | 34 | 0 | 0 | 0 |
 | `FetchResponse` | 32 | 0 | 0 | 0 |
@@ -464,3 +463,14 @@ root/subpath exports account for much of the volume.
 | `version` | 1 | 0 | 0 | 0 |
 | `ZoneData` | 1 | 0 | 0 | 0 |
 <!-- parity-family-table:end -->
+
+## Remote JSON-RPC account signer reconciliation
+
+All 40 `JsonRpcSigner` declaration rows now map to explicit Rust behavior in
+[the remote signer guide](docs/RPC_SIGNER.md). Native and Wasm signing support
+personal/typed/legacy message requests, exact type-0 signing, finite-duration
+unlocking and wallet-mediated sends. Returned signatures are recovered and
+transactions compared field by field. Send acknowledgements require separate
+observation; requests never retry automatically. Native SQLite and browser
+IndexedDB preparation can commit exact external signatures without losing their
+nonce claims. Provider conveniences use typed requests and explicit quotation.

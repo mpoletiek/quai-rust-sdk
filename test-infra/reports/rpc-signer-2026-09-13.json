@@ -1,0 +1,179 @@
+{
+  "recordedAt": "2026-09-13T22:03:15.329185+00:00",
+  "baseCommit": "1e3c6d0b5fdbc62756fcc25548f6df2f5ca9a71b",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    "crates/quai-sdk/src/rpc_signer.rs": "bff66e07549c400ca5ee1dbf49a9b88032069e413a514dd227a19a3251865957",
+    "crates/quai-sdk/src/accounts.rs": "91e3da0912c58537f960084158ee37640664044bd1136a0e0d534fb00a5e6cbc",
+    "crates/quai-sdk/src/browser_transactions.rs": "08e31d59529b131c50b1770c5561aa2b8e639ceef53685bb58a8243cf40c83f0",
+    "crates/quai-sdk/tests/rpc_signer.rs": "f46965a89218c4f4c19064eaf7d0140b7b2b0cfd9366397732bbbc142eb4698d",
+    "crates/quai-sdk/tests/accounts.rs": "1899baa57a207fb8a3bb87333264591a3cd797f3d9839779713fa5a2c0591629",
+    "crates/quai-sdk/tests/account_preflight.rs": "b0360eaf374579c3bdf5132d02e67fba9e08b5daa79656854803c2a3fe46f6e8",
+    "compatibility/scripts/rpc-signer.test.mjs": "a7c3f39894346e639bb8f8b2c8b4f5a280e06a6a8260f27322fbc3901597e4de",
+    "docs/RPC_SIGNER.md": "3effd6c1b74f70fd443791807061add0a101f27613f8a9b3cd7e0dc162ede7c0"
+  },
+  "parityRows": [
+    ".:JsonRpcSigner",
+    ".:JsonRpcSigner:instance:_getAddress",
+    ".:JsonRpcSigner:instance:_legacySignMessage",
+    ".:JsonRpcSigner:instance:address",
+    ".:JsonRpcSigner:instance:call",
+    ".:JsonRpcSigner:instance:connect",
+    ".:JsonRpcSigner:instance:createAccessList",
+    ".:JsonRpcSigner:instance:estimateGas",
+    ".:JsonRpcSigner:instance:getAddress",
+    ".:JsonRpcSigner:instance:getNonce",
+    ".:JsonRpcSigner:instance:populateCall",
+    ".:JsonRpcSigner:instance:populateQuaiTransaction",
+    ".:JsonRpcSigner:instance:provider",
+    ".:JsonRpcSigner:instance:sendTransaction",
+    ".:JsonRpcSigner:instance:sendUncheckedTransaction",
+    ".:JsonRpcSigner:instance:signMessage",
+    ".:JsonRpcSigner:instance:signTransaction",
+    ".:JsonRpcSigner:instance:signTypedData",
+    ".:JsonRpcSigner:instance:unlock",
+    ".:JsonRpcSigner:instance:zoneFromAddress",
+    "./providers:JsonRpcSigner",
+    "./providers:JsonRpcSigner:instance:_getAddress",
+    "./providers:JsonRpcSigner:instance:_legacySignMessage",
+    "./providers:JsonRpcSigner:instance:address",
+    "./providers:JsonRpcSigner:instance:call",
+    "./providers:JsonRpcSigner:instance:connect",
+    "./providers:JsonRpcSigner:instance:createAccessList",
+    "./providers:JsonRpcSigner:instance:estimateGas",
+    "./providers:JsonRpcSigner:instance:getAddress",
+    "./providers:JsonRpcSigner:instance:getNonce",
+    "./providers:JsonRpcSigner:instance:populateCall",
+    "./providers:JsonRpcSigner:instance:populateQuaiTransaction",
+    "./providers:JsonRpcSigner:instance:provider",
+    "./providers:JsonRpcSigner:instance:sendTransaction",
+    "./providers:JsonRpcSigner:instance:sendUncheckedTransaction",
+    "./providers:JsonRpcSigner:instance:signMessage",
+    "./providers:JsonRpcSigner:instance:signTransaction",
+    "./providers:JsonRpcSigner:instance:signTypedData",
+    "./providers:JsonRpcSigner:instance:unlock",
+    "./providers:JsonRpcSigner:instance:zoneFromAddress"
+  ],
+  "validation": {
+    "nativeProtocolTests": 7,
+    "chromiumWorkerProtocolTests": 7,
+    "nativeAccountTests": 21,
+    "chromiumAccountPreflightTests": 15,
+    "pinnedJsRequestTests": 3,
+    "nativeAndWasmStrictClippy": "passed",
+    "nativeAndWasmRustdocWarningsDenied": "passed",
+    "packageRehearsal": {
+      "schemaVersion": 1,
+      "published": false,
+      "networkAccess": false,
+      "sourceCommit": "1e3c6d0b5fdbc62756fcc25548f6df2f5ca9a71b",
+      "sourceDirty": true,
+      "packages": [
+        {
+          "name": "quai-primitives",
+          "version": "0.1.0-alpha.1",
+          "bytes": 62130,
+          "sha256": "7f8400f6ce04f3d41bb060061e9ef121746665933da4c8b5460f8beb7637f667"
+        },
+        {
+          "name": "quai-rpc",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45150,
+          "sha256": "757657342731ef40006f4e067658894d18cea4b1e0fafb0fc5d70b2be55082f9"
+        },
+        {
+          "name": "quai-provider",
+          "version": "0.1.0-alpha.1",
+          "bytes": 136602,
+          "sha256": "f71713d6a7498befc79fe8f8d093c5835c942ecca01bd3ceebce37a8b577bf6b"
+        },
+        {
+          "name": "quai-consensus",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45777,
+          "sha256": "f376d98d3434f2c6ca2de9ead198bc81074839a21361b3fef2dd30ca31de2f27"
+        },
+        {
+          "name": "quai-crypto",
+          "version": "0.1.0-alpha.1",
+          "bytes": 48118,
+          "sha256": "f49c5435ec29605731f76bdb517ae70c0ee2d59f541f4359c860b4e0d5a99c66"
+        },
+        {
+          "name": "quai-sdk",
+          "version": "0.1.0-alpha.1",
+          "bytes": 260344,
+          "sha256": "52f00a1123f6d2874cfccc4ccd9d383a0345763626f36c892b0086c5e9ebc5e3"
+        },
+        {
+          "name": "quai-abi",
+          "version": "0.1.0-alpha.1",
+          "bytes": 166211,
+          "sha256": "13324f5dd7b86edebb5611e1551d89299a18cec3ddae6f48568080154a4064c8"
+        },
+        {
+          "name": "quai-browser",
+          "version": "0.1.0-alpha.1",
+          "bytes": 86964,
+          "sha256": "a60f0ff7dc7a2b84fad0f143b7bf87b8975a14cf11b195ce5f195a88a070267e"
+        },
+        {
+          "name": "quai-signer",
+          "version": "0.1.0-alpha.1",
+          "bytes": 24661,
+          "sha256": "4b5f033d9279bd7eae4078583e92634aaf533feb1432593062fe0678cef90144"
+        },
+        {
+          "name": "quai-keystore",
+          "version": "0.1.0-alpha.1",
+          "bytes": 34356,
+          "sha256": "d8e20e32bfaa099dd72806e43188caa86e2eebd13e2fc857d8b227ad3512fe13"
+        },
+        {
+          "name": "quai-wallet",
+          "version": "0.1.0-alpha.1",
+          "bytes": 278871,
+          "sha256": "937af9ce6a92685647cb844c63add381de904c399954963d25e06d311852f131"
+        },
+        {
+          "name": "quai-payments",
+          "version": "0.1.0-alpha.1",
+          "bytes": 39461,
+          "sha256": "0e8be51060fa0dd0762225fa16f673a4288cc13ba43fef0e45e1290c796a8ef9"
+        }
+      ],
+      "consumerTests": {
+        "minimal": "passed",
+        "default": "passed",
+        "full": "passed"
+      },
+      "packagedTargetChecks": {
+        "quai-primitives": "passed",
+        "quai-rpc": "passed",
+        "quai-provider": "passed",
+        "quai-consensus": "passed",
+        "quai-crypto": "passed",
+        "quai-sdk": "passed",
+        "quai-abi": "passed",
+        "quai-browser": "passed",
+        "quai-signer": "passed",
+        "quai-keystore": "passed",
+        "quai-wallet": "passed",
+        "quai-payments": "passed"
+      },
+      "packagedWasmChecks": {
+        "quai-browser": "passed",
+        "quai-sdk": "passed"
+      },
+      "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+    }
+  },
+  "limitations": [
+    "Mock services and public toy keys; no funded or actual remote wallet acceptance test.",
+    "Provider observations cannot authenticate a consistently malicious endpoint or detect every transient context switch.",
+    "Transport owns deadlines and response bounds; outer workflow deadline remains caller-controlled.",
+    "Remote dispatch and cancellation may authorize signing or submission; no retry or claim release.",
+    "Legacy quai_sign requires explicit expected digest; finite unlock differs from published null duration.",
+    "Wallet-mediated send acknowledgement is unverified until independent observation; custody adoption is explicit."
+  ]
+}

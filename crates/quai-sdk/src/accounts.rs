@@ -609,6 +609,31 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         &mut self,
         prepared: &PreparedAccountTransaction,
     ) -> Result<SignedQuaiTransaction, AccountError> {
+        self.validate_prepared(prepared)?;
+        let signed = self.signer.sign_quai(&prepared.transaction)?;
+        self.commit_external_signature(prepared, &signed)?;
+        Ok(signed)
+    }
+
+    /// Persist a remotely or externally signed exact prepared payload. Use a
+    /// `WatchOnlySigner` for preparation when the key lives in a remote wallet.
+    /// The original handle, reservation, sender and every unsigned field must
+    /// still match. No RPC occurs; errors retain the reservation. Retain returned
+    /// remote bytes until this durable commit succeeds, including after cancellation.
+    pub fn commit_external_signature(
+        &mut self,
+        prepared: &PreparedAccountTransaction,
+        signed: &SignedQuaiTransaction,
+    ) -> Result<(), AccountError> {
+        self.validate_prepared(prepared)?;
+        if signed.transaction() != &prepared.transaction || signed.from() != prepared.sender {
+            return Err(AccountError::PayloadMismatch);
+        }
+        self.store.commit_signed_quai(prepared.id, signed)?;
+        Ok(())
+    }
+
+    fn validate_prepared(&self, prepared: &PreparedAccountTransaction) -> Result<(), AccountError> {
         if prepared.instance != self.store.instance()
             || prepared.sender.address() != self.signer.address()
             || prepared.genesis != self.store.scope().genesis
@@ -626,12 +651,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         {
             return Err(AccountError::InvalidOperation);
         }
-        let signed = self.signer.sign_quai(&prepared.transaction)?;
-        if signed.transaction() != &prepared.transaction || signed.from() != prepared.sender {
-            return Err(AccountError::PayloadMismatch);
-        }
-        self.store.commit_signed_quai(prepared.id, &signed)?;
-        Ok(signed)
+        Ok(())
     }
 
     /// Submit the exact durable signed bytes once. An explicit repeat submits the

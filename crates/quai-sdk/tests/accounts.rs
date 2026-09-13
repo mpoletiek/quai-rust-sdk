@@ -1428,3 +1428,43 @@ async fn deployment_access_discovery_preserves_create_identity_and_mandatory_add
         assert_eq!(args[0]["accessList"][0]["address"], predicted.to_string());
     }
 }
+
+#[tokio::test]
+async fn external_signing_commits_only_exact_live_preparation_and_survives_restart() {
+    let (directory, _, provider, local, mut store) = setup();
+    let watch = quai_sdk::signer::WatchOnlySigner::new(local.address(), local.chain_id()).unwrap();
+    let id = ReservationId([91; 16]);
+    let mut session = AccountSession::new(&provider, &watch, &mut store).unwrap();
+    let prepared = session.prepare(id, intent(), policy()).await.unwrap();
+    assert!(matches!(
+        session.sign(&prepared),
+        Err(AccountError::Signer(SignerError::WatchOnly))
+    ));
+    let mut changed = prepared.transaction().clone();
+    changed.value += U256::from(1);
+    let wrong = local.sign_quai(&changed).unwrap();
+    assert!(matches!(
+        session.commit_external_signature(&prepared, &wrong),
+        Err(AccountError::PayloadMismatch)
+    ));
+    let signed = local.sign_quai(prepared.transaction()).unwrap();
+    session
+        .commit_external_signature(&prepared, &signed)
+        .unwrap();
+    assert!(
+        session
+            .commit_external_signature(&prepared, &signed)
+            .is_err()
+    );
+    let scope = store.scope();
+    drop(store);
+    let mut reopened = SqliteStore::open(directory.0.join("wallet.sqlite"), scope).unwrap();
+    assert_eq!(
+        reopened.signed_payload(id).unwrap().unwrap(),
+        signed.signed_bytes().unwrap()
+    );
+    assert_eq!(
+        reopened.reservation(id).unwrap().unwrap().state,
+        ReservationState::Signed
+    );
+}

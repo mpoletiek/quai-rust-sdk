@@ -34,6 +34,19 @@ pub struct PreparedBrowserAccountTransaction {
     quote: AccountQuote,
 }
 impl PreparedBrowserAccountTransaction {
+    /// Commit externally signed bytes only if every reviewed field matches.
+    /// The bound book verifies sender, network and live reservation and commits
+    /// through revision CAS. A failed or cancelled commit does not release claims.
+    pub async fn commit_external_signature(
+        &self,
+        signed: &SignedQuaiTransaction,
+    ) -> Result<(), BrowserTransactionError> {
+        if signed.transaction() != self.quote.transaction() {
+            return Err(AccountPreflightError::Invalid.into());
+        }
+        self.book.commit_signed(self.id, signed).await?;
+        Ok(())
+    }
     /// Exact public operation identity for cancellation/restart recovery.
     pub fn reservation_id(&self) -> ReservationId {
         self.id

@@ -92,7 +92,7 @@ class Fixture(http.server.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--suite', choices=['browser', 'worker', 'account_wait', 'sdk-legacy-wallets', 'sdk-address-book', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody', 'sdk-account-backup', 'sdk-contract-code', 'sdk-qi-custody', 'sdk-portable-capture', 'sdk-allocation-merge', 'sdk-account-preflight', 'sdk-recovery', 'sdk-qi-preflight'], default='browser')
+    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-rpc-signer', 'account_wait', 'sdk-legacy-wallets', 'sdk-address-book', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody', 'sdk-account-backup', 'sdk-contract-code', 'sdk-qi-custody', 'sdk-portable-capture', 'sdk-allocation-merge', 'sdk-account-preflight', 'sdk-recovery', 'sdk-qi-preflight'], default='browser')
     arguments = parser.parse_args()
     root = pathlib.Path(__file__).resolve().parents[3]
     server = http.server.ThreadingHTTPServer(('127.0.0.1',0), Fixture)
@@ -105,7 +105,8 @@ if __name__ == '__main__':
     env.setdefault('CHROMEDRIVER','/usr/bin/chromedriver')
     env.setdefault('WASM_BINDGEN_TEST_WEBDRIVER_JSON',str(pathlib.Path(__file__).with_name('webdriver.json')))
     try:
-        sdk_suites = {'sdk-legacy-wallets': ('legacy_wallets', 'backup,browser'),
+        sdk_suites = {'sdk-rpc-signer': ('rpc_signer', 'wallet,browser'),
+                      'sdk-legacy-wallets': ('legacy_wallets', 'backup,browser'),
                       'sdk-address-book': ('qi_address_book', 'wallet,payments,browser'),
                       'sdk-worker': ('browser_discovery', 'wallet,browser'),
                       'sdk-contracts': ('contracts', 'wallet,browser,abi'),

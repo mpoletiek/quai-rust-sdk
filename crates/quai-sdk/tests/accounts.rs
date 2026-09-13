@@ -1163,3 +1163,268 @@ async fn family_recovery_persists_replacement_winner_and_rejects_concurrent_cand
         root.transaction().nonce
     );
 }
+
+#[derive(Clone)]
+struct AccessDiscoveryMock {
+    base: Mock,
+    failure: u8,
+}
+impl Transport for AccessDiscoveryMock {
+    async fn request(
+        &self,
+        endpoint: &Endpoint,
+        method: &str,
+        params: Value,
+    ) -> Result<Value, RpcError> {
+        if method != "quai_createAccessList" {
+            return self.base.request(endpoint, method, params).await;
+        }
+        self.base
+            .calls
+            .lock()
+            .unwrap()
+            .push((method.into(), params.clone()));
+        if self.failure == 1 || (self.failure == 4 && params[0]["nonce"] == "0x5") {
+            return Ok(
+                json!({"accessList":[],"gasUsed":"0x5208","error":"fixture execution failed"}),
+            );
+        }
+        if self.failure == 2 {
+            return Ok(json!({"accessList":[],"gasUsed":"0x5208"}));
+        }
+        if self.failure == 3 {
+            self.base.mode.store(6, Ordering::SeqCst);
+        }
+        let mut entries = params[0]["accessList"].as_array().unwrap().clone();
+        if self.failure == 5 {
+            entries[0]["storageKeys"] = json!([]);
+        }
+        let nonce = u8::from_str_radix(
+            params[0]["nonce"]
+                .as_str()
+                .unwrap()
+                .trim_start_matches("0x"),
+            16,
+        )
+        .unwrap();
+        entries.push(json!({"address":"0x000000000000000000000000000000000000000b","storageKeys":[format!("0x{}{:02x}","00".repeat(31),nonce)]}));
+        Ok(json!({"accessList":entries,"gasUsed":"0x5208"}))
+    }
+}
+fn access_intent() -> AccountIntent {
+    let mut call = intent();
+    call.access_list = vec![quai_sdk::consensus::AccessTuple {
+        address: "0x000000000000000000000000000000000000000a"
+            .parse()
+            .unwrap(),
+        storage_keys: vec![quai_sdk::primitives::Hash32::from_bytes([1; 32])],
+    }];
+    call
+}
+#[tokio::test]
+async fn discovered_access_uses_reserved_nonce_and_survives_signing_restart_and_broadcast() {
+    use quai_sdk::accounts::{AccountAccessListPolicy, AccountObservationPolicy};
+    let (directory, mock, _, signer, mut store) = setup();
+    mock.mode.store(5, Ordering::SeqCst);
+    let provider = Provider::new(
+        AccessDiscoveryMock {
+            base: mock.clone(),
+            failure: 0,
+        },
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        store.scope().chain_id,
+    );
+    let sender = signer.address().try_into().unwrap();
+    store
+        .reserve_nonce(ReservationId([110; 16]), sender, 4)
+        .unwrap();
+    let id = ReservationId([111; 16]);
+    let original = access_intent();
+    let mut session = AccountSession::new(&provider, &signer, &mut store)
+        .unwrap()
+        .with_observation_policy(AccountObservationPolicy::PinnedLatest)
+        .with_access_list_policy(AccountAccessListPolicy::Discover);
+    let prepared = session
+        .prepare(id, original.clone(), policy())
+        .await
+        .unwrap();
+    assert_eq!(prepared.transaction().nonce, 5);
+    assert_eq!(prepared.transaction().access_list.len(), 2);
+    assert_eq!(
+        prepared.transaction().access_list[0],
+        original.access_list[0]
+    );
+    assert_eq!(
+        prepared.transaction().access_list[1].storage_keys[0].bytes()[31],
+        5
+    );
+    assert_eq!(prepared.transaction().data, original.data.bytes());
+    let signed = session.sign(&prepared).unwrap();
+    let calls = mock.calls.lock().unwrap().clone();
+    let discovery: Vec<_> = calls
+        .iter()
+        .filter(|(method, _)| method == "quai_createAccessList")
+        .collect();
+    assert_eq!(discovery.len(), 2);
+    for (i, (_, params)) in discovery.iter().enumerate() {
+        assert_eq!(params[1], "0x10");
+        assert_eq!(params[0]["nonce"], format!("0x{:x}", 4 + i));
+        assert_eq!(params[0]["accessList"].as_array().unwrap().len(), 1); // Rebuild from caller requirements.
+    }
+    let estimates: Vec<_> = calls
+        .iter()
+        .filter(|(method, _)| method == "quai_estimateGas")
+        .collect();
+    assert_eq!(estimates.len(), 2);
+    assert!(
+        estimates
+            .iter()
+            .all(|(_, p)| p[0]["accessList"].as_array().unwrap().len() == 2)
+    );
+    let mut reopened = SqliteStore::open(directory.0.join("wallet.sqlite"), store.scope()).unwrap();
+    let mut session = AccountSession::new(&provider, &signer, &mut reopened)
+        .unwrap()
+        .with_access_list_policy(AccountAccessListPolicy::Discover);
+    assert_eq!(
+        session.broadcast(id).await.unwrap().transaction_hash,
+        signed.hash().unwrap()
+    );
+    assert_eq!(
+        reopened.signed_payload(id).unwrap().unwrap(),
+        signed.signed_bytes().unwrap()
+    );
+    assert_eq!(
+        mock.calls
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|(m, _)| m == "quai_createAccessList")
+            .count(),
+        2
+    );
+}
+#[tokio::test]
+async fn access_discovery_errors_cannot_discard_requirements_or_leave_signed_payloads() {
+    use quai_sdk::accounts::{AccountAccessListPolicy, AccountObservationPolicy};
+    for failure in 1..=5 {
+        let (_directory, mock, _, signer, mut store) = setup();
+        mock.mode.store(5, Ordering::SeqCst);
+        let provider = Provider::new(
+            AccessDiscoveryMock {
+                base: mock.clone(),
+                failure,
+            },
+            Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+            store.scope().chain_id,
+        );
+        if failure == 4 {
+            store
+                .reserve_nonce(
+                    ReservationId([110; 16]),
+                    signer.address().try_into().unwrap(),
+                    4,
+                )
+                .unwrap();
+        }
+        let id = ReservationId([112; 16]);
+        let mut session = AccountSession::new(&provider, &signer, &mut store)
+            .unwrap()
+            .with_observation_policy(AccountObservationPolicy::PinnedLatest)
+            .with_access_list_policy(AccountAccessListPolicy::Discover);
+        let result = session.prepare(id, access_intent(), policy()).await;
+        assert!(result.is_err());
+        if failure == 4 {
+            assert_eq!(
+                store.reservation(id).unwrap().unwrap().state,
+                ReservationState::Reserved
+            );
+            assert_eq!(store.reserved_nonce(id).unwrap().unwrap().1, 5);
+        } else {
+            assert!(store.reservation(id).unwrap().is_none());
+        }
+        assert!(store.signed_payload(id).unwrap().is_none());
+        assert!(
+            !mock
+                .calls
+                .lock()
+                .unwrap()
+                .iter()
+                .any(|(m, _)| m == "quai_sendRawTransaction")
+        );
+    }
+}
+
+#[cfg(feature = "abi")]
+#[tokio::test]
+async fn deployment_access_discovery_preserves_create_identity_and_mandatory_address() {
+    use quai_sdk::accounts::{AccountAccessListPolicy, AccountObservationPolicy};
+    for failure in [0, 2] {
+        let (_directory, mock, _, signer, mut store) = setup();
+        mock.mode.store(5, Ordering::SeqCst);
+        let provider = Provider::new(
+            AccessDiscoveryMock {
+                base: mock.clone(),
+                failure,
+            },
+            Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+            store.scope().chain_id,
+        );
+        let id = ReservationId([113; 16]);
+        let mut session = AccountSession::new(&provider, &signer, &mut store)
+            .unwrap()
+            .with_observation_policy(AccountObservationPolicy::PinnedLatest)
+            .with_access_list_policy(AccountAccessListPolicy::Discover);
+        let nonce = session.reserve_deployment_nonce(id).await.unwrap();
+        let deployment = quai_sdk::contracts::prepare_deployment(
+            &quai_sdk::abi::AbiInterface::from_json(b"[]").unwrap(),
+            &[0x60, 0, 0x60, 0, 0xf3],
+            &[],
+            signer.address().try_into().unwrap(),
+            signer.chain_id(),
+            nonce,
+            U256::ZERO,
+            quai_sdk::contracts::DeploymentSearch {
+                start_salt: 0,
+                max_attempts: 10000,
+            },
+            || false,
+        )
+        .unwrap();
+        let predicted = deployment.address();
+        let init = deployment.init_data().to_vec();
+        let result = session.prepare_deployment(id, deployment, policy()).await;
+        if failure == 0 {
+            let prepared = result.unwrap();
+            assert_eq!(prepared.created_address(), Some(predicted));
+            assert_eq!(prepared.transaction().data, init);
+            assert_eq!(prepared.transaction().nonce, nonce);
+            assert_eq!(prepared.transaction().access_list.len(), 2);
+            assert_eq!(
+                prepared.transaction().access_list[0].address,
+                predicted.address()
+            );
+            let signed = session.sign(&prepared).unwrap();
+            assert_eq!(
+                signed.transaction().access_list,
+                prepared.transaction().access_list
+            );
+        } else {
+            assert!(matches!(result, Err(AccountError::InvalidOperation)));
+            assert_eq!(
+                store.reservation(id).unwrap().unwrap().state,
+                ReservationState::Reserved
+            );
+            assert!(store.signed_payload(id).unwrap().is_none());
+        }
+        let calls = mock.calls.lock().unwrap();
+        let (_, args) = calls
+            .iter()
+            .find(|(m, _)| m == "quai_createAccessList")
+            .unwrap();
+        assert_eq!(args[1], "0x10");
+        assert!(args[0].get("to").is_none());
+        assert_eq!(args[0]["nonce"], "0x4");
+        assert_eq!(args[0]["input"], RpcData::new(init).unwrap().to_hex());
+        assert_eq!(args[0]["accessList"][0]["address"], predicted.to_string());
+    }
+}

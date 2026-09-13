@@ -49,3 +49,10 @@ qualification are tracked in the implementation status.
 
 License texts and third-party provenance accompany each crate. Test keys and
 mnemonics in examples are public fixtures and must never receive real funds.
+
+Native account sessions can opt into `AccountAccessListPolicy::Discover` with
+`with_access_list_policy`. Ordinary calls and deployments then discover access
+at the same nonce/block as fee preparation, retaining mandatory caller entries.
+A nonce advanced by durable allocation triggers discovery again before review.
+`Preserve` is the default. Generated entries are part of the frozen prepared and
+signed payload; replacements and restart broadcast never rediscover access.

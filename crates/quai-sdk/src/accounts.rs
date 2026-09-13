@@ -3,6 +3,8 @@
 //! Preparation, authorization and submission are separate steps. A caller must
 //! review the immutable prepared payload before calling `sign`. Network reads
 //! are observations, not reservations of account balance or guarantees of mining.
+mod access;
+pub use access::AccountAccessListPolicy;
 use quai_consensus::{AccessTuple, QuaiTransaction, SignedQuaiTransaction};
 use quai_primitives::{Hash32, QuaiAddress};
 use quai_provider::{
@@ -150,6 +152,7 @@ pub struct AccountSession<'a, T, S> {
     signer: &'a S,
     store: &'a mut SqliteStore,
     observation_policy: AccountObservationPolicy,
+    access_list_policy: AccountAccessListPolicy,
 }
 impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
     /// Prepare a same-zone native Quai-to-Qi conversion with exact slippage.
@@ -274,6 +277,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
             signer,
             store,
             observation_policy: AccountObservationPolicy::Pending,
+            access_list_policy: AccountAccessListPolicy::Preserve,
         })
     }
 
@@ -394,7 +398,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         if gas_price > policy.max_gas_price {
             return Err(AccountError::FeeLimit);
         }
-        let request = CallRequest {
+        let mut request = CallRequest {
             from: sender,
             to: None,
             gas: Some(policy.max_gas),
@@ -411,6 +415,8 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
                 })
                 .collect(),
         };
+        self.populate_access(&mut request, &mut transaction, observation.0)
+            .await?;
         let estimate = self.provider.estimate_gas(&request, observation.0).await?;
         let gas =
             (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);
@@ -550,7 +556,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         } else {
             None
         };
-        let request = CallRequest {
+        let mut request = CallRequest {
             from: sender,
             to: Some(intent.to),
             gas: Some(policy.max_gas),
@@ -567,6 +573,9 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
                 })
                 .collect(),
         };
+        let original_access = request.access_list.clone();
+        self.populate_access(&mut request, &mut transaction, observation.0)
+            .await?;
         let (mut gas, mut fee) = self.quote_fee(&request, policy, observation.0).await?;
         self.verify_observation(observation).await?;
         transaction.nonce = match reserved_nonce {
@@ -578,6 +587,9 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
             // the node's pending observation. Never authorize the unestimated nonce.
             let mut actual = request;
             actual.nonce = Some(transaction.nonce);
+            actual.access_list = original_access;
+            self.populate_access(&mut actual, &mut transaction, observation.0)
+                .await?;
             (gas, fee) = self.quote_fee(&actual, policy, observation.0).await?;
         }
         transaction.gas_price = gas_price;

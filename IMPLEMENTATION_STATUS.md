@@ -327,3 +327,9 @@ retries remain separate evidence. Native/browser callers can inspect and preserv
 `Address` so both ledgers are represented. Contract ABI event matching remains exact.
 The output lock at 241945 is observed; a mature redemption spend, modern fork
 qualification, unmodified-node/Orchard acceptance and contract audit remain open.
+
+Native account preparation now offers explicit bounded access-list discovery for
+ordinary calls and deployments. It rechecks mandatory entries, repeats discovery
+when nonce allocation advances the estimate nonce, and freezes the result before
+signing. Reopened broadcast does not rediscover. Isolated generic WQUAI approval
+acceptance passed at block 26 with exact fee/state/custody checks.

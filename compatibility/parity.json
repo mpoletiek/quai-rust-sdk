@@ -1643,12 +1643,21 @@
         "(tx: QuaiTransactionRequest): Promise<AccessList>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession::with_access_list_policy",
+        "quai_sdk::accounts::AccountSession::prepare",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "sqlite",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md",
+        "test-infra/local-chain/access-evidence/README.md"
+      ],
+      "deviation": "Explicit native durable preparation and bounded opt-in access discovery, not JS request coercion or implicit defaults. Repeats at the actual reserved nonce; generated entries are frozen for review before signing. Browser provider-level access discovery remains available separately."
     },
     {
       "id": ".:AbstractSigner:instance:estimateGas",
@@ -1723,12 +1732,21 @@
         "(tx: QuaiTransactionRequest): Promise<QuaiTransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession::with_access_list_policy",
+        "quai_sdk::accounts::AccountSession::prepare",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "sqlite",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs"
+      ],
+      "docs": [
+        "docs/WALLET_WORKFLOWS.md",
+        "test-infra/local-chain/access-evidence/README.md"
+      ],
+      "deviation": "Explicit native durable preparation and bounded opt-in access discovery, not JS request coercion or implicit defaults. Repeats at the actual reserved nonce; generated entries are frozen for review before signing. Browser provider-level access discovery remains available separately."
     },
     {
       "id": ".:AbstractSigner:instance:provider",

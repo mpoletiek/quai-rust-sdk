@@ -487,3 +487,30 @@ receipts, exact token/native balances and gas fees, overdraw reverts and durable
 state after reopening. Only public toy-key development funds were used. Explorer
 bytecode is not verified source; this is separate from contract audit, unmodified
 node and funded Orchard qualification.
+
+## Access-list discovery before account signing
+
+Native `AccountSession::with_access_list_policy(AccountAccessListPolicy::Discover)`
+adds node-backed access discovery to ordinary account/cross-zone origin calls and
+deployments. The default `Preserve` retains the application's exact entries.
+Discovery uses the same block selector, call bytes, value, gas price and nonce as
+fee preparation, then re-estimates the final declaration. If durable nonce
+allocation advances the pending nonce, discovery repeats from the original caller
+requirements at the actual reserved nonce. Failed post-reservation discovery
+leaves an unsigned reservation available for explicit recovery.
+
+The node's generated list must still cover every supplied address and storage
+key, including mandatory CREATE and WQI lockup entries. The returned list is
+bounded and visible through `PreparedAccountTransaction::transaction` before
+signing. Pinned-latest preparation rechecks its head; RPC errors or missing
+requirements cannot produce signed payloads. The node may add unnecessary access
+entries, which is why the final fee cap and payload review still apply.
+
+Conversions have their own preparation path. Fee replacements and restart
+broadcast preserve the already signed list; selecting discovery does not mutate
+an existing signature or silently repopulate it. For cross-zone calls this only
+simulates the origin; it does not prove destination execution or access needs.
+
+The [isolated acceptance](../test-infra/local-chain/access-evidence/README.md)
+starts with an empty generic contract access list, signs the discovered list,
+broadcasts in a separate process and checks actual state, fees and reopened custody.

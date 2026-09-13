@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "15c8c2734582bd1272a0759c74d4f824a4442260",
+  "testedWorkingTree": true,
+  "nodeProfile": "isolated patched go-quai v0.56.0",
+  "chainId": 1337,
+  "observed": {
+    "allowance": "0",
+    "block": "0x00002bad4a8b2daabc58404c3d3a3446c4f95f14715474c453a910e26f2f11ae",
+    "contract": "0x001fe06012Ab36517842EFb946cb5fDC655Eb15f",
+    "fee": "29742234371630658027",
+    "generatedAccessListSignedAndPersisted": true,
+    "hash": "0x00270075630bb886da3573a370c51c9ebd3e1c6bc9c26f1adeaee1be13c25b2f",
+    "height": "26",
+    "qualification": "isolated patched go-quai profile; public fixture funds"
+  },
+  "accountTests": 20,
+  "nativeClippy": "passed",
+  "evidence": [
+    {
+      "path": "test-infra/local-chain/access-evidence/access-broadcast-rpc.json",
+      "bytes": 8076,
+      "sha256": "a08f413e7e8a49ff93185cea1c1ee80b136f7e555b21b5cd43333ebb03a8b698"
+    },
+    {
+      "path": "test-infra/local-chain/access-evidence/access-prepare-rpc.json",
+      "bytes": 25427,
+      "sha256": "1a394d748e1e10c4e4b9fbdd52acf845860751fc3d8aeb629ab4b68fe7882cb0"
+    },
+    {
+      "path": "test-infra/local-chain/access-evidence/access-signed.json",
+      "bytes": 951,
+      "sha256": "1c27aee487af22c7b3c61a055759697faf7e07d598b217e30628f2a3ec46b782"
+    },
+    {
+      "path": "test-infra/local-chain/access-evidence/access-verified.json",
+      "bytes": 420,
+      "sha256": "61ecce84b12640ec783f123e9a230dd0e1247f51fdc81872b2cff6e368e874fe"
+    },
+    {
+      "path": "test-infra/local-chain/access-evidence/access-verify-rpc.json",
+      "bytes": 67173,
+      "sha256": "78a57621472a3d35b94cbcc9a76881f09ed23faac56771769f79e0ad8c53f447"
+    }
+  ],
+  "withoutAbiAccountTests": 17,
+  "rustdocWarningsDenied": "passed",
+  "harnessClippy": "passed"
+}

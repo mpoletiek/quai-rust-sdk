@@ -2,7 +2,7 @@
 #![cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 use quai_sdk::primitives::{Hash32, QuaiAddress};
 use quai_sdk::provider::{BlockReference, HeadTracker};
-use quai_sdk::recovery::reconcile_head_replay;
+use quai_sdk::recovery::{reconcile_head_replay, reconcile_persisted_head_replay};
 use quai_sdk::rpc::{RpcError, Transport};
 use quai_sdk::wallet::storage::{
     Checkpoint, NetworkScope, PublicAddress, ReservationId, ReservationState, SqliteStore,
@@ -30,6 +30,7 @@ struct Mock {
     chain: Arc<Mutex<Vec<Hash32>>>,
     missing: Arc<Mutex<Option<usize>>>,
     mutate: Arc<Mutex<Option<PathBuf>>>,
+    cursor_mutate: Arc<Mutex<Option<PathBuf>>>,
 }
 impl Transport for Mock {
     async fn request(&self, _: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
@@ -43,6 +44,20 @@ impl Transport for Mock {
             let mut other = SqliteStore::open(path, scope()).unwrap();
             other
                 .invalidate_snapshot(other.observation_generation().unwrap())
+                .unwrap();
+        }
+        if params[0] == "latest"
+            && let Some(path) = self.cursor_mutate.lock().unwrap().take()
+        {
+            let mut other = SqliteStore::open(path, scope()).unwrap();
+            let saved = other.head_replay_state().unwrap().unwrap();
+            other
+                .commit_head_replay(
+                    other.observation_generation().unwrap(),
+                    Some(saved.revision),
+                    saved.payload.as_deref(),
+                    None,
+                )
                 .unwrap();
         }
         let chain = self.chain.lock().unwrap();
@@ -114,6 +129,7 @@ fn setup() -> (Mock, Provider<Mock>, HeadTracker) {
         chain: Arc::new(Mutex::new((0..=6).map(hash).collect())),
         missing: Default::default(),
         mutate: Default::default(),
+        cursor_mutate: Default::default(),
     };
     let provider = Provider::new(
         mock.clone(),
@@ -285,4 +301,127 @@ async fn wallet_replay_cursor_survives_missing_history_generation_race_and_wrong
             .is_err()
     );
     assert_eq!(wrong.checkpoint(), before);
+}
+
+#[tokio::test]
+async fn persisted_replay_reopens_full_ancestry_and_applies_reorg_without_initial_cursor() {
+    let db = Database::new();
+    let (mock, provider, initial) = setup();
+    assert!(
+        reconcile_persisted_head_replay(&provider, &mut db.open(), None)
+            .await
+            .is_err()
+    );
+    for (index, end) in [2, 4, 6].into_iter().enumerate() {
+        let mut store = db.open();
+        let page = reconcile_persisted_head_replay(
+            &provider,
+            &mut store,
+            if index == 0 { Some(&initial) } else { None },
+        )
+        .await
+        .unwrap();
+        assert_eq!(page.update.heads.checkpoint.number, end);
+        assert_eq!(page.revision, index as u64 + 1);
+        let bytes = store.head_replay_state().unwrap().unwrap().payload.unwrap();
+        assert_eq!(
+            HeadTracker::from_state(&bytes, scope().zone, scope().genesis)
+                .unwrap()
+                .checkpoint(),
+            page.update.heads.checkpoint
+        );
+    }
+    for n in 3..=6 {
+        mock.chain.lock().unwrap()[n] = hash(100 + n as u64);
+    }
+    let first = reconcile_persisted_head_replay(&provider, &mut db.open(), None)
+        .await
+        .unwrap();
+    assert_eq!(
+        first
+            .update
+            .heads
+            .removed
+            .iter()
+            .map(|h| h.number)
+            .collect::<Vec<_>>(),
+        [6, 5, 4, 3]
+    );
+    assert_eq!(first.update.invalidation.unwrap().generation, 1);
+    assert!(first.update.refresh_required);
+    let second = reconcile_persisted_head_replay(&provider, &mut db.open(), None)
+        .await
+        .unwrap();
+    assert_eq!(second.update.heads.checkpoint.hash, hash(106));
+    assert!(second.update.heads.caught_up);
+    assert!(second.update.invalidation.is_none());
+    assert!(
+        !reconcile_persisted_head_replay(&provider, &mut db.open(), None)
+            .await
+            .unwrap()
+            .update
+            .refresh_required
+    );
+}
+
+#[tokio::test]
+async fn persisted_replay_fences_generation_and_cursor_races_and_rejects_corrupt_state() {
+    let db = Database::new();
+    let mut store = db.open();
+    let (mock, provider, initial) = setup();
+    reconcile_persisted_head_replay(&provider, &mut store, Some(&initial))
+        .await
+        .unwrap();
+    let before = store.head_replay_state().unwrap().unwrap();
+    *mock.mutate.lock().unwrap() = Some(db.0.clone());
+    assert!(
+        reconcile_persisted_head_replay(&provider, &mut store, None)
+            .await
+            .is_err()
+    );
+    assert_eq!(store.head_replay_state().unwrap().unwrap(), before);
+    *mock.cursor_mutate.lock().unwrap() = Some(db.0.clone());
+    assert!(
+        reconcile_persisted_head_replay(&provider, &mut store, None)
+            .await
+            .is_err()
+    );
+    let after = store.head_replay_state().unwrap().unwrap();
+    assert_eq!(after.payload, before.payload);
+    assert_eq!(after.revision, before.revision + 1);
+    let generation = store.observation_generation().unwrap();
+    store
+        .commit_head_replay(
+            generation,
+            Some(after.revision),
+            Some(b"malformed public ancestry"),
+            None,
+        )
+        .unwrap();
+    assert!(
+        reconcile_persisted_head_replay(&provider, &mut store, Some(&initial))
+            .await
+            .is_err()
+    );
+    let corrupt = store.head_replay_state().unwrap().unwrap();
+    assert_eq!(
+        corrupt.payload.as_deref(),
+        Some(b"malformed public ancestry".as_slice())
+    );
+    store
+        .commit_head_replay(
+            generation,
+            Some(corrupt.revision),
+            None,
+            Some(U256::from(1)),
+        )
+        .unwrap();
+    assert!(
+        reconcile_persisted_head_replay(&provider, &mut store, None)
+            .await
+            .is_err()
+    );
+    reconcile_persisted_head_replay(&provider, &mut store, Some(&initial))
+        .await
+        .unwrap();
 }

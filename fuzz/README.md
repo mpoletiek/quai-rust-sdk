@@ -20,6 +20,8 @@ Targets:
 
 - `encoding`: bounded hex/Base64/Base58 roundtrips, bytes32 UTF-8 and signed-width
   boundaries, plus hostile decoder inputs.
+- `head_state`: canonical bounded ancestry restoration, expected-network identity and
+  exact byte roundtrips (163,887-byte mutation limit, including the full cursor).
 - `fixed`: exact fixed-point import/format roundtrips, floor/ceiling ordering,
   and arithmetic checked against independent i128 calculations.
 
@@ -40,7 +42,7 @@ python3 fuzz/run-smoke.py --seconds 30
 
 The runner requires Linux `nm` and the already-built x86_64 target binaries. It
 checks for the AddressSanitizer runtime symbol, imposes a 1 GiB RSS ceiling,
-five-second per-input timeout, 64 KiB mutation limit and deterministic initial
+five-second per-input timeout, 64 KiB mutation limit (163,887 bytes for head state) and deterministic initial
 seed, then records binary/lock hashes and executions/coverage counters. It exits
 nonzero on any crash or timeout. Those bounds cover a useful parser slice, not
 all upper-bound payload sizes, all schemas, KDF memory behavior or persistence.

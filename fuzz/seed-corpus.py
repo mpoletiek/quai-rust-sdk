@@ -4,7 +4,7 @@ import hashlib,json,pathlib
 root=pathlib.Path(__file__).resolve().parent.parent
 counts={}
 def put(target,data):
- if len(data)>65536:return
+ if len(data)>(163887 if target=='head_state' else 65536):return
  directory=root/'fuzz'/'corpus'/target;directory.mkdir(parents=True,exist_ok=True)
  (directory/hashlib.sha256(data).hexdigest()).write_bytes(data)
  counts[target]=counts.get(target,0)+1
@@ -38,6 +38,10 @@ for row in load('compatibility/fixtures/typed-values.json')['defaults']:put('abi
 for row in load('compatibility/fixtures/fixed.json')['parse']:put('fixed',row['input'].encode())
 for scale in [0,6,18,80]:
  for raw in [bytes(32),bytes([255])*32,bytes([128])+bytes(31)]:put('fixed',bytes([63,scale])+raw)
-for target in ['transactions','abi','wallet_import','encoding','fixed']:
+for count in [1,2,16,4096]:
+ header=b'QHEAD001'+bytes([0])+bytes([1])*32+(4096).to_bytes(2,'big')+(256).to_bytes(2,'big')+count.to_bytes(2,'big')
+ anchors=b''.join(n.to_bytes(8,'big')+(bytes([1])*32 if n==0 else (n+1).to_bytes(32,'big')) for n in range(count))
+ put('head_state',header+anchors)
+for target in ['transactions','abi','wallet_import','encoding','fixed','head_state']:
  for data in [b'',b'\x00',b'\xff'*64,b'{}',b'{"version":3,"version":3}',b'\x08\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01']:put(target,data)
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

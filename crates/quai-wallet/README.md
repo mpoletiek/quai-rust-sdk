@@ -184,3 +184,14 @@ the canonical head validation and advances its cursor only after storage succeed
 Capture `observation_generation` before node reads and use scoped observation or
 inclusion CAS writes afterward. Checking only a cache revision cannot detect a
 reorg that occurred while the first observation of that slot was in flight.
+
+
+Schema v5 adds a scoped public head-replay cursor and atomically migrates v1–v4.
+`head_replay_state` reads revisioned bytes; `commit_head_replay` compares the
+pre-RPC generation and cursor revision and commits the next cursor with optional
+reorg rollback in one writer transaction. This storage primitive bounds the
+public bytes; the provider/SDK validates ancestry and the observed fork. Failed
+writes preserve both old cursor and old wallet state. The SDK's
+`reconcile_persisted_head_replay` supplies that integration across reopen/restart.
+Backup capture excludes this cache and restore clears it with a revisioned
+tombstone. Cursor storage never contains keys or releases transaction claims.

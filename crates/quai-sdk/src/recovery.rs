@@ -8,7 +8,10 @@ use quai_provider::{Provider, ReceiptOutcome, TransactionKind};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::Checkpoint;
 use quai_wallet::storage::{ReservationId, ReservationState, SqliteStore};
-pub use replay::{WalletReplayUpdate, reconcile_head_replay};
+pub use replay::{
+    PersistedWalletReplayUpdate, WalletReplayUpdate, reconcile_head_replay,
+    reconcile_persisted_head_replay,
+};
 
 /// Latest observation of an existing signed operation. Absence never releases claims.
 #[derive(Clone, Debug)]

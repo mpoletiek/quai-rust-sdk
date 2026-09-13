@@ -2,7 +2,9 @@
 use crate::{BlockReference, Provider, ProviderError, ZoneHeader};
 use quai_primitives::{Hash32, Zone};
 use quai_rpc::Transport;
-use std::collections::VecDeque;
+use std::collections::{BTreeSet, VecDeque};
+mod state;
+pub use state::MAX_HEAD_STATE_BYTES;
 
 /// A bounded update in application order: undo removed blocks, then apply added blocks.
 #[derive(Clone, Debug)]
@@ -47,6 +49,7 @@ impl HeadTracker {
     ) -> Result<Self, ProviderError> {
         if genesis == Hash32::ZERO
             || checkpoint.hash == Hash32::ZERO
+            || (checkpoint.number == 0 && checkpoint.hash != genesis)
             || !(2..=4096).contains(&retain)
             || !(1..=256).contains(&page_size)
         {
@@ -106,12 +109,22 @@ impl HeadTracker {
             .min(tip.number);
         let mut added = Vec::with_capacity((end - base.number) as usize);
         let mut previous = base;
-        for number in base.number.saturating_add(1)..=end {
+        let mut seen: BTreeSet<_> = self
+            .anchors
+            .iter()
+            .take(common + 1)
+            .map(|a| a.hash)
+            .collect();
+        for previous_number in base.number..end {
+            let number = previous_number + 1;
             let header = provider
                 .header_at(self.zone, number)
                 .await?
                 .ok_or(ProviderError::ReplayHistoryUnavailable)?;
-            if header.parent_hash != previous.hash {
+            if header.parent_hash != previous.hash
+                || header.hash == Hash32::ZERO
+                || !seen.insert(header.hash)
+            {
                 return Err(ProviderError::ObservationChanged);
             }
             previous = BlockReference {

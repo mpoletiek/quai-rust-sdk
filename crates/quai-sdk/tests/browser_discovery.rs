@@ -248,3 +248,60 @@ fn worker_generates_all_mnemonic_lengths_and_exports_guarded_entropy() {
     }
     assert!(Mnemonic::generate(Language::English, 13).is_err());
 }
+
+#[wasm_bindgen_test(async)]
+async fn worker_restores_public_ancestry_from_indexeddb_and_revalidates_node() {
+    use quai_sdk::browser::{BrowserSnapshotStore, BrowserStorageScope};
+    use quai_sdk::primitives::Hash32;
+    use quai_sdk::provider::{BlockReference, HeadTracker, MAX_HEAD_STATE_BYTES};
+    let mut random = [0; 8];
+    quai_sdk::browser::fill_random(&mut random).unwrap();
+    let name = format!("quai-head-worker-{}", u64::from_be_bytes(random));
+    let storage_scope = BrowserStorageScope {
+        chain_id: scope().chain_id,
+        genesis: scope().genesis,
+        zone: scope().zone,
+        wallet: Hash32::from_bytes([42; 32]),
+    };
+    let tracker = HeadTracker::new(
+        scope().zone,
+        scope().genesis,
+        BlockReference {
+            number: 100,
+            hash: Hash32::from_bytes([0x11; 32]),
+        },
+        8,
+        2,
+    )
+    .unwrap();
+    let bytes = tracker.export_state();
+    let store = BrowserSnapshotStore::open(&name, storage_scope, MAX_HEAD_STATE_BYTES)
+        .await
+        .unwrap();
+    assert_eq!(store.compare_exchange(None, Some(&bytes)).await.unwrap(), 1);
+    drop(store);
+    let reopened = BrowserSnapshotStore::open(&name, storage_scope, MAX_HEAD_STATE_BYTES)
+        .await
+        .unwrap();
+    let saved = reopened.read().await.unwrap().unwrap();
+    let mut restored =
+        HeadTracker::from_state(saved.bytes.as_ref().unwrap(), scope().zone, scope().genesis)
+            .unwrap();
+    let page = restored.poll(&provider("/account")).await.unwrap();
+    assert!(page.caught_up && page.removed.is_empty() && page.added.is_empty());
+    assert_eq!(restored.export_state(), bytes);
+    assert_eq!(
+        reopened
+            .compare_exchange(Some(saved.revision), None)
+            .await
+            .unwrap(),
+        2
+    );
+    assert!(
+        reopened
+            .compare_exchange(Some(saved.revision), Some(&bytes))
+            .await
+            .is_err()
+    );
+    assert!(reopened.read().await.unwrap().unwrap().bytes.is_none());
+}

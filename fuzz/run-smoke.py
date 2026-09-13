@@ -2,11 +2,11 @@
 """Run already-built sanitizer fuzz targets for bounded time on copied public corpora."""
 import argparse,datetime,hashlib,json,os,pathlib,re,shutil,subprocess,tempfile
 root=pathlib.Path(__file__).resolve().parent
-parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--seconds',type=int,default=30);parser.add_argument('--target',action='append',choices=['transactions','abi','wallet_import','encoding','fixed']);parser.add_argument('--report',type=pathlib.Path,default=root/'smoke-results.json');args=parser.parse_args()
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--seconds',type=int,default=30);parser.add_argument('--target',action='append',choices=['transactions','abi','wallet_import','encoding','fixed','head_state']);parser.add_argument('--report',type=pathlib.Path,default=root/'smoke-results.json');args=parser.parse_args()
 if not 1<=args.seconds<=600:parser.error('seconds must be 1..600')
 report={'recordedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'kind':'bounded sanitizer fuzz smoke; not sustained security qualification','fuzzLockSha256':hashlib.sha256((root/'Cargo.lock').read_bytes()).hexdigest(),'sdkLockSha256':hashlib.sha256((root.parent/'Cargo.lock').read_bytes()).hexdigest(),'targets':[]}
 failed=False
-for target in args.target or ['transactions','abi','wallet_import','encoding','fixed']:
+for target in args.target or ['transactions','abi','wallet_import','encoding','fixed','head_state']:
  binary=root/'target'/'x86_64-unknown-linux-gnu'/'release'/target
  if not binary.is_file():raise SystemExit('build missing target: '+str(binary))
  symbols=subprocess.run(['nm',str(binary)],capture_output=True,check=True,text=True).stdout
@@ -14,7 +14,7 @@ for target in args.target or ['transactions','abi','wallet_import','encoding','f
  artifacts=root/'artifacts'/target;artifacts.mkdir(parents=True,exist_ok=True)
  with tempfile.TemporaryDirectory(prefix='quai-public-fuzz-') as work:
   corpus=pathlib.Path(work)/'corpus';shutil.copytree(root/'corpus'/target,corpus)
-  command=[str(binary),str(corpus),'-max_total_time='+str(args.seconds),'-max_len=65536','-rss_limit_mb=1024','-timeout=5','-seed=1337','-artifact_prefix='+str(artifacts)+'/']
+  command=[str(binary),str(corpus),'-max_total_time='+str(args.seconds),'-max_len='+str(163887 if target=='head_state' else 65536),'-rss_limit_mb=1024','-timeout=5','-seed=1337','-artifact_prefix='+str(artifacts)+'/']
   print('Fuzzing',target,'for',args.seconds,'seconds',flush=True)
   try:result=subprocess.run(command,capture_output=True,text=True,timeout=args.seconds+30,env={**os.environ,'RUST_BACKTRACE':'1'})
   except subprocess.TimeoutExpired as error:

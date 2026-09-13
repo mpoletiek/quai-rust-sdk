@@ -239,10 +239,26 @@ fn restored_ranges_and_nonces_are_monotonic_and_signed_claims_and_bytes_survive(
         .allocate_address(&account, false, 10000, || false)
         .unwrap();
     let backup = WalletBackup::capture(&mut store, vec![seed_origin()]).unwrap();
+    store
+        .commit_head_replay(
+            store.observation_generation().unwrap(),
+            None,
+            Some(b"public ancestry excluded from backup"),
+            None,
+        )
+        .unwrap();
+    assert_eq!(
+        backup.encode().unwrap(),
+        WalletBackup::capture(&mut store, vec![seed_origin()])
+            .unwrap()
+            .encode()
+            .unwrap()
+    );
     let decoded = WalletBackup::decode(&backup.encode().unwrap()).unwrap();
     let target = Database::new();
     let mut restored = target.open();
     let report = decoded.restore(&mut restored).unwrap();
+    assert!(restored.head_replay_state().unwrap().is_none());
     assert_eq!(report.retained_signed_operations, 2);
     assert_eq!(report.hash_only_operations, 1);
     assert!(report.reconciliation_required && report.rescan_required);
@@ -266,7 +282,24 @@ fn restored_ranges_and_nonces_are_monotonic_and_signed_claims_and_bytes_survive(
         .allocate_address(&account, false, 10000, || false)
         .unwrap();
     assert_eq!(next.burned.start, allocated.burned.end);
+    let prior_generation = restored.observation_generation().unwrap();
+    restored
+        .commit_head_replay(
+            prior_generation,
+            None,
+            Some(b"stale destination ancestry"),
+            None,
+        )
+        .unwrap();
     decoded.restore(&mut restored).unwrap();
+    let cleared = restored.head_replay_state().unwrap().unwrap();
+    assert_eq!(cleared.revision, 2);
+    assert!(cleared.payload.is_none());
+    assert!(
+        restored
+            .commit_head_replay(prior_generation, Some(1), Some(b"delayed writer"), None)
+            .is_err()
+    );
     assert_eq!(
         restored.next_derivation_index(&account, false).unwrap(),
         Some(next.burned.end)

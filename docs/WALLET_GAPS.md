@@ -1,6 +1,6 @@
 # Wallet SDK gaps and completion criteria
 
-Updated 2026-09-12 after reviewing public APIs, tests and pinned reference source.
+Updated 2026-09-13 after reviewing public APIs, tests and pinned reference source.
 See the [feature completeness review](FEATURE_COMPLETENESS_REVIEW_2026-09-12.md)
 for evidence, priorities and acceptance criteria FC01–FC12. Node observations
 below retain their original 2026-09-11 qualification boundary.
@@ -23,7 +23,7 @@ counts are not a defensible percentage of engineering or security completion.
 | Keys/identity | OS key entropy, ECDSA/Schnorr/ordered local aggregation, all BIP39 wordlists/passphrases, BIP32 | Broader browser/platform qualification and independent security review |
 | Quai wallets | Local/watch-only and HD signing, durable account/conversion sessions, master-xprv restore and unsigned nonce-gap repair | Terminal lifecycle and funded Orchard workflows; both-ledger candidate families are durable |
 | Quai transactions | Canonical protobuf, nonce claims, offline signing, exact stored broadcast, confirmation polling | Terminal/reorg policy qualification and full supported extensions; candidate families and bounded ETX tracking are implemented |
-| Qi wallets | HD/watch-only derivation, current gap-50 receive/change scan, deep ranges, imported/channel refresh, exact balance buckets and atomic exposure allocation | Fully historical recovery and ancestry replay; latest-only RPC limits remain explicit (FC01/03) |
+| Qi wallets | HD/watch-only derivation, current gap-50 receive/change scan, deep ranges, imported/channel refresh, exact balance buckets and atomic exposure allocation | Historical UTXO recovery and qualified history coverage; bounded ancestry now persists atomically with rollback, while latest-only RPC limits remain explicit (FC01/03) |
 | Qi transactions | Mixed HD/imported/BIP47 signing, exact fee preparation, full denomination capacity, sweep/explicit aggregation, cross-zone Qi preparation and durable recovery | Qualified block placement for aggregation, trim profiles and funded unmodified/testnet acceptance (FC02/08) |
 | Payment codes | BIP47 seed/master/account-xprv identities, registered send-to-code and receive gap/deep scan, mixed-origin spending, authenticated seed/master/account-xprv channel backup | Public code exchange remains explicit and out of band (FC07) |
 | Quai↔Qi conversions | Explicit types, typed quotes/calculation, durable prepared sessions, signed backup/recovery and bounded conversion/refund ETX correlation | Per-operation Quai maturity and funded qualification; current Qi credit/refund locks and durable observations are implemented (FC04) |
@@ -33,7 +33,7 @@ counts are not a defensible percentage of engineering or security completion.
 | Wallet RPC | Existing typed reads plus conversion rates/calculation, specialized account estimation, wrapped deposits, bounded multi-address outpoints and strict inclusive delta queries | Remaining RPC mapping and verified historical index profiles |
 | Live wallet state | Native WS tested on LAN/Orchard, bounded subscriptions, canonical head replay with reconnect, receipt polling | Complete pending/replaced/dropped/reorg wallet state machine and cross-zone tracking |
 | Contracts/dapps | Bounded ABI/EIP-712, ERC-20 calls/intents, events, durable account deployment preparation with CREATE grinding/access list, verified injected message/typed signatures | Funded Orchard acceptance, real injected-extension qualification and broader dapp workflows; signed-intent deployment/code observation, bounded waits and durable caches are implemented |
-| Platforms/release | Linux native tests, JS+Go differential oracles, real reads/subscriptions | Real Chromium Fetch/injected/HD-signing worker tests pass; Windows/macOS, unmodified/testnet acceptance, fuzz/fault/reorg/soak, benchmarks, security review and packaging |
+| Platforms/release | Linux native tests, JS+Go differential oracles, real reads/subscriptions | Linux/macOS/Windows, Chromium and extracted native/Wasm package checks pass; unmodified/testnet acceptance, broader fault/reorg/soak, benchmarks and specialist security review remain open |
 
 History must report the limits of the connected node or required indexer. A
 current outpoint query cannot establish historical address use or recover fully

@@ -1115,7 +1115,9 @@ fn schema_three_migrates_observation_cache_without_changing_signed_state() {
     store.commit_signed_quai(id(99), &signed).unwrap();
     store
         .connection
-        .execute_batch("DROP TABLE observation_cache; PRAGMA user_version=3;")
+        .execute_batch(
+            "DROP TABLE head_replay; DROP TABLE observation_cache; PRAGMA user_version=3;",
+        )
         .unwrap();
     drop(store);
     let mut reopened = db.open();
@@ -1291,4 +1293,181 @@ fn reorg_invalidation_rolls_back_on_write_fault_or_revision_exhaustion() {
         Some(block(6))
     );
     assert_eq!(store.snapshot().unwrap().checkpoint, Some(block(5)));
+}
+
+#[test]
+fn head_replay_commits_cursor_with_rollback_and_fences_stale_writers() {
+    let db = Database::new();
+    let mut store = db.open();
+    let generation = populate(&mut store);
+    let owner = QuaiAddress::try_from(metadata()[1].address()).unwrap();
+    let nonce = store.reserve_nonce(id(101), owner, 5).unwrap();
+    let signed = account_transaction(nonce).sign(&signing_key(1)).unwrap();
+    store.commit_signed_quai(id(101), &signed).unwrap();
+    store
+        .observe_inclusion(id(101), signed.hash().unwrap(), block(6))
+        .unwrap();
+    let first = store
+        .commit_head_replay(generation, None, Some(b"public cursor 1"), None)
+        .unwrap();
+    assert_eq!(first.revision, 1);
+    assert!(first.invalidation.is_none());
+    drop(store);
+    let mut store = db.open();
+    let before = store.head_replay_state().unwrap().unwrap();
+    assert_eq!(
+        before.payload.as_deref(),
+        Some(b"public cursor 1".as_slice())
+    );
+    // A failure at the cursor write follows the attempted wallet rollback and
+    // must still undo the entire transaction, including coins and inclusions.
+    store.connection.execute_batch("CREATE TEMP TRIGGER fail_cursor BEFORE UPDATE ON head_replay BEGIN SELECT RAISE(ABORT,'fixture'); END;").unwrap();
+    assert!(
+        store
+            .commit_head_replay(
+                generation,
+                Some(1),
+                Some(b"public cursor 2"),
+                Some(U256::from(5))
+            )
+            .is_err()
+    );
+    assert_eq!(store.observation_generation().unwrap(), generation);
+    assert_eq!(
+        store.reservation(id(101)).unwrap().unwrap().state,
+        ReservationState::Confirmed
+    );
+    assert_eq!(store.head_replay_state().unwrap().unwrap(), before);
+    assert!(!store.snapshot().unwrap().coins.is_empty());
+    store
+        .connection
+        .execute_batch("DROP TRIGGER fail_cursor;")
+        .unwrap();
+    let committed = store
+        .commit_head_replay(
+            generation,
+            Some(1),
+            Some(b"public cursor 2"),
+            Some(U256::from(5)),
+        )
+        .unwrap();
+    assert_eq!(committed.revision, 2);
+    assert_eq!(committed.invalidation.unwrap().inclusions, 1);
+    assert_eq!(
+        store.reservation(id(101)).unwrap().unwrap().state,
+        ReservationState::Submitted
+    );
+    assert!(store.snapshot().unwrap().coins.is_empty());
+    assert_eq!(
+        store.signed_payload(id(101)).unwrap().unwrap(),
+        signed.signed_bytes().unwrap()
+    );
+    assert_eq!(store.reserved_nonce(id(101)).unwrap(), Some((owner, nonce)));
+    let mut other = db.open();
+    for (gen_value, revision) in [
+        (generation, Some(2)),
+        (generation + 1, Some(1)),
+        (generation + 1, None),
+    ] {
+        assert_eq!(
+            other
+                .commit_head_replay(gen_value, revision, Some(b"stale"), None)
+                .unwrap_err(),
+            StorageError::StaleSnapshot
+        );
+    }
+    other
+        .commit_head_replay(generation + 1, Some(2), None, None)
+        .unwrap();
+    assert_eq!(
+        store.head_replay_state().unwrap().unwrap(),
+        HeadReplayState {
+            revision: 3,
+            payload: None
+        }
+    );
+    assert!(
+        store
+            .commit_head_replay(generation + 1, Some(2), Some(b"late"), None)
+            .is_err()
+    );
+    let mut foreign = SqliteStore::open(
+        &db.0,
+        NetworkScope {
+            chain_id: U256::from(10),
+            ..scope()
+        },
+    )
+    .unwrap();
+    assert!(foreign.head_replay_state().unwrap().is_none());
+    foreign
+        .commit_head_replay(0, None, Some(b"separate network"), None)
+        .unwrap();
+    assert!(
+        store
+            .head_replay_state()
+            .unwrap()
+            .unwrap()
+            .payload
+            .is_none()
+    );
+}
+
+#[test]
+fn head_replay_migrates_v4_and_rejects_bounds_overflow_and_failed_resets() {
+    let db = Database::new();
+    let mut store = db.open();
+    let generation = populate(&mut store);
+    store
+        .connection
+        .execute_batch("DROP TABLE head_replay; PRAGMA user_version=4;")
+        .unwrap();
+    drop(store);
+    let mut store = db.open();
+    assert!(store.head_replay_state().unwrap().is_none());
+    assert_eq!(store.observation_generation().unwrap(), generation);
+    for bytes in [vec![], vec![0; MAX_HEAD_REPLAY_BYTES + 1]] {
+        assert_eq!(
+            store
+                .commit_head_replay(generation, None, Some(&bytes), None)
+                .unwrap_err(),
+            StorageError::Invalid
+        );
+    }
+    assert!(
+        store
+            .commit_head_replay(generation, None, Some(b"cursor"), Some(U256::ZERO))
+            .is_err()
+    );
+    assert!(store.head_replay_state().unwrap().is_none());
+    store
+        .commit_head_replay(
+            generation,
+            None,
+            Some(&vec![1; MAX_HEAD_REPLAY_BYTES]),
+            None,
+        )
+        .unwrap();
+    store
+        .connection
+        .execute("UPDATE head_replay SET revision=9223372036854775807", [])
+        .unwrap();
+    assert_eq!(
+        store
+            .commit_head_replay(generation, Some(i64::MAX as u64), None, Some(U256::from(1)))
+            .unwrap_err(),
+        StorageError::Overflow
+    );
+    assert_eq!(store.observation_generation().unwrap(), generation);
+    assert!(head_state::clear(&store.connection, &store.key).is_err());
+    assert_eq!(
+        store
+            .head_replay_state()
+            .unwrap()
+            .unwrap()
+            .payload
+            .unwrap()
+            .len(),
+        MAX_HEAD_REPLAY_BYTES
+    );
 }

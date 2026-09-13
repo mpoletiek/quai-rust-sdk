@@ -120,3 +120,13 @@ validates structure; verification is explicit. A valid signature/hash does not
 establish canonical inclusion, confirmation or success. Tests reconstruct a
 retained mainnet transaction and reject changed fields, signatures and oversized
 caller-built metadata.
+
+
+`HeadTracker::export_state` and `HeadTracker::from_state` preserve the bounded
+public ancestry across application restarts. The canonical QHEAD001 encoding
+binds zone/genesis and replay bounds and rejects trailing bytes, oversized counts,
+noncontiguous heights and repeated/zero hashes. It is at most 163,887 bytes.
+Restoring checks the expected network; polling still revalidates canonical node
+history. Persist the cursor atomically with application updates, or use the SDK's
+native `reconcile_persisted_head_replay` integration. Saved headers are trusted-node
+observations, not proof of finality or historical Qi outpoints.

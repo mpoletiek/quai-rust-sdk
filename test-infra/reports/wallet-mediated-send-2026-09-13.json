@@ -143,5 +143,20 @@
       "quai-sdk": "passed"
     },
     "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "ciVerified": {
+    "run": 34744480186,
+    "commit": "da5820b8e0a94cc708ce7b8db24d5d148e6c34fb",
+    "result": "success",
+    "jobs": [
+      "native Linux",
+      "native macOS",
+      "native Windows",
+      "browser",
+      "packaged-consumer",
+      "reference-and-harness",
+      "dependency-advisories",
+      "fuzz-smoke"
+    ]
   }
 }

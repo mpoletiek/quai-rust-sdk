@@ -308,6 +308,7 @@ impl SqliteStore {
                 }
                 replacements::insert_variants(&tx, &key, record.id, &operation.replacements)?;
             }
+            head_state::clear(&tx, &key)?;
             clear_snapshot(&tx, &key, next)?;
             generations.push((scope_state.scope, next as u64));
         }
@@ -387,7 +388,7 @@ fn read_operation(
 }
 
 fn validate_native_schema(connection: &Connection) -> Result<()> {
-    validate_native_schema_version(connection, 4)
+    validate_native_schema_version(connection, 5)
 }
 pub(super) fn validate_native_schema_version(connection: &Connection, version: u8) -> Result<()> {
     // Refuse future tables/columns rather than silently omitting channel or other state.
@@ -417,6 +418,7 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
                 "next_index",
             ],
         ),
+        ("head_replay", &["scope", "revision", "payload"]),
         ("nonce_claims", &["scope", "address", "nonce", "operation"]),
         ("nonce_cursors", &["scope", "address", "next_nonce"]),
         (
@@ -483,7 +485,7 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
             &["scope", "operation", "kind", "payload"],
         ),
     ];
-    let mut statement=connection.prepare("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name LIMIT 14")?;
+    let mut statement=connection.prepare("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name LIMIT 15")?;
     let names: Vec<String> = statement
         .query_map([], |row| row.get(0))?
         .collect::<std::result::Result<_, _>>()?;
@@ -493,6 +495,7 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
             (version >= 2 || !name.starts_with("payment_"))
                 && (version >= 3 || *name != "quai_replacements")
                 && (version >= 4 || *name != "observation_cache")
+                && (version >= 5 || *name != "head_replay")
         })
         .collect();
     if names != tables.iter().map(|(name, _)| *name).collect::<Vec<_>>() {

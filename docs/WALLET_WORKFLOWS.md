@@ -545,9 +545,22 @@ the older slot-only convenience methods cannot fence a pre-RPC scope change.
 A returned `refresh_required` means requery current discoveries and operation
 observations before displaying updated balances or settlement. Added headers do
 not supply historical UTXOs: replay does not invent outpoint deltas absent from
-the node. Retain an explicit trusted checkpoint for restart; the in-memory
-ancestry window itself is not persisted or included in backups. No replay path
-broadcasts transactions or releases signed claims.
+the node. For restart-safe ancestry use
+`recovery::reconcile_persisted_head_replay(&provider, &mut store, initial.as_ref())`.
+On first use supply a trusted `HeadTracker`; subsequent calls can pass `None`.
+The saved cursor is authoritative when present. One transaction compares both
+pre-RPC scope generation and ancestry revision, applies any rollback, and stores
+the new ancestry. Reopening the database resumes the retained history and detects
+forks within it. A missing cursor or a deeper fork fails explicitly; after an
+explicit full source invalidation/reset, supply a trusted older cursor again.
+
+`HeadTracker::export_state`/`from_state` also support bounded public cursor storage
+in caller-owned native/browser stores. The format retains at most 4,096 numbered
+hashes, zone, genesis and page bounds; decoding checks exact length, contiguous
+heights and distinct nonzero hashes. Restored cursors still recheck the node.
+They are observations, not chain proofs. Wallet backups exclude ancestry caches;
+restore tombstones any existing destination cursor so a stale writer cannot
+reinsert it. No replay path broadcasts transactions or releases signed claims.
 
 ## Signing and submitting through an injected browser wallet
 

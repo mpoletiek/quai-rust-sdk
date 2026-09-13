@@ -1,6 +1,6 @@
 //! Apply canonical head removals to durable public wallet state before advancing.
 use super::*;
-use quai_provider::{HeadTracker, HeadUpdate};
+use quai_provider::{HeadTracker, HeadUpdate, ProviderError};
 use quai_wallet::storage::ReorgInvalidation;
 
 /// Head replay result after any required durable rollback has committed.
@@ -18,8 +18,8 @@ pub struct WalletReplayUpdate {
 /// Only advance the supplied cursor after the database commits. A network error,
 /// missing replay history or concurrent snapshot update leaves it unchanged.
 /// No keys, broadcasts, claim release or fabricated historical balances occur.
-/// On restart, construct a cursor from an explicitly trusted checkpoint and
-/// revalidate observations; the in-memory ancestry window is not a backup.
+/// For restart-safe ancestry and atomic cursor custody use
+/// `reconcile_persisted_head_replay` instead. This variant owns only memory.
 pub async fn reconcile_head_replay<T: Transport>(
     provider: &Provider<T>,
     store: &mut SqliteStore,
@@ -49,5 +49,60 @@ pub async fn reconcile_head_replay<T: Transport>(
         heads,
         invalidation,
         refresh_required,
+    })
+}
+
+/// Canonical replay with its ancestry committed to the same wallet database.
+#[derive(Clone, Debug)]
+pub struct PersistedWalletReplayUpdate {
+    /// Applied heads and any conservative source-state invalidation.
+    pub update: WalletReplayUpdate,
+    /// Durable ancestry revision after the atomic commit.
+    pub revision: u64,
+}
+/// Resume the scope's saved ancestry, poll one bounded page and commit ancestry
+/// plus any reorg invalidation atomically. Competing processes are fenced by the
+/// pre-RPC scope generation and ancestry revision. No cursor advances on error.
+///
+/// `initial` is used only when no saved payload exists (including a tombstone).
+/// It must be a caller-trusted cursor bound to this scope; otherwise it is ignored.
+/// Missing initial state or a reorg older than retained history fails explicitly.
+/// Current discovery and settlement refresh remain separate after changed heads.
+/// Backups exclude this observation cache and restore tombstones existing ancestry.
+pub async fn reconcile_persisted_head_replay<T: Transport>(
+    provider: &Provider<T>,
+    store: &mut SqliteStore,
+    initial: Option<&HeadTracker>,
+) -> Result<PersistedWalletReplayUpdate, QiError> {
+    let scope = store.scope();
+    let generation = store.observation_generation()?;
+    let saved = store.head_replay_state()?;
+    let mut tracker = match saved.as_ref().and_then(|state| state.payload.as_deref()) {
+        Some(bytes) => HeadTracker::from_state(bytes, scope.zone, scope.genesis)?,
+        None => initial
+            .cloned()
+            .ok_or(ProviderError::ReplayHistoryUnavailable)?,
+    };
+    if tracker.zone() != scope.zone
+        || tracker.genesis() != scope.genesis
+        || provider.chain_id(scope.zone.into()).await? != scope.chain_id
+    {
+        return Err(QiError::IdentityMismatch);
+    }
+    let heads = tracker.poll(provider).await?;
+    let committed = store.commit_head_replay(
+        generation,
+        saved.as_ref().map(|state| state.revision),
+        Some(&tracker.export_state()),
+        heads.removed.last().map(|head| U256::from(head.number)),
+    )?;
+    let refresh_required = !heads.added.is_empty() || !heads.removed.is_empty();
+    Ok(PersistedWalletReplayUpdate {
+        update: WalletReplayUpdate {
+            heads,
+            invalidation: committed.invalidation,
+            refresh_required,
+        },
+        revision: committed.revision,
     })
 }

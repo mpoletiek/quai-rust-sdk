@@ -21,7 +21,7 @@ use std::{
 use thiserror::Error;
 
 const APP_ID: i64 = 0x51574149;
-const VERSION: i64 = 4;
+const VERSION: i64 = 5;
 const MAX_COINS: usize = 100_000;
 
 /// Storage failures contain no SQL parameters or arbitrary database messages.
@@ -66,6 +66,8 @@ mod observations;
 pub use observations::ObservationCache;
 mod replay;
 pub use replay::ReorgInvalidation;
+mod head_state;
+pub use head_state::{HeadReplayCommit, HeadReplayState, MAX_HEAD_REPLAY_BYTES};
 pub(crate) mod replacements;
 pub use replacements::{QuaiReplacement, ReplacementCandidate};
 pub(crate) mod payment;
@@ -294,7 +296,7 @@ pub struct SqliteStore {
     key: [u8; 65],
 }
 impl SqliteStore {
-    /// Open/create schema v4, atomically migrating validated v1/v2/v3 state. Foreign application IDs and nonempty unknown databases
+    /// Open/create schema v5, atomically migrating validated v1/v2/v3/v4 state. Foreign application IDs and nonempty unknown databases
     /// are rejected before persistent writes. WAL requires a local filesystem.
     pub fn open(path: impl AsRef<Path>, scope: NetworkScope) -> Result<Self> {
         if scope.genesis.bytes() == &[0; 32] {
@@ -317,9 +319,10 @@ impl SqliteStore {
             tx.execute_batch(payment::PAYMENT_SCHEMA)?;
             tx.execute_batch(replacements::REPLACEMENT_SCHEMA)?;
             tx.execute_batch(observations::OBSERVATION_SCHEMA)?;
+            tx.execute_batch(head_state::HEAD_SCHEMA)?;
             tx.pragma_update(None, "application_id", APP_ID)?;
             tx.pragma_update(None, "user_version", VERSION)?;
-        } else if app == APP_ID && matches!(version, 1..=3) {
+        } else if app == APP_ID && matches!(version, 1..=4) {
             backup_state::validate_native_schema_version(&tx, version as u8)?;
             if version == 1 {
                 tx.execute_batch(payment::PAYMENT_SCHEMA)?;
@@ -327,7 +330,10 @@ impl SqliteStore {
             if version < 3 {
                 tx.execute_batch(replacements::REPLACEMENT_SCHEMA)?;
             }
-            tx.execute_batch(observations::OBSERVATION_SCHEMA)?;
+            if version < 4 {
+                tx.execute_batch(observations::OBSERVATION_SCHEMA)?;
+            }
+            tx.execute_batch(head_state::HEAD_SCHEMA)?;
             tx.pragma_update(None, "user_version", VERSION)?;
         } else if app != APP_ID || version != VERSION {
             return Err(StorageError::Schema);

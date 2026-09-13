@@ -1,0 +1,172 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "da5820b8e0a94cc708ce7b8db24d5d148e6c34fb",
+  "testedWorkingTree": true,
+  "changes": [
+    "Canonical bounded QHEAD001 ancestry encoding, explicit network-bound restoration and duplicate/zero hash rejection",
+    "SQLite schema v5 migration from v1-v4; scope generation and cursor revision fence asynchronous replay writers",
+    "Atomic persisted cursor plus conservative reorg rollback; exact signed bytes and nonce/input claims retained",
+    "Backup excludes ancestry cache; restore tombstones destination cursor and fences delayed writers",
+    "Real worker IndexedDB public ancestry save/reopen and node revalidation"
+  ],
+  "validation": {
+    "nativeWorkspaceReportedPasses": 368,
+    "nativeWorkspaceFailures": 0,
+    "ignoredExplicitLiveTests": 4,
+    "providerHeadTests": 5,
+    "sdkReplayTests": 5,
+    "sdkWithoutDefaultFeaturesSqliteReplayTests": 5,
+    "newStorageHeadTests": 2,
+    "backupAncestryRegression": "passed",
+    "actualChromiumSdkWorkerTests": 7,
+    "nativeWorkspaceClippyWarningsDenied": "passed",
+    "nativeWorkspaceRustdocWarningsDenied": "passed",
+    "portableSdkWasmAllTargetsClippyWarningsDenied": "passed",
+    "providerWasmRustdocWarningsDenied": "passed",
+    "packageFileMirrors": 60
+  },
+  "evidence": [
+    "crates/quai-provider/tests/head_tracker.rs",
+    "crates/quai-wallet/src/storage/tests.rs",
+    "crates/quai-wallet/src/full_backup/tests.rs",
+    "crates/quai-sdk/tests/replay.rs",
+    "crates/quai-sdk/tests/browser_discovery.rs"
+  ],
+  "limits": [
+    "Saved cursor and canonical node samples are observations, not consensus proofs or finality",
+    "Latest-only outpoint RPC still cannot supply historical UTXOs; current discovery/settlement refresh remains explicit",
+    "Forks older than retained ancestry fail explicitly and require caller-selected older trusted recovery",
+    "No terminal signed-claim release or transaction write replay",
+    "Browser test stores public ancestry only; complete browser wallet reservations and backup integration remain open",
+    "Synthetic reorg tests and worker fixture, not unmodified/funded Orchard or sustained real-node reorg qualification",
+    "No package published or mainnet transaction submitted"
+  ],
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "da5820b8e0a94cc708ce7b8db24d5d148e6c34fb",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 55258,
+        "sha256": "dcead46c2bd16e06c0fd1f421c3a0fa90c70b3400e3df8801ba77051eeb97208"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 44955,
+        "sha256": "70264a2a6c3470876f30aa5e9f727c93b50f9e497849357dbe85e12c8843bf6d"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 126357,
+        "sha256": "bcf454139abbae7f3474413bd19540b8efec4c7e4aa2319ced601b44854a2e76"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45479,
+        "sha256": "11aec4ace1b00dbdc33d6911519698744714a42fbe937ac3872e26831162f03f"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 42914,
+        "sha256": "276dc8ae6f84364bf53b0202d7d871edadfb5e59d71621a41ae73b76c214e1ac"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 118205,
+        "sha256": "349fa2983c4e80527e284df842df4d8400b5b157393d9ffe816b71a26a5c31be"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 91828,
+        "sha256": "0188677315eb2487104d989c604314aec0d572b27a29baf4f9a3278a1da78492"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 74936,
+        "sha256": "0b5d512b4c6cdeef15c61a6c39f59f772b58603acbc439a14834d1510de35d3f"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24385,
+        "sha256": "8790eb969c27b0f8526194187aa25016f839f8079a4951bfa26387e63746a137"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34220,
+        "sha256": "ee4b142af8b8838b67a17593d15f8975ca8d77dceedc60b3888cfa26a83ea194"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 232668,
+        "sha256": "59ad8eb258aa5981d2abce7882b0629032490d3d8ca566be1c143b4837bc4b10"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39241,
+        "sha256": "dd88ea34d5e4a32343dac1e18a423e56c6afe875c0ea6fcb928f2620d212f2e1"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "fuzz": {
+    "recordedAt": "2026-09-13T07:20:46.805142+00:00",
+    "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+    "fuzzLockSha256": "2ce2384ed96aad645f551029d28967161a11cf8885c9bd5ac8777056653418a8",
+    "sdkLockSha256": "5cb76fb2f213f02cda2ec3d30d10546f794b512487d4479a7198263276c6b96c",
+    "targets": [
+      {
+        "name": "head_state",
+        "binarySha256": "bb8ce99fa91fc1fc1d06d05c82a3cf9b8f1bc23faac8ce3b6c3711e8bac17db6",
+        "seconds": 120,
+        "exitCode": 0,
+        "addressSanitizer": true,
+        "initialCorpusFiles": 10,
+        "finalCorpusFiles": 86,
+        "executions": 49526,
+        "coverageCounters": 299,
+        "features": 1148,
+        "rssMiB": 324
+      }
+    ],
+    "leakSanitizer": false,
+    "sanitizerEnvironment": "ASAN_OPTIONS=detect_leaks=0: sandbox process inspection limitation; AddressSanitizer enabled, no leak-clean qualification."
+  }
+}

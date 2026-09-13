@@ -227,3 +227,102 @@ mod websocket {
         server.await.unwrap();
     }
 }
+
+#[tokio::test]
+async fn restored_ancestry_replays_reorg_after_restart_and_retains_exact_bounds() {
+    let (mock, provider, mut tracker) = setup(8);
+    for _ in 0..3 {
+        tracker.poll(&provider).await.unwrap();
+    }
+    let bytes = tracker.export_state();
+    let mut restored = HeadTracker::from_state(&bytes, Zone::Cyprus1, hash(0)).unwrap();
+    assert_eq!(restored.export_state(), bytes);
+    for n in 3..=6 {
+        mock.chain.lock().unwrap()[n] = hash(100 + n as u64);
+    }
+    let update = restored.poll(&provider).await.unwrap();
+    assert_eq!(
+        update.removed.iter().map(|h| h.number).collect::<Vec<_>>(),
+        [6, 5, 4, 3]
+    );
+    assert_eq!(
+        update.added.iter().map(|h| h.number).collect::<Vec<_>>(),
+        [3, 4]
+    );
+    assert!(!update.caught_up);
+    assert_eq!(
+        restored.export_state(),
+        HeadTracker::from_state(&restored.export_state(), Zone::Cyprus1, hash(0))
+            .unwrap()
+            .export_state()
+    );
+}
+#[tokio::test]
+async fn malformed_cursor_bytes_and_repeated_node_hashes_fail_without_advancing() {
+    let (mock, provider, mut tracker) = setup(8);
+    tracker.poll(&provider).await.unwrap();
+    let bytes = tracker.export_state();
+    for len in 0..bytes.len() {
+        assert!(HeadTracker::from_state(&bytes[..len], Zone::Cyprus1, hash(0)).is_err());
+    }
+    let mut trailing = bytes.clone();
+    trailing.push(0);
+    assert!(HeadTracker::from_state(&trailing, Zone::Cyprus1, hash(0)).is_err());
+    for index in [0, 8, 9, 41, 43, 45, 47, 87] {
+        let mut corrupt = bytes.clone();
+        corrupt[index] = 255;
+        assert!(
+            HeadTracker::from_state(&corrupt, Zone::Cyprus1, hash(0)).is_err(),
+            "{index}"
+        );
+    }
+    for index in [42, 44, 46] {
+        let mut corrupt = bytes.clone();
+        corrupt[index] = 0;
+        assert!(HeadTracker::from_state(&corrupt, Zone::Cyprus1, hash(0)).is_err());
+    }
+    let mut duplicate = bytes.clone();
+    duplicate[95..127].copy_from_slice(&bytes[55..87]);
+    assert!(HeadTracker::from_state(&duplicate, Zone::Cyprus1, hash(0)).is_err());
+    assert!(HeadTracker::from_state(&bytes, Zone::Cyprus2, hash(0)).is_err());
+    assert!(HeadTracker::from_state(&bytes, Zone::Cyprus1, hash(900)).is_err());
+    assert!(
+        HeadTracker::new(
+            Zone::Cyprus1,
+            hash(0),
+            BlockReference {
+                number: 0,
+                hash: hash(1)
+            },
+            8,
+            2
+        )
+        .is_err()
+    );
+    for bad in [hash(2), Hash32::ZERO] {
+        mock.chain.lock().unwrap()[3] = bad;
+        assert!(tracker.poll(&provider).await.is_err());
+        assert_eq!(tracker.export_state(), bytes);
+    }
+}
+#[test]
+fn cursor_maximum_ancestry_is_bounded_before_allocation_and_checks_height_overflow() {
+    let (_, _, tracker) = setup(4096);
+    let mut bytes = tracker.export_state()[..47].to_vec();
+    bytes[45..47].copy_from_slice(&4096u16.to_be_bytes());
+    for n in 0..4096u64 {
+        bytes.extend_from_slice(&n.to_be_bytes());
+        bytes.extend_from_slice(hash(n).bytes());
+    }
+    assert_eq!(bytes.len(), quai_provider::MAX_HEAD_STATE_BYTES);
+    let restored = HeadTracker::from_state(&bytes, Zone::Cyprus1, hash(0)).unwrap();
+    assert_eq!(restored.export_state(), bytes);
+    bytes.extend_from_slice(&[0; 40]);
+    assert!(HeadTracker::from_state(&bytes, Zone::Cyprus1, hash(0)).is_err());
+    let mut overflow = tracker.export_state();
+    overflow[47..55].copy_from_slice(&u64::MAX.to_be_bytes());
+    overflow[45..47].copy_from_slice(&2u16.to_be_bytes());
+    overflow.extend_from_slice(&0u64.to_be_bytes());
+    overflow.extend_from_slice(hash(1).bytes());
+    assert!(HeadTracker::from_state(&overflow, Zone::Cyprus1, hash(0)).is_err());
+}

@@ -25,7 +25,7 @@ pub use conversion_tracking::{
 mod head_tracker;
 mod logs;
 mod qi;
-pub use head_tracker::{HeadTracker, HeadUpdate};
+pub use head_tracker::{HeadTracker, HeadUpdate, MAX_HEAD_STATE_BYTES};
 mod qi_special_fee;
 pub use qi_special_fee::{QiFeeProfile, QiFeeQuote, qi_special_gas};
 mod wallet_rpc;

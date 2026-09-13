@@ -21,7 +21,7 @@ criteria FC01–FC12. Historical test/node results below retain their recorded s
 | Signers | Local chain-bound and watch-only adapters, offline Quai/single-input Qi signing and personal-message signing; consensus supports ordered local multi-input Qi signing |
 | HTTP/provider | Exact direct URLs and gateway routes, strict envelopes and U256 quantities, bounded native transport, typed headers/account calls/transactions/ETXs/receipts/outpoints, account broadcast ambiguity and canonicality-checked receipt polling |
 | WebSocket | Native and browser/worker bounded sessions; browser cancellation/queue ownership tested in actual Chromium. Native bounded session and subscription implementation; deterministic loopback tests and a real LAN mainnet head notification passed; bounded reconnect and canonical head replay are implemented |
-| Durable state | SQLite schema v4 candidate/ETX observation caches with revision checks, claims/cursors, specialized signed-byte custody, canonical inclusion reconciliation and conservative reorg invalidation, unsigned nonce recovery and authenticated backup |
+| Durable state | SQLite schema v5 persistent ancestry and candidate/ETX observation caches with revision checks, claims/cursors, specialized signed-byte custody, canonical inclusion reconciliation and conservative reorg invalidation, unsigned nonce recovery and authenticated backup |
 | ABI/typed data | Bounded canonical ABI/interface/EIP-712 implementation, typed contract calls/ERC-20 helpers, bounded event queries retaining reorg metadata, same-zone CREATE grinding with required access list |
 | Account workflow | Durable prepare/sign/submit, exact conversion simulation, nonce claims, unsigned restart preparation and explicit nonce-gap repair; fee-only candidate families, restart recovery and explicit cross-zone prepare/resume |
 | Legacy keystores | Bounded v3 AES-CTR/scrypt/PBKDF2 import/export, NFKC/byte passwords, all-language mnemonic derivation checks; eight tests cover 15 JS vectors, hostile inputs and fresh production-cost exports. Upstream scrypt workspace wiping remains a security-review limitation |
@@ -403,3 +403,13 @@ separate, and original account/nonce/digest metadata survives errors without a
 returned hash. No send is automatically retried. `Transaction::verified_quai`
 also verifies a retained actual mainnet transaction and rejects mutated fields.
 Browser state persistence and real extension qualification remain separate gates.
+
+
+Canonical ancestry now survives native wallet restart. Bounded `HeadTracker`
+state encoding/decoding and `recovery::reconcile_persisted_head_replay` atomically
+save the cursor with conservative reorg invalidation, fenced by scope generation
+and cursor revision. SQLite v5 migrates validated v1–v4; backup restore tombstones
+old ancestry while preserving signed custody. Current-state refresh remains
+explicit, and a fork deeper than retained history still requires recovery from
+an older trusted checkpoint. This does not supply unavailable historical UTXOs
+or terminal signed-claim release.

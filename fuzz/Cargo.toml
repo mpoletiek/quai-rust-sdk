@@ -14,6 +14,7 @@ members = ["."]
 
 [dependencies]
 libfuzzer-sys = "=0.4.13"
+quai-provider = { path = "../crates/quai-provider", default-features = false }
 quai-consensus = { path = "../crates/quai-consensus" }
 quai-abi = { path = "../crates/quai-abi" }
 quai-primitives = { path = "../crates/quai-primitives" }
@@ -54,6 +55,13 @@ bench = false
 [[bin]]
 name = "fixed"
 path = "fuzz_targets/fixed.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "head_state"
+path = "fuzz_targets/head_state.rs"
 test = false
 doc = false
 bench = false

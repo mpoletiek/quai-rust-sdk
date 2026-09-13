@@ -1,5 +1,8 @@
 //! ABI-bound account contract calls with explicit simulation and authorization boundaries.
-use quai_abi::{AbiError, AbiEventValue, AbiFunction, AbiInterface, StateMutability};
+use quai_abi::{
+    AbiError, AbiEventValue, AbiFilterTopic, AbiFilterValue, AbiFunction, AbiInterface,
+    StateMutability,
+};
 use quai_primitives::QuaiAddress;
 use quai_provider::{
     BlockTag, CallRequest, Log, LogFilter, LogRange, Provider, ProviderError, RpcData, TopicMatch,
@@ -320,6 +323,39 @@ impl<'a, T: Transport> Contract<'a, T> {
         let mut topics = Vec::with_capacity(1 + indexed_topics.len());
         topics.push(TopicMatch::Exact(declaration.topic_hash()));
         topics.extend_from_slice(indexed_topics);
+        self.query_events(event, range, topics).await
+    }
+    /// Query this emitter using typed filters in full event declaration order.
+    /// Non-indexed fields must be `Any`; omitted suffix fields are unrestricted.
+    /// Strings/bytes/compound values are hashed, and `AnyOf` supplies bounded OR
+    /// alternatives. Anonymous events require explicitly selected logs instead.
+    pub async fn events_by_values(
+        &self,
+        event: &str,
+        range: LogRange,
+        filters: &[AbiFilterValue<'_>],
+    ) -> Result<Vec<ContractEvent>, ContractError> {
+        let declaration = self.interface.event(event)?;
+        if declaration.anonymous() {
+            return Err(ContractError::AnonymousEvent);
+        }
+        let topics = declaration
+            .encode_filter_topics(filters)?
+            .into_iter()
+            .map(|topic| match topic {
+                AbiFilterTopic::Any => TopicMatch::Any,
+                AbiFilterTopic::Exact(hash) => TopicMatch::Exact(hash),
+                AbiFilterTopic::AnyOf(hashes) => TopicMatch::AnyOf(hashes),
+            })
+            .collect();
+        self.query_events(event, range, topics).await
+    }
+    async fn query_events(
+        &self,
+        event: &str,
+        range: LogRange,
+        topics: Vec<TopicMatch>,
+    ) -> Result<Vec<ContractEvent>, ContractError> {
         self.provider
             .logs(&LogFilter {
                 zone: self.address.zone(),

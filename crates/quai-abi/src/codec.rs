@@ -53,7 +53,7 @@ pub(crate) fn validate(types: &[AbiType], values: &[Value]) -> Result<usize, Abi
     if types.len() != values.len() {
         return Err(AbiError::Value);
     }
-    preflight_values(values)?;
+    preflight_values(values.iter())?;
     measure_sequence(Sequence::Fields(types), values, 0)
 }
 pub(crate) fn sequence_limit(types: &[AbiType]) -> Result<(), AbiError> {
@@ -68,11 +68,13 @@ pub(crate) fn sequence_limit(types: &[AbiType]) -> Result<(), AbiError> {
     }
     Ok(())
 }
-fn preflight_values(values: &[Value]) -> Result<(), AbiError> {
+pub(crate) fn preflight_values<'a>(
+    values: impl ExactSizeIterator<Item = &'a Value>,
+) -> Result<(), AbiError> {
     if values.len() > MAX_VALUE_NODES {
         return Err(AbiError::Limit);
     }
-    let mut stack: Vec<_> = values.iter().map(|v| (v, 0usize)).collect();
+    let mut stack: Vec<_> = values.map(|v| (v, 0usize)).collect();
     let mut budget = Budget::default();
     while let Some((v, depth)) = stack.pop() {
         budget.node(depth)?;
@@ -462,7 +464,7 @@ pub fn indexed_event_topic(
     ty: &AbiType,
     value: &Value,
 ) -> Result<quai_primitives::Hash32, AbiError> {
-    preflight_values(std::slice::from_ref(value))?;
+    preflight_values(std::iter::once(value))?;
     measure(ty, value, 0)?;
     if !matches!(
         ty.kind,

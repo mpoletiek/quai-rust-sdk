@@ -1,0 +1,1 @@
+{"abi": [{"type": "event", "name": "Filtered", "inputs": [{"name": "", "type": "bool", "indexed": true}, {"name": "", "type": "uint256", "indexed": false}, {"name": "", "type": "bytes2", "indexed": true}]}], "criteria": [null, null, {"exact": "0xabcd"}]}

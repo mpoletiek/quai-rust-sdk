@@ -136,3 +136,67 @@ async fn ambiguous_anonymous_queries_and_excess_filters_fail_before_io() {
     ));
     assert!(mock.calls.lock().unwrap().is_empty());
 }
+
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn typed_event_filters_hash_values_validate_before_io_and_parse_observed_logs() {
+    use quai_sdk::abi::{AbiError, AbiFilterValue, ParsedRevert};
+    let (mock, topics) = fixture();
+    let p = provider(mock.clone());
+    let contract = Contract::new(
+        ADDRESS.parse().unwrap(),
+        AbiInterface::from_json(ABI).unwrap(),
+        &p,
+    );
+    let range = LogRange::Inclusive { from: 10, to: 20 };
+    let alternatives = [json!("private tag"), json!("another tag")];
+    for filters in [
+        vec![AbiFilterValue::AnyOf(&[])],
+        vec![AbiFilterValue::Any, AbiFilterValue::Exact(&alternatives[0])],
+    ] {
+        assert!(matches!(
+            contract.events_by_values("Tagged", range, &filters).await,
+            Err(ContractError::Abi(AbiError::Value))
+        ));
+    }
+    assert!(matches!(
+        contract.events_by_values("Anonymous", range, &[]).await,
+        Err(ContractError::AnonymousEvent)
+    ));
+    assert!(mock.calls.lock().unwrap().is_empty());
+    let events = contract
+        .events_by_values(
+            "Tagged",
+            range,
+            &[AbiFilterValue::AnyOf(&alternatives), AbiFilterValue::Any],
+        )
+        .await
+        .unwrap();
+    assert_eq!(events.len(), 1);
+    assert!(events[0].log.removed);
+    let parsed = contract
+        .interface()
+        .parse_log(&events[0].log.topics, events[0].log.data.bytes())
+        .unwrap();
+    assert_eq!(parsed.event.signature(), events[0].signature);
+    assert_eq!(parsed.values, events[0].values);
+    let calls = mock.calls.lock().unwrap();
+    let sent_topics = &calls[1].1[0]["topics"];
+    assert_eq!(sent_topics.as_array().unwrap().len(), 2);
+    assert_eq!(sent_topics[0], topics[0].to_string());
+    assert_eq!(sent_topics[1][0], topics[1].to_string());
+    assert_eq!(sent_topics[1].as_array().unwrap().len(), 2);
+    drop(calls);
+    // The interface parser and builtin reverts also execute in the real worker.
+    let abi = AbiInterface::from_json(br#"[{"type":"function","name":"set","inputs":[{"type":"int8"}],"outputs":[]},{"type":"error","name":"Panic","inputs":[{"type":"uint256"}]}]"#).unwrap();
+    let data = abi
+        .function("set")
+        .unwrap()
+        .encode_call(&[json!("-128")])
+        .unwrap();
+    assert_eq!(abi.parse_call(&data).unwrap().arguments, [json!("-128")]);
+    let data = abi.error("Panic").unwrap().encode(&[json!("17")]).unwrap();
+    assert!(
+        matches!(abi.parse_revert(&data), Ok(ParsedRevert::Panic(code)) if code == U256::from(17))
+    );
+}

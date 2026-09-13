@@ -6,6 +6,23 @@ fuzz_target!(|data:&[u8]| {
  if let Ok(text)=std::str::from_utf8(data){if let Ok(ty)=AbiType::parse(text){if let Ok(value)=AbiValue::default_for(ty){let encoded=value.encode().unwrap();assert_eq!(AbiCoder::decode(std::slice::from_ref(value.abi_type()),&encoded).unwrap(),vec![value.value().clone()]);}}}
  if let Ok(text)=std::str::from_utf8(data){if let Ok(types)=text.split('\n').take(1025).map(AbiType::parse).collect::<Result<Vec<_>,_>>(){if let Ok(values)=AbiCoder::default_values(&types){let encoded=AbiCoder::encode(&types,&values).unwrap();assert_eq!(AbiCoder::decode(&types,&encoded).unwrap(),values);}}}
  if let Ok(value)=serde_json::from_slice::<serde_json::Value>(data){
+  if let Some(document)=value.get("abi") {
+   if let Ok(interface)=AbiInterface::from_json(&serde_json::to_vec(document).unwrap()) {
+    if let Some(bytes)=value.get("data").and_then(|v|v.as_str()).and_then(|s|quai_primitives::get_bytes(s).ok()) {
+     if let Ok(call)=interface.parse_call(&bytes){assert_eq!(call.function.encode_call(&call.arguments).unwrap(),bytes);}
+     let _=interface.parse_revert(&bytes);
+     if let Some(topics)=value.get("topics").and_then(|v|v.as_array()) {
+      if topics.len()<=5 {if let Ok(topics)=topics.iter().map(|v|v.as_str().ok_or(()).and_then(|s|s.parse::<quai_primitives::Hash32>().map_err(|_|()))).collect::<Result<Vec<_>,_>>() {let _=interface.parse_log(&topics,&bytes);}}
+     }
+    }
+    if let Some(criteria)=value.get("criteria").and_then(|v|v.as_array()) {
+     if criteria.len()<=1025 {
+      let filters=criteria.iter().map(|v|if v.is_null(){Ok(quai_abi::AbiFilterValue::Any)}else if let Some(exact)=v.get("exact"){Ok(quai_abi::AbiFilterValue::Exact(exact))}else{v.get("anyOf").and_then(|v|v.as_array()).map(|v|quai_abi::AbiFilterValue::AnyOf(v)).ok_or(())}).collect::<Result<Vec<_>,_>>();
+      if let Ok(filters)=filters {for event in interface.events().take(3) {if let Ok(topics)=event.encode_filter_topics(&filters){assert!(topics.len()<=4);assert_ne!(topics.last(),Some(&quai_abi::AbiFilterTopic::Any));}}}
+     }
+    }
+   }
+  }
   if let (Some(types),Some(values))=(value["types"].as_array(),value["values"].as_array()){
    if types.len()<=1024 {
     let types=types.iter().map(|v|v.as_str().ok_or(quai_abi::AbiError::Schema).and_then(AbiType::parse)).collect::<Result<Vec<_>,_>>();
@@ -17,6 +34,7 @@ fuzz_target!(|data:&[u8]| {
    }
   }
  }
+ let _=AbiInterface::default().parse_revert(data);
  let _=AbiInterface::from_json(data);
  let _=SolidityArtifact::from_json(data);
  if let Ok(doc)=TypedData::from_json(data){if let Ok(rpc)=doc.to_rpc_json(){assert_eq!(TypedData::from_json(rpc.as_bytes()).unwrap().signing_hash(),doc.signing_hash());}}

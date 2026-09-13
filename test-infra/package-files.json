@@ -252,6 +252,10 @@
     {
       "source": "compatibility/fixtures/text-crypto.json",
       "destination": "crates/quai-crypto/tests/fixtures/shared/compatibility/fixtures/text-crypto.json"
+    },
+    {
+      "source": "compatibility/fixtures/abi-workflows.json",
+      "destination": "crates/quai-abi/tests/fixtures/shared/compatibility/fixtures/abi-workflows.json"
     }
   ]
 }

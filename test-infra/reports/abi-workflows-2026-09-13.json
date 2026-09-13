@@ -1,0 +1,168 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "028787d1bcde7498ad7076117f805657e407d92b",
+  "testedWorkingTree": true,
+  "reference": "quais@1.0.0-alpha.57",
+  "referenceFixtureSha256": "dba94a89e3d5b64ed7f5a84660281eb29be582db3df286485dedb61b6ce46e4a",
+  "vectors": {
+    "filters": 246,
+    "acceptedCanonicalFilters": 174,
+    "strictRejections": 72,
+    "negativeFiltersComparedWithReferenceEventEncoding": 64,
+    "calls": 3,
+    "reverts": 6,
+    "logs": 2
+  },
+  "changes": [
+    "Typed full-field event filters with bounded OR alternatives, aggregate budgets and canonical topic encoding",
+    "SDK contract emitter-bound typed event queries preserving removal/inclusion metadata",
+    "Automatic canonical call/log/builtin and custom revert decoding, explicit unknown/ambiguous failures",
+    "92 ABI declarations reconciled with concrete APIs and explicit Rust differences"
+  ],
+  "validation": {
+    "nativeAbiTests": 35,
+    "nativeSdkEventTests": 3,
+    "actualChromiumSdkEventWorkerTests": 3,
+    "nativeAbiSdkAllTargetsClippyWarningsDenied": "passed",
+    "portableSdkWasmAllTargetsClippyWarningsDenied": "passed",
+    "nativeAbiSdkRustdocWarningsDenied": "passed",
+    "referenceNodeTests": 97,
+    "verifiedReferenceSourceFiles": 153,
+    "packageFileMirrors": 64
+  },
+  "fuzz": {
+    "recordedAt": "2026-09-13T08:11:29.966523+00:00",
+    "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+    "fuzzLockSha256": "d6ee6a295246aae181e637a4a62c7b3c6e9636e6acbaf210d608a72728cbba98",
+    "sdkLockSha256": "23e5d30c8d68ca0225745105c4ccacbfac66114f395e4eb92fedf3b8ab717ed7",
+    "targets": [
+      {
+        "name": "abi",
+        "binarySha256": "2613d3f55b511455017b3eed0a9bc63493886d388c4931de5bbd10f57500a56e",
+        "seconds": 120,
+        "exitCode": 0,
+        "addressSanitizer": true,
+        "initialCorpusFiles": 317,
+        "finalCorpusFiles": 2202,
+        "executions": 505326,
+        "coverageCounters": 6791,
+        "features": 24611,
+        "rssMiB": 513
+      }
+    ],
+    "leakSanitizer": false,
+    "sanitizerEnvironment": "ASAN_OPTIONS=detect_leaks=0: sandbox process inspection limitation; AddressSanitizer enabled, no leak-clean qualification."
+  },
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "028787d1bcde7498ad7076117f805657e407d92b",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61987,
+        "sha256": "365c50df80725b8931a6e5584ce814dcc2024c3f177c5d9abeca65d08537d258"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45023,
+        "sha256": "ead76991ecf2944a4fd869b8afe937c2f375c26a8cbfe3156c5b77be1f23070b"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 126466,
+        "sha256": "f933f2021fe3e4ae0b84037266e56401956a39715f5027bd001c8789b9087051"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45642,
+        "sha256": "dfbdcee1ac351792c73cfa77de94e4209596862d0d86e7ad6743bf4456a17b60"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47979,
+        "sha256": "80b80f738ca7d64be7cff7572a59deedcce662c727804f91161e5d109b0e94ab"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 119872,
+        "sha256": "fd62fcfdc3c19ac795a6549d3524df28c061d699f1040053d2e65b42d5a3db96"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 150812,
+        "sha256": "12c74dc0f496223de585f55013370d9a69c7fbec35f2a2301cc6eb27b9b2c748"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 74951,
+        "sha256": "ef5c4b802908bd61d02b3fbe1379f0634990c6acba9695815ffdc47cbd6302a9"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24519,
+        "sha256": "7c310544b164ba0c16d053ab1a2123caaeb5ecc1003b0ad01f0c163adb9ca527"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34224,
+        "sha256": "296c3dcfb812b57af8e08e8a90ba59f7dc73c9c2965b923f7db3c075fbd7a084"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 232655,
+        "sha256": "887de4fe852c96a3e24dcfd05b48e1241c127aed5fd0c566691c28de9ec7b63a"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39313,
+        "sha256": "b923dfa47670a3e3a29f07bf0a086002f76b50436d7f34cf7af21563934c9173"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "limitations": [
+    "Automatic log parsing cannot infer anonymous declarations or authenticate the emitter; use explicit selected ABI and contract workflow.",
+    "Indexed compound hashes cannot recover or uniquely identify their inputs.",
+    "Revert payloads are unauthenticated; no finality or execution claim.",
+    "Pinned JS filter bugs/coercion deliberately not reproduced; human-readable interface formatting/import and broader parity remain separate.",
+    "Sanitizer smoke and package checks are bounded engineering evidence, not independent security or release certification."
+  ]
+}

@@ -7430,12 +7430,20 @@
         "new (fragment: ErrorFragment, selector: string, args: Result): ErrorDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": ".:ErrorDescription:instance:args",
@@ -7444,12 +7452,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": ".:ErrorDescription:instance:fragment",
@@ -7458,12 +7474,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": ".:ErrorDescription:instance:name",
@@ -7472,12 +7496,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": ".:ErrorDescription:instance:selector",
@@ -7486,12 +7518,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": ".:ErrorDescription:instance:signature",
@@ -7500,12 +7540,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": ".:ErrorFragment",
@@ -12595,12 +12643,20 @@
         "new (hash: null | string): Indexed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiEventValue::IndexedHash"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Typed pattern matching replaces JS constructors/marker checks. Hash32 holds the observed topic; null placeholders or missing indexed topics are rejected."
     },
     {
       "id": ".:Indexed:instance:_isIndexed",
@@ -12609,12 +12665,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiEventValue::IndexedHash"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Typed pattern matching replaces JS constructors/marker checks. Hash32 holds the observed topic; null placeholders or missing indexed topics are rejected."
     },
     {
       "id": ".:Indexed:instance:hash",
@@ -12623,12 +12687,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiEventValue::IndexedHash"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Typed pattern matching replaces JS constructors/marker checks. Hash32 holds the observed topic; null placeholders or missing indexed topics are rejected."
     },
     {
       "id": ".:Indexed:static:isIndexed",
@@ -12639,12 +12711,20 @@
         "(value: any): value is Indexed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiEventValue::IndexedHash"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Typed pattern matching replaces JS constructors/marker checks. Hash32 holds the observed topic; null placeholders or missing indexed topics are rejected."
     },
     {
       "id": ".:InsufficientFundsError",
@@ -12691,12 +12771,20 @@
         "(params: ReadonlyArray<ParamType>, data: BytesLike): Result"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiCoder::decode"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Standalone stateless bounded canonical codec; no replaceable interface coder, loose decoding, coercion or JS Result object."
     },
     {
       "id": ".:Interface:instance:_encodeParams",
@@ -12707,12 +12795,20 @@
         "(params: ReadonlyArray<ParamType>, values: ReadonlyArray<any>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiCoder::encode"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Standalone stateless bounded canonical codec; no replaceable interface coder, loose decoding, coercion or JS Result object."
     },
     {
       "id": ".:Interface:instance:decodeErrorResult",
@@ -12809,12 +12905,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::constructor"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Optional borrowed explicit constructor; absence is not a fabricated default fragment."
     },
     {
       "id": ".:Interface:instance:encodeDeploy",
@@ -12891,12 +12995,21 @@
         "(fragment: EventFragment | string, values: ReadonlyArray<any>): Array<null | string | Array<string>>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiEvent::encode_filter_topics",
+        "quai_sdk::contracts::Contract::events_by_values"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Typed full-field filters, signature insertion, trimmed trailing wildcards, OR 1..128 and shared budgets. Canonical signed topics fix pinned negative filter bug; strict widths/booleans, explicit Exact distinguishes compound values from OR."
     },
     {
       "id": ".:Interface:instance:encodeFunctionData",
@@ -12949,12 +13062,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::fallback_mutability"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Optional validated fallback mutability instead of JS Fragment."
     },
     {
       "id": ".:Interface:instance:forEachError",
@@ -12965,12 +13086,20 @@
         "(callback: (func: ErrorFragment, index: number) => void): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::errors"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed iterator ordered by canonical signature; caller can enumerate instead of supplying a JS callback."
     },
     {
       "id": ".:Interface:instance:forEachEvent",
@@ -12981,12 +13110,20 @@
         "(callback: (func: EventFragment, index: number) => void): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::events"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed iterator ordered by canonical signature; caller can enumerate instead of supplying a JS callback."
     },
     {
       "id": ".:Interface:instance:forEachFunction",
@@ -12997,12 +13134,20 @@
         "(callback: (func: FunctionFragment, index: number) => void): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::functions"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed iterator ordered by canonical signature; caller can enumerate instead of supplying a JS callback."
     },
     {
       "id": ".:Interface:instance:format",
@@ -13059,12 +13204,20 @@
         "(): AbiCoder"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiCoder"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Standalone stateless bounded canonical codec; no replaceable interface coder, loose decoding, coercion or JS Result object."
     },
     {
       "id": ".:Interface:instance:getError",
@@ -13075,12 +13228,21 @@
         "(key: string, values?: Array<any | Typed>): null | ErrorFragment"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::error",
+        "quai_abi::AbiInterface::error_by_selector"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit names/canonical signatures or typed selector/topic hashes; no value-based overload coercion. Unknown is NotFound, collisions Ambiguous. Builtin errors use parse_revert instead of custom declaration lookup."
     },
     {
       "id": ".:Interface:instance:getEvent",
@@ -13091,12 +13253,21 @@
         "(key: string, values?: Array<any | Typed>): null | EventFragment"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::event",
+        "quai_abi::AbiInterface::event_by_topic"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit names/canonical signatures or typed selector/topic hashes; no value-based overload coercion. Unknown is NotFound, collisions Ambiguous. Builtin errors use parse_revert instead of custom declaration lookup."
     },
     {
       "id": ".:Interface:instance:getEventName",
@@ -13107,12 +13278,21 @@
         "(key: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::event",
+        "quai_abi::AbiEvent::name"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Look up the borrowed declaration then its name; lookup failures remain explicit."
     },
     {
       "id": ".:Interface:instance:getFunction",
@@ -13123,12 +13303,21 @@
         "(key: string, values?: Array<any | Typed>): null | FunctionFragment"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::function",
+        "quai_abi::AbiInterface::function_by_selector"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit names/canonical signatures or typed selector/topic hashes; no value-based overload coercion. Unknown is NotFound, collisions Ambiguous. Builtin errors use parse_revert instead of custom declaration lookup."
     },
     {
       "id": ".:Interface:instance:getFunctionName",
@@ -13139,12 +13328,21 @@
         "(key: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::function",
+        "quai_abi::AbiFunction::name"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Look up the borrowed declaration then its name; lookup failures remain explicit."
     },
     {
       "id": ".:Interface:instance:hasEvent",
@@ -13155,12 +13353,20 @@
         "(key: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::event"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Use is_ok() on an unambiguous lookup; ambiguous names never select an implicit overload."
     },
     {
       "id": ".:Interface:instance:hasFunction",
@@ -13171,12 +13377,20 @@
         "(key: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::function"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Use is_ok() on an unambiguous lookup; ambiguous names never select an implicit overload."
     },
     {
       "id": ".:Interface:instance:makeError",
@@ -13187,12 +13401,21 @@
         "(_data: BytesLike, tx: CallExceptionTransaction): CallExceptionError"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::parse_revert",
+        "quai_provider::ProviderError"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Decode revert separately and retain original typed provider error and caller-owned transaction context; no fabricated JS CallExceptionError or automatic message formatting."
     },
     {
       "id": ".:Interface:instance:parseCallResult",
@@ -13203,12 +13426,20 @@
         "(data: BytesLike): Result"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiFunction::decode_returns"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Pinned JS method throws @TODO. Rust requires explicit return schema because return bytes carry no selector."
     },
     {
       "id": ".:Interface:instance:parseError",
@@ -13219,12 +13450,21 @@
         "(data: BytesLike): null | ErrorDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::parse_revert",
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Canonical builtin Error/Panic and declared custom errors, with explicit unknown/collision failures; origin is unauthenticated."
     },
     {
       "id": ".:Interface:instance:parseLog",
@@ -13235,12 +13475,21 @@
         "(log: { topics: Array<string>; data: string; }): null | LogDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::parse_log",
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Canonical bounded topic/data decoding without anonymous inference. Indexed compound values stay hashes; emitter association belongs to Contract/provider."
     },
     {
       "id": ".:Interface:instance:parseTransaction",
@@ -13251,12 +13500,21 @@
         "(tx: { data: string; value?: BigNumberish; }): null | TransactionDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::parse_call",
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Canonical selector-selected decoding, explicit NotFound/Ambiguous. Caller retains transaction value and other metadata outside parsed call."
     },
     {
       "id": ".:Interface:instance:receive",
@@ -13265,12 +13523,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::has_receive"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Boolean getter for an explicit payable receive declaration."
     },
     {
       "id": ".:Interface:static:from",
@@ -13281,12 +13547,20 @@
         "(value: InterfaceAbi | Interface): Interface"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::from_json"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Strict bounded JSON ABI parsing or ordinary Rust cloning. Human-readable fragment import and formatting remain separate work."
     },
     {
       "id": ".:InterfaceAbi",
@@ -17823,12 +18097,20 @@
         "new (fragment: EventFragment, topic: string, args: Result): LogDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": ".:LogDescription:instance:args",
@@ -17837,12 +18119,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": ".:LogDescription:instance:fragment",
@@ -17851,12 +18141,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": ".:LogDescription:instance:name",
@@ -17865,12 +18163,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": ".:LogDescription:instance:signature",
@@ -17879,12 +18185,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": ".:LogDescription:instance:topic",
@@ -17893,12 +18207,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": ".:LogParams",
@@ -26329,12 +26651,20 @@
         "new (fragment: FunctionFragment, selector: string, args: Result, value: bigint): TransactionDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": ".:TransactionDescription:instance:args",
@@ -26343,12 +26673,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": ".:TransactionDescription:instance:fragment",
@@ -26357,12 +26695,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": ".:TransactionDescription:instance:name",
@@ -26371,12 +26717,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": ".:TransactionDescription:instance:selector",
@@ -26385,12 +26739,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": ".:TransactionDescription:instance:signature",
@@ -26399,12 +26761,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": ".:TransactionDescription:instance:value",
@@ -26413,12 +26783,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": ".:TransactionLike",
@@ -33940,12 +34318,20 @@
         "new (fragment: ErrorFragment, selector: string, args: Result): ErrorDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": "./abi:ErrorDescription:instance:args",
@@ -33954,12 +34340,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": "./abi:ErrorDescription:instance:fragment",
@@ -33968,12 +34362,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": "./abi:ErrorDescription:instance:name",
@@ -33982,12 +34384,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": "./abi:ErrorDescription:instance:selector",
@@ -33996,12 +34406,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": "./abi:ErrorDescription:instance:signature",
@@ -34010,12 +34428,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Enum for builtin Error(String), Panic(U256), or borrowed custom declaration/positional arguments; name/signature/selector getters. No fabricated builtin Fragment or JS result aliases."
     },
     {
       "id": "./abi:ErrorFragment",
@@ -35112,12 +35538,20 @@
         "new (hash: null | string): Indexed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiEventValue::IndexedHash"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Typed pattern matching replaces JS constructors/marker checks. Hash32 holds the observed topic; null placeholders or missing indexed topics are rejected."
     },
     {
       "id": "./abi:Indexed:instance:_isIndexed",
@@ -35126,12 +35560,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiEventValue::IndexedHash"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Typed pattern matching replaces JS constructors/marker checks. Hash32 holds the observed topic; null placeholders or missing indexed topics are rejected."
     },
     {
       "id": "./abi:Indexed:instance:hash",
@@ -35140,12 +35582,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiEventValue::IndexedHash"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Typed pattern matching replaces JS constructors/marker checks. Hash32 holds the observed topic; null placeholders or missing indexed topics are rejected."
     },
     {
       "id": "./abi:Indexed:static:isIndexed",
@@ -35156,12 +35606,20 @@
         "(value: any): value is Indexed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiEventValue::IndexedHash"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Typed pattern matching replaces JS constructors/marker checks. Hash32 holds the observed topic; null placeholders or missing indexed topics are rejected."
     },
     {
       "id": "./abi:Interface",
@@ -35194,12 +35652,20 @@
         "(params: ReadonlyArray<ParamType>, data: BytesLike): Result"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiCoder::decode"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Standalone stateless bounded canonical codec; no replaceable interface coder, loose decoding, coercion or JS Result object."
     },
     {
       "id": "./abi:Interface:instance:_encodeParams",
@@ -35210,12 +35676,20 @@
         "(params: ReadonlyArray<ParamType>, values: ReadonlyArray<any>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiCoder::encode"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Standalone stateless bounded canonical codec; no replaceable interface coder, loose decoding, coercion or JS Result object."
     },
     {
       "id": "./abi:Interface:instance:decodeErrorResult",
@@ -35312,12 +35786,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::constructor"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Optional borrowed explicit constructor; absence is not a fabricated default fragment."
     },
     {
       "id": "./abi:Interface:instance:encodeDeploy",
@@ -35394,12 +35876,21 @@
         "(fragment: EventFragment | string, values: ReadonlyArray<any>): Array<null | string | Array<string>>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiEvent::encode_filter_topics",
+        "quai_sdk::contracts::Contract::events_by_values"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Typed full-field filters, signature insertion, trimmed trailing wildcards, OR 1..128 and shared budgets. Canonical signed topics fix pinned negative filter bug; strict widths/booleans, explicit Exact distinguishes compound values from OR."
     },
     {
       "id": "./abi:Interface:instance:encodeFunctionData",
@@ -35452,12 +35943,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::fallback_mutability"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Optional validated fallback mutability instead of JS Fragment."
     },
     {
       "id": "./abi:Interface:instance:forEachError",
@@ -35468,12 +35967,20 @@
         "(callback: (func: ErrorFragment, index: number) => void): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::errors"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed iterator ordered by canonical signature; caller can enumerate instead of supplying a JS callback."
     },
     {
       "id": "./abi:Interface:instance:forEachEvent",
@@ -35484,12 +35991,20 @@
         "(callback: (func: EventFragment, index: number) => void): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::events"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed iterator ordered by canonical signature; caller can enumerate instead of supplying a JS callback."
     },
     {
       "id": "./abi:Interface:instance:forEachFunction",
@@ -35500,12 +36015,20 @@
         "(callback: (func: FunctionFragment, index: number) => void): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::functions"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed iterator ordered by canonical signature; caller can enumerate instead of supplying a JS callback."
     },
     {
       "id": "./abi:Interface:instance:format",
@@ -35562,12 +36085,20 @@
         "(): AbiCoder"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiCoder"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Standalone stateless bounded canonical codec; no replaceable interface coder, loose decoding, coercion or JS Result object."
     },
     {
       "id": "./abi:Interface:instance:getError",
@@ -35578,12 +36109,21 @@
         "(key: string, values?: Array<any | Typed>): null | ErrorFragment"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::error",
+        "quai_abi::AbiInterface::error_by_selector"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit names/canonical signatures or typed selector/topic hashes; no value-based overload coercion. Unknown is NotFound, collisions Ambiguous. Builtin errors use parse_revert instead of custom declaration lookup."
     },
     {
       "id": "./abi:Interface:instance:getEvent",
@@ -35594,12 +36134,21 @@
         "(key: string, values?: Array<any | Typed>): null | EventFragment"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::event",
+        "quai_abi::AbiInterface::event_by_topic"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit names/canonical signatures or typed selector/topic hashes; no value-based overload coercion. Unknown is NotFound, collisions Ambiguous. Builtin errors use parse_revert instead of custom declaration lookup."
     },
     {
       "id": "./abi:Interface:instance:getEventName",
@@ -35610,12 +36159,21 @@
         "(key: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::event",
+        "quai_abi::AbiEvent::name"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Look up the borrowed declaration then its name; lookup failures remain explicit."
     },
     {
       "id": "./abi:Interface:instance:getFunction",
@@ -35626,12 +36184,21 @@
         "(key: string, values?: Array<any | Typed>): null | FunctionFragment"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::function",
+        "quai_abi::AbiInterface::function_by_selector"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Explicit names/canonical signatures or typed selector/topic hashes; no value-based overload coercion. Unknown is NotFound, collisions Ambiguous. Builtin errors use parse_revert instead of custom declaration lookup."
     },
     {
       "id": "./abi:Interface:instance:getFunctionName",
@@ -35642,12 +36209,21 @@
         "(key: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::function",
+        "quai_abi::AbiFunction::name"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Look up the borrowed declaration then its name; lookup failures remain explicit."
     },
     {
       "id": "./abi:Interface:instance:hasEvent",
@@ -35658,12 +36234,20 @@
         "(key: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::event"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Use is_ok() on an unambiguous lookup; ambiguous names never select an implicit overload."
     },
     {
       "id": "./abi:Interface:instance:hasFunction",
@@ -35674,12 +36258,20 @@
         "(key: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::function"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Use is_ok() on an unambiguous lookup; ambiguous names never select an implicit overload."
     },
     {
       "id": "./abi:Interface:instance:makeError",
@@ -35690,12 +36282,21 @@
         "(_data: BytesLike, tx: CallExceptionTransaction): CallExceptionError"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::parse_revert",
+        "quai_provider::ProviderError"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Decode revert separately and retain original typed provider error and caller-owned transaction context; no fabricated JS CallExceptionError or automatic message formatting."
     },
     {
       "id": "./abi:Interface:instance:parseCallResult",
@@ -35706,12 +36307,20 @@
         "(data: BytesLike): Result"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiFunction::decode_returns"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Pinned JS method throws @TODO. Rust requires explicit return schema because return bytes carry no selector."
     },
     {
       "id": "./abi:Interface:instance:parseError",
@@ -35722,12 +36331,21 @@
         "(data: BytesLike): null | ErrorDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::parse_revert",
+        "quai_abi::ParsedRevert"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Canonical builtin Error/Panic and declared custom errors, with explicit unknown/collision failures; origin is unauthenticated."
     },
     {
       "id": "./abi:Interface:instance:parseLog",
@@ -35738,12 +36356,21 @@
         "(log: { topics: Array<string>; data: string; }): null | LogDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::parse_log",
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Canonical bounded topic/data decoding without anonymous inference. Indexed compound values stay hashes; emitter association belongs to Contract/provider."
     },
     {
       "id": "./abi:Interface:instance:parseTransaction",
@@ -35754,12 +36381,21 @@
         "(tx: { data: string; value?: BigNumberish; }): null | TransactionDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::parse_call",
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Canonical selector-selected decoding, explicit NotFound/Ambiguous. Caller retains transaction value and other metadata outside parsed call."
     },
     {
       "id": "./abi:Interface:instance:receive",
@@ -35768,12 +36404,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::has_receive"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Boolean getter for an explicit payable receive declaration."
     },
     {
       "id": "./abi:Interface:static:from",
@@ -35784,12 +36428,20 @@
         "(value: InterfaceAbi | Interface): Interface"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::AbiInterface::from_json"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Strict bounded JSON ABI parsing or ordinary Rust cloning. Human-readable fragment import and formatting remain separate work."
     },
     {
       "id": "./abi:InterfaceAbi",
@@ -35842,12 +36494,20 @@
         "new (fragment: EventFragment, topic: string, args: Result): LogDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": "./abi:LogDescription:instance:args",
@@ -35856,12 +36516,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": "./abi:LogDescription:instance:fragment",
@@ -35870,12 +36538,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": "./abi:LogDescription:instance:name",
@@ -35884,12 +36560,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": "./abi:LogDescription:instance:signature",
@@ -35898,12 +36582,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": "./abi:LogDescription:instance:topic",
@@ -35912,12 +36604,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedLog"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed event plus positional values; name/signature/topic from AbiEvent getters. Indexed compounds stay hashes; no JS result property aliases or mutable description constructor."
     },
     {
       "id": "./abi:NamedFragment",
@@ -37270,12 +37970,20 @@
         "new (fragment: FunctionFragment, selector: string, args: Result, value: bigint): TransactionDescription"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": "./abi:TransactionDescription:instance:args",
@@ -37284,12 +37992,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": "./abi:TransactionDescription:instance:fragment",
@@ -37298,12 +38014,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": "./abi:TransactionDescription:instance:name",
@@ -37312,12 +38036,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": "./abi:TransactionDescription:instance:selector",
@@ -37326,12 +38058,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": "./abi:TransactionDescription:instance:signature",
@@ -37340,12 +38080,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": "./abi:TransactionDescription:instance:value",
@@ -37354,12 +38102,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::ParsedCall"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/workflows.rs",
+        "crates/quai-abi/tests/abi.rs",
+        "crates/quai-sdk/tests/events.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed function plus positional arguments; name/signature/selector from AbiFunction getters. Caller retains native transfer value and transaction metadata; no JS result aliases or mutable description constructor."
     },
     {
       "id": "./abi:Typed",

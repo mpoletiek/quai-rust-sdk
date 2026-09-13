@@ -342,3 +342,47 @@ for the compiler's scope. Packed dynamic fields are ambiguous: `["a", "bc"]`
 and `["ab", "c"]` produce the same bytes. Use canonical `AbiCoder` or EIP-712
 for structured signing where field boundaries must be preserved. No packed
 decoder is provided.
+
+### Event filters and interface decoding
+
+`AbiEvent::encode_filter_topics` accepts `AbiFilterValue` entries in full event
+argument order. Use `Any` for non-indexed fields, `Exact(&value)` for one value
+and `AnyOf(&values)` for 1–128 alternatives. Omitted suffixes are wildcards;
+trailing wildcard topics are trimmed. Nonanonymous signature topics are inserted
+automatically. All alternatives share the ABI node, text and encoded-size limits.
+The SDK's `Contract::events_by_values` applies these filters to the bound emitter,
+decodes canonical results and retains removal/inclusion metadata.
+
+The 246 pinned filter cases include 174 canonical topic matches and 72 rejected
+inputs. For 64 negative-integer cases, pinned `encodeFilterTopics` throws while
+its `encodeEventLog` supplies the correct sign-extended word used by Rust. Rust
+also rejects JS integer-width overflow, boolean coercion and empty/oversized OR
+lists. Explicit `Exact` makes indexed arrays/tuples possible without confusing
+array values with OR lists. These compound topics use the special event encoding,
+not packed encoding; a hash neither recovers nor uniquely identifies its input.
+
+`AbiInterface::parse_call`, `parse_log` and `parse_revert` select declarations and
+decode the entire canonical payload. Unknown declarations return `NotFound`,
+selector collisions return `Ambiguous`, and malformed encodings fail. Anonymous
+logs require explicit `AbiEvent::decode_log`; automatic matching never guesses.
+`ParsedCall` and `ParsedLog` borrow declarations and own positional values.
+Indexed compound fields use `AbiEventValue::IndexedHash(Hash32)`; Rust pattern
+matching replaces JS `Indexed` constructors, nullable hashes and marker tests.
+
+`ParsedRevert` distinguishes builtin `Error(String)` and `Panic(U256)` from
+custom errors, exposes signature/name/selector, and retains unknown panic codes.
+Builtin declarations need not appear in the ABI. Custom selectors colliding with
+a builtin are ambiguous. Revert data is unauthenticated, potentially forwarded
+or forged; the caller retains the RPC error, transaction value and other context.
+There is no synthetic JS `CallExceptionError` object. Return bytes have no
+selector: use an explicitly selected function's `decode_returns`. The pinned
+`parseCallResult` itself is unimplemented; Rust does not guess a return schema.
+
+Interface lookup uses names/canonical signatures or typed selectors/topic hashes,
+never argument coercion to select an overload. `is_ok()` on an unambiguous lookup
+provides a presence check; each declaration exposes its name. Ordered `functions`,
+`errors` and `events` iterators replace callbacks; constructor, fallback mutability
+and receive are explicit getters. `AbiCoder` is a stateless standalone codec,
+including the parameter encode/decode operations; no replaceable instance coder
+is stored. JSON parsing or ordinary Rust cloning replaces `Interface.from`;
+human-readable interface import/formatting remains separate work.

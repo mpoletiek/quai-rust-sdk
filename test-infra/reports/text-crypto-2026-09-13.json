@@ -171,5 +171,10 @@
     "Entropy checks qualify API behavior and backend use, not statistical entropy quality or every browser runtime",
     "Other wallet/browser/release gates remain open; this is not a feature-complete or production-security declaration",
     "No transaction submission or package publication occurred"
-  ]
+  ],
+  "ciVerified": {
+    "headCommit": "028787d1bcde7498ad7076117f805657e407d92b",
+    "runId": 34746286391,
+    "conclusion": "success"
+  }
 }

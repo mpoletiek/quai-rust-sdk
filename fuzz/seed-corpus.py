@@ -39,6 +39,10 @@ for row in load('compatibility/fixtures/typed-values.json')['vectors']:put('abi'
 for row in load('compatibility/fixtures/typed-values.json')['defaults']:put('abi','\n'.join(row['types']).encode())
 packed=load('compatibility/fixtures/packed.json')['vectors']
 for row in packed[::17]+packed[-28:]:put('abi',json.dumps({'types':row['types'],'values':row['values']}).encode())
+workflows=load('compatibility/fixtures/abi-workflows.json')
+for row in workflows['filters'][::11]+workflows['filters'][-10:]:put('abi',json.dumps({key:row[key] for key in ['abi','criteria']}).encode())
+for group in ['calls','reverts','logs']:
+ for row in workflows[group]:put('abi',json.dumps({'abi':workflows['abi'],**row}).encode())
 for row in load('compatibility/fixtures/fixed.json')['parse']:put('fixed',row['input'].encode())
 for scale in [0,6,18,80]:
  for raw in [bytes(32),bytes([255])*32,bytes([128])+bytes(31)]:put('fixed',bytes([63,scale])+raw)

@@ -1,0 +1,1 @@
+{"abi": [{"type": "event", "name": "Filtered", "inputs": [{"name": "", "type": "int120", "indexed": true}, {"name": "", "type": "uint256", "indexed": false}, {"name": "", "type": "bytes2", "indexed": true}]}], "criteria": [{"anyOf": ["-664613997892457936451903530140172288", "664613997892457936451903530140172287"]}, null, {"exact": "0xabcd"}]}

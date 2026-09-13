@@ -22,7 +22,7 @@ criteria FC01–FC12. Historical test/node results below retain their recorded s
 | HTTP/provider | Exact direct URLs and gateway routes, strict envelopes and U256 quantities, bounded native transport, typed headers/account calls/transactions/ETXs/receipts/outpoints, account broadcast ambiguity and canonicality-checked receipt polling |
 | WebSocket | Native and browser/worker bounded sessions; browser cancellation/queue ownership tested in actual Chromium. Native bounded session and subscription implementation; deterministic loopback tests and a real LAN mainnet head notification passed; bounded reconnect and canonical head replay are implemented |
 | Durable state | SQLite schema v5 persistent ancestry and candidate/ETX observation caches with revision checks, claims/cursors, specialized signed-byte custody, canonical inclusion reconciliation and conservative reorg invalidation, unsigned nonce recovery and authenticated backup |
-| ABI/typed data | Bounded canonical ABI/interface/EIP-712 implementation, typed contract calls/ERC-20 helpers, bounded event queries retaining reorg metadata, same-zone CREATE grinding with required access list |
+| ABI/typed data | Bounded canonical and packed ABI/interface/EIP-712, typed contract calls/ERC-20 helpers, value-derived event filters and call/log/revert parsing, bounded queries retaining reorg metadata, same-zone CREATE grinding with required access list |
 | Account workflow | Durable prepare/sign/submit, exact conversion simulation, nonce claims, unsigned restart preparation and explicit nonce-gap repair; fee-only candidate families, restart recovery and explicit cross-zone prepare/resume |
 | Legacy keystores | Bounded v3 AES-CTR/scrypt/PBKDF2 import/export, NFKC/byte passwords, all-language mnemonic derivation checks; eight tests cover 15 JS vectors, hostile inputs and fresh production-cost exports. Upstream scrypt workspace wiping remains a security-review limitation |
 | Qi workflow | Current gap-50 discovery, mixed HD/imported/BIP47 signing, ordinary/cross-zone preparation, sweep/explicit aggregation, durable signed transfers/conversions/wrapping and restart broadcast |
@@ -369,7 +369,7 @@ writers, missing history, replay paging, wrong scope and restart custody.
 
 This delivers atomic reorg invalidation. Current discovery/settlement refresh is
 still explicit; header replay alone cannot reconstruct historical Qi balances,
-and durable ancestry-window restoration remains separate work.
+and the later persistent replay API below supplies bounded ancestry restoration.
 
 ## Verified injected transaction operations
 
@@ -389,8 +389,8 @@ test/example targets as well as the native consumer matrix. It caught and fixed
 Tokio-only attributes on otherwise portable contract/event tests: five contract
 and two event tests now also run in a real worker.
 [Retained evidence](test-infra/reports/injected-transactions-2026-09-13.json).
-Direct wallet-mediated `quai_sendTransaction` still needs a dedicated request and
-recovery contract for extensions which decline offline signing.
+The later wallet-mediated send API below supplies a dedicated request and recovery
+contract for extensions which decline offline signing.
 
 ## Wallet-mediated sends and independent transaction verification
 
@@ -431,3 +431,12 @@ five surrogate cases, four UUIDs, 19 RIPEMD inputs and 15 UTF-8 identifier hashe
 44 related utility/address/constant declarations now map to concrete APIs or
 explicit typed-Rust differences; no malformed-address heuristics, global crypto
 backend overrides or silent lossy decoding were introduced.
+
+
+Typed ABI event filters now encode exact values or bounded OR alternatives in
+full declaration order, and Contract queries bind them to the emitter. Interface
+call/log/revert parsing uses canonical decoding and explicit unknown/collision
+errors, including builtin Error/Panic. Tests cover 246 pinned filter cases,
+call/log/revert fixtures, aggregate bounds, anonymous selection and actual worker
+queries. 92 related declarations now map to tested APIs or explicit Rust differences.
+[Retained evidence](test-infra/reports/abi-workflows-2026-09-13.json).

@@ -247,7 +247,7 @@ impl BrowserQiBook {
         &self,
         id: ReservationId,
         transaction: &QiTransaction,
-        resolver: &impl QiKeyResolver,
+        resolver: &(impl QiKeyResolver + ?Sized),
     ) -> Result<SignedQiOperation, BrowserQiError> {
         let mut s = self.snapshot().await?;
         let op = s.book.operation(id).ok_or(StorageError::Transition)?;

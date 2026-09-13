@@ -133,5 +133,10 @@
     "Browser replacement/recovery and full Qi orchestration still in progress",
     "Pending and latest-only observations are not atomic snapshots or finality guarantees",
     "Existing formats composed; no new parser or wire format and no new fuzz campaign"
-  ]
+  ],
+  "githubCI": {
+    "commit": "18ee50efa8038a0ef795085bc2152f08bd883507",
+    "runId": 34776301327,
+    "conclusion": "cancelled by newer main commit; descendant 63d4c63 passed all eight jobs"
+  }
 }

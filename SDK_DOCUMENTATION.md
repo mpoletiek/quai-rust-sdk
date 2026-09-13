@@ -112,10 +112,10 @@ signing/submission, or persisted wallet orchestration.
 | `quai-sdk` | Native sessions, browser books, contract/wrapper composition | [source](crates/quai-sdk/src/lib.rs) |
 
 Native facade modules are `accounts`, `qi`, `qi_discovery`, `payment_channels`,
-`recovery`, `settlement` and `deployments`. Portable modules include `account_preflight`, `discovery`,
-`contracts` and `wrappers`. Browser modules are `browser_addresses`,
+`recovery`, `settlement` and `deployments`. Portable modules include `account_preflight`,
+`qi_preflight`, `candidate_observation`, `discovery`, `contracts` and `wrappers`. Browser modules are `browser_addresses`,
 `browser_payments`, `browser_accounts`, `browser_qi`, `browser_backups` and
-`browser_transactions`.
+`browser_transactions`, `browser_qi_transactions` and `browser_recovery`.
 Their precise feature gates are in the linked facade source.
 
 ## Networks, routing and providers
@@ -600,8 +600,12 @@ access-list discovery that preserves required entries.
 `browser_recovery::BrowserRecoverySession` selects exact persisted candidates and
 reconciles account/Qi inclusions without unlocked keys; see
 [browser candidate recovery](docs/BROWSER_CANDIDATE_RECOVERY.md). Replacement
-preparation, destination settlement and full browser Qi selection/fee orchestration
-still require integration. Injected-wallet discovery, permission management
+preparation and destination settlement still require integration.
+`browser_qi_transactions::BrowserQiSession` now combines current HD discovery and
+persisted owners with exact denomination/fee planning, fresh change allocation,
+revision-fenced custody and signing for transfers/conversions/wrapping. Portable
+`qi_preflight::quote_qi` also supports explicit cross-zone and sweep policies. See
+[the browser Qi workflow](docs/BROWSER_QI_WORKFLOW.md). Injected-wallet discovery, permission management
 and automatic chain switching remain absent.
 
 ## Errors and operational limits

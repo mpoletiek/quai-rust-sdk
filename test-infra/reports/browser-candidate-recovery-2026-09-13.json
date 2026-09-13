@@ -23,5 +23,10 @@
     "Existing transaction/journal formats; no new codec or fuzz campaign",
     "No new local package rehearsal in this batch; GitHub package job and final release rehearsal remain required",
     "Replacement preparation, full Qi preparation and destination settlement integration remain open"
-  ]
+  ],
+  "githubCI": {
+    "commit": "63d4c63124794a24ea2c3501f71b3defc5d9c68b",
+    "runId": 34776798892,
+    "allEightJobs": "success"
+  }
 }

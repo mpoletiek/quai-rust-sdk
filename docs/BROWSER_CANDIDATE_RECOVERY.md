@@ -46,5 +46,6 @@ relationships; this standalone observer does not replace those checks. Native
 [Tests](../crates/quai-sdk/tests/browser_recovery.rs) cover actual Chromium
 IndexedDB concurrency, cancellation, restart, ambiguous sends, retained inclusion,
 reorgs, competing candidates and all three Qi wire forms. RPC acknowledgements are
-synthetic test results, not funded node acceptance. Replacement preparation and
-full browser Qi selection/fee workflows remain separate integration work.
+synthetic test results, not funded node acceptance. [Browser Qi preparation](BROWSER_QI_WORKFLOW.md) supplies the selection/fee/signing
+workflow. Replacement preparation and destination settlement remain separate
+integration work.

@@ -18,6 +18,9 @@ pub mod browser_backups;
 pub mod browser_payments;
 #[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
 pub mod browser_qi;
+/// Browser Qi selection, exact preparation and durable signing.
+#[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
+pub mod browser_qi_transactions;
 /// Persisted browser candidate submission and canonical reconciliation.
 #[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
 pub mod browser_recovery;
@@ -38,6 +41,9 @@ pub mod payment_channels;
 pub mod qi;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod qi_discovery;
+/// Portable exact-denomination Qi preparation.
+#[cfg(feature = "wallet")]
+pub mod qi_preflight;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod recovery;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]

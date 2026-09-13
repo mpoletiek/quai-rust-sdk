@@ -655,3 +655,20 @@ regression tests pass. The worker suite covers cancellation and concurrent write
 all three Qi wire forms, replacement replay and reorganization. See
 [the workflow](docs/BROWSER_CANDIDATE_RECOVERY.md). Browser replacement preparation,
 destination settlement and full Qi preparation remain in progress.
+
+## Browser Qi discovery and exact preparation
+
+Portable `quote_qi` and `BrowserQiSession` now compose current gap/deep discovery,
+all persisted owners/allocation completions, fixed-denomination selection, bounded
+fee convergence and exact input custody/signing. Transfers, explicit cross-zone
+payments, conversion, wrapping and sweep policies retain their actual wire shape.
+Integrated discovery fences input and allocation journals atomically; concurrent
+writers and cancellation cannot commit stale claims. Five portable tests, ten
+Chromium worker tests and thirty native Qi regression tests pass. See
+[the workflow](docs/BROWSER_QI_WORKFLOW.md). This is synthetic-RPC/browser runtime
+evidence; unmodified funded/mature-settlement qualification remains open.
+Native/Wasm strict Clippy and rustdoc pass. All twelve archives, three extracted
+consumers, twelve native and two Wasm packaged-target checks passed. Evidence is
+retained in [the report](test-infra/reports/browser-qi-workflow-2026-09-13.json).
+The preceding candidate-recovery commit `63d4c63` passed all eight CI jobs in run
+`34776798892`; its ancestor `18ee50e` run was cancelled by the newer push.

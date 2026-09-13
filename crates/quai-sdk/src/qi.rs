@@ -23,36 +23,7 @@ mod special;
 mod sweep;
 pub use special::{PreparedQiOperation, QiSpecialIntent, QiSpecialTransaction};
 
-/// Explicit limits for bounded selection and network fee convergence.
-#[derive(Clone, Copy, Debug)]
-pub struct QiPolicy {
-    /// Starting fee in Qits. Zero is valid; estimates only increase it.
-    pub initial_fee: U256,
-    /// Maximum planned fee in Qits, including convergence overpayment.
-    /// Input values are source claims; this is not a cryptographic on-chain fee cap.
-    pub max_fee: U256,
-    /// Maximum aggregate signing inputs, 1..=1024.
-    pub max_inputs: usize,
-    /// Maximum combined recipient and change outputs, 1..=1024.
-    pub max_outputs: usize,
-    /// Maximum exact-payload fee estimates, 1..=32.
-    pub max_fee_rounds: u8,
-    /// Maximum observed tip distance from the stored checkpoint, in zone blocks.
-    pub max_snapshot_age: u64,
-}
-
-/// An exact Qit amount and ordered, distinct recipient address capacity.
-///
-/// The selector decomposes the amount into denominations and uses that many
-/// addresses from the beginning of `destinations`, largest denomination first.
-/// Every output requires its own address. Inspect the prepared outputs before signing.
-#[derive(Clone, Debug)]
-pub struct QiIntent {
-    /// Positive exact recipient amount in Qits.
-    pub amount: U256,
-    /// Up to 1024 distinct Qi recipient addresses; cross-zone preparation is explicit.
-    pub destinations: Vec<QiAddress>,
-}
+pub use crate::qi_preflight::{QiIntent, QiPolicy};
 
 /// A one-use, scoped pool of fresh, durably burned BIP44 change addresses.
 ///

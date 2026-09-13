@@ -20737,9 +20737,9 @@
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "HD and watch-only identity implemented; provider lifecycle/full backups/discovery remain tracked separately."
+      "deviation": "Typed HD identity and native/browser workflow compositions exist. Full legacy wallet-JSON migration and cached address-status convenience views remain separately identified."
     },
     {
       "id": ".:QiHDWallet:instance:addAddress",
@@ -20750,12 +20750,21 @@
         "(account: number, addressIndex: number): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress::derive",
+        "quai_wallet::storage::SqliteStore::import_metadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated raw child derivation, with explicit metadata persistence and snapshot invalidation; bounded fresh allocation is separate. No secret-bearing metadata or implicit address-map mutation."
     },
     {
       "id": ".:QiHDWallet:instance:addChangeAddress",
@@ -20766,12 +20775,21 @@
         "(account: number, addressIndex: number): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress::derive",
+        "quai_wallet::storage::SqliteStore::import_metadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated raw child derivation, with explicit metadata persistence and snapshot invalidation; bounded fresh allocation is separate. No secret-bearing metadata or implicit address-map mutation."
     },
     {
       "id": ".:QiHDWallet:instance:aggregate",
@@ -20783,17 +20801,24 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi::QiSession::prepare_sweep"
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::qi::QiSession",
+        "quai_sdk::payment_channels::payment_intent",
+        "quai_sdk::browser_transactions::BrowserAccountSession",
+        "quai_sdk::browser_qi_transactions::BrowserQiSession"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Explicit SweepMode::Aggregate; rejects nonreducing or underfunded results. Pinned node requires first-Qi block placement, not guaranteed by preparation."
+      "deviation": "Explicit prepare/review/sign/persist/broadcast, fee convergence and claims. Allocate peer payment-code outputs before preparing; cross-zone, conversion and aggregation intents are typed. Special fees require explicit fee or asserted compatible node/fork profile. Destination maturity/block placement remain qualification limits, not concealed send guarantees."
     },
     {
       "id": ".:QiHDWallet:instance:channelIsOpen",
@@ -20805,17 +20830,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::payment_channel"
+        "quai_wallet::storage::SqliteStore::import_payment_channel",
+        "quai_wallet::storage::SqliteStore::payment_channel",
+        "quai_sdk::browser_payments::BrowserPaymentBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/src/storage/payment.rs"
+        "crates/quai-wallet/src/storage/payment.rs",
+        "crates/quai-sdk/tests/payment_allocation.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Requires private owner to validate persisted public channel metadata."
+      "deviation": "Owner-verified scoped channel state, expected generations and no backward cursor import; browser initialization cannot overwrite a journal. Pinned openChannel resets an existing receive cursor and repeats its first address; Rust deliberately rejects this reset."
     },
     {
       "id": ".:QiHDWallet:instance:connect",
@@ -20826,12 +20855,22 @@
         "(provider: Provider): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession::new",
+        "quai_sdk::qi::QiSession::new",
+        "quai_sdk::discovery::discover_qi"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Provider supplied to scoped operations/sessions instead of mutable connection propagation through HD subwallets. Network identity is rechecked per operation."
     },
     {
       "id": ".:QiHDWallet:instance:convertToQuai",
@@ -20843,17 +20882,24 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi::QiSession::prepare_special"
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::qi::QiSession",
+        "quai_sdk::payment_channels::payment_intent",
+        "quai_sdk::browser_transactions::BrowserAccountSession",
+        "quai_sdk::browser_qi_transactions::BrowserQiSession"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Explicit slippage/refund and caller-authorized Qit fee. Automatic specialized fee estimation and destination maturity remain unqualified."
+      "deviation": "Explicit prepare/review/sign/persist/broadcast, fee convergence and claims. Allocate peer payment-code outputs before preparing; cross-zone, conversion and aggregation intents are typed. Special fees require explicit fee or asserted compatible node/fork profile. Destination maturity/block placement remain qualification limits, not concealed send guarantees."
     },
     {
       "id": ".:QiHDWallet:instance:getAddressesForAccount",
@@ -20864,12 +20910,23 @@
         "(account: number): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": ".:QiHDWallet:instance:getAddressesForZone",
@@ -20880,12 +20937,23 @@
         "(zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": ".:QiHDWallet:instance:getAddressInfo",
@@ -20896,12 +20964,23 @@
         "(address: string): QiAddressInfo | null"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": ".:QiHDWallet:instance:getBalanceForZone",
@@ -20937,12 +21016,23 @@
         "(zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": ".:QiHDWallet:instance:getGapAddressesForZone",
@@ -20953,12 +21043,21 @@
         "(zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::discovery::CurrentQiDiscovery",
+        "quai_sdk::discovery::CurrentQiAddress",
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/discovery.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
     },
     {
       "id": ".:QiHDWallet:instance:getGapChangeAddressesForZone",
@@ -20969,12 +21068,21 @@
         "(zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::discovery::CurrentQiDiscovery",
+        "quai_sdk::discovery::CurrentQiAddress",
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/discovery.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
     },
     {
       "id": ".:QiHDWallet:instance:getGapPaymentChannelAddressesForZone",
@@ -20985,12 +21093,21 @@
         "(paymentCode: string, zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::discovery::CurrentQiDiscovery",
+        "quai_sdk::discovery::CurrentQiAddress",
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/discovery.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
     },
     {
       "id": ".:QiHDWallet:instance:getImportedAddresses",
@@ -21001,12 +21118,23 @@
         "(zone?: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": ".:QiHDWallet:instance:getLockedBalance",
@@ -21204,20 +21332,21 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::storage::SqliteStore::snapshot",
-        "quai_sdk::discovery::discover_qi",
-        "quai_sdk::discovery::CurrentQiDiscovery"
+        "quai_wallet::storage::SqliteStore::replace_snapshot",
+        "quai_sdk::discovery::CurrentQiDiscovery",
+        "quai_sdk::qi_preflight::QiSource"
       ],
-      "feature": "wallet (portable); sqlite (durable native)",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-wallet/src/storage/tests.rs",
         "crates/quai-sdk/tests/discovery.rs",
-        "crates/quai-sdk/tests/browser_discovery.rs"
+        "crates/quai-sdk/tests/qi.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Stored current coin observations preserve locks and reservations; refresh is explicit. Portable native/wasm scanning returns compact outpoints, raw-index coverage and checked current-head status without requiring a signer or SQLite; local claims remain application-owned."
+      "deviation": "Explicit typed current observations. Native snapshot replacement requires scope, checkpoint, generation, unique fixed-denomination outpoints and registered owners; durable claims override supplied flags. Browser coin views remain caller-owned, separate from custody; no JS path-string grouping or implicit USED cache mutation."
     },
     {
       "id": ".:QiHDWallet:instance:getPaymentChannelAddressesForZone",
@@ -21229,17 +21358,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::payment_addresses"
+        "quai_wallet::storage::SqliteStore::payment_addresses",
+        "quai_wallet::payment_allocation::PaymentAllocationBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-wallet/src/storage/payment.rs",
+        "crates/quai-sdk/tests/payment_allocation.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Returns owned channel exposures for explicit filtering by zone and direction."
+      "deviation": "Owner-verified channel exposures retain explicit direction, zone, peer, account and raw index. Rust iterator filtering replaces provider-bound getters; send exposures never imply local ownership."
     },
     {
       "id": ".:QiHDWallet:instance:getPaymentCode",
@@ -21252,17 +21384,18 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_payments::PrivatePaymentCode::from_seed",
+        "quai_payments::PrivatePaymentCode::public_code",
         "quai_payments::PaymentCode::to_base58"
       ],
-      "feature": "payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "implemented",
       "test_ids": [
         "crates/quai-payments/tests/payments.rs"
       ],
       "docs": [
-        "crates/quai-payments/README.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Coin969 BIP47 account identity is explicit; integrated HD wallet facade/payment origin lifecycle remains separate."
+      "deviation": "Pinned BIP47 coin-969 account identity, separate from the BIP44 wallet; explicit seed/master/account origins."
     },
     {
       "id": ".:QiHDWallet:instance:getPrivateKey",
@@ -21274,17 +21407,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
+        "quai_wallet::HdWallet::derive_key",
         "quai_wallet::qi_keys::QiKeyResolver::resolve"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Returns a guarded local key only for verified public metadata."
+      "deviation": "Guarded exact child/local ownership resolution replaces address-to-hex secret export. Verify Quai child address before constructing a signer; Qi resolver verifies full public metadata. Public records alone confer no authority."
     },
     {
       "id": ".:QiHDWallet:instance:getSpendableBalance",
@@ -21320,12 +21455,23 @@
         "(outpoints: OutpointInfo[]): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::snapshot",
+        "quai_wallet::storage::SqliteStore::replace_snapshot",
+        "quai_sdk::discovery::CurrentQiDiscovery",
+        "quai_sdk::qi_preflight::QiSource"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/tests.rs",
+        "crates/quai-sdk/tests/discovery.rs",
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit typed current observations. Native snapshot replacement requires scope, checkpoint, generation, unique fixed-denomination outpoints and registered owners; durable claims override supplied flags. Browser coin views remain caller-owned, separate from custody; no JS path-string grouping or implicit USED cache mutation."
     },
     {
       "id": ".:QiHDWallet:instance:importPrivateKey",
@@ -21337,17 +21483,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::qi_keys::QiKeyring::import"
+        "quai_wallet::qi_keys::QiKeyring::import",
+        "quai_wallet::full_backup::BackupOrigin::from_private_key"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/key_origins.rs",
+        "compatibility/scripts/wallet-regressions.test.mjs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Explicit memory keyring plus separately persisted public metadata and authenticated origin backup."
+      "deviation": "Bounded memory keyring plus separate public metadata and authenticated private origin backup; duplicates reject and metadata never contains a secret derivationPath."
     },
     {
       "id": ".:QiHDWallet:instance:openChannel",
@@ -21359,17 +21507,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::import_payment_channel"
+        "quai_wallet::storage::SqliteStore::import_payment_channel",
+        "quai_wallet::storage::SqliteStore::payment_channel",
+        "quai_sdk::browser_payments::BrowserPaymentBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/src/full_backup/tests.rs"
+        "crates/quai-wallet/src/storage/payment.rs",
+        "crates/quai-sdk/tests/payment_allocation.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Owner-validated channel import and authenticated seed/master-xprv recovery; no implicit counterparty exchange."
+      "deviation": "Owner-verified scoped channel state, expected generations and no backward cursor import; browser initialization cannot overwrite a journal. Pinned openChannel resets an existing receive cursor and repeats its first address; Rust deliberately rejects this reset."
     },
     {
       "id": ".:QiHDWallet:instance:openChannels",
@@ -21402,21 +21554,24 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi_discovery::scan_and_refresh_qi",
         "quai_sdk::discovery::discover_qi",
-        "quai_sdk::discovery::CurrentQiDiscovery"
+        "quai_sdk::qi_discovery::scan_and_refresh_qi",
+        "quai_sdk::qi_discovery::refresh_qi",
+        "quai_sdk::payment_channels::scan_payment_channel",
+        "quai_sdk::qi_preflight::include_known_qi_addresses"
       ],
-      "feature": "wallet (portable); sqlite (durable native)",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs",
         "crates/quai-sdk/tests/discovery.rs",
-        "crates/quai-sdk/tests/browser_discovery.rs"
+        "crates/quai-sdk/tests/browser_discovery.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Current outpoint gap defaults to 50 matching addresses on each branch; explicit raw ranges support deep recovery. Does not claim full historical recovery. Portable native/wasm scanning returns compact outpoints, raw-index coverage and checked current-head status without requiring a signer or SQLite; local claims remain application-owned."
+      "deviation": "Explicit HD gap-50 receive/change scan, registered channel receive scans and refresh of all retained owners. Bounded deep ranges support recovery beyond spent gaps. Current refresh/report composition replaces mutable incremental cache and creation/deletion callbacks; no historical or atomic-snapshot claim."
     },
     {
       "id": ".:QiHDWallet:instance:sendTransaction",
@@ -21428,17 +21583,24 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi::QiSession"
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::qi::QiSession",
+        "quai_sdk::payment_channels::payment_intent",
+        "quai_sdk::browser_transactions::BrowserAccountSession",
+        "quai_sdk::browser_qi_transactions::BrowserQiSession"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Separate prepare/review/sign/broadcast. Mixed HD/imported/channel origins, same-zone and explicit cross-zone; destination settlement tracked separately."
+      "deviation": "Explicit prepare/review/sign/persist/broadcast, fee convergence and claims. Allocate peer payment-code outputs before preparing; cross-zone, conversion and aggregation intents are typed. Special fees require explicit fee or asserted compatible node/fork profile. Destination maturity/block placement remain qualification limits, not concealed send guarantees."
     },
     {
       "id": ".:QiHDWallet:instance:serialize",
@@ -21449,12 +21611,22 @@
         "(): SerializedQiHDWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::full_backup::WalletBackup",
+        "quai_wallet::full_backup::EncryptedWalletBackup",
+        "quai_sdk::browser_backups"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/wallet-regressions.test.mjs",
+        "crates/quai-wallet/src/full_backup/tests.rs",
+        "crates/quai-sdk/tests/portable_backups.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
     },
     {
       "id": ".:QiHDWallet:instance:setAddressUseChecker",
@@ -21519,12 +21691,25 @@
         "(tx: QiTransactionRequest, onProgress?: ProgressCallback): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer",
+        "quai_signer::LocalSigner",
+        "quai_wallet::HdWallet::derive_key",
+        "quai_wallet::qi_keys::QiKeyResolver",
+        "quai_sdk::qi::QiSession::sign"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated keys and typed signing; Quai personal/typed messages and Qi Schnorr messages stay distinct. Qi uses single Schnorr or ordered multi-input MuSig. Sessions persist exact signed bytes; no reference progress-percentage callbacks or implicit metadata key authority."
     },
     {
       "id": ".:QiHDWallet:instance:sync",
@@ -21536,17 +21721,24 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi_discovery::refresh_qi"
+        "quai_sdk::discovery::discover_qi",
+        "quai_sdk::qi_discovery::scan_and_refresh_qi",
+        "quai_sdk::qi_discovery::refresh_qi",
+        "quai_sdk::payment_channels::scan_payment_channel",
+        "quai_sdk::qi_preflight::include_known_qi_addresses"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/discovery.rs",
+        "crates/quai-sdk/tests/browser_discovery.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Refreshes every persisted Qi origin. Latest-only observations with matched head samples are not an atomic historical snapshot."
+      "deviation": "Explicit HD gap-50 receive/change scan, registered channel receive scans and refresh of all retained owners. Bounded deep ranges support recovery beyond spent gaps. Current refresh/report composition replaces mutable incremental cache and creation/deletion callbacks; no historical or atomic-snapshot claim."
     },
     {
       "id": ".:QiHDWallet:instance:xPub",
@@ -21560,15 +21752,15 @@
       "rust_api": [
         "quai_wallet::HdWallet::root_public_key"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "implemented",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Coin-level BIP44 public root; account roots are separately exposed."
+      "deviation": "Coin-level BIP44 xpub at the pinned 994/969 path; account xpubs are explicitly separate."
     },
     {
       "id": ".:QiHDWallet:static:createRandom",
@@ -21605,12 +21797,22 @@
         "(serialized: SerializedQiHDWallet): Promise<QiHDWallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::full_backup::WalletBackup",
+        "quai_wallet::full_backup::EncryptedWalletBackup",
+        "quai_sdk::browser_backups"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/wallet-regressions.test.mjs",
+        "crates/quai-wallet/src/full_backup/tests.rs",
+        "crates/quai-sdk/tests/portable_backups.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
     },
     {
       "id": ".:QiHDWallet:static:fromMnemonic",
@@ -22413,9 +22615,9 @@
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "HD and watch-only identity implemented; provider lifecycle/full backups/discovery remain tracked separately."
+      "deviation": "Typed HD identity and native/browser workflow compositions exist. Full legacy wallet-JSON migration and cached address-status convenience views remain separately identified."
     },
     {
       "id": ".:QuaiHDWallet:instance:addAddress",
@@ -22426,12 +22628,21 @@
         "(account: number, addressIndex: number): NeuteredAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress::derive",
+        "quai_wallet::storage::SqliteStore::import_metadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated raw child derivation, with explicit metadata persistence and snapshot invalidation; bounded fresh allocation is separate. No secret-bearing metadata or implicit address-map mutation."
     },
     {
       "id": ".:QuaiHDWallet:instance:connect",
@@ -22442,12 +22653,22 @@
         "(provider: Provider): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession::new",
+        "quai_sdk::qi::QiSession::new",
+        "quai_sdk::discovery::discover_qi"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Provider supplied to scoped operations/sessions instead of mutable connection propagation through HD subwallets. Network identity is rechecked per operation."
     },
     {
       "id": ".:QuaiHDWallet:instance:getAddressesForAccount",
@@ -22458,12 +22679,23 @@
         "(account: number): NeuteredAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": ".:QuaiHDWallet:instance:getAddressesForZone",
@@ -22474,12 +22706,23 @@
         "(zone: Zone): NeuteredAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": ".:QuaiHDWallet:instance:getAddressInfo",
@@ -22490,12 +22733,23 @@
         "(address: string): NeuteredAddressInfo | null"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": ".:QuaiHDWallet:instance:getNextAddress",
@@ -22560,12 +22814,20 @@
         "(address: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::derive_key",
+        "quai_wallet::qi_keys::QiKeyResolver::resolve"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Guarded exact child/local ownership resolution replaces address-to-hex secret export. Verify Quai child address before constructing a signer; Qi resolver verifies full public metadata. Public records alone confer no authority."
     },
     {
       "id": ".:QuaiHDWallet:instance:sendTransaction",
@@ -22576,12 +22838,25 @@
         "(tx: QuaiTransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::qi::QiSession",
+        "quai_sdk::payment_channels::payment_intent",
+        "quai_sdk::browser_transactions::BrowserAccountSession",
+        "quai_sdk::browser_qi_transactions::BrowserQiSession"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit prepare/review/sign/persist/broadcast, fee convergence and claims. Allocate peer payment-code outputs before preparing; cross-zone, conversion and aggregation intents are typed. Special fees require explicit fee or asserted compatible node/fork profile. Destination maturity/block placement remain qualification limits, not concealed send guarantees."
     },
     {
       "id": ".:QuaiHDWallet:instance:serialize",
@@ -22592,12 +22867,22 @@
         "(): SerializedQuaiHDWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::full_backup::WalletBackup",
+        "quai_wallet::full_backup::EncryptedWalletBackup",
+        "quai_sdk::browser_backups"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/wallet-regressions.test.mjs",
+        "crates/quai-wallet/src/full_backup/tests.rs",
+        "crates/quai-sdk/tests/portable_backups.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
     },
     {
       "id": ".:QuaiHDWallet:instance:signMessage",
@@ -22608,12 +22893,25 @@
         "(address: string, message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer",
+        "quai_signer::LocalSigner",
+        "quai_wallet::HdWallet::derive_key",
+        "quai_wallet::qi_keys::QiKeyResolver",
+        "quai_sdk::qi::QiSession::sign"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated keys and typed signing; Quai personal/typed messages and Qi Schnorr messages stay distinct. Qi uses single Schnorr or ordered multi-input MuSig. Sessions persist exact signed bytes; no reference progress-percentage callbacks or implicit metadata key authority."
     },
     {
       "id": ".:QuaiHDWallet:instance:signTransaction",
@@ -22624,12 +22922,25 @@
         "(tx: QuaiTransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer",
+        "quai_signer::LocalSigner",
+        "quai_wallet::HdWallet::derive_key",
+        "quai_wallet::qi_keys::QiKeyResolver",
+        "quai_sdk::qi::QiSession::sign"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated keys and typed signing; Quai personal/typed messages and Qi Schnorr messages stay distinct. Qi uses single Schnorr or ordered multi-input MuSig. Sessions persist exact signed bytes; no reference progress-percentage callbacks or implicit metadata key authority."
     },
     {
       "id": ".:QuaiHDWallet:instance:signTypedData",
@@ -22640,12 +22951,25 @@
         "(address: string, domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, unknown>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer",
+        "quai_signer::LocalSigner",
+        "quai_wallet::HdWallet::derive_key",
+        "quai_wallet::qi_keys::QiKeyResolver",
+        "quai_sdk::qi::QiSession::sign"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated keys and typed signing; Quai personal/typed messages and Qi Schnorr messages stay distinct. Qi uses single Schnorr or ordered multi-input MuSig. Sessions persist exact signed bytes; no reference progress-percentage callbacks or implicit metadata key authority."
     },
     {
       "id": ".:QuaiHDWallet:instance:xPub",
@@ -22656,12 +22980,18 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::root_public_key"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Coin-level BIP44 xpub at the pinned 994/969 path; account xpubs are explicitly separate."
     },
     {
       "id": ".:QuaiHDWallet:static:createRandom",
@@ -22698,12 +23028,22 @@
         "(serialized: SerializedQuaiHDWallet): Promise<QuaiHDWallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::full_backup::WalletBackup",
+        "quai_wallet::full_backup::EncryptedWalletBackup",
+        "quai_sdk::browser_backups"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/wallet-regressions.test.mjs",
+        "crates/quai-wallet/src/full_backup/tests.rs",
+        "crates/quai-sdk/tests/portable_backups.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
     },
     {
       "id": ".:QuaiHDWallet:static:fromMnemonic",
@@ -68870,9 +69210,9 @@
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "HD and watch-only identity implemented; provider lifecycle/full backups/discovery remain tracked separately."
+      "deviation": "Typed HD identity and native/browser workflow compositions exist. Full legacy wallet-JSON migration and cached address-status convenience views remain separately identified."
     },
     {
       "id": "./wallet:QiHDWallet:instance:addAddress",
@@ -68883,12 +69223,21 @@
         "(account: number, addressIndex: number): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress::derive",
+        "quai_wallet::storage::SqliteStore::import_metadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated raw child derivation, with explicit metadata persistence and snapshot invalidation; bounded fresh allocation is separate. No secret-bearing metadata or implicit address-map mutation."
     },
     {
       "id": "./wallet:QiHDWallet:instance:addChangeAddress",
@@ -68899,12 +69248,21 @@
         "(account: number, addressIndex: number): QiAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress::derive",
+        "quai_wallet::storage::SqliteStore::import_metadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated raw child derivation, with explicit metadata persistence and snapshot invalidation; bounded fresh allocation is separate. No secret-bearing metadata or implicit address-map mutation."
     },
     {
       "id": "./wallet:QiHDWallet:instance:aggregate",
@@ -68916,17 +69274,24 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi::QiSession::prepare_sweep"
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::qi::QiSession",
+        "quai_sdk::payment_channels::payment_intent",
+        "quai_sdk::browser_transactions::BrowserAccountSession",
+        "quai_sdk::browser_qi_transactions::BrowserQiSession"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Explicit SweepMode::Aggregate; rejects nonreducing or underfunded results. Pinned node requires first-Qi block placement, not guaranteed by preparation."
+      "deviation": "Explicit prepare/review/sign/persist/broadcast, fee convergence and claims. Allocate peer payment-code outputs before preparing; cross-zone, conversion and aggregation intents are typed. Special fees require explicit fee or asserted compatible node/fork profile. Destination maturity/block placement remain qualification limits, not concealed send guarantees."
     },
     {
       "id": "./wallet:QiHDWallet:instance:channelIsOpen",
@@ -68938,17 +69303,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::payment_channel"
+        "quai_wallet::storage::SqliteStore::import_payment_channel",
+        "quai_wallet::storage::SqliteStore::payment_channel",
+        "quai_sdk::browser_payments::BrowserPaymentBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/src/storage/payment.rs"
+        "crates/quai-wallet/src/storage/payment.rs",
+        "crates/quai-sdk/tests/payment_allocation.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Requires private owner to validate persisted public channel metadata."
+      "deviation": "Owner-verified scoped channel state, expected generations and no backward cursor import; browser initialization cannot overwrite a journal. Pinned openChannel resets an existing receive cursor and repeats its first address; Rust deliberately rejects this reset."
     },
     {
       "id": "./wallet:QiHDWallet:instance:connect",
@@ -68959,12 +69328,22 @@
         "(provider: Provider): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession::new",
+        "quai_sdk::qi::QiSession::new",
+        "quai_sdk::discovery::discover_qi"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Provider supplied to scoped operations/sessions instead of mutable connection propagation through HD subwallets. Network identity is rechecked per operation."
     },
     {
       "id": "./wallet:QiHDWallet:instance:convertToQuai",
@@ -68976,17 +69355,24 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi::QiSession::prepare_special"
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::qi::QiSession",
+        "quai_sdk::payment_channels::payment_intent",
+        "quai_sdk::browser_transactions::BrowserAccountSession",
+        "quai_sdk::browser_qi_transactions::BrowserQiSession"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Explicit slippage/refund and caller-authorized Qit fee. Automatic specialized fee estimation and destination maturity remain unqualified."
+      "deviation": "Explicit prepare/review/sign/persist/broadcast, fee convergence and claims. Allocate peer payment-code outputs before preparing; cross-zone, conversion and aggregation intents are typed. Special fees require explicit fee or asserted compatible node/fork profile. Destination maturity/block placement remain qualification limits, not concealed send guarantees."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getAddressesForAccount",
@@ -68997,12 +69383,23 @@
         "(account: number): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getAddressesForZone",
@@ -69013,12 +69410,23 @@
         "(zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getAddressInfo",
@@ -69029,12 +69437,23 @@
         "(address: string): QiAddressInfo | null"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getBalanceForZone",
@@ -69070,12 +69489,23 @@
         "(zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getGapAddressesForZone",
@@ -69086,12 +69516,21 @@
         "(zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::discovery::CurrentQiDiscovery",
+        "quai_sdk::discovery::CurrentQiAddress",
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/discovery.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getGapChangeAddressesForZone",
@@ -69102,12 +69541,21 @@
         "(zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::discovery::CurrentQiDiscovery",
+        "quai_sdk::discovery::CurrentQiAddress",
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/discovery.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getGapPaymentChannelAddressesForZone",
@@ -69118,12 +69566,21 @@
         "(paymentCode: string, zone: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::discovery::CurrentQiDiscovery",
+        "quai_sdk::discovery::CurrentQiAddress",
+        "quai_provider::Provider::outpoints"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/discovery.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Current HD reports expose outputs/use hints for branch gap views; payment exposures can be queried. The reference cached four-state AddressStatus and three cached gap getters are absent. Empty current outpoints do not imply never-used history or permission to rewind allocation."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getImportedAddresses",
@@ -69134,12 +69591,23 @@
         "(zone?: Zone): QiAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getLockedBalance",
@@ -69337,20 +69805,21 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::storage::SqliteStore::snapshot",
-        "quai_sdk::discovery::discover_qi",
-        "quai_sdk::discovery::CurrentQiDiscovery"
+        "quai_wallet::storage::SqliteStore::replace_snapshot",
+        "quai_sdk::discovery::CurrentQiDiscovery",
+        "quai_sdk::qi_preflight::QiSource"
       ],
-      "feature": "wallet (portable); sqlite (durable native)",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-wallet/src/storage/tests.rs",
         "crates/quai-sdk/tests/discovery.rs",
-        "crates/quai-sdk/tests/browser_discovery.rs"
+        "crates/quai-sdk/tests/qi.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Stored current coin observations preserve locks and reservations; refresh is explicit. Portable native/wasm scanning returns compact outpoints, raw-index coverage and checked current-head status without requiring a signer or SQLite; local claims remain application-owned."
+      "deviation": "Explicit typed current observations. Native snapshot replacement requires scope, checkpoint, generation, unique fixed-denomination outpoints and registered owners; durable claims override supplied flags. Browser coin views remain caller-owned, separate from custody; no JS path-string grouping or implicit USED cache mutation."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getPaymentChannelAddressesForZone",
@@ -69362,17 +69831,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::payment_addresses"
+        "quai_wallet::storage::SqliteStore::payment_addresses",
+        "quai_wallet::payment_allocation::PaymentAllocationBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-wallet/src/storage/payment.rs",
+        "crates/quai-sdk/tests/payment_allocation.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Returns owned channel exposures for explicit filtering by zone and direction."
+      "deviation": "Owner-verified channel exposures retain explicit direction, zone, peer, account and raw index. Rust iterator filtering replaces provider-bound getters; send exposures never imply local ownership."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getPaymentCode",
@@ -69385,17 +69857,18 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_payments::PrivatePaymentCode::from_seed",
+        "quai_payments::PrivatePaymentCode::public_code",
         "quai_payments::PaymentCode::to_base58"
       ],
-      "feature": "payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "implemented",
       "test_ids": [
         "crates/quai-payments/tests/payments.rs"
       ],
       "docs": [
-        "crates/quai-payments/README.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Coin969 BIP47 account identity is explicit; integrated HD wallet facade/payment origin lifecycle remains separate."
+      "deviation": "Pinned BIP47 coin-969 account identity, separate from the BIP44 wallet; explicit seed/master/account origins."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getPrivateKey",
@@ -69407,17 +69880,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
+        "quai_wallet::HdWallet::derive_key",
         "quai_wallet::qi_keys::QiKeyResolver::resolve"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Returns a guarded local key only for verified public metadata."
+      "deviation": "Guarded exact child/local ownership resolution replaces address-to-hex secret export. Verify Quai child address before constructing a signer; Qi resolver verifies full public metadata. Public records alone confer no authority."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getSpendableBalance",
@@ -69453,12 +69928,23 @@
         "(outpoints: OutpointInfo[]): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::storage::SqliteStore::snapshot",
+        "quai_wallet::storage::SqliteStore::replace_snapshot",
+        "quai_sdk::discovery::CurrentQiDiscovery",
+        "quai_sdk::qi_preflight::QiSource"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/src/storage/tests.rs",
+        "crates/quai-sdk/tests/discovery.rs",
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit typed current observations. Native snapshot replacement requires scope, checkpoint, generation, unique fixed-denomination outpoints and registered owners; durable claims override supplied flags. Browser coin views remain caller-owned, separate from custody; no JS path-string grouping or implicit USED cache mutation."
     },
     {
       "id": "./wallet:QiHDWallet:instance:importPrivateKey",
@@ -69470,17 +69956,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::qi_keys::QiKeyring::import"
+        "quai_wallet::qi_keys::QiKeyring::import",
+        "quai_wallet::full_backup::BackupOrigin::from_private_key"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/key_origins.rs",
+        "compatibility/scripts/wallet-regressions.test.mjs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Explicit memory keyring plus separately persisted public metadata and authenticated origin backup."
+      "deviation": "Bounded memory keyring plus separate public metadata and authenticated private origin backup; duplicates reject and metadata never contains a secret derivationPath."
     },
     {
       "id": "./wallet:QiHDWallet:instance:openChannel",
@@ -69492,17 +69980,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::import_payment_channel"
+        "quai_wallet::storage::SqliteStore::import_payment_channel",
+        "quai_wallet::storage::SqliteStore::payment_channel",
+        "quai_sdk::browser_payments::BrowserPaymentBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/src/full_backup/tests.rs"
+        "crates/quai-wallet/src/storage/payment.rs",
+        "crates/quai-sdk/tests/payment_allocation.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Owner-validated channel import and authenticated seed/master-xprv recovery; no implicit counterparty exchange."
+      "deviation": "Owner-verified scoped channel state, expected generations and no backward cursor import; browser initialization cannot overwrite a journal. Pinned openChannel resets an existing receive cursor and repeats its first address; Rust deliberately rejects this reset."
     },
     {
       "id": "./wallet:QiHDWallet:instance:openChannels",
@@ -69535,21 +70027,24 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi_discovery::scan_and_refresh_qi",
         "quai_sdk::discovery::discover_qi",
-        "quai_sdk::discovery::CurrentQiDiscovery"
+        "quai_sdk::qi_discovery::scan_and_refresh_qi",
+        "quai_sdk::qi_discovery::refresh_qi",
+        "quai_sdk::payment_channels::scan_payment_channel",
+        "quai_sdk::qi_preflight::include_known_qi_addresses"
       ],
-      "feature": "wallet (portable); sqlite (durable native)",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs",
         "crates/quai-sdk/tests/discovery.rs",
-        "crates/quai-sdk/tests/browser_discovery.rs"
+        "crates/quai-sdk/tests/browser_discovery.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Current outpoint gap defaults to 50 matching addresses on each branch; explicit raw ranges support deep recovery. Does not claim full historical recovery. Portable native/wasm scanning returns compact outpoints, raw-index coverage and checked current-head status without requiring a signer or SQLite; local claims remain application-owned."
+      "deviation": "Explicit HD gap-50 receive/change scan, registered channel receive scans and refresh of all retained owners. Bounded deep ranges support recovery beyond spent gaps. Current refresh/report composition replaces mutable incremental cache and creation/deletion callbacks; no historical or atomic-snapshot claim."
     },
     {
       "id": "./wallet:QiHDWallet:instance:sendTransaction",
@@ -69561,17 +70056,24 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi::QiSession"
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::qi::QiSession",
+        "quai_sdk::payment_channels::payment_intent",
+        "quai_sdk::browser_transactions::BrowserAccountSession",
+        "quai_sdk::browser_qi_transactions::BrowserQiSession"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Separate prepare/review/sign/broadcast. Mixed HD/imported/channel origins, same-zone and explicit cross-zone; destination settlement tracked separately."
+      "deviation": "Explicit prepare/review/sign/persist/broadcast, fee convergence and claims. Allocate peer payment-code outputs before preparing; cross-zone, conversion and aggregation intents are typed. Special fees require explicit fee or asserted compatible node/fork profile. Destination maturity/block placement remain qualification limits, not concealed send guarantees."
     },
     {
       "id": "./wallet:QiHDWallet:instance:serialize",
@@ -69582,12 +70084,22 @@
         "(): SerializedQiHDWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::full_backup::WalletBackup",
+        "quai_wallet::full_backup::EncryptedWalletBackup",
+        "quai_sdk::browser_backups"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/wallet-regressions.test.mjs",
+        "crates/quai-wallet/src/full_backup/tests.rs",
+        "crates/quai-sdk/tests/portable_backups.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
     },
     {
       "id": "./wallet:QiHDWallet:instance:setAddressUseChecker",
@@ -69652,12 +70164,25 @@
         "(tx: QiTransactionRequest, onProgress?: ProgressCallback): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer",
+        "quai_signer::LocalSigner",
+        "quai_wallet::HdWallet::derive_key",
+        "quai_wallet::qi_keys::QiKeyResolver",
+        "quai_sdk::qi::QiSession::sign"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated keys and typed signing; Quai personal/typed messages and Qi Schnorr messages stay distinct. Qi uses single Schnorr or ordered multi-input MuSig. Sessions persist exact signed bytes; no reference progress-percentage callbacks or implicit metadata key authority."
     },
     {
       "id": "./wallet:QiHDWallet:instance:sync",
@@ -69669,17 +70194,24 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi_discovery::refresh_qi"
+        "quai_sdk::discovery::discover_qi",
+        "quai_sdk::qi_discovery::scan_and_refresh_qi",
+        "quai_sdk::qi_discovery::refresh_qi",
+        "quai_sdk::payment_channels::scan_payment_channel",
+        "quai_sdk::qi_preflight::include_known_qi_addresses"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/discovery.rs",
+        "crates/quai-sdk/tests/browser_discovery.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Refreshes every persisted Qi origin. Latest-only observations with matched head samples are not an atomic historical snapshot."
+      "deviation": "Explicit HD gap-50 receive/change scan, registered channel receive scans and refresh of all retained owners. Bounded deep ranges support recovery beyond spent gaps. Current refresh/report composition replaces mutable incremental cache and creation/deletion callbacks; no historical or atomic-snapshot claim."
     },
     {
       "id": "./wallet:QiHDWallet:instance:xPub",
@@ -69693,15 +70225,15 @@
       "rust_api": [
         "quai_wallet::HdWallet::root_public_key"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet",
+      "status": "implemented",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "Coin-level BIP44 public root; account roots are separately exposed."
+      "deviation": "Coin-level BIP44 xpub at the pinned 994/969 path; account xpubs are explicitly separate."
     },
     {
       "id": "./wallet:QiHDWallet:static:createRandom",
@@ -69738,12 +70270,22 @@
         "(serialized: SerializedQiHDWallet): Promise<QiHDWallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::full_backup::WalletBackup",
+        "quai_wallet::full_backup::EncryptedWalletBackup",
+        "quai_sdk::browser_backups"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/wallet-regressions.test.mjs",
+        "crates/quai-wallet/src/full_backup/tests.rs",
+        "crates/quai-sdk/tests/portable_backups.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
     },
     {
       "id": "./wallet:QiHDWallet:static:fromMnemonic",
@@ -69856,9 +70398,9 @@
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md"
       ],
-      "deviation": "HD and watch-only identity implemented; provider lifecycle/full backups/discovery remain tracked separately."
+      "deviation": "Typed HD identity and native/browser workflow compositions exist. Full legacy wallet-JSON migration and cached address-status convenience views remain separately identified."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:addAddress",
@@ -69869,12 +70411,21 @@
         "(account: number, addressIndex: number): NeuteredAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress::derive",
+        "quai_wallet::storage::SqliteStore::import_metadata"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "compatibility/scripts/hd-wallet-workflows.test.mjs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated raw child derivation, with explicit metadata persistence and snapshot invalidation; bounded fresh allocation is separate. No secret-bearing metadata or implicit address-map mutation."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:connect",
@@ -69885,12 +70436,22 @@
         "(provider: Provider): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession::new",
+        "quai_sdk::qi::QiSession::new",
+        "quai_sdk::discovery::discover_qi"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Provider supplied to scoped operations/sessions instead of mutable connection propagation through HD subwallets. Network identity is rechecked per operation."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:getAddressesForAccount",
@@ -69901,12 +70462,23 @@
         "(account: number): NeuteredAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:getAddressesForZone",
@@ -69917,12 +70489,23 @@
         "(zone: Zone): NeuteredAddressInfo[]"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:getAddressInfo",
@@ -69933,12 +70516,23 @@
         "(address: string): NeuteredAddressInfo | null"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::metadata::PublicAddress",
+        "quai_wallet::metadata::KeyOrigin",
+        "quai_wallet::storage::SqliteStore::addresses",
+        "quai_wallet::qi_custody::QiOperationBook::addresses"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/address_allocation.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed immutable collections and Rust iterator lookup/filtering replace mutable address maps. Qi zone getter corresponds to external BIP44 only; account filtering uses exact ancestry. Imported keys have no invented account; payment context is retained separately. Browser custody owners must be composed with allocation/discovery views."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:getNextAddress",
@@ -70003,12 +70597,20 @@
         "(address: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::derive_key",
+        "quai_wallet::qi_keys::QiKeyResolver::resolve"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Guarded exact child/local ownership resolution replaces address-to-hex secret export. Verify Quai child address before constructing a signer; Qi resolver verifies full public metadata. Public records alone confer no authority."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:sendTransaction",
@@ -70019,12 +70621,25 @@
         "(tx: QuaiTransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::qi::QiSession",
+        "quai_sdk::payment_channels::payment_intent",
+        "quai_sdk::browser_transactions::BrowserAccountSession",
+        "quai_sdk::browser_qi_transactions::BrowserQiSession"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit prepare/review/sign/persist/broadcast, fee convergence and claims. Allocate peer payment-code outputs before preparing; cross-zone, conversion and aggregation intents are typed. Special fees require explicit fee or asserted compatible node/fork profile. Destination maturity/block placement remain qualification limits, not concealed send guarantees."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:serialize",
@@ -70035,12 +70650,22 @@
         "(): SerializedQuaiHDWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::full_backup::WalletBackup",
+        "quai_wallet::full_backup::EncryptedWalletBackup",
+        "quai_sdk::browser_backups"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/wallet-regressions.test.mjs",
+        "crates/quai-wallet/src/full_backup/tests.rs",
+        "crates/quai-sdk/tests/portable_backups.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:signMessage",
@@ -70051,12 +70676,25 @@
         "(address: string, message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer",
+        "quai_signer::LocalSigner",
+        "quai_wallet::HdWallet::derive_key",
+        "quai_wallet::qi_keys::QiKeyResolver",
+        "quai_sdk::qi::QiSession::sign"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated keys and typed signing; Quai personal/typed messages and Qi Schnorr messages stay distinct. Qi uses single Schnorr or ordered multi-input MuSig. Sessions persist exact signed bytes; no reference progress-percentage callbacks or implicit metadata key authority."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:signTransaction",
@@ -70067,12 +70705,25 @@
         "(tx: QuaiTransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer",
+        "quai_signer::LocalSigner",
+        "quai_wallet::HdWallet::derive_key",
+        "quai_wallet::qi_keys::QiKeyResolver",
+        "quai_sdk::qi::QiSession::sign"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated keys and typed signing; Quai personal/typed messages and Qi Schnorr messages stay distinct. Qi uses single Schnorr or ordered multi-input MuSig. Sessions persist exact signed bytes; no reference progress-percentage callbacks or implicit metadata key authority."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:signTypedData",
@@ -70083,12 +70734,25 @@
         "(address: string, domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, unknown>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer",
+        "quai_signer::LocalSigner",
+        "quai_wallet::HdWallet::derive_key",
+        "quai_wallet::qi_keys::QiKeyResolver",
+        "quai_sdk::qi::QiSession::sign"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/qi.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Exact validated keys and typed signing; Quai personal/typed messages and Qi Schnorr messages stay distinct. Qi uses single Schnorr or ordered multi-input MuSig. Sessions persist exact signed bytes; no reference progress-percentage callbacks or implicit metadata key authority."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:xPub",
@@ -70099,12 +70763,18 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::root_public_key"
+      ],
+      "feature": "wallet",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Coin-level BIP44 xpub at the pinned 994/969 path; account xpubs are explicitly separate."
     },
     {
       "id": "./wallet:QuaiHDWallet:static:createRandom",
@@ -70141,12 +70811,22 @@
         "(serialized: SerializedQuaiHDWallet): Promise<QuaiHDWallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::full_backup::WalletBackup",
+        "quai_wallet::full_backup::EncryptedWalletBackup",
+        "quai_sdk::browser_backups"
+      ],
+      "feature": "wallet",
+      "status": "partial",
+      "test_ids": [
+        "compatibility/scripts/wallet-regressions.test.mjs",
+        "crates/quai-wallet/src/full_backup/tests.rs",
+        "crates/quai-sdk/tests/portable_backups.rs"
+      ],
+      "docs": [
+        "docs/HD_WALLET_PARITY_REVIEW.md"
+      ],
+      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
     },
     {
       "id": "./wallet:QuaiHDWallet:static:fromMnemonic",

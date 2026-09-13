@@ -88,16 +88,20 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
-| `implemented` | 64 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 1282 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 156 | A mapping exists with unfinished behavior or scope |
-| `pending` | 2426 | No completed row-level reconciliation; not proof of absence |
+| `implemented` | 70 | An explicitly mapped behavior, still subject to qualification |
+| `deviation` | 1344 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 144 | A mapping exists with unfinished behavior or scope |
+| `pending` | 2370 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
 its text must be inspected. A `pending` type alias may have a straightforward
 Rust equivalent, while a pending wallet method can represent substantial work.
 This analysis does not relabel unresolved rows to make the counts appear complete.
+
+The [HD wallet review](docs/HD_WALLET_PARITY_REVIEW.md) maps exact derivation,
+address collections, channels, scanning, signing and sending. Cached address-status
+views and whole legacy wallet-JSON migration remain explicitly partial.
 
 ## Feature comparison
 
@@ -237,7 +241,6 @@ root/subpath exports account for much of the volume.
 | `Result` | 88 | 0 | 0 | 0 |
 | `FetchRequest` | 64 | 0 | 0 | 0 |
 | `ContractTransactionReceipt` | 58 | 0 | 0 | 0 |
-| `QiHDWallet` | 30 | 28 | 6 | 28 |
 | `TransactionReceipt` | 58 | 0 | 0 | 0 |
 | `QuaiTransaction` | 46 | 10 | 0 | 0 |
 | `BaseContract` | 50 | 4 | 0 | 2 |
@@ -257,7 +260,6 @@ root/subpath exports account for much of the volume.
 | `Signature` | 32 | 0 | 0 | 0 |
 | `EventFragment` | 30 | 0 | 0 | 0 |
 | `Log` | 30 | 0 | 0 | 2 |
-| `QuaiHDWallet` | 26 | 2 | 4 | 10 |
 | `ConstructorFragment` | 26 | 0 | 0 | 0 |
 | `ErrorFragment` | 26 | 0 | 0 | 0 |
 | `ContractEventPayload` | 24 | 0 | 0 | 0 |
@@ -279,6 +281,7 @@ root/subpath exports account for much of the volume.
 | `SocketSubscriber` | 16 | 0 | 0 | 0 |
 | `WordlistOwl` | 16 | 0 | 0 | 0 |
 | `BIP44` | 12 | 0 | 0 | 0 |
+| `QiHDWallet` | 0 | 12 | 10 | 70 |
 | `UnmanagedSubscriber` | 12 | 0 | 0 | 0 |
 | `Wordlist` | 12 | 0 | 0 | 0 |
 | `AbiCoder` | 6 | 2 | 0 | 6 |
@@ -287,6 +290,7 @@ root/subpath exports account for much of the volume.
 | `EventPayload` | 8 | 0 | 0 | 0 |
 | `FetchCancelSignal` | 8 | 0 | 0 | 0 |
 | `FeeData` | 6 | 0 | 0 | 0 |
+| `QuaiHDWallet` | 0 | 6 | 6 | 30 |
 | `Interface` | 2 | 2 | 0 | 68 |
 | `AccessList` | 2 | 0 | 0 | 0 |
 | `AccessListEntry` | 2 | 0 | 0 | 0 |

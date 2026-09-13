@@ -746,3 +746,12 @@ order. Upload remains disabled and requires separate authorization.
 Use [private vulnerability reporting](https://github.com/mpoletiek/quai-rust-sdk/security/advisories/new)
 for security findings; follow the [security policy](SECURITY.md) and use public
 toy reproductions instead of credentials or funded wallet material.
+
+## Specialized HD wallet parity
+
+The [HD wallet review](docs/HD_WALLET_PARITY_REVIEW.md) maps Quai/Qi identity,
+address lookup, channels, current scans, key ownership and transaction workflows.
+It retains whole legacy wallet-JSON migration and cached address-status views as
+partial. Authenticated Rust backups and typed current observations already exist;
+these should not be confused with the reference's plaintext wallet schema or
+mutable status cache.

@@ -770,3 +770,18 @@ pass. See [the retained report](test-infra/reports/browser-account-replacement-w
 and [the API guide](docs/ACCOUNT_NONCE_REPLACEMENTS.md). The previous main commit
 `936fce0b054cc34de5ef0bdae3d88a0fb6655fb6` passed GitHub CI run `34781269431`,
 including the standalone IndexedDB harness fix.
+
+## 2026-09-13: specialized HD wallet declaration reconciliation
+
+Reviewed 86 pending/partial QuaiHDWallet and QiHDWallet rows against the published
+artifact and existing native/browser compositions. Added three executable source
+checks for channel cursor reset, address getter/derivation behavior and provider
+propagation. Native channel, HD reference, discovery, key-origin and payment
+allocation regressions pass. Whole legacy wallet-JSON migration and cached
+address-status convenience views remain partial, with concrete differences in
+[the review](docs/HD_WALLET_PARITY_REVIEW.md).
+
+The ledger now has 70 implemented, 1,344 deviation, 144 partial and 2,370 pending
+rows. These are declaration counts, not a feature-completion percentage. This
+batch changes audit/test documentation only; [the report](test-infra/reports/hd-wallet-parity-review-2026-09-13.json)
+does not claim new package or runtime qualification.

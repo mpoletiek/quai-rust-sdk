@@ -1691,12 +1691,20 @@
         "new <P extends Provider = Provider>(provider?: P): AbstractSigner<P>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Rust separates validated key/extended-key ownership, chain-bound signing, explicit provider/session orchestration and caller-retained mnemonic origins. No dynamic mutable JS wallet class or secret-copying constructor."
     },
     {
       "id": ".:AbstractSigner:instance:_getAddress",
@@ -1707,12 +1715,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:AbstractSigner:instance:call",
@@ -1723,12 +1740,24 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:AbstractSigner:instance:connect",
@@ -1739,12 +1768,22 @@
         "(provider: null | Provider): Signer"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": ".:AbstractSigner:instance:createAccessList",
@@ -1780,12 +1819,24 @@
         "(tx: TransactionRequest): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:AbstractSigner:instance:getAddress",
@@ -1796,12 +1847,21 @@
         "(): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:AbstractSigner:instance:getNonce",
@@ -1812,12 +1872,20 @@
         "(blockTag?: BlockTag): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::transaction_count"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit state selector and durable nonce floor. Exact zero is preserved or rejected when consumed; no silent replacement with a pending nonce."
     },
     {
       "id": ".:AbstractSigner:instance:populateCall",
@@ -1828,12 +1896,24 @@
         "(tx: TransactionRequest): Promise<TransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:AbstractSigner:instance:populateQuaiTransaction",
@@ -1867,12 +1947,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": ".:AbstractSigner:instance:sendTransaction",
@@ -1883,12 +1973,23 @@
         "(tx: TransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/browser_recovery.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Prepare/review/sign/persist/broadcast are explicit native/browser stages. Ambiguous submission retains exact bytes and nonce claims. Watch-only signing cannot authorize a send."
     },
     {
       "id": ".:AbstractSigner:instance:signMessage",
@@ -1899,12 +2000,21 @@
         "(message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": ".:AbstractSigner:instance:signTransaction",
@@ -1915,12 +2025,21 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_quai",
+        "quai_consensus::QuaiTransaction::sign"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-consensus/tests/quai_vectors.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Canonical immutable signed bytes with explicit chain and concrete fields; population is separate. Void/watch-only signers reject signing."
     },
     {
       "id": ".:AbstractSigner:instance:signTypedData",
@@ -1931,12 +2050,20 @@
         "(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, any>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_typed_data",
+        "quai_signer::DomainPolicy"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Immutable validated EIP-712 data and explicit chain/unbound domain policy replace dynamic values. Void/watch-only signers reject."
     },
     {
       "id": ".:AbstractSigner:instance:zoneFromAddress",
@@ -1947,12 +2074,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:AccessList",
@@ -7412,18 +7548,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_keystore::Keystore::decrypt",
-        "quai_keystore::encrypt"
+        "quai_keystore::Keystore::from_json",
+        "quai_keystore::Keystore::decrypt"
       ],
-      "feature": "keystore",
-      "status": "partial",
+      "feature": "signer/keystore",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-keystore/tests/keystore.rs"
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "crates/quai-keystore/README.md"
+        "docs/SIGNER_PARITY_REVIEW.md"
       ],
-      "deviation": "Synchronous core qualified; application-owned bounded worker placement, async cancellation/progress wrapper not yet delivered."
+      "deviation": "Bounded strict legacy format/KDF parsing and key/address/mnemonic ownership checks; explicit signer construction rather than a dynamic returned wallet subclass. Synchronous worker scheduling, no progress callback; isKeystoreJson is replaced by full structural parse, not a version-only hint."
     },
     {
       "id": ".:decryptKeystoreJsonSync",
@@ -7584,18 +7721,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_keystore::Keystore::decrypt",
-        "quai_keystore::encrypt"
+        "quai_keystore::encrypt",
+        "quai_keystore::encrypt_with_mnemonic"
       ],
-      "feature": "keystore",
-      "status": "partial",
+      "feature": "signer/keystore",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-keystore/tests/keystore.rs"
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "crates/quai-keystore/README.md"
+        "docs/SIGNER_PARITY_REVIEW.md"
       ],
-      "deviation": "Synchronous core qualified; application-owned bounded worker placement, async cancellation/progress wrapper not yet delivered."
+      "deviation": "Native/Wasm fresh OS/Web Crypto entropy and fixed strong export scrypt. Synchronous caller-owned worker scheduling; no progress callbacks, in-flight KDF cancellation or weak/custom export KDF/entropy. Mnemonic ancestry must verify."
     },
     {
       "id": ".:encryptKeystoreJsonSync",
@@ -11500,12 +11638,21 @@
         "new (guard: any, address: string, publicKey: string, parentFingerprint: string, chainCode: string, path: null | string, index: number, depth: number, provider: null | Provider): HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::WatchOnlySigner",
+        "quai_wallet::ExtendedPublicKey"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Rust separates validated key/extended-key ownership, chain-bound signing, explicit provider/session orchestration and caller-retained mnemonic origins. No dynamic mutable JS wallet class or secret-copying constructor."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:_getAddress",
@@ -11516,12 +11663,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:address",
@@ -11530,12 +11686,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:call",
@@ -11546,12 +11711,24 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:chainCode",
@@ -11583,12 +11760,22 @@
         "(provider: null | Provider): HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:createAccessList",
@@ -11599,12 +11786,24 @@
         "(tx: QuaiTransactionRequest): Promise<AccessList>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:depth",
@@ -11680,12 +11879,24 @@
         "(tx: TransactionRequest): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:extendedKey",
@@ -11737,12 +11948,21 @@
         "(): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:getNonce",
@@ -11753,12 +11973,20 @@
         "(blockTag?: BlockTag): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::transaction_count"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit state selector and durable nonce floor. Exact zero is preserved or rejected when consumed; no silent replacement with a pending nonce."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:hasPath",
@@ -11855,12 +12083,24 @@
         "(tx: TransactionRequest): Promise<TransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:populateQuaiTransaction",
@@ -11871,12 +12111,21 @@
         "(tx: QuaiTransactionRequest): Promise<QuaiTransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::account_preflight::quote_account",
+        "quai_sdk::account_preflight::quote_account_with_access"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit nonce/state/fee/access policy and typed special-operation quotation; Exact(0) is never silently overwritten. Quote does not reserve or submit."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:provider",
@@ -11885,12 +12134,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:publicKey",
@@ -11899,12 +12158,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::PublicKey::from_sec1_bytes",
+        "quai_crypto::PublicKey::address",
+        "quai_wallet::ExtendedPrivateKey::public_key"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated SEC1 public points and explicit address derivation; no optional JS/React Native crypto bridge."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:sendTransaction",
@@ -11915,12 +12183,23 @@
         "(tx: TransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/browser_recovery.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Prepare/review/sign/persist/broadcast are explicit native/browser stages. Ambiguous submission retains exact bytes and nonce claims. Watch-only signing cannot authorize a send."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:signMessage",
@@ -11931,12 +12210,21 @@
         "(message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:signTransaction",
@@ -11947,12 +12235,21 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_quai",
+        "quai_consensus::QuaiTransaction::sign"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-consensus/tests/quai_vectors.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Canonical immutable signed bytes with explicit chain and concrete fields; population is separate. Void/watch-only signers reject signing."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:signTypedData",
@@ -11963,12 +12260,20 @@
         "(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, any>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_typed_data",
+        "quai_signer::DomainPolicy"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Immutable validated EIP-712 data and explicit chain/unbound domain policy replace dynamic values. Void/watch-only signers reject."
     },
     {
       "id": ".:HDNodeVoidWallet:instance:zoneFromAddress",
@@ -11979,12 +12284,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:HDNodeWallet",
@@ -11996,18 +12310,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::HdWallet",
-        "quai_wallet::AccountPublic"
+        "quai_crypto::SecretKey::from_bytes",
+        "quai_signer::LocalSigner",
+        "quai_wallet::ExtendedPrivateKey"
       ],
-      "feature": "wallet",
-      "status": "partial",
+      "feature": "signer",
+      "status": "deviation",
       "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/SIGNER_PARITY_REVIEW.md"
       ],
-      "deviation": "HD and watch-only identity implemented; provider lifecycle/full backups/discovery remain tracked separately."
+      "deviation": "Rust separates validated key/extended-key ownership, chain-bound signing, explicit provider/session orchestration and caller-retained mnemonic origins. No dynamic mutable JS wallet class or secret-copying constructor."
     },
     {
       "id": ".:HDNodeWallet:instance:_getAddress",
@@ -12018,12 +12335,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:HDNodeWallet:instance:address",
@@ -12032,12 +12358,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:HDNodeWallet:instance:addressFromUncompressed",
@@ -12048,12 +12383,21 @@
         "(uncompressed: Uint8Array, quickCrypto: any): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::PublicKey::from_sec1_bytes",
+        "quai_crypto::PublicKey::address",
+        "quai_wallet::ExtendedPrivateKey::public_key"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated SEC1 public points and explicit address derivation; no optional JS/React Native crypto bridge."
     },
     {
       "id": ".:HDNodeWallet:instance:call",
@@ -12064,12 +12408,24 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:HDNodeWallet:instance:chainCode",
@@ -12101,12 +12457,22 @@
         "(provider: null | Provider): HDNodeWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": ".:HDNodeWallet:instance:createAccessList",
@@ -12117,12 +12483,24 @@
         "(tx: QuaiTransactionRequest): Promise<AccessList>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:HDNodeWallet:instance:depth",
@@ -12220,12 +12598,20 @@
         "(password: Uint8Array | string, progressCallback?: ProgressCallback): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::encrypt",
+        "quai_keystore::encrypt_with_mnemonic"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Native/Wasm fresh OS/Web Crypto entropy and fixed strong export scrypt. Synchronous caller-owned worker scheduling; no progress callbacks, in-flight KDF cancellation or weak/custom export KDF/entropy. Mnemonic ancestry must verify."
     },
     {
       "id": ".:HDNodeWallet:instance:encryptSync",
@@ -12236,12 +12622,20 @@
         "(password: Uint8Array | string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::encrypt",
+        "quai_keystore::encrypt_with_mnemonic"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Native/Wasm fresh OS/Web Crypto entropy and fixed strong export scrypt. Synchronous caller-owned worker scheduling; no progress callbacks, in-flight KDF cancellation or weak/custom export KDF/entropy. Mnemonic ancestry must verify."
     },
     {
       "id": ".:HDNodeWallet:instance:estimateGas",
@@ -12252,12 +12646,24 @@
         "(tx: TransactionRequest): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:HDNodeWallet:instance:extendedKey",
@@ -12309,12 +12715,21 @@
         "(_zone?: string): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:HDNodeWallet:instance:getNonce",
@@ -12325,12 +12740,20 @@
         "(blockTag?: BlockTag): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::transaction_count"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit state selector and durable nonce floor. Exact zero is preserved or rejected when consumed; no silent replacement with a pending nonce."
     },
     {
       "id": ".:HDNodeWallet:instance:hasPath",
@@ -12383,12 +12806,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::parse",
+        "quai_wallet::ExtendedPrivateKey::from_seed",
+        "quai_wallet::ExtendedPrivateKey::derive_path"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit mnemonic language/passphrase and arbitrary HD path composition. Retain guarded mnemonic separately; imported extended keys cannot prove or recover mnemonic origin."
     },
     {
       "id": ".:HDNodeWallet:instance:neuter",
@@ -12463,12 +12894,24 @@
         "(tx: TransactionRequest): Promise<TransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:HDNodeWallet:instance:populateQuaiTransaction",
@@ -12479,12 +12922,21 @@
         "(tx: QuaiTransactionRequest): Promise<QuaiTransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::account_preflight::quote_account",
+        "quai_sdk::account_preflight::quote_account_with_access"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit nonce/state/fee/access policy and typed special-operation quotation; Exact(0) is never silently overwritten. Quote does not reserve or submit."
     },
     {
       "id": ".:HDNodeWallet:instance:privateKey",
@@ -12493,12 +12945,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::export_bytes",
+        "quai_signer::LocalSigner::new"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated guarded SecretKey before signer construction; explicit secret export, no secret getter or cloning on LocalSigner. Backup origins are caller retained."
     },
     {
       "id": ".:HDNodeWallet:instance:provider",
@@ -12507,12 +12968,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": ".:HDNodeWallet:instance:publicKey",
@@ -12521,12 +12992,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::PublicKey::from_sec1_bytes",
+        "quai_crypto::PublicKey::address",
+        "quai_wallet::ExtendedPrivateKey::public_key"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated SEC1 public points and explicit address derivation; no optional JS/React Native crypto bridge."
     },
     {
       "id": ".:HDNodeWallet:instance:sendTransaction",
@@ -12537,12 +13017,23 @@
         "(tx: TransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/browser_recovery.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Prepare/review/sign/persist/broadcast are explicit native/browser stages. Ambiguous submission retains exact bytes and nonce claims. Watch-only signing cannot authorize a send."
     },
     {
       "id": ".:HDNodeWallet:instance:signingKey",
@@ -12551,12 +13042,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::export_bytes",
+        "quai_signer::LocalSigner::new"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated guarded SecretKey before signer construction; explicit secret export, no secret getter or cloning on LocalSigner. Backup origins are caller retained."
     },
     {
       "id": ".:HDNodeWallet:instance:signMessage",
@@ -12567,12 +13067,21 @@
         "(message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": ".:HDNodeWallet:instance:signMessageSync",
@@ -12583,12 +13092,21 @@
         "(message: string | Uint8Array): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": ".:HDNodeWallet:instance:signTransaction",
@@ -12599,12 +13117,21 @@
         "(tx: QuaiTransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_quai",
+        "quai_consensus::QuaiTransaction::sign"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-consensus/tests/quai_vectors.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Canonical immutable signed bytes with explicit chain and concrete fields; population is separate. Void/watch-only signers reject signing."
     },
     {
       "id": ".:HDNodeWallet:instance:signTypedData",
@@ -12615,12 +13142,20 @@
         "(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, any>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_typed_data",
+        "quai_signer::DomainPolicy"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Immutable validated EIP-712 data and explicit chain/unbound domain policy replace dynamic values. Void/watch-only signers reject."
     },
     {
       "id": ".:HDNodeWallet:instance:zoneFromAddress",
@@ -12631,12 +13166,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:HDNodeWallet:static:createRandom",
@@ -12756,19 +13300,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
+        "quai_wallet::Mnemonic::parse",
         "quai_wallet::ExtendedPrivateKey::from_seed",
-        "quai_wallet::ExtendedPrivateKey::derive_path",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::ExtendedPrivateKey::derive_path"
       ],
-      "feature": "wallet",
-      "status": "partial",
+      "feature": "signer",
+      "status": "deviation",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/SIGNER_PARITY_REVIEW.md"
       ],
-      "deviation": "Explicit mnemonic/seed/root/path construction replaces HDNodeWallet defaults and mutable class lifecycle; current HdWallet constructors represent a different scoped abstraction."
+      "deviation": "Explicit mnemonic language/passphrase and arbitrary HD path composition. Retain guarded mnemonic separately; imported extended keys cannot prove or recover mnemonic origin."
     },
     {
       "id": ".:HDNodeWallet:static:fromSeed",
@@ -12780,19 +13324,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
+        "quai_wallet::Mnemonic::parse",
         "quai_wallet::ExtendedPrivateKey::from_seed",
-        "quai_wallet::ExtendedPrivateKey::derive_path",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::ExtendedPrivateKey::derive_path"
       ],
-      "feature": "wallet",
-      "status": "partial",
+      "feature": "signer",
+      "status": "deviation",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/SIGNER_PARITY_REVIEW.md"
       ],
-      "deviation": "Explicit mnemonic/seed/root/path construction replaces HDNodeWallet defaults and mutable class lifecycle; current HdWallet constructors represent a different scoped abstraction."
+      "deviation": "Explicit mnemonic language/passphrase and arbitrary HD path composition. Retain guarded mnemonic separately; imported extended keys cannot prove or recover mnemonic origin."
     },
     {
       "id": ".:HDNodeWallet:static:fromSeedReactNative",
@@ -13948,12 +14492,20 @@
         "(json: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::Keystore::from_json",
+        "quai_keystore::Keystore::decrypt"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Bounded strict legacy format/KDF parsing and key/address/mnemonic ownership checks; explicit signer construction rather than a dynamic returned wallet subclass. Synchronous worker scheduling, no progress callback; isKeystoreJson is replaced by full structural parse, not a version-only hint."
     },
     {
       "id": ".:isQiAddress",
@@ -31667,12 +32219,21 @@
         "new (address: string, provider?: null | Provider): VoidSigner"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::WatchOnlySigner",
+        "quai_wallet::ExtendedPublicKey"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Rust separates validated key/extended-key ownership, chain-bound signing, explicit provider/session orchestration and caller-retained mnemonic origins. No dynamic mutable JS wallet class or secret-copying constructor."
     },
     {
       "id": ".:VoidSigner:instance:_getAddress",
@@ -31683,12 +32244,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:VoidSigner:instance:address",
@@ -31697,12 +32267,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:VoidSigner:instance:call",
@@ -31713,12 +32292,24 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:VoidSigner:instance:connect",
@@ -31729,12 +32320,22 @@
         "(provider: null | Provider): VoidSigner"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": ".:VoidSigner:instance:createAccessList",
@@ -31745,12 +32346,24 @@
         "(tx: QuaiTransactionRequest): Promise<AccessList>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:VoidSigner:instance:estimateGas",
@@ -31761,12 +32374,24 @@
         "(tx: TransactionRequest): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:VoidSigner:instance:getAddress",
@@ -31777,12 +32402,21 @@
         "(): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:VoidSigner:instance:getNonce",
@@ -31793,12 +32427,20 @@
         "(blockTag?: BlockTag): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::transaction_count"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit state selector and durable nonce floor. Exact zero is preserved or rejected when consumed; no silent replacement with a pending nonce."
     },
     {
       "id": ".:VoidSigner:instance:populateCall",
@@ -31809,12 +32451,24 @@
         "(tx: TransactionRequest): Promise<TransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:VoidSigner:instance:populateQuaiTransaction",
@@ -31825,12 +32479,21 @@
         "(tx: QuaiTransactionRequest): Promise<QuaiTransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::account_preflight::quote_account",
+        "quai_sdk::account_preflight::quote_account_with_access"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit nonce/state/fee/access policy and typed special-operation quotation; Exact(0) is never silently overwritten. Quote does not reserve or submit."
     },
     {
       "id": ".:VoidSigner:instance:provider",
@@ -31839,12 +32502,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": ".:VoidSigner:instance:sendTransaction",
@@ -31855,12 +32528,23 @@
         "(tx: TransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/browser_recovery.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Prepare/review/sign/persist/broadcast are explicit native/browser stages. Ambiguous submission retains exact bytes and nonce claims. Watch-only signing cannot authorize a send."
     },
     {
       "id": ".:VoidSigner:instance:signMessage",
@@ -31871,12 +32555,21 @@
         "(message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": ".:VoidSigner:instance:signTransaction",
@@ -31887,12 +32580,21 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_quai",
+        "quai_consensus::QuaiTransaction::sign"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-consensus/tests/quai_vectors.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Canonical immutable signed bytes with explicit chain and concrete fields; population is separate. Void/watch-only signers reject signing."
     },
     {
       "id": ".:VoidSigner:instance:signTypedData",
@@ -31903,12 +32605,20 @@
         "(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, any>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_typed_data",
+        "quai_signer::DomainPolicy"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Immutable validated EIP-712 data and explicit chain/unbound domain policy replace dynamic values. Void/watch-only signers reject."
     },
     {
       "id": ".:VoidSigner:instance:zoneFromAddress",
@@ -31919,12 +32629,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:Wallet",
@@ -31935,12 +32654,22 @@
         "new (key: string | SigningKey, provider?: null | Provider): Wallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::from_bytes",
+        "quai_signer::LocalSigner",
+        "quai_wallet::ExtendedPrivateKey"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Rust separates validated key/extended-key ownership, chain-bound signing, explicit provider/session orchestration and caller-retained mnemonic origins. No dynamic mutable JS wallet class or secret-copying constructor."
     },
     {
       "id": ".:Wallet:instance:_getAddress",
@@ -31951,12 +32680,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:Wallet:instance:address",
@@ -31965,12 +32703,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:Wallet:instance:call",
@@ -31981,12 +32728,24 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:Wallet:instance:connect",
@@ -31997,12 +32756,22 @@
         "(provider: null | Provider): Wallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": ".:Wallet:instance:createAccessList",
@@ -32013,12 +32782,24 @@
         "(tx: QuaiTransactionRequest): Promise<AccessList>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:Wallet:instance:encrypt",
@@ -32029,12 +32810,20 @@
         "(password: Uint8Array | string, progressCallback?: ProgressCallback): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::encrypt",
+        "quai_keystore::encrypt_with_mnemonic"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Native/Wasm fresh OS/Web Crypto entropy and fixed strong export scrypt. Synchronous caller-owned worker scheduling; no progress callbacks, in-flight KDF cancellation or weak/custom export KDF/entropy. Mnemonic ancestry must verify."
     },
     {
       "id": ".:Wallet:instance:encryptSync",
@@ -32045,12 +32834,20 @@
         "(password: Uint8Array | string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::encrypt",
+        "quai_keystore::encrypt_with_mnemonic"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Native/Wasm fresh OS/Web Crypto entropy and fixed strong export scrypt. Synchronous caller-owned worker scheduling; no progress callbacks, in-flight KDF cancellation or weak/custom export KDF/entropy. Mnemonic ancestry must verify."
     },
     {
       "id": ".:Wallet:instance:estimateGas",
@@ -32061,12 +32858,24 @@
         "(tx: TransactionRequest): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:Wallet:instance:getAddress",
@@ -32077,12 +32886,21 @@
         "(_zone?: string): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:Wallet:instance:getNonce",
@@ -32093,12 +32911,20 @@
         "(blockTag?: BlockTag): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::transaction_count"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit state selector and durable nonce floor. Exact zero is preserved or rejected when consumed; no silent replacement with a pending nonce."
     },
     {
       "id": ".:Wallet:instance:populateCall",
@@ -32109,12 +32935,24 @@
         "(tx: TransactionRequest): Promise<TransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": ".:Wallet:instance:populateQuaiTransaction",
@@ -32125,12 +32963,21 @@
         "(tx: QuaiTransactionRequest): Promise<QuaiTransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::account_preflight::quote_account",
+        "quai_sdk::account_preflight::quote_account_with_access"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit nonce/state/fee/access policy and typed special-operation quotation; Exact(0) is never silently overwritten. Quote does not reserve or submit."
     },
     {
       "id": ".:Wallet:instance:privateKey",
@@ -32139,12 +32986,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::export_bytes",
+        "quai_signer::LocalSigner::new"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated guarded SecretKey before signer construction; explicit secret export, no secret getter or cloning on LocalSigner. Backup origins are caller retained."
     },
     {
       "id": ".:Wallet:instance:provider",
@@ -32153,12 +33009,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": ".:Wallet:instance:sendTransaction",
@@ -32169,12 +33035,23 @@
         "(tx: TransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/browser_recovery.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Prepare/review/sign/persist/broadcast are explicit native/browser stages. Ambiguous submission retains exact bytes and nonce claims. Watch-only signing cannot authorize a send."
     },
     {
       "id": ".:Wallet:instance:signingKey",
@@ -32183,12 +33060,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::export_bytes",
+        "quai_signer::LocalSigner::new"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated guarded SecretKey before signer construction; explicit secret export, no secret getter or cloning on LocalSigner. Backup origins are caller retained."
     },
     {
       "id": ".:Wallet:instance:signMessage",
@@ -32199,12 +33085,21 @@
         "(message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": ".:Wallet:instance:signMessageSync",
@@ -32215,12 +33110,21 @@
         "(message: string | Uint8Array): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": ".:Wallet:instance:signTransaction",
@@ -32231,12 +33135,21 @@
         "(tx: QuaiTransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_quai",
+        "quai_consensus::QuaiTransaction::sign"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-consensus/tests/quai_vectors.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Canonical immutable signed bytes with explicit chain and concrete fields; population is separate. Void/watch-only signers reject signing."
     },
     {
       "id": ".:Wallet:instance:signTypedData",
@@ -32247,12 +33160,20 @@
         "(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, any>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_typed_data",
+        "quai_signer::DomainPolicy"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Immutable validated EIP-712 data and explicit chain/unbound domain policy replace dynamic values. Void/watch-only signers reject."
     },
     {
       "id": ".:Wallet:instance:zoneFromAddress",
@@ -32263,12 +33184,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": ".:Wallet:static:fromEncryptedJson",
@@ -32279,12 +33209,20 @@
         "(json: string, password: Uint8Array | string, progress?: ProgressCallback): Promise<Wallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::Keystore::from_json",
+        "quai_keystore::Keystore::decrypt"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Bounded strict legacy format/KDF parsing and key/address/mnemonic ownership checks; explicit signer construction rather than a dynamic returned wallet subclass. Synchronous worker scheduling, no progress callback; isKeystoreJson is replaced by full structural parse, not a version-only hint."
     },
     {
       "id": ".:Wallet:static:fromEncryptedJsonSync",
@@ -32295,12 +33233,20 @@
         "(json: string, password: Uint8Array | string): QuaiHDWallet | Wallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::Keystore::from_json",
+        "quai_keystore::Keystore::decrypt"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Bounded strict legacy format/KDF parsing and key/address/mnemonic ownership checks; explicit signer construction rather than a dynamic returned wallet subclass. Synchronous worker scheduling, no progress callback; isKeystoreJson is replaced by full structural parse, not a version-only hint."
     },
     {
       "id": ".:WebSocketCreator",
@@ -65340,18 +66286,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_keystore::Keystore::decrypt",
-        "quai_keystore::encrypt"
+        "quai_keystore::Keystore::from_json",
+        "quai_keystore::Keystore::decrypt"
       ],
-      "feature": "keystore",
-      "status": "partial",
+      "feature": "signer/keystore",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-keystore/tests/keystore.rs"
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "crates/quai-keystore/README.md"
+        "docs/SIGNER_PARITY_REVIEW.md"
       ],
-      "deviation": "Synchronous core qualified; application-owned bounded worker placement, async cancellation/progress wrapper not yet delivered."
+      "deviation": "Bounded strict legacy format/KDF parsing and key/address/mnemonic ownership checks; explicit signer construction rather than a dynamic returned wallet subclass. Synchronous worker scheduling, no progress callback; isKeystoreJson is replaced by full structural parse, not a version-only hint."
     },
     {
       "id": "./wallet:decryptKeystoreJsonSync",
@@ -65388,18 +66335,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_keystore::Keystore::decrypt",
-        "quai_keystore::encrypt"
+        "quai_keystore::encrypt",
+        "quai_keystore::encrypt_with_mnemonic"
       ],
-      "feature": "keystore",
-      "status": "partial",
+      "feature": "signer/keystore",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-keystore/tests/keystore.rs"
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "crates/quai-keystore/README.md"
+        "docs/SIGNER_PARITY_REVIEW.md"
       ],
-      "deviation": "Synchronous core qualified; application-owned bounded worker placement, async cancellation/progress wrapper not yet delivered."
+      "deviation": "Native/Wasm fresh OS/Web Crypto entropy and fixed strong export scrypt. Synchronous caller-owned worker scheduling; no progress callbacks, in-flight KDF cancellation or weak/custom export KDF/entropy. Mnemonic ancestry must verify."
     },
     {
       "id": "./wallet:encryptKeystoreJsonSync",
@@ -65449,12 +66397,21 @@
         "new (guard: any, address: string, publicKey: string, parentFingerprint: string, chainCode: string, path: null | string, index: number, depth: number, provider: null | Provider): HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::WatchOnlySigner",
+        "quai_wallet::ExtendedPublicKey"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Rust separates validated key/extended-key ownership, chain-bound signing, explicit provider/session orchestration and caller-retained mnemonic origins. No dynamic mutable JS wallet class or secret-copying constructor."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:_getAddress",
@@ -65465,12 +66422,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:address",
@@ -65479,12 +66445,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:call",
@@ -65495,12 +66470,24 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:chainCode",
@@ -65532,12 +66519,22 @@
         "(provider: null | Provider): HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:createAccessList",
@@ -65548,12 +66545,24 @@
         "(tx: QuaiTransactionRequest): Promise<AccessList>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:depth",
@@ -65629,12 +66638,24 @@
         "(tx: TransactionRequest): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:extendedKey",
@@ -65686,12 +66707,21 @@
         "(): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:getNonce",
@@ -65702,12 +66732,20 @@
         "(blockTag?: BlockTag): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::transaction_count"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit state selector and durable nonce floor. Exact zero is preserved or rejected when consumed; no silent replacement with a pending nonce."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:hasPath",
@@ -65804,12 +66842,24 @@
         "(tx: TransactionRequest): Promise<TransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:populateQuaiTransaction",
@@ -65820,12 +66870,21 @@
         "(tx: QuaiTransactionRequest): Promise<QuaiTransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::account_preflight::quote_account",
+        "quai_sdk::account_preflight::quote_account_with_access"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit nonce/state/fee/access policy and typed special-operation quotation; Exact(0) is never silently overwritten. Quote does not reserve or submit."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:provider",
@@ -65834,12 +66893,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:publicKey",
@@ -65848,12 +66917,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::PublicKey::from_sec1_bytes",
+        "quai_crypto::PublicKey::address",
+        "quai_wallet::ExtendedPrivateKey::public_key"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated SEC1 public points and explicit address derivation; no optional JS/React Native crypto bridge."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:sendTransaction",
@@ -65864,12 +66942,23 @@
         "(tx: TransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/browser_recovery.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Prepare/review/sign/persist/broadcast are explicit native/browser stages. Ambiguous submission retains exact bytes and nonce claims. Watch-only signing cannot authorize a send."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:signMessage",
@@ -65880,12 +66969,21 @@
         "(message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:signTransaction",
@@ -65896,12 +66994,21 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_quai",
+        "quai_consensus::QuaiTransaction::sign"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-consensus/tests/quai_vectors.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Canonical immutable signed bytes with explicit chain and concrete fields; population is separate. Void/watch-only signers reject signing."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:signTypedData",
@@ -65912,12 +67019,20 @@
         "(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, any>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_typed_data",
+        "quai_signer::DomainPolicy"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Immutable validated EIP-712 data and explicit chain/unbound domain policy replace dynamic values. Void/watch-only signers reject."
     },
     {
       "id": "./wallet:HDNodeVoidWallet:instance:zoneFromAddress",
@@ -65928,12 +67043,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:HDNodeWallet",
@@ -65945,18 +67069,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::HdWallet",
-        "quai_wallet::AccountPublic"
+        "quai_crypto::SecretKey::from_bytes",
+        "quai_signer::LocalSigner",
+        "quai_wallet::ExtendedPrivateKey"
       ],
-      "feature": "wallet",
-      "status": "partial",
+      "feature": "signer",
+      "status": "deviation",
       "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/SIGNER_PARITY_REVIEW.md"
       ],
-      "deviation": "HD and watch-only identity implemented; provider lifecycle/full backups/discovery remain tracked separately."
+      "deviation": "Rust separates validated key/extended-key ownership, chain-bound signing, explicit provider/session orchestration and caller-retained mnemonic origins. No dynamic mutable JS wallet class or secret-copying constructor."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:_getAddress",
@@ -65967,12 +67094,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:address",
@@ -65981,12 +67117,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:addressFromUncompressed",
@@ -65997,12 +67142,21 @@
         "(uncompressed: Uint8Array, quickCrypto: any): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::PublicKey::from_sec1_bytes",
+        "quai_crypto::PublicKey::address",
+        "quai_wallet::ExtendedPrivateKey::public_key"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated SEC1 public points and explicit address derivation; no optional JS/React Native crypto bridge."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:call",
@@ -66013,12 +67167,24 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:chainCode",
@@ -66050,12 +67216,22 @@
         "(provider: null | Provider): HDNodeWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:createAccessList",
@@ -66066,12 +67242,24 @@
         "(tx: QuaiTransactionRequest): Promise<AccessList>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:depth",
@@ -66169,12 +67357,20 @@
         "(password: Uint8Array | string, progressCallback?: ProgressCallback): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::encrypt",
+        "quai_keystore::encrypt_with_mnemonic"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Native/Wasm fresh OS/Web Crypto entropy and fixed strong export scrypt. Synchronous caller-owned worker scheduling; no progress callbacks, in-flight KDF cancellation or weak/custom export KDF/entropy. Mnemonic ancestry must verify."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:encryptSync",
@@ -66185,12 +67381,20 @@
         "(password: Uint8Array | string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::encrypt",
+        "quai_keystore::encrypt_with_mnemonic"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Native/Wasm fresh OS/Web Crypto entropy and fixed strong export scrypt. Synchronous caller-owned worker scheduling; no progress callbacks, in-flight KDF cancellation or weak/custom export KDF/entropy. Mnemonic ancestry must verify."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:estimateGas",
@@ -66201,12 +67405,24 @@
         "(tx: TransactionRequest): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:extendedKey",
@@ -66258,12 +67474,21 @@
         "(_zone?: string): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:getNonce",
@@ -66274,12 +67499,20 @@
         "(blockTag?: BlockTag): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::transaction_count"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit state selector and durable nonce floor. Exact zero is preserved or rejected when consumed; no silent replacement with a pending nonce."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:hasPath",
@@ -66332,12 +67565,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::parse",
+        "quai_wallet::ExtendedPrivateKey::from_seed",
+        "quai_wallet::ExtendedPrivateKey::derive_path"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit mnemonic language/passphrase and arbitrary HD path composition. Retain guarded mnemonic separately; imported extended keys cannot prove or recover mnemonic origin."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:neuter",
@@ -66412,12 +67653,24 @@
         "(tx: TransactionRequest): Promise<TransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:populateQuaiTransaction",
@@ -66428,12 +67681,21 @@
         "(tx: QuaiTransactionRequest): Promise<QuaiTransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::account_preflight::quote_account",
+        "quai_sdk::account_preflight::quote_account_with_access"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit nonce/state/fee/access policy and typed special-operation quotation; Exact(0) is never silently overwritten. Quote does not reserve or submit."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:privateKey",
@@ -66442,12 +67704,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::export_bytes",
+        "quai_signer::LocalSigner::new"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated guarded SecretKey before signer construction; explicit secret export, no secret getter or cloning on LocalSigner. Backup origins are caller retained."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:provider",
@@ -66456,12 +67727,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:publicKey",
@@ -66470,12 +67751,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::PublicKey::from_sec1_bytes",
+        "quai_crypto::PublicKey::address",
+        "quai_wallet::ExtendedPrivateKey::public_key"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-crypto/tests/crypto.rs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated SEC1 public points and explicit address derivation; no optional JS/React Native crypto bridge."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:sendTransaction",
@@ -66486,12 +67776,23 @@
         "(tx: TransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/browser_recovery.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Prepare/review/sign/persist/broadcast are explicit native/browser stages. Ambiguous submission retains exact bytes and nonce claims. Watch-only signing cannot authorize a send."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:signingKey",
@@ -66500,12 +67801,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::export_bytes",
+        "quai_signer::LocalSigner::new"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated guarded SecretKey before signer construction; explicit secret export, no secret getter or cloning on LocalSigner. Backup origins are caller retained."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:signMessage",
@@ -66516,12 +67826,21 @@
         "(message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:signMessageSync",
@@ -66532,12 +67851,21 @@
         "(message: string | Uint8Array): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:signTransaction",
@@ -66548,12 +67876,21 @@
         "(tx: QuaiTransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_quai",
+        "quai_consensus::QuaiTransaction::sign"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-consensus/tests/quai_vectors.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Canonical immutable signed bytes with explicit chain and concrete fields; population is separate. Void/watch-only signers reject signing."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:signTypedData",
@@ -66564,12 +67901,20 @@
         "(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, any>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_typed_data",
+        "quai_signer::DomainPolicy"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Immutable validated EIP-712 data and explicit chain/unbound domain policy replace dynamic values. Void/watch-only signers reject."
     },
     {
       "id": "./wallet:HDNodeWallet:instance:zoneFromAddress",
@@ -66580,12 +67925,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:HDNodeWallet:static:createRandom",
@@ -66705,19 +68059,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
+        "quai_wallet::Mnemonic::parse",
         "quai_wallet::ExtendedPrivateKey::from_seed",
-        "quai_wallet::ExtendedPrivateKey::derive_path",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::ExtendedPrivateKey::derive_path"
       ],
-      "feature": "wallet",
-      "status": "partial",
+      "feature": "signer",
+      "status": "deviation",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/SIGNER_PARITY_REVIEW.md"
       ],
-      "deviation": "Explicit mnemonic/seed/root/path construction replaces HDNodeWallet defaults and mutable class lifecycle; current HdWallet constructors represent a different scoped abstraction."
+      "deviation": "Explicit mnemonic language/passphrase and arbitrary HD path composition. Retain guarded mnemonic separately; imported extended keys cannot prove or recover mnemonic origin."
     },
     {
       "id": "./wallet:HDNodeWallet:static:fromSeed",
@@ -66729,19 +68083,19 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
+        "quai_wallet::Mnemonic::parse",
         "quai_wallet::ExtendedPrivateKey::from_seed",
-        "quai_wallet::ExtendedPrivateKey::derive_path",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::ExtendedPrivateKey::derive_path"
       ],
-      "feature": "wallet",
-      "status": "partial",
+      "feature": "signer",
+      "status": "deviation",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "docs/SIGNER_PARITY_REVIEW.md"
       ],
-      "deviation": "Explicit mnemonic/seed/root/path construction replaces HDNodeWallet defaults and mutable class lifecycle; current HdWallet constructors represent a different scoped abstraction."
+      "deviation": "Explicit mnemonic language/passphrase and arbitrary HD path composition. Retain guarded mnemonic separately; imported extended keys cannot prove or recover mnemonic origin."
     },
     {
       "id": "./wallet:HDNodeWallet:static:fromSeedReactNative",
@@ -66777,12 +68131,20 @@
         "(json: string): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::Keystore::from_json",
+        "quai_keystore::Keystore::decrypt"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Bounded strict legacy format/KDF parsing and key/address/mnemonic ownership checks; explicit signer construction rather than a dynamic returned wallet subclass. Synchronous worker scheduling, no progress callback; isKeystoreJson is replaced by full structural parse, not a version-only hint."
     },
     {
       "id": "./wallet:KeystoreAccount",
@@ -68533,12 +69895,22 @@
         "new (key: string | SigningKey, provider?: null | Provider): Wallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::from_bytes",
+        "quai_signer::LocalSigner",
+        "quai_wallet::ExtendedPrivateKey"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-wallet/tests/reference.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Rust separates validated key/extended-key ownership, chain-bound signing, explicit provider/session orchestration and caller-retained mnemonic origins. No dynamic mutable JS wallet class or secret-copying constructor."
     },
     {
       "id": "./wallet:Wallet:instance:_getAddress",
@@ -68549,12 +69921,21 @@
         "(address: AddressLike): string | Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:Wallet:instance:address",
@@ -68563,12 +69944,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:Wallet:instance:call",
@@ -68579,12 +69969,24 @@
         "(tx: TransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:Wallet:instance:connect",
@@ -68595,12 +69997,22 @@
         "(provider: null | Provider): Wallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": "./wallet:Wallet:instance:createAccessList",
@@ -68611,12 +70023,24 @@
         "(tx: QuaiTransactionRequest): Promise<AccessList>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:Wallet:instance:encrypt",
@@ -68627,12 +70051,20 @@
         "(password: Uint8Array | string, progressCallback?: ProgressCallback): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::encrypt",
+        "quai_keystore::encrypt_with_mnemonic"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Native/Wasm fresh OS/Web Crypto entropy and fixed strong export scrypt. Synchronous caller-owned worker scheduling; no progress callbacks, in-flight KDF cancellation or weak/custom export KDF/entropy. Mnemonic ancestry must verify."
     },
     {
       "id": "./wallet:Wallet:instance:encryptSync",
@@ -68643,12 +70075,20 @@
         "(password: Uint8Array | string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::encrypt",
+        "quai_keystore::encrypt_with_mnemonic"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Native/Wasm fresh OS/Web Crypto entropy and fixed strong export scrypt. Synchronous caller-owned worker scheduling; no progress callbacks, in-flight KDF cancellation or weak/custom export KDF/entropy. Mnemonic ancestry must verify."
     },
     {
       "id": "./wallet:Wallet:instance:estimateGas",
@@ -68659,12 +70099,24 @@
         "(tx: TransactionRequest): Promise<bigint>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:Wallet:instance:getAddress",
@@ -68675,12 +70127,21 @@
         "(_zone?: string): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:Wallet:instance:getNonce",
@@ -68691,12 +70152,20 @@
         "(blockTag?: BlockTag): Promise<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::Provider::transaction_count"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit state selector and durable nonce floor. Exact zero is preserved or rejected when consumed; no silent replacement with a pending nonce."
     },
     {
       "id": "./wallet:Wallet:instance:populateCall",
@@ -68707,12 +70176,24 @@
         "(tx: TransactionRequest): Promise<TransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_provider::CallRequest",
+        "quai_provider::Provider::call",
+        "quai_provider::Provider::estimate_gas",
+        "quai_provider::Provider::create_access_list"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-provider/tests/wallet_reads.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Typed sender, input, ordered access list and explicit block selection replace JS property resolution/defaulting. Watch-only callers may simulate without signing."
     },
     {
       "id": "./wallet:Wallet:instance:populateQuaiTransaction",
@@ -68723,12 +70204,21 @@
         "(tx: QuaiTransactionRequest): Promise<QuaiTransactionLike>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::account_preflight::quote_account",
+        "quai_sdk::account_preflight::quote_account_with_access"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit nonce/state/fee/access policy and typed special-operation quotation; Exact(0) is never silently overwritten. Quote does not reserve or submit."
     },
     {
       "id": "./wallet:Wallet:instance:privateKey",
@@ -68737,12 +70227,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::export_bytes",
+        "quai_signer::LocalSigner::new"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated guarded SecretKey before signer construction; explicit secret export, no secret getter or cloning on LocalSigner. Backup origins are caller retained."
     },
     {
       "id": "./wallet:Wallet:instance:provider",
@@ -68751,12 +70250,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Explicit provider/session composition instead of mutable provider fields or cloning secret-bearing wallets. Watch-only signing remains rejected."
     },
     {
       "id": "./wallet:Wallet:instance:sendTransaction",
@@ -68767,12 +70276,23 @@
         "(tx: TransactionRequest): Promise<TransactionResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::accounts::AccountSession",
+        "quai_sdk::browser_transactions::BrowserAccountSession"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-sdk/tests/accounts.rs",
+        "crates/quai-sdk/tests/account_preflight.rs",
+        "crates/quai-sdk/tests/browser_recovery.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Prepare/review/sign/persist/broadcast are explicit native/browser stages. Ambiguous submission retains exact bytes and nonce claims. Watch-only signing cannot authorize a send."
     },
     {
       "id": "./wallet:Wallet:instance:signingKey",
@@ -68781,12 +70301,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::SecretKey::export_bytes",
+        "quai_signer::LocalSigner::new"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Validated guarded SecretKey before signer construction; explicit secret export, no secret getter or cloning on LocalSigner. Backup origins are caller retained."
     },
     {
       "id": "./wallet:Wallet:instance:signMessage",
@@ -68797,12 +70326,21 @@
         "(message: string | Uint8Array): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": "./wallet:Wallet:instance:signMessageSync",
@@ -68813,12 +70351,21 @@
         "(message: string | Uint8Array): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_message",
+        "quai_crypto::RecoverableSignature::to_quais_bytes"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-crypto/tests/crypto.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Synchronous byte-exact personal signing; text callers supply UTF-8 explicitly, with no hex/string coercion. Void/watch-only signers reject."
     },
     {
       "id": "./wallet:Wallet:instance:signTransaction",
@@ -68829,12 +70376,21 @@
         "(tx: QuaiTransactionRequest): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_quai",
+        "quai_consensus::QuaiTransaction::sign"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-consensus/tests/quai_vectors.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Canonical immutable signed bytes with explicit chain and concrete fields; population is separate. Void/watch-only signers reject signing."
     },
     {
       "id": "./wallet:Wallet:instance:signTypedData",
@@ -68845,12 +70401,20 @@
         "(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, any>): Promise<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::sign_typed_data",
+        "quai_signer::DomainPolicy"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Immutable validated EIP-712 data and explicit chain/unbound domain policy replace dynamic values. Void/watch-only signers reject."
     },
     {
       "id": "./wallet:Wallet:instance:zoneFromAddress",
@@ -68861,12 +70425,21 @@
         "(_address: AddressLike): Promise<Zone>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_signer::Signer::address",
+        "quai_primitives::Address::zone"
+      ],
+      "feature": "signer",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-signer/tests/signers.rs",
+        "compatibility/scripts/signer-basics.test.mjs",
+        "crates/quai-primitives/tests/primitives.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Concrete typed address and zone; no Promise/Addressable coercion or implicit connection."
     },
     {
       "id": "./wallet:Wallet:static:fromEncryptedJson",
@@ -68877,12 +70450,20 @@
         "(json: string, password: Uint8Array | string, progress?: ProgressCallback): Promise<Wallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::Keystore::from_json",
+        "quai_keystore::Keystore::decrypt"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Bounded strict legacy format/KDF parsing and key/address/mnemonic ownership checks; explicit signer construction rather than a dynamic returned wallet subclass. Synchronous worker scheduling, no progress callback; isKeystoreJson is replaced by full structural parse, not a version-only hint."
     },
     {
       "id": "./wallet:Wallet:static:fromEncryptedJsonSync",
@@ -68893,12 +70474,20 @@
         "(json: string, password: Uint8Array | string): QuaiHDWallet | Wallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_keystore::Keystore::from_json",
+        "quai_keystore::Keystore::decrypt"
+      ],
+      "feature": "signer/keystore",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-keystore/tests/keystore.rs",
+        "crates/quai-browser/tests/worker.rs"
+      ],
+      "docs": [
+        "docs/SIGNER_PARITY_REVIEW.md"
+      ],
+      "deviation": "Bounded strict legacy format/KDF parsing and key/address/mnemonic ownership checks; explicit signer construction rather than a dynamic returned wallet subclass. Synchronous worker scheduling, no progress callback; isKeystoreJson is replaced by full structural parse, not a version-only hint."
     },
     {
       "id": "./wordlists:LangEn",

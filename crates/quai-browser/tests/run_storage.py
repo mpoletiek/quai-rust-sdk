@@ -31,6 +31,7 @@ def main():
     root = pathlib.Path(__file__).resolve().parents[1]
     finished = threading.Event()
     results = []
+    progress = []
 
     class Fixture(http.server.SimpleHTTPRequestHandler):
         def log_message(self, *_args):
@@ -38,13 +39,19 @@ def main():
 
         def do_POST(self):
             length = int(self.headers.get('Content-Length', '0'))
-            if self.path != '/result' or not 0 < length < 1024:
+            if self.path not in ('/result', '/progress') or not 0 < length < 1024:
                 self.send_error(400)
                 return
-            results.append(self.rfile.read(length).decode())
+            value = self.rfile.read(length).decode()
+            if self.path == '/progress':
+                progress.append(value)
+                del progress[:-16]
+            else:
+                results.append(value)
             self.send_response(204)
             self.end_headers()
-            finished.set()
+            if self.path == '/result':
+                finished.set()
 
     browser = shutil.which('chromium') or shutil.which('google-chrome')
     if not browser:
@@ -54,12 +61,23 @@ def main():
     try:
         with tempfile.TemporaryDirectory(prefix='quai-idb-browser-') as profile:
             args = [browser, '--headless', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--no-first-run', '--user-data-dir=' + profile, f'http://127.0.0.1:{server.server_port}/tests/storage.html']
-            with subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as process:
+            with tempfile.TemporaryFile(mode='w+b') as errors, subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=errors) as process:
                 try:
-                    if not finished.wait(40):
-                        raise RuntimeError('IndexedDB fixture timed out')
+                    # Include cold browser startup on shared CI runners, while
+                    # keeping a finite total deadline and detecting early exit.
+                    deadline = time.monotonic() + 120
+                    while not finished.wait(1):
+                        if process.poll() is not None:
+                            raise RuntimeError(f'IndexedDB browser exited: {process.returncode}')
+                        if time.monotonic() >= deadline:
+                            raise RuntimeError(f'IndexedDB fixture timed out; progress={progress}')
                     assert results == ['PASSED'], results
                     print('IndexedDB Chromium: concurrent CAS, scope, bounds, tombstones and reopen PASSED')
+                except BaseException:
+                    errors.seek(0, 2)
+                    errors.seek(max(0, errors.tell() - 4096))
+                    print('Disposable browser stderr tail:', errors.read().decode(errors='replace'))
+                    raise
                 finally:
                     process.terminate()
                     try:

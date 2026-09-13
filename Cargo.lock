@@ -2007,7 +2007,6 @@ version = "0.1.0-alpha.1"
 dependencies = [
  "aes",
  "ctr",
- "getrandom 0.4.3",
  "pbkdf2",
  "quai-crypto",
  "quai-primitives",

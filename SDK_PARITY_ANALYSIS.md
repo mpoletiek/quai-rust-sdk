@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 62 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 1071 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 168 | A mapping exists with unfinished behavior or scope |
-| `pending` | 2627 | No completed row-level reconciliation; not proof of absence |
+| `deviation` | 1246 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 158 | A mapping exists with unfinished behavior or scope |
+| `pending` | 2462 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -131,6 +131,8 @@ Evidence for the wallet rows is linked from [wallet workflows](docs/WALLET_WORKF
 and [retained test reports](test-infra/reports). Per-declaration evidence is in the
 machine-readable ledger. [Unknown account replacements](docs/ACCOUNT_NONCE_REPLACEMENTS.md)
 now have executable reference comparisons and typed observation/wait APIs.
+The [local/watch-only signer review](docs/SIGNER_PARITY_REVIEW.md) reconciles
+provider composition, signing, HD origins and native/Wasm legacy key interchange.
 
 ## Concrete remaining gaps
 
@@ -145,7 +147,7 @@ gaps merely because they appear here.
 | --- | --- | --- |
 | Browser/native storage differences | Browser sessions compose discovery, account/Qi preparation, reviewed replacements, durable signing/submission, canonical reconciliation and signed-intent settlement; destination cursor persistence remains native-only | Browser callers must recheck explicit destination ranges after restart; native persisted cursors are an additional recovery convenience, not a proven missing quais.js behavior |
 | Automatic wallet reconciliation and terminal claim policy | Bounded canonical replay and conservative claims exist; applications still explicitly refresh/apply observations | Defined pending/replaced/dropped/reorg/terminal transitions with evidence-based claim handling and fault tests; disappearance alone must not permit reuse |
-| Row-level semantic parity review | 2627 pending and 168 partial declarations, including inherited provider and response helpers | Review each unique behavior, overload and inherited binding; map it to tested Rust behavior or justify a specific omission |
+| Row-level semantic parity review | 2462 pending and 158 partial declarations, including inherited provider and response helpers | Review each unique behavior, overload and inherited binding; map it to tested Rust behavior or justify a specific omission |
 | Injected-wallet convenience/interoperability | Provider selection is explicit; chain switching and permission management are absent | Implement selected supported extension operations with exact request/result/context tests, then qualify real extensions |
 | Payment notification automation | Version-one keys/channels work with explicit code exchange | A specified supported notification/exchange protocol, parser/construction/discovery tests and appropriate node/peer qualification; do not infer it from payment-code key derivation |
 | Browser journal lifetime management | IDs remain consumed under finite bounds; there is no general safe compaction/rotation workflow | A design retaining anti-reuse/claim guarantees across archival or successor journals, with restore/concurrency tests |
@@ -237,17 +239,14 @@ root/subpath exports account for much of the volume.
 | `TransactionReceipt` | 58 | 0 | 0 | 0 |
 | `QuaiTransaction` | 46 | 10 | 0 | 0 |
 | `BaseContract` | 50 | 4 | 0 | 2 |
-| `HDNodeWallet` | 48 | 6 | 12 | 22 |
 | `ContractTransactionResponse` | 52 | 0 | 0 | 6 |
 | `QuaiTransactionResponse` | 52 | 0 | 0 | 6 |
 | `Contract` | 46 | 4 | 0 | 2 |
 | `Block` | 48 | 0 | 0 | 0 |
-| `Wallet` | 48 | 0 | 0 | 0 |
 | `QiTransaction` | 36 | 10 | 0 | 0 |
 | `EventLog` | 42 | 0 | 0 | 0 |
 | `QiTransactionResponse` | 40 | 0 | 0 | 0 |
 | `FunctionFragment` | 38 | 0 | 0 | 0 |
-| `HDNodeVoidWallet` | 36 | 0 | 10 | 10 |
 | `JsonRpcSigner` | 34 | 0 | 0 | 6 |
 | `TypedDataEncoder` | 14 | 20 | 0 | 2 |
 | `UndecodedEventLog` | 34 | 0 | 0 | 0 |
@@ -271,7 +270,6 @@ root/subpath exports account for much of the volume.
 | `SocketEventSubscriber` | 18 | 0 | 0 | 0 |
 | `WordlistOwlA` | 18 | 0 | 0 | 0 |
 | `AbstractTransaction` | 17 | 0 | 0 | 0 |
-| `VoidSigner` | 17 | 0 | 0 | 0 |
 | `ContractUnknownEventPayload` | 16 | 0 | 0 | 0 |
 | `Network` | 16 | 0 | 0 | 0 |
 | `SigningKey` | 14 | 2 | 2 | 0 |
@@ -280,7 +278,6 @@ root/subpath exports account for much of the volume.
 | `SocketSubscriber` | 16 | 0 | 0 | 0 |
 | `UTXO` | 16 | 0 | 0 | 0 |
 | `WordlistOwl` | 16 | 0 | 0 | 0 |
-| `AbstractSigner` | 14 | 0 | 0 | 2 |
 | `BIP44` | 12 | 0 | 0 | 0 |
 | `UnmanagedSubscriber` | 12 | 0 | 0 | 0 |
 | `Wordlist` | 12 | 0 | 0 | 0 |
@@ -325,11 +322,9 @@ root/subpath exports account for much of the volume.
 | `ContractTransaction` | 2 | 0 | 0 | 0 |
 | `copyRequest` | 2 | 0 | 0 | 0 |
 | `DebugEventBrowserProvider` | 2 | 0 | 0 | 0 |
-| `decryptKeystoreJson` | 0 | 2 | 0 | 0 |
 | `DeferredTopicFilter` | 2 | 0 | 0 | 0 |
 | `denominations` | 2 | 0 | 0 | 0 |
 | `Eip1193Provider` | 2 | 0 | 0 | 0 |
-| `encryptKeystoreJson` | 0 | 2 | 0 | 0 |
 | `EncryptOptions` | 2 | 0 | 0 | 0 |
 | `ErrorCode` | 2 | 0 | 0 | 0 |
 | `EventEmitterable` | 2 | 0 | 0 | 0 |
@@ -356,7 +351,6 @@ root/subpath exports account for much of the volume.
 | `isCallException` | 2 | 0 | 0 | 0 |
 | `isError` | 2 | 0 | 0 | 0 |
 | `isHexString` | 2 | 0 | 0 | 0 |
-| `isKeystoreJson` | 2 | 0 | 0 | 0 |
 | `JsonFragment` | 2 | 0 | 0 | 0 |
 | `JsonFragmentType` | 2 | 0 | 0 | 0 |
 | `JsonRpcApiProviderOptions` | 2 | 0 | 0 | 0 |

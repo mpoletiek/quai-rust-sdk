@@ -281,19 +281,23 @@ async fn rejects_changed_identity_heads_limits_and_unsupported_pending_without_f
         .await,
         Err(AccountPreflightError::FeeLimit)
     ));
-    assert!(
-        quote_account(
-            &m.provider(),
-            scope(),
-            sender(),
-            intent(),
-            AccountNonce::Exact(4),
-            AccountObservationPolicy::Pending,
-            fee()
-        )
-        .await
-        .is_err()
-    );
+    // Unlike pinned JS population, an explicit zero is never replaced with the
+    // observed pending nonce (five in this fixture).
+    for nonce in [0, 4] {
+        assert!(
+            quote_account(
+                &m.provider(),
+                scope(),
+                sender(),
+                intent(),
+                AccountNonce::Exact(nonce),
+                AccountObservationPolicy::Pending,
+                fee()
+            )
+            .await
+            .is_err()
+        );
+    }
     let fresh = Mock::default();
     let mut bad = fee();
     bad.gas_margin_bps = 10_001;

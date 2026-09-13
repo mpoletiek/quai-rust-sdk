@@ -65,7 +65,7 @@ reproducible builds. A local checkout can use
 | `abi` | ABI/EIP-712, consensus, contract calls, artifacts and wrapper adapters |
 | `payments` | BIP47 identities and channels; native channel orchestration with `sqlite` |
 | `backup` | `wallet,payments` and authenticated portable full-wallet recovery |
-| `keystore` | Legacy v3 JSON keystore import and native export |
+| `keystore` | Legacy v3 JSON keystore import/export on native and Wasm |
 | `browser` | Wasm Fetch, WebSocket, injected provider and IndexedDB adapters |
 
 Browser builds must disable native defaults:
@@ -553,7 +553,7 @@ to retry. See [atomic restore](docs/BROWSER_ATOMIC_RESTORE.md) and
 
 `Keystore::from_json` and `decrypt` support bounded v3 JSON scrypt/PBKDF2 and
 AES-CTR/MAC import, checking key/address and optional mnemonic ownership.
-Native export uses fresh randomness. Unsupported lossy mnemonic exports reject.
+Native/Wasm export uses fresh OS/Web Crypto randomness. Unsupported lossy mnemonic exports reject.
 Legacy keystores do not include wallet claims, allocation/channel history or a
 fully authenticated public wallet state. Prefer full-wallet AEAD recovery for
 that purpose. KDF bounds apply before expensive work; browser KDFs belong in a

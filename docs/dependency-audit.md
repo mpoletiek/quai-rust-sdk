@@ -107,3 +107,16 @@ yank checks completed using the populated SDK Cargo cache. Exact lock hashes and
 scan metadata are retained in [SDK evidence](../test-infra/reports/dependency-audit.json)
 and [fuzz evidence](../test-infra/reports/fuzz-dependency-audit.json). Neither report
 suppresses advisory matches; the strict warning-free release gate remains open.
+
+## September 13 signer/keystore lock refresh
+
+`quai-keystore` now uses the existing shared crypto entropy backend, removing its
+redundant direct getrandom dependency from the workspace and fuzz locks. Resolved
+registry package versions are unchanged. The refreshed scan uses RustSec commit
+`455fd4bac659b5f1fca3810661c2d8b3c25dad05` (1,244 advisories). The main lock hash is
+`6180804051173f67d7f262fa81dec5b4d7787d4d94dafac251be6703bc121914`.
+Both locks have zero matched vulnerabilities and retain the same two maintenance
+warnings; nothing is suppressed. See
+[retained evidence](../test-infra/reports/signer-keystore-dependency-audit-2026-09-13.json)
+for exact lock hashes and results. An initial fuzz scan used an incomplete registry
+cache for yank checks; the completed scan uses the populated SDK/fuzz Cargo cache.

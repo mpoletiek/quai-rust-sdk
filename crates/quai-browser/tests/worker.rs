@@ -170,6 +170,53 @@ fn worker_legacy_keystore_decryption_checks_mnemonic_ownership() {
 #[path = "support/socket.rs"]
 mod socket_tests;
 
+#[wasm_bindgen_test]
+fn worker_legacy_keystore_export_uses_web_crypto_and_preserves_verified_mnemonic() {
+    use quai_keystore::{KdfLimits, Keystore, KeystoreError, Password};
+    use quai_wallet::{ExtendedPrivateKey, Language, Mnemonic};
+    let mnemonic = Mnemonic::from_entropy(Language::English, &[0; 16]).unwrap();
+    let seed = mnemonic.to_seed("");
+    let path = "m/44'/994'/0'/0/0";
+    let key = ExtendedPrivateKey::from_seed(seed.expose())
+        .unwrap()
+        .derive_path(path)
+        .unwrap()
+        .secret_key()
+        .unwrap();
+    // The fixed production export KDF is used even in the browser test.
+    let encrypted = quai_keystore::encrypt_with_mnemonic(
+        &key,
+        Password::Text("PUBLIC browser 日本語"),
+        &[0; 16],
+        Language::English,
+        path,
+    )
+    .unwrap();
+    let document: serde_json::Value = serde_json::from_str(encrypted.as_json()).unwrap();
+    assert_eq!(document["Crypto"]["kdfparams"]["n"], 131072);
+    assert_eq!(document["Crypto"]["kdfparams"]["r"], 8);
+    assert_eq!(document["Crypto"]["kdfparams"]["p"], 1);
+    assert_eq!(document["x-quais"]["path"], path);
+    let restored = Keystore::from_json(encrypted.as_json().as_bytes(), KdfLimits::default())
+        .unwrap()
+        .decrypt(
+            Password::Text("PUBLIC browser 日本語"),
+            KdfLimits::default(),
+        )
+        .unwrap();
+    assert_eq!(restored.secret_key().public_key(), key.public_key());
+    assert_eq!(restored.mnemonic().unwrap().path(), path);
+    assert_eq!(
+        restored.mnemonic().unwrap().mnemonic().entropy().expose(),
+        &[0; 16]
+    );
+    assert!(matches!(
+        quai_keystore::encrypt(&key, Password::Bytes(&[0; 1025])),
+        Err(KeystoreError::Limit)
+    ));
+    assert!(!format!("{encrypted:?}").contains("PUBLIC"));
+}
+
 #[path = "support/injected_transaction.rs"]
 mod injected_transaction_tests;
 

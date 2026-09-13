@@ -717,3 +717,25 @@ passed. The 12-crate archive rehearsal passed all three extracted consumers, all
 12 native target checks and both Wasm target checks. Twelve response declaration
 rows now describe explicit API mappings and differences; unreviewed rows remain
 pending. See `test-infra/reports/account-nonce-replacements-2026-09-13.json`.
+
+## Local signer parity and browser keystore export — September 13, 2026
+
+Legacy keystore export now shares the OS/Web Crypto entropy backend on native and
+Wasm, preserving fixed strong KDF defaults and mnemonic ownership validation.
+The local/watch-only signer review reconciles 175 pending/partial declaration
+rows with explicit APIs, tests and differences. Rust rejects consumed Exact(0)
+rather than reproducing the reference's pending-nonce substitution.
+
+Eight native keystore tests, 24 Chromium worker tests (including production-cost
+mnemonic export/import), eight native account preflight tests, 14 Chromium account
+preflight tests and three JS signer checks passed. Strict Clippy and keystore
+rustdoc passed. The preceding implementation's full-workspace rerun reported
+477 passes and five ignored live checks; later changes received targeted tests.
+Both refreshed lockfile advisory scans report no matched vulnerabilities and the
+same two unsuppressed maintenance warnings.
+
+Settlement CI run 34779281316 failed only the standalone IndexedDB fixture's
+40-second timeout; native and package jobs passed. The harness now has progress
+and browser-exit/stderr diagnostics plus a finite 120-second startup-inclusive
+deadline. Local reproduction passed; CI must still qualify this change. See
+`test-infra/reports/signer-keystore-parity-2026-09-13.json`.

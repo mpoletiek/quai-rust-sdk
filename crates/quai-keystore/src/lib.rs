@@ -27,7 +27,7 @@ pub enum KeystoreError {
     /// MAC, key/address or mnemonic derivation does not match.
     #[error("legacy keystore authentication or ownership check failed")]
     Authentication,
-    /// OS entropy failed.
+    /// OS or Web Crypto entropy failed.
     #[error("secure randomness unavailable")]
     Randomness,
 }
@@ -474,19 +474,17 @@ impl EncryptedKeystore {
         &self.0
     }
 }
-/// Export a single key using fresh OS salt/IV/UUID and pinned-JS scrypt defaults.
+/// Export a single key using fresh OS/Web Crypto salt, IV and UUID and pinned-JS scrypt defaults.
 /// This synchronous operation uses about 128 MiB of scrypt working memory.
-#[cfg(not(target_arch = "wasm32"))]
 pub fn encrypt(
     key: &SecretKey,
     password: Password<'_>,
 ) -> Result<EncryptedKeystore, KeystoreError> {
-    encrypt_native(key, password, None)
+    encrypt_randomized(key, password, None)
 }
 /// Export a derivation-verified mnemonic with a legacy key. Only the empty BIP39
 /// passphrase is representable; mismatched entropy/language/path fails before KDF.
 /// Metadata is not authenticated by this legacy format; import always rederives it.
-#[cfg(not(target_arch = "wasm32"))]
 pub fn encrypt_with_mnemonic(
     key: &SecretKey,
     password: Password<'_>,
@@ -498,17 +496,16 @@ pub fn encrypt_with_mnemonic(
         return Err(KeystoreError::Limit);
     }
     verify_mnemonic(key, entropy, language, path)?;
-    encrypt_native(key, password, Some((entropy, language, path)))
+    encrypt_randomized(key, password, Some((entropy, language, path)))
 }
-#[cfg(not(target_arch = "wasm32"))]
-fn encrypt_native(
+fn encrypt_randomized(
     key: &SecretKey,
     password: Password<'_>,
     mnemonic: Option<(&[u8], Language, &str)>,
 ) -> Result<EncryptedKeystore, KeystoreError> {
     let password = password.guarded()?;
     let mut random = [0; 80];
-    getrandom::fill(&mut random).map_err(|_| KeystoreError::Randomness)?;
+    quai_crypto::fill_random(&mut random).map_err(|_| KeystoreError::Randomness)?;
     seal(
         key,
         &password,
@@ -521,11 +518,9 @@ fn encrypt_native(
         &random,
     )
 }
-#[cfg(any(not(target_arch = "wasm32"), test))]
 fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{b:02x}")).collect()
 }
-#[cfg(any(not(target_arch = "wasm32"), test))]
 fn locale(language: Language) -> &'static str {
     match language {
         Language::English => "en",
@@ -540,7 +535,6 @@ fn locale(language: Language) -> &'static str {
         Language::Portuguese => "pt",
     }
 }
-#[cfg(any(not(target_arch = "wasm32"), test))]
 fn seal(
     key: &SecretKey,
     password: &[u8],

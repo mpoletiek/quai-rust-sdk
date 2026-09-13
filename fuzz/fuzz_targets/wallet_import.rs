@@ -6,6 +6,13 @@ use quai_wallet::{Mnemonic,Language,ExtendedPrivateKey,ExtendedPublicKey};
 use quai_crypto::{PublicKey,RecoverableSignature,SchnorrSignature};
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
+ if data.starts_with(b"QACCTBK1") {
+  // Fixed public toy owner; no attacker-selected derivation or KDF.
+  let mut secret=[0;32];secret[30]=3;secret[31]=0x25;
+  let owner=quai_crypto::SecretKey::from_bytes(&secret).unwrap().public_key();
+  let scope=quai_wallet::discovery::NetworkScope{chain_id:quai_consensus::U256::from(9),genesis:quai_primitives::Hash32::from_bytes([1;32]),zone:quai_primitives::Zone::Cyprus1};
+  if let Ok(book)=quai_wallet::account_custody::AccountOperationBook::from_state(data,scope,owner){assert_eq!(book.export_state().unwrap(),data);assert_eq!(book.scope(),scope);}
+ }
  if data.starts_with(b"QPAYABK1") {
   // Public toy fixture keys only; fixed-cost derivation, no attacker-selected KDF.
   static OWNER:std::sync::OnceLock<quai_payments::PrivatePaymentCode>=std::sync::OnceLock::new();

@@ -80,7 +80,7 @@ class Fixture(http.server.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts'], default='browser')
+    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody'], default='browser')
     arguments = parser.parse_args()
     root = pathlib.Path(__file__).resolve().parents[3]
     server = http.server.ThreadingHTTPServer(('127.0.0.1',0), Fixture)
@@ -101,7 +101,8 @@ if __name__ == '__main__':
                       'sdk-allocations': ('address_allocation', 'backup,browser'),
                       'sdk-payment-allocations': ('payment_allocation', 'backup,browser,payments'),
                       'sdk-human-abi': ('human_abi', 'abi,browser'),
-                      'sdk-receipts': ('receipt_confirmation', 'browser')}
+                      'sdk-receipts': ('receipt_confirmation', 'browser'),
+                      'sdk-account-custody': ('account_custody', 'backup,browser')}
         sdk_suite = sdk_suites.get(arguments.suite)
         command = ['cargo','test','-p','quai-sdk' if sdk_suite else 'quai-browser','--target','wasm32-unknown-unknown','--test',sdk_suite[0] if sdk_suite else arguments.suite,'--offline','--locked']
         if sdk_suite: command += ['--no-default-features','--features',sdk_suite[1]]

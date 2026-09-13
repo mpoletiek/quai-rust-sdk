@@ -7,6 +7,8 @@
 //! Zeroization is best effort; it cannot erase caller copies or guarantee that
 //! cryptographic dependencies/compiler temporaries never retain copies.
 
+#[cfg(feature = "backup")]
+pub mod account_custody;
 pub mod allocation;
 mod backup;
 pub mod discovery;

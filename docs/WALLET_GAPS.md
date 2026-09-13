@@ -5,6 +5,14 @@ See the [feature completeness review](FEATURE_COMPLETENESS_REVIEW_2026-09-12.md)
 for evidence, priorities and acceptance criteria FC01–FC12. Node observations
 below retain their original 2026-09-11 qualification boundary.
 
+The [2026-09-13 Orchard recheck](../test-infra/reports/orchard-read-recheck-2026-09-13.json)
+passed both read-only SDK tests. The gateway now reports
+`go-quai/v0.34.0-pre-b07bc521`; WQI code is present but the configured WQUAI
+address returned empty code. Funded acceptance and faucet access remain open.
+[Browser account custody](BROWSER_ACCOUNT_CUSTODY.md) now retains nonce claims,
+signed candidates and revision-fenced inclusion, alongside the existing address
+allocators; live backup merge and Qi custody remain incomplete.
+
 **The target is a feature-complete SDK for both Quai and Qi wallet applications.**
 Keys, HD derivation, current gap-50 Qi discovery, mixed-origin signing, payment
 channels, conversion sessions, wrapping adapters and durable state are implemented. End-to-end recovery, remaining

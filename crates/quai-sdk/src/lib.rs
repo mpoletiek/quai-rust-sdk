@@ -1,6 +1,8 @@
 //! Quai SDK under construction; wallet derivation and offline signing are available.
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod accounts;
+#[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
+pub mod browser_accounts;
 #[cfg(all(target_arch = "wasm32", feature = "wallet", feature = "browser"))]
 pub mod browser_addresses;
 #[cfg(all(

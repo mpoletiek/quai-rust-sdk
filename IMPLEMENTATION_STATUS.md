@@ -505,3 +505,19 @@ inventory retains all 3,928 rows. Offline prototype probes and Rust comparisons
 cover RPC mappings without constructing or connecting JavaScript providers;
 existing fee/submission tests retain their separate scope. This is evidence-based
 mapping work, not 144 newly implemented features or overall completeness.
+
+
+Portable account transaction custody now retains nonce gaps, exact signed roots
+and fee-only candidate families without SQLite. The browser adapter commits nonces
+before returning and local signatures before exposure, with cross-tab CAS and
+explicit revision fencing around canonical observations. Backup initialization
+retains authenticated native account custody; live backup merge, Qi claims and
+complete browser session orchestration remain open.
+[Workflow and bounds](docs/BROWSER_ACCOUNT_CUSTODY.md).
+
+The Orchard read-only tests passed again on 2026-09-13. Its gateway reports
+`go-quai/v0.34.0-pre-b07bc521`; configured WQI has code, while the configured
+WQUAI address returned empty code. The faucet hostname still failed DNS resolution
+from this environment. These observations do not qualify funded operations or
+the pinned v0.56 protocol profile.
+[Retained read-only evidence](test-infra/reports/orchard-read-recheck-2026-09-13.json).

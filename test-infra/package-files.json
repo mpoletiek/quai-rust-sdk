@@ -304,6 +304,10 @@
     {
       "source": "compatibility/fixtures/provider-basics.json",
       "destination": "crates/quai-provider/tests/fixtures/provider-basics.json"
+    },
+    {
+      "source": "test-infra/fixtures/account-custody.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/account-custody.json"
     }
   ]
 }

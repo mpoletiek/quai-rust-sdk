@@ -185,5 +185,11 @@
     "The Rust differential test exercises four basic read mappings; existing signed-envelope/fee tests provide separate transaction-method evidence.",
     "Pinned unsupported methods are explicit limitations, not newly implemented Rust capabilities.",
     "Only package inclusion was rechecked locally because production runtime source is unchanged; broader platform/package checks run in GitHub CI."
-  ]
+  ],
+  "ciVerified": {
+    "commit": "2299e11a8a49d743d2e9f94f13d7e5856124e9d4",
+    "run": 34751394344,
+    "conclusion": "success",
+    "jobsSucceeded": 8
+  }
 }

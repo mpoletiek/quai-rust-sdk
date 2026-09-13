@@ -137,5 +137,11 @@
     "Dropped read futures cancel polling/transport work where supported; they cannot cancel a submitted transaction.",
     "Actual Chromium worker tests use scripted node observations and an owned loopback Fetch fixture; they are not funded node, real-extension or other-browser qualification.",
     "This change has async state/timer tests and package checks; no additional parser fuzz coverage or sustained fault/soak qualification is claimed."
-  ]
+  ],
+  "ciVerified": {
+    "commit": "b8ad890325cb9d8e312f5521bff68c80941536f3",
+    "run": 34750678672,
+    "conclusion": "success",
+    "jobsSucceeded": 8
+  }
 }

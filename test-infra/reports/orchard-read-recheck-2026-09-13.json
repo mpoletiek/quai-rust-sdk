@@ -1,0 +1,283 @@
+{
+  "observedAt": "2026-09-13T10:18:25.075904+00:00",
+  "url": "https://orchard.rpc.quai.network/cyprus1",
+  "transactionsSubmitted": false,
+  "observations": [
+    {
+      "method": "quai_chainId",
+      "params": [],
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": "0x3a98"
+      }
+    },
+    {
+      "method": "quai_clientVersion",
+      "params": [],
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": "go-quai/v0.34.0-pre-b07bc521"
+      }
+    },
+    {
+      "method": "quai_getBlockByNumber",
+      "params": [
+        "0x0",
+        false
+      ],
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "hash": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+          "header": {
+            "avgTxFees": "0x0",
+            "baseFeePerGas": "0x1",
+            "conversionFlowAmount": "0x21e19e0c9bab2400000",
+            "efficiencyScore": "0x0",
+            "etxEligibleSlices": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "etxRollupRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "etxSetRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "evmRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "exchangeRate": "0x3116d1ae5368e00",
+            "expansionNumber": "0x0",
+            "extraData": "0x501969646146821623139bbe29fd621de6817cbc92ff37e47bce280926cfa1b7bc36f015c658d8140601",
+            "gasLimit": "0xb71b00",
+            "gasUsed": "0x0",
+            "interlinkRootHash": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "kQuaiDiscount": "0x64",
+            "manifestHash": [
+              "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+              "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+              "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+            ],
+            "minerDifficulty": "0x1dcd6501",
+            "number": [
+              "0x0",
+              "0x0"
+            ],
+            "outboundEtxsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "parentDeltaEntropy": [
+              "0x0",
+              "0x0",
+              "0x0"
+            ],
+            "parentEntropy": [
+              "0x0",
+              "0x0",
+              "0x0"
+            ],
+            "parentHash": [
+              "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000000000000000000000000000"
+            ],
+            "parentUncledDeltaEntropy": [
+              "0x0",
+              "0x0",
+              "0x0"
+            ],
+            "primeStateRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "primeTerminusHash": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "quaiStateSize": "0x0",
+            "receiptsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "regionStateRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "size": "0x302",
+            "stateLimit": "0x4c4b40",
+            "stateUsed": "0x0",
+            "thresholdCount": "0x0",
+            "totalFees": "0x0",
+            "transactionsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "uncleHash": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+            "uncledEntropy": "0x0",
+            "utxoRoot": "0x544eb3142c000f0ad2c76ac41f4222abbababed830eeafee4b6dc56b52d5cac0"
+          },
+          "interlinkHashes": [],
+          "order": 0,
+          "outboundEtxs": [],
+          "size": "0x3f3",
+          "subManifest": [],
+          "totalEntropy": "0x0",
+          "transactions": [],
+          "uncles": [],
+          "woHeader": {
+            "data": "0x",
+            "difficulty": "0x1dcd6501",
+            "hash": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+            "headerHash": "0x93e479e078bf380b2bf5e322758828487774aca6153bb9650f1a081c8c38c362",
+            "location": "0x",
+            "lock": "0x0",
+            "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "nonce": "0x0622426243665537",
+            "number": "0x0",
+            "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "primaryCoinbase": "0x0000000000000000000000000000000000000000",
+            "primeTerminusNumber": "0x0",
+            "timestamp": "0x0",
+            "txHash": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+          },
+          "workshares": []
+        }
+      }
+    },
+    {
+      "method": "quai_getBlockByNumber",
+      "params": [
+        "latest",
+        false
+      ],
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "hash": "0xf2b4ac1f05144bfef5ad1173dee5d3854a43e2e15a43387b46281a28a4c9164a",
+          "header": {
+            "avgTxFees": "0x0",
+            "baseFeePerGas": "0x3b9aca00",
+            "conversionFlowAmount": "0x56bc75e2d63100000",
+            "efficiencyScore": "0x59",
+            "etxEligibleSlices": "0x0100000000000000000000000000000000000000000000000000000000000000",
+            "etxRollupRoot": "0x161926c1472cc3c242ff297f68ddf9a285610a5115fcb66195399a5e5bb2378b",
+            "etxSetRoot": "0x0ddff28df39983beba72a86cda97cf00ebe66ddcf91fb66878c12e8efcf4800e",
+            "evmRoot": "0xb1c7302d4a993872a1bb6a88458d08548fa1284a3b750cc06c16384927026738",
+            "exchangeRate": "0x2659d3d03129ef000",
+            "expansionNumber": "0x0",
+            "extraData": "0xd78776302e33342e3088676f312e32362e37856c696e7578",
+            "gasLimit": "0x2faf080",
+            "gasUsed": "0x0",
+            "interlinkRootHash": "0xd117391d0740af877d872e88f8c5578d479203ea58411bc37105bfba55a7ed27",
+            "kQuaiDiscount": "0x0",
+            "manifestHash": [
+              "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+              "0x01b054bde1f894468f3398c7475c5e88f683c9ce7f64e89e356a973ced2863f5",
+              "0xba68283800d9284b85a84998d566d7a6f17b8b26488ac281d049741b12f66b7f"
+            ],
+            "minerDifficulty": "0xee78769",
+            "number": [
+              "0x1a16b6",
+              "0x405e92"
+            ],
+            "outboundEtxsRoot": "0x4d04e04bce4e3903eb72b4f51480baaeef0db31788a28e0efb374b85a2bb3275",
+            "parentDeltaEntropy": [
+              "0x0",
+              "0x1d3dc966ab3c271bab",
+              "0x0"
+            ],
+            "parentEntropy": [
+              "0xeeea2eb82a52eed91e6f9e1",
+              "0xeeea308c06e9598ce0e158c",
+              "0xeeea308c06e9598ce0e158c"
+            ],
+            "parentHash": [
+              "0x62b57ddfb4c440acccf7a17a592d1311a43e3089f3e04dd13d2a862293baa167",
+              "0xb11330da3ed663339cb0302f453f82691a2354077c6f2f184559a5376c0a1eff"
+            ],
+            "parentUncledDeltaEntropy": [
+              "0x0",
+              "0x0",
+              "0x0"
+            ],
+            "primeStateRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "primeTerminusHash": "0x62b57ddfb4c440acccf7a17a592d1311a43e3089f3e04dd13d2a862293baa167",
+            "quaiStateSize": "0x64bd",
+            "receiptsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "regionStateRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "size": "0x2f5",
+            "stateLimit": "0x2faf080",
+            "stateUsed": "0x0",
+            "thresholdCount": "0x0",
+            "totalFees": "0x0",
+            "transactionsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "uncleHash": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+            "uncledEntropy": "0x0",
+            "utxoRoot": "0x158e70065c158d1d3f1ab00a8cad4990f1f391f8c052e82f81e4cf973679f570"
+          },
+          "interlinkHashes": [],
+          "order": 1,
+          "outboundEtxs": [
+            "0x009700da0d5ad5a229fb4053a33df9ded2acb40961749a6b839bb96302822068",
+            "0x00e600cb894cc3fe24d75cc05698966921dce2aacdbc259fd0debc4c73452ced"
+          ],
+          "size": "0x6ea",
+          "subManifest": [],
+          "totalEntropy": "0xeeea32611c06a3803e865aa",
+          "transactions": [],
+          "uncles": [],
+          "woHeader": {
+            "data": "0x00",
+            "difficulty": "0xee8d7d1",
+            "hash": "0xf2b4ac1f05144bfef5ad1173dee5d3854a43e2e15a43387b46281a28a4c9164a",
+            "headerHash": "0xe928cf65a367b59a8c5987706177096500f3d4245a7338ba2988d9a9e9d15553",
+            "location": "0x0000",
+            "lock": "0x0",
+            "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "nonce": "0x0000000000000000",
+            "number": "0x76ce2c",
+            "parentHash": "0xb11330da3ed663339cb0302f453f82691a2354077c6f2f184559a5376c0a1eff",
+            "primaryCoinbase": "0x00B498129a30dED347511bC2aA04EFa0c9Ea028C",
+            "primeTerminusNumber": "0x1a16b5",
+            "timestamp": "0x6aa67853",
+            "txHash": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+          },
+          "workshares": []
+        }
+      }
+    },
+    {
+      "method": "quai_getCode",
+      "params": [
+        "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+        "latest"
+      ],
+      "response": {
+        "codeBytes": 7255,
+        "codeSha256": "8e03e502d1d615d86d06d2b55887438cb28f75a23c163c64f90507649e179dd8"
+      }
+    },
+    {
+      "method": "quai_getCode",
+      "params": [
+        "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB",
+        "latest"
+      ],
+      "response": {
+        "codeBytes": 0,
+        "codeSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "quai_getOutpointsByAddress",
+      "params": [
+        "0x0080000000000000000000000000000000000000"
+      ],
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": []
+      }
+    }
+  ],
+  "userAgent": "quai-rust-sdk-qualification",
+  "qualification": {
+    "sdkReadTests": {
+      "command": "QUAI_RPC_URL=https://orchard.rpc.quai.network/cyprus1 QUAI_EXPECTED_CHAIN_ID=15000 cargo test -p quai-provider --test live_reads --locked --offline -- --ignored --nocapture",
+      "passed": 2,
+      "ordinaryQiFeeQits": "1",
+      "fixtureInputsSpendable": false
+    },
+    "faucet": {
+      "url": "https://orchard.faucet.quai.network",
+      "observation": "DNS resolution failed in this environment at 2026-09-13T10:10:03Z",
+      "fundingRequested": false
+    },
+    "limits": [
+      "Reported chain ID, genesis and client version are observations, not build/sync attestations.",
+      "Empty-address outpoints do not qualify historical coverage or indexing completeness.",
+      "WQI code presence is not contract correctness or transaction acceptance.",
+      "Configured WQUAI address returned empty code on Orchard; funded wrapper acceptance remains open.",
+      "Python default user agent was rejected; the explicit qualification user agent and SDK HTTP transport succeeded.",
+      "No public network transaction was signed or submitted."
+    ]
+  }
+}

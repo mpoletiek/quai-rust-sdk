@@ -44,6 +44,8 @@ jobs:
       - run: npm run generate --prefix compatibility
       - run: node test-infra/generate_address_allocation_fixtures.mjs
       - run: git diff --exit-code -- test-infra/fixtures/address-allocation.json
+      - run: node test-infra/generate_account_custody_fixtures.mjs
+      - run: git diff --exit-code -- test-infra/fixtures/account-custody.json
       - run: node test-infra/generate_payment_allocation_fixtures.mjs
       - run: git diff --exit-code -- test-infra/fixtures/payment-allocation.json
       - run: npm run wrapping --prefix compatibility
@@ -100,6 +102,7 @@ jobs:
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-events
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-human-abi
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-receipts
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-account-custody
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-keys
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-backups
         env:

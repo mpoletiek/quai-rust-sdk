@@ -3,7 +3,10 @@
   "name": "orchard-gateway-cyprus1",
   "status": "read-only-observed-deployed-version-unverified",
   "chain_id": 15000,
-  "zone": [0, 0],
+  "zone": [
+    0,
+    0
+  ],
   "use_pathing": true,
   "gateway_base_url": "https://orchard.rpc.quai.network",
   "resolved_http_url": "https://orchard.rpc.quai.network/cyprus1",
@@ -11,10 +14,14 @@
   "prime_http_url": "https://orchard.rpc.quai.network/prime",
   "candidate_node_commit": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
   "verified_node_commit": null,
-  "genesis_hash": null,
+  "genesis_hash": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
   "known_funded_test_accounts": [],
   "expected_qi_outpoint": null,
   "address_index_verified": false,
   "transaction_acceptance_verified": false,
-  "ws_verified": false
+  "ws_verified": false,
+  "observed_client_version": "go-quai/v0.34.0-pre-b07bc521",
+  "observed_at": "2026-09-13T10:18:25.075904+00:00",
+  "latest_read_evidence": "test-infra/reports/orchard-read-recheck-2026-09-13.json",
+  "genesis_trust": "Observed via the configured public gateway; not independently attested."
 }

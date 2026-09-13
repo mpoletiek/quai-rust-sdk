@@ -38171,19 +38171,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::new"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": ".:TypedDataEncoder:instance:_visit",
@@ -38194,12 +38195,21 @@
         "(type: string, value: any, callback: (type: string, data: any) => any): any"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::visit_type"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Synchronous declaration/index order traversal preserves exact named objects and arrays. Complete bounded shape validation precedes callbacks; extra fields reject instead of being silently skipped. Leaf transformations require separate encoding validation, aggregate output budgets include keys, and callback side effects cannot be rolled back."
     },
     {
       "id": ".:TypedDataEncoder:instance:encode",
@@ -38211,19 +38221,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::encode_data"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": ".:TypedDataEncoder:instance:encodeData",
@@ -38235,19 +38246,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::encode_data"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Validated primitive/array/declared-struct root resolution; dynamic bytes/strings and arrays produce EIP-712 hash words, struct roots retain full type-hash-plus-fields encoding. Resolved encoders borrow immutable schema, unknown empty-array element types reject, aliases/coercions/resource policy remain explicitly strict."
     },
     {
       "id": ".:TypedDataEncoder:instance:encodeType",
@@ -38259,19 +38271,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::encode_type"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": ".:TypedDataEncoder:instance:getEncoder",
@@ -38282,12 +38295,21 @@
         "(type: string): (value: any) => string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::encoder"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Validated primitive/array/declared-struct root resolution; dynamic bytes/strings and arrays produce EIP-712 hash words, struct roots retain full type-hash-plus-fields encoding. Resolved encoders borrow immutable schema, unknown empty-array element types reject, aliases/coercions/resource policy remain explicitly strict."
     },
     {
       "id": ".:TypedDataEncoder:instance:hash",
@@ -38299,19 +38321,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::hash"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": ".:TypedDataEncoder:instance:hashStruct",
@@ -38323,19 +38346,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::hash_struct"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Validated primitive/array/declared-struct root resolution; dynamic bytes/strings and arrays produce EIP-712 hash words, struct roots retain full type-hash-plus-fields encoding. Resolved encoders borrow immutable schema, unknown empty-array element types reject, aliases/coercions/resource policy remain explicitly strict."
     },
     {
       "id": ".:TypedDataEncoder:instance:primaryType",
@@ -38344,12 +38368,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::primary_type"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": ".:TypedDataEncoder:instance:types",
@@ -38358,12 +38391,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::types"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed immutable original validated schema with retained field order; callers explicitly clone before modifying, avoiding mutable schema/cache disagreement."
     },
     {
       "id": ".:TypedDataEncoder:instance:visit",
@@ -38374,12 +38416,21 @@
         "(value: Record<string, any>, callback: (type: string, data: any) => any): any"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::visit"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Synchronous declaration/index order traversal preserves exact named objects and arrays. Complete bounded shape validation precedes callbacks; extra fields reject instead of being silently skipped. Leaf transformations require separate encoding validation, aggregate output budgets include keys, and callback side effects cannot be rolled back."
     },
     {
       "id": ".:TypedDataEncoder:static:encode",
@@ -38391,19 +38442,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::signing_preimage"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": ".:TypedDataEncoder:static:from",
@@ -38414,12 +38466,21 @@
         "(types: Record<string, Array<TypedDataField>>): TypedDataEncoder"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": ".:TypedDataEncoder:static:getPayload",
@@ -38431,17 +38492,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
+        "quai_abi::TypedData::from_json",
         "quai_abi::TypedData::to_rpc_json"
       ],
       "feature": "abi",
       "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Validated immutable documents include canonical domain schema and exact integer strings. Strict schema/value rules; RPC serializer preserves valid input address/hex strings rather than all JS presentation normalization."
+      "deviation": "Explicit bounded four-field RPC document validated by TypedData::from_json; to_rpc_json exports normalized domain/types/message/primaryType with exact integer strings. Strict domain/primary-type/duplicate/extra-field checks and no implicit ENS resolution."
     },
     {
       "id": ".:TypedDataEncoder:static:getPrimaryType",
@@ -38452,12 +38517,21 @@
         "(types: Record<string, Array<TypedDataField>>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::primary_type"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": ".:TypedDataEncoder:static:hash",
@@ -38469,19 +38543,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::hash_typed_data"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": ".:TypedDataEncoder:static:hashDomain",
@@ -38493,19 +38568,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
         "quai_abi::hash_domain"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": ".:TypedDataEncoder:static:hashStruct",
@@ -38517,19 +38593,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::hash_struct"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Validated primitive/array/declared-struct root resolution; dynamic bytes/strings and arrays produce EIP-712 hash words, struct roots retain full type-hash-plus-fields encoding. Resolved encoders borrow immutable schema, unknown empty-array element types reject, aliases/coercions/resource policy remain explicitly strict."
     },
     {
       "id": ".:TypedDataField",
@@ -58003,19 +58080,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::new"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": "./hash:TypedDataEncoder:instance:_visit",
@@ -58026,12 +58104,21 @@
         "(type: string, value: any, callback: (type: string, data: any) => any): any"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::visit_type"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Synchronous declaration/index order traversal preserves exact named objects and arrays. Complete bounded shape validation precedes callbacks; extra fields reject instead of being silently skipped. Leaf transformations require separate encoding validation, aggregate output budgets include keys, and callback side effects cannot be rolled back."
     },
     {
       "id": "./hash:TypedDataEncoder:instance:encode",
@@ -58043,19 +58130,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::encode_data"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": "./hash:TypedDataEncoder:instance:encodeData",
@@ -58067,19 +58155,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::encode_data"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Validated primitive/array/declared-struct root resolution; dynamic bytes/strings and arrays produce EIP-712 hash words, struct roots retain full type-hash-plus-fields encoding. Resolved encoders borrow immutable schema, unknown empty-array element types reject, aliases/coercions/resource policy remain explicitly strict."
     },
     {
       "id": "./hash:TypedDataEncoder:instance:encodeType",
@@ -58091,19 +58180,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::encode_type"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": "./hash:TypedDataEncoder:instance:getEncoder",
@@ -58114,12 +58204,21 @@
         "(type: string): (value: any) => string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::encoder"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Validated primitive/array/declared-struct root resolution; dynamic bytes/strings and arrays produce EIP-712 hash words, struct roots retain full type-hash-plus-fields encoding. Resolved encoders borrow immutable schema, unknown empty-array element types reject, aliases/coercions/resource policy remain explicitly strict."
     },
     {
       "id": "./hash:TypedDataEncoder:instance:hash",
@@ -58131,19 +58230,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::hash"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": "./hash:TypedDataEncoder:instance:hashStruct",
@@ -58155,19 +58255,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::hash_struct"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Validated primitive/array/declared-struct root resolution; dynamic bytes/strings and arrays produce EIP-712 hash words, struct roots retain full type-hash-plus-fields encoding. Resolved encoders borrow immutable schema, unknown empty-array element types reject, aliases/coercions/resource policy remain explicitly strict."
     },
     {
       "id": "./hash:TypedDataEncoder:instance:primaryType",
@@ -58176,12 +58277,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::primary_type"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": "./hash:TypedDataEncoder:instance:types",
@@ -58190,12 +58300,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::types"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Borrowed immutable original validated schema with retained field order; callers explicitly clone before modifying, avoiding mutable schema/cache disagreement."
     },
     {
       "id": "./hash:TypedDataEncoder:instance:visit",
@@ -58206,12 +58325,21 @@
         "(value: Record<string, any>, callback: (type: string, data: any) => any): any"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::visit"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Synchronous declaration/index order traversal preserves exact named objects and arrays. Complete bounded shape validation precedes callbacks; extra fields reject instead of being silently skipped. Leaf transformations require separate encoding validation, aggregate output budgets include keys, and callback side effects cannot be rolled back."
     },
     {
       "id": "./hash:TypedDataEncoder:static:encode",
@@ -58223,19 +58351,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::signing_preimage"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": "./hash:TypedDataEncoder:static:from",
@@ -58246,12 +58375,21 @@
         "(types: Record<string, Array<TypedDataField>>): TypedDataEncoder"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::new"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": "./hash:TypedDataEncoder:static:getPayload",
@@ -58263,17 +58401,21 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
+        "quai_abi::TypedData::from_json",
         "quai_abi::TypedData::to_rpc_json"
       ],
       "feature": "abi",
       "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Validated immutable documents include canonical domain schema and exact integer strings. Strict schema/value rules; RPC serializer preserves valid input address/hex strings rather than all JS presentation normalization."
+      "deviation": "Explicit bounded four-field RPC document validated by TypedData::from_json; to_rpc_json exports normalized domain/types/message/primaryType with exact integer strings. Strict domain/primary-type/duplicate/extra-field checks and no implicit ENS resolution."
     },
     {
       "id": "./hash:TypedDataEncoder:static:getPrimaryType",
@@ -58284,12 +58426,21 @@
         "(types: Record<string, Array<TypedDataField>>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::TypedDataEncoder::primary_type"
+      ],
+      "feature": "abi",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
+        "crates/quai-abi/tests/typed_data.rs"
+      ],
+      "docs": [
+        "docs/TYPED_DATA_PARITY.md",
+        "crates/quai-abi/README.md"
+      ],
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": "./hash:TypedDataEncoder:static:hash",
@@ -58301,19 +58452,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::hash_typed_data"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": "./hash:TypedDataEncoder:static:hashDomain",
@@ -58325,19 +58477,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
         "quai_abi::hash_domain"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Immutable validated acyclic schema and explicit-width types; exact bounded canonical encodings/hashes with typed errors, strict missing/extra fields and no JS coercions or implicit name resolution. Static construction helpers compose new with the corresponding instance method; primary encode explicitly selects primary_type."
     },
     {
       "id": "./hash:TypedDataEncoder:static:hashStruct",
@@ -58349,19 +58502,20 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_abi::TypedDataEncoder",
-        "quai_abi::TypedData",
-        "quai_abi::hash_domain"
+        "quai_abi::TypedDataEncoder::hash_struct"
       ],
       "feature": "abi",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/typed-data-utils.test.mjs",
+        "crates/quai-abi/tests/typed_utils.rs",
         "crates/quai-abi/tests/typed_data.rs"
       ],
       "docs": [
+        "docs/TYPED_DATA_PARITY.md",
         "crates/quai-abi/README.md"
       ],
-      "deviation": "Bounded canonical schemas and strict values; JS truthiness/unused value fields deliberately rejected. Complete class helpers tracked separately."
+      "deviation": "Validated primitive/array/declared-struct root resolution; dynamic bytes/strings and arrays produce EIP-712 hash words, struct roots retain full type-hash-plus-fields encoding. Resolved encoders borrow immutable schema, unknown empty-array element types reject, aliases/coercions/resource policy remain explicitly strict."
     },
     {
       "id": "./hash:TypedDataField",

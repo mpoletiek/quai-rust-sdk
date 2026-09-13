@@ -1,0 +1,1 @@
+{"types": {"Message": [{"name": "owner", "type": "Person"}, {"name": "members", "type": "Person[]"}, {"name": "matrix", "type": "uint256[2][]"}], "Person": [{"name": "name", "type": "string"}, {"name": "wallet", "type": "address"}]}, "type": "int216", "value": "-52656145834278593348959013841835216159447547700274555627155488768"}

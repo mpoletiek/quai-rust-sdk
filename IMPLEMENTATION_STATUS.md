@@ -890,3 +890,26 @@ typed-data, transaction/contract response and remaining utility reviews continue
 The ABI batch also passes extracted-source package rehearsal for all twelve crate
 archives, three consumer profiles, twelve native target compilations and two Wasm
 target compilations. This does not publish packages or certify docs.rs execution.
+
+
+## Typed-data utility completion — 2026-09-13
+
+Added reusable `TypedValueEncoder`, arbitrary primitive/array/struct root encoding,
+borrowed schema metadata and shape-checked `visit`/`visit_type`. Encoders match
+107 published EIP-712 vectors. Visitors preserve named objects and array order,
+reject missing/extra fields before callbacks, and bound aggregate callback output.
+Normal domain/signature validation remains required after transformations.
+
+All 49 native ABI tests and 14 shared worker tests pass. Three published-source
+regressions cover encoding, visitation order and upstream permissive behavior.
+Strict native/Wasm Clippy and warnings-denied docs pass. ABI AddressSanitizer
+fuzzing completed 485,158 executions over 120 seconds without failure; this is
+bounded smoke coverage, not an independent security audit. See
+[typed-data parity](docs/TYPED_DATA_PARITY.md) for the complete API mapping.
+
+The 36 reviewed declarations close 14 pending and 20 partial rows. The ledger now
+has 66 implemented, 2,748 deviation, 40 partial and 1,074 pending entries.
+
+The typed-data batch passes extracted-source rehearsal for all twelve crate
+archives, three consumer profiles, twelve native target compilations and two Wasm
+target compilations. No registry upload or docs.rs release certification is claimed.

@@ -466,3 +466,19 @@ executor requirement. Callback side effects cannot be rolled back; transformed
 leaf values require `AbiCoder::encode` validation before use as ABI arguments.
 Rust maps preserve prototype-like names, and JSON formatting retains indexed array
 flags and gas hints which the published JavaScript formatter mishandles.
+
+## Resolved typed-data encoders and visitors
+
+`TypedDataEncoder::types` borrows the validated schema. `encoder(type_name)` resolves
+an explicit primitive, array or declared struct type into a `TypedValueEncoder`;
+its `encode` method borrows the compiled schema and returns exact EIP-712 bytes.
+`encode_data` accepts the same type expressions directly. Primitive and array
+roots produce one word; structs produce type hash plus field words. Dynamic
+bytes/strings and arrays use EIP-712 hashing, not ordinary dynamic ABI encoding.
+
+`visit` transforms primary-type leaves; `visit_type` starts from an explicit type.
+Both preserve named objects and array order, validate the complete shape before
+callbacks and bound combined output nodes, key/string bytes and depth. Missing or
+extra fields reject. Leaves are not implicitly coerced or authenticated; encode
+transformed values before signing. Callback side effects cannot be undone. The
+API retains explicit-width typed-data integers and strict resource policies.

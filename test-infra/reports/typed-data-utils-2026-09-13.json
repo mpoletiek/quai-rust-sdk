@@ -1,0 +1,194 @@
+{
+  "recordedAt": "2026-09-13T23:17:48.557841+00:00",
+  "baseCommit": "6e8d121e9255a521303987c4240e993aad39886a",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    "crates/quai-abi/src/schema.rs": "03bfb368d4a90bbcf4dab6be46f62c0692d27f8bd421a50398c39c10e7382b72",
+    "crates/quai-abi/src/value.rs": "d6fae771293463179ab9fbfd9f43987e444ab3e2aaadc54fd0e6cf1bcdc09099",
+    "crates/quai-abi/src/typed_visit.rs": "aa719e37c6bb625fecf2344e68cda52f5d41bb6dc39454c94a2f42bc25dd1cac",
+    "crates/quai-abi/src/parameter.rs": "d2395fda0769be1aa98cf3349ebae03dbc6e346d5017eca777d42e14250027f7",
+    "crates/quai-abi/src/lib.rs": "d256b07d55e78f0d3ebedee3b34640b757213e38a8e8c28fad12a821d06ac623",
+    "crates/quai-abi/tests/typed_utils.rs": "d02c898fcc539a1d029d0e092262061f0fe6927993ae4dfb02e36bad4ea89c95",
+    "crates/quai-sdk/tests/human_abi.rs": "da8f31ed0cfb29321604114d3af0a80917dcf3b88ef9443032675d3aa22957fc",
+    "compatibility/fixtures/typed-data-utils.json": "6072890b792cff1a5c8366f0a9980ff4c5a6bda5561d455cac499a73799b6137",
+    "compatibility/scripts/typed-data-utils.test.mjs": "7c08eb72d0484bf9083f118e265370f9642a53066bdaee0d4032bc36cb6f416b",
+    "compatibility/scripts/generate-typed-data-utils.mjs": "70f9ee7e7c00c4d46570a02022eec9b6ddf8984199d80b430470334cd60a0b09",
+    "fuzz/fuzz_targets/abi.rs": "9225ce535d4b1b97143e3ed3b367dd57c617abfd94d6872e7f18a22bfc4b29bf",
+    "fuzz/seed-corpus.py": "af0df32d38b0b11c6d0d040169863caabc4280baf5f46d5f44b153013c74e8ee",
+    "docs/TYPED_DATA_PARITY.md": "0ba4763a760a3fd3ee3b0b5e6b7ef321353aea192ebb3f4d46339f154bffabea"
+  },
+  "parityRows": [
+    ".:TypedDataEncoder",
+    ".:TypedDataEncoder:instance:_visit",
+    ".:TypedDataEncoder:instance:encode",
+    ".:TypedDataEncoder:instance:encodeData",
+    ".:TypedDataEncoder:instance:encodeType",
+    ".:TypedDataEncoder:instance:getEncoder",
+    ".:TypedDataEncoder:instance:hash",
+    ".:TypedDataEncoder:instance:hashStruct",
+    ".:TypedDataEncoder:instance:primaryType",
+    ".:TypedDataEncoder:instance:types",
+    ".:TypedDataEncoder:instance:visit",
+    ".:TypedDataEncoder:static:encode",
+    ".:TypedDataEncoder:static:from",
+    ".:TypedDataEncoder:static:getPayload",
+    ".:TypedDataEncoder:static:getPrimaryType",
+    ".:TypedDataEncoder:static:hash",
+    ".:TypedDataEncoder:static:hashDomain",
+    ".:TypedDataEncoder:static:hashStruct",
+    "./hash:TypedDataEncoder",
+    "./hash:TypedDataEncoder:instance:_visit",
+    "./hash:TypedDataEncoder:instance:encode",
+    "./hash:TypedDataEncoder:instance:encodeData",
+    "./hash:TypedDataEncoder:instance:encodeType",
+    "./hash:TypedDataEncoder:instance:getEncoder",
+    "./hash:TypedDataEncoder:instance:hash",
+    "./hash:TypedDataEncoder:instance:hashStruct",
+    "./hash:TypedDataEncoder:instance:primaryType",
+    "./hash:TypedDataEncoder:instance:types",
+    "./hash:TypedDataEncoder:instance:visit",
+    "./hash:TypedDataEncoder:static:encode",
+    "./hash:TypedDataEncoder:static:from",
+    "./hash:TypedDataEncoder:static:getPayload",
+    "./hash:TypedDataEncoder:static:getPrimaryType",
+    "./hash:TypedDataEncoder:static:hash",
+    "./hash:TypedDataEncoder:static:hashDomain",
+    "./hash:TypedDataEncoder:static:hashStruct"
+  ],
+  "validation": {
+    "nativeAbiTests": {
+      "passed": 49,
+      "failed": 0,
+      "ignored": 0
+    },
+    "browserWorkerAbiTests": {
+      "passed": 14,
+      "failed": 0,
+      "seconds": 0.38
+    },
+    "publishedSourceTests": {
+      "passed": 3,
+      "failed": 0
+    },
+    "nativeClippy": "workspace all-targets all-features; warnings denied; passed",
+    "wasmClippy": "SDK all targets backup,browser,abi; warnings denied; passed",
+    "nativeDocs": "workspace all-features no-deps; warnings denied; passed",
+    "wasmDocs": "SDK backup,browser,abi no-deps; warnings denied; passed",
+    "packageMirrors": 90,
+    "fuzzReport": "test-infra/reports/typed-data-utils-fuzz-2026-09-13.json",
+    "packageRehearsal": {
+      "schemaVersion": 1,
+      "published": false,
+      "networkAccess": false,
+      "sourceCommit": "6e8d121e9255a521303987c4240e993aad39886a",
+      "sourceDirty": true,
+      "packages": [
+        {
+          "name": "quai-primitives",
+          "version": "0.1.0-alpha.1",
+          "bytes": 62130,
+          "sha256": "6244f076f232f15026a333ccf4d3dc911efc7a6a510420a880ab3d87eb5d7cad"
+        },
+        {
+          "name": "quai-rpc",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45305,
+          "sha256": "56ebcb3d1734d90eb66d23cc7b6ab37b00c033018117cec6bb0a251b11a34be2"
+        },
+        {
+          "name": "quai-provider",
+          "version": "0.1.0-alpha.1",
+          "bytes": 144624,
+          "sha256": "397e7d5a1f46fd0e9ba9358d2b1e1a2f6dba424f851c40955e64617f3edb2947"
+        },
+        {
+          "name": "quai-consensus",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45774,
+          "sha256": "e2a27330f0d047bee2b07b8391dcd56880d2775be0a384bb0211d8b6795af237"
+        },
+        {
+          "name": "quai-crypto",
+          "version": "0.1.0-alpha.1",
+          "bytes": 48115,
+          "sha256": "a05cb35de1a97cb9f408e9bd77cfdc3163077bb78f04e4cd44fb471f9cfb3d68"
+        },
+        {
+          "name": "quai-sdk",
+          "version": "0.1.0-alpha.1",
+          "bytes": 284578,
+          "sha256": "bd0523dcd29e237e9c597ad42f949e55e9d29f1c6844949123ec85e1f88c9312"
+        },
+        {
+          "name": "quai-abi",
+          "version": "0.1.0-alpha.1",
+          "bytes": 188443,
+          "sha256": "190d8ffb2cfae268f80fe9bf6689de43005b6fb30d739d2c9ec9c6f571b5410d"
+        },
+        {
+          "name": "quai-browser",
+          "version": "0.1.0-alpha.1",
+          "bytes": 86995,
+          "sha256": "f1adcd369a885b8464b297c5d6c96a5fb641214e0f655cc635ff708644c8915f"
+        },
+        {
+          "name": "quai-signer",
+          "version": "0.1.0-alpha.1",
+          "bytes": 24659,
+          "sha256": "2beda8ced1f6184d5d115da2a5cb4d03eeb875f3d602ecd8bc05754e6ad10cef"
+        },
+        {
+          "name": "quai-keystore",
+          "version": "0.1.0-alpha.1",
+          "bytes": 34354,
+          "sha256": "12e0cc3a85239a5d2987baefa7287f652c0dcac7f4f7f700cb4bb61a86313e97"
+        },
+        {
+          "name": "quai-wallet",
+          "version": "0.1.0-alpha.1",
+          "bytes": 278868,
+          "sha256": "b29ea8b1ef9b64cd38d7d5b90ac4f56d8f6732089022d4684f93d3e1e83ad491"
+        },
+        {
+          "name": "quai-payments",
+          "version": "0.1.0-alpha.1",
+          "bytes": 39459,
+          "sha256": "04edcd7aa5fc4461e4556f754d366b349b27c5915fe5a2372119d7ba9a6aba4e"
+        }
+      ],
+      "consumerTests": {
+        "minimal": "passed",
+        "default": "passed",
+        "full": "passed"
+      },
+      "packagedTargetChecks": {
+        "quai-primitives": "passed",
+        "quai-rpc": "passed",
+        "quai-provider": "passed",
+        "quai-consensus": "passed",
+        "quai-crypto": "passed",
+        "quai-sdk": "passed",
+        "quai-abi": "passed",
+        "quai-browser": "passed",
+        "quai-signer": "passed",
+        "quai-keystore": "passed",
+        "quai-wallet": "passed",
+        "quai-payments": "passed"
+      },
+      "packagedWasmChecks": {
+        "quai-browser": "passed",
+        "quai-sdk": "passed"
+      },
+      "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+    },
+    "fullReferenceSuite": "passed"
+  },
+  "limitations": [
+    "Offline EIP-712 vectors only; no funded transaction or external signer qualification.",
+    "Visitors validate shape but transformed leaves require encoding/domain policy before signing.",
+    "Caller callback allocations and prior side effects cannot be controlled or rolled back.",
+    "Canonical explicit-width types and strict missing/extra fields are deliberate Rust policies.",
+    "Bounded fuzz smoke is not independent audit or sustained qualification.",
+    "Overall parity remains incomplete: 1074 pending and 40 partial declarations."
+  ]
+}

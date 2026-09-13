@@ -47,6 +47,7 @@ pub(crate) struct Struct {
 pub struct TypedDataEncoder {
     pub(crate) structs: BTreeMap<String, Struct>,
     pub(crate) primary: String,
+    types: TypedDataTypes,
 }
 
 fn identifier(s: &str) -> bool {
@@ -91,7 +92,7 @@ fn base(s: &str) -> Result<Base, TypedDataError> {
         }
     }
 }
-fn expression(s: &str) -> Result<(Base, Vec<Option<usize>>), TypedDataError> {
+pub(crate) fn expression(s: &str) -> Result<(Base, Vec<Option<usize>>), TypedDataError> {
     if s.len() > 256 {
         return Err(TypedDataError::Limit);
     }
@@ -229,7 +230,16 @@ impl TypedDataEncoder {
             structure.type_hash = keccak(full.as_bytes());
             structure.encoded_type = full;
         }
-        Ok(Self { structs, primary })
+        Ok(Self {
+            structs,
+            primary,
+            types: types.clone(),
+        })
+    }
+
+    /// Borrow the validated schema in declaration field order.
+    pub fn types(&self) -> &TypedDataTypes {
+        &self.types
     }
 
     /// The unique schema root inferred from its dependency graph.

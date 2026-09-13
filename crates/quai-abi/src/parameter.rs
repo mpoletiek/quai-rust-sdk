@@ -227,11 +227,11 @@ impl AbiParameter {
         }
         Ok(plan.finish(&mut output))
     }
-    fn plan<'a>(&'a self, value: &'a Value) -> Result<(Plan, Vec<Leaf<'a>>, Budget), AbiError> {
-        Budget::default().value(value, 0)?;
+    fn plan<'a>(&'a self, value: &'a Value) -> Result<(Plan, Vec<Leaf<'a>>, JsonBudget), AbiError> {
+        JsonBudget::default().value(value, 0)?;
         let mut leaves = Vec::new();
         let plan = self.shape(value, 0, &mut leaves)?;
-        let mut budget = Budget::default();
+        let mut budget = JsonBudget::default();
         plan.containers(&mut budget, 0)?;
         Ok((plan, leaves, budget))
     }
@@ -299,7 +299,7 @@ enum Plan {
     Leaf(usize),
 }
 impl Plan {
-    fn containers(&self, budget: &mut Budget, depth: usize) -> Result<(), AbiError> {
+    fn containers(&self, budget: &mut JsonBudget, depth: usize) -> Result<(), AbiError> {
         if let Self::Array(items) = self {
             budget.node(depth)?;
             for item in items {
@@ -318,26 +318,26 @@ impl Plan {
     }
 }
 #[derive(Default)]
-struct Budget {
+pub(crate) struct JsonBudget {
     nodes: usize,
     bytes: usize,
 }
-impl Budget {
-    fn node(&mut self, depth: usize) -> Result<(), AbiError> {
+impl JsonBudget {
+    pub(crate) fn node(&mut self, depth: usize) -> Result<(), AbiError> {
         if depth > MAX_DEPTH || self.nodes == MAX_VALUE_NODES {
             return Err(AbiError::Limit);
         }
         self.nodes += 1;
         Ok(())
     }
-    fn text(&mut self, n: usize) -> Result<(), AbiError> {
+    pub(crate) fn text(&mut self, n: usize) -> Result<(), AbiError> {
         self.bytes = self.bytes.checked_add(n).ok_or(AbiError::Limit)?;
         if self.bytes > MAX_DATA_BYTES {
             return Err(AbiError::Limit);
         }
         Ok(())
     }
-    fn value(&mut self, value: &Value, depth: usize) -> Result<(), AbiError> {
+    pub(crate) fn value(&mut self, value: &Value, depth: usize) -> Result<(), AbiError> {
         self.node(depth)?;
         match value {
             Value::String(s) => self.text(s.len())?,

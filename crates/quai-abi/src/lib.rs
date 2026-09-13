@@ -22,6 +22,8 @@ pub use workflows::{
     AbiFilterTopic, AbiFilterValue, MAX_FILTER_ALTERNATIVES, ParsedCall, ParsedLog, ParsedRevert,
 };
 mod schema;
+mod typed_visit;
+pub use typed_visit::TypedValueEncoder;
 mod value;
 
 pub use document::TypedData;

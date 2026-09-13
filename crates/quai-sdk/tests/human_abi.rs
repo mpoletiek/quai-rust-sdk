@@ -7,3 +7,6 @@ mod shared;
 
 #[path = "fixtures/shared/crates/quai-abi/tests/reflection.rs"]
 mod reflection;
+
+#[path = "fixtures/shared/crates/quai-abi/tests/typed_utils.rs"]
+mod typed_utils;

@@ -11,6 +11,17 @@ fuzz_target!(|data:&[u8]| {
  if let Ok(text)=std::str::from_utf8(data){if let Ok(ty)=AbiType::parse(text){if let Ok(value)=AbiValue::default_for(ty){let encoded=value.encode().unwrap();assert_eq!(AbiCoder::decode(std::slice::from_ref(value.abi_type()),&encoded).unwrap(),vec![value.value().clone()]);}}}
  if let Ok(text)=std::str::from_utf8(data){if let Ok(types)=text.split('\n').take(1025).map(AbiType::parse).collect::<Result<Vec<_>,_>>(){if let Ok(values)=AbiCoder::default_values(&types){let encoded=AbiCoder::encode(&types,&values).unwrap();assert_eq!(AbiCoder::decode(&types,&encoded).unwrap(),values);}}}
  if let Ok(value)=serde_json::from_slice::<serde_json::Value>(data){
+  if value["types"].is_object() {
+   if let Ok(types)=serde_json::from_value::<quai_abi::TypedDataTypes>(value["types"].clone()) {
+    if let Ok(encoder)=quai_abi::TypedDataEncoder::new(&types) {
+     assert_eq!(encoder.types(),&types);
+     let type_name=value["type"].as_str().unwrap_or(encoder.primary_type());
+     if let Ok(walked)=encoder.visit_type(type_name,&value["value"],|_,v|Ok(v.clone())) {assert_eq!(walked,value["value"]);}
+     if let Ok(resolved)=encoder.encoder(type_name) {assert_eq!(resolved.encode(&value["value"]),encoder.encode_data(type_name,&value["value"]));}
+    }
+   }
+  }
+
   if let Some(parameter)=value.get("parameter") {
    if let Ok(p)=AbiParameter::from_json(&serde_json::to_vec(parameter).unwrap(),true) {
     if let Ok(walked)=p.walk(&value["value"],|_,v|Ok(v.clone())) {assert_eq!(p.walk(&walked,|_,v|Ok(v.clone())).unwrap(),walked);}

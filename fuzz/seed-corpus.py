@@ -85,4 +85,8 @@ for row in reflection['gas']:put('abi',row['text'].encode())
 for parameter,value in [({'type':'tuple[]','components':[{'type':'uint','name':'n'},{'type':'string','name':'label'}]},[{'n':7,'label':'a'}]),({'type':'uint[2]'},[1,2]),({'type':'bytes'},'0x1234')]:put('abi',json.dumps({'parameter':parameter,'value':value}).encode())
 put('abi',json.dumps({'items':[1,2,3,4],'names':['same','same','__proto__','then']}).encode())
 
+
+
+typed_utils=load('compatibility/fixtures/typed-data-utils.json')
+for row in typed_utils['vectors']:put('abi',json.dumps({'types':typed_utils['types'],'type':row['type'],'value':row['value']}).encode())
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 2714 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 60 | A mapping exists with unfinished behavior or scope |
-| `pending` | 1088 | No completed row-level reconciliation; not proof of absence |
+| `deviation` | 2748 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 40 | A mapping exists with unfinished behavior or scope |
+| `pending` | 1074 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -242,7 +242,6 @@ root/subpath exports account for much of the volume.
 | `Contract` | 46 | 4 | 0 | 2 |
 | `QiTransaction` | 36 | 10 | 0 | 0 |
 | `QiTransactionResponse` | 40 | 0 | 0 | 0 |
-| `TypedDataEncoder` | 14 | 20 | 0 | 2 |
 | `FetchResponse` | 32 | 0 | 0 | 0 |
 | `Signature` | 32 | 0 | 0 | 0 |
 | `ContractEventPayload` | 24 | 0 | 0 | 0 |
@@ -491,3 +490,17 @@ entries. The current ledger has **66 implemented, 2,714 deviation, 60 partial an
 1,088 pending** declarations. Counts include repeated exports and inherited
 language methods; they are not independent feature percentages. Complete parity
 and production release qualification are not claimed.
+
+
+## Typed-data utility review — 2026-09-13
+
+The [typed-data review](docs/TYPED_DATA_PARITY.md) closes primitive/array-root
+encoding, reusable type encoders, immutable schema views and value traversal.
+Published encodings match 107 independent vectors; visitor differences include
+strict extra-field rejection, complete shape validation before callbacks and
+aggregate output limits. All 36 TypedDataEncoder declarations are reviewed.
+
+This closes 14 pending and 20 partial rows. Current counts are **66 implemented,
+2,748 deviation, 40 partial and 1,074 pending**. Remaining work includes signature
+utilities, transaction/contract response families and generic transport helpers;
+full feature parity and release qualification remain open.

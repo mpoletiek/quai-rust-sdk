@@ -133,16 +133,17 @@ pub(crate) fn decode_hex(value: &Value) -> Result<Vec<u8>, TypedDataError> {
 }
 
 impl TypedDataEncoder {
-    /// Encode a struct as its type hash followed by one word per declared field.
+    /// Encode a supported EIP-712 type: structs produce type hash plus field
+    /// words; primitive and array expressions produce one 32-byte word.
     ///
     /// The supplied value is checked in full before encoding; unknown object
     /// fields are rejected rather than silently omitted from the signed hash.
     pub fn encode_data(&self, name: &str, value: &Value) -> Result<Vec<u8>, TypedDataError> {
-        preflight(value)?;
-        self.encode_struct(name, value, 0)
+        self.encoder(name)?.encode(value)
     }
 
-    /// Hash the complete encoded struct, including its canonical type hash.
+    /// Hash a complete encoded value. Declared structs include their canonical
+    /// type hash; primitive/array roots hash their single encoded word.
     pub fn hash_struct(&self, name: &str, value: &Value) -> Result<Hash32, TypedDataError> {
         Ok(keccak(&self.encode_data(name, value)?).into())
     }
@@ -170,7 +171,7 @@ impl TypedDataEncoder {
         Ok(keccak(&self.signing_preimage(domain, value)?).into())
     }
 
-    fn encode_struct(
+    pub(crate) fn encode_struct(
         &self,
         name: &str,
         value: &Value,
@@ -193,7 +194,7 @@ impl TypedDataEncoder {
         Ok(bytes)
     }
 
-    fn word(
+    pub(crate) fn word(
         &self,
         field: &Field,
         dimensions: usize,

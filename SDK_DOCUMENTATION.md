@@ -838,3 +838,11 @@ sync and non-Send async callbacks, exact named tuples and aggregate resource
 limits. Gas hints remain metadata; contract transaction fee policy is unchanged.
 See [ABI reflection and result parity](docs/ABI_REFLECTION_PARITY.md) for API
 mappings, examples of the parameter syntax, limits and published JavaScript defects.
+
+## EIP-712 utility parity
+
+`TypedDataEncoder` exposes borrowed schema metadata, reusable encoders for primitive,
+array and struct roots, and shape-checked value visitors. These utilities support
+binding generation and deliberate value transformations before normal domain and
+signer validation. See [typed-data parity](docs/TYPED_DATA_PARITY.md) for the complete
+published API mapping, exact encoding rules, callback semantics and resource limits.

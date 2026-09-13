@@ -240,3 +240,11 @@ workers. Native `sqlite` enables it automatically and keeps atomic capture/resto
 retained signed claims/candidates; payment channel/exposure views retain their
 complete context. These are authenticated historical records, not live balances
 or permission to rewind current state. See [QUAIWALT](FULL_BACKUP_FORMAT.md).
+
+
+`allocation::AddressAllocationBook` adds bounded public receive/change allocation
+journals with immutable request IDs, burned raw ranges and exact completed children.
+The facade's `browser_addresses::BrowserAddressBook` commits the range before
+search and the address before returning it, using IndexedDB CAS across tabs and
+workers. It refuses stale initialization/tombstones and can initialize floors from
+an authenticated full backup. See [durable allocation](DISCOVERY.md#portable-durable-hd-address-allocation).

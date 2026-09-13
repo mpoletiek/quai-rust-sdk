@@ -24,7 +24,7 @@ assert_eq!(address.zone(), Zone::Cyprus1);
 | `abi` | ABI/EIP-712 values, artifacts, deployments and WQI/WQUAI adapters |
 | `payments` | BIP47 payment codes; native registered-channel workflows also require `sqlite` |
 | `keystore` | Bounded legacy JSON-keystore import/export |
-| `browser` | Wasm Fetch/injected-provider adapters and IndexedDB snapshots |
+| `browser` | Wasm Fetch/injected-provider adapters and IndexedDB snapshots; with `wallet`, durable HD address allocation |
 
 Browser consumers use `default-features = false` and choose the portable features
 they need. SQLite sessions and native HTTP/WebSocket transports are target gated.

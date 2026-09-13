@@ -19930,17 +19930,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::allocate_address"
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/src/storage/tests.rs"
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Durable allocation burns bounded raw ranges before exposure; does not reuse trailing skipped indexes."
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": ".:QiHDWallet:instance:getNextAddressSync",
@@ -19952,17 +19957,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::allocate_address"
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/src/storage/tests.rs"
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Synchronous storage allocation; explicit branch and bounds."
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": ".:QiHDWallet:instance:getNextChangeAddress",
@@ -19974,17 +19984,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi::QiChangePool::allocate"
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Opaque durable change pools allocated before refresh."
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": ".:QiHDWallet:instance:getNextChangeAddressSync",
@@ -19996,17 +20011,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi::QiChangePool::allocate"
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Synchronous bounded allocation with burned intervals."
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": ".:QiHDWallet:instance:getNextReceiveAddress",
@@ -21357,12 +21377,23 @@
         "(account: number, zone: Zone, useReactNative?: boolean): Promise<NeuteredAddressInfo>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
+      ],
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/DISCOVERY.md"
+      ],
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": ".:QuaiHDWallet:instance:getNextAddressSync",
@@ -21373,12 +21404,23 @@
         "(account: number, zone: Zone): NeuteredAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
+      ],
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/DISCOVERY.md"
+      ],
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": ".:QuaiHDWallet:instance:getPrivateKey",
@@ -65974,17 +66016,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::allocate_address"
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/src/storage/tests.rs"
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Durable allocation burns bounded raw ranges before exposure; does not reuse trailing skipped indexes."
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextAddressSync",
@@ -65996,17 +66043,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::storage::SqliteStore::allocate_address"
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/src/storage/tests.rs"
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Synchronous storage allocation; explicit branch and bounds."
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextChangeAddress",
@@ -66018,17 +66070,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi::QiChangePool::allocate"
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Opaque durable change pools allocated before refresh."
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextChangeAddressSync",
@@ -66040,17 +66097,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_sdk::qi::QiChangePool::allocate"
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
       ],
-      "feature": "sqlite,wallet,payments",
-      "status": "partial",
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-sdk/tests/qi.rs"
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
       ],
       "docs": [
-        "docs/WALLET_WORKFLOWS.md"
+        "crates/quai-wallet/DISCOVERY.md"
       ],
-      "deviation": "Synchronous bounded allocation with burned intervals."
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": "./wallet:QiHDWallet:instance:getNextReceiveAddress",
@@ -66719,12 +66781,23 @@
         "(account: number, zone: Zone, useReactNative?: boolean): Promise<NeuteredAddressInfo>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
+      ],
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/DISCOVERY.md"
+      ],
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:getNextAddressSync",
@@ -66735,12 +66808,23 @@
         "(account: number, zone: Zone): NeuteredAddressInfo"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::AccountPublic::search",
+        "quai_wallet::storage::SqliteStore::allocate_address",
+        "quai_wallet::allocation::AddressAllocationBook",
+        "quai_sdk::browser_addresses::BrowserAddressBook"
+      ],
+      "feature": "wallet; native sqlite or wasm browser",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-sdk/tests/address_allocation.rs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/src/storage.rs"
+      ],
+      "docs": [
+        "crates/quai-wallet/DISCOVERY.md"
+      ],
+      "deviation": "Explicit account/zone and receive/change branch. Native synchronous durable allocation; portable bounded search/book and browser async CAS commit before search/return. Caller IDs support unambiguous resume; ranges and abandoned IDs never rewind. Explicit prior floors or authenticated backup, no React Native bridge or implicit account/provider state. Journal cap 4096 IDs; not JS wallet serialization."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:getPrivateKey",

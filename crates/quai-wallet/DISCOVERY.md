@@ -48,8 +48,8 @@ independent locked, expired and reserved flags plus spendability.
 A source must actually support checkpoint-consistent observations. It must not
 label latest-only balance/outpoint RPC results as historical block responses.
 Native observation futures require `Send`; wasm observation futures may retain
-thread-local browser state. A browser source implementation and browser runtime
-qualification remain separate work. Transport adapters own response-size limits,
+thread-local browser state. The facade supplies Fetch-backed browser/worker sources with actual Chromium
+coverage; other browser engines and real-provider qualification remain separate. Transport adapters own response-size limits,
 deadlines and in-flight cancellation.
 Discovery checks cancellation during grinding and around awaited observations;
 cancelling an already running source request requires that source's cooperation.
@@ -110,3 +110,55 @@ explicit-range recovery, unavailable history, both ledgers/branches, exact skipp
 indexes, cancellation, inconsistent checkpoints, locked/reserved/expired coins,
 atomic discovery CAS, restart recovery, separate-process allocation collisions,
 and conservative reorg invalidation preserving signed claims.
+
+## Portable durable HD address allocation
+
+`allocation::AddressAllocationBook` binds one trusted account xpub, coin/account
+metadata, network and zone. It tracks caller-supplied 128-bit allocation IDs,
+receive/change raw cursors and pending/completed/abandoned ranges. Reserve consumes
+1–100,000 indexes (clamped at `2^31`); skipped and unexamined indexes stay consumed.
+IDs cannot be reused, including after abandonment. Completion checks the exact
+child, ledger/zone and range; the same ID/index is idempotent, a different index
+is rejected. Completed addresses cannot be abandoned or released.
+
+The book is an in-memory state machine. Native `SqliteStore::allocate_address`
+continues to provide its existing synchronous durable workflow. Browser callers
+use the facade's `browser_addresses::BrowserAddressBook` (`wallet,browser`):
+
+1. Open the exact network/account namespace and explicitly initialize prior raw
+   receive/change floors, or use `initialize_from_backup` with `backup` enabled.
+2. Call `allocate(id, change, max_attempts, cancelled)`. The range commits through
+   IndexedDB CAS before search, and the selected address commits before return.
+3. After cancellation, exhaustion, a revision conflict or a lost response, inspect
+   the retained ID and explicitly `resume` or `abandon` that request. A new request
+   uses a new ID. No cursor or request ID is reclaimed.
+
+Initialization only accepts a never-written namespace. Existing state and
+tombstones cannot silently reset to zero. An authenticated backup can supply
+floors above all matching stored cursors and previously exposed HD children;
+the account must match a retained private origin. Earlier addresses remain in the
+backup inventory; the new journal tracks subsequent requests. An empty current
+UTXO scan is not evidence for zero floors. Each account/zone has its own namespace;
+there is no value-based account selection or React Native crypto bridge.
+
+The public `QADDRBK1` codec checks magic, exact scope/account identity, sorted
+unique IDs, complete nonoverlapping coverage from each initial floor to its next
+cursor, exact lengths and all completed child derivations. The header contains
+magic (8), network (32-byte big-endian chain ID, 32-byte genesis, one-byte zone),
+32-byte account identity, four big-endian u32 values (initial receive/change and
+next receive/change), and a big-endian u16 record count. Each record contains a
+16-byte ID, one-byte branch (0/1), start/end u32, status (0 pending, 1 completed,
+2 abandoned), and a completed child's u32 index only for status 1.
+Account identity is Keccak of UTF-8 `quai-rust/address-allocation/v1`, big-endian
+u32 coin/account, and the canonical account-xpub ASCII bytes.
+
+The fixed budget is 4,096 retained IDs and 123,003 encoded bytes per book. Capacity
+exhaustion fails closed; no automatic compaction drops old IDs/ranges. Bytes are
+public metadata, not encrypted or a proof of freshness; the selected backend's
+revision checks prevent stale cooperating writers from replacing current state.
+Actual worker tests cover two independent connections, restart, completed-request
+idempotency, cancellation after write dispatch, malformed state, tombstones and
+backup floors. Twenty-four independently encoded Node fixtures use pinned HD
+account/address pairs; this Rust journal has no claimed quais.js format counterpart.
+UTXO/nonce reservations, payment exposure allocation and full browser wallet-state
+merge remain separate integrations.

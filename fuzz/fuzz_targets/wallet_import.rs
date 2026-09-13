@@ -6,6 +6,18 @@ use quai_wallet::{Mnemonic,Language,ExtendedPrivateKey,ExtendedPublicKey};
 use quai_crypto::{PublicKey,RecoverableSignature,SchnorrSignature};
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
+ if data.starts_with(b"QADDRBK1") {
+  static DESCRIPTORS: std::sync::OnceLock<Vec<(quai_wallet::discovery::NetworkScope,quai_wallet::AccountPublic)>>=std::sync::OnceLock::new();
+  let descriptors=DESCRIPTORS.get_or_init(|| {
+   let fixture:serde_json::Value=serde_json::from_str(include_str!("../../test-infra/fixtures/address-allocation.json")).unwrap();
+   fixture["vectors"].as_array().unwrap().iter().map(|row|{
+    let coin=if row["coin"]==969 {quai_wallet::CoinType::Qi}else{quai_wallet::CoinType::Quai};
+    let account=quai_wallet::AccountPublic::import(row["accountXpub"].as_str().unwrap(),coin,row["account"].as_u64().unwrap() as u32).unwrap();
+    let scope=quai_wallet::discovery::NetworkScope{chain_id:quai_consensus::U256::from(15000),genesis:quai_primitives::Hash32::from_bytes([1;32]),zone:quai_primitives::Zone::from_byte(row["zone"].as_u64().unwrap() as u8).unwrap()};(scope,account)
+   }).collect()
+  });
+  for (scope,account) in descriptors {if let Ok(book)=quai_wallet::allocation::AddressAllocationBook::from_state(data,*scope,account.clone()){assert_eq!(book.export_state(),data);assert_eq!(book.scope(),*scope);}}
+ }
  if let Ok(backup)=quai_wallet::full_backup::EncryptedWalletBackup::from_bytes(data){assert_eq!(backup.as_bytes(),data);}
  let _=Keystore::from_json(data,KdfLimits::default()); // no attacker-selected expensive KDF execution
  if let Ok(code)=PaymentCode::from_bytes(data){assert_eq!(PaymentCode::from_base58(&code.to_base58()).unwrap(),code);}

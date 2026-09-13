@@ -1,0 +1,162 @@
+{
+  "date": "2026-09-13",
+  "baseCommit": "2f754adbe27d7725b3b39980d9db1cec7aba6ea1",
+  "testedWorkingTree": true,
+  "changes": [
+    "Portable bounded HD allocation journal retaining burned ranges, caller IDs and completed addresses",
+    "Browser IndexedDB compare-and-exchange commits ranges before search and addresses before return",
+    "Explicit prior cursor floors and owner-validated authenticated backup initialization",
+    "Independent Node encoding of Rust journal format using pinned public quais.js HD vectors"
+  ],
+  "fixturesSha256": {
+    "test-infra/fixtures/address-allocation.json": "9f2599127a39bb34e6ccd4408d4f63944469c6359b37dcce72fa1fd15bc6ff98"
+  },
+  "validation": {
+    "nativeBackupAllocationTests": 5,
+    "nativeMinimalAllocationTests": 4,
+    "actualChromiumWorkerAllocationTests": 9,
+    "workerSuiteElapsedSeconds": 14.53,
+    "nativeWalletSdkAllTargetsClippyWarningsDenied": "passed",
+    "portableSdkWasmAllTargetsClippyWarningsDenied": "passed",
+    "nativeWalletSdkRustdocWarningsDenied": "passed",
+    "portableSdkWasmRustdocWarningsDenied": "passed",
+    "ciYamlDuplicateKeyCheck": "passed",
+    "packageFileMirrors": 70
+  },
+  "fuzz": {
+    "recordedAt": "2026-09-13T09:02:16.661128+00:00",
+    "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+    "fuzzLockSha256": "bbbfa14ce3f8959e01343505be9acdc2daebe6c3f77070bf3a2a9b39a7fe5a5b",
+    "sdkLockSha256": "23e5d30c8d68ca0225745105c4ccacbfac66114f395e4eb92fedf3b8ab717ed7",
+    "targets": [
+      {
+        "name": "wallet_import",
+        "binarySha256": "8b1c704fdcf2ac3d0847128cc19a218694f67c6f728ad78b7d5a8b3f0672ff0d",
+        "seconds": 120,
+        "exitCode": 0,
+        "addressSanitizer": true,
+        "initialCorpusFiles": 90,
+        "finalCorpusFiles": 1411,
+        "executions": 1630264,
+        "coverageCounters": 3632,
+        "features": 9855,
+        "rssMiB": 492
+      }
+    ],
+    "leakSanitizer": false,
+    "sanitizerEnvironment": "ASAN_OPTIONS=detect_leaks=0: sandbox process inspection limitation; AddressSanitizer enabled, no leak-clean qualification.",
+    "addedCoverage": "Canonical QADDRBK1 import against six trusted public account descriptors; fuzz input limit 65536 bytes, full capacity boundaries exercised by native and worker tests."
+  },
+  "packageQualification": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "2f754adbe27d7725b3b39980d9db1cec7aba6ea1",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 61982,
+        "sha256": "1fad4be9967febbc4594239546b506212d45071482ea7b2ce8c91f1d72a12460"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45023,
+        "sha256": "e8a7c29bbf6fd03a940ca0b305649daa882046836d61f5462f47cb21e8f63326"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 126465,
+        "sha256": "d8b8edf049c42563f6f65b15f410e3874b0887b73334a763f1b81589362e755d"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 45639,
+        "sha256": "8e5772c2b7d0a2c990517156aefcff6728ab4eeb38cd64a231305c845a9a2589"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 47974,
+        "sha256": "820bd29877f212f617a8dd2fc7a788a09d71dc0d7ee8a0cc6851694d81dde187"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 139754,
+        "sha256": "e39f216b711d31c7fbd8c55537ed716e389c5e2660f18c6d20a388c3f7252fc2"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 150801,
+        "sha256": "e9165e4e380e2f78f62db173a121d3f4bbb5b827fa0930f6912c4f74e605a6a6"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 75029,
+        "sha256": "d330630130c3017af82026f1b05bbc33150fbd3bb7093bc0cf526927444316a1"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24515,
+        "sha256": "ddd62d50b456b37f98ea3a877716688615347ff334dc4b3570792802b2b086d8"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 34220,
+        "sha256": "ecfdcf5f80c399f7c3eb48169b9e381359538e3ddc7161589b224df7b772c5f6"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 248026,
+        "sha256": "df0ea92a0682da629d0d3f7278a0051ddf16176bb96554425ef9a2040cbec083"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39308,
+        "sha256": "b8f9b81bbfdb474d57a1e423ad2b4a6a78c03b0be42ed11124ef94c2b2e318b4"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "limitations": [
+    "Allocation history is not UTXO, nonce or payment-channel custody; full browser live wallet state integration remains open.",
+    "Explicit zero floors are valid only for unused branches; latest empty UTXOs do not prove no prior address exposure.",
+    "Retained journal capacity is 4096 IDs; abandonment never rewinds or frees capacity.",
+    "Node fixtures independently encode the documented Rust-only journal format; this is not a quais.js journal interoperability claim.",
+    "Chromium worker checks and bounded sanitizer smoke do not establish other browser, sustained fuzz, independent review or production qualification."
+  ]
+}

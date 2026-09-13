@@ -276,6 +276,10 @@
     {
       "source": "crates/quai-wallet/tests/full-backup-v5-portable.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-wallet/tests/full-backup-v5-portable.json"
+    },
+    {
+      "source": "test-infra/fixtures/address-allocation.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/address-allocation.json"
     }
   ]
 }

@@ -459,3 +459,12 @@ inspection, payment-account ownership, tamper rejection and fresh encryption.
 This closes envelope/inspection portability; live browser state merge, reservations
 and complete recovery orchestration remain open.
 [Retained evidence](test-infra/reports/portable-full-backups-2026-09-13.json).
+
+
+Browser HD allocation now has durable range-before-search and address-before-return
+commits. Scoped public journals preserve raw receive/change floors and all request
+IDs across completion, abandonment, lost responses and restart. Actual worker tests
+cover competing connections, cancellation after write dispatch, corrupt/tombstoned
+state, idempotent resume and initialization from authenticated backup floors.
+The 4,096-ID bound fails closed; this is address allocation, with UTXO/nonce claims
+and payment exposure journals still separate browser work.

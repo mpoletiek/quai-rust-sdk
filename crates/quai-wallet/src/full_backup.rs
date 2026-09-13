@@ -21,6 +21,7 @@ use std::{
 use thiserror::Error;
 use zeroize::Zeroizing;
 
+pub mod legacy;
 mod payment;
 mod portable;
 pub use portable::{AccountCustodyCapture, MAX_PORTABLE_CAPTURE_JOURNALS, PortableWalletCapture};

@@ -360,7 +360,8 @@ impl HdWallet {
             .derive_child(coin.number(), true)?;
         Ok(Self { root, coin })
     }
-    /// Coin-level xpub, equivalent to quais.js HD wallet xPub(). It cannot derive hardened accounts.
+    /// Coin-level public xpub; cannot derive hardened accounts. The pinned quais.js
+    /// misnamed xPub() returns a private extended key; this API never does.
     pub fn root_public_key(&self) -> ExtendedPublicKey {
         self.root.public_key()
     }

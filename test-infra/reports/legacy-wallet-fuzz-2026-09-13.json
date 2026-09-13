@@ -1,0 +1,21 @@
+{
+  "recordedAt": "2026-09-13T21:36:12.954808+00:00",
+  "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+  "fuzzLockSha256": "d35f6479db9db6a9469670476b4a899696c92624362e0ff56eef1198f8dba04b",
+  "sdkLockSha256": "8990bbf936560c5c2445be63509f14d3f12c7345ca29a26ccfb2f83a9f9181f0",
+  "targets": [
+    {
+      "name": "wallet_import",
+      "binarySha256": "9707cac6b27fd27780607677e9b47fa4623b8a52b8aecc57bb67954fc234c4e1",
+      "seconds": 120,
+      "exitCode": 0,
+      "addressSanitizer": true,
+      "initialCorpusFiles": 184,
+      "finalCorpusFiles": 877,
+      "executions": 42643,
+      "coverageCounters": 14370,
+      "features": 38800,
+      "rssMiB": 406
+    }
+  ]
+}

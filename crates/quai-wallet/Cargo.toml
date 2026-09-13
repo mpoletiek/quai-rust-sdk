@@ -16,10 +16,12 @@ categories = ["cryptography"]
 [features]
 default = []
 sqlite = ["dep:rusqlite", "backup"]
-backup = ["payments"]
+backup = ["payments", "dep:serde", "dep:serde_json"]
 payments = ["dep:quai-payments"]
 
 [dependencies]
+serde = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
 quai-payments = { path = "../quai-payments", version = "0.1.0-alpha.1", optional = true }
 quai-primitives.workspace = true
 quai-consensus.workspace = true

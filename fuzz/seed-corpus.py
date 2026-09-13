@@ -23,6 +23,7 @@ for row in abi['vectors']:put('abi',hexbytes(row['encoded']))
 put('abi',json.dumps(abi['interface']).encode())
 for row in load('crates/quai-abi/tests/fixtures/typed-data.json')['vectors']:
  put('abi',json.dumps(dict(types=row['types'],primaryType=row['primaryType'],domain=row['domain'],message=row['value'])).encode())
+for row in load('compatibility/fixtures/legacy-wallets.json')['vectors']:put('wallet_import',json.dumps(row['document']).encode())
 for row in load('crates/quai-keystore/tests/fixtures/keystores.json')['vectors']:put('wallet_import',json.dumps(row['json']).encode())
 for row in load('crates/quai-crypto/tests/fixtures/quais-crypto.json')['vectors']:
  for key in ['compressed','uncompressed','signature']:

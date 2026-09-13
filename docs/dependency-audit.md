@@ -120,3 +120,11 @@ warnings; nothing is suppressed. See
 [retained evidence](../test-infra/reports/signer-keystore-dependency-audit-2026-09-13.json)
 for exact lock hashes and results. An initial fuzz scan used an incomplete registry
 cache for yank checks; the completed scan uses the populated SDK/fuzz Cargo cache.
+
+## September 13 legacy wallet migration lock refresh
+
+The optional wallet backup feature now activates serde and serde_json. No registry
+package versions changed. Both lockfiles were rescanned using the same local
+RustSec database: zero vulnerability matches and the same two maintenance warnings.
+The database was not fetched again. [Retained results](../test-infra/reports/legacy-wallet-dependency-audit-2026-09-13.json)
+include both lock hashes and the database commit without suppressing warnings.

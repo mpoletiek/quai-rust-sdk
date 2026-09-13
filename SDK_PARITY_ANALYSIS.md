@@ -88,9 +88,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
-| `implemented` | 70 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 1350 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 138 | A mapping exists with unfinished behavior or scope |
+| `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
+| `deviation` | 1366 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 126 | A mapping exists with unfinished behavior or scope |
 | `pending` | 2370 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
@@ -101,8 +101,9 @@ This analysis does not relabel unresolved rows to make the counts appear complet
 
 The [HD wallet review](docs/HD_WALLET_PARITY_REVIEW.md) maps exact derivation,
 address collections, channels, scanning, signing and sending. Cached address-status
-views now have a tested portable implementation; whole legacy wallet-JSON
-migration remains explicitly partial.
+views and verified legacy wallet-JSON migration now have native/worker tests.
+Both pinned HD `xPub()` methods return private xprv strings; Rust public-root
+export deliberately corrects that exposure.
 
 ## Feature comparison
 
@@ -290,8 +291,6 @@ root/subpath exports account for much of the volume.
 | `EventPayload` | 8 | 0 | 0 | 0 |
 | `FetchCancelSignal` | 8 | 0 | 0 | 0 |
 | `FeeData` | 6 | 0 | 0 | 0 |
-| `QiHDWallet` | 0 | 6 | 10 | 76 |
-| `QuaiHDWallet` | 0 | 6 | 6 | 30 |
 | `Interface` | 2 | 2 | 0 | 68 |
 | `AccessList` | 2 | 0 | 0 | 0 |
 | `AccessListEntry` | 2 | 0 | 0 | 0 |

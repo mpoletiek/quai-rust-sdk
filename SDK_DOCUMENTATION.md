@@ -751,8 +751,8 @@ toy reproductions instead of credentials or funded wallet material.
 
 The [HD wallet review](docs/HD_WALLET_PARITY_REVIEW.md) maps Quai/Qi identity,
 address lookup, channels, current scans, key ownership and transaction workflows.
-It retains whole legacy wallet-JSON migration as partial. Cached address-status
-and gap views now use `QiAddressBook` and the portable refresh helper. Authenticated Rust backups and typed current observations already exist;
+Verified legacy wallet-JSON migration and cached address-status/gap views now
+have native and browser-worker implementations. Authenticated Rust backups and typed current observations already exist;
 these should not be confused with the reference's plaintext wallet schema or
 mutable status cache.
 
@@ -765,3 +765,18 @@ outpoint reads and commits only after the final network/head checks. Usage hints
 are optional and work with worker-local callbacks. Errors and cancellation preserve
 the prior cache. See [Qi address views](docs/QI_ADDRESS_VIEWS.md) for registration,
 status transitions, reorg invalidation and the separation from allocation/custody.
+
+## Whole legacy wallet JSON migration
+
+`wallet::full_backup::legacy::import_quais_json` verifies the original language,
+passphrase and trusted public root, then proves every HD/imported/payment address
+and returns an authenticated-backup-ready inventory with known index floors.
+Cached chain observations are discarded. `export_quais_json` returns guarded
+plaintext for representable identities and rejects loss of custody or burned
+allocation ranges. See [legacy wallet migration](docs/LEGACY_WALLET_MIGRATION.md)
+for API usage, resource limits and safe restoration.
+
+Both pinned quais.js HD `xPub()` methods return xprv, despite their names. Rust's
+`root_public_key` always returns a public key. Neuter the reference result before
+using it as a public migration trust anchor; the Rust public-key importer rejects
+raw xprv strings.

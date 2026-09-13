@@ -802,3 +802,21 @@ package checks. See [the guide](docs/QI_ADDRESS_VIEWS.md) and
 rows move from partial to documented Rust behavior; legacy wallet-JSON migration
 remains a separate gap. Ledger counts: 70 implemented, 1,350 deviation, 138 partial,
 2,370 pending.
+
+## 2026-09-13: verified legacy HD wallet migration
+
+Added bounded quais.js version-1 wallet JSON import and explicit guarded plaintext
+export. Import proves the mnemonic identity and every HD, imported and payment
+address; it retains known allocation floors and discards stale usage/checkpoints.
+Export rejects custody and allocation state the legacy format cannot preserve.
+Four actual JavaScript fixture wallets cover both ledgers, payment channels,
+imported keys, a mnemonic passphrase and French words.
+
+Five native and five Chromium worker tests, strict Clippy, warnings-denied docs,
+all extracted packages and a 42,643-execution sanitizer fuzz run pass. The audit
+also corrected a prior mapping: the published HD `xPub()` returns a private xprv;
+Rust keeps its public-only API. See [migration documentation](docs/LEGACY_WALLET_MIGRATION.md)
+and [retained evidence](test-infra/reports/legacy-wallet-migration-2026-09-13.json).
+Ledger counts are 66 implemented, 1,366 deviation, 126 partial and 2,370 pending.
+This closes the specialized HD wallet migration gap; the broader parity audit
+and release qualification remain in progress.

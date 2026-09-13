@@ -83,3 +83,9 @@ run with **2,485,442 executions**, exit 0 and AddressSanitizer active. Its separ
 Artifact import coverage was subsequently added to the ABI target. Its separate
 300-second run completed **2,034,432 executions** with exit 0; see
 `artifact-fuzz-2026-09-12.json` for binary and lock identities.
+
+Legacy wallet JSON migration extends `wallet_import` with four published-JavaScript
+fixture seeds, bounded parsing, trusted root checks and representable export/import
+round trips. Its 120-second run completed **42,643 executions** with AddressSanitizer
+active and exit 0. See `test-infra/reports/legacy-wallet-fuzz-2026-09-13.json` for
+binary and lock identities. This is bounded smoke coverage, not exhaustive review.

@@ -55,3 +55,11 @@ test('HD provider connection is mutable and propagates to an existing payment ch
   for (const child of [qi.externalBip44,qi.changeBip44,qi.privatekeyWallet,
     qi.paymentChannels.get(code).selfWallet]) assert.equal(child.provider,provider);
 });
+
+test('both misnamed published HD xPub methods expose an extended private key', () => {
+  for (const Class of [QuaiHDWallet,QiHDWallet]) {
+    const wallet=Class.fromSeed(seed);
+    assert.equal(wallet.xPub().slice(0,4),'xprv');
+  }
+  // Rust public-root export must remain neutered; never reproduce this leak.
+});

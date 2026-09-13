@@ -20729,17 +20729,23 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::HdWallet",
-        "quai_wallet::AccountPublic"
+        "quai_wallet::AccountPublic",
+        "quai_wallet::qi_addresses::QiAddressBook",
+        "quai_wallet::full_backup::legacy::import_quais_json"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/qi_address_book.rs",
+        "crates/quai-sdk/tests/legacy_wallets.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md",
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Typed HD identity and native/browser workflow compositions exist. Full legacy wallet-JSON migration and cached address-status convenience views remain separately identified."
+      "deviation": "Typed HD identity, explicit native/browser scoped workflow composition, verified address inventory/usage views and whole legacy wallet migration. No mutable secret-bearing provider tree or internal JS constructor guard. Public root export corrects the pinned xPub() private-key exposure; legacy downgrade limits are explicit."
     },
     {
       "id": ".:QiHDWallet:instance:addAddress",
@@ -21612,21 +21618,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::full_backup::WalletBackup",
-        "quai_wallet::full_backup::EncryptedWalletBackup",
-        "quai_sdk::browser_backups"
+        "quai_wallet::full_backup::legacy::import_quais_json",
+        "quai_wallet::full_backup::legacy::export_quais_json",
+        "quai_wallet::full_backup::WalletBackup"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/legacy_wallets.rs",
+        "compatibility/scripts/generate-legacy-wallets.mjs",
         "compatibility/scripts/wallet-regressions.test.mjs",
-        "crates/quai-wallet/src/full_backup/tests.rs",
-        "crates/quai-sdk/tests/portable_backups.rs"
+        "fuzz/fuzz_targets/wallet_import.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
+      "deviation": "Bounded whole-wallet legacy JSON migration verifies explicit language/passphrase/trusted public root and every HD/imported/payment origin. Known floors/exposures survive; stale statuses/checkpoints are discarded. Explicit guarded legacy export supports representable English/empty-passphrase identities and rejects custody or burned-range downgrade. Authenticated Rust backup remains general recovery format."
     },
     {
       "id": ".:QiHDWallet:instance:setAddressUseChecker",
@@ -21753,14 +21760,17 @@
         "quai_wallet::HdWallet::root_public_key"
       ],
       "feature": "wallet",
-      "status": "implemented",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/legacy_wallets.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md",
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Coin-level BIP44 xpub at the pinned 994/969 path; account xpubs are explicitly separate."
+      "deviation": "Rust exports only a public coin-root xpub. Both pinned JS xPub() implementations return the private root extendedKey (xprv), contrary to their names/comments. Rust deliberately corrects the secret exposure; public-key import rejects xprv."
     },
     {
       "id": ".:QiHDWallet:static:createRandom",
@@ -21798,21 +21808,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::full_backup::WalletBackup",
-        "quai_wallet::full_backup::EncryptedWalletBackup",
-        "quai_sdk::browser_backups"
+        "quai_wallet::full_backup::legacy::import_quais_json",
+        "quai_wallet::full_backup::legacy::export_quais_json",
+        "quai_wallet::full_backup::WalletBackup"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/legacy_wallets.rs",
+        "compatibility/scripts/generate-legacy-wallets.mjs",
         "compatibility/scripts/wallet-regressions.test.mjs",
-        "crates/quai-wallet/src/full_backup/tests.rs",
-        "crates/quai-sdk/tests/portable_backups.rs"
+        "fuzz/fuzz_targets/wallet_import.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
+      "deviation": "Bounded whole-wallet legacy JSON migration verifies explicit language/passphrase/trusted public root and every HD/imported/payment origin. Known floors/exposures survive; stale statuses/checkpoints are discarded. Explicit guarded legacy export supports representable English/empty-passphrase identities and rejects custody or burned-range downgrade. Authenticated Rust backup remains general recovery format."
     },
     {
       "id": ".:QiHDWallet:static:fromMnemonic",
@@ -22607,17 +22618,23 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::HdWallet",
-        "quai_wallet::AccountPublic"
+        "quai_wallet::AccountPublic",
+        "quai_wallet::qi_addresses::QiAddressBook",
+        "quai_wallet::full_backup::legacy::import_quais_json"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/qi_address_book.rs",
+        "crates/quai-sdk/tests/legacy_wallets.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md",
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Typed HD identity and native/browser workflow compositions exist. Full legacy wallet-JSON migration and cached address-status convenience views remain separately identified."
+      "deviation": "Typed HD identity, explicit native/browser scoped workflow composition, verified address inventory/usage views and whole legacy wallet migration. No mutable secret-bearing provider tree or internal JS constructor guard. Public root export corrects the pinned xPub() private-key exposure; legacy downgrade limits are explicit."
     },
     {
       "id": ".:QuaiHDWallet:instance:addAddress",
@@ -22868,21 +22885,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::full_backup::WalletBackup",
-        "quai_wallet::full_backup::EncryptedWalletBackup",
-        "quai_sdk::browser_backups"
+        "quai_wallet::full_backup::legacy::import_quais_json",
+        "quai_wallet::full_backup::legacy::export_quais_json",
+        "quai_wallet::full_backup::WalletBackup"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/legacy_wallets.rs",
+        "compatibility/scripts/generate-legacy-wallets.mjs",
         "compatibility/scripts/wallet-regressions.test.mjs",
-        "crates/quai-wallet/src/full_backup/tests.rs",
-        "crates/quai-sdk/tests/portable_backups.rs"
+        "fuzz/fuzz_targets/wallet_import.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
+      "deviation": "Bounded whole-wallet legacy JSON migration verifies explicit language/passphrase/trusted public root and every HD/imported/payment origin. Known floors/exposures survive; stale statuses/checkpoints are discarded. Explicit guarded legacy export supports representable English/empty-passphrase identities and rejects custody or burned-range downgrade. Authenticated Rust backup remains general recovery format."
     },
     {
       "id": ".:QuaiHDWallet:instance:signMessage",
@@ -22984,14 +23002,17 @@
         "quai_wallet::HdWallet::root_public_key"
       ],
       "feature": "wallet",
-      "status": "implemented",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/legacy_wallets.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md",
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Coin-level BIP44 xpub at the pinned 994/969 path; account xpubs are explicitly separate."
+      "deviation": "Rust exports only a public coin-root xpub. Both pinned JS xPub() implementations return the private root extendedKey (xprv), contrary to their names/comments. Rust deliberately corrects the secret exposure; public-key import rejects xprv."
     },
     {
       "id": ".:QuaiHDWallet:static:createRandom",
@@ -23029,21 +23050,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::full_backup::WalletBackup",
-        "quai_wallet::full_backup::EncryptedWalletBackup",
-        "quai_sdk::browser_backups"
+        "quai_wallet::full_backup::legacy::import_quais_json",
+        "quai_wallet::full_backup::legacy::export_quais_json",
+        "quai_wallet::full_backup::WalletBackup"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/legacy_wallets.rs",
+        "compatibility/scripts/generate-legacy-wallets.mjs",
         "compatibility/scripts/wallet-regressions.test.mjs",
-        "crates/quai-wallet/src/full_backup/tests.rs",
-        "crates/quai-sdk/tests/portable_backups.rs"
+        "fuzz/fuzz_targets/wallet_import.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
+      "deviation": "Bounded whole-wallet legacy JSON migration verifies explicit language/passphrase/trusted public root and every HD/imported/payment origin. Known floors/exposures survive; stale statuses/checkpoints are discarded. Explicit guarded legacy export supports representable English/empty-passphrase identities and rejects custody or burned-range downgrade. Authenticated Rust backup remains general recovery format."
     },
     {
       "id": ".:QuaiHDWallet:static:fromMnemonic",
@@ -69202,17 +69224,23 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::HdWallet",
-        "quai_wallet::AccountPublic"
+        "quai_wallet::AccountPublic",
+        "quai_wallet::qi_addresses::QiAddressBook",
+        "quai_wallet::full_backup::legacy::import_quais_json"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/qi_address_book.rs",
+        "crates/quai-sdk/tests/legacy_wallets.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md",
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Typed HD identity and native/browser workflow compositions exist. Full legacy wallet-JSON migration and cached address-status convenience views remain separately identified."
+      "deviation": "Typed HD identity, explicit native/browser scoped workflow composition, verified address inventory/usage views and whole legacy wallet migration. No mutable secret-bearing provider tree or internal JS constructor guard. Public root export corrects the pinned xPub() private-key exposure; legacy downgrade limits are explicit."
     },
     {
       "id": "./wallet:QiHDWallet:instance:addAddress",
@@ -70085,21 +70113,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::full_backup::WalletBackup",
-        "quai_wallet::full_backup::EncryptedWalletBackup",
-        "quai_sdk::browser_backups"
+        "quai_wallet::full_backup::legacy::import_quais_json",
+        "quai_wallet::full_backup::legacy::export_quais_json",
+        "quai_wallet::full_backup::WalletBackup"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/legacy_wallets.rs",
+        "compatibility/scripts/generate-legacy-wallets.mjs",
         "compatibility/scripts/wallet-regressions.test.mjs",
-        "crates/quai-wallet/src/full_backup/tests.rs",
-        "crates/quai-sdk/tests/portable_backups.rs"
+        "fuzz/fuzz_targets/wallet_import.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
+      "deviation": "Bounded whole-wallet legacy JSON migration verifies explicit language/passphrase/trusted public root and every HD/imported/payment origin. Known floors/exposures survive; stale statuses/checkpoints are discarded. Explicit guarded legacy export supports representable English/empty-passphrase identities and rejects custody or burned-range downgrade. Authenticated Rust backup remains general recovery format."
     },
     {
       "id": "./wallet:QiHDWallet:instance:setAddressUseChecker",
@@ -70226,14 +70255,17 @@
         "quai_wallet::HdWallet::root_public_key"
       ],
       "feature": "wallet",
-      "status": "implemented",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/legacy_wallets.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md",
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Coin-level BIP44 xpub at the pinned 994/969 path; account xpubs are explicitly separate."
+      "deviation": "Rust exports only a public coin-root xpub. Both pinned JS xPub() implementations return the private root extendedKey (xprv), contrary to their names/comments. Rust deliberately corrects the secret exposure; public-key import rejects xprv."
     },
     {
       "id": "./wallet:QiHDWallet:static:createRandom",
@@ -70271,21 +70303,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::full_backup::WalletBackup",
-        "quai_wallet::full_backup::EncryptedWalletBackup",
-        "quai_sdk::browser_backups"
+        "quai_wallet::full_backup::legacy::import_quais_json",
+        "quai_wallet::full_backup::legacy::export_quais_json",
+        "quai_wallet::full_backup::WalletBackup"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/legacy_wallets.rs",
+        "compatibility/scripts/generate-legacy-wallets.mjs",
         "compatibility/scripts/wallet-regressions.test.mjs",
-        "crates/quai-wallet/src/full_backup/tests.rs",
-        "crates/quai-sdk/tests/portable_backups.rs"
+        "fuzz/fuzz_targets/wallet_import.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
+      "deviation": "Bounded whole-wallet legacy JSON migration verifies explicit language/passphrase/trusted public root and every HD/imported/payment origin. Known floors/exposures survive; stale statuses/checkpoints are discarded. Explicit guarded legacy export supports representable English/empty-passphrase identities and rejects custody or burned-range downgrade. Authenticated Rust backup remains general recovery format."
     },
     {
       "id": "./wallet:QiHDWallet:static:fromMnemonic",
@@ -70390,17 +70423,23 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::HdWallet",
-        "quai_wallet::AccountPublic"
+        "quai_wallet::AccountPublic",
+        "quai_wallet::qi_addresses::QiAddressBook",
+        "quai_wallet::full_backup::legacy::import_quais_json"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/key_origins.rs",
+        "crates/quai-sdk/tests/qi_address_book.rs",
+        "crates/quai-sdk/tests/legacy_wallets.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md",
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Typed HD identity and native/browser workflow compositions exist. Full legacy wallet-JSON migration and cached address-status convenience views remain separately identified."
+      "deviation": "Typed HD identity, explicit native/browser scoped workflow composition, verified address inventory/usage views and whole legacy wallet migration. No mutable secret-bearing provider tree or internal JS constructor guard. Public root export corrects the pinned xPub() private-key exposure; legacy downgrade limits are explicit."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:addAddress",
@@ -70651,21 +70690,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::full_backup::WalletBackup",
-        "quai_wallet::full_backup::EncryptedWalletBackup",
-        "quai_sdk::browser_backups"
+        "quai_wallet::full_backup::legacy::import_quais_json",
+        "quai_wallet::full_backup::legacy::export_quais_json",
+        "quai_wallet::full_backup::WalletBackup"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/legacy_wallets.rs",
+        "compatibility/scripts/generate-legacy-wallets.mjs",
         "compatibility/scripts/wallet-regressions.test.mjs",
-        "crates/quai-wallet/src/full_backup/tests.rs",
-        "crates/quai-sdk/tests/portable_backups.rs"
+        "fuzz/fuzz_targets/wallet_import.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
+      "deviation": "Bounded whole-wallet legacy JSON migration verifies explicit language/passphrase/trusted public root and every HD/imported/payment origin. Known floors/exposures survive; stale statuses/checkpoints are discarded. Explicit guarded legacy export supports representable English/empty-passphrase identities and rejects custody or burned-range downgrade. Authenticated Rust backup remains general recovery format."
     },
     {
       "id": "./wallet:QuaiHDWallet:instance:signMessage",
@@ -70767,14 +70807,17 @@
         "quai_wallet::HdWallet::root_public_key"
       ],
       "feature": "wallet",
-      "status": "implemented",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "compatibility/scripts/hd-wallet-workflows.test.mjs",
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-sdk/tests/legacy_wallets.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/HD_WALLET_PARITY_REVIEW.md",
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Coin-level BIP44 xpub at the pinned 994/969 path; account xpubs are explicitly separate."
+      "deviation": "Rust exports only a public coin-root xpub. Both pinned JS xPub() implementations return the private root extendedKey (xprv), contrary to their names/comments. Rust deliberately corrects the secret exposure; public-key import rejects xprv."
     },
     {
       "id": "./wallet:QuaiHDWallet:static:createRandom",
@@ -70812,21 +70855,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::full_backup::WalletBackup",
-        "quai_wallet::full_backup::EncryptedWalletBackup",
-        "quai_sdk::browser_backups"
+        "quai_wallet::full_backup::legacy::import_quais_json",
+        "quai_wallet::full_backup::legacy::export_quais_json",
+        "quai_wallet::full_backup::WalletBackup"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/legacy_wallets.rs",
+        "compatibility/scripts/generate-legacy-wallets.mjs",
         "compatibility/scripts/wallet-regressions.test.mjs",
-        "crates/quai-wallet/src/full_backup/tests.rs",
-        "crates/quai-sdk/tests/portable_backups.rs"
+        "fuzz/fuzz_targets/wallet_import.rs"
       ],
       "docs": [
-        "docs/HD_WALLET_PARITY_REVIEW.md"
+        "docs/LEGACY_WALLET_MIGRATION.md"
       ],
-      "deviation": "Authenticated effective private origins, claims and monotonic allocation restoration are implemented. Full legacy Serialized*HDWallet JSON import/export is absent; pinned serialization loses passphrase/language/seed-only support and leaks imported keys into metadata."
+      "deviation": "Bounded whole-wallet legacy JSON migration verifies explicit language/passphrase/trusted public root and every HD/imported/payment origin. Known floors/exposures survive; stale statuses/checkpoints are discarded. Explicit guarded legacy export supports representable English/empty-passphrase identities and rejects custody or burned-range downgrade. Authenticated Rust backup remains general recovery format."
     },
     {
       "id": "./wallet:QuaiHDWallet:static:fromMnemonic",

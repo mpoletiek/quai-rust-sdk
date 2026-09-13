@@ -101,10 +101,14 @@ jobs:
           CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner
           WASM_BINDGEN_TEST_TIMEOUT: 90
       - run: python3 crates/quai-browser/tests/run_browser.py --suite worker
+        env:
+          # Includes the production-cost scrypt export/decryption round trip.
+          WASM_BINDGEN_TEST_TIMEOUT: 180
       - run: python3 crates/quai-browser/tests/run_browser.py --suite account_wait
         env:
           CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner
           WASM_BINDGEN_TEST_TIMEOUT: 90
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-legacy-wallets
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-address-book
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-worker
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-contract-code

@@ -324,6 +324,10 @@
     {
       "source": "crates/quai-provider/tests/support/account_replacement.rs",
       "destination": "crates/quai-browser/tests/fixtures/shared/crates/quai-provider/tests/support/account_replacement.rs"
+    },
+    {
+      "source": "compatibility/fixtures/legacy-wallets.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/legacy-wallets.json"
     }
   ]
 }

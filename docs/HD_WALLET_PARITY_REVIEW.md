@@ -10,7 +10,7 @@ source-compatible JavaScript objects or a claim of production qualification.
 
 | Reference behavior | Rust composition | Difference |
 | --- | --- | --- |
-| Construct either HD wallet; `xPub()` | `HdWallet` with `CoinType::Quai` or `Qi`; `root_public_key().export()` | Coin-level `m/44'/994'` or `m/44'/969'` xpub; hardened account roots require the private parent or an explicit `AccountPublic` |
+| Construct either HD wallet; `xPub()` | `HdWallet` with `CoinType::Quai` or `Qi`; `root_public_key().export()` | Rust returns a public `m/44'/994'` or `m/44'/969'` xpub. Both pinned JS `xPub()` methods actually return xprv; Rust deliberately corrects this secret exposure |
 | `addAddress(account,index)`; Qi `addChangeAddress` | `PublicAddress::derive(&account_public, change, index)`; explicitly import metadata into storage | Exact raw BIP32 child, validated ledger/zone, no implicit search or private key in metadata; importing metadata invalidates the current snapshot |
 | Get next receive/change address | `AccountPublic::search` plus native `allocate_address` or `BrowserAddressBook` | Commit a bounded raw range before search and a result before exposure; cancellation burns ranges |
 | `connect(provider)` | Pass a provider to the native/browser session or discovery function | No mutable provider propagation through a secret-bearing wallet tree; each operation checks its explicit scope |
@@ -110,9 +110,10 @@ and [selection review](QI_SELECTION_PARITY_REVIEW.md).
 Use `WalletBackup` with authenticated `EncryptedWalletBackup`, explicit private
 origins and monotonic native/browser restoration. Public metadata and allocation
 journals remain separately exportable. This format is not the plaintext
-`Serialized*HDWallet` JSON schema. Rust does not currently import/export that
-legacy schema as a whole wallet; recovery requires the actual seed, passphrase,
-master/private origins and validated public allocation context.
+`Serialized*HDWallet` JSON schema. The [legacy migration API](LEGACY_WALLET_MIGRATION.md) now verifies and imports
+that whole-wallet schema using explicit language, passphrase and trusted public
+root. It exports representable English/empty-passphrase identities and rejects
+downgrades that would lose custody or burned allocation ranges.
 
 The [reference regressions](../compatibility/scripts/wallet-regressions.test.mjs)
 show that legacy serialization loses a BIP39 passphrase, cannot restore a French

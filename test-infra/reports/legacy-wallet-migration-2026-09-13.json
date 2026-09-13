@@ -1,0 +1,161 @@
+{
+  "recordedAt": "2026-09-13T21:48:49.792141+00:00",
+  "baseCommit": "7f058f98957dc82f5c06c4e126a33caf421512b0",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    "crates/quai-wallet/src/full_backup/legacy.rs": "c087ad7405ac3845d0a04bf254a2bdc1c53a5cd8c56a725b954b1e5387f2e1de",
+    "crates/quai-wallet/src/full_backup/legacy/json.rs": "20123056a8787cf159f7f86699744d5be620c764880214bd369957ee0f867347",
+    "crates/quai-sdk/tests/legacy_wallets.rs": "c74165982ae754842b46d6639ebefe9712e3fcc95bb6916379a0f456e3fba9d6",
+    "compatibility/fixtures/legacy-wallets.json": "440cf85a725e4b086ff39793295b2000f1002a475bba2ff2630e613a6b21ceb4",
+    "compatibility/scripts/generate-legacy-wallets.mjs": "7b2e5632db3f64c8990b0f2826ffbea0c857e7588bd7b9b53745a6fe8f0c8860",
+    "compatibility/scripts/hd-wallet-workflows.test.mjs": "13959659c80b6252e465c30b98655bca6ce83013c9caed51c64b98e153f58c10",
+    "fuzz/fuzz_targets/wallet_import.rs": "433b230c6dbca33b2e6ebf719f05e34eac121e9b74168f54084222cd33f110c1",
+    "docs/LEGACY_WALLET_MIGRATION.md": "d043f6feb1f4e1a108c4fef9e408ee6f1432bdc1614cf109054a17db96cfd57f"
+  },
+  "parityRows": [
+    ".:QiHDWallet",
+    ".:QiHDWallet:instance:serialize",
+    ".:QiHDWallet:instance:xPub",
+    ".:QiHDWallet:static:deserialize",
+    ".:QuaiHDWallet",
+    ".:QuaiHDWallet:instance:serialize",
+    ".:QuaiHDWallet:instance:xPub",
+    ".:QuaiHDWallet:static:deserialize",
+    "./wallet:QiHDWallet",
+    "./wallet:QiHDWallet:instance:serialize",
+    "./wallet:QiHDWallet:instance:xPub",
+    "./wallet:QiHDWallet:static:deserialize",
+    "./wallet:QuaiHDWallet",
+    "./wallet:QuaiHDWallet:instance:serialize",
+    "./wallet:QuaiHDWallet:instance:xPub",
+    "./wallet:QuaiHDWallet:static:deserialize"
+  ],
+  "validation": {
+    "nativeTests": 5,
+    "chromiumWorkerTests": 5,
+    "pinnedHdWorkflowTests": 4,
+    "pinnedLegacyRegressionTests": 5,
+    "strictNativeAndWasmClippy": "passed",
+    "nativeAndWasmRustdocWarningsDenied": "passed",
+    "packageRehearsal": {
+      "schemaVersion": 1,
+      "published": false,
+      "networkAccess": false,
+      "sourceCommit": "7f058f98957dc82f5c06c4e126a33caf421512b0",
+      "sourceDirty": true,
+      "packages": [
+        {
+          "name": "quai-primitives",
+          "version": "0.1.0-alpha.1",
+          "bytes": 62131,
+          "sha256": "cbff0fbdc6ce58fb2014abecefbaf2f8e51d15d721db349aa927bff665f32026"
+        },
+        {
+          "name": "quai-rpc",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45147,
+          "sha256": "6dfd85b77990748f21bcb32d42d9f778b55c62d724f6a7b84cbbdfcaa820a370"
+        },
+        {
+          "name": "quai-provider",
+          "version": "0.1.0-alpha.1",
+          "bytes": 136601,
+          "sha256": "b2502beab28ddc8bcff43ec00ff9874c5f26d2c9ba516b763f7203e68bc0750d"
+        },
+        {
+          "name": "quai-consensus",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45777,
+          "sha256": "1676b70dba2ea81325cecce7b2dc3d9d91505be6a50b85b25b56817b242c3ece"
+        },
+        {
+          "name": "quai-crypto",
+          "version": "0.1.0-alpha.1",
+          "bytes": 48117,
+          "sha256": "9d8758e4e1420d40c19dc53c5257aecaae1bbef7fb67910299a1ec4a1f2cce4b"
+        },
+        {
+          "name": "quai-sdk",
+          "version": "0.1.0-alpha.1",
+          "bytes": 251360,
+          "sha256": "85f6bc857f4b385446d00e3e972781a3c1d7d17e198df1aa7c885bf4e9381cc3"
+        },
+        {
+          "name": "quai-abi",
+          "version": "0.1.0-alpha.1",
+          "bytes": 166209,
+          "sha256": "8480f057a616bc5170e8c400840584ec02940b68884097de73d781194043c3bd"
+        },
+        {
+          "name": "quai-browser",
+          "version": "0.1.0-alpha.1",
+          "bytes": 86950,
+          "sha256": "1047332e8a50d3954cd904927dde3cf2baaf7cc9a7e8961055ec3ded0f07b492"
+        },
+        {
+          "name": "quai-signer",
+          "version": "0.1.0-alpha.1",
+          "bytes": 24660,
+          "sha256": "3ffd266256033ffc5ecb61ea3cae81505dea6a2c6c8716bb235c05271cb924df"
+        },
+        {
+          "name": "quai-keystore",
+          "version": "0.1.0-alpha.1",
+          "bytes": 34354,
+          "sha256": "40808a25b7b039d733c6b900b0c877d0e452bcb32811020afd8353349b347694"
+        },
+        {
+          "name": "quai-wallet",
+          "version": "0.1.0-alpha.1",
+          "bytes": 278881,
+          "sha256": "1d4411203003e9f50b62b695a723aa42c8a00d06764bdb53073105f1e2603d35"
+        },
+        {
+          "name": "quai-payments",
+          "version": "0.1.0-alpha.1",
+          "bytes": 39459,
+          "sha256": "af770a70651bb6ba6a46ee3d55c83027358c9f005f7eb19e8322d8a3f61b1292"
+        }
+      ],
+      "consumerTests": {
+        "minimal": "passed",
+        "default": "passed",
+        "full": "passed"
+      },
+      "packagedTargetChecks": {
+        "quai-primitives": "passed",
+        "quai-rpc": "passed",
+        "quai-provider": "passed",
+        "quai-consensus": "passed",
+        "quai-crypto": "passed",
+        "quai-sdk": "passed",
+        "quai-abi": "passed",
+        "quai-browser": "passed",
+        "quai-signer": "passed",
+        "quai-keystore": "passed",
+        "quai-wallet": "passed",
+        "quai-payments": "passed"
+      },
+      "packagedWasmChecks": {
+        "quai-browser": "passed",
+        "quai-sdk": "passed"
+      },
+      "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+    },
+    "fuzzReport": "legacy-wallet-fuzz-2026-09-13.json",
+    "dependencyAudit": "legacy-wallet-dependency-audit-2026-09-13.json",
+    "existingChromiumWorkerRegression": {
+      "tests": 24,
+      "result": "passed",
+      "timeoutSeconds": 180
+    }
+  },
+  "correction": "Published HD wallet xPub() returns an xprv for private roots. Four prior implemented mappings are corrected to deviation; Rust returns only ExtendedPublicKey. Fixtures explicitly neuter the legacy value.",
+  "limitations": [
+    "Legacy JSON is plaintext, bounded, and requires independent trusted coin-root identity plus original mnemonic language and passphrase.",
+    "Usage/checkpoints are discarded and must be refreshed; missing exposures cannot be recovered from absent history.",
+    "Legacy export rejects nonrepresentable custody, nonce floors, and burned address/channel tails.",
+    "No funded node writes or crates.io publication.",
+    "CI 34783225540 failed when worker suite hit its 30-second default; CI now gives production-cost scrypt worker tests 180 seconds. This workflow-only change follows the package rehearsal."
+  ]
+}

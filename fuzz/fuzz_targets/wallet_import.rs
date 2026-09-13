@@ -6,6 +6,26 @@ use quai_wallet::{Mnemonic,Language,ExtendedPrivateKey,ExtendedPublicKey};
 use quai_crypto::{PublicKey,RecoverableSignature,SchnorrSignature};
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
+ if data.first()==Some(&b'{') {
+  use quai_wallet::full_backup::legacy::{import_quais_json,export_quais_json,LegacyWalletIdentity};
+  static IDENTITY:std::sync::OnceLock<(Mnemonic,ExtendedPublicKey,ExtendedPublicKey)>=std::sync::OnceLock::new();
+  let (mnemonic,quai,qi)=IDENTITY.get_or_init(||{
+   let mnemonic=Mnemonic::from_entropy(Language::English,&[0;16]).unwrap();
+   let quai=quai_wallet::HdWallet::from_mnemonic(&mnemonic,"",quai_wallet::CoinType::Quai).unwrap().root_public_key();
+   let qi=quai_wallet::HdWallet::from_mnemonic(&mnemonic,"",quai_wallet::CoinType::Qi).unwrap().root_public_key();
+   (mnemonic,quai,qi)
+  });
+  let scope=quai_wallet::discovery::NetworkScope{chain_id:quai_consensus::U256::from(9),genesis:quai_primitives::Hash32::from_bytes([1;32]),zone:quai_primitives::Zone::Cyprus1};
+  for (coin,root) in [(quai_wallet::CoinType::Quai,quai),(quai_wallet::CoinType::Qi,qi)] {
+   if let Ok(backup)=import_quais_json(data,scope,LegacyWalletIdentity{language:Language::English,passphrase:"",expected_root:root}) {
+    if let Ok(json)=export_quais_json(&backup,scope,coin,mnemonic) {
+     let again=import_quais_json(json.expose().as_bytes(),scope,LegacyWalletIdentity{language:Language::English,passphrase:"",expected_root:root}).unwrap();
+     assert_eq!(again.scopes(),backup.scopes());assert_eq!(again.payment_exposures().count(),backup.payment_exposures().count());
+    }
+   }
+  }
+ }
+
  if data.starts_with(b"QQICUBK1") {
   let scope=quai_wallet::discovery::NetworkScope{chain_id:quai_consensus::U256::from(15000),genesis:quai_primitives::Hash32::from_bytes([1;32]),zone:quai_primitives::Zone::Cyprus1};
   let identity=quai_primitives::Hash32::from_bytes([7;32]);

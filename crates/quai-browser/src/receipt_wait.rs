@@ -43,11 +43,11 @@ impl Drop for Timer {
 #[derive(Debug, thiserror::Error)]
 pub enum BrowserReceiptWaitError {
     /// Invalid limits are rejected before timers and provider I/O.
-    #[error("invalid browser receipt wait limits")]
+    #[error("invalid browser transaction wait limits")]
     InvalidConfig,
     /// Deadline expired, including time spent awaiting RPCs. Information below is
     /// from completed polls only; a cancelled partial poll contributes no inclusion.
-    #[error("browser receipt wait timed out for {transaction_hash}")]
+    #[error("browser transaction wait timed out for {transaction_hash}")]
     Timeout {
         /// Transaction still eligible for later observation.
         transaction_hash: Hash32,
@@ -57,7 +57,7 @@ pub enum BrowserReceiptWaitError {
         polls_completed: u32,
     },
     /// Explicit observation budget exhausted, with no rejection inference.
-    #[error("browser receipt observation budget exhausted for {transaction_hash}")]
+    #[error("browser transaction observation budget exhausted for {transaction_hash}")]
     PollLimit {
         /// Watched transaction.
         transaction_hash: Hash32,
@@ -67,7 +67,7 @@ pub enum BrowserReceiptWaitError {
         polls_completed: u32,
     },
     /// A typed provider read failed; no implicit retry or submission is performed.
-    #[error("browser receipt read failed for {transaction_hash}: {source}")]
+    #[error("browser transaction observation failed for {transaction_hash}: {source}")]
     Provider {
         /// Watched transaction.
         transaction_hash: Hash32,
@@ -76,7 +76,7 @@ pub enum BrowserReceiptWaitError {
         source: ProviderError,
     },
     /// Required worker/window clock or timer failed. No wall-clock fallback.
-    #[error("browser receipt wait runtime unavailable")]
+    #[error("browser transaction wait runtime unavailable")]
     Runtime,
 }
 /// Wait using portable confirmation checks and window/worker monotonic timers.
@@ -91,6 +91,60 @@ pub async fn wait_for_receipt<T: Transport>(
     transaction_hash: Hash32,
     config: BrowserWaitConfig,
 ) -> Result<ConfirmedReceipt, BrowserReceiptWaitError> {
+    wait_for_observation(
+        transaction_hash,
+        config,
+        ReceiptPoll {
+            provider,
+            zone,
+            transaction_hash,
+            confirmations: config.confirmations,
+        },
+    )
+    .await
+}
+pub(crate) enum WaitObservation<R> {
+    Ready(R),
+    Pending {
+        inclusion: Option<Inclusion>,
+        immediate: bool,
+    },
+}
+pub(crate) trait WaitPoll {
+    type Output;
+    async fn poll(&mut self) -> Result<WaitObservation<Self::Output>, ProviderError>;
+}
+struct ReceiptPoll<'a, T> {
+    provider: &'a Provider<T>,
+    zone: Zone,
+    transaction_hash: Hash32,
+    confirmations: u64,
+}
+impl<T: Transport> WaitPoll for ReceiptPoll<'_, T> {
+    type Output = ConfirmedReceipt;
+    async fn poll(&mut self) -> Result<WaitObservation<Self::Output>, ProviderError> {
+        Ok(
+            match self
+                .provider
+                .observe_receipt_confirmation(self.zone, self.transaction_hash, self.confirmations)
+                .await?
+            {
+                ReceiptConfirmation::Confirmed(receipt) => WaitObservation::Ready(*receipt),
+                ReceiptConfirmation::Pending {
+                    last_observed_inclusion,
+                } => WaitObservation::Pending {
+                    inclusion: last_observed_inclusion,
+                    immediate: false,
+                },
+            },
+        )
+    }
+}
+pub(crate) async fn wait_for_observation<P: WaitPoll>(
+    transaction_hash: Hash32,
+    config: BrowserWaitConfig,
+    mut observer: P,
+) -> Result<P::Output, BrowserReceiptWaitError> {
     config
         .validate()
         .map_err(|_| BrowserReceiptWaitError::InvalidConfig)?;
@@ -114,9 +168,7 @@ pub async fn wait_for_receipt<T: Transport>(
             if expired()? {
                 return Err(timeout());
             }
-            let observation = provider
-                .observe_receipt_confirmation(zone, transaction_hash, config.confirmations)
-                .await;
+            let observation = observer.poll().await;
             if expired()? {
                 return Err(timeout());
             }
@@ -125,18 +177,25 @@ pub async fn wait_for_receipt<T: Transport>(
                 source,
             })?;
             polls.set(polls.get() + 1);
-            match observation {
-                ReceiptConfirmation::Confirmed(receipt) => return Ok(*receipt),
-                ReceiptConfirmation::Pending {
-                    last_observed_inclusion,
-                } => last.set(last_observed_inclusion),
-            }
+            let immediate = match observation {
+                WaitObservation::Ready(result) => return Ok(result),
+                WaitObservation::Pending {
+                    inclusion,
+                    immediate,
+                } => {
+                    last.set(inclusion);
+                    immediate
+                }
+            };
             if polls.get() >= config.max_polls {
                 return Err(BrowserReceiptWaitError::PollLimit {
                     transaction_hash,
                     last_completed_inclusion: last.get(),
                     polls_completed: polls.get(),
                 });
+            }
+            if immediate {
+                continue;
             }
             Timer::new(config.poll_interval_ms)
                 .map_err(|_| BrowserReceiptWaitError::Runtime)?

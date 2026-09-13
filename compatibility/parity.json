@@ -7004,7 +7004,7 @@
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": ".:ContractTransactionResponse:instance:hash",
@@ -7135,19 +7135,22 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_provider::Provider::observe_account_replacements",
-        "quai_provider::Provider::wait_for_account_transaction"
+        "quai_provider::Provider::wait_for_account_transaction",
+        "quai_provider::AccountReplacementTracker",
+        "quai_browser::wait_for_account_transaction"
       ],
       "feature": "provider",
       "status": "deviation",
       "test_ids": [
         "compatibility/scripts/account-replacement.test.mjs",
         "crates/quai-provider/tests/account_replacement.rs",
-        "crates/quai-provider/tests/provider.rs"
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/account_wait.rs"
       ],
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": ".:ContractTransactionResponse:instance:sender",
@@ -7246,19 +7249,22 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_provider::Provider::observe_account_replacements",
-        "quai_provider::Provider::wait_for_account_transaction"
+        "quai_provider::Provider::wait_for_account_transaction",
+        "quai_provider::AccountReplacementTracker",
+        "quai_browser::wait_for_account_transaction"
       ],
       "feature": "provider",
       "status": "deviation",
       "test_ids": [
         "compatibility/scripts/account-replacement.test.mjs",
         "crates/quai-provider/tests/account_replacement.rs",
-        "crates/quai-provider/tests/provider.rs"
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/account_wait.rs"
       ],
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": ".:ContractUnknownEventPayload",
@@ -23485,7 +23491,7 @@
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": ".:QuaiTransactionResponse:instance:hash",
@@ -23616,19 +23622,22 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_provider::Provider::observe_account_replacements",
-        "quai_provider::Provider::wait_for_account_transaction"
+        "quai_provider::Provider::wait_for_account_transaction",
+        "quai_provider::AccountReplacementTracker",
+        "quai_browser::wait_for_account_transaction"
       ],
       "feature": "provider",
       "status": "deviation",
       "test_ids": [
         "compatibility/scripts/account-replacement.test.mjs",
         "crates/quai-provider/tests/account_replacement.rs",
-        "crates/quai-provider/tests/provider.rs"
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/account_wait.rs"
       ],
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": ".:QuaiTransactionResponse:instance:sender",
@@ -23727,19 +23736,22 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_provider::Provider::observe_account_replacements",
-        "quai_provider::Provider::wait_for_account_transaction"
+        "quai_provider::Provider::wait_for_account_transaction",
+        "quai_provider::AccountReplacementTracker",
+        "quai_browser::wait_for_account_transaction"
       ],
       "feature": "provider",
       "status": "deviation",
       "test_ids": [
         "compatibility/scripts/account-replacement.test.mjs",
         "crates/quai-provider/tests/account_replacement.rs",
-        "crates/quai-provider/tests/provider.rs"
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/account_wait.rs"
       ],
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": ".:randomBytes",
@@ -45395,7 +45407,7 @@
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": "./contract:ContractTransactionResponse:instance:hash",
@@ -45526,19 +45538,22 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_provider::Provider::observe_account_replacements",
-        "quai_provider::Provider::wait_for_account_transaction"
+        "quai_provider::Provider::wait_for_account_transaction",
+        "quai_provider::AccountReplacementTracker",
+        "quai_browser::wait_for_account_transaction"
       ],
       "feature": "provider",
       "status": "deviation",
       "test_ids": [
         "compatibility/scripts/account-replacement.test.mjs",
         "crates/quai-provider/tests/account_replacement.rs",
-        "crates/quai-provider/tests/provider.rs"
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/account_wait.rs"
       ],
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": "./contract:ContractTransactionResponse:instance:sender",
@@ -45637,19 +45652,22 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_provider::Provider::observe_account_replacements",
-        "quai_provider::Provider::wait_for_account_transaction"
+        "quai_provider::Provider::wait_for_account_transaction",
+        "quai_provider::AccountReplacementTracker",
+        "quai_browser::wait_for_account_transaction"
       ],
       "feature": "provider",
       "status": "deviation",
       "test_ids": [
         "compatibility/scripts/account-replacement.test.mjs",
         "crates/quai-provider/tests/account_replacement.rs",
-        "crates/quai-provider/tests/provider.rs"
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/account_wait.rs"
       ],
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": "./contract:ContractUnknownEventPayload",
@@ -56359,7 +56377,7 @@
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": "./providers:QuaiTransactionResponse:instance:hash",
@@ -56490,19 +56508,22 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_provider::Provider::observe_account_replacements",
-        "quai_provider::Provider::wait_for_account_transaction"
+        "quai_provider::Provider::wait_for_account_transaction",
+        "quai_provider::AccountReplacementTracker",
+        "quai_browser::wait_for_account_transaction"
       ],
       "feature": "provider",
       "status": "deviation",
       "test_ids": [
         "compatibility/scripts/account-replacement.test.mjs",
         "crates/quai-provider/tests/account_replacement.rs",
-        "crates/quai-provider/tests/provider.rs"
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/account_wait.rs"
       ],
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": "./providers:QuaiTransactionResponse:instance:sender",
@@ -56601,19 +56622,22 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_provider::Provider::observe_account_replacements",
-        "quai_provider::Provider::wait_for_account_transaction"
+        "quai_provider::Provider::wait_for_account_transaction",
+        "quai_provider::AccountReplacementTracker",
+        "quai_browser::wait_for_account_transaction"
       ],
       "feature": "provider",
       "status": "deviation",
       "test_ids": [
         "compatibility/scripts/account-replacement.test.mjs",
         "crates/quai-provider/tests/account_replacement.rs",
-        "crates/quai-provider/tests/provider.rs"
+        "crates/quai-provider/tests/provider.rs",
+        "crates/quai-browser/tests/account_wait.rs"
       ],
       "docs": [
         "docs/ACCOUNT_NONCE_REPLACEMENTS.md"
       ],
-      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native timed polling replace mutable provider-bound response objects and unbounded event scanning. Browser uses explicit page/timer policy. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
+      "deviation": "Explicit bounded, signature-verified sender/nonce scans and native/browser timed polling replace mutable provider-bound response objects and unbounded event scanning. Portable cursor composition is also available. No custody adoption or claim release. Failed receipts remain typed outcomes; zero-depth uses one-shot reads; pinned async getTransaction Promise/instanceof bug is corrected. Contract log decoding is explicit through the ABI interface."
     },
     {
       "id": "./providers:SocketBlockSubscriber",

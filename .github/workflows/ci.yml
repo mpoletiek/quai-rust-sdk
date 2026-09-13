@@ -101,6 +101,7 @@ jobs:
           CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner
           WASM_BINDGEN_TEST_TIMEOUT: 90
       - run: python3 crates/quai-browser/tests/run_browser.py --suite worker
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite account_wait
         env:
           CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER: wasm-bindgen-test-runner
           WASM_BINDGEN_TEST_TIMEOUT: 90

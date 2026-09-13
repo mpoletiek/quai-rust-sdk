@@ -322,7 +322,11 @@ impl BrowserSocketConfig {
     }
 }
 #[cfg(target_arch = "wasm32")]
+mod account_wait;
+#[cfg(target_arch = "wasm32")]
 mod receipt_wait;
+#[cfg(target_arch = "wasm32")]
+pub use account_wait::{BrowserAccountWaitError, wait_for_account_transaction};
 #[cfg(target_arch = "wasm32")]
 mod socket;
 #[cfg(target_arch = "wasm32")]
@@ -330,7 +334,7 @@ pub use receipt_wait::{BrowserReceiptWaitError, wait_for_receipt};
 #[cfg(target_arch = "wasm32")]
 pub use socket::{BrowserSubscription, BrowserWebSocketTransport};
 
-/// Explicit browser receipt-wait limits. Milliseconds must be positive and fit a
+/// Explicit browser transaction-wait limits. Milliseconds must be positive and fit a
 /// browser timer; polling attempts are independently bounded. No implicit defaults.
 #[derive(Clone, Copy, Debug)]
 pub struct BrowserWaitConfig {

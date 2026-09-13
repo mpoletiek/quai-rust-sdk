@@ -320,6 +320,10 @@
     {
       "source": "test-infra/fixtures/allocation-merge.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/allocation-merge.json"
+    },
+    {
+      "source": "crates/quai-provider/tests/support/account_replacement.rs",
+      "destination": "crates/quai-browser/tests/fixtures/shared/crates/quai-provider/tests/support/account_replacement.rs"
     }
   ]
 }

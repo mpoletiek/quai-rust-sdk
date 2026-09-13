@@ -72,45 +72,24 @@ impl<T: Transport> Provider<T> {
         if genesis == Hash32::ZERO || original.transaction().chain_id != self.expected_chain_id {
             return Err(WaitError::InvalidConfig);
         }
-        let zone = original.from().zone();
+        let mut tracker = crate::AccountReplacementTracker::new(
+            original,
+            genesis,
+            start_block,
+            config.confirmations,
+        )
+        .map_err(|_| WaitError::InvalidConfig)?;
         let mut last_observed_inclusion = None;
         let work = async {
-            let mut from_block = start_block;
-            let mut preceding_block = None;
             loop {
-                if let Some(head) = self.latest_header(zone).await?
-                    && head.number >= from_block
-                {
-                    let page = self
-                        .observe_account_replacements(
-                            original,
-                            genesis,
-                            crate::AccountReplacementScanRequest {
-                                from_block,
-                                to_block: head.number.min(from_block.saturating_add(255)),
-                                max_transactions_per_block: 4096,
-                                max_total_transactions: 65536,
-                                preceding_block,
-                            },
-                        )
-                        .await?;
-                    if let Some(candidate) = page.candidate {
-                        last_observed_inclusion = Some(candidate.inclusion);
-                        if candidate.receipt.is_some()
-                            && candidate.confirmations >= config.confirmations
-                        {
-                            return Ok(candidate);
-                        }
-                    } else if page.missing_block.is_none()
-                        && let Some(end) = page.scanned_through
-                    {
-                        preceding_block = Some(end);
-                        from_block = end
-                            .number
-                            .checked_add(1)
-                            .ok_or(ProviderError::ObservationChanged)?;
-                        // Drain already available pages without a polling delay.
-                        if from_block <= head.number {
+                match tracker.poll(self).await? {
+                    crate::AccountReplacementPoll::Confirmed(candidate) => return Ok(*candidate),
+                    crate::AccountReplacementPoll::Pending {
+                        inclusion,
+                        more_available,
+                    } => {
+                        last_observed_inclusion = inclusion;
+                        if more_available {
                             continue;
                         }
                     }

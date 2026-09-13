@@ -8,7 +8,8 @@ mod confirmation;
 pub use confirmation::{ConfirmedReceipt, ReceiptConfirmation};
 mod account_replacement;
 pub use account_replacement::{
-    AccountNonceCandidate, AccountReplacementScan, AccountReplacementScanRequest, ReplacementReason,
+    AccountNonceCandidate, AccountReplacementPoll, AccountReplacementScan,
+    AccountReplacementScanRequest, AccountReplacementTracker, ReplacementReason,
 };
 mod deployment;
 #[cfg(all(feature = "polling", not(target_arch = "wasm32")))]

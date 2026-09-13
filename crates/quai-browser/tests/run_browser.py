@@ -92,7 +92,7 @@ class Fixture(http.server.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody', 'sdk-account-backup', 'sdk-contract-code', 'sdk-qi-custody', 'sdk-portable-capture', 'sdk-allocation-merge', 'sdk-account-preflight', 'sdk-recovery', 'sdk-qi-preflight'], default='browser')
+    parser.add_argument('--suite', choices=['browser', 'worker', 'account_wait', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody', 'sdk-account-backup', 'sdk-contract-code', 'sdk-qi-custody', 'sdk-portable-capture', 'sdk-allocation-merge', 'sdk-account-preflight', 'sdk-recovery', 'sdk-qi-preflight'], default='browser')
     arguments = parser.parse_args()
     root = pathlib.Path(__file__).resolve().parents[3]
     server = http.server.ThreadingHTTPServer(('127.0.0.1',0), Fixture)

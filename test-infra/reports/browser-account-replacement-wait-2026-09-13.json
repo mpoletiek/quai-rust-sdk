@@ -1,0 +1,135 @@
+{
+  "recordedAt": "2026-09-13T20:54:20.836912+00:00",
+  "baseCommit": "936fce0b054cc34de5ef0bdae3d88a0fb6655fb6",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    "crates/quai-provider/src/account_replacement.rs": "041ce45a4f82af4a980b93d3f9abb2003a8bec3f199618f2dd6122b3b80a227e",
+    "crates/quai-provider/src/wait.rs": "5f58e18c434bc48fe06198a4e3789568ccd44ad32feb33d9af71f862d96dcc40",
+    "crates/quai-browser/src/account_wait.rs": "78c591b7e65c9c9188fc425863babbe9f8db7d4d9e904da16736677d27ea074d",
+    "crates/quai-browser/src/receipt_wait.rs": "8452c7f8752b51c20762647e0efb2f04dc086333562400715ffcc1e99c5d612d",
+    "crates/quai-provider/tests/account_replacement.rs": "34ddfe3c3624571320afe53d3ae08c6b498301f2e8516f1f98d30c2ed08caabe",
+    "crates/quai-provider/tests/support/account_replacement.rs": "50107b2d13bf46d8017fa1c6b0c60b3422135e8f96118d0512982238170bf3c1",
+    "crates/quai-browser/tests/account_wait.rs": "02461b70ac3c2b183e6911ed648c477c2f71fc764c151434f1639cda87af80a3"
+  },
+  "validation": {
+    "nativeReplacementTests": 7,
+    "nativeConfirmationTests": 7,
+    "chromiumWorkerReplacementTests": 4,
+    "chromiumWorkerReceiptRegressionTests": 9,
+    "nativeProviderBrowserStrictClippy": "passed",
+    "wasmBrowserStrictClippy": "passed",
+    "nativeProviderAndWasmBrowserRustdocWarningsDenied": "passed",
+    "packagedMirrors": 81,
+    "packageRehearsal": {
+      "schemaVersion": 1,
+      "published": false,
+      "networkAccess": false,
+      "sourceCommit": "936fce0b054cc34de5ef0bdae3d88a0fb6655fb6",
+      "sourceDirty": true,
+      "packages": [
+        {
+          "name": "quai-primitives",
+          "version": "0.1.0-alpha.1",
+          "bytes": 62132,
+          "sha256": "4a650eeec3d37b6fb0a8209ecc60b08283527fbd7f75de2706efae71a4a9a9d6"
+        },
+        {
+          "name": "quai-rpc",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45150,
+          "sha256": "3610beeaa214f165c7cd0f3eef90be74f72f9f0596bd50859b019b7a7502238c"
+        },
+        {
+          "name": "quai-provider",
+          "version": "0.1.0-alpha.1",
+          "bytes": 136618,
+          "sha256": "cfc122ce6d9b0ad014ad55a8a665f49ccc4fc18aef196727786717d024cda387"
+        },
+        {
+          "name": "quai-consensus",
+          "version": "0.1.0-alpha.1",
+          "bytes": 45777,
+          "sha256": "8992f884310593359070c072bea4fee305345f4d2ee8e71a18d7c353e792fc3f"
+        },
+        {
+          "name": "quai-crypto",
+          "version": "0.1.0-alpha.1",
+          "bytes": 48118,
+          "sha256": "f986fef48e59b13c9a1b4edfd9849214cf1b240f0d2d6905a4c0eb7bde76398f"
+        },
+        {
+          "name": "quai-sdk",
+          "version": "0.1.0-alpha.1",
+          "bytes": 242802,
+          "sha256": "61b1b958c76cdae114caf2cf4bd018b7ea451d1ed5da20e713ba86dc25ac155b"
+        },
+        {
+          "name": "quai-abi",
+          "version": "0.1.0-alpha.1",
+          "bytes": 166211,
+          "sha256": "171d09ac434cf40f057d980015cf7a463376cff78dbe2ce551925fad5a5ffd46"
+        },
+        {
+          "name": "quai-browser",
+          "version": "0.1.0-alpha.1",
+          "bytes": 86906,
+          "sha256": "0cb25eddc6e13e2d5627da4c9152dc66a43c2f0cb099dbefa7ca43b0449bc228"
+        },
+        {
+          "name": "quai-signer",
+          "version": "0.1.0-alpha.1",
+          "bytes": 24662,
+          "sha256": "4e7b4c30090282ac5c59a6971b1fdf79e81660892346895e2f531d772022b1a1"
+        },
+        {
+          "name": "quai-keystore",
+          "version": "0.1.0-alpha.1",
+          "bytes": 34356,
+          "sha256": "c6d121147a72160726d8e92cd3ca89367f101d604125b1f554bf83048fddedb1"
+        },
+        {
+          "name": "quai-wallet",
+          "version": "0.1.0-alpha.1",
+          "bytes": 270529,
+          "sha256": "1988438cd4c40ad8902f947dcc78b4a71aaf65472d173cb2713ae2125978b062"
+        },
+        {
+          "name": "quai-payments",
+          "version": "0.1.0-alpha.1",
+          "bytes": 39461,
+          "sha256": "1550e5d0e162bac699b5be968edd765381a84541d0fb699cb718740f766175d1"
+        }
+      ],
+      "consumerTests": {
+        "minimal": "passed",
+        "default": "passed",
+        "full": "passed"
+      },
+      "packagedTargetChecks": {
+        "quai-primitives": "passed",
+        "quai-rpc": "passed",
+        "quai-provider": "passed",
+        "quai-consensus": "passed",
+        "quai-crypto": "passed",
+        "quai-sdk": "passed",
+        "quai-abi": "passed",
+        "quai-browser": "passed",
+        "quai-signer": "passed",
+        "quai-keystore": "passed",
+        "quai-wallet": "passed",
+        "quai-payments": "passed"
+      },
+      "packagedWasmChecks": {
+        "quai-browser": "passed",
+        "quai-sdk": "passed"
+      },
+      "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+    }
+  },
+  "limitations": [
+    "Mock signed public-toy transactions; no funded mainnet or node replacement-policy writes",
+    "Reorg errors require an explicit trusted restart height; cursors are in memory",
+    "RPC canonicality and complete history remain source claims; missing history never proves cancellation",
+    "Browser suspension may delay timeout delivery; observed expiry prevents success"
+  ]
+}

@@ -729,7 +729,9 @@ scans an explicit bounded page for the original or a mined same-sender/nonce
 transaction, including unregistered repricing, cancellation or changed recipients.
 It verifies signatures and canonical associations without adopting candidates or
 releasing claims. Native `wait_for_account_transaction` follows bounded pages
-under an overall deadline; browser callers choose page/timer policy explicitly.
+under an overall deadline; `quai_browser::wait_for_account_transaction` adds
+window/worker deadlines and a page/poll budget. Both use the portable
+`AccountReplacementTracker` for executor-independent composition.
 See [account nonce replacement discovery](docs/ACCOUNT_NONCE_REPLACEMENTS.md) for
 coverage, missing receipts, reorg behavior and the published-reference differences.
 

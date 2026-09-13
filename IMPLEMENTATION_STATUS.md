@@ -754,3 +754,19 @@ checks. All proposed crate names returned 404 on the dated read-only lookup; no
 names were reserved or uploaded. Private vulnerability reporting is enabled.
 `docs/PUBLISHING.md` records the dependency order, authorization boundary and
 remaining qualification. See the retained selection/publication preflight report.
+
+## 2026-09-13: portable and browser unknown account replacement waiting
+
+Both native and browser waiters use `AccountReplacementTracker` to follow bounded
+verified pages for an original or unknown same-sender/nonce competitor. Browser
+waiting has window/worker deadlines, poll/page budgets and cancellation cleanup.
+The tracker rechecks the prior page even if the reported head retreats; unsuccessful
+polls do not advance. No custody adoption, claim release or submission occurs.
+
+Seven native replacement tests, seven native confirmation regressions, four
+Chromium worker replacement tests and nine Chromium receipt regressions pass.
+Native/Wasm strict Clippy, warnings-denied rustdoc and extracted-package checks
+pass. See [the retained report](test-infra/reports/browser-account-replacement-wait-2026-09-13.json)
+and [the API guide](docs/ACCOUNT_NONCE_REPLACEMENTS.md). The previous main commit
+`936fce0b054cc34de5ef0bdae3d88a0fb6655fb6` passed GitHub CI run `34781269431`,
+including the standalone IndexedDB harness fix.

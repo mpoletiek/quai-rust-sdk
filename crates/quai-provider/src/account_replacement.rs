@@ -58,6 +58,136 @@ pub struct AccountReplacementScan {
     /// Rechecked head used for confirmation counts.
     pub observed_head: ZoneHeader,
 }
+
+/// Result of one portable replacement-tracker poll; no timer or custody change.
+#[derive(Clone, Debug)]
+pub enum AccountReplacementPoll {
+    /// No indexed occupant has the requested depth yet.
+    Pending {
+        /// Latest completed page's candidate inclusion, if any.
+        inclusion: Option<Inclusion>,
+        /// Another bounded page is already available at the sampled head.
+        more_available: bool,
+    },
+    /// Verified original or competitor with an indexed, rechecked receipt.
+    Confirmed(Box<AccountNonceCandidate>),
+}
+/// In-memory, timer-independent cursor for successive canonical replacement pages.
+/// A failed or cancelled poll never advances the cursor. Reorgs fail explicitly;
+/// reconstruct from a trusted start height rather than trusting a stale cursor.
+pub struct AccountReplacementTracker {
+    original: SignedQuaiTransaction,
+    genesis: Hash32,
+    from_block: u64,
+    preceding_block: Option<BlockReference>,
+    confirmations: u64,
+}
+impl AccountReplacementTracker {
+    /// Validate an immutable original, nonzero trusted genesis, positive start and
+    /// required depth before I/O. Provider chain binding is checked on every poll.
+    pub fn new(
+        original: &SignedQuaiTransaction,
+        genesis: Hash32,
+        start_block: u64,
+        confirmations: u64,
+    ) -> Result<Self, ProviderError> {
+        if genesis == Hash32::ZERO
+            || original.transaction().chain_id == quai_rpc::U256::ZERO
+            || start_block == 0
+            || start_block > i64::MAX as u64
+            || confirmations == 0
+            || original.hash().is_err()
+        {
+            return Err(ProviderError::InvalidRequest(
+                "invalid account replacement tracker",
+            ));
+        }
+        Ok(Self {
+            original: original.clone(),
+            genesis,
+            from_block: start_block,
+            preceding_block: None,
+            confirmations,
+        })
+    }
+    /// Observe at most one 256-block page under the observer's transaction bounds.
+    /// Missing history stops advancement, and insufficient-depth candidates keep
+    /// their page under observation. More-available is only a scheduling hint.
+    pub async fn poll<T: Transport>(
+        &mut self,
+        provider: &Provider<T>,
+    ) -> Result<AccountReplacementPoll, ProviderError> {
+        if self.original.transaction().chain_id != provider.expected_chain_id {
+            return Err(ProviderError::InvalidRequest(
+                "replacement tracker chain mismatch",
+            ));
+        }
+        let zone = self.original.from().zone();
+        if provider.genesis_hash(zone).await? != self.genesis {
+            return Err(ProviderError::ObservationChanged);
+        }
+        if let Some(prior) = self.preceding_block
+            && provider
+                .header_at(zone, prior.number)
+                .await?
+                .is_none_or(|h| h.hash != prior.hash)
+        {
+            return Err(ProviderError::ObservationChanged);
+        }
+        let Some(head) = provider.latest_header(self.original.from().zone()).await? else {
+            return Ok(AccountReplacementPoll::Pending {
+                inclusion: None,
+                more_available: false,
+            });
+        };
+        if head.number < self.from_block {
+            return Ok(AccountReplacementPoll::Pending {
+                inclusion: None,
+                more_available: false,
+            });
+        }
+        let page = provider
+            .observe_account_replacements(
+                &self.original,
+                self.genesis,
+                AccountReplacementScanRequest {
+                    from_block: self.from_block,
+                    to_block: head.number.min(self.from_block.saturating_add(255)),
+                    max_transactions_per_block: 4096,
+                    max_total_transactions: 65536,
+                    preceding_block: self.preceding_block,
+                },
+            )
+            .await?;
+        if let Some(candidate) = page.candidate {
+            if candidate.receipt.is_some() && candidate.confirmations >= self.confirmations {
+                return Ok(AccountReplacementPoll::Confirmed(Box::new(candidate)));
+            }
+            return Ok(AccountReplacementPoll::Pending {
+                inclusion: Some(candidate.inclusion),
+                more_available: false,
+            });
+        }
+        if page.missing_block.is_none()
+            && let Some(end) = page.scanned_through
+        {
+            let next = end
+                .number
+                .checked_add(1)
+                .ok_or(ProviderError::ObservationChanged)?;
+            self.preceding_block = Some(end);
+            self.from_block = next;
+            return Ok(AccountReplacementPoll::Pending {
+                inclusion: None,
+                more_available: next <= head.number,
+            });
+        }
+        Ok(AccountReplacementPoll::Pending {
+            inclusion: None,
+            more_available: false,
+        })
+    }
+}
 impl AccountReplacementScanRequest {
     fn validate(self) -> Result<(), ProviderError> {
         if self.from_block == 0

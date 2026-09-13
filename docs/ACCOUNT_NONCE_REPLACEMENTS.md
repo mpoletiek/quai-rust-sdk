@@ -42,10 +42,22 @@ future stops polling; errors and changed anchors return immediately. Restart fro
 an explicitly chosen trusted height after a reorg. The cursor exists only within
 that future; no claim is released and no candidate is added to wallet storage.
 
-Browser callers use the portable observer with explicit page/timer policy. There
-is no browser helper that automatically scans successive pages for an unknown
-competitor. Hash-only receipt polling and registered-family reconciliation remain
-separate APIs and must not be described as unknown-replacement discovery.
+On Wasm, `quai_browser::wait_for_account_transaction(&provider, original,
+genesis, start_block, BrowserWaitConfig)` follows the same pages using
+window/worker monotonic timers. `max_polls` counts completed pages and idle
+observations; available pages drain without a polling delay. The total deadline
+also covers stalled reads. Dropping the future clears its timers and active read.
+Browser suspension can delay delivery, but observed expiry prevents success.
+`BrowserAccountWaitError` aliases the shared structured browser wait error.
+
+Both waiters use the portable `AccountReplacementTracker`. Applications with
+another executor can construct this tracker and call `poll(&provider)` under
+their own deadline. Each poll returns `Pending { inclusion, more_available }`
+or `Confirmed(candidate)`, checks genesis and the prior page even if the head
+has retreated, and advances only after a complete successful page. Failed or
+cancelled polls retain the cursor. It is an in-memory cursor, not a serializable
+chain snapshot: after a reorg, reconstruct it from an explicitly trusted start.
+Hash-only receipt polling and registered-family reconciliation remain separate APIs.
 
 ## Published-reference comparison
 
@@ -69,3 +81,8 @@ classifications, original inclusion, failed/missing receipts, incomplete history
 forged signatures, receipt mismatch, reorgs, competing occupants, resource limits,
 multi-page waiting, timeout and cancellation. These are signed public-toy fixtures,
 not funded node replacement-policy acceptance.
+
+[Chromium worker tests](../crates/quai-browser/tests/account_wait.rs) exercise
+unknown classifications, failed execution, successive pages, poll budgets,
+forgery/reorg rejection, stalled reads, cancellation and no-I/O configuration
+rejection. The shared timer loop also retains the existing receipt-wait tests.

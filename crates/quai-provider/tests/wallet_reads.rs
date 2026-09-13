@@ -295,18 +295,7 @@ fn raw_call_objects_reject_ambiguous_unsupported_and_overflow_fields() {
 async fn invalid_simulations_and_out_of_range_selectors_stop_before_io() {
     let from = ADDRESS.parse().unwrap();
     let mut request = CallRequest::new(from, from);
-    request.to = Some(
-        "0x1000000000000000000000000000000000000000"
-            .parse()
-            .unwrap(),
-    );
     let mock = Mock::default();
-    assert!(
-        mock.provider(9)
-            .call(&request, BlockTag::Latest)
-            .await
-            .is_err()
-    );
     request.to = None;
     assert!(
         mock.provider(9)
@@ -585,6 +574,27 @@ async fn wrapped_qi_protocol_deposit_and_delta_queries_have_strict_identity_and_
             .outpoint_deltas(Zone::Cyprus1, &[address], hash, hash)
             .await
             .is_err()
+    );
+    mock.drained();
+}
+
+#[tokio::test]
+async fn cross_zone_account_simulation_routes_by_sender_and_preserves_destination() {
+    let from = ADDRESS.parse().unwrap();
+    let destination = "0x1000000000000000000000000000000000000000";
+    let request = CallRequest::new(from, destination.parse().unwrap());
+    let mock = Mock::read(
+        "quai_estimateGas",
+        json!([{"from": ADDRESS, "to": destination, "input": "0x", "txType": 0}, "latest"]),
+        json!("0x5208"),
+        9,
+    );
+    assert_eq!(
+        mock.provider(9)
+            .estimate_gas(&request, BlockTag::Latest)
+            .await
+            .unwrap(),
+        21000
     );
     mock.drained();
 }

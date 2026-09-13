@@ -458,7 +458,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         intent: AccountIntent,
         policy: FeePolicy,
     ) -> Result<PreparedAccountTransaction, AccountError> {
-        self.prepare_account(id, intent, policy, false).await
+        self.prepare_account(id, intent, policy, false, false).await
     }
     /// Prepare an existing unsigned nonce after restart or failed estimation.
     /// Explicitly reopen a released nonce in storage first. A zero-value self
@@ -469,7 +469,27 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         intent: AccountIntent,
         policy: FeePolicy,
     ) -> Result<PreparedAccountTransaction, AccountError> {
-        self.prepare_account(id, intent, policy, true).await
+        self.prepare_account(id, intent, policy, true, false).await
+    }
+    /// Prepare a native Quai transfer or call to another zone. Simulation and
+    /// nonce custody use the sender zone; destination execution is asynchronous
+    /// and must be observed separately using the emitted ETX correlation.
+    pub async fn prepare_cross_zone(
+        &mut self,
+        id: ReservationId,
+        intent: AccountIntent,
+        policy: FeePolicy,
+    ) -> Result<PreparedAccountTransaction, AccountError> {
+        self.prepare_account(id, intent, policy, false, true).await
+    }
+    /// Resume an explicitly reserved unsigned cross-zone transaction after restart.
+    pub async fn prepare_cross_zone_reserved(
+        &mut self,
+        id: ReservationId,
+        intent: AccountIntent,
+        policy: FeePolicy,
+    ) -> Result<PreparedAccountTransaction, AccountError> {
+        self.prepare_account(id, intent, policy, true, true).await
     }
     async fn prepare_account(
         &mut self,
@@ -477,10 +497,11 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         intent: AccountIntent,
         policy: FeePolicy,
         reuse: bool,
+        cross_zone: bool,
     ) -> Result<PreparedAccountTransaction, AccountError> {
         let sender = QuaiAddress::try_from(self.signer.address())
             .map_err(|_| AccountError::IdentityMismatch)?;
-        if intent.to.zone() != sender.zone() {
+        if (intent.to.zone() != sender.zone()) != cross_zone {
             return Err(AccountError::IdentityMismatch);
         }
         if policy.max_gas == 0 || policy.gas_margin_bps > 10_000 {

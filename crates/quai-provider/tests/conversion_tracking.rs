@@ -108,6 +108,7 @@ struct State {
     genesis: String,
     latest_reads: u64,
     moving_head: bool,
+    outpoints: Value,
     calls: Vec<(String, Value)>,
 }
 #[derive(Clone)]
@@ -153,6 +154,7 @@ impl Mock {
             genesis: GENESIS.into(),
             latest_reads: 0,
             moving_head: false,
+            outpoints: json!([]),
             calls: vec![],
         })))
     }
@@ -167,7 +169,17 @@ impl Mock {
     }
 }
 impl Transport for Mock {
-    async fn request(&self, _: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
+    async fn request(
+        &self,
+        endpoint: &Endpoint,
+        method: &str,
+        params: Value,
+    ) -> Result<Value, RpcError> {
+        let location = if endpoint.as_str().contains("cyprus2") {
+            "0x0001"
+        } else {
+            "0x0000"
+        };
         let mut state = self.0.lock().unwrap();
         state.calls.push((method.to_owned(), params.clone()));
         Ok(match method {
@@ -188,7 +200,7 @@ impl Transport for Mock {
                     .get(&number)
                     .cloned()
                     .unwrap_or_else(|| format!("0x{number:064x}"));
-                json!({"woHeader":{"hash":hash,"number":format!("0x{number:x}"),"parentHash":GENESIS,"location":"0x0000","primeTerminusNumber":"0x4"},"gasLimit":"0xb71b00","stateLimit":"0xb71b00"})
+                json!({"woHeader":{"hash":hash,"number":format!("0x{number:x}"),"parentHash":GENESIS,"location":location,"primeTerminusNumber":"0x4"},"gasLimit":"0xb71b00","stateLimit":"0xb71b00"})
             }
             "quai_getBlockByNumber" => {
                 assert_eq!(params[1], true);
@@ -203,6 +215,7 @@ impl Transport for Mock {
                 .get(params[0].as_str().unwrap())
                 .cloned()
                 .unwrap_or(Value::Null),
+            "quai_getOutpointsByAddress" => state.outpoints.clone(),
             "quai_getLockedBalance" => {
                 assert_eq!(params.as_array().unwrap().len(), 1);
                 json!("0x0")
@@ -673,4 +686,371 @@ async fn failed_origin_receipt_still_requires_signed_sender_and_destination_asso
             .origin,
         ConversionOriginObservation::Failed { .. }
     ));
+}
+
+// Synthetic protocol observations: exact signed intent is real; source receipts
+// and execution blocks below are deliberately constructed, not node acceptance.
+fn external_fixture(wrapping: bool) -> (Mock, quai_provider::ExternalReference) {
+    use quai_consensus::{QiWrappingIntent, QiWrappingTransaction};
+    use quai_crypto::SecretKey;
+    use quai_provider::ExternalReference;
+    let contract: quai_primitives::QuaiAddress = "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+        .parse()
+        .unwrap();
+    let beneficiary: quai_primitives::QiAddress = "0x0080000000000000000000000000000000000001"
+        .parse()
+        .unwrap();
+    let mut scalar = [0u8; 32];
+    scalar[30] = if wrapping { 0 } else { 3 };
+    scalar[31] = if wrapping { 130 } else { 0x25 };
+    let key = SecretKey::from_bytes(&scalar).unwrap();
+    let (reference, data, from, to, origin_from, origin_to, gas) = if wrapping {
+        let signed = QiWrappingTransaction::new(
+            U256::from(1337),
+            vec![QiInput {
+                previous_output: quai_consensus::OutPoint {
+                    transaction_hash:
+                        "0x0080008033333333333333333333333333333333333333333333333333333333"
+                            .parse()
+                            .unwrap(),
+                    index: 0,
+                },
+                public_key: key.public_key(),
+            }],
+            vec![Denomination::new(6).unwrap()],
+            vec![],
+            QiWrappingIntent {
+                destination: contract,
+                owner_contract: contract,
+            },
+        )
+        .unwrap()
+        .sign_single(&key)
+        .unwrap();
+        (
+            ExternalReference::from_qi_wrapping(GENESIS.parse().unwrap(), &signed).unwrap(),
+            contract.to_string(),
+            "0x0000000000000000000000000000000000000000".to_owned(),
+            contract.to_string(),
+            Value::Null,
+            Value::Null,
+            "0x4242",
+        )
+    } else {
+        let calls: Value =
+            serde_json::from_str(include_str!("../../quai-sdk/tests/wrapper-calls.json")).unwrap();
+        let call = calls["calls"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["method"] == "unwrapQi")
+            .unwrap();
+        let data: quai_provider::RpcData = call["data"].as_str().unwrap().parse().unwrap();
+        let tx = QuaiTransaction {
+            chain_id: U256::from(1337),
+            nonce: 0,
+            to: Some(contract.address()),
+            value: U256::ZERO,
+            gas_limit: 2_000_000,
+            gas_price: U256::from(1),
+            data: data.bytes().to_vec(),
+            access_list: vec![],
+        };
+        let signed = tx.sign(&key).unwrap();
+        (
+            ExternalReference::from_wqi_unwrap(GENESIS.parse().unwrap(), &signed, contract, 0)
+                .unwrap(),
+            "0x".to_owned(),
+            contract.to_string(),
+            beneficiary.to_string(),
+            json!(key.public_key().address().to_string()),
+            json!(contract.to_string()),
+            "0xf4240",
+        )
+    };
+    let mock = Mock::new();
+    let mut state = mock.0.lock().unwrap();
+    let mut tx = state.block["transactions"][0].clone();
+    let final_hash = "0x0080008055555555555555555555555555555555555555555555555555555555";
+    tx["hash"] = json!(final_hash);
+    tx["originatingTxHash"] = json!(reference.correlation().originating_tx_hash.to_string());
+    tx["etxType"] = json!(if wrapping { "0x4" } else { "0x6" });
+    tx["from"] = json!(from);
+    tx["to"] = json!(to);
+    tx["value"] = json!("0x3e8");
+    tx["input"] = json!(data);
+    tx["gas"] = json!(gas);
+    tx["transactionIndex"] = json!("0x0");
+    state.block["transactions"] = json!([tx.clone()]);
+    let mut origin = origin_fixture()["originReceipts"]["qiToQuai"].clone();
+    origin["transactionHash"] = json!(reference.correlation().originating_tx_hash.to_string());
+    origin["type"] = json!(if wrapping { "0x2" } else { "0x0" });
+    origin["from"] = origin_from;
+    origin["to"] = origin_to;
+    let mut emitted = tx.clone();
+    emitted["hash"] = json!("0x0080008066666666666666666666666666666666666666666666666666666666");
+    emitted["blockHash"] = origin["blockHash"].clone();
+    emitted["blockNumber"] = origin["blockNumber"].clone();
+    emitted["transactionIndex"] = origin["transactionIndex"].clone();
+    origin["outboundEtxs"] = json!([emitted]);
+    state.receipts.insert(
+        reference.correlation().originating_tx_hash.to_string(),
+        origin,
+    );
+    let mut receipt = settlement_fixture()[0]["receipt"].clone();
+    for field in [
+        "blockHash",
+        "blockNumber",
+        "transactionIndex",
+        "from",
+        "to",
+        "originatingTxHash",
+        "etxType",
+        "type",
+    ] {
+        receipt[field] = tx[field].clone();
+    }
+    receipt["transactionHash"] = json!(final_hash);
+    receipt["status"] = json!("0x1");
+    receipt["logs"] = json!([]);
+    receipt["outboundEtxs"] = json!([]);
+    state.receipts.insert(final_hash.to_owned(), receipt);
+    state.outpoints =
+        json!([{"txHash": final_hash, "index": "0x0", "denomination": "0x6", "lock": "0x15"}]);
+    drop(state);
+    (mock, reference)
+}
+
+#[tokio::test]
+async fn wrapping_and_redemption_bind_both_emission_and_execution_to_signed_intent() {
+    for wrapping in [true, false] {
+        let (mock, reference) = external_fixture(wrapping);
+        let observed = provider(&mock)
+            .observe_external(&reference, request())
+            .await
+            .unwrap();
+        assert_eq!(observed.outcome, Some(ReceiptOutcome::Succeeded));
+        assert!(matches!(
+            observed.origin,
+            ConversionOriginObservation::Emitted { .. }
+        ));
+        assert!(observed.scan.unwrap().execution.is_some());
+        for field in ["value", "to", "from", "input", "etxType"] {
+            let (mock, reference) = external_fixture(wrapping);
+            mock.0.lock().unwrap().block["transactions"][0][field] = match field {
+                "value" => json!("0x3e9"),
+                "input" => json!("0x00"),
+                "etxType" => json!("0x2"),
+                _ => json!("0x0000000000000000000000000000000000000001"),
+            };
+            assert!(
+                provider(&mock)
+                    .observe_external(&reference, request())
+                    .await
+                    .is_err(),
+                "{field}"
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn redemption_credit_tracks_lock_boundary_absence_and_reorg_without_guessing_spendability() {
+    let (mock, reference) = external_fixture(false);
+    let (_, credit) = provider(&mock)
+        .observe_external_qi_credit(&reference, request(), 16)
+        .await
+        .unwrap();
+    let credit = credit.unwrap();
+    assert_eq!(credit.locked_qits, U256::from(1000));
+    assert_eq!(credit.unlocked_qits, U256::ZERO);
+    assert_eq!(credit.unobserved_qits, U256::ZERO);
+    mock.0.lock().unwrap().outpoints[0]["lock"] = json!("0x14");
+    let (_, credit) = provider(&mock)
+        .observe_external_qi_credit(&reference, request(), 16)
+        .await
+        .unwrap();
+    assert_eq!(credit.unwrap().unlocked_qits, U256::from(1000));
+    mock.0.lock().unwrap().outpoints = json!([]);
+    let (_, credit) = provider(&mock)
+        .observe_external_qi_credit(&reference, request(), 16)
+        .await
+        .unwrap();
+    assert_eq!(credit.unwrap().unobserved_qits, U256::from(1000));
+    mock.0.lock().unwrap().moving_head = true;
+    mock.0.lock().unwrap().latest_reads = 0;
+    assert!(matches!(
+        provider(&mock)
+            .observe_external_qi_credit(&reference, request(), 16)
+            .await,
+        Err(ProviderError::ObservationChanged)
+    ));
+    mock.0
+        .lock()
+        .unwrap()
+        .headers
+        .insert(8, Hash32::ZERO.to_string());
+    let (observed, credit) = provider(&mock)
+        .observe_external_qi_credit(&reference, request(), 16)
+        .await
+        .unwrap();
+    assert!(matches!(
+        observed.origin,
+        ConversionOriginObservation::Noncanonical { .. }
+    ));
+    assert!(credit.is_none());
+}
+
+#[tokio::test]
+async fn conversion_qi_credit_uses_signed_refund_beneficiary_and_rejects_overcredit() {
+    let mock = Mock::new();
+    let reference = reference(true);
+    // Transform the captured successful Qi->Quai execution into a source-reported
+    // refund while retaining the signed amount and stable correlation identity.
+    let origin = origin_fixture();
+    let key = reference.correlation().originating_tx_hash.to_string();
+    {
+        let mut state = mock.0.lock().unwrap();
+        let index = state.block["transactions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .position(|tx| tx["originatingTxHash"] == key)
+            .unwrap();
+        let value = origin["originReceipts"]["qiToQuai"]["outboundEtxs"][0]["value"].clone();
+        state.block["transactions"][index]["etxType"] = json!("0x5");
+        state.block["transactions"][index]["value"] = value;
+        let final_hash = state.block["transactions"][index]["hash"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+        state.receipts.get_mut(&final_hash).unwrap()["etxType"] = json!("0x5");
+        state.receipts.get_mut(&final_hash).unwrap()["status"] = json!("0x1");
+        state.outpoints =
+            json!([{"txHash": final_hash, "index": "0x0", "denomination": "0x0", "lock": "0x20"}]);
+    }
+    let (observed, credit) = provider(&mock)
+        .observe_conversion_qi_credit(&reference, request(), 16)
+        .await
+        .unwrap();
+    let Some(ConversionEffect::RefundReported { beneficiary }) = observed.effect else {
+        panic!("expected refund");
+    };
+    let credit = credit.unwrap();
+    assert_eq!(credit.beneficiary.address(), beneficiary);
+    assert_ne!(beneficiary, reference.destination());
+    assert_eq!(credit.locked_qits, U256::from(1));
+    // A source claiming more output value than the final ETX cannot be accepted.
+    let (mock, reference) = external_fixture(false);
+    mock.0.lock().unwrap().outpoints[0]["denomination"] = json!("0xe");
+    assert!(
+        provider(&mock)
+            .observe_external_qi_credit(&reference, request(), 16)
+            .await
+            .is_err()
+    );
+}
+
+#[tokio::test]
+async fn cross_zone_qi_credit_keeps_original_output_identity_and_converts_denomination_index() {
+    use quai_crypto::SecretKey;
+    use quai_provider::ExternalReference;
+    let mut scalar = [0; 32];
+    scalar[31] = 130;
+    let key = SecretKey::from_bytes(&scalar).unwrap();
+    let tx = QiTransaction {
+        chain_id: U256::from(1337),
+        inputs: vec![QiInput {
+            previous_output: quai_consensus::OutPoint {
+                transaction_hash:
+                    "0x0080008033333333333333333333333333333333333333333333333333333333"
+                        .parse()
+                        .unwrap(),
+                index: 0,
+            },
+            public_key: key.public_key(),
+        }],
+        outputs: vec![
+            QiOutput {
+                address: "0x0080000000000000000000000000000000000001"
+                    .parse()
+                    .unwrap(),
+                denomination: Denomination::new(0).unwrap(),
+            },
+            QiOutput {
+                address: "0x0180000000000000000000000000000000000001"
+                    .parse()
+                    .unwrap(),
+                denomination: Denomination::new(6).unwrap(),
+            },
+        ],
+        data: vec![],
+    };
+    let signed = tx.sign_single(&key).unwrap();
+    let reference =
+        ExternalReference::from_cross_zone_qi(GENESIS.parse().unwrap(), &signed, 1).unwrap();
+    assert!(ExternalReference::from_cross_zone_qi(GENESIS.parse().unwrap(), &signed, 0).is_err());
+    let (mock, old_reference) = external_fixture(true);
+    let hash = signed.hash().unwrap().to_string();
+    let final_hash;
+    {
+        let mut state = mock.0.lock().unwrap();
+        let mut receipt = state
+            .receipts
+            .remove(&old_reference.correlation().originating_tx_hash.to_string())
+            .unwrap();
+        receipt["transactionHash"] = json!(hash);
+        receipt["from"] = Value::Null;
+        receipt["to"] = Value::Null;
+        let mut emitted = receipt["outboundEtxs"][0].clone();
+        for value in [&mut emitted, &mut state.block["transactions"][0]] {
+            value["originatingTxHash"] = json!(hash);
+            value["etxIndex"] = json!("0x1");
+            value["etxType"] = json!("0x0");
+            value["to"] = json!(reference.destination().to_string());
+            value["input"] = json!("0x");
+            value["gas"] = json!("0x5208");
+            value["value"] = json!("0x6");
+        }
+        receipt["outboundEtxs"] = json!([emitted]);
+        state.receipts.insert(hash.clone(), receipt);
+        state.block["woHeader"]["location"] = json!("0x0001");
+        final_hash = state.block["transactions"][0]["hash"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+        let destination_receipt = state.receipts.get_mut(&final_hash).unwrap();
+        destination_receipt["originatingTxHash"] = json!(hash);
+        destination_receipt["to"] = json!(reference.destination().to_string());
+        destination_receipt["etxType"] = json!("0x0");
+        // Include an unrelated output from the same original Qi transaction.
+        state.outpoints = json!([{"txHash":hash,"index":"0x1","denomination":"0x6","lock":"0x0"},{"txHash":hash,"index":"0x0","denomination":"0x0","lock":"0x0"}]);
+    }
+    let provider = Provider::new(
+        mock.clone(),
+        Routing::gateway(
+            "http://127.0.0.1:19200",
+            [Zone::Cyprus1.into(), Zone::Cyprus2.into()],
+        )
+        .unwrap(),
+        U256::from(1337),
+    );
+    let (_, credit) = provider
+        .observe_external_qi_credit(
+            &reference,
+            EtxScanRequest {
+                zone: Zone::Cyprus2,
+                ..request()
+            },
+            16,
+        )
+        .await
+        .unwrap();
+    let credit = credit.unwrap();
+    assert_eq!(credit.transaction_hash.to_string(), final_hash);
+    assert_eq!(credit.creating_hash, signed.hash().unwrap());
+    assert_eq!(credit.outputs.len(), 1);
+    assert_eq!(credit.outputs[0].outpoint.index, 1);
+    assert_eq!(credit.unlocked_qits, U256::from(1000));
+    assert_eq!(credit.unobserved_qits, U256::ZERO);
 }

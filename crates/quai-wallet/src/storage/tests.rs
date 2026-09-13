@@ -1028,3 +1028,109 @@ fn fee_replacement_graph_is_atomic_immutable_bounded_and_restartable() {
     );
     assert_eq!(store.quai_replacements(id(90)).unwrap().len(), 32);
 }
+
+#[test]
+fn observation_cache_cas_slots_restart_and_tombstones_preserve_signed_claims() {
+    let db = Database::new();
+    let mut store = db.open();
+    populate(&mut store);
+    let owner = QuaiAddress::try_from(metadata()[1].address()).unwrap();
+    let nonce = store.reserve_nonce(id(98), owner, 5).unwrap();
+    let root = account_transaction(nonce).sign(&signing_key(1)).unwrap();
+    let hash = root.hash().unwrap();
+    store.commit_signed_quai(id(98), &root).unwrap();
+    assert!(store.observation_cache(id(98), hash, 0).unwrap().is_none());
+    assert!(
+        store
+            .compare_exchange_observation(id(98), Hash32::ZERO, 0, None, Some(b"public"))
+            .is_err()
+    );
+    assert_eq!(
+        store
+            .compare_exchange_observation(id(98), hash, 0, None, Some(b"public"))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        store
+            .compare_exchange_observation(id(98), hash, 1, None, Some(b"second output"))
+            .unwrap(),
+        1
+    );
+    let mut other = db.open();
+    assert_eq!(
+        other
+            .observation_cache(id(98), hash, 0)
+            .unwrap()
+            .unwrap()
+            .payload
+            .unwrap(),
+        b"public"
+    );
+    assert_eq!(
+        other
+            .compare_exchange_observation(id(98), hash, 0, Some(1), None)
+            .unwrap(),
+        2
+    );
+    assert_eq!(
+        store.compare_exchange_observation(id(98), hash, 0, Some(1), Some(b"stale")),
+        Err(StorageError::Conflict)
+    );
+    assert_eq!(
+        store.compare_exchange_observation(id(98), hash, 0, None, Some(b"ABA")),
+        Err(StorageError::Conflict)
+    );
+    assert!(
+        store
+            .observation_cache(id(98), hash, 0)
+            .unwrap()
+            .unwrap()
+            .payload
+            .is_none()
+    );
+    assert!(
+        store
+            .observation_cache(id(98), hash, 1)
+            .unwrap()
+            .unwrap()
+            .payload
+            .is_some()
+    );
+    assert_eq!(store.reserved_nonce(id(98)).unwrap(), Some((owner, nonce)));
+    assert_eq!(
+        store.signed_payload(id(98)).unwrap().unwrap(),
+        root.signed_bytes().unwrap()
+    );
+}
+
+#[test]
+fn schema_three_migrates_observation_cache_without_changing_signed_state() {
+    let db = Database::new();
+    let mut store = db.open();
+    populate(&mut store);
+    let owner = QuaiAddress::try_from(metadata()[1].address()).unwrap();
+    let nonce = store.reserve_nonce(id(99), owner, 5).unwrap();
+    let signed = account_transaction(nonce).sign(&signing_key(1)).unwrap();
+    store.commit_signed_quai(id(99), &signed).unwrap();
+    store
+        .connection
+        .execute_batch("DROP TABLE observation_cache; PRAGMA user_version=3;")
+        .unwrap();
+    drop(store);
+    let mut reopened = db.open();
+    assert_eq!(
+        reopened.signed_payload(id(99)).unwrap().unwrap(),
+        signed.signed_bytes().unwrap()
+    );
+    assert!(
+        reopened
+            .observation_cache(id(99), signed.hash().unwrap(), 0)
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(
+        reopened.reserved_nonce(id(99)).unwrap(),
+        Some((owner, nonce))
+    );
+}

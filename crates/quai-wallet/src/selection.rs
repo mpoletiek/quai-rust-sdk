@@ -347,3 +347,27 @@ pub fn select_with_fee(
     }
     Err(SelectionError::FeeDidNotConverge)
 }
+
+/// Verify that outputs can split the input inventory without combining smaller
+/// input denominations into larger outputs. Output ordering does not affect this
+/// capacity check; aggregation requires a separate explicit block-position policy.
+pub fn preserves_denominations(
+    inputs: &[Denomination],
+    outputs: &[Denomination],
+) -> Result<(), SelectionError> {
+    if inputs.is_empty() || inputs.len() > 4096 || outputs.len() > 4096 {
+        return Err(SelectionError::InvalidRequest);
+    }
+    let mut capacity = [0u64; 15];
+    for input in inputs {
+        capacity[input.index() as usize] += 1;
+    }
+    let mut ordered = outputs.to_vec();
+    ordered.sort_unstable_by_key(|d| std::cmp::Reverse(d.index()));
+    for output in ordered {
+        if denominate_available(U256::from(output.value()), &mut capacity, 1)? != [output] {
+            return Err(SelectionError::InvalidRequest);
+        }
+    }
+    Ok(())
+}

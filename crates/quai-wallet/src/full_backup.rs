@@ -496,9 +496,6 @@ impl WalletBackup {
                     return Err(WalletBackupError::InvalidInput);
                 }
                 if !operation.replacements.is_empty() {
-                    if operation.kind != 1 {
-                        return Err(WalletBackupError::InvalidInput);
-                    }
                     crate::storage::replacements::validate_family(
                         operation
                             .payload
@@ -704,7 +701,7 @@ impl WalletBackup {
     }
     fn decode_version(plaintext: &[u8], version: u8) -> Result<Self> {
         let mut reader = Reader(plaintext, MAX_RECORDS);
-        if reader.u32()? != u32::from(version >= 2) || !(1..=4).contains(&version) {
+        if reader.u32()? != u32::from(version >= 2) || !(1..=5).contains(&version) {
             return Err(WalletBackupError::Unsupported);
         }
         let count = usize::from(reader.u16()?);
@@ -874,6 +871,9 @@ impl WalletBackup {
                         });
                     }
                 }
+                if version < 5 && kind == 0 && !replacements.is_empty() {
+                    return Err(WalletBackupError::Unsupported);
+                }
                 scope.operations.push(OperationState {
                     record: Reservation {
                         id,
@@ -960,7 +960,7 @@ fn header(bytes: &[u8]) -> Result<(BackupKdf, usize)> {
     if bytes.len() < HEADER + 16
         || bytes.len() > HEADER + MAX_PLAINTEXT + 16
         || &bytes[..8] != MAGIC
-        || !(1..=4).contains(&bytes[8])
+        || !(1..=5).contains(&bytes[8])
         || bytes[9..12] != [1, 1, 0]
     {
         return Err(WalletBackupError::UnlockFailed);

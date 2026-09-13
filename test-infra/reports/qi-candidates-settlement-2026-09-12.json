@@ -1,0 +1,24 @@
+{
+  "scope": "Qi conflicting candidate families and backup v5; account cross-zone prepare/resume; signed-intent wrapping/redemption/both-ledger cross-zone ETX observers; current Qi credit/refund lock attribution; SQLite schema v4 per-candidate/ETX observation caches",
+  "validation": {
+    "workspace_all_features": {
+      "reported_passes": 300,
+      "failures": 0,
+      "ignored": 4,
+      "exit_code": 0
+    },
+    "native_and_wasm_strict_clippy": "passed",
+    "rustdoc_warnings_denied": "passed",
+    "real_chromium_browser_tests": 11,
+    "real_chromium_worker_tests": 5,
+    "owned_development_node_existing_qi_verify": "passed"
+  },
+  "important_boundaries": [
+    "Qi pool conflicting candidates do not guarantee higher-fee inclusion preference.",
+    "Indexed output observations are latest-only node claims, not proof of atomic history, absence, finality or spendability.",
+    "Cross-zone Qi ETXs carry denomination indexes and create UTXOs under original Qi hash/output index.",
+    "Observation caches are disposable and are cleared on backup restoration; signed bytes and claims persist.",
+    "Synthetic wrapping, redemption and cross-zone observer fixtures are not funded node acceptance.",
+    "Orchard access and funded wrapper/multi-zone qualification remain pending."
+  ]
+}

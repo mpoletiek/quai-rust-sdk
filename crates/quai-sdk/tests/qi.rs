@@ -1240,3 +1240,199 @@ async fn specialized_estimates_converge_before_claims_and_enforce_budget_and_rou
         assert_eq!(count_calls(&env.mock, "quai_estimateFeeForQi"), 0);
     }
 }
+
+#[tokio::test]
+async fn conflicting_qi_candidates_preserve_recipients_and_survive_restart_and_timeout() {
+    use quai_sdk::qi::{QiCandidateStatus, QiReplacementIntent};
+    let mut env = setup();
+    let change = pool(&mut env, 4);
+    refresh(&mut env);
+    let limits = QiPolicy {
+        initial_fee: U256::from(1),
+        ..policy()
+    };
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let prepared = session
+        .prepare(id(95), intent(), limits, change)
+        .await
+        .unwrap();
+    let root = session.sign(&prepared).unwrap();
+    assert_eq!(root.transaction().outputs.len(), 5);
+    let replacement = QiReplacementIntent {
+        parent: root.hash().unwrap(),
+        change_indexes: vec![1],
+        change_outputs: vec![],
+    };
+    let mut bad = replacement.clone();
+    bad.change_indexes = vec![0];
+    assert!(matches!(
+        session.prepare_replacement(id(95), bad, limits, None).await,
+        Err(QiError::IdentityMismatch)
+    ));
+    let mut bad = replacement.clone();
+    bad.change_indexes = vec![1, 1];
+    assert!(
+        session
+            .prepare_replacement(id(95), bad, limits, None)
+            .await
+            .is_err()
+    );
+    assert!(
+        session
+            .prepare_replacement(
+                id(95),
+                replacement.clone(),
+                QiPolicy {
+                    max_fee: U256::from(1),
+                    ..limits
+                },
+                None
+            )
+            .await
+            .is_err()
+    );
+    let raised = session
+        .prepare_replacement(id(95), replacement, limits, None)
+        .await
+        .unwrap();
+    assert_eq!(raised.fee(), U256::from(2));
+    assert_eq!(raised.transaction().inputs, root.transaction().inputs);
+    assert_eq!(
+        raised.transaction().outputs[0],
+        root.transaction().outputs[0]
+    );
+    let signed = session.sign_replacement(&raised).unwrap();
+    let hash = signed.hash().unwrap();
+    assert_eq!(
+        session.sign_replacement(&raised).unwrap().hash().unwrap(),
+        hash
+    );
+    let mut reopened = SqliteStore::open(&env.path, env.store.scope()).unwrap();
+    let mut recovered = QiSession::new(&env.provider, &env.wallet, &mut reopened).unwrap();
+    assert_eq!(recovered.signed_candidates(id(95)).unwrap().len(), 2);
+    env.mock.mode.store(1, Ordering::SeqCst);
+    assert!(recovered.broadcast_candidate(id(95), hash).await.is_err());
+    let observed = recovered.observe_candidates(id(95)).await.unwrap();
+    assert!(observed.canonical.is_none());
+    assert_eq!(observed.candidates.len(), 2);
+    assert!(
+        observed
+            .candidates
+            .iter()
+            .all(|(_, s)| matches!(s, QiCandidateStatus::NotObserved))
+    );
+    env.mock.mode.store(0, Ordering::SeqCst);
+    assert_eq!(
+        recovered
+            .broadcast_candidate(id(95), hash)
+            .await
+            .unwrap()
+            .transaction_hash,
+        hash
+    );
+    assert_eq!(reopened.reserved_outpoints(id(95)).unwrap().len(), 2);
+    assert_eq!(
+        reopened.signed_payload(id(95)).unwrap().unwrap(),
+        root.signed_bytes().unwrap()
+    );
+    assert!(reopened.release_unsigned(id(95)).is_err());
+}
+
+#[tokio::test]
+async fn qi_replacement_rechecks_snapshot_after_fee_estimation() {
+    use quai_sdk::qi::QiReplacementIntent;
+    let mut env = setup();
+    let change = pool(&mut env, 4);
+    refresh(&mut env);
+    let limits = QiPolicy {
+        initial_fee: U256::from(1),
+        ..policy()
+    };
+    let scope = env.store.scope();
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let prepared = session
+        .prepare(id(96), intent(), limits, change)
+        .await
+        .unwrap();
+    let root = session.sign(&prepared).unwrap();
+    *env.mock.invalidate.lock().unwrap() = Some((env.path.clone(), scope));
+    let intent = QiReplacementIntent {
+        parent: root.hash().unwrap(),
+        change_indexes: vec![1],
+        change_outputs: vec![],
+    };
+    let result = session
+        .prepare_replacement(id(96), intent, limits, None)
+        .await;
+    assert!(matches!(result, Err(QiError::StaleSnapshot)), "{result:?}");
+    assert_eq!(session.signed_candidates(id(96)).unwrap().len(), 1);
+}
+
+#[tokio::test]
+async fn wrapping_observation_is_saved_before_return_and_survives_reopen() {
+    use quai_sdk::consensus::QiWrappingIntent;
+    use quai_sdk::qi::QiSpecialIntent;
+    use quai_sdk::settlement::{SettlementKind, cached_settlement, track_settlement};
+    let mut env = setup();
+    let change = pool(&mut env, 0);
+    refresh(&mut env);
+    let special = QiSpecialIntent::Wrapping(QiWrappingIntent {
+        destination: "0x0000000000000000000000000000000000000001"
+            .parse()
+            .unwrap(),
+        owner_contract: "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+            .parse()
+            .unwrap(),
+    });
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let prepared = session
+        .prepare_special(
+            id(99),
+            U256::from(5),
+            special,
+            U256::from(5),
+            policy(),
+            change,
+        )
+        .await
+        .unwrap();
+    let signed = session.sign_special(&prepared).unwrap();
+    let hash = signed.hash().unwrap();
+    let request = quai_sdk::provider::EtxScanRequest {
+        zone: Zone::Cyprus1,
+        from: 16,
+        to: 16,
+        max_transactions_per_block: 16,
+        max_total_transactions: 32,
+        preceding_block: None,
+    };
+    let observed = track_settlement(
+        &env.provider,
+        &mut env.store,
+        id(99),
+        hash,
+        SettlementKind::QiWrapping,
+        request,
+        16,
+    )
+    .await
+    .unwrap();
+    assert_eq!(observed.revision, 1);
+    assert!(matches!(
+        observed.external.unwrap().origin,
+        quai_sdk::provider::ConversionOriginObservation::Unavailable
+    ));
+    let mut reopened = SqliteStore::open(&env.path, env.store.scope()).unwrap();
+    let cached = cached_settlement(
+        &reopened
+            .observation_cache(id(99), hash, 0)
+            .unwrap()
+            .unwrap(),
+    )
+    .unwrap()
+    .unwrap();
+    assert_eq!(cached["kind"], "qi_wrapping");
+    assert_eq!(cached["candidate"], hash.to_string());
+    assert!(cached["execution"].is_null());
+    assert_eq!(reopened.reserved_outpoints(id(99)).unwrap().len(), 2);
+}

@@ -885,3 +885,88 @@ fn replacement_family_v4_roundtrips_without_discarding_candidates_or_nonce_claim
         .unwrap();
     assert_eq!(unlocked.version(), 4);
 }
+
+#[test]
+fn qi_candidate_backup_v5_preserves_graph_and_claims_and_rejects_mutated_inputs() {
+    use quai_consensus::{QiInput, QiOutput, QiTransaction, SignedQiOperation};
+    let db = Database::new();
+    let mut store = db.open();
+    populate(&mut store);
+    let snapshot = store.snapshot().unwrap();
+    let outpoint = snapshot.coins[0].outpoint;
+    store
+        .reserve_qi(id(91), snapshot.generation, U256::from(6), &[outpoint])
+        .unwrap();
+    let key = key_for(&fixture_accounts()[0]);
+    let mut tx = QiTransaction {
+        chain_id: scope().chain_id,
+        inputs: vec![QiInput {
+            previous_output: outpoint,
+            public_key: key.public_key(),
+        }],
+        outputs: vec![QiOutput {
+            address: "0x0080000000000000000000000000000000000001"
+                .parse()
+                .unwrap(),
+            denomination: Denomination::new(1).unwrap(),
+        }],
+        data: vec![],
+    };
+    let root = tx.sign_single(&key).unwrap();
+    store.commit_signed_qi(id(91), &root).unwrap();
+    tx.outputs[0].denomination = Denomination::new(0).unwrap();
+    let child = SignedQiOperation::Transfer(tx.sign_single(&key).unwrap());
+    store
+        .commit_qi_replacement(id(91), root.hash().unwrap(), &child)
+        .unwrap();
+    tx.inputs[0].previous_output.index = 1;
+    let wrong = SignedQiOperation::Transfer(tx.sign_single(&key).unwrap());
+    assert!(
+        store
+            .commit_qi_replacement(id(91), root.hash().unwrap(), &wrong)
+            .is_err()
+    );
+    assert_eq!(store.replacement_candidates(id(91)).unwrap().len(), 1);
+    let backup = WalletBackup::capture(&mut store, vec![seed_origin()]).unwrap();
+    assert_eq!(backup.version(), 5);
+    let bytes = backup.encode().unwrap();
+    assert!(WalletBackup::decode_version(&bytes, 4).is_err());
+    let encrypted = backup
+        .encrypt(b"public-fixture-password", BackupKdf::default())
+        .unwrap();
+    let restored = EncryptedWalletBackup::from_bytes(encrypted.as_bytes())
+        .unwrap()
+        .decrypt(b"public-fixture-password")
+        .unwrap();
+    assert_eq!(restored.version(), 5);
+    let target = Database::new();
+    let mut target = target.open();
+    restored.restore(&mut target).unwrap();
+    assert_eq!(
+        target.replacement_candidates(id(91)).unwrap(),
+        store.replacement_candidates(id(91)).unwrap()
+    );
+    assert_eq!(target.reserved_outpoints(id(91)).unwrap(), vec![outpoint]);
+    assert_eq!(
+        target.signed_payload(id(91)).unwrap().unwrap(),
+        root.signed_bytes().unwrap()
+    );
+    assert!(target.release_unsigned(id(91)).is_err());
+    target
+        .compare_exchange_observation(
+            id(91),
+            root.hash().unwrap(),
+            0,
+            None,
+            Some(b"public stale source observation"),
+        )
+        .unwrap();
+    restored.restore(&mut target).unwrap();
+    assert!(
+        target
+            .observation_cache(id(91), root.hash().unwrap(), 0)
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(target.replacement_candidates(id(91)).unwrap().len(), 1);
+}

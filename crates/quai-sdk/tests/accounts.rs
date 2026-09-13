@@ -727,3 +727,99 @@ async fn replacement_fee_review_preserves_nonce_and_all_signed_candidates_after_
         root.transaction().nonce
     );
 }
+
+#[tokio::test]
+async fn cross_zone_account_prepare_and_unsigned_restart_keep_exact_destination() {
+    let (directory, mock, provider, signer, mut store) = setup();
+    let id = ReservationId([97; 16]);
+    let mut send = intent();
+    send.to = "0x0100000000000000000000000000000000000001"
+        .parse()
+        .unwrap();
+    let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
+    assert!(session.prepare(id, send.clone(), policy()).await.is_err());
+    assert!(
+        session
+            .prepare_cross_zone(id, intent(), policy())
+            .await
+            .is_err()
+    );
+    let prepared = session
+        .prepare_cross_zone(id, send.clone(), policy())
+        .await
+        .unwrap();
+    let transaction = prepared.transaction().clone();
+    assert_eq!(transaction.to, Some(send.to.address()));
+    assert_eq!(transaction.data, send.data.bytes());
+    let path = directory.0.join("wallet.sqlite");
+    let mut reopened = SqliteStore::open(path, store.scope()).unwrap();
+    let mut recovered = AccountSession::new(&provider, &signer, &mut reopened).unwrap();
+    let resumed = recovered
+        .prepare_cross_zone_reserved(id, send, policy())
+        .await
+        .unwrap();
+    assert_eq!(resumed.transaction(), &transaction);
+    let signed = recovered.sign(&resumed).unwrap();
+    assert_eq!(
+        recovered.broadcast(id).await.unwrap().transaction_hash,
+        signed.hash().unwrap()
+    );
+    assert!(
+        mock.calls
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|(m, _)| m == "quai_estimateGas")
+            .all(|(_, p)| p[0]["to"] == "0x0100000000000000000000000000000000000001")
+    );
+}
+
+#[tokio::test]
+async fn settlement_reconstructs_durable_candidate_and_invalidates_stale_cache_on_error() {
+    use quai_sdk::settlement::{SettlementKind, cached_settlement, track_settlement};
+    let (directory, _mock, provider, signer, mut store) = setup();
+    let id = ReservationId([98; 16]);
+    let mut send = intent();
+    send.to = "0x0100000000000000000000000000000000000001"
+        .parse()
+        .unwrap();
+    let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
+    let prepared = session
+        .prepare_cross_zone(id, send, policy())
+        .await
+        .unwrap();
+    let signed = session.sign(&prepared).unwrap();
+    let hash = signed.hash().unwrap();
+    // A direct Cyprus-1 provider cannot attest Cyprus-2. Failed observation is
+    // persisted as an invalidation, never as completed or dropped settlement.
+    let request = quai_sdk::provider::EtxScanRequest {
+        zone: Zone::Cyprus2,
+        from: 1,
+        to: 2,
+        max_transactions_per_block: 16,
+        max_total_transactions: 32,
+        preceding_block: None,
+    };
+    assert!(
+        track_settlement(
+            &provider,
+            &mut store,
+            id,
+            hash,
+            SettlementKind::CrossZoneQuai,
+            request,
+            16
+        )
+        .await
+        .is_err()
+    );
+    let mut reopened = SqliteStore::open(directory.0.join("wallet.sqlite"), store.scope()).unwrap();
+    let cache = reopened.observation_cache(id, hash, 0).unwrap().unwrap();
+    assert_eq!(cache.revision, 1);
+    assert!(cached_settlement(&cache).unwrap().is_none());
+    assert_eq!(
+        reopened.signed_payload(id).unwrap().unwrap(),
+        signed.signed_bytes().unwrap()
+    );
+    assert!(reopened.release_unsigned(id).is_err());
+}

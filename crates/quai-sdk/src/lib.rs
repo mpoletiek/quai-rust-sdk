@@ -13,6 +13,8 @@ pub mod qi;
 pub mod qi_discovery;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod recovery;
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+pub mod settlement;
 #[cfg(feature = "abi")]
 pub mod wrappers;
 #[cfg(feature = "abi")]

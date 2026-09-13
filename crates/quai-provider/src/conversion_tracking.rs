@@ -179,6 +179,10 @@ impl ConversionReference {
     pub fn zone(&self) -> Zone {
         self.zone
     }
+    /// Exact original conversion destination; refunds may use a different beneficiary.
+    pub fn destination(&self) -> Address {
+        self.destination
+    }
     fn check_etx(&self, transaction: &Transaction, origin: bool) -> Result<u64, ProviderError> {
         let TransactionDetails::External(etx) = &transaction.details else {
             return Err(invalid_result("conversion transaction is not external"));
@@ -310,7 +314,7 @@ fn block_ref(header: crate::ZoneHeader) -> BlockReference {
     }
 }
 impl EtxScanRequest {
-    fn validate(&self) -> Result<(), ProviderError> {
+    pub(crate) fn validate(&self) -> Result<(), ProviderError> {
         if self.from == 0
             || self.to < self.from
             || self.to > i64::MAX as u64

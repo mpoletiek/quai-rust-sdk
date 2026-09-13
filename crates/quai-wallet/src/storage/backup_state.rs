@@ -168,6 +168,9 @@ impl SqliteStore {
                 "INSERT OR IGNORE INTO scopes(scope,generation) VALUES(?1,0)",
                 [&key[..]],
             )?;
+            // Cached source observations are disposable and must be revalidated
+            // after restoration, just like the UTXO snapshot checkpoint.
+            tx.execute("DELETE FROM observation_cache WHERE scope=?1", [&key[..]])?;
             let current = checkpoint_read(&tx, &key)?.0;
             let next = next_generation(&tx, &key, current as u64)?;
             for address in &scope_state.addresses {
@@ -384,7 +387,7 @@ fn read_operation(
 }
 
 fn validate_native_schema(connection: &Connection) -> Result<()> {
-    validate_native_schema_version(connection, 3)
+    validate_native_schema_version(connection, 4)
 }
 pub(super) fn validate_native_schema_version(connection: &Connection, version: u8) -> Result<()> {
     // Refuse future tables/columns rather than silently omitting channel or other state.
@@ -416,6 +419,17 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
         ),
         ("nonce_claims", &["scope", "address", "nonce", "operation"]),
         ("nonce_cursors", &["scope", "address", "next_nonce"]),
+        (
+            "observation_cache",
+            &[
+                "scope",
+                "operation",
+                "candidate",
+                "slot",
+                "revision",
+                "payload",
+            ],
+        ),
         (
             "payment_channels",
             &[
@@ -469,7 +483,7 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
             &["scope", "operation", "kind", "payload"],
         ),
     ];
-    let mut statement=connection.prepare("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name LIMIT 13")?;
+    let mut statement=connection.prepare("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name LIMIT 14")?;
     let names: Vec<String> = statement
         .query_map([], |row| row.get(0))?
         .collect::<std::result::Result<_, _>>()?;
@@ -478,6 +492,7 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
         .filter(|(name, _)| {
             (version >= 2 || !name.starts_with("payment_"))
                 && (version >= 3 || *name != "quai_replacements")
+                && (version >= 4 || *name != "observation_cache")
         })
         .collect();
     if names != tables.iter().map(|(name, _)| *name).collect::<Vec<_>>() {

@@ -98,13 +98,14 @@ pub struct AccessListItem {
 
 /// Account-only simulation request. This does not authorize or submit a transaction.
 ///
-/// Sender determines routing. Cross-zone recipients are not supported by this
-/// initial simulation API; use a future dedicated ETX/conversion request model.
+/// Sender determines routing, including cross-zone account recipients. A successful
+/// origin simulation does not establish asynchronous destination execution.
+/// Qi conversion recipients use the dedicated conversion request model.
 #[derive(Clone, Debug)]
 pub struct CallRequest {
     /// Required sender, avoiding implicit node-local zero-address defaults.
     pub from: QuaiAddress,
-    /// Same-zone account/contract recipient; None requests contract creation.
+    /// Account/contract recipient; None requests contract creation.
     pub to: Option<QuaiAddress>,
     /// Gas budget in node uint64 units.
     pub gas: Option<u64>,
@@ -134,11 +135,6 @@ impl CallRequest {
         }
     }
     pub(crate) fn rpc_value(&self) -> Result<Value, ProviderError> {
-        if self.to.is_some_and(|to| to.zone() != self.from.zone()) {
-            return Err(ProviderError::InvalidRequest(
-                "cross-zone simulation is unsupported",
-            ));
-        }
         if self.to.is_none() && self.input.bytes().is_empty() {
             return Err(ProviderError::InvalidRequest(
                 "creation requires input bytes",

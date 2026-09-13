@@ -1,4 +1,4 @@
-//! Fee-only account replacement families retain the original durable nonce claim.
+//! Replacement families retain original durable account nonce or Qi input claims.
 use super::*;
 use std::collections::BTreeMap;
 pub(super) const REPLACEMENT_SCHEMA: &str = "CREATE TABLE quai_replacements(scope BLOB NOT NULL,operation BLOB NOT NULL,sequence INTEGER NOT NULL CHECK(sequence BETWEEN 0 AND 31),parent_hash BLOB NOT NULL CHECK(length(parent_hash)=32),payload BLOB NOT NULL CHECK(length(payload) BETWEEN 1 AND 1048576),PRIMARY KEY(scope,operation,sequence),FOREIGN KEY(scope,operation) REFERENCES reservations(scope,id)) STRICT;";
@@ -11,7 +11,12 @@ pub struct QuaiReplacement {
     /// Canonical signed bytes; validated on capture, read and restore.
     pub payload: Vec<u8>,
 }
+/// Both-ledger name for the immutable candidate edge.
+pub type ReplacementCandidate = QuaiReplacement;
 pub(crate) fn validate_family(root: &[u8], variants: &[QuaiReplacement]) -> Result<()> {
+    if let Ok(root) = quai_consensus::SignedQiOperation::decode(root) {
+        return validate_qi_family(root, variants);
+    }
     if variants.len() > 32 {
         return Err(StorageError::Invalid);
     }
@@ -36,6 +41,42 @@ pub(crate) fn validate_family(root: &[u8], variants: &[QuaiReplacement]) -> Resu
     }
     Ok(())
 }
+
+fn output_value(tx: &quai_consensus::QiTransaction) -> Result<U256> {
+    tx.outputs.iter().try_fold(U256::ZERO, |sum, output| {
+        sum.checked_add(U256::from(output.denomination.value()))
+            .ok_or(StorageError::Invalid)
+    })
+}
+fn validate_qi_family(
+    root: quai_consensus::SignedQiOperation,
+    variants: &[QuaiReplacement],
+) -> Result<()> {
+    if variants.len() > 32 {
+        return Err(StorageError::Invalid);
+    }
+    let mut known = BTreeMap::from([(root.hash().map_err(|_| StorageError::Invalid)?, root)]);
+    for variant in variants {
+        let parent = known.get(&variant.parent).ok_or(StorageError::Invalid)?;
+        let signed = quai_consensus::SignedQiOperation::decode(&variant.payload)
+            .map_err(|_| StorageError::Invalid)?;
+        let old = parent.transaction();
+        let tx = signed.transaction();
+        if tx.chain_id != old.chain_id
+            || tx.inputs != old.inputs
+            || tx.data != old.data
+            || output_value(tx)? >= output_value(old)?
+        {
+            return Err(StorageError::Invalid);
+        }
+        let hash = signed.hash().map_err(|_| StorageError::Invalid)?;
+        if known.insert(hash, signed).is_some() {
+            return Err(StorageError::Invalid);
+        }
+    }
+    Ok(())
+}
+
 pub(super) fn read_variants(
     connection: &Connection,
     key: &[u8],
@@ -79,6 +120,15 @@ impl SqliteStore {
     /// Read and verify all replacement edges, oldest first. Original bytes and
     /// nonce claims stay immutable; no candidate is discarded when another is sent.
     pub fn quai_replacements(&mut self, id: ReservationId) -> Result<Vec<QuaiReplacement>> {
+        let root = self.signed_payload(id)?.ok_or(StorageError::Invalid)?;
+        SignedQuaiTransaction::decode(&root).map_err(|_| StorageError::Invalid)?;
+        self.replacement_candidates(id)
+    }
+    /// Read validated candidate edges for either ledger, retaining all original claims.
+    pub fn replacement_candidates(
+        &mut self,
+        id: ReservationId,
+    ) -> Result<Vec<ReplacementCandidate>> {
         let tx = self.connection.transaction()?;
         let root =
             signed_payload_read(&tx, &self.key, self.scope, id)?.ok_or(StorageError::Invalid)?;
@@ -97,6 +147,33 @@ impl SqliteStore {
         parent: Hash32,
         signed: &SignedQuaiTransaction,
     ) -> Result<()> {
+        self.commit_replacement_payload(
+            id,
+            parent,
+            signed.signed_bytes().map_err(|_| StorageError::Invalid)?,
+        )
+    }
+    /// Persist a reviewed conflicting Qi candidate with exactly the parent's
+    /// ordered inputs/data and strictly lower total output value. This preserves
+    /// shared claims; it does not guarantee a miner chooses the higher-fee hash.
+    pub fn commit_qi_replacement(
+        &mut self,
+        id: ReservationId,
+        parent: Hash32,
+        signed: &quai_consensus::SignedQiOperation,
+    ) -> Result<()> {
+        self.commit_replacement_payload(
+            id,
+            parent,
+            signed.signed_bytes().map_err(|_| StorageError::Invalid)?,
+        )
+    }
+    fn commit_replacement_payload(
+        &mut self,
+        id: ReservationId,
+        parent: Hash32,
+        payload: Vec<u8>,
+    ) -> Result<()> {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
@@ -110,10 +187,7 @@ impl SqliteStore {
         let root =
             signed_payload_read(&tx, &self.key, self.scope, id)?.ok_or(StorageError::Invalid)?;
         let mut variants = read_variants(&tx, &self.key, id)?;
-        let new = QuaiReplacement {
-            parent,
-            payload: signed.signed_bytes().map_err(|_| StorageError::Invalid)?,
-        };
+        let new = QuaiReplacement { parent, payload };
         if variants.contains(&new) {
             validate_family(&root, &variants)?;
             tx.commit()?;

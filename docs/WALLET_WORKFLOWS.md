@@ -202,12 +202,62 @@ entries yield `NotObserved`, never a proven dropped state or release authority.
 nonce after interruption. `SqliteStore::reopen_unsigned_nonce` explicitly reopens
 a released, never-signed nonce with its original ID/claim; a zero-value self
 transfer can fill the gap. Cursors never rewind, and signed nonces cannot enter
-this path. Replacement graphs, automatic terminal claim release, full ancestor
-replay and browser persistence remain unfinished. Existing native WS streams
-terminate explicitly; applications must reconnect and use bounded canonical
-queries for recovery until an integrated reconnect/backfill engine is supplied.
+this path. Both account and Qi sessions expose `signed_candidates`,
+`broadcast_candidate` and `observe_candidates`. These retain the original claim
+while checking every candidate after restart or an ambiguous send. Account
+replacements raise only gas price with an explicit bump/fee policy. Qi
+`prepare_replacement` reduces explicitly selected locally owned change, retaining
+all other outputs and ordered inputs. Qi conflicting candidates may coexist in
+the pool; a higher fee does not guarantee replacement or inclusion preference.
+Repeated signing of a prepared Qi candidate returns its persisted signature.
+Backup v5 carries Qi families; account-only families remain v4. Older versions
+remain readable and cannot silently discard candidates through a format downgrade.
+
+`AccountSession::prepare_cross_zone` and `prepare_cross_zone_reserved` simulate
+at the sender zone and preserve the exact destination/data through nonce custody,
+review, signing and restart broadcast. Origin success is separate from destination
+ETX execution. Normal `prepare` continues to require a same-zone recipient.
+
+`HeadTracker` provides bounded canonical replay with explicit removed/added
+blocks. `WsHeadFollower` reconnects read subscriptions and fills missed headers.
+A reorg beyond retained ancestry reports unavailable history. Applications still
+own wallet-state application and finality policy; signed claims are not released
+on absence. Browser applications can persist opaque snapshots with scoped
+revision checks using `BrowserSnapshotStore`, including cross-tab conflicts and
+tombstones. Full browser wallet integration and automatic terminal claim release
+remain separate work.
 
 The provider also exposes `outpoints_many` (bounded sequential current queries)
 and `outpoint_deltas` (strict full address coverage over inclusive hash bounds).
 The latter requires retained indexing and caller-verified canonical ranges.
 Pinned noncanonical delta behavior must not be used as directional reorg undo.
+
+## Destination settlement and observed Qi maturity
+
+`ExternalReference` reconstructs wrapping, WQI redemption and both-ledger
+cross-zone references from exact signed bytes. `Provider::observe_external`
+checks the original receipt/emission, exact beneficiary/sender/value/data/subtype,
+then scans a caller-bounded destination range using the stable origin hash and
+ETX index. It rechecks canonical anchors and preserves missing/failed outcomes.
+`from_wqi_unwrap` checks the exact canonical ABI call and atom-to-Qit conversion;
+it binds an explicit contract and ETX index without attesting its bytecode.
+
+`observe_conversion_qi_credit` and `observe_external_qi_credit` attribute current
+indexed outputs and reported locks. A Qi refund uses its signed refund address.
+Cross-zone Qi is special: the ETX value is a denomination index and the UTXO uses
+the original Qi transaction hash/output index, rather than the final ETX hash.
+`QiCreditObservation` exposes both identities and separates locked, unlocked and
+unobserved Qits. Unobserved value may be spent, trimmed, truncated by destination
+gas or absent from indexing; it is never classified as lost. Unlocked observations
+still require wallet claims and fresh spend preparation. No method treats a
+successful wrapping receipt as a subsequent WQI token mint or claimDeposit.
+
+`settlement::track_settlement` starts from a durable reservation/candidate,
+reconstructs the appropriate reference, performs the bounded observation and
+persists a compact public JSON summary before returning. SQLite schema v4 adds
+candidate/ETX-index cache slots with revision checks; versions 1–3 migrate
+atomically. `observation_cache` and `cached_settlement` expose restart summaries.
+Applications must recheck their anchors before choosing continuation ranges.
+Errors attempt a revision-checked invalidation; signed claims never change.
+Caches are disposable and excluded from full backups; restore clears them and
+retains the exact signed candidates used to reconstruct references.

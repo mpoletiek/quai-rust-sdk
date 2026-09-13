@@ -131,6 +131,14 @@ impl WalletBackup {
             scope
                 .operations
                 .iter()
+                .any(|op| op.kind == 0 && !op.replacements.is_empty())
+        }) {
+            return 5;
+        }
+        if self.state.scopes.iter().any(|scope| {
+            scope
+                .operations
+                .iter()
                 .any(|op| !op.replacements.is_empty())
         }) {
             return 4;

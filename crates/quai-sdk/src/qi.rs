@@ -584,3 +584,8 @@ impl<'a, T: Transport> QiSession<'a, T> {
         })
     }
 }
+
+mod replacements;
+pub use replacements::{
+    PreparedQiReplacement, QiCandidateStatus, QiFamilyObservation, QiReplacementIntent,
+};

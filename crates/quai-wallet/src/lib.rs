@@ -29,7 +29,7 @@ pub use hd::{
     AccountPublic, CoinType, DerivedAddress, ExtendedKeyMetadata, ExtendedPrivateKey,
     ExtendedPublicKey, HdWallet, Search, SearchResult,
 };
-pub use mnemonic::{Language, Mnemonic, SecretString, Seed};
+pub use mnemonic::{Language, Mnemonic, MnemonicEntropy, SecretString, Seed};
 use thiserror::Error;
 
 /// Wallet errors never echo phrases, passphrases, seeds or extended private keys.

@@ -79,6 +79,17 @@ fn all_languages_entropy_lengths_and_nfkd_seeds_match_quais() {
             text(vector, "seed")
         );
         let imported = Mnemonic::parse(language, text(vector, "phrase")).unwrap();
+        for export in [mnemonic.entropy(), imported.entropy()] {
+            assert_eq!(hex(export.expose()), text(vector, "entropy"));
+            assert_eq!(format!("{export:?}"), "MnemonicEntropy([REDACTED])");
+            assert_eq!(
+                Mnemonic::from_entropy(language, export.expose())
+                    .unwrap()
+                    .phrase()
+                    .expose(),
+                text(vector, "phrase")
+            );
+        }
         assert_eq!(
             hex(imported.to_seed(text(vector, "passphrase")).expose()),
             text(vector, "seed")

@@ -34,12 +34,31 @@ impl fmt::Debug for Seed {
     }
 }
 
+/// Explicitly exported BIP39 entropy, containing 16, 20, 24, 28 or 32 bytes.
+/// The owned buffer zeroizes on drop; diagnostics never expose its contents.
+pub struct MnemonicEntropy {
+    bytes: Zeroizing<[u8; 33]>,
+    length: usize,
+}
+impl MnemonicEntropy {
+    /// Borrow only the original entropy, excluding BIP39 checksum bits.
+    /// The caller owns and must protect any copies it creates.
+    pub fn expose(&self) -> &[u8] {
+        &self.bytes[..self.length]
+    }
+}
+impl fmt::Debug for MnemonicEntropy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("MnemonicEntropy([REDACTED])")
+    }
+}
+
 /// A validated mnemonic stored as word indexes; no passphrase is retained.
 pub struct Mnemonic(bip39::Mnemonic);
 impl Mnemonic {
-    /// Generate a native mnemonic from fresh OS entropy. Word count must be
+    /// Generate a mnemonic from fresh OS entropy (Web Crypto in browser wasm).
+    /// Word count must be
     /// 12, 15, 18, 21 or 24. Entropy buffers are zeroized, with no fallback RNG.
-    #[cfg(not(target_arch = "wasm32"))]
     pub fn generate(language: Language, word_count: usize) -> Result<Self, WalletError> {
         if !matches!(word_count, 12 | 15 | 18 | 21 | 24) {
             return Err(WalletError::InvalidEntropy);
@@ -78,6 +97,16 @@ impl Mnemonic {
     /// Explicit language needed to reconstruct the same canonical phrase.
     pub fn language(&self) -> Language {
         self.0.language()
+    }
+
+    /// Explicitly export the original BIP39 entropy, with zeroizing custody.
+    /// This excludes the checksum and does not retain or encode any passphrase.
+    pub fn entropy(&self) -> MnemonicEntropy {
+        let (bytes, length) = self.0.to_entropy_array();
+        MnemonicEntropy {
+            bytes: Zeroizing::new(bytes),
+            length,
+        }
     }
 
     /// Export the canonical phrase, using ideographic spaces for Japanese.

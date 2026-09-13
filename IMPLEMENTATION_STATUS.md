@@ -290,3 +290,10 @@ rejects watch-only authorization. Sixteen published JS wallet cases verify in
 Rust; pinned JS verifies the offline Rust example and rejects a modified message.
 Actual Chromium worker signing obtains fresh auxiliary entropy and verifies the
 signature. No account, RPC, transaction claim or broadcast is changed by signing.
+
+Mnemonic entropy export now returns a redacted zeroizing guard and excludes
+checksum bytes. The existing 50 JS mnemonic cases cover inverse export/import
+across all ten languages and five entropy lengths. Generation is portable to
+browser wasm through explicit Web Crypto support; worker coverage exercises all
+five word counts and English/Japanese/Spanish round trips. Passphrases remain
+caller-owned inputs and are not retained as mutable mnemonic properties.

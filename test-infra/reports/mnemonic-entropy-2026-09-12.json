@@ -1,0 +1,20 @@
+{
+  "scope": "Guarded BIP39 entropy export and browser mnemonic generation",
+  "baseCommit": "d23648e",
+  "testedWorkingTree": true,
+  "reference": "quais@1.0.0-alpha.57",
+  "mnemonicVectors": 50,
+  "wordlists": 10,
+  "walletReferenceTests": 11,
+  "nativeGenerationTests": 1,
+  "sdkChromiumWorkerTests": 6,
+  "strictNativeClippy": "passed",
+  "strictWasmClippy": "passed",
+  "strictWalletRustdoc": "passed",
+  "newSecretsPersisted": false,
+  "limitations": [
+    "Only Chromium browser generation is runtime-qualified here",
+    "Caller-created secret copies remain caller-owned",
+    "No complete browser wallet-state restore is added"
+  ]
+}

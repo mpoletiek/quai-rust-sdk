@@ -12289,12 +12289,26 @@
         "(path: string, password?: string, wordlist?: Wordlist): HDNodeWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::generate",
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::ExtendedPrivateKey::from_seed",
+        "quai_wallet::ExtendedPrivateKey::derive_path"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/src/mnemonic.rs#native_generation_validates_and_redacts",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_generates_all_mnemonic_lengths_and_exports_guarded_entropy",
+        "crates/quai-wallet/tests/reference.rs#extended_keys_and_variable_seed_lengths_match_quais",
+        "crates/quai-wallet/tests/reference.rs#relative_paths_match_reference_subtrees_and_check_depth_before_deriving"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit language, word count, passphrase and bounded path; keep the guarded mnemonic for backup. Generation and derivation use portable Rust primitives, without implicit provider state."
     },
     {
       "id": ".:HDNodeWallet:static:fromExtendedKey",
@@ -12305,12 +12319,20 @@
         "(extendedKey: string): HDNodeWallet | HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::import",
+        "quai_wallet::ExtendedPublicKey::import"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#extended_metadata_matches_quais_and_survives_import",
+        "crates/quai-wallet/tests/reference.rs#malformed_extended_key_metadata_and_material_are_rejected"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Separate explicit secret/public import types instead of a runtime union. Canonical versions and root metadata are validated; watch-only import never accepts private material."
     },
     {
       "id": ".:HDNodeWallet:static:fromMnemonic",
@@ -12321,12 +12343,23 @@
         "(mnemonic: Mnemonic, path: string): HDNodeWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::ExtendedPrivateKey::from_seed",
+        "quai_wallet::ExtendedPrivateKey::derive_path"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/reference.rs#extended_keys_and_variable_seed_lengths_match_quais",
+        "crates/quai-wallet/tests/reference.rs#relative_paths_match_reference_subtrees_and_check_depth_before_deriving"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit passphrase and bounded absolute path from a master node; no implicit mnemonic password, provider or React Native crypto bridge."
     },
     {
       "id": ".:HDNodeWallet:static:fromMnemonicReactNative",
@@ -12337,12 +12370,23 @@
         "(mnemonic: Mnemonic, path: string): Promise<HDNodeWallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::ExtendedPrivateKey::from_seed",
+        "quai_wallet::ExtendedPrivateKey::derive_path"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/reference.rs#extended_keys_and_variable_seed_lengths_match_quais",
+        "crates/quai-wallet/tests/reference.rs#relative_paths_match_reference_subtrees_and_check_depth_before_deriving"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit passphrase and bounded absolute path from a master node; no implicit mnemonic password, provider or React Native crypto bridge."
     },
     {
       "id": ".:HDNodeWallet:static:fromPhrase",
@@ -12401,12 +12445,21 @@
         "(seed: BytesLike): Promise<HDNodeWallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::from_seed"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/reference.rs#extended_keys_and_variable_seed_lengths_match_quais",
+        "crates/quai-wallet/tests/reference.rs#relative_paths_match_reference_subtrees_and_check_depth_before_deriving"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Portable synchronous validated BIP32 derivation rather than a JavaScript QuickCrypto promise; no React Native bridge."
     },
     {
       "id": ".:hexlify",
@@ -17910,11 +17963,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_wallet::Mnemonic::entropy",
+        "quai_wallet::MnemonicEntropy::expose"
+      ],
+      "feature": "wallet-identity",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
       "deviation": null
     },
     {
@@ -17924,12 +17985,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::to_seed"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Passphrases are explicit caller-owned inputs for seed/HD derivation, not retained or exposed as a mutable mnemonic field."
     },
     {
       "id": ".:Mnemonic:instance:phrase",
@@ -17938,12 +18006,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::phrase",
+        "quai_wallet::SecretString::expose"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Canonical phrase export requires explicit access to a zeroizing redacted guard rather than an implicitly printable secret property."
     },
     {
       "id": ".:Mnemonic:instance:wordlist",
@@ -17952,11 +18028,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_wallet::Mnemonic::language",
+        "quai_wallet::Language::word_list"
+      ],
+      "feature": "wallet-identity",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
       "deviation": null
     },
     {
@@ -17968,11 +18052,19 @@
         "(_entropy: BytesLike, wordlist?: null | Wordlist): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_wallet::Mnemonic::from_entropy",
+        "quai_wallet::Mnemonic::phrase"
+      ],
+      "feature": "wallet-identity",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
       "deviation": null
     },
     {
@@ -18034,12 +18126,19 @@
         "(phrase: string, wordlist?: null | Wordlist): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::parse"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Use Result::is_ok on explicit-language validation; bounded NFKD parsing accepts canonical surrounding/repeated whitespace. No implicit language detection or arbitrary custom wordlist."
     },
     {
       "id": ".:Mnemonic:static:phraseToEntropy",
@@ -18050,11 +18149,19 @@
         "(phrase: string, wordlist?: null | Wordlist): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_wallet::Mnemonic::parse",
+        "quai_wallet::Mnemonic::entropy"
+      ],
+      "feature": "wallet-identity",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
       "deviation": null
     },
     {
@@ -19819,12 +19926,22 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, password?: string, wordlist?: Wordlist): T"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::generate",
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/src/mnemonic.rs#native_generation_validates_and_redacts",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_generates_all_mnemonic_lengths_and_exports_guarded_entropy"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit language, word count, passphrase and coin type. OS/Web Crypto generation is separate from HD construction so the caller retains guarded backup material; no default mutable provider or mnemonic password."
     },
     {
       "id": ".:QiHDWallet:static:deserialize",
@@ -19851,12 +19968,19 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, mnemonic: Mnemonic): T"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Caller selects coin type and passes the passphrase explicitly; mnemonic objects do not retain password state."
     },
     {
       "id": ".:QiHDWallet:static:fromMnemonicReactNative",
@@ -19867,12 +19991,19 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, mnemonic: Mnemonic): Promise<T>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Same BIP39/BIP32 Rust implementation on native and wasm; no React Native QuickCrypto bridge. Heavy derivation belongs in an application-selected worker/executor."
     },
     {
       "id": ".:QiHDWallet:static:fromPhrase",
@@ -20858,12 +20989,22 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, password?: string, wordlist?: Wordlist): T"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::generate",
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/src/mnemonic.rs#native_generation_validates_and_redacts",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_generates_all_mnemonic_lengths_and_exports_guarded_entropy"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit language, word count, passphrase and coin type. OS/Web Crypto generation is separate from HD construction so the caller retains guarded backup material; no default mutable provider or mnemonic password."
     },
     {
       "id": ".:QuaiHDWallet:static:deserialize",
@@ -20890,12 +21031,19 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, mnemonic: Mnemonic): T"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Caller selects coin type and passes the passphrase explicitly; mnemonic objects do not retain password state."
     },
     {
       "id": ".:QuaiHDWallet:static:fromMnemonicReactNative",
@@ -20906,12 +21054,19 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, mnemonic: Mnemonic): Promise<T>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Same BIP39/BIP32 Rust implementation on native and wasm; no React Native QuickCrypto bridge. Heavy derivation belongs in an application-selected worker/executor."
     },
     {
       "id": ".:QuaiHDWallet:static:fromPhrase",
@@ -63659,12 +63814,26 @@
         "(path: string, password?: string, wordlist?: Wordlist): HDNodeWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::generate",
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::ExtendedPrivateKey::from_seed",
+        "quai_wallet::ExtendedPrivateKey::derive_path"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/src/mnemonic.rs#native_generation_validates_and_redacts",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_generates_all_mnemonic_lengths_and_exports_guarded_entropy",
+        "crates/quai-wallet/tests/reference.rs#extended_keys_and_variable_seed_lengths_match_quais",
+        "crates/quai-wallet/tests/reference.rs#relative_paths_match_reference_subtrees_and_check_depth_before_deriving"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit language, word count, passphrase and bounded path; keep the guarded mnemonic for backup. Generation and derivation use portable Rust primitives, without implicit provider state."
     },
     {
       "id": "./wallet:HDNodeWallet:static:fromExtendedKey",
@@ -63675,12 +63844,20 @@
         "(extendedKey: string): HDNodeWallet | HDNodeVoidWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::import",
+        "quai_wallet::ExtendedPublicKey::import"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#extended_metadata_matches_quais_and_survives_import",
+        "crates/quai-wallet/tests/reference.rs#malformed_extended_key_metadata_and_material_are_rejected"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Separate explicit secret/public import types instead of a runtime union. Canonical versions and root metadata are validated; watch-only import never accepts private material."
     },
     {
       "id": "./wallet:HDNodeWallet:static:fromMnemonic",
@@ -63691,12 +63868,23 @@
         "(mnemonic: Mnemonic, path: string): HDNodeWallet"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::ExtendedPrivateKey::from_seed",
+        "quai_wallet::ExtendedPrivateKey::derive_path"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/reference.rs#extended_keys_and_variable_seed_lengths_match_quais",
+        "crates/quai-wallet/tests/reference.rs#relative_paths_match_reference_subtrees_and_check_depth_before_deriving"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit passphrase and bounded absolute path from a master node; no implicit mnemonic password, provider or React Native crypto bridge."
     },
     {
       "id": "./wallet:HDNodeWallet:static:fromMnemonicReactNative",
@@ -63707,12 +63895,23 @@
         "(mnemonic: Mnemonic, path: string): Promise<HDNodeWallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::ExtendedPrivateKey::from_seed",
+        "quai_wallet::ExtendedPrivateKey::derive_path"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/reference.rs#extended_keys_and_variable_seed_lengths_match_quais",
+        "crates/quai-wallet/tests/reference.rs#relative_paths_match_reference_subtrees_and_check_depth_before_deriving"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit passphrase and bounded absolute path from a master node; no implicit mnemonic password, provider or React Native crypto bridge."
     },
     {
       "id": "./wallet:HDNodeWallet:static:fromPhrase",
@@ -63771,12 +63970,21 @@
         "(seed: BytesLike): Promise<HDNodeWallet>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::ExtendedPrivateKey::from_seed"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/reference.rs#extended_keys_and_variable_seed_lengths_match_quais",
+        "crates/quai-wallet/tests/reference.rs#relative_paths_match_reference_subtrees_and_check_depth_before_deriving"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Portable synchronous validated BIP32 derivation rather than a JavaScript QuickCrypto promise; no React Native bridge."
     },
     {
       "id": "./wallet:isKeystoreJson",
@@ -63874,11 +64082,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_wallet::Mnemonic::entropy",
+        "quai_wallet::MnemonicEntropy::expose"
+      ],
+      "feature": "wallet-identity",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
       "deviation": null
     },
     {
@@ -63888,12 +64104,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::to_seed"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Passphrases are explicit caller-owned inputs for seed/HD derivation, not retained or exposed as a mutable mnemonic field."
     },
     {
       "id": "./wallet:Mnemonic:instance:phrase",
@@ -63902,12 +64125,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::phrase",
+        "quai_wallet::SecretString::expose"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Canonical phrase export requires explicit access to a zeroizing redacted guard rather than an implicitly printable secret property."
     },
     {
       "id": "./wallet:Mnemonic:instance:wordlist",
@@ -63916,11 +64147,19 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_wallet::Mnemonic::language",
+        "quai_wallet::Language::word_list"
+      ],
+      "feature": "wallet-identity",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
       "deviation": null
     },
     {
@@ -63932,11 +64171,19 @@
         "(_entropy: BytesLike, wordlist?: null | Wordlist): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_wallet::Mnemonic::from_entropy",
+        "quai_wallet::Mnemonic::phrase"
+      ],
+      "feature": "wallet-identity",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
       "deviation": null
     },
     {
@@ -63998,12 +64245,19 @@
         "(phrase: string, wordlist?: null | Wordlist): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::parse"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Use Result::is_ok on explicit-language validation; bounded NFKD parsing accepts canonical surrounding/repeated whitespace. No implicit language detection or arbitrary custom wordlist."
     },
     {
       "id": "./wallet:Mnemonic:static:phraseToEntropy",
@@ -64014,11 +64268,19 @@
         "(phrase: string, wordlist?: null | Wordlist): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
+      "rust_api": [
+        "quai_wallet::Mnemonic::parse",
+        "quai_wallet::Mnemonic::entropy"
+      ],
+      "feature": "wallet-identity",
+      "status": "implemented",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
       "deviation": null
     },
     {
@@ -64862,12 +65124,22 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, password?: string, wordlist?: Wordlist): T"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::generate",
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/src/mnemonic.rs#native_generation_validates_and_redacts",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_generates_all_mnemonic_lengths_and_exports_guarded_entropy"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit language, word count, passphrase and coin type. OS/Web Crypto generation is separate from HD construction so the caller retains guarded backup material; no default mutable provider or mnemonic password."
     },
     {
       "id": "./wallet:QiHDWallet:static:deserialize",
@@ -64894,12 +65166,19 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, mnemonic: Mnemonic): T"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Caller selects coin type and passes the passphrase explicitly; mnemonic objects do not retain password state."
     },
     {
       "id": "./wallet:QiHDWallet:static:fromMnemonicReactNative",
@@ -64910,12 +65189,19 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, mnemonic: Mnemonic): Promise<T>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Same BIP39/BIP32 Rust implementation on native and wasm; no React Native QuickCrypto bridge. Heavy derivation belongs in an application-selected worker/executor."
     },
     {
       "id": "./wallet:QiHDWallet:static:fromPhrase",
@@ -65219,12 +65505,22 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, password?: string, wordlist?: Wordlist): T"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::Mnemonic::generate",
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/src/mnemonic.rs#native_generation_validates_and_redacts",
+        "crates/quai-sdk/tests/browser_discovery.rs#worker_generates_all_mnemonic_lengths_and_exports_guarded_entropy"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit language, word count, passphrase and coin type. OS/Web Crypto generation is separate from HD construction so the caller retains guarded backup material; no default mutable provider or mnemonic password."
     },
     {
       "id": "./wallet:QuaiHDWallet:static:deserialize",
@@ -65251,12 +65547,19 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, mnemonic: Mnemonic): T"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Caller selects coin type and passes the passphrase explicitly; mnemonic objects do not retain password state."
     },
     {
       "id": "./wallet:QuaiHDWallet:static:fromMnemonicReactNative",
@@ -65267,12 +65570,19 @@
         "<T extends AbstractHDWallet<NeuteredAddressInfo>>(this: new (guard: any, root: HDNodeWallet) => T, mnemonic: Mnemonic): Promise<T>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::HdWallet::from_mnemonic"
+      ],
+      "feature": "wallet-identity",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+      ],
+      "docs": [
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Same BIP39/BIP32 Rust implementation on native and wasm; no React Native QuickCrypto bridge. Heavy derivation belongs in an application-selected worker/executor."
     },
     {
       "id": "./wallet:QuaiHDWallet:static:fromPhrase",

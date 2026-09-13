@@ -227,3 +227,24 @@ fn worker_signs_and_verifies_qi_message_with_browser_auxiliary_entropy() {
         .is_err()
     );
 }
+
+#[wasm_bindgen_test]
+fn worker_generates_all_mnemonic_lengths_and_exports_guarded_entropy() {
+    use quai_sdk::wallet::{Language, Mnemonic};
+    for count in [12, 15, 18, 21, 24] {
+        for language in [Language::English, Language::Japanese, Language::Spanish] {
+            let mnemonic = Mnemonic::generate(language, count).unwrap();
+            let entropy = mnemonic.entropy();
+            assert_eq!(entropy.expose().len(), count / 3 * 4);
+            assert_eq!(format!("{entropy:?}"), "MnemonicEntropy([REDACTED])");
+            assert_eq!(format!("{mnemonic:?}"), "Mnemonic([REDACTED])");
+            let restored = Mnemonic::from_entropy(language, entropy.expose()).unwrap();
+            assert_eq!(mnemonic.phrase().expose(), restored.phrase().expose());
+            assert_eq!(
+                mnemonic.to_seed("public worker passphrase").expose(),
+                restored.to_seed("public worker passphrase").expose()
+            );
+        }
+    }
+    assert!(Mnemonic::generate(Language::English, 13).is_err());
+}

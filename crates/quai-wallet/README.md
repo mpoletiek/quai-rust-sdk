@@ -77,8 +77,8 @@ Exact-index BIP32 derivation returns an error for a rare invalid child rather
 than silently incrementing its index. Paths are bounded to the BIP32 depth
 limit. Mnemonic parsing accepts surrounding/repeated Unicode whitespace; this
 is more permissive than some reference wordlist splitters, and seeds derive
-from the canonical validated phrase. Unsupported backup or mnemonic generation
-APIs are not represented as finished features.
+from the canonical validated phrase. Native authenticated full-wallet backups and portable mnemonic generation are
+available; complete browser wallet restore/reservation integration is separate.
 
 The underlying bip32 0.5.3 master API accepts only 16/32/64-byte seeds. This
 crate applies the standard HMAC-SHA512 `Bitcoin seed` master derivation for the
@@ -143,3 +143,31 @@ including hardened index 2^31-1, across all supported seed lengths in the existi
 reference fixtures. Tests compare private/public/imported metadata, relative
 subtree results and parent fingerprints, plus malformed paths and depth 255.
 Run `node compatibility/scripts/generate-key-metadata.mjs` to reproduce vectors.
+
+## Mnemonic entropy and generation
+
+`Mnemonic::entropy()` returns `MnemonicEntropy`, an explicitly exposed,
+zeroizing buffer containing the original 16–32 entropy bytes without checksum
+bits. It has no `Clone`, `Display` or serialization and redacts `Debug`. Use
+`export.expose()` only when needed; caller-created copies remain the caller's
+responsibility. `Mnemonic::parse(language, phrase)?.entropy()` is the inverse of
+`Mnemonic::from_entropy(language, bytes)?.phrase()` for every supported language
+and entropy length. To validate a phrase, use the result of `Mnemonic::parse`.
+`Mnemonic::language().word_list()` exposes the selected public wordlist.
+
+`Mnemonic::generate(language, word_count)` supports 12, 15, 18, 21 and 24 words
+on native and browser wasm. Generation uses OS randomness or Web Crypto and
+fails when secure entropy is unavailable. It performs no network request or
+account prompt. Create an HD wallet explicitly with
+`HdWallet::from_mnemonic(&mnemonic, passphrase, coin)`, retaining the guarded
+mnemonic for the application's backup flow. Passphrases are caller-owned inputs,
+not a mutable `password` property on the mnemonic.
+
+The pinned `fromMnemonicReactNative` helpers use an optional JavaScript native
+crypto bridge. Rust uses the same BIP39/BIP32 APIs on native and WebAssembly;
+there is no React Native bridge or mutable provider field. Lower-level arbitrary
+HD paths use `ExtendedPrivateKey::from_seed(mnemonic.to_seed(passphrase).expose())`
+and `derive_path`. Import xprv and xpub with their separate validated key types.
+Browser generation/entropy restoration is tested in a Chromium dedicated worker;
+React Native, other browser engines and suspended execution remain separate
+platform qualifications.

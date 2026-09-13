@@ -18,8 +18,14 @@ pub mod browser_backups;
 pub mod browser_payments;
 #[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
 pub mod browser_qi;
+/// Persisted browser candidate submission and canonical reconciliation.
+#[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
+pub mod browser_recovery;
 #[cfg(all(target_arch = "wasm32", feature = "backup", feature = "browser"))]
 pub mod browser_transactions;
+/// Portable canonical observations for signed candidate families.
+#[cfg(feature = "wallet")]
+pub mod candidate_observation;
 #[cfg(feature = "abi")]
 pub mod contracts;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]

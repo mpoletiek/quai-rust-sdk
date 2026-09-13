@@ -1,28 +1,11 @@
 //! Signer-free, atomic public recovery summaries for immutable candidate families.
 use super::*;
+use crate::candidate_observation::{FamilyObservationError, observe_signed_candidates};
 use quai_primitives::Hash32;
 use quai_provider::BlockReference;
 use serde_json::json;
 
-/// One source-observed candidate. Absence never proves that a signed transaction was dropped.
-#[derive(Clone, Debug)]
-pub enum CandidateObservation {
-    /// No receipt or indexed transaction.
-    NotObserved,
-    /// Indexed without a receipt.
-    Pending,
-    /// Receipt names an unavailable or noncanonical block.
-    Noncanonical,
-    /// Origin inclusion, not destination settlement or irreversible finality.
-    Included {
-        /// Canonical origin block sampled twice.
-        block: BlockReference,
-        /// Execution status (failure still consumes an account nonce).
-        outcome: ReceiptOutcome,
-        /// Sampled depth, including this block.
-        confirmations: u64,
-    },
-}
+pub use crate::candidate_observation::CandidateObservation;
 /// A bounded family view saved atomically before returning. No private keys are needed.
 #[derive(Clone, Debug)]
 pub struct FamilyUpdate {
@@ -51,17 +34,32 @@ pub async fn track_family<T: Transport>(
         .signed_payload(id)?
         .ok_or(QiError::MissingSignedPayload)?;
     let variants = store.replacement_candidates(id)?;
-    let candidates = std::iter::once(root)
+    let candidates: Vec<_> = std::iter::once(root)
         .chain(variants.into_iter().map(|v| v.payload))
-        .map(|bytes| SignedIntent::decode(&bytes, store.scope()))
+        .collect();
+    let hashes: Vec<_> = candidates
+        .iter()
+        .map(|bytes| {
+            if let Ok(tx) = SignedQuaiTransaction::decode(bytes) {
+                tx.hash()
+            } else {
+                SignedQiOperation::decode(bytes).and_then(|tx| tx.hash())
+            }
+        })
         .collect::<Result<Vec<_>, _>>()?;
-    let hashes: Vec<_> = candidates.iter().map(|c| c.hash).collect();
     let expected = store
         .observation_cache(id, hashes[0], u16::MAX)?
         .map(|c| c.revision);
-    let result = observe(provider, store.scope(), &candidates).await;
+    let result = observe_signed_candidates(provider, store.scope(), &candidates)
+        .await
+        .map_err(|e| match e {
+            FamilyObservationError::Provider(e) => QiError::Provider(e),
+            FamilyObservationError::Transaction(e) => QiError::Transaction(e),
+            FamilyObservationError::Invalid => QiError::IdentityMismatch,
+            FamilyObservationError::Changed => QiError::StaleSnapshot,
+        });
     let (observations, canonical, head) = match result {
-        Ok(result) => result,
+        Ok(result) => (result.candidates, result.canonical, result.head),
         Err(error) => {
             // A new candidate also prevents this stale attempt from invalidating
             // a newer family view, even if its cache has not yet been updated.
@@ -96,119 +94,4 @@ pub async fn track_family<T: Transport>(
         canonical,
         head,
     })
-}
-struct SignedIntent {
-    hash: Hash32,
-    account: Option<SignedQuaiTransaction>,
-}
-impl SignedIntent {
-    fn decode(bytes: &[u8], scope: quai_wallet::storage::NetworkScope) -> Result<Self, QiError> {
-        if let Ok(account) = SignedQuaiTransaction::decode(bytes) {
-            if account.transaction().chain_id != scope.chain_id
-                || account.from().address().zone().ok() != Some(scope.zone)
-            {
-                return Err(QiError::IdentityMismatch);
-            }
-            return Ok(Self {
-                hash: account.hash()?,
-                account: Some(account),
-            });
-        }
-        let qi = SignedQiOperation::decode(bytes)?;
-        if qi.transaction().chain_id != scope.chain_id || qi.origin_zone().ok() != Some(scope.zone)
-        {
-            return Err(QiError::IdentityMismatch);
-        }
-        Ok(Self {
-            hash: qi.hash()?,
-            account: None,
-        })
-    }
-}
-type Observations = (
-    Vec<(Hash32, CandidateObservation)>,
-    Option<Hash32>,
-    BlockReference,
-);
-async fn observe<T: Transport>(
-    provider: &Provider<T>,
-    scope: quai_wallet::storage::NetworkScope,
-    candidates: &[SignedIntent],
-) -> Result<Observations, QiError> {
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
-        return Err(QiError::IdentityMismatch);
-    }
-    let tip = provider
-        .latest_header(scope.zone)
-        .await?
-        .ok_or(QiError::StaleSnapshot)?;
-    let head = BlockReference {
-        number: tip.number,
-        hash: tip.hash,
-    };
-    let mut canonical = None;
-    let mut anchors = vec![head];
-    let mut rows = Vec::with_capacity(candidates.len());
-    for candidate in candidates {
-        let hash = candidate.hash;
-        let status = if let Some(receipt) = provider.receipt(scope.zone, hash).await? {
-            if let Some(signed) = &candidate.account {
-                if receipt.kind != TransactionKind::Quai
-                    || receipt
-                        .from
-                        .is_some_and(|from| from != signed.from().address())
-                    || receipt
-                        .to
-                        .is_some_and(|to| Some(to) != signed.transaction().to)
-                {
-                    return Err(QiError::IdentityMismatch);
-                }
-            } else if receipt.kind != TransactionKind::Qi {
-                return Err(QiError::IdentityMismatch);
-            }
-            let block = BlockReference {
-                number: receipt.inclusion.block_number,
-                hash: receipt.inclusion.block_hash,
-            };
-            if provider
-                .header_at(scope.zone, block.number)
-                .await?
-                .is_some_and(|h| h.hash == block.hash)
-            {
-                if canonical.replace(hash).is_some() {
-                    return Err(QiError::StaleSnapshot);
-                }
-                let confirmations = head
-                    .number
-                    .checked_sub(block.number)
-                    .and_then(|n| n.checked_add(1))
-                    .ok_or(QiError::StaleSnapshot)?;
-                anchors.push(block);
-                CandidateObservation::Included {
-                    block,
-                    outcome: receipt.outcome,
-                    confirmations,
-                }
-            } else {
-                CandidateObservation::Noncanonical
-            }
-        } else if provider.transaction(scope.zone, hash).await?.is_some() {
-            CandidateObservation::Pending
-        } else {
-            CandidateObservation::NotObserved
-        };
-        rows.push((hash, status));
-    }
-    for block in anchors {
-        if provider
-            .header_at(scope.zone, block.number)
-            .await?
-            .is_none_or(|h| h.hash != block.hash)
-        {
-            return Err(QiError::StaleSnapshot);
-        }
-    }
-    Ok((rows, canonical, head))
 }

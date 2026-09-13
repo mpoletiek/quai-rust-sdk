@@ -596,9 +596,12 @@ Quai calls with exact-nonce fees, fixed review/signing and explicit persisted-ro
 submission. `account_preflight::quote_account` is portable, and contract/wrapper
 intents retain their access lists. See [browser account workflow](docs/BROWSER_ACCOUNT_WORKFLOW.md).
 Browser conversions and nonce-bound deployments share this workflow, with optional
-access-list discovery that preserves required entries. Replacement/settlement
-recovery and full browser Qi
-preparation/recovery still require integration. Injected-wallet discovery, permission management
+access-list discovery that preserves required entries.
+`browser_recovery::BrowserRecoverySession` selects exact persisted candidates and
+reconciles account/Qi inclusions without unlocked keys; see
+[browser candidate recovery](docs/BROWSER_CANDIDATE_RECOVERY.md). Replacement
+preparation, destination settlement and full browser Qi selection/fee orchestration
+still require integration. Injected-wallet discovery, permission management
 and automatic chain switching remain absent.
 
 ## Errors and operational limits

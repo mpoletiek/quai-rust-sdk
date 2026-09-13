@@ -73,9 +73,10 @@ floor; `Exact` supports an existing reservation. A quote alone reserves nothing.
 the corresponding portable read-only paths. There is no node-local signer.
 
 This workflow covers same/cross-zone Quai transfers, contract/wrapper calls,
-Quai-to-Qi conversion and deployment. Replacement candidate selection, destination
-settlement and full browser Qi
-preparation/recovery still require their own integration. The root broadcast
+Quai-to-Qi conversion and deployment. [Browser candidate recovery](BROWSER_CANDIDATE_RECOVERY.md)
+provides explicit persisted replacement selection and canonical reconciliation.
+Replacement preparation, destination settlement and full browser Qi preparation
+still require their own integration. The root broadcast
 method does not silently select a replacement. Current balances and fee estimates
 are advisory observations; preparing several operations does not reserve aggregate
 balance or guarantee that the node will accept them.

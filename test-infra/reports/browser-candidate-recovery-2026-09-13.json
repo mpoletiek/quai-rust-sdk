@@ -1,0 +1,27 @@
+{
+  "recordedAt": "2026-09-13T19:08:34.816314+00:00",
+  "baseCommit": "18ee50efa8038a0ef795085bc2152f08bd883507",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    "crates/quai-sdk/src/candidate_observation.rs": "47e2489906c952458f89c931f3fb3d5f39f237931b209b55a939118037608e84",
+    "crates/quai-sdk/src/browser_recovery.rs": "a664f61078e22503a79662e9530f0f1ea99f7e5bb839dcbf6dacf7a795b05d04",
+    "crates/quai-sdk/src/recovery/family.rs": "e951536dfc94f467e4784ae3e83c01780da15514295da4e3cec42fb608cfa1eb",
+    "crates/quai-sdk/tests/browser_recovery.rs": "d1690c3df61a859b0144a43e9c392f66923a629573bacf66222e5ca4d046905b"
+  },
+  "validation": {
+    "portableNativeTests": 2,
+    "nativeQiRegressionTests": 30,
+    "nativeAccountRegressionTests": 20,
+    "chromiumWorkerTests": 5,
+    "workerElapsedSeconds": 2.7,
+    "nativeAndWasmStrictClippy": "passed",
+    "nativeAndWasmRustdocWarningsDenied": "passed",
+    "docsLinksParityAppendixPackageMirrorsPythonWorkflow": "passed"
+  },
+  "limitations": [
+    "No funded node acceptance; RPC receipts and sends are synthetic",
+    "Existing transaction/journal formats; no new codec or fuzz campaign",
+    "No new local package rehearsal in this batch; GitHub package job and final release rehearsal remain required",
+    "Replacement preparation, full Qi preparation and destination settlement integration remain open"
+  ]
+}

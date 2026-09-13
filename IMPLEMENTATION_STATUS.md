@@ -643,3 +643,15 @@ in progress; synthetic fixtures do not establish funded node acceptance.
 All twelve source archives, three fresh extracted consumers, twelve native and two
 Wasm packaged-target checks passed. Evidence is retained in
 [test-infra/reports/browser-account-extensions-2026-09-13.json](test-infra/reports/browser-account-extensions-2026-09-13.json).
+
+## Browser signed-family reconciliation
+
+The portable candidate observer now powers native SQLite family tracking and
+browser account/Qi recovery. Browser callers can inspect or explicitly submit any
+persisted candidate, reconcile one canonical winner, retain prior inclusion when
+receipt indexing disappears, and invalidate a lost inclusion without releasing
+signed claims. Two portable tests, five Chromium worker tests and thirty native Qi
+regression tests pass. The worker suite covers cancellation and concurrent writes,
+all three Qi wire forms, replacement replay and reorganization. See
+[the workflow](docs/BROWSER_CANDIDATE_RECOVERY.md). Browser replacement preparation,
+destination settlement and full Qi preparation remain in progress.

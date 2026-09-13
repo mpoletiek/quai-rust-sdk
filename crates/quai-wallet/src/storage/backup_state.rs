@@ -38,6 +38,7 @@ pub(crate) struct OperationState {
     pub qi: Vec<(OutPoint, Address)>,
     pub nonce: Option<(QuaiAddress, u64)>,
     pub payload: Option<Vec<u8>>,
+    pub replacements: Vec<QuaiReplacement>,
 }
 impl SqliteStore {
     pub(crate) fn capture_public_state(&mut self) -> Result<PublicWalletState> {
@@ -45,7 +46,7 @@ impl SqliteStore {
         validate_native_schema(&tx)?;
         // Bound aggregate signed bytes before loading any payload-bearing operation.
         let payload_bytes: i64 = tx.query_row(
-            "SELECT coalesce(sum(length(payload)),0) FROM signed_payloads",
+            "SELECT (SELECT coalesce(sum(length(payload)),0) FROM signed_payloads)+(SELECT coalesce(sum(length(payload)),0) FROM quai_replacements)",
             [],
             |r| r.get(0),
         )?;
@@ -302,6 +303,7 @@ impl SqliteStore {
                     signed_payload_read(&tx, &key, scope_state.scope, record.id)?
                         .ok_or(StorageError::Invalid)?;
                 }
+                replacements::insert_variants(&tx, &key, record.id, &operation.replacements)?;
             }
             clear_snapshot(&tx, &key, next)?;
             generations.push((scope_state.scope, next as u64));
@@ -364,17 +366,25 @@ fn read_operation(
         })
         .transpose()?;
     let payload = signed_payload_read(connection, key, scope, id)?;
+    let replacements = replacements::read_variants(connection, key, id)?;
+    if !replacements.is_empty() {
+        replacements::validate_family(
+            payload.as_deref().ok_or(StorageError::Invalid)?,
+            &replacements,
+        )?;
+    }
     Ok(Some(OperationState {
         record,
         kind,
         qi,
         nonce,
         payload,
+        replacements,
     }))
 }
 
 fn validate_native_schema(connection: &Connection) -> Result<()> {
-    validate_native_schema_version(connection, 2)
+    validate_native_schema_version(connection, 3)
 }
 pub(super) fn validate_native_schema_version(connection: &Connection, version: u8) -> Result<()> {
     // Refuse future tables/columns rather than silently omitting channel or other state.
@@ -438,6 +448,10 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
             &["scope", "tx_hash", "output_index", "operation", "address"],
         ),
         (
+            "quai_replacements",
+            &["scope", "operation", "sequence", "parent_hash", "payload"],
+        ),
+        (
             "reservations",
             &[
                 "scope",
@@ -455,13 +469,16 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
             &["scope", "operation", "kind", "payload"],
         ),
     ];
-    let mut statement=connection.prepare("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name LIMIT 12")?;
+    let mut statement=connection.prepare("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name LIMIT 13")?;
     let names: Vec<String> = statement
         .query_map([], |row| row.get(0))?
         .collect::<std::result::Result<_, _>>()?;
     let tables: Vec<_> = TABLES
         .iter()
-        .filter(|(name, _)| version == 2 || !name.starts_with("payment_"))
+        .filter(|(name, _)| {
+            (version >= 2 || !name.starts_with("payment_"))
+                && (version >= 3 || *name != "quai_replacements")
+        })
         .collect();
     if names != tables.iter().map(|(name, _)| *name).collect::<Vec<_>>() {
         return Err(StorageError::Schema);

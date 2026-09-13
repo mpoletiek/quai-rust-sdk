@@ -62,6 +62,7 @@ impl Transport for Mock {
             "quai_getHeaderByNumber" => {
                 json!({"woHeader":{"hash":GENESIS,"number":"0x0","location":"0x","parentHash":format!("0x{}","00".repeat(32))}})
             }
+            "quai_getTransactionByHash" | "quai_getTransactionReceipt" => Value::Null,
             "quai_getTransactionCount" => json!("0x4"),
             "quai_gasPrice" => json!("0x2"),
             "quai_estimateGas" => {
@@ -638,4 +639,91 @@ async fn explicit_confirmed_observations_pin_every_state_read_and_reject_head_ch
             }
         }
     }
+}
+
+#[tokio::test]
+async fn replacement_fee_review_preserves_nonce_and_all_signed_candidates_after_restart() {
+    use quai_sdk::accounts::{AccountObservationPolicy, ReplacementPolicy};
+    let (directory, mock, provider, signer, mut store) = setup();
+    mock.mode.store(5, Ordering::SeqCst);
+    let id = ReservationId([91; 16]);
+    let mut session = AccountSession::new(&provider, &signer, &mut store)
+        .unwrap()
+        .with_observation_policy(AccountObservationPolicy::PinnedLatest);
+    let initial = session.prepare(id, intent(), policy()).await.unwrap();
+    let root = session.sign(&initial).unwrap();
+    let bump = ReplacementPolicy {
+        minimum_price_bump_percent: 5,
+        fees: policy(),
+    };
+    let prepared = session
+        .prepare_replacement(id, root.hash().unwrap(), bump)
+        .await
+        .unwrap();
+    assert_eq!(prepared.transaction().gas_price, U256::from(3));
+    assert_eq!(prepared.transaction().nonce, root.transaction().nonce);
+    let mut expected = root.transaction().clone();
+    expected.gas_price = U256::from(3);
+    assert_eq!(prepared.transaction(), &expected);
+    let first = session.sign_replacement(&prepared).unwrap();
+    assert!(matches!(
+        session
+            .prepare_replacement(id, first.hash().unwrap(), bump)
+            .await,
+        Err(AccountError::FeeLimit)
+    ));
+    let bump = ReplacementPolicy {
+        fees: FeePolicy {
+            max_gas_price: U256::from(10),
+            max_total_fee: U256::from(300000),
+            ..policy()
+        },
+        ..bump
+    };
+    let prepared = session
+        .prepare_replacement(id, first.hash().unwrap(), bump)
+        .await
+        .unwrap();
+    let second = session.sign_replacement(&prepared).unwrap();
+    let observed = session.observe_candidates(id).await.unwrap();
+    assert_eq!(observed.candidates.len(), 3);
+    assert!(observed.canonical.is_none());
+    mock.mode.store(1, Ordering::SeqCst);
+    assert!(
+        matches!(session.broadcast_candidate(id,second.hash().unwrap()).await,Err(AccountError::Broadcast(error)) if error.acceptance_is_ambiguous())
+    );
+    let expected = vec![
+        root.hash().unwrap(),
+        first.hash().unwrap(),
+        second.hash().unwrap(),
+    ];
+    let mut reopened = SqliteStore::open(directory.0.join("wallet.sqlite"), store.scope()).unwrap();
+    assert!(reopened.release_unsigned(id).is_err());
+    assert_eq!(
+        reopened.signed_payload(id).unwrap().unwrap(),
+        root.signed_bytes().unwrap()
+    );
+    let mut recovered = AccountSession::new(&provider, &signer, &mut reopened).unwrap();
+    assert_eq!(
+        recovered
+            .signed_candidates(id)
+            .unwrap()
+            .iter()
+            .map(|s| s.hash().unwrap())
+            .collect::<Vec<_>>(),
+        expected
+    );
+    mock.mode.store(0, Ordering::SeqCst);
+    assert_eq!(
+        recovered
+            .broadcast_candidate(id, second.hash().unwrap())
+            .await
+            .unwrap()
+            .transaction_hash,
+        second.hash().unwrap()
+    );
+    assert_eq!(
+        reopened.reserved_nonce(id).unwrap().unwrap().1,
+        root.transaction().nonce
+    );
 }

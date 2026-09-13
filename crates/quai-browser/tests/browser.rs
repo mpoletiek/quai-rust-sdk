@@ -382,10 +382,11 @@ async fn indexeddb_snapshots_are_atomic_scoped_persistent_and_keep_tombstone_rev
         .await
         .unwrap();
     assert!(first.read().await.unwrap().is_none());
-    let (a, b) = futures_util::join!(
+    let (a, b) = futures_util::future::join(
         first.compare_exchange(None, Some(b"public-a")),
-        second.compare_exchange(None, Some(b"public-b"))
-    );
+        second.compare_exchange(None, Some(b"public-b")),
+    )
+    .await;
     assert_eq!(usize::from(a.is_ok()) + usize::from(b.is_ok()), 1);
     assert!(
         matches!(a, Err(BrowserError::StorageConflict))

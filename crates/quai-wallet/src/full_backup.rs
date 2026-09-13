@@ -495,6 +495,19 @@ impl WalletBackup {
                 {
                     return Err(WalletBackupError::InvalidInput);
                 }
+                if !operation.replacements.is_empty() {
+                    if operation.kind != 1 {
+                        return Err(WalletBackupError::InvalidInput);
+                    }
+                    crate::storage::replacements::validate_family(
+                        operation
+                            .payload
+                            .as_deref()
+                            .ok_or(WalletBackupError::InvalidInput)?,
+                        &operation.replacements,
+                    )
+                    .map_err(|_| WalletBackupError::InvalidInput)?;
+                }
                 let record = &operation.record;
                 let unsigned = matches!(
                     record.state,
@@ -672,6 +685,14 @@ impl WalletBackup {
                 let payload = operation.payload.as_deref().unwrap_or(&[]);
                 writer.u32(payload.len() as u32)?;
                 writer.put(payload)?;
+                if self.version() >= 4 {
+                    writer.u8(operation.replacements.len() as u8)?;
+                    for variant in &operation.replacements {
+                        writer.put(variant.parent.bytes())?;
+                        writer.u32(variant.payload.len() as u32)?;
+                        writer.put(&variant.payload)?;
+                    }
+                }
             }
         }
         self.encode_payments(&mut writer)?;
@@ -683,7 +704,7 @@ impl WalletBackup {
     }
     fn decode_version(plaintext: &[u8], version: u8) -> Result<Self> {
         let mut reader = Reader(plaintext, MAX_RECORDS);
-        if reader.u32()? != u32::from(version >= 2) || !(1..=3).contains(&version) {
+        if reader.u32()? != u32::from(version >= 2) || !(1..=4).contains(&version) {
             return Err(WalletBackupError::Unsupported);
         }
         let count = usize::from(reader.u16()?);
@@ -835,6 +856,24 @@ impl WalletBackup {
                 } else {
                     None
                 };
+                let mut replacements = Vec::new();
+                if version >= 4 {
+                    let count = reader.u8()? as usize;
+                    if count > 32 {
+                        return Err(WalletBackupError::InvalidInput);
+                    }
+                    for _ in 0..count {
+                        let parent = Hash32::from_bytes(reader.array()?);
+                        let length = reader.u32()? as usize;
+                        if length == 0 || length > MAX_TRANSACTION_BYTES {
+                            return Err(WalletBackupError::InvalidInput);
+                        }
+                        replacements.push(crate::storage::QuaiReplacement {
+                            parent,
+                            payload: reader.take(length)?.to_vec(),
+                        });
+                    }
+                }
                 scope.operations.push(OperationState {
                     record: Reservation {
                         id,
@@ -846,6 +885,7 @@ impl WalletBackup {
                     qi,
                     nonce,
                     payload,
+                    replacements,
                 });
             }
             scopes.push(scope);
@@ -920,7 +960,7 @@ fn header(bytes: &[u8]) -> Result<(BackupKdf, usize)> {
     if bytes.len() < HEADER + 16
         || bytes.len() > HEADER + MAX_PLAINTEXT + 16
         || &bytes[..8] != MAGIC
-        || !(1..=3).contains(&bytes[8])
+        || !(1..=4).contains(&bytes[8])
         || bytes[9..12] != [1, 1, 0]
     {
         return Err(WalletBackupError::UnlockFailed);

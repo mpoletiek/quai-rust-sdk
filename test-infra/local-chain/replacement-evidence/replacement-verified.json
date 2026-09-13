@@ -1,0 +1,7 @@
+{
+  "canonical": "0x0026005ebcddefb71ba2f25b85f0fb6f3a4b310d0dc70f65a74430cc3710616c",
+  "nonceClaimRetained": true,
+  "observations": "[(0x003c000fd6d885896aae23573b566408c1c99a4ed53fe534dd3b09fdab281536, NotObserved), (0x0026005ebcddefb71ba2f25b85f0fb6f3a4b310d0dc70f65a74430cc3710616c, Included { block: BlockReference { number: 7, hash: 0x0000129b3544220eb62e9ae4d671c4fd43d41b6f135e677897dc2185d254882c }, outcome: Succeeded, confirmations: 1 })]",
+  "qualification": "isolated documented development profile; public fixture funds",
+  "signedCandidates": 2
+}

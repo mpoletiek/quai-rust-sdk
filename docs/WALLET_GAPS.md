@@ -21,7 +21,7 @@ counts are not a defensible percentage of engineering or security completion.
 |---|---|---|
 | Addresses/amounts | Checksums, public-key address/recovery, exact decimals and contract prediction | Remaining byte/encoding/fixed-number utilities; higher-level deployment lifecycle |
 | Keys/identity | OS key entropy, ECDSA/Schnorr/ordered local aggregation, all BIP39 wordlists/passphrases, BIP32 | Broader browser/platform qualification and independent security review |
-| Quai wallets | Local/watch-only and HD signing, durable account/conversion sessions, master-xprv restore and unsigned nonce-gap repair | Signed replacement lifecycle and funded Orchard workflows |
+| Quai wallets | Local/watch-only and HD signing, durable account/conversion sessions, master-xprv restore and unsigned nonce-gap repair | Qi replacement lifecycle and funded Orchard workflows; account fee-replacement families are durable |
 | Quai transactions | Canonical protobuf, nonce claims, offline signing, exact stored broadcast, confirmation polling | Stateful replacement/drop/reorg reconciliation, ETX lifecycle, full supported extensions |
 | Qi wallets | HD/watch-only derivation, current gap-50 receive/change scan, deep ranges, imported/channel refresh, exact balance buckets and atomic exposure allocation | Fully historical recovery and ancestry replay; latest-only RPC limits remain explicit (FC01/03) |
 | Qi transactions | Mixed HD/imported/BIP47 signing, exact fee preparation, full denomination capacity, sweep/explicit aggregation, cross-zone Qi preparation and durable recovery | Qualified block placement for aggregation, trim profiles and funded unmodified/testnet acceptance (FC02/08) |

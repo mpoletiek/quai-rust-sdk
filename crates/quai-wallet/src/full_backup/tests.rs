@@ -827,3 +827,61 @@ fn imported_payment_account_origin_v3_roundtrips_and_cannot_be_downgraded() {
             .is_err()
     );
 }
+
+#[test]
+fn replacement_family_v4_roundtrips_without_discarding_candidates_or_nonce_claims() {
+    let db = Database::new();
+    let mut store = db.open();
+    populate(&mut store);
+    let owner = QuaiAddress::try_from(fixture_accounts()[1].address()).unwrap();
+    let nonce = store.reserve_nonce(id(90), owner, 7).unwrap();
+    let key = key_for(&fixture_accounts()[1]);
+    let mut tx = QuaiTransaction {
+        chain_id: scope().chain_id,
+        nonce,
+        to: Some(owner.address()),
+        value: U256::from(1),
+        gas_limit: 21000,
+        gas_price: U256::from(1),
+        data: vec![],
+        access_list: vec![],
+    };
+    let root = tx.sign(&key).unwrap();
+    store.commit_signed_quai(id(90), &root).unwrap();
+    tx.gas_price = U256::from(2);
+    let first = tx.sign(&key).unwrap();
+    store
+        .commit_quai_replacement(id(90), root.hash().unwrap(), &first)
+        .unwrap();
+    tx.gas_price = U256::from(3);
+    let second = tx.sign(&key).unwrap();
+    store
+        .commit_quai_replacement(id(90), first.hash().unwrap(), &second)
+        .unwrap();
+    let backup = WalletBackup::capture(&mut store, vec![seed_origin()]).unwrap();
+    assert_eq!(backup.version(), 4);
+    let bytes = backup.encode().unwrap();
+    assert!(WalletBackup::decode_version(&bytes, 3).is_err());
+    let restored = WalletBackup::decode_version(&bytes, 4).unwrap();
+    let target = Database::new();
+    let mut target = target.open();
+    restored.restore(&mut target).unwrap();
+    assert_eq!(
+        target.quai_replacements(id(90)).unwrap(),
+        store.quai_replacements(id(90)).unwrap()
+    );
+    assert_eq!(
+        target.signed_payload(id(90)).unwrap().unwrap(),
+        root.signed_bytes().unwrap()
+    );
+    assert!(target.release_unsigned(id(90)).is_err());
+    assert_eq!(target.reserved_nonce(id(90)).unwrap(), Some((owner, nonce)));
+    let encrypted = backup
+        .encrypt(b"public-fixture-password", BackupKdf::default())
+        .unwrap();
+    let unlocked = EncryptedWalletBackup::from_bytes(encrypted.as_bytes())
+        .unwrap()
+        .decrypt(b"public-fixture-password")
+        .unwrap();
+    assert_eq!(unlocked.version(), 4);
+}

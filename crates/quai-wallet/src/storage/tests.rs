@@ -943,3 +943,88 @@ fn allocation_skips_imported_metadata_and_invalidates_checkpoint_without_releasi
     );
     assert_eq!(store.release_unsigned(id(1)), Err(StorageError::Transition));
 }
+
+#[test]
+fn fee_replacement_graph_is_atomic_immutable_bounded_and_restartable() {
+    let db = Database::new();
+    let mut store = db.open();
+    populate(&mut store);
+    let owner = QuaiAddress::try_from(metadata()[1].address()).unwrap();
+    let nonce = store.reserve_nonce(id(90), owner, 5).unwrap();
+    let key = signing_key(1);
+    let root = account_transaction(nonce).sign(&key).unwrap();
+    store.commit_signed_quai(id(90), &root).unwrap();
+    let parent = root.hash().unwrap();
+    for field in 0..5 {
+        let mut wrong = root.transaction().clone();
+        wrong.gas_price = U256::from(2);
+        match field {
+            0 => wrong.nonce += 1,
+            1 => wrong.value += U256::from(1),
+            2 => wrong.gas_limit += 1,
+            3 => wrong.data.push(1),
+            _ => wrong.chain_id = U256::from(9),
+        };
+        assert!(
+            store
+                .commit_quai_replacement(id(90), parent, &wrong.sign(&key).unwrap())
+                .is_err()
+        );
+    }
+    let mut tx = root.transaction().clone();
+    tx.gas_price = U256::from(2);
+    let first = tx.sign(&key).unwrap();
+    store.connection.execute_batch("CREATE TRIGGER fail_variant BEFORE INSERT ON quai_replacements BEGIN SELECT RAISE(ABORT,'fixture'); END;").unwrap();
+    assert!(
+        store
+            .commit_quai_replacement(id(90), parent, &first)
+            .is_err()
+    );
+    assert!(store.quai_replacements(id(90)).unwrap().is_empty());
+    store
+        .connection
+        .execute_batch("DROP TRIGGER fail_variant")
+        .unwrap();
+    store
+        .commit_quai_replacement(id(90), parent, &first)
+        .unwrap();
+    store
+        .commit_quai_replacement(id(90), parent, &first)
+        .unwrap();
+    assert_eq!(store.quai_replacements(id(90)).unwrap().len(), 1);
+    tx.gas_price = U256::from(3);
+    let second = tx.sign(&key).unwrap();
+    assert!(
+        store
+            .commit_quai_replacement(id(90), Hash32::ZERO, &second)
+            .is_err()
+    );
+    store
+        .commit_quai_replacement(id(90), first.hash().unwrap(), &second)
+        .unwrap();
+    drop(store);
+    let mut store = db.open();
+    assert_eq!(store.quai_replacements(id(90)).unwrap().len(), 2);
+    assert_eq!(
+        store.signed_payload(id(90)).unwrap().unwrap(),
+        root.signed_bytes().unwrap()
+    );
+    assert!(store.release_unsigned(id(90)).is_err());
+    assert_eq!(store.reserved_nonce(id(90)).unwrap(), Some((owner, nonce)));
+    let mut parent = second.hash().unwrap();
+    for price in 4..=33 {
+        tx.gas_price = U256::from(price);
+        let next = tx.sign(&key).unwrap();
+        store
+            .commit_quai_replacement(id(90), parent, &next)
+            .unwrap();
+        parent = next.hash().unwrap();
+    }
+    tx.gas_price = U256::from(34);
+    assert!(
+        store
+            .commit_quai_replacement(id(90), parent, &tx.sign(&key).unwrap())
+            .is_err()
+    );
+    assert_eq!(store.quai_replacements(id(90)).unwrap().len(), 32);
+}

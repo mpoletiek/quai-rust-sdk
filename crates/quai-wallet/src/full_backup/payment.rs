@@ -127,6 +127,14 @@ impl WalletBackup {
         Ok((owners, owned))
     }
     pub(super) fn version(&self) -> u8 {
+        if self.state.scopes.iter().any(|scope| {
+            scope
+                .operations
+                .iter()
+                .any(|op| !op.replacements.is_empty())
+        }) {
+            return 4;
+        }
         if self
             .origins
             .iter()

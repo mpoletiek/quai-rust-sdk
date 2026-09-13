@@ -3,7 +3,7 @@ use quai_sdk::{
     BlockTag, Endpoint, HttpConfig, HttpTransport, Provider, QiAddress, QuaiAddress, Routing, U256,
     Zone,
     abi::AbiInterface,
-    accounts::{AccountIntent, AccountSession, AccountObservationPolicy, FeePolicy},
+    accounts::{AccountIntent, AccountSession, AccountObservationPolicy, FeePolicy, ReplacementPolicy},
     consensus::{
         Denomination, OutPoint, QiInput, QiOutput, QiTransaction, SignedQiTransaction,
         SignedQuaiTransaction,
@@ -434,6 +434,35 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 store.reservation(qi_id)?.unwrap().state,
                 ReservationState::Submitted
             );
+        }
+        "replacement-prepare" => {
+            let id=ReservationId([4;16]);
+            let mut store=SqliteStore::open(&account_path,scope())?;
+            let policy=FeePolicy{max_gas:1_000_000,max_gas_price:U256::from(10_000_000_000_000_000u64),max_total_fee:U256::from(10_000_000_000_000_000_000_000u128),gas_margin_bps:1000};
+            let mut session=AccountSession::new(&provider,&signer,&mut store)?.with_observation_policy(AccountObservationPolicy::PinnedLatest);
+            let prepared=session.prepare(id,AccountIntent{to:sender,value:U256::from(1),data:RpcData::new(vec![])?,access_list:vec![]},policy).await?;
+            let original=session.sign(&prepared)?;
+            let prepared=session.prepare_replacement(id,original.hash()?,ReplacementPolicy{minimum_price_bump_percent:5,fees:policy}).await?;
+            let replacement=session.sign_replacement(&prepared)?;
+            save("replacement-signed.json",json!({"original":original.hash()?.to_string(),"replacement":replacement.hash()?.to_string(),"nonce":replacement.transaction().nonce,"oldPrice":original.transaction().gas_price.to_string(),"newPrice":replacement.transaction().gas_price.to_string(),"signedBytes":RpcData::new(replacement.signed_bytes()?)?.to_hex()}))?;
+        }
+        "replacement-broadcast" => {
+            let record=read("replacement-signed.json")?;
+            let mut store=SqliteStore::open(&account_path,scope())?;
+            let mut session=AccountSession::new(&provider,&signer,&mut store)?;
+            for field in ["original","replacement"] {
+                let hash=record[field].as_str().ok_or("candidate hash")?.parse()?;
+                assert_eq!(session.broadcast_candidate(ReservationId([4;16]),hash).await?.transaction_hash,hash);
+            }
+        }
+        "verify-replacement" => {
+            let record=read("replacement-signed.json")?;
+            let mut store=SqliteStore::open(&account_path,scope())?;
+            let observation=AccountSession::new(&provider,&signer,&mut store)?.observe_candidates(ReservationId([4;16])).await?;
+            assert_eq!(observation.canonical,Some(record["replacement"].as_str().ok_or("candidate hash")?.parse()?));
+            assert_eq!(observation.candidates.len(),2);
+            assert!(store.release_unsigned(ReservationId([4;16])).is_err());
+            save("replacement-verified.json",json!({"canonical":observation.canonical.map(|h|h.to_string()),"observations":format!("{:?}",observation.candidates),"nonceClaimRetained":true,"signedCandidates":store.quai_replacements(ReservationId([4;16]))?.len()+1,"qualification":"isolated documented development profile; public fixture funds"}))?;
         }
         "verify" | "verify-qi" => {
             let mut records = vec![];

@@ -667,3 +667,8 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         Ok(self.provider.broadcast(&signed).await?)
     }
 }
+
+mod replacements;
+pub use replacements::{
+    AccountCandidateStatus, AccountFamilyObservation, PreparedAccountReplacement, ReplacementPolicy,
+};

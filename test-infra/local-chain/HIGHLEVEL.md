@@ -43,3 +43,14 @@ Qi payment. Evidence is in [confirmed-account-evidence](confirmed-account-eviden
 The original pending-RPC failure evidence remains unchanged. This run did not patch
 the pending RPC or qualify an unmodified mature node; it exercised an explicit SDK
 state policy on the existing documented development profile.
+
+## September 12: durable account replacement accepted
+
+The fee-replacement workflow was exercised on the same isolated development chain.
+The SDK persisted the original nonce-2 transaction and its 5% price bump, submitted
+both without mining between them, and then verified the replacement's canonical
+successful inclusion at block 7. `observe_candidates` checked both candidate hashes;
+the original signed payload, replacement edge and nonce claim remained in SQLite.
+[Replacement evidence](replacement-evidence/) includes exact public transaction
+bytes, RPC requests/responses and the final family observation. This qualifies the
+documented disposable development profile only.

@@ -1,0 +1,45 @@
+{
+  "scope": "Account fee replacements, SQLite schema v3, authenticated wallet backup v4; IndexedDB wasm test correction",
+  "validation": {
+    "workspace_all_features": {
+      "reported_passes": 287,
+      "reported_failures": 0,
+      "ignored": 4,
+      "exit_code": 0
+    },
+    "account_sessions": {
+      "reported_passes": 12,
+      "reported_failures": 0,
+      "ignored": 0,
+      "exit_code": 0
+    },
+    "backup_formats": {
+      "reported_passes": 12,
+      "reported_failures": 0,
+      "ignored": 0,
+      "exit_code": 0
+    },
+    "browser": {
+      "reported_passes": 11,
+      "reported_failures": 0,
+      "ignored": 0,
+      "exit_code": 0
+    },
+    "worker": {
+      "reported_passes": 5,
+      "reported_failures": 0,
+      "ignored": 0,
+      "exit_code": 0
+    },
+    "strict_clippy_native_and_wasm": "passed",
+    "rustdoc_warnings_denied": "passed"
+  },
+  "development_chain_replacement": {
+    "evidence": "test-infra/local-chain/replacement-evidence",
+    "height": 7,
+    "nonce": 2,
+    "price_bump_percent": 5,
+    "all_candidate_observation_passed": true,
+    "production_or_testnet_qualification": false
+  }
+}

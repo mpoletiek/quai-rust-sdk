@@ -77,3 +77,22 @@ This supports nodes whose pending-state RPC is unavailable. The default remains
 mempool changes and do not reserve balance. All modes retain durable nonce claims,
 exact payload review and signed-byte recovery. A head change after a nonce was
 reserved leaves that unsigned reservation available for explicit recovery.
+
+## Durable fee replacements
+
+`prepare_replacement(id, parent_hash, ReplacementPolicy)` reviews a higher gas
+price while preserving the exact sender, nonce, recipient, value, data, access list
+and gas limit. The policy selects the minimum percentage bump and maximum fees;
+pinned go-quai defaults to 5%, but operators can change that pool setting. The
+session checks the confirmed nonce, simulates the same payload and verifies its
+full maximum debit. `sign_replacement` commits the candidate before exposure.
+
+`broadcast_candidate(id, hash)` submits one exact persisted candidate once.
+`original` and replacement hashes all remain recoverable through
+`signed_candidates` and `observe_candidates`; up to 32 replacement edges share
+one permanent nonce claim. Observation checks every candidate and rejects two
+canonical members for one nonce. An unobserved candidate is never treated as
+safely dropped. SQLite schema v3 and authenticated wallet backup v4 preserve the
+whole graph; prior schemas/backups migrate or remain readable. This API implements
+fee-only speedups, including existing conversions/deployments, without silently
+changing the payment or cancelling it.

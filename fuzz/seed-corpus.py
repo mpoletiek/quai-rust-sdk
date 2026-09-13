@@ -32,6 +32,7 @@ for row in load('compatibility/fixtures/encoding.json')['bytes']:
  for field in ['base64']:
   put('encoding',row[field].encode())
 for row in load('compatibility/fixtures/encoding.json')['strings']:put('encoding',row['input'].encode())
+for row in load('compatibility/fixtures/artifacts.json')['vectors']:put('abi',json.dumps(row['output']).encode())
 for row in load('compatibility/fixtures/typed-values.json')['vectors']:put('abi',row['type'].encode())
 for row in load('compatibility/fixtures/fixed.json')['parse']:put('fixed',row['input'].encode())
 for scale in [0,6,18,80]:

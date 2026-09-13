@@ -1,0 +1,21 @@
+{
+  "recordedAt": "2026-09-13T02:34:02.787540+00:00",
+  "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+  "fuzzLockSha256": "b8d0f59a3d43ef103fbbe31e7d35db68f0a811de02b094bc3d803cb025fd775c",
+  "sdkLockSha256": "c6e3777daa1bbc8c9990aeacf570ed0bbc3bc19a3e6d46461230322cd47c30a4",
+  "targets": [
+    {
+      "name": "abi",
+      "binarySha256": "f56502e3159ff131a358e6e793963fc04c31fe3545cf0af3d710642f80a2327c",
+      "seconds": 300,
+      "exitCode": 0,
+      "addressSanitizer": true,
+      "initialCorpusFiles": 211,
+      "finalCorpusFiles": 2249,
+      "executions": 2034432,
+      "coverageCounters": 5406,
+      "features": 20314,
+      "rssMiB": 514
+    }
+  ]
+}

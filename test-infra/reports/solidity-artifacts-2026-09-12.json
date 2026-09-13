@@ -1,0 +1,26 @@
+{
+  "recordedAt": "2026-09-13T02:39:59.989436+00:00",
+  "scope": "Bounded Solidity artifact import and exact pre-grinding constructor data; explicit full-compiler-output selection",
+  "abi_tests": 25,
+  "pinned_factory_vectors": 12,
+  "strict_native_and_wasm_clippy": "passed",
+  "rustdoc_warnings_denied": "passed",
+  "chromium_browser_tests": 11,
+  "reference_script_tests": "passed",
+  "offline_example": {
+    "attempts": 302,
+    "contract": "0x004C1e917c53fFE0bA85bA0Be73E03047ed455B6",
+    "init_data_bytes": 26,
+    "salt": 301,
+    "signed": false,
+    "submitted": false
+  },
+  "fuzz_report": "artifact-fuzz-2026-09-12.json",
+  "limitations": [
+    "Single-contract imports require nonempty creation bytecode; full output selection is explicit.",
+    "ABI/code correspondence, library linking and runtime/immutable fixups are not inferred.",
+    "Document and payload limits deliberately differ from permissive JavaScript parsing.",
+    "No new node transaction was signed or submitted."
+  ],
+  "releaseQualified": false
+}

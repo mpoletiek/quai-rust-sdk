@@ -1,0 +1,1 @@
+{"abi": [{"type": "constructor", "inputs": [{"name": "count", "type": "uint8"}, {"name": "note", "type": "bytes"}], "stateMutability": "nonpayable"}], "bytecode": "00006000"}

@@ -13,7 +13,7 @@ Targets:
   transaction identity. Signature verification stays enabled.
 - `abi`: bounded type/interface/typed-data parsing, RPC-document hash stability,
   and exact canonical ABI re-encoding for selected static/dynamic/nested types,
-  plus bounded type-correct defaults.
+  plus bounded type-correct defaults and Solidity artifact imports.
 - `wallet_import`: legacy keystore parsing/resource bounds, public payment-code
   roundtrips, extended-key/mnemonic and public-key/signature import boundaries.
   It deliberately does not execute attacker-selected expensive KDF parameters.
@@ -77,3 +77,7 @@ replacing the earlier smoke evidence. CI builds and runs all five targets.
 The subsequent typed-value/default extension completed another 300-second ABI
 run with **2,485,442 executions**, exit 0 and AddressSanitizer active. Its separate
 `typed-abi-fuzz-2026-09-12.json` report binds the updated target and public corpus.
+
+Artifact import coverage was subsequently added to the ABI target. Its separate
+300-second run completed **2,034,432 executions** with exit 0; see
+`artifact-fuzz-2026-09-12.json` for binary and lock identities.

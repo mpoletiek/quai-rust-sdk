@@ -271,3 +271,26 @@ assert_eq!(value.abi_type().integer_bounds(), Some(("0".into(), "65535".into()))
 assert!(AbiValue::new("uint16".parse()?, json!("65536")).is_err());
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
+
+## Solidity artifacts
+
+`SolidityArtifact::from_json` loads one contract entry containing `abi` and
+creation `bytecode` or `evm.bytecode`. Bytecode accepts the standard hex string
+or `{object: ...}` form with an optional lowercase `0x` prefix. Exact bytes,
+including leading zeros and compiler metadata, are retained. `from_compilation_json`
+selects an exact source and contract name from a full compiler output; it never
+chooses a contract heuristically or reads a source path from disk.
+
+The document uses the existing 1 MiB, depth/node-bounded, duplicate-rejecting
+parser, including ignored metadata. Missing/empty creation code, unresolved
+link placeholders and conflicting top-level/nested bytecode are rejected. Matching
+bytecode at both locations is accepted. ABI and code are not authenticated against
+one another, and runtime/immutable/library fixups are not inferred or applied.
+`init_data` validates and appends constructor arguments before Quai grinding.
+Native value/payability, sender, nonce, fees and network checks remain in the
+SDK deployment preparation phase. `interface`, `init_code` and `into_parts`
+connect to that phase directly. Debug reports only creation byte count.
+
+Twelve reference factory cases compare exact pre-grinding constructor payloads.
+Tests also cover explicit compiler-output selection, duplicate nested/ignored
+fields, missing contracts, resource limits, malformed hex and argument arity.

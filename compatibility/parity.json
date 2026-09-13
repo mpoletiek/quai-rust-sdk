@@ -5670,12 +5670,20 @@
         "(target: string | Addressable): BaseContract & Omit<I, keyof BaseContract>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::contracts::Contract::new"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit typed Quai address, validated interface and borrowed provider replace dynamic Addressable/runner binding; attaching does not prove code exists."
     },
     {
       "id": ".:ContractFactory:instance:bytecode",
@@ -5684,12 +5692,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::SolidityArtifact::init_code"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Exact creation byte slice, including leading zeros; no string coercions."
     },
     {
       "id": ".:ContractFactory:instance:connect",
@@ -5700,12 +5716,20 @@
         "(runner: null | ContractRunner): ContractFactory<A, I>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::contracts::Contract::new"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Provider binding is explicit when constructing Contract or account sessions; artifacts contain ABI/code and no mutable runner."
     },
     {
       "id": ".:ContractFactory:instance:deploy",
@@ -5786,12 +5810,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::SolidityArtifact::interface"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Borrowed validated JSON ABI; human-readable ABI declarations remain outside Solidity artifact import."
     },
     {
       "id": ".:ContractFactory:instance:IPFSHash",
@@ -5818,12 +5850,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::contracts::Contract::new"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "No runner is hidden in an artifact; provider and signer are explicit workflow dependencies."
     },
     {
       "id": ".:ContractFactory:instance:setIPFSHash",
@@ -5854,12 +5894,20 @@
         "<A extends any[] = any[], I = ContractInterface>(output: any, runner?: ContractRunner): ContractFactory<A, I>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::SolidityArtifact::from_json"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Bounded single-contract artifact import supports bytecode string/object and evm.bytecode. Duplicate keys, missing/empty code, unresolved links and conflicting code fields are rejected; full compilation output uses an explicit source/contract selector."
     },
     {
       "id": ".:ContractFactory:static:getContractAddress",
@@ -40983,12 +41031,20 @@
         "(target: string | Addressable): BaseContract & Omit<I, keyof BaseContract>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::contracts::Contract::new"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Explicit typed Quai address, validated interface and borrowed provider replace dynamic Addressable/runner binding; attaching does not prove code exists."
     },
     {
       "id": "./contract:ContractFactory:instance:bytecode",
@@ -40997,12 +41053,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::SolidityArtifact::init_code"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Exact creation byte slice, including leading zeros; no string coercions."
     },
     {
       "id": "./contract:ContractFactory:instance:connect",
@@ -41013,12 +41077,20 @@
         "(runner: null | ContractRunner): ContractFactory<A, I>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::contracts::Contract::new"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Provider binding is explicit when constructing Contract or account sessions; artifacts contain ABI/code and no mutable runner."
     },
     {
       "id": "./contract:ContractFactory:instance:deploy",
@@ -41099,12 +41171,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::SolidityArtifact::interface"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Borrowed validated JSON ABI; human-readable ABI declarations remain outside Solidity artifact import."
     },
     {
       "id": "./contract:ContractFactory:instance:IPFSHash",
@@ -41131,12 +41211,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_sdk::contracts::Contract::new"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "No runner is hidden in an artifact; provider and signer are explicit workflow dependencies."
     },
     {
       "id": "./contract:ContractFactory:instance:setIPFSHash",
@@ -41167,12 +41255,20 @@
         "<A extends any[] = any[], I = ContractInterface>(output: any, runner?: ContractRunner): ContractFactory<A, I>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_abi::SolidityArtifact::from_json"
+      ],
+      "feature": "contracts",
+      "status": "deviation",
+      "test_ids": [
+        "crates/quai-abi/tests/artifacts.rs",
+        "crates/quai-sdk/tests/contracts.rs"
+      ],
+      "docs": [
+        "crates/quai-abi/README.md",
+        "docs/WALLET_WORKFLOWS.md"
+      ],
+      "deviation": "Bounded single-contract artifact import supports bytecode string/object and evm.bytecode. Duplicate keys, missing/empty code, unresolved links and conflicting code fields are rejected; full compilation output uses an explicit source/contract selector."
     },
     {
       "id": "./contract:ContractFactory:static:getContractAddress",

@@ -314,3 +314,18 @@ that unused metadata guard. Exact init code, constructor arguments, grinding,
 access list and fee authorization remain explicit and are tested against the
 node. Solidity artifact import and broader factory conveniences are tracked
 separately in the declaration inventory.
+
+Load compiler output with `abi::SolidityArtifact::from_json`, or select one
+contract explicitly with `from_compilation_json`. Pass `artifact.interface()`
+and `artifact.init_code()` with constructor arguments to `prepare_deployment`;
+this preserves the existing reserved-nonce, exact-code, grinding and fee checks.
+The offline example uses a public fixture sender/nonce, prints the prepared
+address and sizes, and does not sign or submit:
+
+```sh
+cargo run -p quai-sdk --features abi --example artifact_deployment -- contract.json '[]'
+```
+
+Use a single-contract artifact for this example. Constructor arguments are a JSON
+array and must match the artifact's ABI. It does not compile Solidity, resolve
+libraries or infer runtime code for deployment verification.

@@ -211,3 +211,13 @@ locked, missing or reorganized execution remain explicit. The existing public
 fixture deployment at block 6 passed the SDK observer and database reopen checks
 on the isolated development node, with two sampled confirmations and no new
 submission. Funded Orchard/unmodified-node qualification remains separate.
+
+
+Solidity artifact import now accepts standard creation-bytecode string/object
+and `evm.bytecode` forms, plus explicit source/contract selection from full
+compiler output. It validates the ABI and constructor payload, preserves exact
+leading-zero code and rejects duplicate keys, unresolved placeholders and
+conflicting/empty code. Twelve factory cases and the offline deployment example
+pass; the new artifact parser path completed 2,034,432 sanitizer fuzz executions
+without failure. Library linking and runtime/immutable fixups remain explicit
+application work, as in the pinned factory's bytecode requirements.

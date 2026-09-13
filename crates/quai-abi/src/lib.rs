@@ -3,6 +3,8 @@
 //! Validated against pinned quais.js with explicit stricter input policies.
 //! Signing, contract execution and provider network policy belong to other crates.
 mod abi_type;
+mod artifact;
+pub use artifact::SolidityArtifact;
 mod typed_value;
 pub use typed_value::AbiValue;
 mod codec;

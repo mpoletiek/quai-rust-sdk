@@ -27,6 +27,16 @@ The response parsers preserve top-level unknown fields in `Extensions`, whose de
 
 Broadcast and confirmation regressions use only mock transports. **No real transaction was submitted during this increment**, including to mainnet. Funded disposable-testnet acceptance remains a separate gate.
 
+## Grouped current outpoint reads
+
+`outpoints_many` accepts up to 1024 distinct Qi addresses. It groups by zone and
+uses explicit batches of up to 32 addresses when the transport supports them,
+with chain-ID checks included in each batch. Unsupported transports use at most
+four concurrent individual reads. Failed batches are not replayed automatically.
+The total result remains capped at 100,000 outpoints. Each response is a
+latest-state observation; batching does not establish an atomic or historical
+snapshot. Native SDK wallet refresh retains its surrounding head checks.
+
 ## Evidence and tests
 
 The pinned candidate protocol reference is [go-quai f3f345c877300c044e3e0081a48bf3cf786fb9cc](https://github.com/dominant-strategies/go-quai/tree/f3f345c877300c044e3e0081a48bf3cf786fb9cc). Method/field review used:

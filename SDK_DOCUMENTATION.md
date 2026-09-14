@@ -171,6 +171,20 @@ payloads. A successful chain check does not authenticate a malicious node or mak
 multiple RPC reads atomic. Raw method access does not imply a typed, qualified
 SDK workflow for that method.
 
+`HttpTransport::batch(endpoint, requests)` submits an explicit batch of up to 128
+calls and 2 MiB of encoded request data. Results retain input order; each entry
+can contain a remote error. Duplicate, missing, foreign or malformed response IDs
+reject the entire batch. The configured response-size and total-time limits apply
+to the batch. No failed batch is retried. `Transport::request_batch` advertises
+this optional capability; `None` means no requests were sent.
+
+`Provider::outpoints_many` groups each zone into pages of at most 32 addresses,
+including chain-ID checks in each supported batch. Other transports use at most
+four concurrent individual reads. Native `refresh_qi` uses eight-address pages
+and retains its before/after head guard. This reduces HTTP overhead and public
+gateway rate-limit pressure while preserving rejection of a moving view; it
+does not make latest-only outpoint reads historical or atomic.
+
 Subscriptions expose lag and disconnect. Native head-following can reconnect and
 replay bounded canonical headers; replay/invalidation must be applied before
 assuming continuity. Browser sockets require explicit reconnect and history
@@ -999,10 +1013,17 @@ tests. Packaging checks archives and fresh extracted consumers without publishin
 
 Linux/macOS/Windows CI and Chromium worker evidence exist. Public mainnet reads
 and patched isolated-chain transaction execution are separate evidence classes.
-Funded Orchard/unmodified-node acceptance, mature WQI unlock spending,
-aggregation placement, broader reorg/fault/soak/performance tests, additional
+Funded Orchard evidence includes QUAI transfers, Quai-to-Qi creation/unlocking and
+converted-output spending, WQUAI deposit/withdraw, and WQI backing/claim/redemption
+followed by a mature redeemed-output spend. The [funded qualification report](test-infra/orchard/README.md)
+records exact transactions, fee profiles and limitations. The [payment-code round trip](test-infra/orchard/payment-codes-2026-09-14.json)
+exercised local send, receiver-key recovery, return spending and discovery.
+The failed preparations' burned send ranges required explicit receive-scan
+continuation beyond the first empty gap; this remains distinct from Pelagus testing.
+Broader unmodified-node acceptance, aggregation placement, reorg/fault/soak/performance tests, additional
 browser engines/extensions and independent specialist security review remain
 qualification work. No mainnet transaction was submitted during this review.
+Cross-zone qualification is deferred while only Cyprus-1 is available.
 
 
 ### Reference selection review and publishing

@@ -2,6 +2,13 @@
 
 Explicit shard routing and bounded native HTTP and WebSocket JSON-RPC transports. This crate is an unpublished alpha; live checks establish the narrow compatibility described below.
 
+`HttpTransport::batch` submits 1–128 explicit JSON-RPC calls in one HTTP request,
+with a 2 MiB encoded request cap and the configured response/deadline/concurrency
+limits. Results retain input order, including individual remote errors. Missing,
+duplicate, foreign and malformed response IDs reject the whole batch. No retry
+or sequential fallback occurs after a batch failure. `Transport::request_batch`
+returns `None` without I/O for transports that do not implement this capability.
+
 Enable `ws` for `WsTransport`, `WsConfig`, `WsSubscriptionKind`, and `WsSubscription`. The feature uses native Tokio and rustls with WebPKI roots, and does not enable wallet functionality. Browser WebSocket support is not implemented.
 
 ```rust,ignore

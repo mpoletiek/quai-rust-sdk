@@ -1,5 +1,6 @@
 //! Typed wallet queries for the pinned node, with explicit observation limits.
 use crate::{AddressOutpoint, BlockTag, Provider, ProviderError, quantity, types};
+use futures_util::{StreamExt, stream};
 use quai_primitives::{Address, Hash32, QiAddress, QuaiAddress, Zone};
 use quai_rpc::{Transport, U256};
 use serde_json::{Value, json};
@@ -187,6 +188,8 @@ impl<T: Transport> Provider<T> {
     }
     /// Bounded group of latest-only address queries. Each response is a separate
     /// observation; this convenience method never claims an atomic snapshot.
+    /// Uses explicit HTTP batches where supported, with chain checks in each batch.
+    /// Otherwise at most four requests are in flight per zone. No failed batch is replayed.
     pub async fn outpoints_many(
         &self,
         addresses: &[QiAddress],
@@ -200,15 +203,70 @@ impl<T: Transport> Provider<T> {
         }
         let mut result = BTreeMap::new();
         let mut count = 0usize;
-        for address in addresses {
-            let outputs = self.outpoints(*address).await?;
-            count = count
-                .checked_add(outputs.len())
-                .ok_or(ProviderError::InvalidResult("output bound"))?;
-            if count > 100_000 {
-                return Err(ProviderError::InvalidResult("output bound"));
+        let zones: BTreeSet<_> = addresses.iter().map(|a| a.zone()).collect();
+        for zone in zones {
+            let scoped: Vec<_> = addresses
+                .iter()
+                .copied()
+                .filter(|a| a.zone() == zone)
+                .collect();
+            for page in scoped.chunks(32) {
+                let mut requests = vec![("quai_chainId", json!([]))];
+                requests.extend(
+                    page.iter().map(|address| {
+                        ("quai_getOutpointsByAddress", json!([address.to_string()]))
+                    }),
+                );
+                requests.push(("quai_chainId", json!([])));
+                let outputs = if let Some(batch) = self
+                    .transport
+                    .request_batch(self.routing.endpoint(zone.into())?, requests)
+                    .await
+                {
+                    let mut responses = batch?;
+                    if responses.len() != page.len() + 2 {
+                        return Err(ProviderError::InvalidResult("batch response count"));
+                    }
+                    for observed in [responses.pop().expect("checked count"), responses.remove(0)] {
+                        let actual = quantity(observed?)?;
+                        if actual != self.expected_chain_id {
+                            return Err(ProviderError::ChainMismatch {
+                                expected: self.expected_chain_id,
+                                actual,
+                            });
+                        }
+                    }
+                    page.iter()
+                        .copied()
+                        .zip(responses)
+                        .map(|(address, response)| {
+                            Ok((address, types::parse_outpoints(response?)?))
+                        })
+                        .collect::<Result<Vec<_>, ProviderError>>()?
+                } else {
+                    let mut pending =
+                        stream::iter(page.iter().copied().map(|address| async move {
+                            self.outpoints(address)
+                                .await
+                                .map(|outputs| (address, outputs))
+                        }))
+                        .buffered(4);
+                    let mut outputs = Vec::new();
+                    while let Some(response) = pending.next().await {
+                        outputs.push(response?);
+                    }
+                    outputs
+                };
+                for (address, outputs) in outputs {
+                    count = count
+                        .checked_add(outputs.len())
+                        .ok_or(ProviderError::InvalidResult("output bound"))?;
+                    if count > 100_000 {
+                        return Err(ProviderError::InvalidResult("output bound"));
+                    }
+                    result.insert(address, outputs);
+                }
             }
-            result.insert(*address, outputs);
         }
         Ok(result)
     }

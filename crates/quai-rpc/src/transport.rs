@@ -80,6 +80,27 @@ pub enum RpcError {
 /// whether a state-changing request was accepted by a remote node.
 #[allow(async_fn_in_trait)]
 pub trait Transport {
+    /// Optional explicit batch capability, bounded by the concrete transport.
+    /// `None` means unsupported and guarantees that no requests were sent.
+    /// An outer error leaves acceptance unknown; callers must not silently replay.
+    /// Per-request remote errors retain their input positions.
+    #[cfg(not(target_arch = "wasm32"))]
+    fn request_batch(
+        &self,
+        _endpoint: &Endpoint,
+        _requests: Vec<(&str, Value)>,
+    ) -> impl std::future::Future<Output = Option<BatchResult>> + Send {
+        async { None }
+    }
+    /// Optional browser-compatible batch capability; no requests on `None`.
+    #[cfg(target_arch = "wasm32")]
+    async fn request_batch(
+        &self,
+        _endpoint: &Endpoint,
+        _requests: Vec<(&str, Value)>,
+    ) -> Option<BatchResult> {
+        None
+    }
     /// Send a request to this explicit endpoint. Params must be an array or object.
     /// Native futures are `Send`; browser transports may use thread-local browser APIs.
     #[cfg(not(target_arch = "wasm32"))]
@@ -98,6 +119,9 @@ pub trait Transport {
         params: Value,
     ) -> Result<Value, RpcError>;
 }
+
+/// Entire batch transport/envelope result, containing ordered per-request results.
+pub type BatchResult = Result<Vec<Result<Value, RpcError>>, RpcError>;
 
 #[cfg(all(any(feature = "http", feature = "ws"), not(target_arch = "wasm32")))]
 pub(crate) fn decode_response(bytes: &[u8], expected_id: u64) -> Result<Value, RpcError> {

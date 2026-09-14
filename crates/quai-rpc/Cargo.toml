@@ -22,7 +22,7 @@ ws = ["dep:tokio-tungstenite", "dep:futures-util", "dep:tokio", "tokio/rt", "tok
 quai-primitives.workspace = true
 ruint.workspace = true
 serde.workspace = true
-serde_json = { workspace = true, features = ["float_roundtrip"] }
+serde_json = { workspace = true, features = ["float_roundtrip", "raw_value"] }
 url.workspace = true
 thiserror.workspace = true
 

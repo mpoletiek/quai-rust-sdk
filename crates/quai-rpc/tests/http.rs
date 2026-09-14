@@ -77,6 +77,80 @@ fn transport() -> HttpTransport {
 }
 
 #[tokio::test]
+async fn explicit_batch_uses_one_post_and_preserves_reordered_remote_errors() {
+    let (endpoint, rx, task) =
+        server(|req| {
+            assert_eq!(req.as_array().unwrap().len(), 2);
+            response(&json!([
+            {"jsonrpc":"2.0","id":req[1]["id"],"error":{"code":-32000,"message":"unavailable"}},
+            {"jsonrpc":"2.0","id":req[0]["id"],"result":"0x3a98"}
+        ]).to_string())
+        })
+        .await;
+    let rows = transport()
+        .batch(
+            &endpoint,
+            vec![("quai_chainId", json!([])), ("quai_blockNumber", json!([]))],
+        )
+        .await
+        .unwrap();
+    assert_eq!(rows[0].as_ref().unwrap(), "0x3a98");
+    assert!(matches!(&rows[1], Err(RpcError::Remote(_))));
+    let (_, sent) = rx.await.unwrap();
+    assert_ne!(sent[0]["id"], sent[1]["id"]);
+    task.await.unwrap();
+}
+
+#[tokio::test]
+async fn batch_bounds_and_http_failures_do_not_fall_back_or_retry() {
+    let offline = Endpoint::parse("http://127.0.0.1:1").unwrap();
+    let client = transport();
+    assert!(matches!(
+        client
+            .batch(&offline, vec![("x", json!(["x".repeat(2 * 1024 * 1024)]))])
+            .await,
+        Err(RpcError::RequestTooLarge)
+    ));
+    for requests in [
+        vec![],
+        vec![("x", json!([])); 129],
+        vec![("", json!([]))],
+        vec![("x", json!(null))],
+    ] {
+        assert!(matches!(
+            client.batch(&offline, requests).await,
+            Err(RpcError::InvalidConfig)
+        ));
+    }
+    let (endpoint, rx, task) = server(|_| {
+        "HTTP/1.1 429 Too Many Requests\r\nContent-Length: 0\r\nConnection: close\r\n\r\n".into()
+    })
+    .await;
+    assert!(matches!(
+        client
+            .batch(&endpoint, vec![("quai_chainId", json!([]))])
+            .await,
+        Err(RpcError::HttpStatus(429))
+    ));
+    rx.await.unwrap();
+    task.await.unwrap();
+    let (endpoint, rx, task) = server(|_| response(&" ".repeat(4096))).await;
+    let client = HttpTransport::new(HttpConfig {
+        max_response_bytes: 1024,
+        ..Default::default()
+    })
+    .unwrap();
+    assert!(matches!(
+        client
+            .batch(&endpoint, vec![("quai_chainId", json!([]))])
+            .await,
+        Err(RpcError::ResponseTooLarge)
+    ));
+    rx.await.unwrap();
+    task.await.unwrap();
+}
+
+#[tokio::test]
 async fn sends_exact_direct_path_and_correlates_envelope() {
     let (endpoint, rx, task) = server(|req| {
         response(&json!({"jsonrpc":"2.0","id":req["id"],"result":"0x3a98"}).to_string())

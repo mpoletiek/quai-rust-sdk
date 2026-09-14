@@ -16,7 +16,126 @@ const ADDRESS: &str = "0x0000000000000000000000000000000000000000";
 const QI: &str = "0x0080000000000000000000000000000000000000";
 const HASH: &str = "0x00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
 
+#[tokio::test]
+async fn grouped_outpoints_bound_concurrency_and_drop_pending_reads_on_failure() {
+    use std::sync::atomic::{AtomicUsize, Ordering::SeqCst};
+    #[derive(Clone, Default)]
+    struct Delayed {
+        active: Arc<AtomicUsize>,
+        peak: Arc<AtomicUsize>,
+        started: Arc<AtomicUsize>,
+        fail: bool,
+    }
+    struct Active(Arc<AtomicUsize>);
+    impl Drop for Active {
+        fn drop(&mut self) {
+            self.0.fetch_sub(1, SeqCst);
+        }
+    }
+    impl Transport for Delayed {
+        async fn request(&self, _: &Endpoint, method: &str, _: Value) -> Result<Value, RpcError> {
+            if method == "quai_chainId" {
+                return Ok(json!("0x9"));
+            }
+            assert_eq!(method, "quai_getOutpointsByAddress");
+            let order = self.started.fetch_add(1, SeqCst);
+            let active = self.active.fetch_add(1, SeqCst) + 1;
+            self.peak.fetch_max(active, SeqCst);
+            let _active = Active(self.active.clone());
+            tokio::task::yield_now().await;
+            if self.fail && order == 0 {
+                return Err(RpcError::Timeout);
+            }
+            Ok(json!([]))
+        }
+    }
+    let addresses: Vec<QiAddress> = (0..9)
+        .map(|n| {
+            format!("0x00800000000000000000000000000000000000{n:02x}")
+                .parse()
+                .unwrap()
+        })
+        .collect();
+    for fail in [false, true] {
+        let transport = Delayed {
+            fail,
+            ..Default::default()
+        };
+        let provider = Provider::new(
+            transport.clone(),
+            Routing::direct(URL, Zone::Cyprus1.into()).unwrap(),
+            U256::from(9),
+        );
+        let result = provider.outpoints_many(&addresses).await;
+        assert_eq!(transport.peak.load(SeqCst), 4);
+        assert_eq!(transport.active.load(SeqCst), 0);
+        if fail {
+            assert!(matches!(
+                result,
+                Err(quai_provider::ProviderError::Rpc(RpcError::Timeout))
+            ));
+            assert_eq!(transport.started.load(SeqCst), 4);
+        } else {
+            let result = result.unwrap();
+            assert_eq!(result.len(), addresses.len());
+            assert!(addresses.iter().all(|a| result[a].is_empty()));
+            assert_eq!(transport.started.load(SeqCst), 9);
+        }
+    }
+}
+
 type ExpectedRead = (String, Value, Result<Value, RpcError>);
+
+#[tokio::test]
+async fn grouped_outpoints_use_batches_and_reject_chain_changes_without_replay() {
+    #[derive(Clone)]
+    struct Batch {
+        wrong_chain: bool,
+    }
+    impl Transport for Batch {
+        async fn request(&self, _: &Endpoint, _: &str, _: Value) -> Result<Value, RpcError> {
+            panic!("batch must not fall back to individual RPC")
+        }
+        async fn request_batch(
+            &self,
+            _: &Endpoint,
+            requests: Vec<(&str, Value)>,
+        ) -> Option<quai_rpc::BatchResult> {
+            assert_eq!(requests.len(), 4);
+            assert_eq!(requests[0].0, "quai_chainId");
+            assert_eq!(requests[1].0, "quai_getOutpointsByAddress");
+            assert_eq!(requests[3].0, "quai_chainId");
+            Some(Ok(vec![
+                Ok(json!("0x9")),
+                Ok(json!([])),
+                Ok(json!([])),
+                Ok(json!(if self.wrong_chain { "0xa" } else { "0x9" })),
+            ]))
+        }
+    }
+    let addresses = [
+        QI.parse().unwrap(),
+        "0x0080000000000000000000000000000000000001"
+            .parse()
+            .unwrap(),
+    ];
+    for wrong_chain in [false, true] {
+        let provider = Provider::new(
+            Batch { wrong_chain },
+            Routing::direct(URL, Zone::Cyprus1.into()).unwrap(),
+            U256::from(9),
+        );
+        let result = provider.outpoints_many(&addresses).await;
+        if wrong_chain {
+            assert!(matches!(
+                result,
+                Err(quai_provider::ProviderError::ChainMismatch { .. })
+            ));
+        } else {
+            assert_eq!(result.unwrap().len(), 2);
+        }
+    }
+}
 #[derive(Clone, Default)]
 struct Mock(Arc<Mutex<VecDeque<ExpectedRead>>>);
 impl Mock {

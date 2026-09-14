@@ -1,0 +1,804 @@
+{
+  "recordedAt": "2026-09-14T15:26:12.807448+00:00",
+  "network": "orchard",
+  "chainId": 15000,
+  "endpoint": "https://orchard.rpc.quai.network/cyprus1",
+  "baseCommit": "5f165c57b146ae0883a30c0c21d66e80e03d897f",
+  "reference": {
+    "reference": "quais@1.0.0-alpha.57",
+    "paymentCodesMatchRust": true,
+    "directions": [
+      {
+        "sender": "PM8TJXaAyZxcLGB8i7iR6YzeREFgPRnPWQsUAiVUQQBECho2YpbiXyxxSoevZxdCdxtHiw9KnwnxPDcDJhSgWPmmppdtkX3RXcBmChYCfNFnM5NKJHva",
+        "receiver": "PM8TJRU4yfWhqSDMxdRQAtreTPuQ8q45iKfX6ex5biJef5BBECmesUNKEiEpNJFXcHVDBZ4fu4KCtyYoCFKdSSxsGey4YjThNZCkXusgYMBLuxcK6pP1",
+        "address": "0x00fD9D7B612B3E23c90A0ab6D9206afC34795f7D",
+        "publicKey": "0x03ac8e589329b7dadf31b0220bf9d4f0effa0bda85c0e694705311dc103aa06494",
+        "index": 36
+      },
+      {
+        "sender": "PM8TJRU4yfWhqSDMxdRQAtreTPuQ8q45iKfX6ex5biJef5BBECmesUNKEiEpNJFXcHVDBZ4fu4KCtyYoCFKdSSxsGey4YjThNZCkXusgYMBLuxcK6pP1",
+        "receiver": "PM8TJXaAyZxcLGB8i7iR6YzeREFgPRnPWQsUAiVUQQBECho2YpbiXyxxSoevZxdCdxtHiw9KnwnxPDcDJhSgWPmmppdtkX3RXcBmChYCfNFnM5NKJHva",
+        "address": "0x00Fc22e143942F9FC9D8Ff8fEbc9E4F646057974",
+        "publicKey": "0x033601d1b3ee13335fcccb626b839df70525ce0dc6335d08a29f6a95898932c118",
+        "index": 266
+      }
+    ]
+  },
+  "exactFundedReference": {
+    "reference": "quais@1.0.0-alpha.57",
+    "receiverCode": "PM8TJRU4yfWhqSDMxdRQAtreTPuQ8q45iKfX6ex5biJef5BBECmesUNKEiEpNJFXcHVDBZ4fu4KCtyYoCFKdSSxsGey4YjThNZCkXusgYMBLuxcK6pP1",
+    "senderCode": "PM8TJXaAyZxcLGB8i7iR6YzeREFgPRnPWQsUAiVUQQBECho2YpbiXyxxSoevZxdCdxtHiw9KnwnxPDcDJhSgWPmmppdtkX3RXcBmChYCfNFnM5NKJHva",
+    "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+    "index": 24322,
+    "address": "0x00D0a1e749FE939457BC55Da1f37C0ef507dbf2C",
+    "publicKey": "0x0279015195960b58e1f5b1a8fd9ffcf262ea0c614f1d88cdbf055b3b0c23455b81",
+    "receiverKeyMatchesRust": true
+  },
+  "operations": {
+    "payment-send": {
+      "prepared": [
+        {
+          "head": "7794884",
+          "lockedQits": "0",
+          "stage": "refresh",
+          "unreservedQits": "769686"
+        },
+        {
+          "dataLength": 0,
+          "feeQits": "10",
+          "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+          "inputs": [
+            {
+              "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+              "index": 3
+            }
+          ],
+          "operation": "payment-send",
+          "outputs": [
+            {
+              "address": "0x00D0a1e749FE939457BC55Da1f37C0ef507dbf2C",
+              "denomination": 7
+            },
+            {
+              "address": "0x00bCD42D66cb4bb036a39D50763A0697c333665c",
+              "denomination": 8
+            },
+            {
+              "address": "0x00D6743185FaF61396955A3B708cA048FB809Ad6",
+              "denomination": 6
+            },
+            {
+              "address": "0x00FF18d4061bafAe7aA50D79b85B9fFF16900285",
+              "denomination": 6
+            },
+            {
+              "address": "0x00E18324CD1Eb76FC3EB4F642Bb48B6bd6e62380",
+              "denomination": 6
+            },
+            {
+              "address": "0x00d1768983cd786CEaD9B19b093900Ef39F7A856",
+              "denomination": 6
+            },
+            {
+              "address": "0x00c7809b23Ee55c7C7A1CD85C188Da216b691a6F",
+              "denomination": 5
+            },
+            {
+              "address": "0x00dd65EEe05410cc300f066A7b38EDdA410F411F",
+              "denomination": 4
+            },
+            {
+              "address": "0x00873cc5B67177dB009B57AbF8dDa905F3f2B9cC",
+              "denomination": 4
+            },
+            {
+              "address": "0x008bAbE24017FF75Db91eE64A62ef40CA6eaf249",
+              "denomination": 4
+            },
+            {
+              "address": "0x0097Da80431D71E0a6d8d5A44aADB19554c59603",
+              "denomination": 4
+            },
+            {
+              "address": "0x0088824650180E7efA13f58a05B0c40816308D8B",
+              "denomination": 3
+            },
+            {
+              "address": "0x008E180615df76a84c153255514977d83658A7ce",
+              "denomination": 2
+            },
+            {
+              "address": "0x00a81599fa953819E4763432328e2AefDB2dF066",
+              "denomination": 2
+            },
+            {
+              "address": "0x00e136CeeeaF6364EB54DA52402727D50219FeB8",
+              "denomination": 2
+            },
+            {
+              "address": "0x00Da13Fa1572002BC28a2aE32075966c3562e93D",
+              "denomination": 2
+            }
+          ],
+          "stage": "signed-persisted"
+        }
+      ],
+      "broadcast": [
+        {
+          "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+          "operation": "payment-send",
+          "stage": "acknowledged"
+        }
+      ],
+      "observed": [
+        {
+          "confirmations": 2,
+          "operation": "payment-send",
+          "receipt": {
+            "blockHash": "0x5374cf6febdbb7c00a44a27fdc0b3ed22c85a0da4e2b608f9d12c17bc9c1ab45",
+            "blockNumber": "0x76f0d2",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0x0",
+            "effectiveGasPrice": "0x3b9aca00",
+            "etxType": null,
+            "from": null,
+            "gasUsed": "0x2633b",
+            "logs": [],
+            "originatingTxHash": null,
+            "outboundEtxs": [],
+            "status": "0x1",
+            "to": null,
+            "transactionHash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "transactionIndex": "0x0",
+            "type": "0x2"
+          },
+          "stage": "observed"
+        },
+        {
+          "durableSignedBytesMatchMinedTransaction": true,
+          "operation": "payment-send",
+          "stage": "verified"
+        }
+      ]
+    },
+    "payment-return": {
+      "prepared": [
+        {
+          "head": "7794953",
+          "lockedQits": "0",
+          "stage": "refresh",
+          "unreservedQits": "5000"
+        },
+        {
+          "dataLength": 0,
+          "feeQits": "8",
+          "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+          "inputs": [
+            {
+              "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+              "index": 0
+            }
+          ],
+          "operation": "payment-return",
+          "outputs": [
+            {
+              "address": "0x00Fc22e143942F9FC9D8Ff8fEbc9E4F646057974",
+              "denomination": 6
+            },
+            {
+              "address": "0x00A2042E72cA3f057884727EeFdf86dC19a0a8A8",
+              "denomination": 6
+            },
+            {
+              "address": "0x00F86717A13640088b48189cD5b08D3e8986a570",
+              "denomination": 6
+            },
+            {
+              "address": "0x00D7827474330A24bfd12507Aa93B94cB9eAe13c",
+              "denomination": 6
+            },
+            {
+              "address": "0x00BD2ff94aA57574fAC88599D966A89fcD38887F",
+              "denomination": 5
+            },
+            {
+              "address": "0x00e8A156B683AfCbd3412152d60d14F280D8a9E1",
+              "denomination": 4
+            },
+            {
+              "address": "0x008F57c1062b59Fdf983E61FdbA998d2af3e4d66",
+              "denomination": 4
+            },
+            {
+              "address": "0x00dd4c51ce406412856Dd082292C353C4E1FaC75",
+              "denomination": 4
+            },
+            {
+              "address": "0x00D101C63EC001C1b673839dEe57Aa3692180d84",
+              "denomination": 4
+            },
+            {
+              "address": "0x00862Bc7ede1aD286b59844236E8E3C9F4d6957e",
+              "denomination": 3
+            },
+            {
+              "address": "0x00Bc52Aae3bC81F422821758798712FC994203E3",
+              "denomination": 2
+            },
+            {
+              "address": "0x00cdC4C88c7D64A7714E7daDD9892591C4333336",
+              "denomination": 2
+            },
+            {
+              "address": "0x00ee7C70981DF2ca2ff834Ba162061C25aaE725F",
+              "denomination": 2
+            },
+            {
+              "address": "0x00Dc8C7BC9C58e63Af719C0d7B6Eda2377a76e26",
+              "denomination": 2
+            },
+            {
+              "address": "0x00f8e79A6Bf191471aD866D4C9D85a06952B5778",
+              "denomination": 0
+            },
+            {
+              "address": "0x00c638B6A5B85343F3094BF35BC03CD923Eb9121",
+              "denomination": 0
+            }
+          ],
+          "stage": "signed-persisted"
+        }
+      ],
+      "broadcast": [
+        {
+          "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+          "operation": "payment-return",
+          "stage": "acknowledged"
+        }
+      ],
+      "observed": [
+        {
+          "confirmations": 2,
+          "operation": "payment-return",
+          "receipt": {
+            "blockHash": "0xcaa5aa7362df50118d634a7ba07bc832f33af40ccb656daf763b1adae51db30f",
+            "blockNumber": "0x76f10d",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0x0",
+            "effectiveGasPrice": "0x3b9aca00",
+            "etxType": null,
+            "from": null,
+            "gasUsed": "0x2633d",
+            "logs": [],
+            "originatingTxHash": null,
+            "outboundEtxs": [],
+            "status": "0x1",
+            "to": null,
+            "transactionHash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "transactionIndex": "0x4",
+            "type": "0x2"
+          },
+          "stage": "observed"
+        },
+        {
+          "durableSignedBytesMatchMinedTransaction": true,
+          "operation": "payment-return",
+          "stage": "verified"
+        }
+      ]
+    }
+  },
+  "receiverInitialGapScan": {
+    "coins": [],
+    "indexes": [
+      36,
+      165,
+      537,
+      697,
+      2725,
+      3073,
+      3559,
+      4346,
+      4831,
+      4891,
+      6303,
+      6345,
+      6418,
+      6604,
+      6767,
+      7049,
+      8071,
+      8146,
+      8245,
+      8801,
+      10017,
+      10225,
+      10353,
+      10566,
+      11603,
+      12087,
+      12819,
+      13050,
+      13246,
+      13471,
+      14193,
+      14328,
+      14796,
+      14949,
+      15731,
+      15782,
+      16016,
+      16474,
+      16590,
+      17858,
+      18613,
+      18683,
+      18760,
+      19039,
+      19107,
+      20896,
+      21617,
+      21935,
+      22578,
+      22626
+    ],
+    "nextIndex": 22627,
+    "ownerCode": "PM8TJRU4yfWhqSDMxdRQAtreTPuQ8q45iKfX6ex5biJef5BBECmesUNKEiEpNJFXcHVDBZ4fu4KCtyYoCFKdSSxsGey4YjThNZCkXusgYMBLuxcK6pP1",
+    "peerCode": "PM8TJXaAyZxcLGB8i7iR6YzeREFgPRnPWQsUAiVUQQBECho2YpbiXyxxSoevZxdCdxtHiw9KnwnxPDcDJhSgWPmmppdtkX3RXcBmChYCfNFnM5NKJHva",
+    "stage": "payment-scan",
+    "stop": "GapLimit"
+  },
+  "receiverContinuationStart": 22627,
+  "receiverRecovered": {
+    "coins": [
+      {
+        "address": "0x00D0a1e749FE939457BC55Da1f37C0ef507dbf2C",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 0,
+        "qits": 5000
+      }
+    ],
+    "indexes": [
+      22767,
+      23172,
+      23851,
+      23867,
+      23955,
+      24322,
+      24638,
+      24746,
+      24839,
+      24947,
+      25775,
+      25857,
+      25944,
+      26563,
+      26742,
+      26780,
+      27336,
+      27469,
+      27564,
+      27988,
+      28934,
+      29132,
+      29158,
+      29707,
+      31001,
+      31769,
+      32168,
+      32489,
+      32590,
+      32866,
+      33661,
+      34127,
+      34433,
+      35795,
+      36089,
+      36700,
+      38707,
+      40597,
+      40627,
+      41156,
+      41293,
+      41952,
+      41988,
+      42684,
+      43052,
+      43495,
+      45504,
+      45507,
+      46604,
+      46612,
+      46927,
+      47303,
+      48347,
+      48713,
+      49325,
+      49684
+    ],
+    "nextIndex": 49685,
+    "ownerCode": "PM8TJRU4yfWhqSDMxdRQAtreTPuQ8q45iKfX6ex5biJef5BBECmesUNKEiEpNJFXcHVDBZ4fu4KCtyYoCFKdSSxsGey4YjThNZCkXusgYMBLuxcK6pP1",
+    "peerCode": "PM8TJXaAyZxcLGB8i7iR6YzeREFgPRnPWQsUAiVUQQBECho2YpbiXyxxSoevZxdCdxtHiw9KnwnxPDcDJhSgWPmmppdtkX3RXcBmChYCfNFnM5NKJHva",
+    "stage": "payment-scan",
+    "stop": "GapLimit"
+  },
+  "originalWalletReceivedReturn": {
+    "coins": [
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 0,
+        "qits": 100000
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 1,
+        "qits": 100000
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 2,
+        "qits": 100000
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 4,
+        "qits": 20000
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 5,
+        "qits": 20000
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 6,
+        "qits": 20000
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 8,
+        "qits": 1000
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 9,
+        "qits": 100
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 10,
+        "qits": 100
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 11,
+        "qits": 50
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 12,
+        "qits": 10
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 13,
+        "qits": 10
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 14,
+        "qits": 10
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 15,
+        "qits": 5
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 16,
+        "qits": 1
+      },
+      {
+        "address": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+        "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+        "index": 0,
+        "qits": 100000
+      },
+      {
+        "address": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+        "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+        "index": 1,
+        "qits": 100000
+      },
+      {
+        "address": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+        "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+        "index": 2,
+        "qits": 100000
+      },
+      {
+        "address": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+        "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+        "index": 3,
+        "qits": 20000
+      },
+      {
+        "address": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+        "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+        "index": 4,
+        "qits": 20000
+      },
+      {
+        "address": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+        "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+        "index": 5,
+        "qits": 20000
+      },
+      {
+        "address": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+        "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+        "index": 6,
+        "qits": 20000
+      },
+      {
+        "address": "0x00Fc22e143942F9FC9D8Ff8fEbc9E4F646057974",
+        "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+        "index": 0,
+        "qits": 1000
+      },
+      {
+        "address": "0x00bCD42D66cb4bb036a39D50763A0697c333665c",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 1,
+        "qits": 10000
+      },
+      {
+        "address": "0x00D6743185FaF61396955A3B708cA048FB809Ad6",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 2,
+        "qits": 1000
+      },
+      {
+        "address": "0x00FF18d4061bafAe7aA50D79b85B9fFF16900285",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 3,
+        "qits": 1000
+      },
+      {
+        "address": "0x00E18324CD1Eb76FC3EB4F642Bb48B6bd6e62380",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 4,
+        "qits": 1000
+      },
+      {
+        "address": "0x00d1768983cd786CEaD9B19b093900Ef39F7A856",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 5,
+        "qits": 1000
+      },
+      {
+        "address": "0x00c7809b23Ee55c7C7A1CD85C188Da216b691a6F",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 6,
+        "qits": 500
+      },
+      {
+        "address": "0x00dd65EEe05410cc300f066A7b38EDdA410F411F",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 7,
+        "qits": 100
+      },
+      {
+        "address": "0x00873cc5B67177dB009B57AbF8dDa905F3f2B9cC",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 8,
+        "qits": 100
+      },
+      {
+        "address": "0x008bAbE24017FF75Db91eE64A62ef40CA6eaf249",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 9,
+        "qits": 100
+      },
+      {
+        "address": "0x0097Da80431D71E0a6d8d5A44aADB19554c59603",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 10,
+        "qits": 100
+      },
+      {
+        "address": "0x0088824650180E7efA13f58a05B0c40816308D8B",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 11,
+        "qits": 50
+      },
+      {
+        "address": "0x008E180615df76a84c153255514977d83658A7ce",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 12,
+        "qits": 10
+      },
+      {
+        "address": "0x00a81599fa953819E4763432328e2AefDB2dF066",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 13,
+        "qits": 10
+      },
+      {
+        "address": "0x00e136CeeeaF6364EB54DA52402727D50219FeB8",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 14,
+        "qits": 10
+      },
+      {
+        "address": "0x00Da13Fa1572002BC28a2aE32075966c3562e93D",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 15,
+        "qits": 10
+      },
+      {
+        "address": "0x00B4Ce61832E5C8FF80CB57a1589b259298cEce0",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 1,
+        "qits": 1000
+      },
+      {
+        "address": "0x00D2Bb2d7D5C991232f878C5EfAc4a25BAD04D58",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 2,
+        "qits": 1000
+      },
+      {
+        "address": "0x009C2A0134c2BA62cD10c8a25902D008D4433976",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 3,
+        "qits": 1000
+      },
+      {
+        "address": "0x009B9705563d6437602a14dfbF346B4242D2080D",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 4,
+        "qits": 500
+      },
+      {
+        "address": "0x009ec44403AfeEcCdd7Efb14f886f6c7FC68de85",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 5,
+        "qits": 100
+      },
+      {
+        "address": "0x00991c4780BC0A3c235f3a0523AECBD8b41236C7",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 6,
+        "qits": 100
+      },
+      {
+        "address": "0x00f42A1D3Ea67C12a541a26c0F767bC508961751",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 7,
+        "qits": 100
+      },
+      {
+        "address": "0x00E288fC73237c1F3539D059502831F1332Fd094",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 8,
+        "qits": 100
+      },
+      {
+        "address": "0x009Eb316466eb0E4eaC36a7Fb95236254Ddc6846",
+        "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "index": 0,
+        "qits": 1000
+      },
+      {
+        "address": "0x00892Fdd8755D18DaD7C0091D4d58a2D6201AEe5",
+        "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "index": 1,
+        "qits": 1000
+      },
+      {
+        "address": "0x00bF699F16F0b88D55a82D24700B3aAaDD5559a0",
+        "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "index": 2,
+        "qits": 1000
+      },
+      {
+        "address": "0x00fD5663a83EEaE4E145CEda3e5DB8FE77566E00",
+        "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "index": 3,
+        "qits": 1000
+      },
+      {
+        "address": "0x0095cc430a8F00c07d8dDe2B383b0Bb150C3b1f2",
+        "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "index": 4,
+        "qits": 500
+      }
+    ],
+    "indexes": [
+      266,
+      1041,
+      1216,
+      1353,
+      1699,
+      2087,
+      2338,
+      2820,
+      3394,
+      3504,
+      4420,
+      5864,
+      6075,
+      6090,
+      6095,
+      7392,
+      7664,
+      7790,
+      8130,
+      8554,
+      8796,
+      8856,
+      9184,
+      9251,
+      9785,
+      10771,
+      10790,
+      11387,
+      11500,
+      14132,
+      14779,
+      15213,
+      16241,
+      16244,
+      17447,
+      18021,
+      18062,
+      18761,
+      19042,
+      19090,
+      19970,
+      20159,
+      20183,
+      21699,
+      22375,
+      22683,
+      23333,
+      23559,
+      23691,
+      25241,
+      25314
+    ],
+    "nextIndex": 25315,
+    "ownerCode": "PM8TJXaAyZxcLGB8i7iR6YzeREFgPRnPWQsUAiVUQQBECho2YpbiXyxxSoevZxdCdxtHiw9KnwnxPDcDJhSgWPmmppdtkX3RXcBmChYCfNFnM5NKJHva",
+    "peerCode": "PM8TJRU4yfWhqSDMxdRQAtreTPuQ8q45iKfX6ex5biJef5BBECmesUNKEiEpNJFXcHVDBZ4fu4KCtyYoCFKdSSxsGey4YjThNZCkXusgYMBLuxcK6pP1",
+    "stage": "payment-scan",
+    "stop": "GapLimit"
+  },
+  "feesQits": {
+    "send": 10,
+    "return": 8
+  },
+  "boundaries": [
+    "Owned two-wallet Orchard acceptance with the Rust SDK and independent pinned quais.js key/address comparisons; not a real Pelagus extension test.",
+    "Wallet files and signed custody were reopened between preparation, submission, observation, scan and return spending.",
+    "Failed preparation preserved four unused 6000-child send ranges. Default gap 50 stopped before paid child 24322; explicit continuation recovered it. Seed-only first-gap recovery was not sufficient for this deliberately burned inventory.",
+    "One continuation completed derivation/import but failed its final head check. Repeating the read-only scan with the optimized build succeeded without resetting metadata.",
+    "No mainnet transaction submitted; no sender seed exchange required by the receiving channel."
+  ]
+}

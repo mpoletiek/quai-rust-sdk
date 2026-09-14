@@ -61,9 +61,9 @@ of exact behavior: the restrictions below matter when porting an application.
 | Quai transactions | Native durable prepare/review/sign/broadcast, nonce reservation, access lists, deployment and cross-zone intents | Native SQLite sessions and the browser account session use explicit pending/latest policy; browser replacement preparation, candidate selection and reconciliation exist |
 | Qi transactions | Native and browser durable selection/fee convergence/preparation/signing/submission; exact special-operation custody and candidate reconciliation | Browser signed-intent destination observations exist; only native resume persists destination cursors; observations remain source claims |
 | Payment codes | Version-one BIP47 seed/master/account origins, matching send/receive keys, registered channels, gap/deep scans and mixed-origin spending | Peer-code exchange is out of band; automatic notification discovery/blinding is absent; bounded cursors deliberately avoid reuse |
-| Quai → Qi | Native and browser conversion preparation, simulation/fees/slippage and signed custody; native/browser destination observations | Quote history depends on node behavior; per-operation maturity/production execution need stronger evidence |
+| Quai → Qi | Native and browser conversion preparation, simulation/fees/slippage and signed custody; native/browser destination observations | Funded Orchard creation, unlocking and converted-output spending passed; quote/fork behavior and broader production execution require qualification |
 | Qi → Quai | Exact 22-byte conversion form, refund/slippage, explicit or profiled fees and signed recovery | Specialized estimator requires asserted compatible fork/node profile; aggregate Quai balance is not operation-specific maturity proof |
-| Qi → WQI / WQI → Qi | Native 20-byte wrap, WQI backing/claim, ERC-20 operations, redemption gas/dust planning, lock observations | Mature unmodified-network redemption spend and audited contract/profile qualification remain open |
+| Qi → WQI / WQI → Qi | Native 20-byte wrap, WQI backing/claim, ERC-20 operations, redemption gas/dust planning, lock observations | Funded Orchard wrap/claim/redeem/mature-spend passed with explicit wrapping fee; automatic Orchard specialized fee estimation and audited contract/profile qualification remain open |
 | Quai ↔ WQUAI | Configured deployment, deposit/withdraw and ERC-20 intents | Distinct mainnet/Orchard deployments; funded Orchard deposit/withdraw and exact balance round trip passed; mainnet funded execution and contract audit remain open |
 | ABI/interfaces | Canonical encoder/decoder, JSON/readable declarations, defaults, packed encoding, EIP-712, event filters and call/log/revert parsing | Positional values and explicit overloads replace JS Proxy/Result/Typed ergonomics; strict bounds and validation differ |
 | Contracts/deployments | Explicit contract calls/intents, ERC-20 helpers, artifacts, constructor data, address grinding, canonical code observations | No dynamic JS method/property generation; input artifacts must have resolved creation bytecode; execution qualification remains separate |
@@ -90,7 +90,7 @@ denominations, coin records, selection state and corrected fee adjustments.
 | Difference | Rust contract and consequence |
 | --- | --- |
 | Dynamic JavaScript objects | Typed values, traits, explicit overload selection and eager ABI results replace Proxy methods, coercion, mutable class properties and global hooks. No runtime crypto-backend replacement registry is provided. |
-| Provider scheduling | Caller-owned futures, polling and bounded event queues replace hidden timers, automatic request batching/cache and callback lifecycle machinery. Applications explicitly apply observations to custody state. |
+| Provider scheduling | Caller-owned futures, polling and bounded event queues replace hidden timers and callback lifecycle machinery. Explicit HTTP batches and grouped outpoint reads are supported; no general implicit request coalescing/cache is provided. Applications explicitly apply observations to custody state. |
 | Resource limits | Parsing, derivation, queries, queues, backup collections and numeric intermediates are bounded. Larger work requires explicit pages or application coordination; malformed/noncanonical inputs are rejected. |
 | Block selectors | Explicit latest, pending, numbered and separate hash reads replace overloaded relative/string aliases. Unsupported node tags and historical return-data requests are not fabricated. The reference's `waitForBlock`, `getTransactionResult` backend and named `Typed.tuple` factory are unfinished or unsupported source operations. |
 | Arithmetic | Checked operations and explicit wrapping/lossy conversion cover both policies. Rust corrects signed-minimum wrap, rounding and fee-shortfall defects rather than reproducing invalid outputs. |
@@ -127,14 +127,18 @@ bind their source and lock hashes; historical results do not automatically quali
 a later commit. CI on the release revision must pass before handoff.
 
 The following remain production qualification work rather than hidden implemented
-features: broader funded execution against unmodified target nodes, mature WQI redemption
-spend, aggregation block placement and cross-zone execution; real extension and
+features: broader funded execution against unmodified target nodes and aggregation
+block placement; real extension and
 additional browser-engine coverage; sustained fault/reorg/soak/performance and fuzz
 campaigns; and independent security review. The owned isolated chain used documented
 patches and toy keys. Its success does not establish unmodified-network acceptance.
+Cross-zone qualification is deferred at the user's direction while only Cyprus-1
+is available; it remains unqualified until another zone is active.
 [Funded Orchard qualification](test-infra/orchard/README.md) now includes two
 successful QUAI transfers and a corrected Quai-to-Qi conversion with all 386,286
-settled Qits observed in 17 locked outputs. The first conversion exposed an
+settled Qits observed in 17 outputs. A [later live check](test-infra/orchard/conversion-unlocks-2026-09-14.json)
+at height 7,794,731 found all 17 present and unlocked, with zero missing or locked
+conversion Qits. The first conversion exposed an
 underfunded destination despite origin success; the SDK now budgets origin costs
 and denomination fragmentation after discounts. This is a useful Rust difference
 from the reference's raw-estimate path, not a claim of universal fee sufficiency.
@@ -142,8 +146,19 @@ A matured output from the original conversion was subsequently spent in a
 confirmed 1 Qi self-transfer with all resulting outputs indexed.
 The corrected Orchard WQUAI deployment passed a funded 0.01 QUAI deposit/withdraw
 round trip with exact token and native balance accounting. Earlier empty-code
-reports queried the mainnet address on Orchard. Mainnet checks remain read-only;
-live BIP47 receive and mature WQI redemption remain open.
+reports queried the mainnet address on Orchard. Funded WQI qualification now also
+includes a [1 Qi backing deposit](test-infra/orchard/wqi-roundtrip-2026-09-14.json), claiming 1 WQI, redemption to an observed locked
+Qi output, expiry of its Orchard lock, and a confirmed spend of that exact output.
+The wrap used an explicit 0.1 Qi fee because Orchard did not satisfy the pinned
+specialized estimator's activation profile. Mainnet checks remain read-only;
+real Pelagus interoperability remains separate from [funded local payment-code testing](test-infra/orchard/payment-codes-2026-09-14.json).
+That test sent 5 Qi, recovered it using the receiver seed and sender public code,
+spent the recovered BIP47 output in a 1 Qi return payment, and discovered the
+return with a default gap-50 scan. Failed preparations had burned enough send
+ranges that the first receive scan needed explicit continuation past its initial
+50 empty addresses. This is a demonstrated recovery limitation, not evidence that
+gap scanning always finds all funds. Pinned quais.js matched both payment codes
+and the actual funded receive key/address and return address.
 
 A packageable alpha does not promise production custody safety, unrestricted
 backward compatibility or independent chain verification. General journal

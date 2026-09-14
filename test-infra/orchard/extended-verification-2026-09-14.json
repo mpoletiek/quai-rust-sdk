@@ -1,0 +1,138 @@
+{
+  "recordedAt": "2026-09-14T15:26:12.807448+00:00",
+  "sourceBaseCommit": "5f165c57b146ae0883a30c0c21d66e80e03d897f",
+  "sourceDirty": true,
+  "sourceSha256": {
+    "crates/quai-rpc/src/http.rs": "008e0acd532c6aa40868384967aed81ec6e156e9261ecf82aa7abb35427a5aad",
+    "crates/quai-rpc/src/transport.rs": "2368ece9c6b290eee158b41ab0664a432d3c3a792a129400c9daec680bc2c1c0",
+    "crates/quai-provider/src/wallet_rpc.rs": "3901ba0e23710515da75f3d4836c3762bb545233d6278c68a351738ca7aecfff",
+    "crates/quai-sdk/src/qi_discovery.rs": "14d80207dc59938d70f1e1cd25c88dd00c8db2007467cb53aea834a0d3188223",
+    "test-infra/orchard/src/main.rs": "c5d8d0fb5a5cc0a7144fbbefea0a2fb2310b2862e40f5e0553d1ab3da92afcdb",
+    "test-infra/orchard/src/account.rs": "4b4854a600f05e798b9b8523fcede3c8f1ac6fbce1af34f992ea6842599a1f24",
+    "test-infra/orchard/src/qi_extended.rs": "99133d5738612621a1bd41c1ced55dd264ab67ce7b4d99181ddc37614962f2bb",
+    "Cargo.lock": "e76e2d120d4bddea672caedf996d0cbc719ad3ab86ed0b96d8bdc3e18c80e00a",
+    "fuzz/Cargo.lock": "9d7e4aa06b1c43c220df58aa326f4a193f25a3e99cbe85ebcdc7f1b083e3d2f1",
+    "test-infra/orchard/Cargo.lock": "22b222937c05c908b24d41683c7699112ec20df7dd72bf49e947897284b3d60d"
+  },
+  "workspaceAllFeatures": {
+    "passed": 626,
+    "ignored": 5
+  },
+  "chromiumWorker": {
+    "passed": 8
+  },
+  "workspaceClippy": "passed",
+  "harnessClippy": "passed",
+  "strictRustdoc": "passed",
+  "wasmSdkCheck": "passed",
+  "packageRehearsal": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "5f165c57b146ae0883a30c0c21d66e80e03d897f",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 65488,
+        "sha256": "1b801a5c1c5ec52242125f20083f7f2d5a3f9287f65f3109d573c55dc134430f"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 59115,
+        "sha256": "31db419ef6a86a23fe8bb3b11895b29a6b1488c078b700ffca2865f9e6bb36a9"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 154420,
+        "sha256": "b390c30b421418e6545e3e1c4a79f374d6fead5bb312b63b598a0f2cccffd093"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 55220,
+        "sha256": "9c03ff5d2269b893f69b0e68a96bcfb93ef8fe2c83b84bb6ab021f62b04d1a0a"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 59605,
+        "sha256": "10d9611eeda6ea908afffb17b47994b42baa76bec76d0710f82833c25aa36266"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 463145,
+        "sha256": "c8fcbfba64e7e13312c69a83bfda3d94662cffe630c8c759927b89a1ad9ead4f"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 188556,
+        "sha256": "2f5618747751bdc8dabcea08f15280754cc906835f3e420305f72ca3ea8b733e"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 91040,
+        "sha256": "884d4e612372a6ddeb32c4f245073ff660c38fa8026b6cffc777aa2ee4fd1a21"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24779,
+        "sha256": "10eeacfaf45c922bf83888f2bd7a6d6043ddce40b90f2fc425e25e3732a8d954"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 36431,
+        "sha256": "cce0acee42ad6a996849f8071d09e29631f727bf9e59dadaa9230e59c16f8914"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 407117,
+        "sha256": "7336886194789d26406bf7fa14da8d992cb61da1f412e2b8b2e0b491cded7372"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39592,
+        "sha256": "61a866d0408df37e6b9abdd20c486a919dbd52e67443024d12d6f32b17735b01"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "boundaries": [
+    "Live flows executed in stages while the harness was developed; source hashes describe the final tested tree.",
+    "Loopback tests required sandbox escalation. The earlier sandboxed run failed on denied socket binds, then the full allowed suite passed.",
+    "No crates.io publication, independent audit, cross-zone execution or real Pelagus extension qualification."
+  ]
+}

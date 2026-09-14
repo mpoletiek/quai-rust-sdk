@@ -1,0 +1,373 @@
+//! Fixed funded Cyprus-1 WQI and two-wallet payment-channel qualification.
+use super::*;
+use quai_sdk::consensus::{QiWrappingIntent, SignedQiOperation};
+use quai_sdk::payments::{PaymentChannel, PaymentDirection};
+use quai_sdk::provider::{ReceiptOutcome, WaitConfig};
+use quai_sdk::qi::{QiChangePool, QiPolicy, QiSession, QiSpecialIntent};
+use quai_sdk::wallet::qi_keys::QiKeyring;
+use quai_sdk::wallet::storage::{NetworkScope, ReservationId, SqliteStore};
+use quai_sdk::wrappers::{WQI_ADDRESS, WrappedQi};
+use serde_json::json;
+
+pub(super) fn load_wallet(peer: bool) -> Result<(HdWallet, PrivatePaymentCode), Box<dyn Error>> {
+    load_named_wallet(if peer {
+        "qi-peer.json"
+    } else {
+        "qi-wallet.json"
+    })
+}
+
+pub(super) fn load_named_wallet(
+    name: &str,
+) -> Result<(HdWallet, PrivatePaymentCode), Box<dyn Error>> {
+    #[derive(Deserialize)]
+    struct Saved<'a> {
+        #[serde(borrow)]
+        mnemonic: &'a str,
+        #[serde(borrow)]
+        passphrase: &'a str,
+    }
+    let bytes = Zeroizing::new(fs::read_to_string(Path::new(DIR).join(name))?);
+    let saved: Saved = serde_json::from_str(&bytes).map_err(|_| "invalid private wallet file")?;
+    let mnemonic = Mnemonic::parse(Language::English, saved.mnemonic)?;
+    let wallet = HdWallet::from_mnemonic(&mnemonic, saved.passphrase, CoinType::Qi)?;
+    let seed = mnemonic.to_seed(saved.passphrase);
+    Ok((wallet, PrivatePaymentCode::from_seed(seed.expose(), 0)?))
+}
+
+pub(super) fn scope() -> Result<NetworkScope, Box<dyn Error>> {
+    Ok(NetworkScope {
+        chain_id: U256::from(15000),
+        genesis: "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b".parse()?,
+        zone: Zone::Cyprus1,
+    })
+}
+
+pub(super) fn save(name: &str, value: &serde_json::Value) -> Result<(), Box<dyn Error>> {
+    let path = Path::new(DIR).join(name);
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .mode(0o600)
+        .open(path)?;
+    serde_json::to_writer_pretty(&mut file, value)?;
+    file.sync_all()?;
+    fs::File::open(DIR)?.sync_all()?;
+    Ok(())
+}
+
+async fn refresh(
+    provider: &Provider<DiagnosticTransport>,
+    store: &mut SqliteStore,
+) -> Result<(), Box<dyn Error>> {
+    for attempt in 0..3 {
+        match quai_sdk::qi_discovery::refresh_qi(provider, store, 1000, || false).await {
+            Ok(head) => {
+                let b = quai_sdk::qi_discovery::qi_balance(store, head.height + U256::from(1))?;
+                println!(
+                    "{}",
+                    json!({"stage":"refresh","head":head.height.to_string(),"unreservedQits":b.spendable.to_string(),"lockedQits":b.locked.to_string()})
+                );
+                return Ok(());
+            }
+            Err(quai_sdk::qi::QiError::StaleSnapshot) if attempt < 2 => continue,
+            Err(e) => return Err(e.into()),
+        }
+    }
+    Err("no stable refresh".into())
+}
+
+pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
+    let (index, is_peer) = match operation {
+        "wrap" => (2, false),
+        "payment-send" => (3, false),
+        "payment-return" => (1, true),
+        "redemption-spend" => (1, false),
+        _ => return Err("expected wrap, payment-send or payment-return".into()),
+    };
+    let scope = scope()?;
+    let provider = Provider::new(
+        DiagnosticTransport(HttpTransport::new(HttpConfig::default())?),
+        Routing::direct(
+            "https://orchard.rpc.quai.network/cyprus1",
+            scope.zone.into(),
+        )?,
+        scope.chain_id,
+    );
+    if provider.genesis_hash(scope.zone).await? != scope.genesis
+        || provider.chain_id(scope.zone.into()).await? != scope.chain_id
+    {
+        return Err("Orchard identity mismatch".into());
+    }
+    let redemption = operation == "redemption-spend";
+    let (wallet, payment) = if redemption {
+        load_named_wallet("qi-redemption.json")?
+    } else {
+        load_wallet(is_peer)?
+    };
+    let (_, peer) = load_wallet(if redemption { false } else { !is_peer })?;
+    let mut store = SqliteStore::open(
+        Path::new(DIR).join(if redemption {
+            "state/qi-redemption.sqlite"
+        } else if is_peer {
+            "state/qi-peer.sqlite"
+        } else {
+            "state/qi.sqlite"
+        }),
+        scope,
+    )?;
+    if store
+        .payment_channel(&payment, peer.public_code())?
+        .is_none()
+    {
+        store.import_payment_channel(
+            &payment,
+            &PaymentChannel::new(&payment, peer.public_code().clone()),
+            None,
+        )?;
+    }
+    let id = ReservationId([index; 16]);
+    let beneficiary: QuaiAddress = "0x0006506bDE7140b85DED58a40D7444F84cde4821".parse()?;
+    let wrapper = WrappedQi::new(WQI_ADDRESS.parse()?, &provider)?;
+    match stage {
+        "probe" => {
+            let (_, code) = WrappedQi::new_verified(
+                WQI_ADDRESS.parse()?,
+                &provider,
+                scope.genesis,
+                None,
+                BlockTag::Latest,
+            )
+            .await?;
+            println!(
+                "{}",
+                json!({"stage":"WQI-probe","code":format!("{code:?}"),"unclaimedQits":wrapper.unclaimed(beneficiary,BlockTag::Latest).await?.to_string(),"tokenAtoms":wrapper.token()?.balance_of(beneficiary,beneficiary,BlockTag::Latest).await?.to_string()})
+            );
+        }
+        "scan" => {
+            // Recover using only this wallet's seed and the exchanged public peer code.
+            let mut options = quai_sdk::payment_channels::PaymentScanOptions::default();
+            if let Some(start) = std::env::args().nth(4) {
+                options.range.start = start
+                    .parse()
+                    .map_err(|_| "invalid scan continuation index")?;
+            }
+            let report = quai_sdk::payment_channels::scan_payment_channel(
+                &provider,
+                &mut store,
+                &payment,
+                peer.public_code(),
+                &options,
+                || false,
+            )
+            .await?;
+            let snapshot = store.snapshot()?;
+            println!(
+                "{}",
+                json!({"stage":"payment-scan","ownerCode":payment.public_code().to_base58(),"peerCode":peer.public_code().to_base58(),"indexes":report.indexes,"nextIndex":report.next_index,"stop":format!("{:?}",report.stopped),"coins":snapshot.coins.iter().map(|c|json!({"hash":c.outpoint.transaction_hash.to_string(),"index":c.outpoint.index,"address":c.address.to_string(),"qits":c.denomination.value()})).collect::<Vec<_>>()})
+            );
+        }
+        "prepare" => {
+            if store.reservation(id)?.is_some() {
+                return Err("existing operation; recover instead".into());
+            }
+            if operation == "wrap" {
+                WrappedQi::new_verified(
+                    WQI_ADDRESS.parse()?,
+                    &provider,
+                    scope.genesis,
+                    None,
+                    BlockTag::Latest,
+                )
+                .await?;
+                if wrapper.unclaimed(beneficiary, BlockTag::Latest).await? != U256::ZERO
+                    || wrapper
+                        .token()?
+                        .balance_of(beneficiary, beneficiary, BlockTag::Latest)
+                        .await?
+                        != U256::ZERO
+                {
+                    return Err("expected zero WQI backing and tokens before wrap".into());
+                }
+            }
+            let (count, attempts) = if operation == "payment-send" {
+                (24, 4000)
+            } else {
+                (16, 6000)
+            };
+            let pool = QiChangePool::allocate(
+                &mut store,
+                &wallet.account_public(0)?,
+                count,
+                attempts,
+                || false,
+            )?;
+            let intent = if operation != "wrap" {
+                let amount = U256::from(if redemption {
+                    500
+                } else if is_peer {
+                    1000
+                } else {
+                    5000
+                });
+                Some(quai_sdk::payment_channels::payment_intent(
+                    &mut store,
+                    &payment,
+                    peer.public_code(),
+                    amount,
+                    1,
+                    6000,
+                    || false,
+                )?)
+            } else {
+                None
+            };
+            refresh(&provider, &mut store).await?;
+            let mut keys = QiKeyring::new(Some(&wallet))?;
+            keys.load_payment_channel(&store, &payment, peer.public_code())?;
+            let mut session = QiSession::with_keys(&provider, &keys, &mut store);
+            let policy = QiPolicy {
+                initial_fee: U256::ZERO,
+                max_fee: U256::from(100),
+                max_inputs: 8,
+                max_outputs: 32,
+                max_fee_rounds: 8,
+                max_snapshot_age: 5,
+            };
+            let (signed, fee) = if let Some(intent) = intent {
+                let prepared = session.prepare(id, intent, policy, pool).await?;
+                let fee = prepared.fee();
+                (SignedQiOperation::Transfer(session.sign(&prepared)?), fee)
+            } else {
+                let prepared = session
+                    .prepare_special(
+                        id,
+                        U256::from(1000),
+                        QiSpecialIntent::Wrapping(QiWrappingIntent {
+                            destination: beneficiary,
+                            owner_contract: WQI_ADDRESS.parse()?,
+                        }),
+                        // Orchard does not satisfy the estimator's pinned activation profile.
+                        // Explicit 0.1 Qi qualification fee, bounded by the same policy cap.
+                        U256::from(100),
+                        policy,
+                        pool,
+                    )
+                    .await?;
+                let fee = prepared.fee();
+                (session.sign_special(&prepared)?, fee)
+            };
+            let tx = signed.transaction();
+            let record = json!({"stage":"signed-persisted","operation":operation,"hash":signed.hash()?.to_string(),"feeQits":fee.to_string(),"dataLength":tx.data.len(),"inputs":tx.inputs.iter().map(|i|json!({"hash":i.previous_output.transaction_hash.to_string(),"index":i.previous_output.index})).collect::<Vec<_>>(),"outputs":tx.outputs.iter().map(|o|json!({"address":o.address.to_string(),"denomination":o.denomination.index()})).collect::<Vec<_>>()});
+            save(&format!("{operation}-signed-review.json"), &record)?;
+            println!("{record}");
+        }
+        "broadcast" | "observe" => {
+            let bytes = store.signed_payload(id)?.ok_or("no signed operation")?;
+            let signed = SignedQiOperation::decode(&bytes)?;
+            let hash = signed.hash()?;
+            if stage == "broadcast" {
+                if provider.receipt(scope.zone, hash).await?.is_some() {
+                    return Err("receipt exists; observe instead".into());
+                }
+                let mut keys = QiKeyring::new(Some(&wallet))?;
+                keys.load_payment_channel(&store, &payment, peer.public_code())?;
+                let ack = QiSession::with_keys(&provider, &keys, &mut store)
+                    .broadcast(id)
+                    .await?;
+                println!(
+                    "{}",
+                    json!({"stage":"acknowledged","operation":operation,"hash":ack.transaction_hash.to_string()})
+                );
+            } else {
+                let observed = provider
+                    .wait_for_receipt(
+                        scope.zone,
+                        hash,
+                        WaitConfig {
+                            confirmations: 2,
+                            timeout: std::time::Duration::from_secs(55),
+                            poll_interval: std::time::Duration::from_secs(2),
+                        },
+                    )
+                    .await?;
+                let mut receipt = observed.receipt.to_rpc_json()?;
+                receipt
+                    .as_object_mut()
+                    .ok_or("receipt shape")?
+                    .remove("logsBloom");
+                println!(
+                    "{}",
+                    json!({"stage":"observed","operation":operation,"confirmations":observed.confirmations,"receipt":receipt})
+                );
+                if observed.receipt.outcome != ReceiptOutcome::Succeeded {
+                    return Err("origin failed".into());
+                }
+                let mined = provider
+                    .transaction(scope.zone, hash)
+                    .await?
+                    .ok_or("missing mined transaction")?
+                    .verified_qi()?;
+                if mined.signed_bytes()? != bytes {
+                    return Err("mined bytes differ from custody".into());
+                }
+                println!(
+                    "{}",
+                    json!({"stage":"verified","operation":operation,"durableSignedBytesMatchMinedTransaction":true})
+                );
+            }
+        }
+        "credit" if operation == "wrap" => {
+            let bytes = store.signed_payload(id)?.ok_or("no signed wrap")?;
+            let hash = SignedQiOperation::decode(&bytes)?.hash()?;
+            let receipt = provider
+                .receipt(scope.zone, hash)
+                .await?
+                .ok_or("missing wrap receipt")?;
+            let head = provider.latest_header(scope.zone).await?.ok_or("head")?;
+            let from = receipt.inclusion.block_number;
+            let update = quai_sdk::settlement::track_settlement(
+                &provider,
+                &mut store,
+                id,
+                hash,
+                quai_sdk::settlement::SettlementKind::QiWrapping,
+                quai_sdk::provider::EtxScanRequest {
+                    zone: scope.zone,
+                    from,
+                    to: head.number.min(from + 31),
+                    max_transactions_per_block: 4096,
+                    max_total_transactions: 65536,
+                    preceding_block: None,
+                },
+                100,
+            )
+            .await?;
+            let external = update.external.ok_or("no external observation")?;
+            let execution = external
+                .scan
+                .and_then(|s| s.execution)
+                .ok_or("wrap destination not found in bounded range")?;
+            let unclaimed = wrapper.unclaimed(beneficiary, BlockTag::Latest).await?;
+            println!(
+                "{}",
+                json!({"stage":"backing-observed","executionHash":execution.transaction.hash.to_string(),"outcome":format!("{:?}",external.outcome),"unclaimedQits":unclaimed.to_string()})
+            );
+            if !matches!(
+                external.outcome,
+                Some(ReceiptOutcome::Succeeded | ReceiptOutcome::Locked)
+            ) || unclaimed != U256::from(1000)
+            {
+                return Err("wrap backing not settled".into());
+            }
+        }
+        "channels" => {
+            println!(
+                "{}",
+                json!({"ownerCode":payment.public_code().to_base58(),"peerCode":peer.public_code().to_base58(),"send":store.payment_addresses(&payment,peer.public_code(),PaymentDirection::Send)?.iter().map(|p|json!({"address":p.address.to_string(),"index":p.index,"publicKey":quai_sdk::provider::RpcData::new(p.public_key.to_compressed().to_vec()).expect("fixed public key size").to_hex(),"burnedStart":p.burned.start,"burnedEnd":p.burned.end})).collect::<Vec<_>>()})
+            );
+        }
+        _ => return Err("unsupported Qi extended stage".into()),
+    }
+    Ok(())
+}

@@ -12,7 +12,7 @@ mod transport;
 
 pub use quantity::{QuantityError, U256, parse_quantity};
 pub use routing::{Endpoint, RouteError, Routing, parse_use_pathing};
-pub use transport::{RemoteError, RpcError, Transport};
+pub use transport::{BatchResult, RemoteError, RpcError, Transport};
 
 #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
 mod http;

@@ -20,7 +20,9 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
         | "convert-quai-to-qi"
         | "convert-quai-to-qi-v2"
         | "wquai-deposit"
-        | "wquai-withdraw" => 0,
+        | "wquai-withdraw"
+        | "wqi-claim"
+        | "wqi-unwrap" => 0,
         "transfer-b-a" => 1,
         _ => return Err("unsupported operation".into()),
     };
@@ -77,8 +79,13 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
     let v2 = operation == "convert-quai-to-qi-v2";
     let wrapping = operation.starts_with("wquai-");
     let withdrawal = operation == "wquai-withdraw";
+    let wqi = operation.starts_with("wqi-");
     let id = ReservationId(
-        [if withdrawal {
+        [if operation == "wqi-claim" {
+            6
+        } else if operation == "wqi-unwrap" {
+            7
+        } else if withdrawal {
             5
         } else if wrapping {
             4
@@ -170,7 +177,60 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 max_total_fee: U256::from(10_000_000_000_000_000u64),
                 gas_margin_bps: 1000,
             };
-            let wrapper_intent = if wrapping {
+            let wrapper_intent = if wqi {
+                let (wrapper, _) = quai_sdk::wrappers::WrappedQi::new_verified(
+                    quai_sdk::wrappers::WQI_ADDRESS.parse()?,
+                    &provider,
+                    scope.genesis,
+                    None,
+                    BlockTag::Latest,
+                )
+                .await?;
+                let backing = wrapper
+                    .unclaimed(addresses[owner], BlockTag::Latest)
+                    .await?;
+                let tokens = wrapper
+                    .token()?
+                    .balance_of(addresses[owner], addresses[owner], BlockTag::Latest)
+                    .await?;
+                let claiming = operation == "wqi-claim";
+                if backing
+                    != if claiming {
+                        U256::from(1000)
+                    } else {
+                        U256::ZERO
+                    }
+                    || tokens
+                        != if claiming {
+                            U256::ZERO
+                        } else {
+                            quai_sdk::wrappers::qits_to_wqi_atoms(U256::from(1000))?
+                        }
+                {
+                    return Err("unexpected WQI backing/token balance".into());
+                }
+                println!(
+                    "{}",
+                    serde_json::json!({"operation":operation,"stage":"WQI-preflight","unclaimedQits":backing.to_string(),"tokenAtoms":tokens.to_string()})
+                );
+                let call = if claiming {
+                    wrapper.claim_deposit()?
+                } else {
+                    let (wallet, _) = super::qi_extended::load_named_wallet("qi-redemption.json")?;
+                    let mut qi = SqliteStore::open(state.join("qi-redemption.sqlite"), scope)?;
+                    let allocation =
+                        qi.allocate_address(&wallet.account_public(0)?, false, 6000, || false)?;
+                    let address: quai_sdk::QiAddress = allocation.address.address().try_into()?;
+                    let metadata = serde_json::json!({"address":address.to_string(),"origin":format!("{:?}",allocation.address.origin())});
+                    super::qi_extended::save("wqi-redemption-recipient.json", &metadata)?;
+                    println!(
+                        "{}",
+                        serde_json::json!({"operation":operation,"stage":"redemption-recipient","metadata":metadata})
+                    );
+                    wrapper.unwrap(address, U256::from(1000), 30_000)?
+                };
+                Some(call.into_account_intent())
+            } else if wrapping {
                 let (wrapper, _) = quai_sdk::wrappers::WrappedQuai::new_verified(
                     quai_sdk::wrappers::WQUAI_ORCHARD_ADDRESS.parse()?,
                     &provider,
@@ -260,6 +320,52 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
             );
         }
         "credit" => {
+            if operation == "wqi-unwrap" {
+                let stored = store.signed_payload(id)?.ok_or("no signed redemption")?;
+                let hash = SignedQuaiTransaction::decode(&stored)?.hash()?;
+                let receipt = provider
+                    .receipt(scope.zone, hash)
+                    .await?
+                    .ok_or("no origin receipt")?;
+                let from = receipt.inclusion.block_number;
+                let head = provider.latest_header(scope.zone).await?.ok_or("head")?;
+                let update = quai_sdk::settlement::track_settlement(
+                    &provider,
+                    &mut store,
+                    id,
+                    hash,
+                    quai_sdk::settlement::SettlementKind::WqiRedemption {
+                        contract: quai_sdk::wrappers::WQI_ADDRESS.parse()?,
+                        etx_index: 0,
+                    },
+                    quai_sdk::provider::EtxScanRequest {
+                        zone: scope.zone,
+                        from,
+                        to: head.number.min(from + 31),
+                        max_transactions_per_block: 4096,
+                        max_total_transactions: 65536,
+                        preceding_block: None,
+                    },
+                    100,
+                )
+                .await?;
+                let external = update.external.ok_or("no external observation")?;
+                let execution = external
+                    .scan
+                    .and_then(|s| s.execution)
+                    .ok_or("redemption destination not found in bounded range")?;
+                let credit = update.qi_credit.ok_or("no Qi credit")?;
+                println!(
+                    "{}",
+                    serde_json::json!({"stage":"redemption-credit","executionHash":execution.transaction.hash.to_string(),"outcome":format!("{:?}",external.outcome),"observedHead":credit.head.number,"lockedQits":credit.locked_qits.to_string(),"unlockedQits":credit.unlocked_qits.to_string(),"unobservedQits":credit.unobserved_qits.to_string(),"outputs":credit.outputs.iter().map(|o|serde_json::json!({"hash":o.outpoint.tx_hash.to_string(),"index":o.outpoint.index,"denomination":o.denomination,"lock":o.lock.to_string()})).collect::<Vec<_>>() })
+                );
+                if credit.unobserved_qits != U256::ZERO
+                    || credit.locked_qits + credit.unlocked_qits != U256::from(1000)
+                {
+                    return Err("incomplete WQI redemption".into());
+                }
+                return Ok(());
+            }
             if !conversion {
                 return Err("credit observation requires a conversion".into());
             }
@@ -401,6 +507,30 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 );
                 if balance != expected {
                     return Err("unexpected WQUAI balance after execution".into());
+                }
+            }
+            if wqi {
+                let wrapper = quai_sdk::wrappers::WrappedQi::new(
+                    quai_sdk::wrappers::WQI_ADDRESS.parse()?,
+                    &provider,
+                )?;
+                let block = BlockTag::Number(U256::from(observed.receipt.inclusion.block_number));
+                let tokens = wrapper
+                    .token()?
+                    .balance_of(addresses[owner], addresses[owner], block)
+                    .await?;
+                let backing = wrapper.unclaimed(addresses[owner], block).await?;
+                let expected = if operation == "wqi-claim" {
+                    quai_sdk::wrappers::qits_to_wqi_atoms(U256::from(1000))?
+                } else {
+                    U256::ZERO
+                };
+                println!(
+                    "{}",
+                    serde_json::json!({"operation":operation,"stage":"WQI-observed","tokenAtoms":tokens.to_string(),"unclaimedQits":backing.to_string(),"feeBaseUnits":observed.receipt.fee()?.to_string()})
+                );
+                if tokens != expected || backing != U256::ZERO {
+                    return Err("WQI balance mismatch after execution".into());
                 }
             }
         }

@@ -1,6 +1,7 @@
 mod account;
 mod diagnostic;
 mod qi;
+mod qi_extended;
 use quai_sdk::crypto::SecretKey;
 use quai_sdk::payments::{PaymentCode, PrivatePaymentCode};
 use quai_sdk::wallet::{CoinType, HdWallet, Language, Mnemonic, Search};
@@ -15,6 +16,13 @@ use std::{
 use zeroize::Zeroizing;
 struct DiagnosticTransport(HttpTransport);
 impl quai_sdk::rpc::Transport for DiagnosticTransport {
+    async fn request_batch(
+        &self,
+        endpoint: &quai_sdk::Endpoint,
+        requests: Vec<(&str, serde_json::Value)>,
+    ) -> Option<quai_sdk::rpc::BatchResult> {
+        self.0.request_batch(endpoint, requests).await
+    }
     async fn request(
         &self,
         endpoint: &quai_sdk::Endpoint,
@@ -22,6 +30,9 @@ impl quai_sdk::rpc::Transport for DiagnosticTransport {
         params: serde_json::Value,
     ) -> Result<serde_json::Value, quai_sdk::rpc::RpcError> {
         let result = self.0.request(endpoint, method, params.clone()).await;
+        if let Err(error) = &result {
+            eprintln!("Orchard RPC {method} failed: {error}");
+        }
         if let Err(quai_sdk::rpc::RpcError::Remote(error)) = &result
             && matches!(
                 method,
@@ -80,8 +91,8 @@ fn load_key(value: &str) -> Result<SecretKey, Box<dyn Error>> {
     }
     Ok(SecretKey::from_bytes(&bytes).map_err(|_| "invalid private scalar")?)
 }
-fn generate() -> Result<(), Box<dyn Error>> {
-    let path = Path::new(DIR).join("qi-wallet.json");
+fn generate(name: &str) -> Result<(), Box<dyn Error>> {
+    let path = Path::new(DIR).join(name);
     if path.exists() {
         return Err("existing Qi wallet preserved".into());
     }
@@ -228,7 +239,16 @@ async fn inspect() -> Result<(), Box<dyn Error>> {
 async fn main() {
     let mode = std::env::args().nth(1).unwrap_or_default();
     let result = match mode.as_str() {
-        "generate" => generate(),
+        "generate" => generate("qi-wallet.json"),
+        "generate-peer" => generate("qi-peer.json"),
+        "generate-redemption" => generate("qi-redemption.json"),
+        "qi-extended" => {
+            qi_extended::run(
+                &std::env::args().nth(2).unwrap_or_default(),
+                &std::env::args().nth(3).unwrap_or_default(),
+            )
+            .await
+        }
         "inspect" => inspect().await,
         "diagnostic" => diagnostic::run().await,
         "qi-allocate-conversion" | "qi-prepare" | "qi-broadcast" | "qi-observe" => {

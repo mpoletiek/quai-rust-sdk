@@ -31,6 +31,10 @@ Build from the repository root:
 CARGO_TARGET_DIR="$PWD/target" cargo build --manifest-path test-infra/orchard/Cargo.toml --locked
 ```
 
+For extended gap scans, add `--release` and use `target/release/quai-orchard-setup`.
+Optimized builds substantially reduce local payment-key derivation time; both
+builds use the same private wallet files and durable stores.
+
 Invoke `target/debug/quai-orchard-setup` with exactly one stage. `inspect` performs
 account ownership and public RPC checks. `prepare OP` reviews and durably signs
 without sending; `broadcast OP` submits those exact bytes once; `observe OP`
@@ -69,6 +73,40 @@ sequence. `diagnostic` reads the original conversion's public destination receip
 outpoints and code at both confirmed wrapper addresses. It does not accept
 arbitrary RPC methods, external recipients, amounts or network overrides.
 
+## WQI and local payment-channel stages
+
+`generate-peer` and `generate-redemption` each create a distinct private wallet
+once, using the same private directory and restore check as `generate`.
+`qi-extended OP STAGE` supports `wrap`, `payment-send`, `payment-return` and
+`redemption-spend`, with separate `prepare`, `broadcast` and `observe` stages.
+Each broadcast stage submits exact persisted bytes and refuses a mined hash.
+No automatic submission retries occur; inspect the saved hash after any error.
+
+- `wrap` deposits 1 Qi backing for account A at WQI, with an explicit 0.1 Qi
+  qualification fee. Orchard's observed prime terminus does not meet the
+  specialized estimator's pinned activation profile. `credit` checks the
+  destination execution and unclaimed backing before `prepare/broadcast/observe
+  wqi-claim` claims exactly 1 WQI.
+- `prepare/broadcast/observe wqi-unwrap` redeems 1 WQI to a fresh address in
+  `qi-redemption.sqlite`, with 30,000 destination gas. `credit wqi-unwrap`
+  reads the actual lock. After maturity, `qi-extended redemption-spend` sends
+  0.5 Qi from this separately funded wallet through a payment-code address.
+- `payment-send` sends 5 Qi from the original wallet to the peer code.
+  `qi-extended payment-return scan` recovers the receiving channel with the
+  default 50-address gap, using the receiver seed and sender public code.
+  `payment-return` then sends 1 Qi back using the recovered BIP47 input key;
+  `qi-extended payment-send scan` discovers it in the original wallet.
+- `channels` prints only public code/address/index information for comparison
+  with the pinned JavaScript SDK. Local two-wallet acceptance is separate from
+  testing a real Pelagus extension.
+
+Original-wallet Qi reservation IDs 2 and 3 belong to wrap and payment-send.
+Peer and redemption wallets each use ID 1 in their separate stores. Account-A
+IDs 6 and 7 belong to WQI claim and redemption. All are one-use. Payment fees
+are capped at 0.1 Qi; the 5 Qi send allocates up to 24 change addresses because
+fixed-denomination change can require more than 16. Failed allocations and
+preparations retain burned ranges. Never reset these stores or reuse their IDs.
+
 ## Observed results
 
 See [funded account evidence](funded-accounts-2026-09-14.json) and
@@ -97,8 +135,13 @@ observations, not independent consensus proofs or general network qualification.
 - The corrected conversion executed at destination block 7,791,652 and created
   all 386,286 settled Qits in 17 outputs, with zero unobserved Qits. Destination
   hash: `0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7`.
-  Those outputs have reported lock height 7,791,752; full creation does not itself
-  establish maturity or a successful spend.
+  Those outputs have reported lock height 7,791,752. The [unlock recheck](conversion-unlocks-2026-09-14.json)
+  at height 7,794,731 found all 17 outputs present and unlocked (386.286 Qi).
+  The original conversion retained seven unlocked outputs totaling 380 Qi after
+  its recorded 5 Qi spend. Five self-transfer outputs totaling 4.5 Qi remained
+  indexed; eleven small outputs totaling 0.492 Qi were no longer returned.
+  Latest-index absence alone does not distinguish spending, trimming or index
+  behavior. These observations do not claim a new spend of the corrected outputs.
 - A matured 5 Qi output from the original conversion was spent in a successful
   1 Qi self-transfer at block 7,791,681. Its other outputs return 3.992 Qi change;
   the exact fee is 0.008 Qi. Four confirmations and all 16 fresh output addresses
@@ -117,6 +160,22 @@ observations, not independent consensus proofs or general network qualification.
   native balance decreased only by combined fees of 0.0000987372 QUAI.
   This qualifies the observed Orchard deposit/withdraw flow, not an independent
   contract audit or a mainnet funded test.
+- The [funded WQI round trip](wqi-roundtrip-2026-09-14.json) deposited 1 Qi
+  backing, claimed 1 WQI, and redeemed it to an isolated owned Qi wallet. The
+  destination produced exactly 1 Qi locked until height 7,794,808; the SDK observed
+  its transition from locked to unlocked. A confirmed payment spent that exact
+  output, sending 0.5 Qi with 0.493 Qi change and a 0.007 Qi fee. Each mined
+  transaction's signed bytes matched custody. The wrap used an explicit 0.1 Qi
+  fee; automatic specialized fee estimation rejected Orchard's activation profile.
+  A 429 during redemption submission was handled by a hash lookup and one explicit
+  submission of the same saved bytes; no replacement was created.
+
+Public RPC rate limiting and block-boundary refresh failures prompted bounded
+HTTP batching in the SDK. `outpoints_many` now uses transport batches when
+available, with checked IDs and per-batch chain identity; other transports fall
+back to four concurrent reads. Native wallet refresh retains its head guard.
+The large known-address refresh then succeeded on Orchard. This is additional
+evidence for explicit grouped reads, not for hidden retries or historical recovery.
 
 Source references: pinned [gas estimator](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/internal/quaiapi/quai_api.go),
 [origin ETX creation](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/core/vm/evm.go),
@@ -124,12 +183,29 @@ and [destination processing](https://github.com/dominant-strategies/go-quai/blob
 
 ## Payment-code interoperability
 
+Cross-zone qualification is deferred by user instruction while only Cyprus-1 is
+available. Same-zone conversion, wrapping and payment-channel testing continues.
+
 Rust generation/restoration and pinned `quais@1.0.0-alpha.57` agreed on the
 116-character payment code and first Qi address. The rejected pasted code was
 115 characters: it omitted the `9` in `Hiw9Knwnx`. A successful Pelagus-funded
 receive still requires the sender's public payment code and transaction hash.
-No sender seed or private key is required. This is not yet a live BIP47 receive
-qualification.
+No sender seed or private key is required. Real Pelagus extension interoperability
+remains separate from the local two-wallet qualification below.
+
+Local two-wallet qualification now uses a second generated wallet. The failed
+preparations burned four 6,000-child send intervals, putting the eventual payment
+at raw child 24,322. An initial gap-50 receive scan correctly stopped at 22,627
+without finding it. `qi-extended payment-return scan 22627` explicitly continues
+from that cursor. This illustrates why retained allocation metadata and deeper
+ranges matter after failed preparations; a gap stop is not proof of no funds.
+The [funded payment-code report](payment-codes-2026-09-14.json) records successful
+continuation recovery of all 5 Qi, spending that exact BIP47 output in a 1 Qi
+return payment, and default gap-50 discovery of the return in the original wallet.
+The respective fees were 0.01 Qi and 0.008 Qi. Mined signed bytes matched durable
+custody in both directions; pinned quais.js independently matched the actual
+funded receive key/address and the return address. Each stage reopened the
+private wallet and durable store, so return spending exercised key recovery.
 
 ## Verification
 
@@ -139,3 +215,10 @@ Clippy and rustdoc passed, reference/guide/107 package mirror checks passed. The
 [package rehearsal](packages-2026-09-14.json) built all twelve archives, ran three
 consumer tests and compiled native and Wasm consumers without registry upload.
 The CI job compiles this funded harness without keys or live execution.
+
+[Extended verification](extended-verification-2026-09-14.json) records the final
+batching/refresh tree: 626 workspace tests passed (5 ignored live tests), all 8
+Chromium worker tests passed, strict workspace/harness Clippy and rustdoc passed,
+and native/Wasm package rehearsals passed for all twelve archives. The additional
+batch tests cover reordered replies, duplicate/missing/foreign IDs, remote errors,
+request/response limits, chain changes, bounded concurrency and no automatic replay.

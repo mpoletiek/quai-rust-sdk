@@ -1,0 +1,529 @@
+{
+  "recordedAt": "2026-09-14T14:36:15.187150+00:00",
+  "network": "orchard",
+  "chainId": 15000,
+  "genesis": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+  "endpoint": "https://orchard.rpc.quai.network/cyprus1",
+  "sdkCommit": "5f165c57b146ae0883a30c0c21d66e80e03d897f",
+  "observedHead": 7794731,
+  "observedHeadHash": "0xb21663aa11ecc597ad76bd9f85658063a9e0796dfd146fe6be8e0d8d6cd5c870",
+  "stableHeadBracket": true,
+  "receipts": {
+    "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87": {
+      "transactionHash": "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87",
+      "blockHash": "0xff0593c6eca9541fe59b7510ea874a4ee6165fe6cf78be19c984bca5502b53b8",
+      "blockNumber": "0x76e3b4",
+      "status": "0x1",
+      "originatingTxHash": null
+    },
+    "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f": {
+      "transactionHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+      "blockHash": "0xb78426e70659056b87a1e6355e7a961584061752a5643e6c01009340c4d1410a",
+      "blockNumber": "0x76e3b8",
+      "status": "0x0",
+      "originatingTxHash": "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87"
+    },
+    "0x004c0013a9f333e839931a4b54b86cb539cb3a45dec223711ad413a3ba5306c1": {
+      "transactionHash": "0x004c0013a9f333e839931a4b54b86cb539cb3a45dec223711ad413a3ba5306c1",
+      "blockHash": "0xe634205aeae5142359b1191d3840fa004f862bcdac051fbe03d186190639be25",
+      "blockNumber": "0x76e420",
+      "status": "0x1",
+      "originatingTxHash": null
+    },
+    "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7": {
+      "transactionHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+      "blockHash": "0x2f04637e04cb6f97b7edf9bc1e2ca297aec91a0af54c66d1a940b04c05026821",
+      "blockNumber": "0x76e424",
+      "status": "0x1",
+      "originatingTxHash": "0x004c0013a9f333e839931a4b54b86cb539cb3a45dec223711ad413a3ba5306c1"
+    },
+    "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5": {
+      "transactionHash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+      "blockHash": "0x61d53e4f919426d756b4304f0abe56fb063497cce5a534e2a33f6519c95bb925",
+      "blockNumber": "0x76e441",
+      "status": "0x1",
+      "originatingTxHash": null
+    }
+  },
+  "conversions": [
+    {
+      "originHash": "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87",
+      "executionHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+      "unspentOutputs": 7,
+      "unlockedQits": 380000,
+      "lockedQits": 0,
+      "unlockHeight": 7791644
+    },
+    {
+      "originHash": "0x004c0013a9f333e839931a4b54b86cb539cb3a45dec223711ad413a3ba5306c1",
+      "executionHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+      "unspentOutputs": 17,
+      "unlockedQits": 386286,
+      "lockedQits": 0,
+      "unlockHeight": 7791752
+    }
+  ],
+  "currentOutpoints": {
+    "0x00f884B61A1B0a1D456D547801B30561d85E7A2D": [
+      {
+        "denomination": "0xa",
+        "index": "0x0",
+        "lock": "0x76e41c",
+        "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+      },
+      {
+        "denomination": "0xa",
+        "index": "0x1",
+        "lock": "0x76e41c",
+        "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+      },
+      {
+        "denomination": "0xa",
+        "index": "0x2",
+        "lock": "0x76e41c",
+        "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+      },
+      {
+        "denomination": "0x9",
+        "index": "0x3",
+        "lock": "0x76e41c",
+        "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+      },
+      {
+        "denomination": "0x9",
+        "index": "0x4",
+        "lock": "0x76e41c",
+        "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+      },
+      {
+        "denomination": "0x9",
+        "index": "0x5",
+        "lock": "0x76e41c",
+        "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+      },
+      {
+        "denomination": "0x9",
+        "index": "0x6",
+        "lock": "0x76e41c",
+        "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+      }
+    ],
+    "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82": [
+      {
+        "denomination": "0xa",
+        "index": "0x0",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0xa",
+        "index": "0x1",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0xa",
+        "index": "0x2",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x9",
+        "index": "0x3",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x9",
+        "index": "0x4",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x9",
+        "index": "0x5",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x9",
+        "index": "0x6",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x7",
+        "index": "0x7",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x6",
+        "index": "0x8",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x4",
+        "index": "0x9",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x4",
+        "index": "0xa",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x3",
+        "index": "0xb",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x2",
+        "index": "0xc",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x2",
+        "index": "0xd",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x2",
+        "index": "0xe",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x1",
+        "index": "0xf",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      },
+      {
+        "denomination": "0x0",
+        "index": "0x10",
+        "lock": "0x76e488",
+        "txHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7"
+      }
+    ],
+    "0x009Eb316466eb0E4eaC36a7Fb95236254Ddc6846": [
+      {
+        "denomination": "0x6",
+        "index": "0x0",
+        "lock": "0x0",
+        "txHash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5"
+      }
+    ],
+    "0x00892Fdd8755D18DaD7C0091D4d58a2D6201AEe5": [
+      {
+        "denomination": "0x6",
+        "index": "0x1",
+        "lock": "0x0",
+        "txHash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5"
+      }
+    ],
+    "0x00bF699F16F0b88D55a82D24700B3aAaDD5559a0": [
+      {
+        "denomination": "0x6",
+        "index": "0x2",
+        "lock": "0x0",
+        "txHash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5"
+      }
+    ],
+    "0x00fD5663a83EEaE4E145CEda3e5DB8FE77566E00": [
+      {
+        "denomination": "0x6",
+        "index": "0x3",
+        "lock": "0x0",
+        "txHash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5"
+      }
+    ],
+    "0x0095cc430a8F00c07d8dDe2B383b0Bb150C3b1f2": [
+      {
+        "denomination": "0x5",
+        "index": "0x4",
+        "lock": "0x0",
+        "txHash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5"
+      }
+    ],
+    "0x00a0C88D04323DEcCf11Eb0fEd92c05c165dB6a6": [],
+    "0x00D57eA7d7B851F84c2f447DC6912580d35ceE27": [],
+    "0x00E5D7f2A6e346D08B5E96E555B284A026484FAa": [],
+    "0x00dB47477Ccf6f9B0Bbb4e7Ad25b3ECeb1E10CeE": [],
+    "0x00ad9B61B2BBD3b006BF5D7dB4BC1E3E32cB6AB9": [],
+    "0x008df98D58840C9158bBCD32Cfae94d4CaD3A063": [],
+    "0x00aee7930aAA0e283c85bBf609cE08383FEcfE1E": [],
+    "0x00c10f8bD160CEE1b93707468f2d93EEeF6F0f45": [],
+    "0x00e4026379357FDb69F64d67fF36df9350746Bd5": [],
+    "0x00Ea2C29e51D4530496Dd2131604a169ff0649a2": [],
+    "0x00DAf2028bc5a5dDF6148bE4f6d4Bb51b5DE368C": []
+  },
+  "priorSelfTransfer": {
+    "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+    "currentlyIndexedOutputs": 5,
+    "unlockedQits": 4500,
+    "noLongerIndexedOutputs": [
+      {
+        "index": 5,
+        "address": "0x00a0C88D04323DEcCf11Eb0fEd92c05c165dB6a6",
+        "denomination": 4
+      },
+      {
+        "index": 6,
+        "address": "0x00D57eA7d7B851F84c2f447DC6912580d35ceE27",
+        "denomination": 4
+      },
+      {
+        "index": 7,
+        "address": "0x00E5D7f2A6e346D08B5E96E555B284A026484FAa",
+        "denomination": 4
+      },
+      {
+        "index": 8,
+        "address": "0x00dB47477Ccf6f9B0Bbb4e7Ad25b3ECeb1E10CeE",
+        "denomination": 4
+      },
+      {
+        "index": 9,
+        "address": "0x00ad9B61B2BBD3b006BF5D7dB4BC1E3E32cB6AB9",
+        "denomination": 3
+      },
+      {
+        "index": 10,
+        "address": "0x008df98D58840C9158bBCD32Cfae94d4CaD3A063",
+        "denomination": 2
+      },
+      {
+        "index": 11,
+        "address": "0x00aee7930aAA0e283c85bBf609cE08383FEcfE1E",
+        "denomination": 2
+      },
+      {
+        "index": 12,
+        "address": "0x00c10f8bD160CEE1b93707468f2d93EEeF6F0f45",
+        "denomination": 2
+      },
+      {
+        "index": 13,
+        "address": "0x00e4026379357FDb69F64d67fF36df9350746Bd5",
+        "denomination": 2
+      },
+      {
+        "index": 14,
+        "address": "0x00Ea2C29e51D4530496Dd2131604a169ff0649a2",
+        "denomination": 0
+      },
+      {
+        "index": 15,
+        "address": "0x00DAf2028bc5a5dDF6148bE4f6d4Bb51b5DE368C",
+        "denomination": 0
+      }
+    ],
+    "noLongerIndexedQits": 492
+  },
+  "totalKnownUnspentQits": 770786,
+  "totalKnownLockedQits": 0,
+  "boundaries": [
+    "Latest-only trusted-node observations, not a historical or independently verified snapshot.",
+    "Original conversion remains partially failed: 1286 Qits were never observed; its 5000-Qit output index 7 was spent in the recorded self-transfer.",
+    "No new transaction signed or submitted; corrected outputs have expired locks but have not yet been spent.",
+    "Known recorded test addresses only; not an exhaustive seed or BIP47 recovery scan.",
+    "Some prior self-transfer outputs are no longer in the latest index; absence alone does not distinguish spending, expiry/pruning, or index behavior."
+  ],
+  "v2SdkObservation": {
+    "coverage": "Complete",
+    "effect": "Some(ConversionReported)",
+    "examined": 26,
+    "executionHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+    "from": 7791648,
+    "operation": "convert-quai-to-qi-v2",
+    "origin": "emitted",
+    "originHash": "0x004c0013a9f333e839931a4b54b86cb539cb3a45dec223711ad413a3ba5306c1",
+    "qiCredit": {
+      "beneficiary": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+      "creatingHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+      "executionBlock": 7791652,
+      "executionHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+      "lockedQits": "0",
+      "observedHead": 7794712,
+      "outputs": [
+        {
+          "denomination": 10,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 0,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 10,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 1,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 10,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 2,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 9,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 3,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 9,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 4,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 9,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 5,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 9,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 6,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 7,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 7,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 6,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 8,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 4,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 9,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 4,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 10,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 3,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 11,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 2,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 12,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 2,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 13,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 2,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 14,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 1,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 15,
+          "lock": "7791752"
+        },
+        {
+          "denomination": 0,
+          "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+          "index": 16,
+          "lock": "7791752"
+        }
+      ],
+      "unlockedQits": "386286",
+      "unobservedQits": "0"
+    },
+    "to": 7791663
+  },
+  "originalSdkObservation": {
+    "coverage": "Complete",
+    "effect": "Some(ExecutionFailed { etx_type: 2 })",
+    "examined": 23,
+    "executionHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+    "from": 7791540,
+    "operation": "convert-quai-to-qi",
+    "origin": "emitted",
+    "originHash": "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87",
+    "qiCredit": {
+      "beneficiary": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+      "creatingHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+      "executionBlock": 7791544,
+      "executionHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+      "lockedQits": "0",
+      "observedHead": 7794719,
+      "outputs": [
+        {
+          "denomination": 10,
+          "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "index": 0,
+          "lock": "7791644"
+        },
+        {
+          "denomination": 10,
+          "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "index": 1,
+          "lock": "7791644"
+        },
+        {
+          "denomination": 10,
+          "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "index": 2,
+          "lock": "7791644"
+        },
+        {
+          "denomination": 9,
+          "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "index": 3,
+          "lock": "7791644"
+        },
+        {
+          "denomination": 9,
+          "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "index": 4,
+          "lock": "7791644"
+        },
+        {
+          "denomination": 9,
+          "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "index": 5,
+          "lock": "7791644"
+        },
+        {
+          "denomination": 9,
+          "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "index": 6,
+          "lock": "7791644"
+        }
+      ],
+      "unlockedQits": "380000",
+      "unobservedQits": "6286"
+    },
+    "to": 7791555
+  }
+}

@@ -257,29 +257,34 @@ pub async fn refresh_qi<T: Transport>(
     }
     let mut coins = Vec::new();
     let mut seen = BTreeSet::new();
-    for metadata in addresses {
-        let Ok(address) = QiAddress::try_from(metadata.address()) else {
-            continue;
-        };
+    let addresses: Vec<_> = addresses
+        .into_iter()
+        .filter_map(|metadata| QiAddress::try_from(metadata.address()).ok())
+        .collect();
+    // Small bounded pages avoid serial network latency consuming an entire block.
+    // The same before/after head guard still rejects a moving current-state view.
+    for page in addresses.chunks(8) {
         if cancelled() {
             return Err(QiError::Cancelled);
         }
-        for output in provider.outpoints(address).await? {
-            let outpoint = OutPoint {
-                transaction_hash: output.outpoint.tx_hash,
-                index: output.outpoint.index,
-            };
-            if coins.len() == 100_000 || !seen.insert(outpoint) {
-                return Err(QiError::IdentityMismatch);
+        for (address, outputs) in provider.outpoints_many(page).await? {
+            for output in outputs {
+                let outpoint = OutPoint {
+                    transaction_hash: output.outpoint.tx_hash,
+                    index: output.outpoint.index,
+                };
+                if coins.len() == 100_000 || !seen.insert(outpoint) {
+                    return Err(QiError::IdentityMismatch);
+                }
+                coins.push(CandidateCoin {
+                    outpoint,
+                    address,
+                    denomination: Denomination::new(output.denomination)?,
+                    unlock_height: output.lock,
+                    expires_at: None,
+                    reserved: false,
+                });
             }
-            coins.push(CandidateCoin {
-                outpoint,
-                address,
-                denomination: Denomination::new(output.denomination)?,
-                unlock_height: output.lock,
-                expires_at: None,
-                reserved: false,
-            });
         }
     }
     if cancelled() {

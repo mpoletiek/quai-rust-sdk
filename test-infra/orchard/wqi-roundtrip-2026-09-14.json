@@ -1,0 +1,512 @@
+{
+  "recordedAt": "2026-09-14T15:13:29.979318+00:00",
+  "network": "orchard",
+  "chainId": 15000,
+  "endpoint": "https://orchard.rpc.quai.network/cyprus1",
+  "baseCommit": "5f165c57b146ae0883a30c0c21d66e80e03d897f",
+  "wrapper": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+  "amountQits": 1000,
+  "operations": {
+    "wrap": {
+      "prepared": [
+        {
+          "head": "7794766",
+          "lockedQits": "0",
+          "stage": "refresh",
+          "unreservedQits": "770786"
+        },
+        {
+          "dataLength": 20,
+          "feeQits": "100",
+          "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+          "inputs": [
+            {
+              "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+              "index": 7
+            }
+          ],
+          "operation": "wrap",
+          "outputs": [
+            {
+              "address": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+              "denomination": 6
+            },
+            {
+              "address": "0x00B4Ce61832E5C8FF80CB57a1589b259298cEce0",
+              "denomination": 6
+            },
+            {
+              "address": "0x00D2Bb2d7D5C991232f878C5EfAc4a25BAD04D58",
+              "denomination": 6
+            },
+            {
+              "address": "0x009C2A0134c2BA62cD10c8a25902D008D4433976",
+              "denomination": 6
+            },
+            {
+              "address": "0x009B9705563d6437602a14dfbF346B4242D2080D",
+              "denomination": 5
+            },
+            {
+              "address": "0x009ec44403AfeEcCdd7Efb14f886f6c7FC68de85",
+              "denomination": 4
+            },
+            {
+              "address": "0x00991c4780BC0A3c235f3a0523AECBD8b41236C7",
+              "denomination": 4
+            },
+            {
+              "address": "0x00f42A1D3Ea67C12a541a26c0F767bC508961751",
+              "denomination": 4
+            },
+            {
+              "address": "0x00E288fC73237c1F3539D059502831F1332Fd094",
+              "denomination": 4
+            }
+          ],
+          "stage": "signed-persisted"
+        }
+      ],
+      "broadcast": [
+        {
+          "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+          "operation": "wrap",
+          "stage": "acknowledged"
+        }
+      ],
+      "observed": [
+        {
+          "confirmations": 3,
+          "operation": "wrap",
+          "receipt": {
+            "blockHash": "0x06b0e1ff0421b63ce300ea61f5b4649fed7597e376ee773d34c89a85cb7cb032",
+            "blockNumber": "0x76f053",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0x0",
+            "effectiveGasPrice": "0x3b9aca00",
+            "etxType": null,
+            "from": null,
+            "gasUsed": "0x1b0b7",
+            "logs": [],
+            "originatingTxHash": null,
+            "outboundEtxs": [
+              {
+                "accessList": [],
+                "blockHash": "0x06b0e1ff0421b63ce300ea61f5b4649fed7597e376ee773d34c89a85cb7cb032",
+                "blockNumber": "0x76f053",
+                "etxIndex": "0x0",
+                "etxType": "0x4",
+                "from": "0x0000000000000000000000000000000000000000",
+                "gas": "0x24881d",
+                "hash": "0x003a0056ee30aa71cff53e5e8c7aa6fc1c136bfb8c40f2a0102afb2500140f7c",
+                "input": "0x002b2596ecf05c93a31ff916e8b456df6c77c750",
+                "nonce": "0x0",
+                "originatingTxHash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+                "to": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+                "transactionIndex": "0x3",
+                "type": "0x1",
+                "value": "0x3e8"
+              }
+            ],
+            "status": "0x1",
+            "to": null,
+            "transactionHash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+            "transactionIndex": "0x3",
+            "type": "0x2"
+          },
+          "stage": "observed"
+        },
+        {
+          "durableSignedBytesMatchMinedTransaction": true,
+          "operation": "wrap",
+          "stage": "verified"
+        }
+      ],
+      "durableSignedBytesMatchMinedTransaction": true
+    },
+    "claim": {
+      "prepared": [
+        {
+          "operation": "wqi-claim",
+          "stage": "WQI-preflight",
+          "tokenAtoms": "0",
+          "unclaimedQits": "1000"
+        },
+        {
+          "chainId": 15000,
+          "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+          "gasLimit": 73772,
+          "gasPrice": "1200000000",
+          "maximumFeeBaseUnits": "88526400000000",
+          "nonce": 6785,
+          "operation": "wqi-claim",
+          "signingDigest": "0x540ff7c0cd6d613450d885780be1a3be3f7927776f71dfcce8f26f9800e1335d",
+          "stage": "prepared",
+          "to": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+          "valueBaseUnits": "0"
+        },
+        {
+          "hash": "0x0019003a4132385f9cf228ba78162982ff643f21778f297b8034a10d41bf8b36",
+          "operation": "wqi-claim",
+          "stage": "signed-and-persisted"
+        }
+      ],
+      "broadcast": [
+        {
+          "hash": "0x0019003a4132385f9cf228ba78162982ff643f21778f297b8034a10d41bf8b36",
+          "operation": "wqi-claim",
+          "stage": "acknowledged"
+        }
+      ],
+      "observed": [
+        {
+          "confirmations": 2,
+          "operation": "wqi-claim",
+          "receipt": {
+            "blockHash": "0xc7d1cecfc3bb7d0110f5e8417084ae80b3697aa426a148655c9038401ddfa1ba",
+            "blockNumber": "0x76f05e",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0xe315",
+            "effectiveGasPrice": "0x47868c00",
+            "etxType": null,
+            "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+            "gasUsed": "0xe315",
+            "logs": [
+              {
+                "address": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+                "blockHash": "0xc7d1cecfc3bb7d0110f5e8417084ae80b3697aa426a148655c9038401ddfa1ba",
+                "blockNumber": "0x76f05e",
+                "data": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
+                "logIndex": "0x0",
+                "removed": false,
+                "topics": [
+                  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                  "0x0000000000000000000000000000000000000000000000000000000000000000",
+                  "0x0000000000000000000000000006506bde7140b85ded58a40d7444f84cde4821"
+                ],
+                "transactionHash": "0x0019003a4132385f9cf228ba78162982ff643f21778f297b8034a10d41bf8b36",
+                "transactionIndex": "0x0"
+              },
+              {
+                "address": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+                "blockHash": "0xc7d1cecfc3bb7d0110f5e8417084ae80b3697aa426a148655c9038401ddfa1ba",
+                "blockNumber": "0x76f05e",
+                "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
+                "logIndex": "0x1",
+                "removed": false,
+                "topics": [
+                  "0xe800e3ea37ded367af4fce9aa5ecaa72b693f315a2c3b6c7a3d07c84196515fb",
+                  "0x0000000000000000000000000006506bde7140b85ded58a40d7444f84cde4821"
+                ],
+                "transactionHash": "0x0019003a4132385f9cf228ba78162982ff643f21778f297b8034a10d41bf8b36",
+                "transactionIndex": "0x0"
+              }
+            ],
+            "originatingTxHash": null,
+            "outboundEtxs": [],
+            "status": "0x1",
+            "to": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+            "transactionHash": "0x0019003a4132385f9cf228ba78162982ff643f21778f297b8034a10d41bf8b36",
+            "transactionIndex": "0x0",
+            "type": "0x0"
+          },
+          "stage": "observed"
+        },
+        {
+          "feeBaseUnits": "69759600000000",
+          "operation": "wqi-claim",
+          "stage": "WQI-observed",
+          "tokenAtoms": "1000000000000000000",
+          "unclaimedQits": "0"
+        }
+      ],
+      "durableSignedBytesMatchMinedTransaction": true
+    },
+    "unwrap": {
+      "prepared": [
+        {
+          "operation": "wqi-unwrap",
+          "stage": "WQI-preflight",
+          "tokenAtoms": "1000000000000000000",
+          "unclaimedQits": "0"
+        },
+        {
+          "metadata": {
+            "address": "0x009113f2698D1AEc37a14BD79e9d4aba465F9f9A",
+            "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 277 }"
+          },
+          "operation": "wqi-unwrap",
+          "stage": "redemption-recipient"
+        },
+        {
+          "chainId": 15000,
+          "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+          "gasLimit": 95507,
+          "gasPrice": "1200000000",
+          "maximumFeeBaseUnits": "114608400000000",
+          "nonce": 6786,
+          "operation": "wqi-unwrap",
+          "signingDigest": "0x40e2280708b6744cff81f60ebeb41d8b22a9045affa4879f5ab39cc605eae650",
+          "stage": "prepared",
+          "to": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+          "valueBaseUnits": "0"
+        },
+        {
+          "hash": "0x0056003282f42f90dcb0328b759ce2d8bcdddd75c2ce5f1896d1687cdd4fca9b",
+          "operation": "wqi-unwrap",
+          "stage": "signed-and-persisted"
+        }
+      ],
+      "broadcast": [
+        {
+          "hash": "0x0056003282f42f90dcb0328b759ce2d8bcdddd75c2ce5f1896d1687cdd4fca9b",
+          "operation": "wqi-unwrap",
+          "stage": "acknowledged"
+        }
+      ],
+      "observed": [
+        {
+          "confirmations": 3,
+          "operation": "wqi-unwrap",
+          "receipt": {
+            "blockHash": "0x22018160d50d03dce96d276847e7deaf710acbd5772a9b5b3446f93976388f81",
+            "blockNumber": "0x76f06b",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0x10acb",
+            "effectiveGasPrice": "0x47868c00",
+            "etxType": null,
+            "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+            "gasUsed": "0x10acb",
+            "logs": [
+              {
+                "address": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+                "blockHash": "0x22018160d50d03dce96d276847e7deaf710acbd5772a9b5b3446f93976388f81",
+                "blockNumber": "0x76f06b",
+                "data": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
+                "logIndex": "0x0",
+                "removed": false,
+                "topics": [
+                  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                  "0x0000000000000000000000000006506bde7140b85ded58a40d7444f84cde4821",
+                  "0x0000000000000000000000000000000000000000000000000000000000000000"
+                ],
+                "transactionHash": "0x0056003282f42f90dcb0328b759ce2d8bcdddd75c2ce5f1896d1687cdd4fca9b",
+                "transactionIndex": "0x0"
+              },
+              {
+                "address": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+                "blockHash": "0x22018160d50d03dce96d276847e7deaf710acbd5772a9b5b3446f93976388f81",
+                "blockNumber": "0x76f06b",
+                "data": "0x0000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000007530",
+                "logIndex": "0x1",
+                "removed": false,
+                "topics": [
+                  "0x5afdea180e36f6aea14d84749c8b3abfeeacd1c24f27e2f8912ac86ee0e2fb1d",
+                  "0x0000000000000000000000000006506bde7140b85ded58a40d7444f84cde4821"
+                ],
+                "transactionHash": "0x0056003282f42f90dcb0328b759ce2d8bcdddd75c2ce5f1896d1687cdd4fca9b",
+                "transactionIndex": "0x0"
+              }
+            ],
+            "originatingTxHash": null,
+            "outboundEtxs": [
+              {
+                "accessList": [],
+                "blockHash": "0x22018160d50d03dce96d276847e7deaf710acbd5772a9b5b3446f93976388f81",
+                "blockNumber": "0x76f06b",
+                "etxIndex": "0x0",
+                "etxType": "0x6",
+                "from": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+                "gas": "0x7530",
+                "hash": "0x005900d7d1e9f288c191130efd62c15ff20fda37158cea63c88f7ee25eb030f7",
+                "input": "0x",
+                "nonce": "0x0",
+                "originatingTxHash": "0x0056003282f42f90dcb0328b759ce2d8bcdddd75c2ce5f1896d1687cdd4fca9b",
+                "to": "0x009113f2698D1AEc37a14BD79e9d4aba465F9f9A",
+                "transactionIndex": "0x0",
+                "type": "0x1",
+                "value": "0x3e8"
+              }
+            ],
+            "status": "0x1",
+            "to": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+            "transactionHash": "0x0056003282f42f90dcb0328b759ce2d8bcdddd75c2ce5f1896d1687cdd4fca9b",
+            "transactionIndex": "0x0",
+            "type": "0x0"
+          },
+          "stage": "observed"
+        },
+        {
+          "feeBaseUnits": "81958800000000",
+          "operation": "wqi-unwrap",
+          "stage": "WQI-observed",
+          "tokenAtoms": "0",
+          "unclaimedQits": "0"
+        }
+      ],
+      "durableSignedBytesMatchMinedTransaction": true
+    },
+    "redemption-spend": {
+      "prepared": [
+        {
+          "head": "7794814",
+          "lockedQits": "0",
+          "stage": "refresh",
+          "unreservedQits": "1000"
+        },
+        {
+          "dataLength": 0,
+          "feeQits": "7",
+          "hash": "0x009d0091cea07706ae71e9905722206d12732b813c0b403b9142604312e0502f",
+          "inputs": [
+            {
+              "hash": "0x005900d7d1e9f288c191130efd62c15ff20fda37158cea63c88f7ee25eb030f7",
+              "index": 0
+            }
+          ],
+          "operation": "redemption-spend",
+          "outputs": [
+            {
+              "address": "0x00f5A66780EaA55d75Acd6F778eaF6134019097C",
+              "denomination": 5
+            },
+            {
+              "address": "0x0084F79efc504f215FD21f5606cd59e4aFa1863B",
+              "denomination": 4
+            },
+            {
+              "address": "0x00a90c0181A2F58512A2e8a344bfC355586547f0",
+              "denomination": 4
+            },
+            {
+              "address": "0x00b5e7c4376638BE46b46D67577aE7B7Ac8Cb134",
+              "denomination": 4
+            },
+            {
+              "address": "0x00CE0285BbbdAe7659993ABb6dBa7e6550e4cE51",
+              "denomination": 4
+            },
+            {
+              "address": "0x00aad296E3890037dDF92Ce00c8f8753044EeC14",
+              "denomination": 3
+            },
+            {
+              "address": "0x009cC9cbE4F37649603d3882B199A48CfA905349",
+              "denomination": 2
+            },
+            {
+              "address": "0x00c5b5bb1f405737C1E7deb94A1d3823a1A5fa2e",
+              "denomination": 2
+            },
+            {
+              "address": "0x00ACD53aef83F20F588cE9f061B7f774CA1cB350",
+              "denomination": 2
+            },
+            {
+              "address": "0x00dCC0480381cdF2A2d6b6Ab1702C4cbc1C68aC6",
+              "denomination": 2
+            },
+            {
+              "address": "0x00C9179E74aF11419dB249811C0e4478b9b2D00b",
+              "denomination": 0
+            },
+            {
+              "address": "0x00dE7713Ad2C4C37103C341f6BD5AD179A82cb6f",
+              "denomination": 0
+            },
+            {
+              "address": "0x0090CDE7568f821308842B3198E6fB3Dd9A92267",
+              "denomination": 0
+            }
+          ],
+          "stage": "signed-persisted"
+        }
+      ],
+      "broadcast": [
+        {
+          "hash": "0x009d0091cea07706ae71e9905722206d12732b813c0b403b9142604312e0502f",
+          "operation": "redemption-spend",
+          "stage": "acknowledged"
+        }
+      ],
+      "observed": [
+        {
+          "confirmations": 2,
+          "operation": "redemption-spend",
+          "receipt": {
+            "blockHash": "0xac63ebff0bcf4020819a4aa6468c92d53cda28302c19a1b87f0a667add789739",
+            "blockNumber": "0x76f089",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0x0",
+            "effectiveGasPrice": "0x3b9aca00",
+            "etxType": null,
+            "from": null,
+            "gasUsed": "0x1f391",
+            "logs": [],
+            "originatingTxHash": null,
+            "outboundEtxs": [],
+            "status": "0x1",
+            "to": null,
+            "transactionHash": "0x009d0091cea07706ae71e9905722206d12732b813c0b403b9142604312e0502f",
+            "transactionIndex": "0x4",
+            "type": "0x2"
+          },
+          "stage": "observed"
+        },
+        {
+          "durableSignedBytesMatchMinedTransaction": true,
+          "operation": "redemption-spend",
+          "stage": "verified"
+        }
+      ],
+      "durableSignedBytesMatchMinedTransaction": true
+    }
+  },
+  "backing": {
+    "executionHash": "0x003a0056ee30aa71cff53e5e8c7aa6fc1c136bfb8c40f2a0102afb2500140f7c",
+    "outcome": "Some(Succeeded)",
+    "stage": "backing-observed",
+    "unclaimedQits": "1000"
+  },
+  "lockedCredit": {
+    "executionHash": "0x005900d7d1e9f288c191130efd62c15ff20fda37158cea63c88f7ee25eb030f7",
+    "lockedQits": "1000",
+    "observedHead": 7794803,
+    "outcome": "Some(Succeeded)",
+    "outputs": [
+      {
+        "denomination": 6,
+        "hash": "0x005900d7d1e9f288c191130efd62c15ff20fda37158cea63c88f7ee25eb030f7",
+        "index": 0,
+        "lock": "7794808"
+      }
+    ],
+    "stage": "redemption-credit",
+    "unlockedQits": "0",
+    "unobservedQits": "0"
+  },
+  "matureCredit": {
+    "executionHash": "0x005900d7d1e9f288c191130efd62c15ff20fda37158cea63c88f7ee25eb030f7",
+    "lockedQits": "0",
+    "observedHead": 7794812,
+    "outcome": "Some(Succeeded)",
+    "outputs": [
+      {
+        "denomination": 6,
+        "hash": "0x005900d7d1e9f288c191130efd62c15ff20fda37158cea63c88f7ee25eb030f7",
+        "index": 0,
+        "lock": "7794808"
+      }
+    ],
+    "stage": "redemption-credit",
+    "unlockedQits": "1000",
+    "unobservedQits": "0"
+  },
+  "boundaries": [
+    "Funded same-zone Orchard acceptance only; no mainnet writes or contract audit.",
+    "Harness and transport were developed in stages; baseCommit is the pre-change repository revision, not an assertion that all stages used one immutable build.",
+    "Wrapping used an explicit 100-Qit fee after the Orchard prime terminus failed the pinned automatic estimator activation check.",
+    "One redemption broadcast command returned HTTP 429. A subsequent hash lookup returned null; one explicit recovery submission used the exact saved signed bytes, with no replacement.",
+    "The redeemed output was spent in a 500-Qit payment, with 493 Qits change and 7 Qits fee."
+  ]
+}

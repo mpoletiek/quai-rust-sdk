@@ -631,8 +631,20 @@ legacy burned ranges stay consumed.
 
 Browser `BrowserPaymentBook` persists the range before search and a completed
 exposure before return. Each allocation has a caller-retained ID. Cancellation
-or failure burns the range. Automatic notification-transaction discovery,
-blinding and peer-code exchange are not implemented.
+or failure burns the range. BIP47 notification-transaction discovery and
+blinding are not implemented.
+
+Pelagus announces channels through a mailbox contract instead: senders call
+`notify(sender, receiver)` and receivers read `getNotifications(receiver)`.
+With `abi` and `payments`, `payment_mailbox::PaymentMailbox` prepares exact
+`notify` account intents and returns validated, deduplicated sender codes,
+bounded to `MAX_MAILBOX_NOTIFICATIONS`. `PELAGUS_MAILBOX_ADDRESS` is the
+address Pelagus uses; identical runtime bytes were observed on mainnet and
+Orchard. This is a wallet convention, not a protocol rule. Announcements are
+unauthenticated and public: anyone can announce a code, and a `notify` links
+both codes on-chain. A Pelagus recipient only discovers a channel after
+`notify`, which cost 243,807 gas on mainnet. Register returned codes as
+channels and scan them with the ordinary bounded scans.
 
 ## Conversions and wrapped assets
 

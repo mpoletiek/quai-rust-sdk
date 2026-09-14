@@ -55,6 +55,9 @@ pub mod deployments;
 pub mod discovery;
 #[cfg(all(feature = "sqlite", feature = "payments", not(target_arch = "wasm32")))]
 pub mod payment_channels;
+/// Pelagus-compatible payment-channel mailbox announcements.
+#[cfg(all(feature = "abi", feature = "payments"))]
+pub mod payment_mailbox;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod qi;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]

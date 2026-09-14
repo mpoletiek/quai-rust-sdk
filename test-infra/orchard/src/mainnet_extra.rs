@@ -42,15 +42,15 @@ impl quai_sdk::rpc::Transport for LostAck {
     }
 }
 
-struct Ctx {
-    provider: Provider<DiagnosticTransport>,
+pub(super) struct Ctx {
+    pub(super) provider: Provider<DiagnosticTransport>,
     key_hex: Vec<Zeroizing<String>>,
-    addresses: [QuaiAddress; 2],
+    pub(super) addresses: [QuaiAddress; 2],
     scope: NetworkScope,
 }
 
 impl Ctx {
-    async fn load() -> Result<Self, Box<dyn Error>> {
+    pub(super) async fn load() -> Result<Self, Box<dyn Error>> {
         if !net().mainnet() {
             return Err("mainnet-extra requires QUAI_QUALIFICATION_NETWORK=mainnet".into());
         }
@@ -138,7 +138,7 @@ impl Ctx {
 
     /// Prepare (retrying head changes), sign, broadcast and confirm one intent;
     /// resumes from a saved signature or an existing receipt without re-signing.
-    async fn send(
+    pub(super) async fn send(
         &self,
         owner: usize,
         id: u8,

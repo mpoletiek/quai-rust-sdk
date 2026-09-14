@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-14",
+  "network": "mainnet",
+  "chainId": 9,
+  "endpoint": "https://rpc.quai.network/cyprus1",
+  "provenance": {
+    "baseCommit": "843460954bd35e950815d4b94757071f15745df3",
+    "sourceDirty": true,
+    "harnessSha256": {
+      "test-infra/orchard/src/pelagus.rs": "0700e835b4f384f7eca97f1f676f38031fe2de2f08453440a5e21d7379e87270"
+    }
+  },
+  "pelagus": {
+    "repository": "https://github.com/PelagusWallet/pelagus-extension",
+    "commit": "8c8a044d638308dc0fe64d5f55c24084a7bff977",
+    "quais": "1.0.0-alpha.57",
+    "mailboxContract": "0x004C82298b3ED69a949008d7037918B13A4260c5",
+    "mailboxAbi": [
+      "notify(string senderPaymentCode, string receiverPaymentCode)",
+      "getNotifications(string receiverPaymentCode) view returns (string[])",
+      "event NotificationSent(string senderPaymentCode, string receiverPaymentCode)"
+    ],
+    "sources": [
+      "background/constants/networks.ts",
+      "background/contracts/payment-channel-mailbox.ts",
+      "background/services/transactions/index.ts",
+      "background/services/keyring/wallets/qi-hd-wallet-manager.ts"
+    ]
+  },
+  "payment": {
+    "amountQi": 15,
+    "paymentTx": "0x00f300ef56b142809d3ce2fb37062c5601fe0c8cb01c2497337bab89fa56415f",
+    "notifyTx": "0x001d005c0e578adfd2f9f2096b5c6a893faecf3817add2ca85039346befae247",
+    "block": 10098488
+  },
+  "discovery": {
+    "mailbox": "0x004C82298b3ED69a949008d7037918B13A4260c5",
+    "mailboxCodeBytes": 1733,
+    "receiver": "PM8TJXaAyZxcLGB8i7iR6YzeREFgPRnPWQsUAiVUQQBECho2YpbiXyxxSoevZxdCdxtHiw9KnwnxPDcDJhSgWPmmppdtkX3RXcBmChYCfNFnM5NKJHva",
+    "senders": [
+      {
+        "code": "PM8TJgT4bZYopT5Mj2fWtwc8K49YRnTfBLLZdfSSqzXyqfZ9zsTrGcHU32uf28zdmX3ruMbYKSCB8TfbuqxNSw5CeG9VCYbbcM9jchyQdADT4abNFoaa",
+        "valid": true
+      }
+    ],
+    "stage": "mailbox-discovery"
+  },
+  "channelScan": {
+    "channelCoins": [
+      {
+        "address": "0x00B4032B07d569E6946896879bE625f0C8033a86",
+        "hash": "0x00f300ef56b142809d3ce2fb37062c5601fe0c8cb01c2497337bab89fa56415f",
+        "index": 0,
+        "qits": 10000,
+        "unlockHeight": "0"
+      },
+      {
+        "address": "0x00bdc825003d5C2b2659Eb7C33a1BE52fD7d5a48",
+        "hash": "0x00f300ef56b142809d3ce2fb37062c5601fe0c8cb01c2497337bab89fa56415f",
+        "index": 1,
+        "qits": 5000,
+        "unlockHeight": "0"
+      }
+    ],
+    "channelQits": 15000,
+    "indexes": [
+      711,
+      752,
+      1001,
+      1113,
+      1653,
+      1951,
+      2559,
+      4015,
+      4245,
+      4391,
+      5267,
+      5571,
+      5858,
+      6676,
+      6678,
+      6704,
+      7106,
+      7821,
+      7878,
+      9026,
+      9673,
+      9807,
+      10004,
+      10402,
+      10916,
+      11749,
+      12006,
+      12046,
+      12519,
+      12535,
+      12801,
+      12915,
+      13317,
+      13526,
+      13715,
+      13722,
+      13936,
+      14010,
+      14763,
+      15646,
+      16172,
+      17886,
+      17887,
+      18037,
+      18208,
+      18258,
+      18283,
+      18888,
+      18922,
+      19060,
+      19248,
+      19346
+    ],
+    "nextIndex": 19347,
+    "sender": "PM8TJgT4bZYopT5Mj2fWtwc8K49YRnTfBLLZdfSSqzXyqfZ9zsTrGcHU32uf28zdmX3ruMbYKSCB8TfbuqxNSw5CeG9VCYbbcM9jchyQdADT4abNFoaa",
+    "stage": "pelagus-channel-scan",
+    "stop": "GapLimit",
+    "walletBalance": {
+      "locked": "3416",
+      "spendable": "15000",
+      "total": "18416"
+    }
+  },
+  "findings": [
+    "Pelagus does not use BIP47 notification transactions; it announces channels with notify() on a Quai-ledger mailbox contract and receivers read getNotifications(receiverCode).",
+    "The Rust SDK discovered the Pelagus sender code from the mailbox with a typed contract call, validated it, registered the channel and found both outputs (10 Qi and 5 Qi) at the first two receive indexes with default gap-50 scanning.",
+    "A quai_call with the contract's own address as from was rejected with -32000; an account caller succeeds.",
+    "Mailbox announcements are unauthenticated public data: anyone can notify any receiver, so codes must be validated and channel scanning bounded."
+  ],
+  "limits": [
+    "Receive-only so far; spending back to Pelagus and WQI use of these outputs are pending.",
+    "The sender code is inferred from the mailbox; the user did not separately confirm it."
+  ]
+}

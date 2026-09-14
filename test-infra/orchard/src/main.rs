@@ -3,6 +3,7 @@ mod diagnostic;
 mod mainnet_checks;
 mod mainnet_extra;
 mod network;
+mod pelagus;
 mod qi;
 mod qi_extended;
 use network::{dir, net};
@@ -259,6 +260,7 @@ async fn main() {
             .await
         }
         "inspect" => inspect().await,
+        "pelagus" => pelagus::run(&std::env::args().nth(2).unwrap_or_default()).await,
         "mainnet-extra" => mainnet_extra::run(&std::env::args().nth(2).unwrap_or_default()).await,
         "mainnet-check" => mainnet_checks::run(&std::env::args().nth(2).unwrap_or_default()).await,
         "diagnostic" => match net().require_orchard("diagnostic") {

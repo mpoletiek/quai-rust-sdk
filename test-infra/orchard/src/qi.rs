@@ -11,7 +11,7 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
         passphrase: &'a str,
         hd_receive_index: u32,
     }
-    let content = Zeroizing::new(fs::read_to_string(Path::new(DIR).join("qi-wallet.json"))?);
+    let content = Zeroizing::new(fs::read_to_string(dir().join("qi-wallet.json"))?);
     let saved: Saved = serde_json::from_str(&content).map_err(|_| "invalid Qi wallet JSON")?;
     let mnemonic = Mnemonic::parse(Language::English, saved.mnemonic)?;
     let wallet = HdWallet::from_mnemonic(&mnemonic, saved.passphrase, CoinType::Qi)?;
@@ -32,7 +32,7 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
     if provider.genesis_hash(scope.zone).await? != scope.genesis {
         return Err("Orchard identity mismatch".into());
     }
-    let mut store = SqliteStore::open(Path::new(DIR).join("state/qi.sqlite"), scope)?;
+    let mut store = SqliteStore::open(dir().join("state/qi.sqlite"), scope)?;
     let owner = PublicAddress::derive(&account, false, saved.hd_receive_index)?;
     if store.addresses()?.is_empty() {
         store.import_metadata(0, &[owner])?;
@@ -40,7 +40,7 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
     let id = ReservationId([1; 16]);
     match stage {
         "qi-allocate-conversion" => {
-            let path = Path::new(DIR).join("conversion-v2-recipient.json");
+            let path = dir().join("conversion-v2-recipient.json");
             if path.exists() {
                 return Err("conversion recipient already allocated".into());
             }
@@ -61,7 +61,7 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
                 .open(path)?;
             serde_json::to_writer(&mut file, &value)?;
             file.sync_all()?;
-            fs::File::open(DIR)?.sync_all()?;
+            fs::File::open(dir())?.sync_all()?;
             println!("{value}");
         }
         "qi-prepare" => {

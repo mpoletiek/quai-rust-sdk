@@ -27,7 +27,7 @@ pub(super) fn load_named_wallet(
         #[serde(borrow)]
         passphrase: &'a str,
     }
-    let bytes = Zeroizing::new(fs::read_to_string(Path::new(DIR).join(name))?);
+    let bytes = Zeroizing::new(fs::read_to_string(dir().join(name))?);
     let saved: Saved = serde_json::from_str(&bytes).map_err(|_| "invalid private wallet file")?;
     let mnemonic = Mnemonic::parse(Language::English, saved.mnemonic)?;
     let wallet = HdWallet::from_mnemonic(&mnemonic, saved.passphrase, CoinType::Qi)?;
@@ -44,7 +44,7 @@ pub(super) fn scope() -> Result<NetworkScope, Box<dyn Error>> {
 }
 
 pub(super) fn save(name: &str, value: &serde_json::Value) -> Result<(), Box<dyn Error>> {
-    let path = Path::new(DIR).join(name);
+    let path = dir().join(name);
     let mut file = OpenOptions::new()
         .write(true)
         .create_new(true)
@@ -52,7 +52,7 @@ pub(super) fn save(name: &str, value: &serde_json::Value) -> Result<(), Box<dyn 
         .open(path)?;
     serde_json::to_writer_pretty(&mut file, value)?;
     file.sync_all()?;
-    fs::File::open(DIR)?.sync_all()?;
+    fs::File::open(dir())?.sync_all()?;
     Ok(())
 }
 
@@ -112,7 +112,7 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
     };
     let (_, peer) = load_wallet(if redemption { false } else { !is_peer })?;
     let mut store = SqliteStore::open(
-        Path::new(DIR).join(if redemption {
+        dir().join(if redemption {
             "state/qi-redemption.sqlite"
         } else if is_peer {
             "state/qi-peer.sqlite"

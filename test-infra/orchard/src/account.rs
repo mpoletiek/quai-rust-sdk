@@ -1,13 +1,12 @@
 use super::*;
-use quai_sdk::accounts::{AccountIntent, AccountObservationPolicy, AccountSession, FeePolicy};
+use quai_sdk::accounts::{AccountIntent, AccountObservationPolicy, AccountSession};
 use quai_sdk::consensus::SignedQuaiTransaction;
 use quai_sdk::provider::{ReceiptOutcome, RpcData, WaitConfig};
 use quai_sdk::signer::{LocalSigner, Signer};
 use quai_sdk::wallet::storage::{NetworkScope, PublicAddress, ReservationId, SqliteStore};
 use std::{os::unix::fs::PermissionsExt, time::Duration};
-const GENESIS: &str = "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b";
 pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
-    let content = Zeroizing::new(fs::read_to_string(Path::new(DIR).join("wallets.json"))?);
+    let content = Zeroizing::new(fs::read_to_string(dir().join("wallets.json"))?);
     if content.len() > 16384 {
         return Err("oversized wallet input".into());
     }
@@ -24,8 +23,24 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
         | "wqi-claim"
         | "wqi-unwrap" => 0,
         "transfer-b-a" | "conversion-credit-spend" => 1,
+        op if conversion_number(op).is_some() => 0,
         _ => return Err("unsupported operation".into()),
     };
+    // Mainnet phase one: amounts and verification reviewed for these operations only.
+    if net().mainnet()
+        && !matches!(
+            operation,
+            "transfer-a-b"
+                | "transfer-b-a"
+                | "convert-quai-to-qi"
+                | "wquai-deposit"
+                | "wquai-withdraw"
+                | "conversion-credit-spend"
+        )
+        && conversion_number(operation).is_none()
+    {
+        return Err("operation is not enabled for mainnet qualification".into());
+    }
     let keys = [
         load_key(supplied.wallets[0].private_key)?,
         load_key(supplied.wallets[1].private_key)?,
@@ -46,25 +61,22 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
     }
     let signer = LocalSigner::new(
         load_key(supplied.wallets[owner].private_key)?,
-        U256::from(15000),
+        U256::from(net().chain_id),
     )?;
     let scope = NetworkScope {
-        chain_id: U256::from(15000),
-        genesis: GENESIS.parse()?,
+        chain_id: U256::from(net().chain_id),
+        genesis: net().genesis.parse()?,
         zone: Zone::Cyprus1,
     };
     let provider = Provider::new(
         DiagnosticTransport(HttpTransport::new(HttpConfig::default())?),
-        Routing::direct(
-            "https://orchard.rpc.quai.network/cyprus1",
-            Zone::Cyprus1.into(),
-        )?,
+        Routing::direct(net().endpoint, Zone::Cyprus1.into())?,
         scope.chain_id,
     );
     if provider.genesis_hash(Zone::Cyprus1).await? != scope.genesis {
-        return Err("Orchard genesis mismatch".into());
+        return Err("network genesis mismatch".into());
     }
-    let state = Path::new(DIR).join("state");
+    let state = dir().join("state");
     fs::create_dir_all(&state)?;
     fs::set_permissions(&state, fs::Permissions::from_mode(0o700))?;
     let mut store = SqliteStore::open(state.join(format!("account-{owner}.sqlite")), scope)?;
@@ -77,6 +89,7 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
     }
     let conversion = operation.starts_with("convert-quai-to-qi");
     let v2 = operation == "convert-quai-to-qi-v2";
+    let numbered = conversion_number(operation);
     let wrapping = operation.starts_with("wquai-");
     let withdrawal = operation == "wquai-withdraw";
     let wqi = operation.starts_with("wqi-");
@@ -91,6 +104,8 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
             5
         } else if wrapping {
             4
+        } else if let Some(n) = numbered {
+            10 + n
         } else if v2 {
             3
         } else if conversion {
@@ -113,11 +128,13 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
             if latest != pending {
                 return Err("pending account transactions; wait before preparing".into());
             }
-            let value = U256::from(if conversion {
-                quai_sdk::consensus::MIN_QUAI_CONVERSION_VALUE
+            let value = if conversion {
+                net().conversion_its
+            } else if operation == "transfer-a-b" {
+                net().transfer_a_b_its
             } else {
-                10_000_000_000_000_000u64
-            });
+                U256::from(10_000_000_000_000_000u64)
+            };
             let destination = if conversion {
                 #[derive(Deserialize)]
                 struct Saved<'a> {
@@ -130,14 +147,16 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                     hd_receive_index: u32,
                 }
                 let saved_content =
-                    Zeroizing::new(fs::read_to_string(Path::new(DIR).join("qi-wallet.json"))?);
+                    Zeroizing::new(fs::read_to_string(dir().join("qi-wallet.json"))?);
                 let saved: Saved =
                     serde_json::from_str(&saved_content).map_err(|_| "invalid Qi wallet JSON")?;
                 let mnemonic = Mnemonic::parse(Language::English, saved.mnemonic)?;
                 let wallet = HdWallet::from_mnemonic(&mnemonic, saved.passphrase, CoinType::Qi)?;
-                let (index, address) = if v2 {
+                let (index, address) = if let Some(n) = numbered {
+                    numbered_recipient(n, &wallet, saved.hd_receive_index, scope)?
+                } else if v2 {
                     let public: serde_json::Value = serde_json::from_slice(&fs::read(
-                        Path::new(DIR).join("conversion-v2-recipient.json"),
+                        dir().join("conversion-v2-recipient.json"),
                     )?)?;
                     (
                         u32::try_from(public["index"].as_u64().ok_or("recipient index")?)?,
@@ -167,18 +186,13 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 }
                 println!(
                     "{}",
-                    serde_json::json!({"operation":operation,"valueBaseUnits":value.to_string(),"quotedQits":quoted.to_string(),"destination":address.to_string(),"slippageBasisPoints":100})
+                    serde_json::json!({"operation":operation,"valueBaseUnits":value.to_string(),"quotedQits":quoted.to_string(),"destination":address.to_string(),"slippageBasisPoints":net().conversion_slippage_bps})
                 );
                 Some(address)
             } else {
                 None
             };
-            let fee = FeePolicy {
-                max_gas: 500_000,
-                max_gas_price: U256::from(100_000_000_000u64),
-                max_total_fee: U256::from(10_000_000_000_000_000u64),
-                gas_margin_bps: 1000,
-            };
+            let fee = net().account_fee;
             let wrapper_intent = if wqi {
                 let (wrapper, _) = quai_sdk::wrappers::WrappedQi::new_verified(
                     quai_sdk::wrappers::WQI_ADDRESS.parse()?,
@@ -234,7 +248,7 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 Some(call.into_account_intent())
             } else if wrapping {
                 let (wrapper, _) = quai_sdk::wrappers::WrappedQuai::new_verified(
-                    quai_sdk::wrappers::WQUAI_ORCHARD_ADDRESS.parse()?,
+                    net().wquai.parse()?,
                     &provider,
                     scope.genesis,
                     None,
@@ -274,7 +288,9 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                         id,
                         destination,
                         value,
-                        quai_sdk::consensus::ConversionSlippage::new(100)?,
+                        quai_sdk::consensus::ConversionSlippage::new(
+                            net().conversion_slippage_bps,
+                        )?,
                         fee,
                     )
                     .await?
@@ -292,7 +308,7 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                     )
                     .await?
             };
-            let review = serde_json::json!({"operation":operation,"stage":"prepared","chainId":15000,"from":addresses[owner].to_string(),"to":prepared.transaction().to.map(|a| a.to_string()),"valueBaseUnits":prepared.transaction().value.to_string(),"nonce":prepared.transaction().nonce,"gasLimit":prepared.transaction().gas_limit,"gasPrice":prepared.transaction().gas_price.to_string(),"maximumFeeBaseUnits":prepared.maximum_fee().to_string(),"signingDigest":prepared.signing_digest().to_string()});
+            let review = serde_json::json!({"operation":operation,"stage":"prepared","network":net().name,"chainId":net().chain_id,"from":addresses[owner].to_string(),"to":prepared.transaction().to.map(|a| a.to_string()),"valueBaseUnits":prepared.transaction().value.to_string(),"nonce":prepared.transaction().nonce,"gasLimit":prepared.transaction().gas_limit,"gasPrice":prepared.transaction().gas_price.to_string(),"maximumFeeBaseUnits":prepared.maximum_fee().to_string(),"signingDigest":prepared.signing_digest().to_string()});
             println!("{review}");
             let signed = session.sign(&prepared)?;
             let hash = signed.hash()?;
@@ -314,12 +330,7 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                     candidates[0].hash()?,
                     quai_sdk::accounts::ReplacementPolicy {
                         minimum_price_bump_percent: 100,
-                        fees: FeePolicy {
-                            max_gas: 500_000,
-                            max_gas_price: U256::from(100_000_000_000u64),
-                            max_total_fee: U256::from(10_000_000_000_000_000u64),
-                            gas_margin_bps: 1000,
-                        },
+                        fees: net().account_fee,
                     },
                 )
                 .await?;
@@ -464,10 +475,10 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 .ok_or("origin receipt absent")?;
             let head = u64::try_from(provider.block_number(Zone::Cyprus1.into()).await?)
                 .map_err(|_| "height range")?;
-            let cursor_path = state.join(if v2 {
-                "conversion-v2-cursor.json"
-            } else {
-                "conversion-cursor.json"
+            let cursor_path = state.join(match numbered {
+                Some(n) => format!("conversion-{n}-cursor.json"),
+                None if v2 => "conversion-v2-cursor.json".into(),
+                None => "conversion-cursor.json".into(),
             });
             let (from, preceding) = if cursor_path.exists() {
                 let c: serde_json::Value = serde_json::from_slice(&fs::read(&cursor_path)?)?;
@@ -571,10 +582,8 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 "Signed transaction bytes independently reconstructed from the mined RPC response match durable custody."
             );
             if wrapping {
-                let wrapper = quai_sdk::wrappers::WrappedQuai::new(
-                    quai_sdk::wrappers::WQUAI_ORCHARD_ADDRESS.parse()?,
-                    &provider,
-                )?;
+                let wrapper =
+                    quai_sdk::wrappers::WrappedQuai::new(net().wquai.parse()?, &provider)?;
                 let block = BlockTag::Number(U256::from(observed.receipt.inclusion.block_number));
                 let balance = wrapper
                     .token()?
@@ -621,4 +630,55 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
         _ => return Err("expected prepare, broadcast or observe".into()),
     }
     Ok(())
+}
+
+/// Numbered mainnet follow-up conversions: `convert-quai-to-qi-2` through `-9`.
+fn conversion_number(operation: &str) -> Option<u8> {
+    let n: u8 = operation
+        .strip_prefix("convert-quai-to-qi-")?
+        .parse()
+        .ok()?;
+    (2..=9).contains(&n).then_some(n)
+}
+
+/// A fresh compact receive address per numbered conversion. The public recipient
+/// file is written once; a preparation that never reserved may reuse it safely.
+fn numbered_recipient(
+    n: u8,
+    wallet: &HdWallet,
+    base_index: u32,
+    scope: NetworkScope,
+) -> Result<(u32, quai_sdk::QiAddress), Box<dyn Error>> {
+    let path = dir().join(format!("conversion-{n}-recipient.json"));
+    if !path.exists() {
+        let account = wallet.account_public(0)?;
+        let mut qi = SqliteStore::open(dir().join("state/qi.sqlite"), scope)?;
+        if qi.addresses()?.is_empty() {
+            qi.import_metadata(0, &[PublicAddress::derive(&account, false, base_index)?])?;
+        }
+        let allocation = qi.allocate_address_compact(&account, false, 100_000, || false)?;
+        let quai_sdk::wallet::metadata::KeyOrigin::Bip44 { index, .. } =
+            allocation.address.origin()
+        else {
+            return Err("expected HD allocation".into());
+        };
+        let value =
+            serde_json::json!({"address":allocation.address.address().to_string(),"index":index});
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(&path)?;
+        serde_json::to_writer(&mut file, &value)?;
+        file.sync_all()?;
+        fs::File::open(dir())?.sync_all()?;
+    }
+    let public: serde_json::Value = serde_json::from_slice(&fs::read(&path)?)?;
+    Ok((
+        u32::try_from(public["index"].as_u64().ok_or("recipient index")?)?,
+        public["address"]
+            .as_str()
+            .ok_or("recipient address")?
+            .parse()?,
+    ))
 }

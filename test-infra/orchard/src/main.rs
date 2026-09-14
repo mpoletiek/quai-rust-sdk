@@ -1,7 +1,9 @@
 mod account;
 mod diagnostic;
+mod network;
 mod qi;
 mod qi_extended;
+use network::{dir, net};
 use quai_sdk::crypto::SecretKey;
 use quai_sdk::payments::{PaymentCode, PrivatePaymentCode};
 use quai_sdk::wallet::{CoinType, HdWallet, Language, Mnemonic, Search};
@@ -11,7 +13,6 @@ use std::{
     error::Error,
     fs::{self, OpenOptions},
     os::unix::fs::OpenOptionsExt,
-    path::Path,
 };
 use zeroize::Zeroizing;
 struct DiagnosticTransport(HttpTransport);
@@ -31,7 +32,7 @@ impl quai_sdk::rpc::Transport for DiagnosticTransport {
     ) -> Result<serde_json::Value, quai_sdk::rpc::RpcError> {
         let result = self.0.request(endpoint, method, params.clone()).await;
         if let Err(error) = &result {
-            eprintln!("Orchard RPC {method} failed: {error}");
+            eprintln!("{} RPC {method} failed: {error}", net().name);
         }
         if let Err(quai_sdk::rpc::RpcError::Remote(error)) = &result
             && matches!(
@@ -61,7 +62,6 @@ impl quai_sdk::rpc::Transport for DiagnosticTransport {
         result
     }
 }
-const DIR: &str = "/tmp/quai-sdk-orchard-secrets";
 #[derive(Serialize)]
 struct Generated<'a> {
     network: &'static str,
@@ -101,7 +101,8 @@ fn load_key(value: &str) -> Result<SecretKey, Box<dyn Error>> {
     Ok(SecretKey::from_bytes(&bytes).map_err(|_| "invalid private scalar")?)
 }
 fn generate(name: &str) -> Result<(), Box<dyn Error>> {
-    let path = Path::new(DIR).join(name);
+    net().require_orchard("wallet generation")?;
+    let path = dir().join(name);
     if path.exists() {
         return Err("existing Qi wallet preserved".into());
     }
@@ -148,7 +149,7 @@ fn generate(name: &str) -> Result<(), Box<dyn Error>> {
         .open(&path)?;
     serde_json::to_writer_pretty(&mut file, &stored)?;
     file.sync_all()?;
-    fs::File::open(DIR)?.sync_all()?;
+    fs::File::open(dir())?.sync_all()?;
     let reopened = Zeroizing::new(fs::read_to_string(&path)?);
     #[derive(Deserialize)]
     struct Restored<'a> {
@@ -173,7 +174,7 @@ fn generate(name: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 async fn inspect() -> Result<(), Box<dyn Error>> {
-    let content = Zeroizing::new(fs::read_to_string(Path::new(DIR).join("wallets.json"))?);
+    let content = Zeroizing::new(fs::read_to_string(dir().join("wallets.json"))?);
     if content.len() > 16384 {
         return Err("wallet input too large".into());
     }
@@ -200,22 +201,19 @@ async fn inspect() -> Result<(), Box<dyn Error>> {
     println!("Verified two distinct Cyprus-1 Quai private-key/address pairs.");
     let provider = Provider::new(
         HttpTransport::new(HttpConfig::default())?,
-        Routing::direct(
-            "https://orchard.rpc.quai.network/cyprus1",
-            Zone::Cyprus1.into(),
-        )?,
-        U256::from(15000),
+        Routing::direct(net().endpoint, Zone::Cyprus1.into())?,
+        U256::from(net().chain_id),
     );
     let chain = provider.chain_id(Zone::Cyprus1.into()).await?;
     let genesis = provider.genesis_hash(Zone::Cyprus1).await?;
-    if genesis.to_string() != "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b" {
-        return Err("Orchard genesis changed; inspect before writes".into());
+    if genesis.to_string() != net().genesis {
+        return Err("genesis changed; inspect before writes".into());
     }
     let head = provider.block_number(Zone::Cyprus1.into()).await?;
     println!("gas price: {}", provider.gas_price(Zone::Cyprus1).await?);
     for (name, text) in [
         ("WQI", quai_sdk::wrappers::WQI_ADDRESS),
-        ("WQUAI", quai_sdk::wrappers::WQUAI_ORCHARD_ADDRESS),
+        ("WQUAI", net().wquai),
     ] {
         let address: QuaiAddress = text.parse()?;
         let code = provider.code(address, BlockTag::Latest).await?;
@@ -240,7 +238,7 @@ async fn inspect() -> Result<(), Box<dyn Error>> {
     }
     println!(
         "{}",
-        serde_json::json!({"network":"orchard","chainId":chain.to_string(),"genesis":genesis.to_string(),"height":head.to_string(),"accounts":accounts})
+        serde_json::json!({"network":net().name,"chainId":chain.to_string(),"genesis":genesis.to_string(),"height":head.to_string(),"accounts":accounts})
     );
     Ok(())
 }
@@ -251,6 +249,9 @@ async fn main() {
         "generate" => generate("qi-wallet.json"),
         "generate-peer" => generate("qi-peer.json"),
         "generate-redemption" => generate("qi-redemption.json"),
+        "qi-extended" if net().mainnet() => {
+            Err("qi-extended is not enabled for mainnet qualification".into())
+        }
         "qi-extended" => {
             qi_extended::run(
                 &std::env::args().nth(2).unwrap_or_default(),
@@ -259,9 +260,15 @@ async fn main() {
             .await
         }
         "inspect" => inspect().await,
-        "diagnostic" => diagnostic::run().await,
+        "diagnostic" => match net().require_orchard("diagnostic") {
+            Ok(()) => diagnostic::run().await,
+            Err(error) => Err(error),
+        },
         "qi-allocate-conversion" | "qi-prepare" | "qi-broadcast" | "qi-observe" => {
-            qi::run(&mode).await
+            match net().require_orchard("Qi session stages") {
+                Ok(()) => qi::run(&mode).await,
+                Err(error) => Err(error),
+            }
         }
         "prepare"
         | "broadcast"
@@ -275,7 +282,7 @@ async fn main() {
         _ => Err("expected generate or inspect".into()),
     };
     if let Err(error) = result {
-        eprintln!("Orchard setup operation failed: {error}");
+        eprintln!("{} qualification operation failed: {error}", net().name);
         std::process::exit(1);
     }
 }

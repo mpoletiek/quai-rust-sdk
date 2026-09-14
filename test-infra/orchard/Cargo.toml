@@ -5,7 +5,7 @@ edition = "2024"
 publish = false
 [workspace]
 [dependencies]
-quai-sdk = { path = "../../crates/quai-sdk", features = ["payments", "abi", "sqlite"] }
+quai-sdk = { path = "../../crates/quai-sdk", features = ["payments", "abi", "sqlite", "ws", "backup"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 zeroize = "1.8"

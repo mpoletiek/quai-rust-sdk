@@ -942,3 +942,21 @@ implemented, 2,796 deviation, 38 partial and 1,028 pending declarations.
 The crypto batch passes extracted-source rehearsal for all twelve crate archives,
 three consumer profiles, twelve native target compilations and two Wasm target
 compilations. No public-registry upload or release certification is claimed.
+
+## Wordlist and mnemonic parity — September 13
+
+`quai_wallet::wordlist` now provides checked public dictionaries, exact built-in
+index order, explicit phrase conventions, bounded OWL/OWL-A import with eager
+checksums, and custom-dictionary BIP39 phrase/entropy/seed conversion. Explicit
+Chinese entropy export avoids the dependency's ambiguous-language panic.
+The [wordlist review](docs/WORDLIST_PARITY.md) records limits and differences.
+Five native and five Chromium worker tests pass, including 150 entropy roundtrips;
+23 SQLite tests and 11 existing derivation reference tests also pass.
+
+The eight-writer Windows test failed in CI run 34790097774 with a sanitized
+SQLite database error while the other seven jobs passed. A bounded configurable
+lock-wait API retains the five-second runtime default; the concurrency test now
+allows 30 seconds while retaining eight simultaneous writers. A deterministic
+held-lock test verifies timeout rollback and exact nonce allocation after an
+explicit retry. Lock contention is the inferred cause of the prior CI failure;
+local checks alone do not establish the Windows fix.

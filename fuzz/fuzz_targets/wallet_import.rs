@@ -7,6 +7,21 @@ use quai_crypto::{PublicKey,RecoverableSignature,SchnorrSignature,SecretKey,Sign
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
  if data.first()==Some(&b'{') {
+  use quai_wallet::wordlist::{Wordlist,WordlistStyle,CustomMnemonic};
+  if let Ok(value)=serde_json::from_slice::<serde_json::Value>(data) {
+   if let (Some(owl),Some(checksum))=(value["owl"].as_str(),value["checksum"].as_str().and_then(|s|s.parse::<quai_primitives::Hash32>().ok())) {
+    if let Ok(list)=Wordlist::from_owl("fuzz",owl,value["accents"].as_str(),checksum) {
+     assert_eq!(list.checksum(),checksum);
+     let copy=Wordlist::from_words("fuzz",list.words().map(str::to_owned).collect(),WordlistStyle::General).unwrap();
+     assert_eq!(copy.checksum(),checksum);
+     if list.len()==2048 {
+      let mnemonic=CustomMnemonic::from_entropy(&list,&[0;16]).unwrap();
+      let phrase=mnemonic.phrase().unwrap();
+      assert_eq!(CustomMnemonic::parse(&list,phrase.expose()).unwrap().entropy().expose(),&[0;16]);
+     }
+    }
+   }
+  }
   use quai_wallet::full_backup::legacy::{import_quais_json,export_quais_json,LegacyWalletIdentity};
   static IDENTITY:std::sync::OnceLock<(Mnemonic,ExtendedPublicKey,ExtendedPublicKey)>=std::sync::OnceLock::new();
   let (mnemonic,quai,qi)=IDENTITY.get_or_init(||{
@@ -127,6 +142,20 @@ fuzz_target!(|data:&[u8]| {
   let _=PaymentCode::from_base58(text);
   let _=ExtendedPrivateKey::import(text);
   let _=ExtendedPublicKey::import(text);
-  if data.len()<=4096{let _=Mnemonic::parse(Language::English,text);}
+  if data.len()<=4096 {
+   use quai_wallet::wordlist::{Wordlist,CustomMnemonic};
+   for language in [Language::English,Language::SimplifiedChinese,Language::TraditionalChinese] {
+    if let Ok(mnemonic)=Mnemonic::parse(language,text) {
+     let entropy=mnemonic.entropy();
+     assert_eq!(Mnemonic::from_entropy(language,entropy.expose()).unwrap().entropy().expose(),entropy.expose());
+    }
+    let list=Wordlist::builtin(language);
+    let _=list.split(text);
+    if let Ok(mnemonic)=CustomMnemonic::parse(&list,text) {
+     let entropy=mnemonic.entropy();let phrase=mnemonic.phrase().unwrap();
+     assert_eq!(CustomMnemonic::parse(&list,phrase.expose()).unwrap().entropy().expose(),entropy.expose());
+    }
+   }
+  }
  }
 });

@@ -299,7 +299,11 @@ fn concurrent_connections_claim_qi_once_and_allocate_unique_nonces() {
             let path = db.0.clone();
             let barrier = barrier.clone();
             thread::spawn(move || {
-                let mut store = SqliteStore::open(path, scope()).unwrap();
+                // Keep eight real competing writers. Loaded Windows runners may
+                // need more than the production default five-second lock budget.
+                let mut store =
+                    SqliteStore::open_with_busy_timeout(path, scope(), Duration::from_secs(30))
+                        .unwrap();
                 barrier.wait();
                 let claim =
                     store.reserve_qi(id(n), generation, U256::from(6), &[coins()[0].outpoint]);
@@ -1470,4 +1474,34 @@ fn head_replay_migrates_v4_and_rejects_bounds_overflow_and_failed_resets() {
             .len(),
         MAX_HEAD_REPLAY_BYTES
     );
+}
+
+#[test]
+fn explicit_busy_budget_is_bounded_and_failed_nonce_claims_leave_no_state() {
+    let db = Database::new();
+    for timeout in [Duration::from_secs(61), Duration::from_nanos(1)] {
+        assert!(matches!(
+            SqliteStore::open_with_busy_timeout(&db.0, scope(), timeout),
+            Err(StorageError::Invalid)
+        ));
+        assert!(!db.0.exists());
+    }
+    let mut store =
+        SqliteStore::open_with_busy_timeout(&db.0, scope(), Duration::from_millis(10)).unwrap();
+    populate(&mut store);
+    let address = QuaiAddress::try_from(metadata()[1].address()).unwrap();
+    let mut blocker = Connection::open(&db.0).unwrap();
+    let tx = blocker
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .unwrap();
+    assert_eq!(
+        store.reserve_nonce(id(220), address, 0),
+        Err(StorageError::Database)
+    );
+    tx.rollback().unwrap();
+    assert!(store.reservation(id(220)).unwrap().is_none());
+    assert_eq!(store.reserve_nonce(id(220), address, 0).unwrap(), 0);
+    drop(store);
+    let mut store = SqliteStore::open_with_busy_timeout(&db.0, scope(), Duration::ZERO).unwrap();
+    assert_eq!(store.reserve_nonce(id(221), address, 0).unwrap(), 1);
 }

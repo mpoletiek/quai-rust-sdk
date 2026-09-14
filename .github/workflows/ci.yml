@@ -135,6 +135,9 @@ jobs:
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-account-backup
         env:
           WASM_BINDGEN_TEST_TIMEOUT: 180
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-wordlists
+        env:
+          WASM_BINDGEN_TEST_TIMEOUT: 180
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-keys
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-backups
         env:

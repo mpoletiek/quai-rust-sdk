@@ -372,6 +372,18 @@
     {
       "source": "compatibility/fixtures/crypto-utils.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-crypto/tests/fixtures/shared/compatibility/fixtures/crypto-utils.json"
+    },
+    {
+      "source": "compatibility/fixtures/wordlists.json",
+      "destination": "crates/quai-wallet/tests/fixtures/shared/compatibility/fixtures/wordlists.json"
+    },
+    {
+      "source": "crates/quai-wallet/tests/wordlists.rs",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-wallet/tests/wordlists.rs"
+    },
+    {
+      "source": "compatibility/fixtures/wordlists.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-wallet/tests/fixtures/shared/compatibility/fixtures/wordlists.json"
     }
   ]
 }

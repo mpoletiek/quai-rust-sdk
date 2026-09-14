@@ -22,6 +22,10 @@ release license inventory and SBOM remain publishing gates.
   the embedded patch context. Review each
   modified file and the node's distribution obligations before shipping a harness
   image or node binary; the Rust workspace MIT label does not relicense Go code.
+- The bounded OWL/OWL-A dictionary decoder in `quai-wallet` follows the published
+  quais.js wordlist format and algorithm. Its MIT license is included as
+  `LICENSE.quais-js` in packaged crates; the pinned artifact sources and generated
+  dictionary vectors record provenance.
 - Official BIP340 vectors are retained under the offered CC0-1.0 option, with
   authorship, source and checksum recorded in the crypto fixture README.
 - Published BIP47 factual vectors retain attribution and an immutable source

@@ -22947,12 +22947,20 @@
         "new (): LangEn"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::builtin"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:LangEn:instance:_data",
@@ -22961,12 +22969,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::owl_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": ".:LangEn:instance:_decodeWords",
@@ -22977,12 +22993,21 @@
         "(): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::words",
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": ".:LangEn:instance:getWord",
@@ -22993,12 +23018,20 @@
         "(index: number): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": ".:LangEn:instance:getWordIndex",
@@ -23009,12 +23042,20 @@
         "(word: string): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word_index"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": ".:LangEn:instance:join",
@@ -23025,12 +23066,20 @@
         "(words: Array<string>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::join"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": ".:LangEn:instance:locale",
@@ -23039,12 +23088,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::locale"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:LangEn:instance:split",
@@ -23055,12 +23112,20 @@
         "(phrase: string): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::split"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": ".:LangEn:static:wordlist",
@@ -23071,12 +23136,20 @@
         "(): LangEn"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::builtin"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:LangEs",
@@ -23087,12 +23160,20 @@
         "new (): LangEs"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::builtin"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:LangEs:instance:_accent",
@@ -23101,12 +23182,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::accent_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": ".:LangEs:instance:_data",
@@ -23115,12 +23204,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::owl_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": ".:LangEs:instance:_decodeWords",
@@ -23131,12 +23228,21 @@
         "(): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::words",
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": ".:LangEs:instance:getWord",
@@ -23147,12 +23253,20 @@
         "(index: number): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": ".:LangEs:instance:getWordIndex",
@@ -23163,12 +23277,20 @@
         "(word: string): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word_index"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": ".:LangEs:instance:join",
@@ -23179,12 +23301,20 @@
         "(words: Array<string>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::join"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": ".:LangEs:instance:locale",
@@ -23193,12 +23323,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::locale"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:LangEs:instance:split",
@@ -23209,12 +23347,20 @@
         "(phrase: string): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::split"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": ".:LangEs:static:wordlist",
@@ -23225,12 +23371,20 @@
         "(): LangEs"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::builtin"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:Ledger",
@@ -24016,17 +24170,22 @@
         "quai_wallet::Mnemonic",
         "quai_wallet::Mnemonic::parse",
         "quai_wallet::Mnemonic::from_entropy",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::wordlist::CustomMnemonic::parse",
+        "quai_wallet::wordlist::CustomMnemonic::from_entropy"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
-      "deviation": null
+      "deviation": "Explicit validated builtin-language or borrowed custom-dictionary constructors; canonical phrase, entropy checksum and effective seed identity are checked. No unchecked/mutable phrase/entropy/password constructor or implicit language guessing."
     },
     {
       "id": ".:Mnemonic:instance:computeSeed",
@@ -24041,15 +24200,19 @@
         "quai_wallet::Mnemonic",
         "quai_wallet::Mnemonic::parse",
         "quai_wallet::Mnemonic::from_entropy",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::wordlist::CustomMnemonic::to_seed"
       ],
       "feature": "wallet",
       "status": "implemented",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -24062,16 +24225,20 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::Mnemonic::entropy",
-        "quai_wallet::MnemonicEntropy::expose"
+        "quai_wallet::MnemonicEntropy::expose",
+        "quai_wallet::wordlist::CustomMnemonic::entropy"
       ],
       "feature": "wallet-identity",
       "status": "implemented",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -24083,16 +24250,20 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::wordlist::CustomMnemonic::to_seed"
       ],
       "feature": "wallet-identity",
       "status": "deviation",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": "Passphrases are explicit caller-owned inputs for seed/HD derivation, not retained or exposed as a mutable mnemonic field."
     },
@@ -24105,16 +24276,20 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::Mnemonic::phrase",
-        "quai_wallet::SecretString::expose"
+        "quai_wallet::SecretString::expose",
+        "quai_wallet::wordlist::CustomMnemonic::phrase"
       ],
       "feature": "wallet-identity",
       "status": "deviation",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": "Canonical phrase export requires explicit access to a zeroizing redacted guard rather than an implicitly printable secret property."
     },
@@ -24127,16 +24302,20 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::Mnemonic::language",
-        "quai_wallet::Language::word_list"
+        "quai_wallet::Language::word_list",
+        "quai_wallet::wordlist::CustomMnemonic::wordlist"
       ],
       "feature": "wallet-identity",
       "status": "implemented",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -24151,16 +24330,21 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::Mnemonic::from_entropy",
-        "quai_wallet::Mnemonic::phrase"
+        "quai_wallet::Mnemonic::phrase",
+        "quai_wallet::wordlist::CustomMnemonic::from_entropy",
+        "quai_wallet::wordlist::CustomMnemonic::phrase"
       ],
       "feature": "wallet-identity",
       "status": "implemented",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -24177,15 +24361,19 @@
         "quai_wallet::Mnemonic",
         "quai_wallet::Mnemonic::parse",
         "quai_wallet::Mnemonic::from_entropy",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::wordlist::CustomMnemonic::from_entropy"
       ],
       "feature": "wallet",
       "status": "implemented",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -24202,15 +24390,19 @@
         "quai_wallet::Mnemonic",
         "quai_wallet::Mnemonic::parse",
         "quai_wallet::Mnemonic::from_entropy",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::wordlist::CustomMnemonic::parse"
       ],
       "feature": "wallet",
       "status": "implemented",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -24224,18 +24416,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::Mnemonic::parse"
+        "quai_wallet::Mnemonic::parse",
+        "quai_wallet::wordlist::CustomMnemonic::parse"
       ],
       "feature": "wallet-identity",
       "status": "deviation",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
-      "deviation": "Use Result::is_ok on explicit-language validation; bounded NFKD parsing accepts canonical surrounding/repeated whitespace. No implicit language detection or arbitrary custom wordlist."
+      "deviation": "Result::is_ok on explicit builtin-language or custom-dictionary validation. Builtin parsing normalizes surrounding/repeated whitespace; custom parsing retains published split conventions and validates checksum. No implicit language detection."
     },
     {
       "id": ".:Mnemonic:static:phraseToEntropy",
@@ -24248,16 +24444,21 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::Mnemonic::parse",
-        "quai_wallet::Mnemonic::entropy"
+        "quai_wallet::Mnemonic::entropy",
+        "quai_wallet::wordlist::CustomMnemonic::parse",
+        "quai_wallet::wordlist::CustomMnemonic::entropy"
       ],
       "feature": "wallet-identity",
       "status": "implemented",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -43357,12 +43558,20 @@
         "new (locale: string): Wordlist"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::from_words"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:Wordlist:instance:getWord",
@@ -43373,12 +43582,20 @@
         "(index: number): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": ".:Wordlist:instance:getWordIndex",
@@ -43389,12 +43606,20 @@
         "(word: string): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word_index"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": ".:Wordlist:instance:join",
@@ -43405,12 +43630,20 @@
         "(words: Array<string>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::join"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": ".:Wordlist:instance:locale",
@@ -43419,12 +43652,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::locale"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:Wordlist:instance:split",
@@ -43435,12 +43676,20 @@
         "(phrase: string): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::split"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": ".:WordlistOwl",
@@ -43451,12 +43700,20 @@
         "new (locale: string, data: string, checksum: string): WordlistOwl"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": ".:WordlistOwl:instance:_data",
@@ -43465,12 +43722,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::owl_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": ".:WordlistOwl:instance:_decodeWords",
@@ -43481,12 +43746,21 @@
         "(): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::words",
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": ".:WordlistOwl:instance:getWord",
@@ -43497,12 +43771,20 @@
         "(index: number): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": ".:WordlistOwl:instance:getWordIndex",
@@ -43513,12 +43795,20 @@
         "(word: string): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word_index"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": ".:WordlistOwl:instance:join",
@@ -43529,12 +43819,20 @@
         "(words: Array<string>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::join"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": ".:WordlistOwl:instance:locale",
@@ -43543,12 +43841,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::locale"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:WordlistOwl:instance:split",
@@ -43559,12 +43865,20 @@
         "(phrase: string): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::split"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": ".:WordlistOwlA",
@@ -43575,12 +43889,20 @@
         "new (locale: string, data: string, accent: string, checksum: string): WordlistOwlA"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": ".:WordlistOwlA:instance:_accent",
@@ -43589,12 +43911,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::accent_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": ".:WordlistOwlA:instance:_data",
@@ -43603,12 +43933,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::owl_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": ".:WordlistOwlA:instance:_decodeWords",
@@ -43619,12 +43957,21 @@
         "(): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::words",
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": ".:WordlistOwlA:instance:getWord",
@@ -43635,12 +43982,20 @@
         "(index: number): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": ".:WordlistOwlA:instance:getWordIndex",
@@ -43651,12 +44006,20 @@
         "(word: string): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word_index"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": ".:WordlistOwlA:instance:join",
@@ -43667,12 +44030,20 @@
         "(words: Array<string>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::join"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": ".:WordlistOwlA:instance:locale",
@@ -43681,12 +44052,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::locale"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:WordlistOwlA:instance:split",
@@ -43697,12 +44076,20 @@
         "(phrase: string): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::split"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": ".:wordlists",
@@ -43711,12 +44098,20 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::builtin"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": ".:WrappedFallback",
@@ -84170,17 +84565,22 @@
         "quai_wallet::Mnemonic",
         "quai_wallet::Mnemonic::parse",
         "quai_wallet::Mnemonic::from_entropy",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::wordlist::CustomMnemonic::parse",
+        "quai_wallet::wordlist::CustomMnemonic::from_entropy"
       ],
       "feature": "wallet",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
-      "deviation": null
+      "deviation": "Explicit validated builtin-language or borrowed custom-dictionary constructors; canonical phrase, entropy checksum and effective seed identity are checked. No unchecked/mutable phrase/entropy/password constructor or implicit language guessing."
     },
     {
       "id": "./wallet:Mnemonic:instance:computeSeed",
@@ -84195,15 +84595,19 @@
         "quai_wallet::Mnemonic",
         "quai_wallet::Mnemonic::parse",
         "quai_wallet::Mnemonic::from_entropy",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::wordlist::CustomMnemonic::to_seed"
       ],
       "feature": "wallet",
       "status": "implemented",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -84216,16 +84620,20 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::Mnemonic::entropy",
-        "quai_wallet::MnemonicEntropy::expose"
+        "quai_wallet::MnemonicEntropy::expose",
+        "quai_wallet::wordlist::CustomMnemonic::entropy"
       ],
       "feature": "wallet-identity",
       "status": "implemented",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -84237,16 +84645,20 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::wordlist::CustomMnemonic::to_seed"
       ],
       "feature": "wallet-identity",
       "status": "deviation",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": "Passphrases are explicit caller-owned inputs for seed/HD derivation, not retained or exposed as a mutable mnemonic field."
     },
@@ -84259,16 +84671,20 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::Mnemonic::phrase",
-        "quai_wallet::SecretString::expose"
+        "quai_wallet::SecretString::expose",
+        "quai_wallet::wordlist::CustomMnemonic::phrase"
       ],
       "feature": "wallet-identity",
       "status": "deviation",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": "Canonical phrase export requires explicit access to a zeroizing redacted guard rather than an implicitly printable secret property."
     },
@@ -84281,16 +84697,20 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::Mnemonic::language",
-        "quai_wallet::Language::word_list"
+        "quai_wallet::Language::word_list",
+        "quai_wallet::wordlist::CustomMnemonic::wordlist"
       ],
       "feature": "wallet-identity",
       "status": "implemented",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -84305,16 +84725,21 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::Mnemonic::from_entropy",
-        "quai_wallet::Mnemonic::phrase"
+        "quai_wallet::Mnemonic::phrase",
+        "quai_wallet::wordlist::CustomMnemonic::from_entropy",
+        "quai_wallet::wordlist::CustomMnemonic::phrase"
       ],
       "feature": "wallet-identity",
       "status": "implemented",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -84331,15 +84756,19 @@
         "quai_wallet::Mnemonic",
         "quai_wallet::Mnemonic::parse",
         "quai_wallet::Mnemonic::from_entropy",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::wordlist::CustomMnemonic::from_entropy"
       ],
       "feature": "wallet",
       "status": "implemented",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -84356,15 +84785,19 @@
         "quai_wallet::Mnemonic",
         "quai_wallet::Mnemonic::parse",
         "quai_wallet::Mnemonic::from_entropy",
-        "quai_wallet::Mnemonic::to_seed"
+        "quai_wallet::Mnemonic::to_seed",
+        "quai_wallet::wordlist::CustomMnemonic::parse"
       ],
       "feature": "wallet",
       "status": "implemented",
       "test_ids": [
-        "crates/quai-wallet/tests/reference.rs"
+        "crates/quai-wallet/tests/reference.rs",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -84378,18 +84811,22 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_wallet::Mnemonic::parse"
+        "quai_wallet::Mnemonic::parse",
+        "quai_wallet::wordlist::CustomMnemonic::parse"
       ],
       "feature": "wallet-identity",
       "status": "deviation",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
-      "deviation": "Use Result::is_ok on explicit-language validation; bounded NFKD parsing accepts canonical surrounding/repeated whitespace. No implicit language detection or arbitrary custom wordlist."
+      "deviation": "Result::is_ok on explicit builtin-language or custom-dictionary validation. Builtin parsing normalizes surrounding/repeated whitespace; custom parsing retains published split conventions and validates checksum. No implicit language detection."
     },
     {
       "id": "./wallet:Mnemonic:static:phraseToEntropy",
@@ -84402,16 +84839,21 @@
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
         "quai_wallet::Mnemonic::parse",
-        "quai_wallet::Mnemonic::entropy"
+        "quai_wallet::Mnemonic::entropy",
+        "quai_wallet::wordlist::CustomMnemonic::parse",
+        "quai_wallet::wordlist::CustomMnemonic::entropy"
       ],
       "feature": "wallet-identity",
       "status": "implemented",
       "test_ids": [
         "crates/quai-wallet/tests/reference.rs#all_languages_entropy_lengths_and_nfkd_seeds_match_quais",
-        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent"
+        "crates/quai-wallet/tests/reference.rs#passphrase_changes_identity_and_composed_unicode_is_equivalent",
+        "crates/quai-wallet/tests/wordlists.rs",
+        "compatibility/scripts/wordlists.test.mjs"
       ],
       "docs": [
-        "crates/quai-wallet/README.md"
+        "crates/quai-wallet/README.md",
+        "docs/WORDLIST_PARITY.md"
       ],
       "deviation": null
     },
@@ -86848,12 +87290,20 @@
         "new (): LangEn"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::builtin"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": "./wordlists:LangEn:instance:_data",
@@ -86862,12 +87312,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::owl_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": "./wordlists:LangEn:instance:_decodeWords",
@@ -86878,12 +87336,21 @@
         "(): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::words",
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": "./wordlists:LangEn:instance:getWord",
@@ -86894,12 +87361,20 @@
         "(index: number): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": "./wordlists:LangEn:instance:getWordIndex",
@@ -86910,12 +87385,20 @@
         "(word: string): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word_index"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": "./wordlists:LangEn:instance:join",
@@ -86926,12 +87409,20 @@
         "(words: Array<string>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::join"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": "./wordlists:LangEn:instance:locale",
@@ -86940,12 +87431,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::locale"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": "./wordlists:LangEn:instance:split",
@@ -86956,12 +87455,20 @@
         "(phrase: string): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::split"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": "./wordlists:LangEn:static:wordlist",
@@ -86972,12 +87479,20 @@
         "(): LangEn"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::builtin"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": "./wordlists:LangEs",
@@ -86988,12 +87503,20 @@
         "new (): LangEs"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::builtin"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": "./wordlists:LangEs:instance:_accent",
@@ -87002,12 +87525,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::accent_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": "./wordlists:LangEs:instance:_data",
@@ -87016,12 +87547,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::owl_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": "./wordlists:LangEs:instance:_decodeWords",
@@ -87032,12 +87571,21 @@
         "(): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::words",
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": "./wordlists:LangEs:instance:getWord",
@@ -87048,12 +87596,20 @@
         "(index: number): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": "./wordlists:LangEs:instance:getWordIndex",
@@ -87064,12 +87620,20 @@
         "(word: string): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word_index"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": "./wordlists:LangEs:instance:join",
@@ -87080,12 +87644,20 @@
         "(words: Array<string>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::join"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": "./wordlists:LangEs:instance:locale",
@@ -87094,12 +87666,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::locale"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": "./wordlists:LangEs:instance:split",
@@ -87110,12 +87690,20 @@
         "(phrase: string): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::split"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": "./wordlists:LangEs:static:wordlist",
@@ -87126,12 +87714,20 @@
         "(): LangEs"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::builtin"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": "./wordlists:Wordlist",
@@ -87142,12 +87738,20 @@
         "new (locale: string): Wordlist"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::from_words"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": "./wordlists:Wordlist:instance:getWord",
@@ -87158,12 +87762,20 @@
         "(index: number): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": "./wordlists:Wordlist:instance:getWordIndex",
@@ -87174,12 +87786,20 @@
         "(word: string): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word_index"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": "./wordlists:Wordlist:instance:join",
@@ -87190,12 +87810,20 @@
         "(words: Array<string>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::join"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": "./wordlists:Wordlist:instance:locale",
@@ -87204,12 +87832,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::locale"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": "./wordlists:Wordlist:instance:split",
@@ -87220,12 +87856,20 @@
         "(phrase: string): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::split"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": "./wordlists:WordlistOwl",
@@ -87236,12 +87880,20 @@
         "new (locale: string, data: string, checksum: string): WordlistOwl"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": "./wordlists:WordlistOwl:instance:_data",
@@ -87250,12 +87902,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::owl_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": "./wordlists:WordlistOwl:instance:_decodeWords",
@@ -87266,12 +87926,21 @@
         "(): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::words",
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": "./wordlists:WordlistOwl:instance:getWord",
@@ -87282,12 +87951,20 @@
         "(index: number): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": "./wordlists:WordlistOwl:instance:getWordIndex",
@@ -87298,12 +87975,20 @@
         "(word: string): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word_index"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": "./wordlists:WordlistOwl:instance:join",
@@ -87314,12 +87999,20 @@
         "(words: Array<string>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::join"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": "./wordlists:WordlistOwl:instance:locale",
@@ -87328,12 +88021,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::locale"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": "./wordlists:WordlistOwl:instance:split",
@@ -87344,12 +88045,20 @@
         "(phrase: string): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::split"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": "./wordlists:WordlistOwlA",
@@ -87360,12 +88069,20 @@
         "new (locale: string, data: string, accent: string, checksum: string): WordlistOwlA"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": "./wordlists:WordlistOwlA:instance:_accent",
@@ -87374,12 +88091,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::accent_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": "./wordlists:WordlistOwlA:instance:_data",
@@ -87388,12 +88113,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::owl_data"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Imported compressed dictionaries retain exact data/accent strings through optional borrowed getters. Compiled builtins use the exact decoded tables and do not store redundant compression artifacts."
     },
     {
       "id": "./wordlists:WordlistOwlA:instance:_decodeWords",
@@ -87404,12 +88137,21 @@
         "(): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::words",
+        "quai_wallet::wordlist::Wordlist::from_owl"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Bounded OWL/OWL-A import eagerly verifies Keccak of ordered newline-delimited words. No unchecked raw-decoder bypass or lazy validation. Invalid tokens, expansion bombs, unsupported accents/width zero and unconsumed accent positions reject."
     },
     {
       "id": "./wordlists:WordlistOwlA:instance:getWord",
@@ -87420,12 +88162,20 @@
         "(index: number): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": "./wordlists:WordlistOwlA:instance:getWordIndex",
@@ -87436,12 +88186,20 @@
         "(word: string): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::get_word_index"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Checked exact index/word lookup returns Option rather than throwing or returning negative numeric sentinels; no implicit string or numeric coercion."
     },
     {
       "id": "./wordlists:WordlistOwlA:instance:join",
@@ -87452,12 +88210,20 @@
         "(words: Array<string>): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::join"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": "./wordlists:WordlistOwlA:instance:locale",
@@ -87466,12 +88232,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::locale"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     },
     {
       "id": "./wordlists:WordlistOwlA:instance:split",
@@ -87482,12 +88256,20 @@
         "(phrase: string): Array<string>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::split"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Explicit General/Japanese/Chinese conventions with bounded secret strings/word arrays and redacted zeroizing ownership. Chinese splits Unicode scalars rather than unpaired UTF16 units; general/Japanese edge empty fields retain published behavior."
     },
     {
       "id": "./wordlists:wordlists",
@@ -87496,12 +88278,20 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::wordlist::Wordlist::builtin"
+      ],
+      "feature": "wallet",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/wordlists.test.mjs",
+        "crates/quai-wallet/tests/wordlists.rs"
+      ],
+      "docs": [
+        "docs/WORDLIST_PARITY.md",
+        "crates/quai-wallet/README.md"
+      ],
+      "deviation": "Validated immutable bounded dictionaries replace mutable JS subclass/singleton conventions. All ten builtins retain exact published BIP39 index order; custom dictionaries enforce canonical unique recoverable words and explicit phrase rules."
     }
   ]
 }

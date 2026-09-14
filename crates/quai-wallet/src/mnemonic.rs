@@ -21,7 +21,7 @@ impl fmt::Debug for SecretString {
 }
 
 /// A 64-byte BIP39 seed whose owned buffer is zeroized on drop.
-pub struct Seed(Zeroizing<[u8; 64]>);
+pub struct Seed(pub(crate) Zeroizing<[u8; 64]>);
 impl Seed {
     /// Borrow seed bytes deliberately; avoid copying or logging them.
     pub fn expose(&self) -> &[u8; 64] {
@@ -41,6 +41,24 @@ pub struct MnemonicEntropy {
     length: usize,
 }
 impl MnemonicEntropy {
+    // The backend's to_entropy_array re-detects language and can panic for
+    // explicitly validated phrases shared by both Chinese wordlists. Stored
+    // indices already define the entropy; no language inference is needed.
+    pub(crate) fn from_backend(mnemonic: &bip39::Mnemonic) -> Self {
+        let mut bytes = Zeroizing::new([0u8; 33]);
+        let mut position = 0usize;
+        for index in mnemonic.word_indices() {
+            for bit in (0..11).rev() {
+                if index & (1 << bit) != 0 {
+                    bytes[position / 8] |= 1 << (7 - position % 8);
+                }
+                position += 1;
+            }
+        }
+        let length = mnemonic.word_count() / 3 * 4;
+        bytes[length..].fill(0);
+        Self { bytes, length }
+    }
     /// Borrow only the original entropy, excluding BIP39 checksum bits.
     /// The caller owns and must protect any copies it creates.
     pub fn expose(&self) -> &[u8] {
@@ -81,6 +99,22 @@ impl Mnemonic {
                 .flat_map(char::to_lowercase)
                 .collect::<String>(),
         );
+        // Published Chinese wordlists also accept unseparated ideographs.
+        let normalized = if matches!(
+            language,
+            Language::SimplifiedChinese | Language::TraditionalChinese
+        ) {
+            let mut spaced = Zeroizing::new(String::new());
+            for c in normalized.chars().filter(|c| !c.is_whitespace()) {
+                if !spaced.is_empty() {
+                    spaced.push(' ');
+                }
+                spaced.push(c);
+            }
+            spaced
+        } else {
+            normalized
+        };
         bip39::Mnemonic::parse_in_normalized(language, &normalized)
             .map(Self)
             .map_err(|_| WalletError::InvalidMnemonic)
@@ -102,11 +136,7 @@ impl Mnemonic {
     /// Explicitly export the original BIP39 entropy, with zeroizing custody.
     /// This excludes the checksum and does not retain or encode any passphrase.
     pub fn entropy(&self) -> MnemonicEntropy {
-        let (bytes, length) = self.0.to_entropy_array();
-        MnemonicEntropy {
-            bytes: Zeroizing::new(bytes),
-            length,
-        }
+        MnemonicEntropy::from_backend(&self.0)
     }
 
     /// Export the canonical phrase, using ideographic spaces for Japanese.

@@ -20,7 +20,9 @@ Schema creation and version assignment are one transaction. Existing v1 database
 are migrated atomically after validating their exact table/column inventory; unknown
 fields or tables reject the migration without creating channel tables. Write transactions use `BEGIN IMMEDIATE`; reads of a
 snapshot keep checkpoint, generation and coins in a single read transaction.
-Connections use WAL, synchronous FULL, foreign keys and a five-second busy timeout.
+Connections use WAL, synchronous FULL and foreign keys. `SqliteStore::open` uses
+a five-second busy timeout; `open_with_busy_timeout` accepts a whole-millisecond
+`Duration` from zero through 60 seconds. Zero fails immediately on contention.
 Lock timeouts and I/O errors return an error rather than retrying a wallet action.
 These choices follow [SQLite transaction semantics](https://www.sqlite.org/lang_transaction.html)
 and [rusqlite transaction documentation](https://docs.rs/rusqlite/latest/rusqlite/struct.Transaction.html).

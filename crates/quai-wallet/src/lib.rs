@@ -34,6 +34,7 @@ pub use selection::{
     preserves_denominations, select_fewest, select_sweep, select_with_fee,
 };
 mod mnemonic;
+pub mod wordlist;
 
 pub use backup::{BackupError, BackupKdf, EncryptedSeedBackup, SeedBackup};
 

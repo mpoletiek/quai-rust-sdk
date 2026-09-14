@@ -255,3 +255,15 @@ With `payments`, the portable `payment_allocation` module retains bounded public
 send/receive journals, explicit consumed ranges and verified destinations. The
 browser facade adds atomic persistence; authenticated backup cursor initialization
 requires `backup`. See [discovery and allocation](https://github.com/mpoletiek/quai-rust-sdk/blob/main/crates/quai-wallet/DISCOVERY.md).
+
+
+`wordlist::Wordlist` exposes all ten built-in dictionaries, checked word/index
+lookup, explicit phrase conventions, validated custom dictionaries and bounded
+OWL/OWL-A decoding with eager Keccak checksums. `CustomMnemonic` supports custom
+BIP39 dictionary phrases, entropy and guarded seed derivation with explicit
+passphrases. Feed its seed to `HdWallet::from_seed`; encrypted seed-origin backups
+preserve key identity. See [wordlist parity](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/WORDLIST_PARITY.md).
+
+Native SQLite callers can select a whole-millisecond lock-wait budget from zero
+to 60 seconds using `SqliteStore::open_with_busy_timeout`. `open` keeps its
+five-second default. Lock errors do not retry wallet operations automatically.

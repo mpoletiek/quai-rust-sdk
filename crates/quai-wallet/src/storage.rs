@@ -105,12 +105,29 @@ impl SqliteStore {
     /// Open/create schema v5, atomically migrating validated v1/v2/v3/v4 state. Foreign application IDs and nonempty unknown databases
     /// are rejected before persistent writes. WAL requires a local filesystem.
     pub fn open(path: impl AsRef<Path>, scope: NetworkScope) -> Result<Self> {
+        Self::open_with_busy_timeout(path, scope, Duration::from_secs(5))
+    }
+
+    /// Open with an explicit SQLite lock-wait budget in whole milliseconds,
+    /// between zero (fail immediately on contention) and 60 seconds. The default
+    /// open method uses five seconds. This changes only local lock waiting;
+    /// database errors never trigger automatic reservation or broadcast retries.
+    pub fn open_with_busy_timeout(
+        path: impl AsRef<Path>,
+        scope: NetworkScope,
+        busy_timeout: Duration,
+    ) -> Result<Self> {
+        if busy_timeout > Duration::from_secs(60)
+            || !busy_timeout.subsec_nanos().is_multiple_of(1_000_000)
+        {
+            return Err(StorageError::Invalid);
+        }
         if scope.genesis.bytes() == &[0; 32] {
             return Err(StorageError::Invalid);
         }
         let instance = StoreInstance::allocate()?;
         let mut connection = Connection::open(path)?;
-        connection.busy_timeout(Duration::from_secs(5))?;
+        connection.busy_timeout(busy_timeout)?;
         // Validate inside a writer transaction to serialize first-open schema creation.
         let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
         let app: i64 = tx.pragma_query_value(None, "application_id", |r| r.get(0))?;

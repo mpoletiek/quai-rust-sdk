@@ -95,4 +95,9 @@ crypto_utils=load('compatibility/fixtures/crypto-utils.json')
 for row in crypto_utils['signatures']:
  put('wallet_import',hexbytes(row['compact']));put('wallet_import',hexbytes(row['serialized']));put('wallet_import',hexbytes(row['r'])+hexbytes(row['s'])+int(row['networkV']).to_bytes(32,'big'))
 for row in crypto_utils['pairs']:put('wallet_import',hexbytes(crypto_utils['keys'][row['a']]['privateKey'])+hexbytes(crypto_utils['keys'][row['b']]['privateKey']))
+wordlists=load('compatibility/fixtures/wordlists.json')
+for row in wordlists['languages']:
+ if row['owl']:put('wallet_import',json.dumps({k:row[k] for k in ['owl','accents','checksum']}).encode())
+ put('wallet_import',row['phrase'].encode())
+ if row['locale'].startswith('zh_'):put('wallet_import',row['phrase'].replace(' ','').encode())
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

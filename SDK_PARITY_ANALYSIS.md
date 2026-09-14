@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 2796 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 38 | A mapping exists with unfinished behavior or scope |
-| `pending` | 1028 | No completed row-level reconciliation; not proof of absence |
+| `deviation` | 2884 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 36 | A mapping exists with unfinished behavior or scope |
+| `pending` | 942 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -245,20 +245,15 @@ root/subpath exports account for much of the volume.
 | `FetchResponse` | 32 | 0 | 0 | 0 |
 | `ContractEventPayload` | 24 | 0 | 0 | 0 |
 | `BaseWallet` | 20 | 0 | 0 | 0 |
-| `LangEs` | 20 | 0 | 0 | 0 |
-| `LangEn` | 18 | 0 | 0 | 0 |
 | `SocketEventSubscriber` | 18 | 0 | 0 | 0 |
-| `WordlistOwlA` | 18 | 0 | 0 | 0 |
 | `AbstractTransaction` | 17 | 0 | 0 | 0 |
 | `ContractUnknownEventPayload` | 16 | 0 | 0 | 0 |
 | `Network` | 16 | 0 | 0 | 0 |
 | `SocketBlockSubscriber` | 16 | 0 | 0 | 0 |
 | `SocketPendingSubscriber` | 16 | 0 | 0 | 0 |
 | `SocketSubscriber` | 16 | 0 | 0 | 0 |
-| `WordlistOwl` | 16 | 0 | 0 | 0 |
 | `BIP44` | 12 | 0 | 0 | 0 |
 | `UnmanagedSubscriber` | 12 | 0 | 0 | 0 |
-| `Wordlist` | 12 | 0 | 0 | 0 |
 | `AggregateCoinSelector` | 8 | 0 | 0 | 0 |
 | `ContractFactory` | 0 | 8 | 0 | 18 |
 | `EventPayload` | 8 | 0 | 0 | 0 |
@@ -343,7 +338,6 @@ root/subpath exports account for much of the volume.
 | `MinedTransactionResponse` | 2 | 0 | 0 | 0 |
 | `MinInt256` | 2 | 0 | 0 | 0 |
 | `MissingArgumentError` | 2 | 0 | 0 | 0 |
-| `Mnemonic` | 0 | 2 | 14 | 6 |
 | `musigCrypto` | 2 | 0 | 0 | 0 |
 | `N` | 2 | 0 | 0 | 0 |
 | `NetworkError` | 2 | 0 | 0 | 0 |
@@ -405,7 +399,6 @@ root/subpath exports account for much of the volume.
 | `verifyTypedData` | 2 | 0 | 0 | 0 |
 | `WebSocketCreator` | 2 | 0 | 0 | 0 |
 | `WebSocketLike` | 2 | 0 | 0 | 0 |
-| `wordlists` | 2 | 0 | 0 | 0 |
 | `WrappedFallback` | 2 | 0 | 0 | 0 |
 | `Zone` | 2 | 0 | 0 | 0 |
 | `assert` | 1 | 0 | 0 | 0 |
@@ -516,3 +509,18 @@ This reconciles 48 declarations, closing 46 pending and two partial rows while
 retaining the two previously implemented deterministic-signing declarations.
 Counts are **66 implemented, 2,796 deviation, 38 partial and 1,028 pending**.
 Wordlist, transaction/contract response and transport utility reviews remain open.
+
+
+## Wordlist and mnemonic review — 2026-09-13
+
+[Wordlist parity](docs/WORDLIST_PARITY.md) covers all ten compiled dictionaries,
+checked lookups, phrase conventions, bounded OWL/OWL-A decoding, custom BIP39
+mnemonics and exact seed derivation. Explicit Chinese entropy export avoids a
+backend language-ambiguity panic. Guarded secret outputs, eager checksums and
+strict import bounds are deliberate Rust differences. Custom effective seeds
+compose with existing HD derivation and encrypted seed-origin backups.
+
+The ledger reviews 108 rows in this batch, closing 86 pending and two partial
+rows while updating existing mnemonic mappings. Remaining counts are 66
+implemented, 2884 deviations, 36 partial and 942 pending; these are declaration
+statuses, not independent feature counts or a completion percentage.

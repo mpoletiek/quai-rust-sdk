@@ -221,6 +221,15 @@ support all ten pinned wordlists. NFKD normalization applies to mnemonic and
 passphrase. The effective passphrase determines identity and is never silently
 dropped during restore.
 
+`wordlist::Wordlist` provides public word/index lookups, exact phrase conventions,
+validated custom lists and bounded OWL/OWL-A imports with eager checksums.
+`wordlist::CustomMnemonic` supports custom dictionary phrase/entropy/seed
+conversion with an explicit passphrase; pass the seed to `HdWallet::from_seed`
+and preserve it with a seed-origin encrypted backup. Phrase/word exports are
+redacted zeroizing guards. Built-in Chinese mnemonic parsing also accepts
+unseparated characters; entropy export never guesses a different language.
+See [wordlist parity and limits](docs/WORDLIST_PARITY.md).
+
 `HdWallet` accepts effective seeds of 16–64 bytes, mnemonics with explicit
 passphrases, or a depth-zero master xprv. BIP44 paths are:
 
@@ -477,7 +486,9 @@ verify receipt/canonical code without treating simulation as execution.
 
 Native SQLite schema v5 stores scoped public ownership, nonce/outpoint claims,
 operations, signed candidate families, cursors and bounded observation caches.
-Mutations use transactions and generation/revision fences. A reorg invalidates
+Mutations use transactions and generation/revision fences. `SqliteStore::open`
+uses a five-second lock wait; `open_with_busy_timeout` accepts zero through
+60 seconds in whole milliseconds. Lock errors do not automatically retry actions. A reorg invalidates
 coins and affected observations while retaining signed claims, exact bytes and
 burned allocation ranges. Do not release an input because a latest query omitted
 it or a transaction temporarily disappeared.

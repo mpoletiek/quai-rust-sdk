@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "published": false,
+  "networkAccess": false,
+  "sourceCommit": "ba5e39728f434f96fd0f97f9fb5570ccd159fad4",
+  "sourceDirty": true,
+  "packages": [
+    {
+      "name": "quai-primitives",
+      "version": "0.1.0-alpha.1",
+      "bytes": 65490,
+      "sha256": "4e39de189a28b042ba9b8ac48e79a62a955420e708929c0ded72ad09d796f32a"
+    },
+    {
+      "name": "quai-rpc",
+      "version": "0.1.0-alpha.1",
+      "bytes": 56966,
+      "sha256": "76d8ea6c88a460c7bc5364e37437814175a1bfda8aa1e601bea9f29326e3aca4"
+    },
+    {
+      "name": "quai-provider",
+      "version": "0.1.0-alpha.1",
+      "bytes": 152803,
+      "sha256": "3d1a53187d46bb5c065e0d03140ca2cad4e9d8e18ce3127c92a4db299f9998c8"
+    },
+    {
+      "name": "quai-consensus",
+      "version": "0.1.0-alpha.1",
+      "bytes": 55217,
+      "sha256": "c7b2bd4804437f91f1e4f8d5c5ec6f75f891b33b9aca6712147d9d69c74e780d"
+    },
+    {
+      "name": "quai-crypto",
+      "version": "0.1.0-alpha.1",
+      "bytes": 59605,
+      "sha256": "a737a557ce4196c1c3f7e1c1d09612ed915880615d94940d108c4ca09bfd820a"
+    },
+    {
+      "name": "quai-sdk",
+      "version": "0.1.0-alpha.1",
+      "bytes": 462656,
+      "sha256": "49f7c682314826d904f47cbd2df44b905687f5ff442c88400cdf8ac8158acea4"
+    },
+    {
+      "name": "quai-abi",
+      "version": "0.1.0-alpha.1",
+      "bytes": 188555,
+      "sha256": "bdeded2e5804cb9cfb6176de2f4c57453de92c6ae7cc10608fb8f9f99438e695"
+    },
+    {
+      "name": "quai-browser",
+      "version": "0.1.0-alpha.1",
+      "bytes": 91030,
+      "sha256": "84e9563d28c002fcbe30d67038e8d9502fc418cb80ac8d097fde2f09373dbc24"
+    },
+    {
+      "name": "quai-signer",
+      "version": "0.1.0-alpha.1",
+      "bytes": 24776,
+      "sha256": "fc1e3778d41eb93aa83227bd0961bc09519ac8807ac4bb02de41a51e519d5e2a"
+    },
+    {
+      "name": "quai-keystore",
+      "version": "0.1.0-alpha.1",
+      "bytes": 36429,
+      "sha256": "1d3e482da64a7671fefafb546fc49d550c02105d91a5436414b0054b930a2adf"
+    },
+    {
+      "name": "quai-wallet",
+      "version": "0.1.0-alpha.1",
+      "bytes": 407123,
+      "sha256": "3e9482551c7c997bfbb8574623d6dbbb450426fcd024fb950a91d99a74915ecf"
+    },
+    {
+      "name": "quai-payments",
+      "version": "0.1.0-alpha.1",
+      "bytes": 39591,
+      "sha256": "e8e4c378aa9df9a8c80f811ca7fb7ab9411f3eb653851667852f97210ad67b11"
+    }
+  ],
+  "consumerTests": {
+    "minimal": "passed",
+    "default": "passed",
+    "full": "passed"
+  },
+  "packagedTargetChecks": {
+    "quai-primitives": "passed",
+    "quai-rpc": "passed",
+    "quai-provider": "passed",
+    "quai-consensus": "passed",
+    "quai-crypto": "passed",
+    "quai-sdk": "passed",
+    "quai-abi": "passed",
+    "quai-browser": "passed",
+    "quai-signer": "passed",
+    "quai-keystore": "passed",
+    "quai-wallet": "passed",
+    "quai-payments": "passed"
+  },
+  "packagedWasmChecks": {
+    "quai-browser": "passed",
+    "quai-sdk": "passed"
+  },
+  "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+}

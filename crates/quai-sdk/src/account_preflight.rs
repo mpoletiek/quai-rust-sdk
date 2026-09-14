@@ -322,7 +322,7 @@ pub(crate) async fn quote_operation<T: Transport>(
     let estimate = if conversion {
         let typed = QuaiToQiTransaction::new(transaction.clone()).map_err(|_| E::Invalid)?;
         provider
-            .estimate_quai_conversion_gas(sender, &typed, block)
+            .estimate_quai_conversion_gas_budget(sender, &typed, block)
             .await?
     } else {
         let mut request = CallRequest {

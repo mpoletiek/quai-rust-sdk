@@ -64,6 +64,13 @@ impl Transport for Mock {
             }
             "quai_getTransactionByHash" | "quai_getTransactionReceipt" => Value::Null,
             "quai_getTransactionCount" => json!("0x4"),
+            "quai_quaiToQi" => {
+                if mode == 7 {
+                    Value::Null
+                } else {
+                    json!("0x5e7f4")
+                }
+            }
             "quai_gasPrice" => json!("0x2"),
             "quai_estimateGas" => {
                 if self.mode.load(Ordering::SeqCst) == 3 && params[0]["nonce"] != "0x4" {
@@ -550,7 +557,11 @@ async fn conversion_freezes_slippage_and_recovers_signed_nonce() {
             destination,
             U256::from(10_000_000_000_000_000_000u64),
             ConversionSlippage::new(100).unwrap(),
-            policy(),
+            FeePolicy {
+                max_gas: 500_000,
+                max_total_fee: U256::from(1_000_000),
+                ..policy()
+            },
         )
         .await
         .unwrap();
@@ -647,7 +658,11 @@ async fn explicit_confirmed_observations_pin_every_state_read_and_reject_head_ch
                             .unwrap(),
                         U256::from(10_000_000_000_000_000_000u64),
                         quai_sdk::consensus::ConversionSlippage::new(100).unwrap(),
-                        policy(),
+                        FeePolicy {
+                            max_gas: 500_000,
+                            max_total_fee: U256::from(1_000_000),
+                            ..policy()
+                        },
                     )
                     .await
             } else {
@@ -1467,4 +1482,41 @@ async fn external_signing_commits_only_exact_live_preparation_and_survives_resta
         reopened.reservation(id).unwrap().unwrap().state,
         ReservationState::Signed
     );
+}
+
+#[tokio::test]
+async fn conversion_budget_rejects_low_caps_and_missing_quotes_before_reservation() {
+    for missing_quote in [false, true] {
+        let (_directory, mock, provider, signer, mut store) = setup();
+        mock.mode
+            .store(if missing_quote { 7 } else { 5 }, Ordering::SeqCst);
+        let id = ReservationId([100; 16]);
+        let result = AccountSession::new(&provider, &signer, &mut store)
+            .unwrap()
+            .with_observation_policy(quai_sdk::accounts::AccountObservationPolicy::PinnedLatest)
+            .prepare_conversion(
+                id,
+                "0x0080000000000000000000000000000000000001"
+                    .parse()
+                    .unwrap(),
+                U256::from(quai_sdk::consensus::MIN_QUAI_CONVERSION_VALUE),
+                quai_sdk::consensus::ConversionSlippage::new(100).unwrap(),
+                policy(),
+            )
+            .await;
+        if missing_quote {
+            assert!(matches!(result, Err(AccountError::Provider(_))));
+        } else {
+            assert!(matches!(result, Err(AccountError::FeeLimit)));
+        }
+        assert!(store.reservation(id).unwrap().is_none());
+        assert!(
+            !mock
+                .calls
+                .lock()
+                .unwrap()
+                .iter()
+                .any(|(m, _)| m == "quai_sendRawTransaction")
+        );
+    }
 }

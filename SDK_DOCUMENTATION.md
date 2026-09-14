@@ -626,6 +626,18 @@ terminus. Controller estimates are advisory settlement estimates.
 | Quai → WQUAI | `WrappedQuai::deposit` | Exact native value attached to deposit call |
 | WQUAI → Quai | `WrappedQuai::withdraw` | Exact token amount; zero native call value |
 
+`Provider::estimate_quai_conversion_gas` preserves the raw node estimate.
+`estimate_quai_conversion_gas_budget`, used by native `prepare_conversion` and
+portable/browser `quote_quai_conversion`, also budgets origin intrinsic gas,
+ETX creation, and the maximum denomination count for amounts at or below the
+sampled nominal Qi quote. Controller discounts can increase the output count.
+The caller's gas margin applies afterward, and all fee caps still apply before
+nonce reservation. Missing/zero quotes fail explicitly. This empty-access-list
+budget uses the pinned go-quai gas schedule; a future increase in the quote or a
+different schedule remains an estimation risk. Follow destination receipts and
+outpoints even when the origin succeeds: insufficient ETX gas can produce a
+failed receipt with partial Qi outputs. See [funded Orchard evidence](test-infra/orchard/README.md).
+
 Confirmed configured addresses on both mainnet and Orchard, Cyprus-1:
 
 | Asset | Address |

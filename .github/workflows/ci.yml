@@ -69,6 +69,10 @@ jobs:
         run: |
           cargo fetch --locked
           python3 test-infra/local-chain/highlevel_harness.py build
+      - name: Check the funded Orchard client without keys or network execution
+        run: |
+          cargo fmt --manifest-path test-infra/orchard/Cargo.toml --check
+          CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target" cargo clippy --manifest-path test-infra/orchard/Cargo.toml --locked -- -D warnings
       - run: python3 -m unittest discover -s test-infra/tests -v
       - run: python3 -m unittest discover -s test-infra/local-chain -p 'test_*.py' -v
   browser:

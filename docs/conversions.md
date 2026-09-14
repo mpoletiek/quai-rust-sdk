@@ -41,6 +41,28 @@ Every account output must target one same-zone Quai address. Repeated conversion
 
 The minimum comes from the pinned numeric rule `10000000000 * GWei`; the adjacent upstream comment gives a conflicting description, so it is not used as the source of this constant. A valid static envelope can still fail controller activation, fork hold intervals, fees or current chain-state rules.
 
+## Quai-to-Qi gas budgeting
+
+The raw `estimate_quai_conversion_gas` RPC result is retained for compatibility.
+The pinned node reports destination gas based on the nominal quote's greedy
+output decomposition. It omits origin intrinsic gas and ETX creation, and a
+controller discount can increase the denomination count. A percentage margin
+alone can therefore leave the destination underfunded.
+
+`estimate_quai_conversion_gas_budget` (used by account preparation on native and
+browser paths) combines the greater of that RPC estimate and a denomination-count
+bound with origin costs. For nominal Qits `v`, every lower denomination `d[i]`
+needs at most `min(v / d[i], d[i+1] / d[i] - 1)` outputs; the largest denomination
+needs at most `v / d[max]`. Summing those bounds covers every amount below the
+quote. Destination gas is 21,000 + 9,000 per bounded output; origin gas is 42,000
+plus exact calldata cost (4 for zero bytes, 16 otherwise). Caller margins and
+fee caps apply afterward. This budget requires an empty access list, a positive
+quote, checked arithmetic and a bound within the node's output limit. It remains
+advisory for a later larger quote or a different node gas schedule.
+
+The [Orchard record](../test-infra/orchard/README.md) captures the original failure,
+which produced partial locked outputs despite a successful origin receipt.
+
 ## Explicit fee profiles
 
 `Provider::estimate_qi_conversion_fee` returns `ProviderError::ConversionFeeEstimationUnavailable` without network I/O. The provider does not quietly route this request through its ordinary Qi estimator.

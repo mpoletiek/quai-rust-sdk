@@ -1,0 +1,497 @@
+{
+  "recordedAt": "2026-09-14T04:40:24.183688+00:00",
+  "network": "orchard",
+  "chainId": 15000,
+  "genesis": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+  "endpoint": "https://orchard.rpc.quai.network/cyprus1",
+  "originalSdkCommit": "ba5e39728f434f96fd0f97f9fb5570ccd159fad4",
+  "original": {
+    "prepared": [
+      {
+        "destination": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+        "operation": "convert-quai-to-qi",
+        "quotedQits": "387060",
+        "slippageBasisPoints": 100,
+        "valueBaseUnits": "10000000000000000000"
+      },
+      {
+        "chainId": 15000,
+        "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+        "gasLimit": 141900,
+        "gasPrice": "1200000000",
+        "maximumFeeBaseUnits": "170280000000000",
+        "nonce": 6781,
+        "operation": "convert-quai-to-qi",
+        "signingDigest": "0xfc739568a833b06c186be00ee26671f11dabdb341851881d7bdaa8fcbce1553b",
+        "stage": "prepared",
+        "to": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+        "valueBaseUnits": "10000000000000000000"
+      },
+      {
+        "hash": "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87",
+        "operation": "convert-quai-to-qi",
+        "stage": "signed-and-persisted"
+      }
+    ],
+    "originReceipt": {
+      "blockHash": "0xff0593c6eca9541fe59b7510ea874a4ee6165fe6cf78be19c984bca5502b53b8",
+      "blockNumber": "0x76e3b4",
+      "contractAddress": null,
+      "cumulativeGasUsed": "0x32064",
+      "effectiveGasPrice": "0x47868c00",
+      "etxType": null,
+      "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+      "gasUsed": "0x22a4c",
+      "logs": [],
+      "originatingTxHash": null,
+      "outboundEtxs": [
+        {
+          "accessList": [],
+          "blockHash": "0xff0593c6eca9541fe59b7510ea874a4ee6165fe6cf78be19c984bca5502b53b8",
+          "blockNumber": "0x76e3b4",
+          "etxIndex": "0x0",
+          "etxType": "0x2",
+          "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+          "gas": "0x18628",
+          "hash": "0x004400932e12f3564fc0ab92760c6d9c8e57cbf796110349e2c76f2fc390c628",
+          "input": "0x0064",
+          "nonce": "0x0",
+          "originatingTxHash": "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87",
+          "to": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+          "transactionIndex": "0x3",
+          "type": "0x1",
+          "value": "0x8ac7230489e80000"
+        }
+      ],
+      "status": "0x1",
+      "to": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+      "transactionHash": "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87",
+      "transactionIndex": "0x3",
+      "type": "0x0"
+    },
+    "credit": [
+      {
+        "coverage": "Complete",
+        "effect": "Some(ExecutionFailed { etx_type: 2 })",
+        "examined": 23,
+        "executionHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+        "from": 7791540,
+        "operation": "convert-quai-to-qi",
+        "origin": "emitted",
+        "originHash": "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87",
+        "qiCredit": {
+          "beneficiary": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+          "creatingHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "executionBlock": 7791544,
+          "executionHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "lockedQits": "385000",
+          "observedHead": 7791557,
+          "outputs": [
+            {
+              "denomination": 10,
+              "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+              "index": 0,
+              "lock": "7791644"
+            },
+            {
+              "denomination": 10,
+              "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+              "index": 1,
+              "lock": "7791644"
+            },
+            {
+              "denomination": 10,
+              "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+              "index": 2,
+              "lock": "7791644"
+            },
+            {
+              "denomination": 9,
+              "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+              "index": 3,
+              "lock": "7791644"
+            },
+            {
+              "denomination": 9,
+              "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+              "index": 4,
+              "lock": "7791644"
+            },
+            {
+              "denomination": 9,
+              "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+              "index": 5,
+              "lock": "7791644"
+            },
+            {
+              "denomination": 9,
+              "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+              "index": 6,
+              "lock": "7791644"
+            },
+            {
+              "denomination": 7,
+              "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+              "index": 7,
+              "lock": "7791644"
+            }
+          ],
+          "unlockedQits": "0",
+          "unobservedQits": "1286"
+        },
+        "to": 7791555
+      }
+    ],
+    "publicDestinationAndWrapperReads": [
+      {
+        "head": "0x76e3e9",
+        "method": "quai_getTransactionByHash",
+        "params": [
+          "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+        ],
+        "result": {
+          "accessList": [],
+          "blockHash": "0xb78426e70659056b87a1e6355e7a961584061752a5643e6c01009340c4d1410a",
+          "blockNumber": "0x76e3b8",
+          "etxIndex": "0x0",
+          "etxType": "0x2",
+          "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+          "gas": "0x18628",
+          "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "input": "0x0064",
+          "nonce": "0x0",
+          "originatingTxHash": "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87",
+          "to": "0x00f884B61A1B0a1D456D547801B30561d85E7A2D",
+          "transactionIndex": "0x0",
+          "type": "0x1",
+          "value": "0x5e4ee"
+        }
+      },
+      {
+        "head": "0x76e3e9",
+        "method": "quai_getTransactionReceipt",
+        "params": [
+          "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+        ],
+        "result": {
+          "blockHash": "0xb78426e70659056b87a1e6355e7a961584061752a5643e6c01009340c4d1410a",
+          "blockNumber": "0x76e3b8",
+          "contractAddress": null,
+          "cumulativeGasUsed": "0x0",
+          "effectiveGasPrice": "0x3b9aca00",
+          "etxType": "0x2",
+          "gasUsed": "0x18628",
+          "logs": [
+            {
+              "address": "0x00f884b61a1b0a1d456d547801b30561d85e7a2d",
+              "blockHash": "0xb78426e70659056b87a1e6355e7a961584061752a5643e6c01009340c4d1410a",
+              "blockNumber": "0x76e3b8",
+              "data": "0x05dfe8",
+              "logIndex": "0x0",
+              "removed": false,
+              "topics": [
+                "0x99319dbb65c4b70997d7d1a01aab826144c893d72bc109046fad969940a9401b"
+              ],
+              "transactionHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+              "transactionIndex": "0x0"
+            }
+          ],
+          "originatingTxHash": "0x0003007aad8d93523b275c628c28fc32ad32b40f26181ccaabcae32ac7571e87",
+          "status": "0x0",
+          "transactionHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "transactionIndex": "0x0",
+          "type": "0x1"
+        }
+      },
+      {
+        "head": "0x76e3e9",
+        "method": "quai_getCode",
+        "params": [
+          "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB",
+          "0x76e3e9"
+        ],
+        "result": {
+          "codeBytes": 0
+        }
+      },
+      {
+        "head": "0x76e3e9",
+        "method": "quai_getCode",
+        "params": [
+          "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+          "0x76e3e9"
+        ],
+        "result": {
+          "codeBytes": 7255
+        }
+      },
+      {
+        "head": "0x76e3e9",
+        "method": "quai_getOutpointsByAddress",
+        "params": [
+          "0x00f884B61A1B0a1D456D547801B30561d85E7A2D"
+        ],
+        "result": [
+          {
+            "denomination": "0xa",
+            "index": "0x0",
+            "lock": "0x76e41c",
+            "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+          },
+          {
+            "denomination": "0xa",
+            "index": "0x1",
+            "lock": "0x76e41c",
+            "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+          },
+          {
+            "denomination": "0xa",
+            "index": "0x2",
+            "lock": "0x76e41c",
+            "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+          },
+          {
+            "denomination": "0x9",
+            "index": "0x3",
+            "lock": "0x76e41c",
+            "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+          },
+          {
+            "denomination": "0x9",
+            "index": "0x4",
+            "lock": "0x76e41c",
+            "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+          },
+          {
+            "denomination": "0x9",
+            "index": "0x5",
+            "lock": "0x76e41c",
+            "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+          },
+          {
+            "denomination": "0x9",
+            "index": "0x6",
+            "lock": "0x76e41c",
+            "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+          },
+          {
+            "denomination": "0x7",
+            "index": "0x7",
+            "lock": "0x76e41c",
+            "txHash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f"
+          }
+        ]
+      }
+    ]
+  },
+  "corrected": {
+    "source": "Working tree with conversion gas-budget fix, source hashes recorded separately",
+    "prepared": [
+      {
+        "destination": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "operation": "convert-quai-to-qi-v2",
+        "quotedQits": "387060",
+        "slippageBasisPoints": 100,
+        "valueBaseUnits": "10000000000000000000"
+      },
+      {
+        "chainId": 15000,
+        "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+        "gasLimit": 346522,
+        "gasPrice": "1200000000",
+        "maximumFeeBaseUnits": "415826400000000",
+        "nonce": 6782,
+        "operation": "convert-quai-to-qi-v2",
+        "signingDigest": "0x99a2696a6bc77544565b02f4f66099425862edeb7b3d975c0e0cdf629641ba9e",
+        "stage": "prepared",
+        "to": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "valueBaseUnits": "10000000000000000000"
+      },
+      {
+        "hash": "0x004c0013a9f333e839931a4b54b86cb539cb3a45dec223711ad413a3ba5306c1",
+        "operation": "convert-quai-to-qi-v2",
+        "stage": "signed-and-persisted"
+      }
+    ],
+    "broadcast": [
+      {
+        "hash": "0x004c0013a9f333e839931a4b54b86cb539cb3a45dec223711ad413a3ba5306c1",
+        "operation": "convert-quai-to-qi-v2",
+        "stage": "acknowledged"
+      }
+    ],
+    "originObservation": {
+      "confirmations": 12,
+      "operation": "convert-quai-to-qi-v2",
+      "receipt": {
+        "blockHash": "0xe634205aeae5142359b1191d3840fa004f862bcdac051fbe03d186190639be25",
+        "blockNumber": "0x76e420",
+        "contractAddress": null,
+        "cumulativeGasUsed": "0x5edaa",
+        "effectiveGasPrice": "0x47868c00",
+        "etxType": null,
+        "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+        "gasUsed": "0x5499a",
+        "logs": [],
+        "originatingTxHash": null,
+        "outboundEtxs": [
+          {
+            "accessList": [],
+            "blockHash": "0xe634205aeae5142359b1191d3840fa004f862bcdac051fbe03d186190639be25",
+            "blockNumber": "0x76e420",
+            "etxIndex": "0x0",
+            "etxType": "0x2",
+            "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+            "gas": "0x4a576",
+            "hash": "0x005700ab73a535aede82d441755a825cb3066a7dbe6cd6b5a0f6bc51e0c99bd0",
+            "input": "0x0064",
+            "nonce": "0x0",
+            "originatingTxHash": "0x004c0013a9f333e839931a4b54b86cb539cb3a45dec223711ad413a3ba5306c1",
+            "to": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+            "transactionIndex": "0x2",
+            "type": "0x1",
+            "value": "0x8ac7230489e80000"
+          }
+        ],
+        "status": "0x1",
+        "to": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "transactionHash": "0x004c0013a9f333e839931a4b54b86cb539cb3a45dec223711ad413a3ba5306c1",
+        "transactionIndex": "0x2",
+        "type": "0x0"
+      },
+      "stage": "observed"
+    },
+    "credit": {
+      "coverage": "Complete",
+      "effect": "Some(ConversionReported)",
+      "examined": 26,
+      "executionHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+      "from": 7791648,
+      "operation": "convert-quai-to-qi-v2",
+      "origin": "emitted",
+      "originHash": "0x004c0013a9f333e839931a4b54b86cb539cb3a45dec223711ad413a3ba5306c1",
+      "qiCredit": {
+        "beneficiary": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "creatingHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "executionBlock": 7791652,
+        "executionHash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "lockedQits": "386286",
+        "observedHead": 7791669,
+        "outputs": [
+          {
+            "denomination": 10,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 0,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 10,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 1,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 10,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 2,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 9,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 3,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 9,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 4,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 9,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 5,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 9,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 6,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 7,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 7,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 6,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 8,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 4,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 9,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 4,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 10,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 3,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 11,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 2,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 12,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 2,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 13,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 2,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 14,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 1,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 15,
+            "lock": "7791752"
+          },
+          {
+            "denomination": 0,
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 16,
+            "lock": "7791752"
+          }
+        ],
+        "unlockedQits": "0",
+        "unobservedQits": "0"
+      },
+      "to": 7791663
+    },
+    "durableSignedBytesMatchMinedTransaction": true
+  },
+  "boundaries": [
+    "Original destination receipt failed with partial outputs; not a successful full conversion.",
+    "Quote gas schedule is pinned; live source revision unknown.",
+    "No funded WQUAI call while configured address returns empty code.",
+    "No mainnet transactions submitted."
+  ]
+}

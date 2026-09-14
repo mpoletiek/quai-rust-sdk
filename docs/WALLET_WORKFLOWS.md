@@ -117,13 +117,18 @@ historical selector; this API does not present that as a historical quote.
 Controller-discounted estimates are not guaranteed settlement amounts.
 
 `AccountSession::prepare_conversion` prepares Quai-to-Qi with explicit slippage,
-exact conversion simulation, balance/fee limits, durable nonce claims, and the
+a conservative conversion gas budget, balance/fee limits, durable nonce claims, and the
 usual frozen sign/broadcast stages. The default pending-state policy propagates
 RPC failures. Select `AccountObservationPolicy::PinnedLatest` explicitly on nodes
 that lack working pending-state reads. Nonce, balance and simulation then share
 one numeric block selector, with head rechecks before reservation and return.
 This excludes mempool effects; the durable local nonce cursor still prevents local
 nonce reuse. Transfers, conversions and deployments use the same selected policy.
+The conversion budget includes origin gas and a denomination-count bound below
+the current nominal quote, since discounts can require more outputs. Raw node
+estimates omit origin costs. Gas margins apply to the combined budget; small
+caps may now fail before reservation. Quote increases and gas schedule changes
+remain risks; this does not guarantee destination success or full credit.
 
 `QiSession::prepare_special` accepts `QiSpecialIntent::Conversion` with destination,
 refund, slippage and an **explicit authorized fee in Qits**. The ordinary node fee

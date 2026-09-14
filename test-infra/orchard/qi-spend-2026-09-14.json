@@ -1,0 +1,127 @@
+{
+  "recordedAt": "2026-09-14T04:48:13.819441+00:00",
+  "network": "orchard",
+  "chainId": 15000,
+  "endpoint": "https://orchard.rpc.quai.network/cyprus1",
+  "prepared": [
+    {
+      "head": "7791677",
+      "lockedQits": "386286",
+      "spendableQits": "385000",
+      "stage": "Qi-refreshed"
+    },
+    {
+      "feeQits": "8",
+      "inputs": [
+        {
+          "hash": "0x001b00cb6d02ec92042b0adf667bc9302ffe5769756341c63d78fa377ca1402f",
+          "index": 7
+        }
+      ],
+      "outputs": [
+        {
+          "address": "0x009Eb316466eb0E4eaC36a7Fb95236254Ddc6846",
+          "denomination": 6
+        },
+        {
+          "address": "0x00892Fdd8755D18DaD7C0091D4d58a2D6201AEe5",
+          "denomination": 6
+        },
+        {
+          "address": "0x00bF699F16F0b88D55a82D24700B3aAaDD5559a0",
+          "denomination": 6
+        },
+        {
+          "address": "0x00fD5663a83EEaE4E145CEda3e5DB8FE77566E00",
+          "denomination": 6
+        },
+        {
+          "address": "0x0095cc430a8F00c07d8dDe2B383b0Bb150C3b1f2",
+          "denomination": 5
+        },
+        {
+          "address": "0x00a0C88D04323DEcCf11Eb0fEd92c05c165dB6a6",
+          "denomination": 4
+        },
+        {
+          "address": "0x00D57eA7d7B851F84c2f447DC6912580d35ceE27",
+          "denomination": 4
+        },
+        {
+          "address": "0x00E5D7f2A6e346D08B5E96E555B284A026484FAa",
+          "denomination": 4
+        },
+        {
+          "address": "0x00dB47477Ccf6f9B0Bbb4e7Ad25b3ECeb1E10CeE",
+          "denomination": 4
+        },
+        {
+          "address": "0x00ad9B61B2BBD3b006BF5D7dB4BC1E3E32cB6AB9",
+          "denomination": 3
+        },
+        {
+          "address": "0x008df98D58840C9158bBCD32Cfae94d4CaD3A063",
+          "denomination": 2
+        },
+        {
+          "address": "0x00aee7930aAA0e283c85bBf609cE08383FEcfE1E",
+          "denomination": 2
+        },
+        {
+          "address": "0x00c10f8bD160CEE1b93707468f2d93EEeF6F0f45",
+          "denomination": 2
+        },
+        {
+          "address": "0x00e4026379357FDb69F64d67fF36df9350746Bd5",
+          "denomination": 2
+        },
+        {
+          "address": "0x00Ea2C29e51D4530496Dd2131604a169ff0649a2",
+          "denomination": 0
+        },
+        {
+          "address": "0x00DAf2028bc5a5dDF6148bE4f6d4Bb51b5DE368C",
+          "denomination": 0
+        }
+      ],
+      "stage": "Qi-prepared"
+    },
+    {
+      "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+      "stage": "Qi-signed-persisted"
+    }
+  ],
+  "broadcast": [
+    {
+      "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+      "stage": "Qi-acknowledged"
+    }
+  ],
+  "observed": [
+    {
+      "confirmations": 4,
+      "receipt": {
+        "blockHash": "0x61d53e4f919426d756b4304f0abe56fb063497cce5a534e2a33f6519c95bb925",
+        "blockNumber": "0x76e441",
+        "contractAddress": null,
+        "cumulativeGasUsed": "0x0",
+        "effectiveGasPrice": "0x3b9aca00",
+        "etxType": null,
+        "from": null,
+        "gasUsed": "0x262da",
+        "logs": [],
+        "originatingTxHash": null,
+        "outboundEtxs": [],
+        "status": "0x1",
+        "to": null,
+        "transactionHash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "transactionIndex": "0x2",
+        "type": "0x2"
+      },
+      "stage": "Qi-observed"
+    }
+  ],
+  "allSignedOutputsObservedInCurrentIndex": true,
+  "scope": "Mature original conversion output index 7 spent in a one-input 1 Qi self-transfer with 3.992 Qi change and 0.008 Qi fee. Not BIP47 or wrapper redemption qualification.",
+  "refresh": "One block-boundary failure followed by a stable full known-address refresh. No signing/broadcast retries."
+}

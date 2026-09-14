@@ -1,0 +1,32 @@
+{
+  "recordedAt": "2026-09-14T04:50:12.197993+00:00",
+  "baseCommit": "ba5e39728f434f96fd0f97f9fb5570ccd159fad4",
+  "workingTree": true,
+  "runtimeSourceSha256": {
+    "crates/quai-provider/src/wallet_rpc.rs": "ec263559e4586a9f56ee3d020cbae95d0ae7d961c40865bf21712d2b433a9e24",
+    "crates/quai-sdk/src/accounts.rs": "b9ec1fdab82fddda0e87dab24681d7198a5c3ea9cc73a68312c7f023c261b8b6",
+    "crates/quai-sdk/src/account_preflight.rs": "0096a79af99f80ee18a3752371c6547e3417611bf014cd1bd80a05c7c3f00bf6"
+  },
+  "checks": {
+    "workspaceAllFeatures": {
+      "passed": 620,
+      "ignored": 5
+    },
+    "chromiumWorkerAccountPreflight": {
+      "passed": 15
+    },
+    "strictWorkspaceClippy": true,
+    "strictRustdoc": true,
+    "strictOrchardHarnessClippy": true,
+    "referenceSourceIntegrity": true,
+    "documentationLinksAndParityLedger": true,
+    "packagePublicFileMirrors": 107,
+    "packageRehearsal": "packages-2026-09-14.json"
+  },
+  "scope": [
+    "No new full production qualification or security audit is claimed.",
+    "Package rehearsal used the same runtime sources, before restoring the existing low fee cap in an unrelated nonce-repair test.",
+    "The new harness is compiled in CI without loading keys or submitting network transactions.",
+    "Funded account, conversion and Qi spend records are separate dated observations."
+  ]
+}

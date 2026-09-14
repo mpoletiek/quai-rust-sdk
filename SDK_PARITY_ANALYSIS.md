@@ -127,12 +127,21 @@ bind their source and lock hashes; historical results do not automatically quali
 a later commit. CI on the release revision must pass before handoff.
 
 The following remain production qualification work rather than hidden implemented
-features: funded execution against unmodified target nodes, mature WQI redemption
+features: broader funded execution against unmodified target nodes, mature WQI redemption
 spend, aggregation block placement and cross-zone execution; real extension and
 additional browser-engine coverage; sustained fault/reorg/soak/performance and fuzz
 campaigns; and independent security review. The owned isolated chain used documented
 patches and toy keys. Its success does not establish unmodified-network acceptance.
-Orchard maintenance limits testnet evidence. Mainnet checks are read-only.
+[Funded Orchard qualification](test-infra/orchard/README.md) now includes two
+successful QUAI transfers and a corrected Quai-to-Qi conversion with all 386,286
+settled Qits observed in 17 locked outputs. The first conversion exposed an
+underfunded destination despite origin success; the SDK now budgets origin costs
+and denomination fragmentation after discounts. This is a useful Rust difference
+from the reference's raw-estimate path, not a claim of universal fee sufficiency.
+A matured output from the original conversion was subsequently spent in a
+confirmed 1 Qi self-transfer with all resulting outputs indexed.
+The configured Orchard WQUAI address still returned empty code. Mainnet checks
+remain read-only; live BIP47 receive and mature wrapper redemption remain open.
 
 A packageable alpha does not promise production custody safety, unrestricted
 backward compatibility or independent chain verification. General journal

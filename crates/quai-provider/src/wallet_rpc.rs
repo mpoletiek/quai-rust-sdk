@@ -19,6 +19,8 @@ impl<T: Transport> Provider<T> {
     /// Estimate an explicit type-0 Quai-to-Qi conversion with the exact data,
     /// value, nonce and gas price. Uses a dedicated typed request, not account
     /// recipient coercion. The node may still override simulation nonce.
+    /// The pinned estimator omits origin costs and denomination fragmentation;
+    /// see [`Self::estimate_quai_conversion_gas_budget`] for preparation.
     pub async fn estimate_quai_conversion_gas(
         &self,
         from: QuaiAddress,
@@ -39,6 +41,35 @@ impl<T: Transport> Provider<T> {
             "gas": format!("{:#x}", tx.gas_limit), "gasPrice": format!("{:#x}", tx.gas_price),
             "accessList": tx.access_list.iter().map(|a| json!({"address":a.address.to_string(),"storageKeys":a.storage_keys.iter().map(ToString::to_string).collect::<Vec<_>>()})).collect::<Vec<_>>()
         }, block.rpc_value()?])).await?)
+    }
+    /// Conservative empty-access-list Quai-to-Qi gas budget for the pinned
+    /// go-quai gas schedule. Unlike the raw estimator, includes origin intrinsic
+    /// gas, ETX creation and a denomination-count bound for every amount at or
+    /// below the sampled nominal quote. Discounted values can require *more*
+    /// outputs than the nominal amount. A later higher quote or changed gas
+    /// schedule can still exceed this budget; estimates are not guarantees.
+    /// Missing/zero quotes, arithmetic overflow and access lists fail explicitly.
+    pub async fn estimate_quai_conversion_gas_budget(
+        &self,
+        from: QuaiAddress,
+        transaction: &quai_consensus::QuaiToQiTransaction,
+        block: BlockTag,
+    ) -> Result<u64, ProviderError> {
+        let tx = transaction.transaction();
+        if !tx.access_list.is_empty() {
+            return Err(ProviderError::InvalidRequest(
+                "conversion gas budget access list",
+            ));
+        }
+        let estimate = self
+            .estimate_quai_conversion_gas(from, transaction, block)
+            .await?;
+        let quote = self
+            .quai_to_qi(from.zone(), tx.value, block)
+            .await?
+            .filter(|v| *v != U256::ZERO)
+            .ok_or(ProviderError::InvalidResult("conversion quote unavailable"))?;
+        conversion_gas_budget(estimate, quote, &tx.data)
     }
     /// Node-reported Qi-to-Quai amount at a selector, in Its for input Qits.
     /// Null indicates missing header/prime-terminus data, not a zero quote.
@@ -280,5 +311,86 @@ impl<T: Transport> Provider<T> {
             );
         }
         Ok(result)
+    }
+}
+
+// Each lower greedy digit is bounded by the next denomination's radix minus
+// one, and by the entire quoted value. This bounds every smaller amount, not
+// only the nominal quote's (potentially much shorter) greedy decomposition.
+fn conversion_output_bound(quote: U256) -> Result<u64, ProviderError> {
+    let values = quai_consensus::Denomination::VALUES;
+    let mut count = 0u64;
+    for (i, value) in values.iter().enumerate() {
+        let mut digit = quote / U256::from(*value);
+        if let Some(next) = values.get(i + 1) {
+            digit = digit.min(U256::from(next / value - 1));
+        }
+        let digit = u64::try_from(digit)
+            .map_err(|_| ProviderError::InvalidResult("conversion output bound overflow"))?;
+        count = count
+            .checked_add(digit)
+            .ok_or(ProviderError::InvalidResult(
+                "conversion output bound overflow",
+            ))?;
+    }
+    // Pinned execution refuses outputIndex >= MaxOutputIndex (65535).
+    if count > 65_535 {
+        return Err(ProviderError::InvalidResult(
+            "conversion output bound exceeds node limit",
+        ));
+    }
+    Ok(count)
+}
+fn conversion_gas_budget(estimate: u64, quote: U256, data: &[u8]) -> Result<u64, ProviderError> {
+    let outputs = conversion_output_bound(quote)?;
+    let destination = 21_000 + 9_000 * outputs;
+    let origin = 42_000
+        + data
+            .iter()
+            .map(|b| if *b == 0 { 4 } else { 16 })
+            .sum::<u64>();
+    estimate
+        .max(destination)
+        .checked_add(origin)
+        .ok_or(ProviderError::InvalidResult(
+            "conversion gas budget overflow",
+        ))
+}
+
+#[cfg(test)]
+mod conversion_budget_tests {
+    use super::*;
+    #[test]
+    fn orchard_discount_fragmentation_and_origin_costs() {
+        // Actual Orchard observation: raw estimate 129000, nominal 387060,
+        // settled 386286. A 10% raw margin forwarded only 99880 gas and
+        // created 385000 Qits before destination failure.
+        let budget = conversion_gas_budget(129_000, U256::from(387_060), &[0, 100]).unwrap();
+        assert_eq!(budget, 315_020);
+        let mut remaining = 386_286;
+        let mut outputs = 0;
+        for d in quai_consensus::Denomination::VALUES.iter().rev() {
+            outputs += remaining / d;
+            remaining %= d;
+        }
+        assert_eq!(outputs, 17);
+        assert!(budget - 42_020 >= 21_000 + 9_000 * outputs);
+        assert!(141_900 - 42_020 < 21_000 + 9_000 * outputs);
+    }
+    #[test]
+    fn denomination_bound_covers_every_lower_amount() {
+        let mut maximum = 0;
+        for amount in 1..=1_000_000u64 {
+            let mut remaining = amount;
+            let mut count = 0;
+            for d in quai_consensus::Denomination::VALUES.iter().rev() {
+                count += remaining / d;
+                remaining %= d;
+            }
+            maximum = maximum.max(count);
+            assert!(conversion_output_bound(U256::from(amount)).unwrap() >= maximum);
+        }
+        assert!(conversion_output_bound(U256::MAX).is_err());
+        assert!(conversion_gas_budget(u64::MAX, U256::from(1), &[0, 100]).is_err());
     }
 }

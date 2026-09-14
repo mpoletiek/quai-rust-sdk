@@ -80,6 +80,13 @@ fn intent() -> AccountIntent {
         }],
     }
 }
+fn conversion_fee() -> FeePolicy {
+    FeePolicy {
+        max_gas: 500_000,
+        max_total_fee: U256::from(1_000_000),
+        ..fee()
+    }
+}
 fn fee() -> FeePolicy {
     FeePolicy {
         max_gas: 30_000,
@@ -126,6 +133,7 @@ impl Transport for Mock {
                     }
                     return Ok(json!("0x5"));
                 }
+                "quai_quaiToQi" => return Ok(json!("0x5e7f4")),
                 "quai_gasPrice" => return Ok(json!(if s.mode == 5 { "0x4" } else { "0x2" })),
                 "quai_getBalance" => {
                     return Ok(json!(match s.mode {
@@ -463,7 +471,7 @@ async fn conversion_preserves_exact_native_value_recipient_slippage_and_nonce() 
         conversion(),
         AccountNonce::AtLeast(8),
         AccountObservationPolicy::PinnedLatest,
-        fee(),
+        conversion_fee(),
     )
     .await
     .unwrap();
@@ -513,7 +521,7 @@ async fn conversion_invalid_intents_and_fee_arithmetic_fail_closed() {
                 bad,
                 AccountNonce::AtLeast(0),
                 AccountObservationPolicy::Pending,
-                fee()
+                conversion_fee()
             )
             .await,
             Err(AccountPreflightError::Invalid)
@@ -529,7 +537,7 @@ async fn conversion_invalid_intents_and_fee_arithmetic_fail_closed() {
             conversion(),
             AccountNonce::Exact(5),
             AccountObservationPolicy::Pending,
-            fee()
+            conversion_fee()
         )
         .await,
         Err(AccountPreflightError::InsufficientBalance)
@@ -592,7 +600,7 @@ async fn replacement_quotes_change_only_price_and_use_confirmed_nonce_admission(
                 conversion(),
                 AccountNonce::Exact(8),
                 AccountObservationPolicy::Pending,
-                fee(),
+                conversion_fee(),
             )
             .await
             .unwrap()
@@ -613,19 +621,27 @@ async fn replacement_quotes_change_only_price_and_use_confirmed_nonce_admission(
         if !conversion_mode {
             m.state().mode = 4;
         } // Pending nonce RPC is unavailable; replacement must use confirmed admission.
+        let mut replacement_limits = replacement_policy();
+        if conversion_mode {
+            replacement_limits.fees.max_gas = 500_000;
+            replacement_limits.fees.max_total_fee = U256::from(2_000_000);
+        }
         let replacement = quote_account_replacement(
             &p,
             scope(),
             &parent,
             AccountObservationPolicy::Pending,
-            replacement_policy(),
+            replacement_limits,
         )
         .await
         .unwrap();
         let mut expected = parent.transaction().clone();
         expected.gas_price = U256::from(3);
         assert_eq!(replacement.transaction(), &expected);
-        assert_eq!(replacement.maximum_fee(), U256::from(69_306));
+        assert_eq!(
+            replacement.maximum_fee(),
+            U256::from(expected.gas_limit) * U256::from(3)
+        );
         assert_eq!(replacement.parent_hash(), parent.hash().unwrap());
         assert_eq!(
             replacement.signing_digest(),
@@ -639,7 +655,7 @@ async fn replacement_quotes_change_only_price_and_use_confirmed_nonce_admission(
                 scope(),
                 &stale.sign(&key()).unwrap(),
                 AccountObservationPolicy::Pending,
-                replacement_policy()
+                replacement_limits
             )
             .await,
             Err(AccountPreflightError::Invalid)
@@ -654,7 +670,7 @@ async fn replacement_quotes_change_only_price_and_use_confirmed_nonce_admission(
                         scope(),
                         &parent,
                         AccountObservationPolicy::PinnedLatest,
-                        replacement_policy()
+                        replacement_limits
                     )
                     .await
                     .is_err()
@@ -850,7 +866,7 @@ mod browser {
         book.initialize(8).await.unwrap();
         let session = BrowserAccountSession::new(&p, &book);
         session
-            .prepare_conversion(id(10), conversion(), fee())
+            .prepare_conversion(id(10), conversion(), conversion_fee())
             .await
             .unwrap();
         let reopened = BrowserAccountBook::open(&name, scope(), key().public_key())
@@ -858,7 +874,7 @@ mod browser {
             .unwrap();
         let session = BrowserAccountSession::new(&p, &reopened);
         let prepared = session
-            .prepare_conversion_reserved(id(10), conversion(), fee())
+            .prepare_conversion_reserved(id(10), conversion(), conversion_fee())
             .await
             .unwrap();
         assert_eq!(prepared.transaction().nonce, 8);

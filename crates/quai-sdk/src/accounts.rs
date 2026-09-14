@@ -120,6 +120,8 @@ pub struct AccountSession<'a, T, S> {
 }
 impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
     /// Prepare a same-zone native Quai-to-Qi conversion with exact slippage.
+    /// Budget origin costs and denomination fragmentation below the current quote
+    /// before applying the caller's margin/caps. Later rates remain uncertain.
     /// Estimation failure after reservation retains an unsigned nonce for recovery.
     /// Existing `sign` and `broadcast` persist and submit the frozen conversion.
     pub async fn prepare_conversion(
@@ -199,7 +201,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
             .map_err(|_| AccountError::InvalidOperation)?;
         let estimate = self
             .provider
-            .estimate_quai_conversion_gas(sender, &typed, block)
+            .estimate_quai_conversion_gas_budget(sender, &typed, block)
             .await?;
         let gas =
             (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);

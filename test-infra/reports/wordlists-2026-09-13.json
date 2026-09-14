@@ -254,7 +254,7 @@
     "cause": "Lock wait exhaustion inferred; exact SQLite error code unavailable",
     "change": "Configurable whole millisecond zero through 60 second timeout; default five seconds retained; eight writer test uses 30 seconds",
     "localEvidence": "Held immediate writer transaction fails nonce claim and leaves no state; explicit retry allocates nonce zero, persisted successor nonce one",
-    "windowsFixQualification": "pending descendant CI"
+    "windowsFixQualification": "Wordlist commit CI run 34791584063: Windows and all seven other jobs passed"
   },
   "limitations": [
     "Public toy dictionary and mnemonic fixtures only; no real wallet secrets.",
@@ -262,5 +262,20 @@
     "Eager dictionary checksums and strict bounds deliberately reject unchecked/permissive published imports.",
     "Bounded sanitizer smoke is not sustained security qualification.",
     "Remaining declaration audit: 942 pending and 36 partial."
-  ]
+  ],
+  "subsequentCi": {
+    "run": 34791584063,
+    "commit": "63d6f9ca8342cb0618ed7885eb5dfa58c3027543",
+    "conclusion": "success",
+    "jobs": {
+      "reference-and-harness": "success",
+      "dependency-advisories": "success",
+      "rust (macos-15)": "success",
+      "fuzz-smoke": "success",
+      "rust (windows-2025)": "success",
+      "rust (ubuntu-24.04)": "success",
+      "browser": "success",
+      "packaged-consumer": "success"
+    }
+  }
 }

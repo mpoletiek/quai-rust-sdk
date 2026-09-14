@@ -100,4 +100,8 @@ for row in wordlists['languages']:
  if row['owl']:put('wallet_import',json.dumps({k:row[k] for k in ['owl','accents','checksum']}).encode())
  put('wallet_import',row['phrase'].encode())
  if row['locale'].startswith('zh_'):put('wallet_import',row['phrase'].replace(' ','').encode())
+for source in ['compatibility/fixtures/transactions.json','crates/quai-consensus/tests/conversion-vectors.json','crates/quai-consensus/tests/wrapping-vectors.json']:
+ for row in load(source)['vectors']:put('transactions',json.dumps(row['input']).encode())
+address='0x0011223344556677889900112233445566778899';slot='0x'+'ab'*32
+for value in [[[address,[slot,slot]]],{address:[slot,slot]},[{'address':address,'storageKeys':[slot]}]]:put('transactions',json.dumps(value).encode())
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

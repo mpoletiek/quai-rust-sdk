@@ -19,8 +19,6 @@ quai-crypto.workspace = true
 ruint.workspace = true
 prost = "0.14.4"
 thiserror.workspace = true
-
-[dev-dependencies]
 serde_json.workspace = true
 
 [lints]

@@ -384,6 +384,22 @@
     {
       "source": "compatibility/fixtures/wordlists.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-wallet/tests/fixtures/shared/compatibility/fixtures/wordlists.json"
+    },
+    {
+      "source": "crates/quai-consensus/tests/documents.rs",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-consensus/tests/documents.rs"
+    },
+    {
+      "source": "compatibility/fixtures/transactions.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-consensus/tests/fixtures/shared/compatibility/fixtures/transactions.json"
+    },
+    {
+      "source": "crates/quai-consensus/tests/conversion-vectors.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-consensus/tests/conversion-vectors.json"
+    },
+    {
+      "source": "crates/quai-consensus/tests/wrapping-vectors.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-consensus/tests/wrapping-vectors.json"
     }
   ]
 }

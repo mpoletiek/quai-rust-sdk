@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 2884 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 36 | A mapping exists with unfinished behavior or scope |
-| `pending` | 942 | No completed row-level reconciliation; not proof of absence |
+| `deviation` | 3021 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 16 | A mapping exists with unfinished behavior or scope |
+| `pending` | 825 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -235,18 +235,15 @@ root/subpath exports account for much of the volume.
 | Export family | Pending | Partial | Implemented | Deviation |
 | --- | ---: | ---: | ---: | ---: |
 | `FetchRequest` | 64 | 0 | 0 | 0 |
-| `QuaiTransaction` | 46 | 10 | 0 | 0 |
 | `BaseContract` | 50 | 4 | 0 | 2 |
 | `ContractTransactionResponse` | 52 | 0 | 0 | 6 |
 | `QuaiTransactionResponse` | 52 | 0 | 0 | 6 |
 | `Contract` | 46 | 4 | 0 | 2 |
-| `QiTransaction` | 36 | 10 | 0 | 0 |
 | `QiTransactionResponse` | 40 | 0 | 0 | 0 |
 | `FetchResponse` | 32 | 0 | 0 | 0 |
 | `ContractEventPayload` | 24 | 0 | 0 | 0 |
 | `BaseWallet` | 20 | 0 | 0 | 0 |
 | `SocketEventSubscriber` | 18 | 0 | 0 | 0 |
-| `AbstractTransaction` | 17 | 0 | 0 | 0 |
 | `ContractUnknownEventPayload` | 16 | 0 | 0 | 0 |
 | `Network` | 16 | 0 | 0 | 0 |
 | `SocketBlockSubscriber` | 16 | 0 | 0 | 0 |
@@ -259,10 +256,6 @@ root/subpath exports account for much of the volume.
 | `EventPayload` | 8 | 0 | 0 | 0 |
 | `FetchCancelSignal` | 8 | 0 | 0 | 0 |
 | `FeeData` | 6 | 0 | 0 | 0 |
-| `AccessList` | 2 | 0 | 0 | 0 |
-| `AccessListEntry` | 2 | 0 | 0 | 0 |
-| `accessListify` | 2 | 0 | 0 | 0 |
-| `AccessListish` | 2 | 0 | 0 | 0 |
 | `ActionRejectedError` | 2 | 0 | 0 | 0 |
 | `Addressable` | 2 | 0 | 0 | 0 |
 | `AddressLike` | 2 | 0 | 0 | 0 |
@@ -359,7 +352,6 @@ root/subpath exports account for much of the volume.
 | `PostfixOverrides` | 2 | 0 | 0 | 0 |
 | `PreparedTransactionRequest` | 2 | 0 | 0 | 0 |
 | `ProgressCallback` | 2 | 0 | 0 | 0 |
-| `ProtoTransaction` | 2 | 0 | 0 | 0 |
 | `Provider` | 2 | 0 | 0 | 0 |
 | `ProviderEvent` | 2 | 0 | 0 | 0 |
 | `QiAddressInfo` | 2 | 0 | 0 | 0 |
@@ -384,7 +376,6 @@ root/subpath exports account for much of the volume.
 | `toQuantity` | 2 | 0 | 0 | 0 |
 | `toShard` | 2 | 0 | 0 | 0 |
 | `toZone` | 2 | 0 | 0 | 0 |
-| `TransactionLike` | 2 | 0 | 0 | 0 |
 | `TransactionReceiptParams` | 2 | 0 | 0 | 0 |
 | `TransactionReplacedError` | 2 | 0 | 0 | 0 |
 | `TransactionRequest` | 2 | 0 | 0 | 0 |
@@ -407,25 +398,19 @@ root/subpath exports account for much of the volume.
 | `assertNormalize` | 1 | 0 | 0 | 0 |
 | `assertPrivate` | 1 | 0 | 0 | 0 |
 | `DataHexString` | 1 | 0 | 0 | 0 |
-| `decodeProtoTransaction` | 1 | 0 | 0 | 0 |
 | `defineProperties` | 1 | 0 | 0 | 0 |
-| `encodeProtoTransaction` | 1 | 0 | 0 | 0 |
 | `HexString` | 1 | 0 | 0 | 0 |
 | `QiJsonRpcTransactionRequest` | 1 | 0 | 0 | 0 |
 | `QiPreparedTransactionRequest` | 1 | 0 | 0 | 0 |
-| `QiTransactionLike` | 1 | 0 | 0 | 0 |
 | `QiTransactionRequest` | 1 | 0 | 0 | 0 |
 | `QuaiJsonRpcTransactionRequest` | 1 | 0 | 0 | 0 |
 | `QuaiPreparedTransactionRequest` | 1 | 0 | 0 | 0 |
 | `quais` | 1 | 0 | 0 | 0 |
-| `QuaiTransactionLike` | 1 | 0 | 0 | 0 |
 | `QuaiTransactionRequest` | 1 | 0 | 0 | 0 |
 | `resolveProperties` | 1 | 0 | 0 | 0 |
 | `ShardData` | 1 | 0 | 0 | 0 |
 | `Signer` | 1 | 0 | 0 | 0 |
 | `SpendTarget` | 1 | 0 | 0 | 0 |
-| `TxInput` | 1 | 0 | 0 | 0 |
-| `TxOutput` | 1 | 0 | 0 | 0 |
 | `version` | 1 | 0 | 0 | 0 |
 | `ZoneData` | 1 | 0 | 0 | 0 |
 <!-- parity-family-table:end -->
@@ -524,3 +509,17 @@ The ledger reviews 108 rows in this batch, closing 86 pending and two partial
 rows while updating existing mnemonic mappings. Remaining counts are 66
 implemented, 2884 deviations, 36 partial and 942 pending; these are declaration
 statuses, not independent feature counts or a completion percentage.
+
+## Transaction interchange review — 2026-09-13
+
+[Transaction interchange parity](docs/TRANSACTION_INTERCHANGE_PARITY.md) reconciles
+the abstract/account/Qi classes, generic protobuf helpers and access-list forms.
+The document API covers exact JSON data, verified signatures and supplied identity
+claims, all supported Qi operations, full quantities and every Qi destination
+zone. Raw protobuf retains absent-field presence instead of inserting defaults.
+Strict validation, typed signed states and deterministic access-map normalization
+are documented differences. Public DTOs are not proof of transaction validity.
+
+This review closes 137 rows: 117 pending and 20 partial. Current totals are
+66 implemented, 3021 deviations, 16 partial and 825 pending. These declaration
+counts do not imply complete application workflows or funded acceptance.

@@ -2560,12 +2560,24 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::AccessTuple"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Typed ordered vectors retain signing order and duplicates. Explicit JSON list/tuple/map import validates bounds/checksums. Map normalization sorts decoded address/slot bytes and deduplicates slots, avoiding JS locale/case dependence; duplicate decoded map addresses reject."
     },
     {
       "id": ".:AccessListEntry",
@@ -2574,12 +2586,24 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::AccessTuple"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Typed ordered vectors retain signing order and duplicates. Explicit JSON list/tuple/map import validates bounds/checksums. Map normalization sorts decoded address/slot bytes and deduplicates slots, avoiding JS locale/case dependence; duplicate decoded map addresses reject."
     },
     {
       "id": ".:accessListify",
@@ -2590,12 +2614,25 @@
         "(value: AccessListish): AccessList"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::access_list_from_json",
+        "quai_consensus::document::access_list_to_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Typed ordered vectors retain signing order and duplicates. Explicit JSON list/tuple/map import validates bounds/checksums. Map normalization sorts decoded address/slot bytes and deduplicates slots, avoiding JS locale/case dependence; duplicate decoded map addresses reject."
     },
     {
       "id": ".:AccessListish",
@@ -2604,12 +2641,24 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::access_list_from_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Typed ordered vectors retain signing order and duplicates. Explicit JSON list/tuple/map import validates bounds/checksums. Map normalization sorts decoded address/slot bytes and deduplicates slots, avoiding JS locale/case dependence; duplicate decoded map addresses reject."
     },
     {
       "id": ".:ActionRejectedError",
@@ -9355,12 +9404,24 @@
         "(bytes: Uint8Array): ProtoTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::decode_proto_transaction"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Public raw DTOs and bounded canonical wire helpers retain exact optional presence, reject unknown/duplicate fields and enforce byte/message caps. Raw object validity is not transaction semantic/signature validity; use typed validation separately. Unlike published generic decoding, absent defaults are not inserted."
     },
     {
       "id": ".:decryptKeystoreJson",
@@ -9534,12 +9595,24 @@
         "(protoTx: ProtoTransaction): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::encode_proto_transaction"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Public raw DTOs and bounded canonical wire helpers retain exact optional presence, reject unknown/duplicate fields and enforce byte/message caps. Raw object validity is not transaction semantic/signature validity; use typed validation separately. Unlike published generic decoding, absent defaults are not inserted."
     },
     {
       "id": ".:encryptKeystoreJson",
@@ -25736,12 +25809,24 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::proto::Transaction"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Public raw DTOs and bounded canonical wire helpers retain exact optional presence, reject unknown/duplicate fields and enforce byte/message caps. Raw object validity is not transaction semantic/signature validity; use typed validation separately. Unlike published generic decoding, absent defaults are not inserted."
     },
     {
       "id": ".:Provider",
@@ -26994,17 +27079,25 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QiTransaction"
+        "quai_consensus::QiTransaction",
+        "quai_consensus::SignedQiOperation",
+        "quai_consensus::document::TransactionDocument::from_json"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-consensus/tests/qi_vectors.rs"
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary transaction scope; specialized conversion/wrapping/work/ETX forms and stateful node acceptance remain outstanding."
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": ".:QiTransaction:instance:chainId",
@@ -27013,12 +27106,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::chain_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": ".:QiTransaction:instance:clone",
@@ -27029,12 +27134,24 @@
         "(): QiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": ".:QiTransaction:instance:data",
@@ -27043,12 +27160,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QiTransaction::data"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": ".:QiTransaction:instance:destZone",
@@ -27057,12 +27186,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::destination_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": ".:QiTransaction:instance:digest",
@@ -27072,22 +27213,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QiTransaction::signing_digest",
-        "quai_consensus::SignedQiTransaction::hash",
-        "quai_consensus::SignedQiTransaction::signed_bytes",
-        "quai_consensus::QiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::signing_digest"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
         "crates/quai-consensus/tests/qi_vectors.rs",
         "crates/quai-consensus/tests/conversions.rs",
         "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QiTransaction:instance:hash",
@@ -27097,22 +27239,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QiTransaction::signing_digest",
-        "quai_consensus::SignedQiTransaction::hash",
-        "quai_consensus::SignedQiTransaction::signed_bytes",
-        "quai_consensus::QiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::hash"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
         "crates/quai-consensus/tests/qi_vectors.rs",
         "crates/quai-consensus/tests/conversions.rs",
         "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
+      "deviation": "Verified signed variants return exact location/ledger-permuted hash; unsigned variants return None. Decoders verify signatures and reject supplied hash mismatches, unlike published object constructors."
     },
     {
       "id": ".:QiTransaction:instance:inferType",
@@ -27123,12 +27266,24 @@
         "(): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": ".:QiTransaction:instance:inferTypes",
@@ -27139,12 +27294,24 @@
         "(): Array<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": ".:QiTransaction:instance:isExternal",
@@ -27153,12 +27320,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::is_external"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": ".:QiTransaction:instance:isSigned",
@@ -27169,12 +27348,24 @@
         "(): this is AbstractTransaction<string> & { type: number; typeName: string; from: string; signature: Signature; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::is_signed"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": ".:QiTransaction:instance:originZone",
@@ -27183,12 +27374,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::origin_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": ".:QiTransaction:instance:serialized",
@@ -27198,22 +27401,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QiTransaction::signing_digest",
-        "quai_consensus::SignedQiTransaction::hash",
-        "quai_consensus::SignedQiTransaction::signed_bytes",
-        "quai_consensus::QiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::to_bytes"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
         "crates/quai-consensus/tests/qi_vectors.rs",
         "crates/quai-consensus/tests/conversions.rs",
         "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QiTransaction:instance:signature",
@@ -27222,12 +27426,27 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::SignedQuaiTransaction::signature",
+        "quai_consensus::SignedQiTransaction::signature",
+        "quai_consensus::SignedQiConversionTransaction::signature",
+        "quai_consensus::SignedQiWrappingTransaction::signature"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Validated ECDSA/Schnorr signatures are immutable signed-state members. JSON imports accept validated supported compact/normalized forms and verify the entire payload; an arbitrary string is not proof of signing."
     },
     {
       "id": ".:QiTransaction:instance:toJSON",
@@ -27238,12 +27457,24 @@
         "(): TransactionLike"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QiTransaction:instance:toProtobuf",
@@ -27254,12 +27485,24 @@
         "(includeSignature?: boolean): ProtoTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_proto"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QiTransaction:instance:txInputs",
@@ -27268,12 +27511,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QiTransaction::inputs"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": ".:QiTransaction:instance:txOutputs",
@@ -27282,12 +27537,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QiTransaction::outputs"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": ".:QiTransaction:instance:type",
@@ -27296,12 +27563,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": ".:QiTransaction:instance:typeName",
@@ -27310,12 +27589,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_name"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": ".:QiTransaction:instance:unsignedSerialized",
@@ -27325,22 +27616,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QiTransaction::signing_digest",
-        "quai_consensus::SignedQiTransaction::hash",
-        "quai_consensus::SignedQiTransaction::signed_bytes",
-        "quai_consensus::QiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::unsigned_bytes"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
         "crates/quai-consensus/tests/qi_vectors.rs",
         "crates/quai-consensus/tests/conversions.rs",
         "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QiTransaction:static:from",
@@ -27351,12 +27643,25 @@
         "(tx: string | QiTransactionLike): QiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::from_json",
+        "quai_consensus::document::TransactionDocument::decode"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QiTransaction:static:fromProto",
@@ -27367,12 +27672,24 @@
         "(protoTx: ProtoTransaction): QiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::from_proto"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QiTransactionResponse",
@@ -28278,17 +28595,25 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QuaiTransaction"
+        "quai_consensus::QuaiTransaction",
+        "quai_consensus::SignedQuaiTransaction",
+        "quai_consensus::document::TransactionDocument::from_json"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-consensus/tests/quai_vectors.rs"
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary transaction scope; specialized conversion/wrapping/work/ETX forms and stateful node acceptance remain outstanding."
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": ".:QuaiTransaction:instance:accessList",
@@ -28297,12 +28622,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::access_list"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": ".:QuaiTransaction:instance:chainId",
@@ -28311,12 +28648,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::chain_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": ".:QuaiTransaction:instance:clone",
@@ -28327,12 +28676,24 @@
         "(): QuaiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": ".:QuaiTransaction:instance:data",
@@ -28341,12 +28702,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::data"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": ".:QuaiTransaction:instance:destZone",
@@ -28355,12 +28728,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::destination_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": ".:QuaiTransaction:instance:digest",
@@ -28370,21 +28755,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QuaiTransaction::signing_digest",
-        "quai_consensus::SignedQuaiTransaction::hash",
-        "quai_consensus::SignedQuaiTransaction::signed_bytes",
-        "quai_consensus::QuaiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::signing_digest"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
         "crates/quai-consensus/tests/quai_vectors.rs",
-        "crates/quai-consensus/tests/conversions.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QuaiTransaction:instance:from",
@@ -28393,12 +28780,25 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::SignedQuaiTransaction::from",
+        "quai_consensus::document::TransactionDocument::origin_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Signed sender is cryptographically recovered from exact bytes. Unsigned document claimed_sender is explicitly unverified routing/display metadata and never encoded into the signing preimage."
     },
     {
       "id": ".:QuaiTransaction:instance:gasLimit",
@@ -28407,12 +28807,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::gas_limit"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": ".:QuaiTransaction:instance:gasPrice",
@@ -28421,12 +28833,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::gas_price"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": ".:QuaiTransaction:instance:hash",
@@ -28436,21 +28860,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QuaiTransaction::signing_digest",
-        "quai_consensus::SignedQuaiTransaction::hash",
-        "quai_consensus::SignedQuaiTransaction::signed_bytes",
-        "quai_consensus::QuaiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::hash"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
         "crates/quai-consensus/tests/quai_vectors.rs",
-        "crates/quai-consensus/tests/conversions.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
+      "deviation": "Verified signed variants return exact location/ledger-permuted hash; unsigned variants return None. Decoders verify signatures and reject supplied hash mismatches, unlike published object constructors."
     },
     {
       "id": ".:QuaiTransaction:instance:inferType",
@@ -28461,12 +28887,24 @@
         "(): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": ".:QuaiTransaction:instance:inferTypes",
@@ -28477,12 +28915,24 @@
         "(): Array<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": ".:QuaiTransaction:instance:isExternal",
@@ -28491,12 +28941,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::is_external"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": ".:QuaiTransaction:instance:isSigned",
@@ -28507,12 +28969,24 @@
         "(): this is AbstractTransaction<Signature> & { type: number; typeName: string; from: string; signature: Signature; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::is_signed"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": ".:QuaiTransaction:instance:nonce",
@@ -28521,12 +28995,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::nonce"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": ".:QuaiTransaction:instance:originZone",
@@ -28535,12 +29021,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::origin_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": ".:QuaiTransaction:instance:serialized",
@@ -28550,21 +29048,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QuaiTransaction::signing_digest",
-        "quai_consensus::SignedQuaiTransaction::hash",
-        "quai_consensus::SignedQuaiTransaction::signed_bytes",
-        "quai_consensus::QuaiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::to_bytes"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
         "crates/quai-consensus/tests/quai_vectors.rs",
-        "crates/quai-consensus/tests/conversions.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QuaiTransaction:instance:signature",
@@ -28573,12 +29073,27 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::SignedQuaiTransaction::signature",
+        "quai_consensus::SignedQiTransaction::signature",
+        "quai_consensus::SignedQiConversionTransaction::signature",
+        "quai_consensus::SignedQiWrappingTransaction::signature"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Validated ECDSA/Schnorr signatures are immutable signed-state members. JSON imports accept validated supported compact/normalized forms and verify the entire payload; an arbitrary string is not proof of signing."
     },
     {
       "id": ".:QuaiTransaction:instance:to",
@@ -28587,12 +29102,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::to"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": ".:QuaiTransaction:instance:toJSON",
@@ -28603,12 +29130,24 @@
         "(): QuaiTransactionLike"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QuaiTransaction:instance:toProtobuf",
@@ -28619,12 +29158,24 @@
         "(includeSignature?: boolean): ProtoTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_proto"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QuaiTransaction:instance:type",
@@ -28633,12 +29184,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": ".:QuaiTransaction:instance:typeName",
@@ -28647,12 +29210,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_name"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": ".:QuaiTransaction:instance:unsignedSerialized",
@@ -28662,21 +29237,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QuaiTransaction::signing_digest",
-        "quai_consensus::SignedQuaiTransaction::hash",
-        "quai_consensus::SignedQuaiTransaction::signed_bytes",
-        "quai_consensus::QuaiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::unsigned_bytes"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
         "crates/quai-consensus/tests/quai_vectors.rs",
-        "crates/quai-consensus/tests/conversions.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QuaiTransaction:instance:value",
@@ -28685,12 +29262,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::value"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": ".:QuaiTransaction:static:from",
@@ -28701,12 +29290,25 @@
         "(tx: string | QuaiTransactionLike): QuaiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::from_json",
+        "quai_consensus::document::TransactionDocument::decode"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QuaiTransaction:static:fromProto",
@@ -28717,12 +29319,24 @@
         "(protoTx: ProtoTransaction): QuaiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::from_proto"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": ".:QuaiTransactionResponse",
@@ -35088,12 +35702,24 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::from_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": ".:TransactionReceipt",
@@ -77464,12 +78090,28 @@
         "new <S extends allowedSignatureTypes>(): AbstractTransaction<S>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction",
+        "quai_consensus::QiTransaction",
+        "quai_consensus::SignedQuaiTransaction",
+        "quai_consensus::SignedQiOperation",
+        "quai_consensus::document::TransactionDocument"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:chainId",
@@ -77478,12 +78120,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::chain_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:clone",
@@ -77494,12 +78148,24 @@
         "(): AbstractTransaction<S>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:destZone",
@@ -77508,12 +78174,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::destination_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:digest",
@@ -77522,12 +78200,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::signing_digest"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:inferType",
@@ -77538,12 +78228,24 @@
         "(): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:inferTypes",
@@ -77554,12 +78256,24 @@
         "(): Array<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:isExternal",
@@ -77568,12 +78282,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::is_external"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:isSigned",
@@ -77584,12 +78310,24 @@
         "(): this is AbstractTransaction<S> & { type: number; typeName: string; from: string; signature: Signature; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::is_signed"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:originZone",
@@ -77598,12 +78336,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::origin_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:serialized",
@@ -77612,12 +78362,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_bytes"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:signature",
@@ -77626,12 +78388,27 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::SignedQuaiTransaction::signature",
+        "quai_consensus::SignedQiTransaction::signature",
+        "quai_consensus::SignedQiConversionTransaction::signature",
+        "quai_consensus::SignedQiWrappingTransaction::signature"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Validated ECDSA/Schnorr signatures are immutable signed-state members. JSON imports accept validated supported compact/normalized forms and verify the entire payload; an arbitrary string is not proof of signing."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:toJSON",
@@ -77642,12 +78419,24 @@
         "(): TransactionLike"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:toProtobuf",
@@ -77658,12 +78447,24 @@
         "(includeSignature: boolean): ProtoTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_proto"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:type",
@@ -77672,12 +78473,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:typeName",
@@ -77686,12 +78499,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_name"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:AbstractTransaction:instance:unsignedSerialized",
@@ -77700,12 +78525,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::unsigned_bytes"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:AccessList",
@@ -77714,12 +78551,24 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::AccessTuple"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Typed ordered vectors retain signing order and duplicates. Explicit JSON list/tuple/map import validates bounds/checksums. Map normalization sorts decoded address/slot bytes and deduplicates slots, avoiding JS locale/case dependence; duplicate decoded map addresses reject."
     },
     {
       "id": "./transaction:AccessListEntry",
@@ -77728,12 +78577,24 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::AccessTuple"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Typed ordered vectors retain signing order and duplicates. Explicit JSON list/tuple/map import validates bounds/checksums. Map normalization sorts decoded address/slot bytes and deduplicates slots, avoiding JS locale/case dependence; duplicate decoded map addresses reject."
     },
     {
       "id": "./transaction:accessListify",
@@ -77744,12 +78605,25 @@
         "(value: AccessListish): AccessList"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::access_list_from_json",
+        "quai_consensus::document::access_list_to_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Typed ordered vectors retain signing order and duplicates. Explicit JSON list/tuple/map import validates bounds/checksums. Map normalization sorts decoded address/slot bytes and deduplicates slots, avoiding JS locale/case dependence; duplicate decoded map addresses reject."
     },
     {
       "id": "./transaction:AccessListish",
@@ -77758,12 +78632,24 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::access_list_from_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Typed ordered vectors retain signing order and duplicates. Explicit JSON list/tuple/map import validates bounds/checksums. Map normalization sorts decoded address/slot bytes and deduplicates slots, avoiding JS locale/case dependence; duplicate decoded map addresses reject."
     },
     {
       "id": "./transaction:AggregateCoinSelector",
@@ -78156,12 +79042,24 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::proto::Transaction"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Public raw DTOs and bounded canonical wire helpers retain exact optional presence, reject unknown/duplicate fields and enforce byte/message caps. Raw object validity is not transaction semantic/signature validity; use typed validation separately. Unlike published generic decoding, absent defaults are not inserted."
     },
     {
       "id": "./transaction:QiTransaction",
@@ -78173,17 +79071,25 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QiTransaction"
+        "quai_consensus::QiTransaction",
+        "quai_consensus::SignedQiOperation",
+        "quai_consensus::document::TransactionDocument::from_json"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-consensus/tests/qi_vectors.rs"
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary transaction scope; specialized conversion/wrapping/work/ETX forms and stateful node acceptance remain outstanding."
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:QiTransaction:instance:chainId",
@@ -78192,12 +79098,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::chain_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:QiTransaction:instance:clone",
@@ -78208,12 +79126,24 @@
         "(): QiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:QiTransaction:instance:data",
@@ -78222,12 +79152,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QiTransaction::data"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": "./transaction:QiTransaction:instance:destZone",
@@ -78236,12 +79178,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::destination_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": "./transaction:QiTransaction:instance:digest",
@@ -78251,22 +79205,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QiTransaction::signing_digest",
-        "quai_consensus::SignedQiTransaction::hash",
-        "quai_consensus::SignedQiTransaction::signed_bytes",
-        "quai_consensus::QiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::signing_digest"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
         "crates/quai-consensus/tests/qi_vectors.rs",
         "crates/quai-consensus/tests/conversions.rs",
         "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QiTransaction:instance:hash",
@@ -78276,22 +79231,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QiTransaction::signing_digest",
-        "quai_consensus::SignedQiTransaction::hash",
-        "quai_consensus::SignedQiTransaction::signed_bytes",
-        "quai_consensus::QiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::hash"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
         "crates/quai-consensus/tests/qi_vectors.rs",
         "crates/quai-consensus/tests/conversions.rs",
         "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
+      "deviation": "Verified signed variants return exact location/ledger-permuted hash; unsigned variants return None. Decoders verify signatures and reject supplied hash mismatches, unlike published object constructors."
     },
     {
       "id": "./transaction:QiTransaction:instance:inferType",
@@ -78302,12 +79258,24 @@
         "(): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:QiTransaction:instance:inferTypes",
@@ -78318,12 +79286,24 @@
         "(): Array<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:QiTransaction:instance:isExternal",
@@ -78332,12 +79312,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::is_external"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": "./transaction:QiTransaction:instance:isSigned",
@@ -78348,12 +79340,24 @@
         "(): this is AbstractTransaction<string> & { type: number; typeName: string; from: string; signature: Signature; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::is_signed"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:QiTransaction:instance:originZone",
@@ -78362,12 +79366,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::origin_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": "./transaction:QiTransaction:instance:serialized",
@@ -78377,22 +79393,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QiTransaction::signing_digest",
-        "quai_consensus::SignedQiTransaction::hash",
-        "quai_consensus::SignedQiTransaction::signed_bytes",
-        "quai_consensus::QiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::to_bytes"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
         "crates/quai-consensus/tests/qi_vectors.rs",
         "crates/quai-consensus/tests/conversions.rs",
         "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QiTransaction:instance:signature",
@@ -78401,12 +79418,27 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::SignedQuaiTransaction::signature",
+        "quai_consensus::SignedQiTransaction::signature",
+        "quai_consensus::SignedQiConversionTransaction::signature",
+        "quai_consensus::SignedQiWrappingTransaction::signature"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Validated ECDSA/Schnorr signatures are immutable signed-state members. JSON imports accept validated supported compact/normalized forms and verify the entire payload; an arbitrary string is not proof of signing."
     },
     {
       "id": "./transaction:QiTransaction:instance:toJSON",
@@ -78417,12 +79449,24 @@
         "(): TransactionLike"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QiTransaction:instance:toProtobuf",
@@ -78433,12 +79477,24 @@
         "(includeSignature?: boolean): ProtoTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_proto"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QiTransaction:instance:txInputs",
@@ -78447,12 +79503,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QiTransaction::inputs"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": "./transaction:QiTransaction:instance:txOutputs",
@@ -78461,12 +79529,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QiTransaction::outputs"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": "./transaction:QiTransaction:instance:type",
@@ -78475,12 +79555,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:QiTransaction:instance:typeName",
@@ -78489,12 +79581,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_name"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:QiTransaction:instance:unsignedSerialized",
@@ -78504,22 +79608,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QiTransaction::signing_digest",
-        "quai_consensus::SignedQiTransaction::hash",
-        "quai_consensus::SignedQiTransaction::signed_bytes",
-        "quai_consensus::QiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::unsigned_bytes"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
         "crates/quai-consensus/tests/qi_vectors.rs",
         "crates/quai-consensus/tests/conversions.rs",
         "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary Qi signing/serialization has JS+Go vectors. Qi conversion and wrapping builders are implemented as separate typed APIs; ordinary Qi deliberately rejects their specialized data. This row remains partial until the complete reference property/class behavior is reconciled, not because special builders are missing."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QiTransaction:static:from",
@@ -78530,12 +79635,25 @@
         "(tx: string | QiTransactionLike): QiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::from_json",
+        "quai_consensus::document::TransactionDocument::decode"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QiTransaction:static:fromProto",
@@ -78546,12 +79664,24 @@
         "(protoTx: ProtoTransaction): QiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::from_proto"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QiTransactionLike",
@@ -78560,12 +79690,25 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QiTransaction",
+        "quai_consensus::document::TransactionDocument::from_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:QuaiTransaction",
@@ -78577,17 +79720,25 @@
       ],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QuaiTransaction"
+        "quai_consensus::QuaiTransaction",
+        "quai_consensus::SignedQuaiTransaction",
+        "quai_consensus::document::TransactionDocument::from_json"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
-        "crates/quai-consensus/tests/quai_vectors.rs"
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical ordinary transaction scope; specialized conversion/wrapping/work/ETX forms and stateful node acceptance remain outstanding."
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:accessList",
@@ -78596,12 +79747,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::access_list"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:chainId",
@@ -78610,12 +79773,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::chain_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:clone",
@@ -78626,12 +79801,24 @@
         "(): QuaiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:data",
@@ -78640,12 +79827,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::data"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:destZone",
@@ -78654,12 +79853,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::destination_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:digest",
@@ -78669,21 +79880,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QuaiTransaction::signing_digest",
-        "quai_consensus::SignedQuaiTransaction::hash",
-        "quai_consensus::SignedQuaiTransaction::signed_bytes",
-        "quai_consensus::QuaiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::signing_digest"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
         "crates/quai-consensus/tests/quai_vectors.rs",
-        "crates/quai-consensus/tests/conversions.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:from",
@@ -78692,12 +79905,25 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::SignedQuaiTransaction::from",
+        "quai_consensus::document::TransactionDocument::origin_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Signed sender is cryptographically recovered from exact bytes. Unsigned document claimed_sender is explicitly unverified routing/display metadata and never encoded into the signing preimage."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:gasLimit",
@@ -78706,12 +79932,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::gas_limit"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:gasPrice",
@@ -78720,12 +79958,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::gas_price"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:hash",
@@ -78735,21 +79985,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QuaiTransaction::signing_digest",
-        "quai_consensus::SignedQuaiTransaction::hash",
-        "quai_consensus::SignedQuaiTransaction::signed_bytes",
-        "quai_consensus::QuaiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::hash"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
         "crates/quai-consensus/tests/quai_vectors.rs",
-        "crates/quai-consensus/tests/conversions.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
+      "deviation": "Verified signed variants return exact location/ledger-permuted hash; unsigned variants return None. Decoders verify signatures and reject supplied hash mismatches, unlike published object constructors."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:inferType",
@@ -78760,12 +80012,24 @@
         "(): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:inferTypes",
@@ -78776,12 +80040,24 @@
         "(): Array<number>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:isExternal",
@@ -78790,12 +80066,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::is_external"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:isSigned",
@@ -78806,12 +80094,24 @@
         "(): this is AbstractTransaction<Signature> & { type: number; typeName: string; from: string; signature: Signature; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::is_signed"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:nonce",
@@ -78820,12 +80120,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::nonce"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:originZone",
@@ -78834,12 +80146,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::origin_zone"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "First-output destination matches the published convenience convention; extra all-output zone APIs expose other Qi destinations. Unknown unsigned account origin returns None, creation has no destination, and claimed unsigned senders remain unverified. Validated input/outpoint origins and recovered signed account senders determine supported transaction scope."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:serialized",
@@ -78849,21 +80173,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QuaiTransaction::signing_digest",
-        "quai_consensus::SignedQuaiTransaction::hash",
-        "quai_consensus::SignedQuaiTransaction::signed_bytes",
-        "quai_consensus::QuaiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::to_bytes"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
         "crates/quai-consensus/tests/quai_vectors.rs",
-        "crates/quai-consensus/tests/conversions.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:signature",
@@ -78872,12 +80198,27 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::SignedQuaiTransaction::signature",
+        "quai_consensus::SignedQiTransaction::signature",
+        "quai_consensus::SignedQiConversionTransaction::signature",
+        "quai_consensus::SignedQiWrappingTransaction::signature"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Validated ECDSA/Schnorr signatures are immutable signed-state members. JSON imports accept validated supported compact/normalized forms and verify the entire payload; an arbitrary string is not proof of signing."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:to",
@@ -78886,12 +80227,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::to"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:toJSON",
@@ -78902,12 +80255,24 @@
         "(): QuaiTransactionLike"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:toProtobuf",
@@ -78918,12 +80283,24 @@
         "(includeSignature?: boolean): ProtoTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::to_proto"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:type",
@@ -78932,12 +80309,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_id"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:typeName",
@@ -78946,12 +80335,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::type_name"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Each typed variant has one fixed supported kind (0 standard or 2 utxo), replacing nullable types and cross-kind mutation. Node ETXs are raw/provided observations, not user-signable transaction constructors."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:unsignedSerialized",
@@ -78961,21 +80362,23 @@
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
       "rust_api": [
-        "quai_consensus::QuaiTransaction::signing_digest",
-        "quai_consensus::SignedQuaiTransaction::hash",
-        "quai_consensus::SignedQuaiTransaction::signed_bytes",
-        "quai_consensus::QuaiTransaction::unsigned_bytes"
+        "quai_consensus::document::TransactionDocument::unsigned_bytes"
       ],
       "feature": "consensus",
-      "status": "partial",
+      "status": "deviation",
       "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
         "crates/quai-consensus/tests/quai_vectors.rs",
-        "crates/quai-consensus/tests/conversions.rs"
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
       ],
       "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
         "crates/quai-consensus/README.md"
       ],
-      "deviation": "Canonical Quai signing/serialization has JS+Go vectors, and Quai-to-Qi conversion has its own typed builder. This row remains partial until the complete reference property/class behavior is reconciled. The former note about missing specialized Qi builders was stale and was not a Quai-property limitation."
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QuaiTransaction:instance:value",
@@ -78984,12 +80387,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction::value"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Exact typed transaction fields preserve quantities and ordered data. Unsigned mutation requires new validation/signing; signed access is borrowed and immutable. Specialized Qi data uses typed conversion/wrapping rules rather than weakening ordinary transfer validation."
     },
     {
       "id": "./transaction:QuaiTransaction:static:from",
@@ -79000,12 +80415,25 @@
         "(tx: string | QuaiTransactionLike): QuaiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::from_json",
+        "quai_consensus::document::TransactionDocument::decode"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QuaiTransaction:static:fromProto",
@@ -79016,12 +80444,24 @@
         "(protoTx: ProtoTransaction): QuaiTransaction"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::from_proto"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Bounded exact JSON/protobuf/byte interchange across account and ordinary/conversion/wrapping Qi operations. Supplied signed hashes/senders must match verified payloads; full u64/U256 quantities, exact hex data and optional wire presence are retained. No default insertion, unverified signature flags or silently discarded output locks. JSON takes caller-parsed Value, with unknown fields rejected and duplicate text-key detection delegated to the caller parser."
     },
     {
       "id": "./transaction:QuaiTransactionLike",
@@ -79030,12 +80470,25 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QuaiTransaction",
+        "quai_consensus::document::TransactionDocument::from_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:SpendTarget",
@@ -79058,12 +80511,24 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::document::TransactionDocument::from_json"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:TxInput",
@@ -79072,12 +80537,25 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QiInput",
+        "quai_consensus::OutPoint"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Concrete typed unsigned and immutable verified signed states replace mutable JS inheritance, nullable defaults and automatic type guessing. Explicit account/Qi operation rules, canonical bounds and signature validation apply; node spendability and acceptance remain separate."
     },
     {
       "id": "./transaction:TxOutput",
@@ -79086,12 +80564,25 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_consensus::QiOutput",
+        "quai_consensus::Denomination"
+      ],
+      "feature": "consensus",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/transaction-documents.test.mjs",
+        "crates/quai-consensus/tests/documents.rs",
+        "crates/quai-consensus/tests/quai_vectors.rs",
+        "crates/quai-consensus/tests/qi_vectors.rs",
+        "crates/quai-consensus/tests/conversions.rs",
+        "crates/quai-consensus/tests/wrapping.rs"
+      ],
+      "docs": [
+        "docs/TRANSACTION_INTERCHANGE_PARITY.md",
+        "crates/quai-consensus/README.md"
+      ],
+      "deviation": "Typed fixed denomination and address; user-created output locks are explicitly empty/zero and nonzero locks reject. Node-created locked outputs remain separate provider observations. No arbitrary ignored lock property."
     },
     {
       "id": "./transaction:UTXO",

@@ -960,3 +960,23 @@ allows 30 seconds while retaining eight simultaneous writers. A deterministic
 held-lock test verifies timeout rollback and exact nonce allocation after an
 explicit retry. Lock contention is the inferred cause of the prior CI failure;
 local checks alone do not establish the Windows fix.
+
+## Transaction interchange parity — September 13
+
+`quai_consensus::document::TransactionDocument` adds bounded JSON/protobuf/byte
+interchange across unsigned and verified signed account/Qi operations. It checks
+supplied sender/hash identities, handles conversion/wrapping data exactly, retains
+full u64/U256 quantities and exposes all-output zone metadata. Raw public protobuf
+DTOs preserve field presence; bounded wire helpers remain distinct from semantic
+and signature validation. Access-list arrays preserve order; explicit map input
+sorts/deduplicates decoded bytes. See [interchange parity](docs/TRANSACTION_INTERCHANGE_PARITY.md).
+
+The 19 native consensus tests and five Chromium worker interchange tests pass.
+The latter cover 24 supported independent signing fixtures and reject two
+unsupported Qi data-length fixtures. Four published-source tests identify raw
+protobuf default insertion, ignored hash claims, unchecked Qi signature strings,
+JSON data coercion, discarded locks and hex-case access-map deduplication.
+
+Wordlist commit `63d6f9ca8342cb0618ed7885eb5dfa58c3027543` subsequently passed
+all eight jobs in CI run 34791584063, including Windows. This verifies the
+contention regression change on the supported Windows runner.

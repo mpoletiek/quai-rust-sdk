@@ -92,7 +92,7 @@ class Fixture(http.server.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-wordlists', 'sdk-rpc-signer', 'sdk-response-views', 'sdk-provider-events', 'account_wait', 'sdk-legacy-wallets', 'sdk-address-book', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody', 'sdk-account-backup', 'sdk-contract-code', 'sdk-qi-custody', 'sdk-portable-capture', 'sdk-allocation-merge', 'sdk-account-preflight', 'sdk-recovery', 'sdk-qi-preflight'], default='browser')
+    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-transaction-documents', 'sdk-wordlists', 'sdk-rpc-signer', 'sdk-response-views', 'sdk-provider-events', 'account_wait', 'sdk-legacy-wallets', 'sdk-address-book', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody', 'sdk-account-backup', 'sdk-contract-code', 'sdk-qi-custody', 'sdk-portable-capture', 'sdk-allocation-merge', 'sdk-account-preflight', 'sdk-recovery', 'sdk-qi-preflight'], default='browser')
     arguments = parser.parse_args()
     root = pathlib.Path(__file__).resolve().parents[3]
     server = http.server.ThreadingHTTPServer(('127.0.0.1',0), Fixture)
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     env.setdefault('CHROMEDRIVER','/usr/bin/chromedriver')
     env.setdefault('WASM_BINDGEN_TEST_WEBDRIVER_JSON',str(pathlib.Path(__file__).with_name('webdriver.json')))
     try:
-        sdk_suites = {'sdk-wordlists': ('wordlists', 'wallet,browser'),
+        sdk_suites = {'sdk-transaction-documents': ('transaction_documents', 'abi,browser'),'sdk-wordlists': ('wordlists', 'wallet,browser'),
                       'sdk-provider-events': ('provider_events', 'browser'),
                       'sdk-response-views': ('response_views', 'browser'),
                       'sdk-rpc-signer': ('rpc_signer', 'wallet,browser'),

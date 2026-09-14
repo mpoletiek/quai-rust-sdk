@@ -1,0 +1,38 @@
+{
+  "recordedAt": "2026-09-14T00:20:12.921092+00:00",
+  "change": "serde_json moved from consensus dev dependency to normal dependency for exact JSON interchange",
+  "lockComparison": {
+    "Cargo.lock": {
+      "beforeSha256": "0ca1ddd30e67c58b5f8b086e4057328445ecfdec56d95a35c9ca1432beb3ace8",
+      "afterSha256": "0ca1ddd30e67c58b5f8b086e4057328445ecfdec56d95a35c9ca1432beb3ace8",
+      "registryIdentitiesUnchanged": true,
+      "dependencyChanges": []
+    },
+    "fuzz/Cargo.lock": {
+      "beforeSha256": "35bfbf64b24dafa290162a0e670478a7cdacffb811d4bd7c246186500c8fb902",
+      "afterSha256": "30851dda338a94b68b0326ed2b6983bc0030a91651167e665d226cca20aa5d4b",
+      "registryIdentitiesUnchanged": true,
+      "dependencyChanges": [
+        {
+          "package": "quai-consensus",
+          "before": [
+            "prost",
+            "quai-crypto",
+            "quai-primitives",
+            "ruint",
+            "thiserror"
+          ],
+          "after": [
+            "prost",
+            "quai-crypto",
+            "quai-primitives",
+            "ruint",
+            "serde_json",
+            "thiserror"
+          ]
+        }
+      ]
+    }
+  },
+  "qualification": "No package versions, registry sources or checksums changed. This is a graph comparison, not a newly fetched advisory audit. The existing dependency advisory CI also runs for every pushed commit."
+}

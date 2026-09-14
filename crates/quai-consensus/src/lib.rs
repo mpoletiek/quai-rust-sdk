@@ -4,7 +4,8 @@ mod qi_operation;
 mod wrapping;
 pub use qi_operation::SignedQiOperation;
 pub use wrapping::{QiWrappingIntent, QiWrappingTransaction, SignedQiWrappingTransaction};
-mod proto;
+pub mod document;
+pub mod proto;
 mod qi;
 mod quai;
 pub use conversion::{
@@ -155,4 +156,19 @@ fn preflight(mut bytes: &[u8], kind: WireKind, budget: &mut usize) -> Result<(),
         }
     }
     Ok(())
+}
+
+/// Decode a bounded canonical protobuf object, preserving explicit field presence.
+/// This checks the wire format, not transaction semantics, signatures or spendability.
+/// Use document::TransactionDocument::from_proto or a concrete signed type to validate.
+pub fn decode_proto_transaction(bytes: &[u8]) -> Result<proto::Transaction, TransactionError> {
+    decode(bytes)
+}
+/// Encode a raw protobuf object within the byte/message policy. This does not
+/// establish a valid transaction or authorize submission.
+pub fn encode_proto_transaction(value: &proto::Transaction) -> Result<Vec<u8>, TransactionError> {
+    let bytes = encode(value)?;
+    let mut budget = MAX_TRANSACTION_MESSAGES;
+    preflight(&bytes, WireKind::Transaction, &mut budget)?;
+    Ok(bytes)
 }

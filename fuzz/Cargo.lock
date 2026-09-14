@@ -1732,6 +1732,7 @@ dependencies = [
  "quai-crypto",
  "quai-primitives",
  "ruint",
+ "serde_json",
  "thiserror",
 ]
 

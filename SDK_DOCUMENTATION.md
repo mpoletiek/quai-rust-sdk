@@ -213,6 +213,14 @@ CREATE/CREATE2 prediction uses exact init-code bytes. Quai CREATE uses the node'
 eight-byte nonce representation. Leading zero code bytes are preserved, fixing a
 pinned JS discrepancy. Predicted addresses must still satisfy deployment rules.
 
+`consensus::document::TransactionDocument` adds exact JSON/protobuf interchange
+for unsigned and verified signed account/Qi operations. It validates supplied
+hash/sender claims, preserves full u64/U256 quantities and exact Qi data, and
+exposes both first-output and all-output zone metadata. Raw protobuf DTOs retain
+optional field presence; bounded helpers check encoding, while typed decoders
+check semantics and signatures. `access_list_from_json` accepts ordered list or
+explicit map normalization forms. See [transaction interchange and limits](docs/TRANSACTION_INTERCHANGE_PARITY.md).
+
 ## Keys, HD derivation and signing
 
 `Mnemonic::generate(language, word_count)` accepts 12/15/18/21/24 words using

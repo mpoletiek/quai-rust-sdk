@@ -1,0 +1,23 @@
+{
+  "account": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+  "address": "0x005c46f661Baef20671943f2b4c087Df3E7CEb13",
+  "blockHash": "0x435a9130dcccfa51b7eec1d46fc0b975d72b74019b3bd46e57cf583ad4bf8025",
+  "blockNumber": 7794516,
+  "chainId": 15000,
+  "codeBytes": 2029,
+  "codeSha256": "0xb55a87a8bbabbb5ffd44c6e17f7273c9c22fea6a47a03d58a49b45160bcbc3f6",
+  "genesis": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+  "metadata": {
+    "decimals": [
+      "18"
+    ],
+    "name": [
+      "Wrapped Quai"
+    ],
+    "symbol": [
+      "WQUAI"
+    ]
+  },
+  "network": "orchard",
+  "tokenBalance": "0"
+}

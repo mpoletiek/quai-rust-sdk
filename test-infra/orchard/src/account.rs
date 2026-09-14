@@ -16,7 +16,11 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
         return Err("expected two wallets".into());
     }
     let owner = match operation {
-        "transfer-a-b" | "convert-quai-to-qi" | "convert-quai-to-qi-v2" => 0,
+        "transfer-a-b"
+        | "convert-quai-to-qi"
+        | "convert-quai-to-qi-v2"
+        | "wquai-deposit"
+        | "wquai-withdraw" => 0,
         "transfer-b-a" => 1,
         _ => return Err("unsupported operation".into()),
     };
@@ -71,8 +75,14 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
     }
     let conversion = operation.starts_with("convert-quai-to-qi");
     let v2 = operation == "convert-quai-to-qi-v2";
+    let wrapping = operation.starts_with("wquai-");
+    let withdrawal = operation == "wquai-withdraw";
     let id = ReservationId(
-        [if v2 {
+        [if withdrawal {
+            5
+        } else if wrapping {
+            4
+        } else if v2 {
             3
         } else if conversion {
             2
@@ -160,9 +170,43 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 max_total_fee: U256::from(10_000_000_000_000_000u64),
                 gas_margin_bps: 1000,
             };
+            let wrapper_intent = if wrapping {
+                let (wrapper, _) = quai_sdk::wrappers::WrappedQuai::new_verified(
+                    quai_sdk::wrappers::WQUAI_ORCHARD_ADDRESS.parse()?,
+                    &provider,
+                    scope.genesis,
+                    None,
+                    BlockTag::Latest,
+                )
+                .await?;
+                let balance = wrapper
+                    .token()?
+                    .balance_of(addresses[owner], addresses[owner], BlockTag::Latest)
+                    .await?;
+                let expected = if withdrawal { value } else { U256::ZERO };
+                if balance != expected {
+                    return Err("unexpected WQUAI balance for round-trip stage".into());
+                }
+                println!(
+                    "{}",
+                    serde_json::json!({"operation":operation,"stage":"wrapper-preflight","tokenAtoms":value.to_string(),"tokenBalanceBefore":balance.to_string(),"nativeBalanceBefore":provider.balance(addresses[owner],BlockTag::Latest).await?.to_string()})
+                );
+                Some(
+                    if withdrawal {
+                        wrapper.withdraw(value)?
+                    } else {
+                        wrapper.deposit(value)?
+                    }
+                    .into_account_intent(),
+                )
+            } else {
+                None
+            };
             let mut session = AccountSession::new(&provider, &signer, &mut store)?
                 .with_observation_policy(AccountObservationPolicy::PinnedLatest);
-            let prepared = if let Some(destination) = destination {
+            let prepared = if let Some(intent) = wrapper_intent {
+                session.prepare(id, intent, fee).await?
+            } else if let Some(destination) = destination {
                 session
                     .prepare_conversion(
                         id,
@@ -186,7 +230,7 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                     )
                     .await?
             };
-            let review = serde_json::json!({"operation":operation,"stage":"prepared","chainId":15000,"from":addresses[owner].to_string(),"to":prepared.transaction().to.map(|a| a.to_string()),"valueBaseUnits":value.to_string(),"nonce":prepared.transaction().nonce,"gasLimit":prepared.transaction().gas_limit,"gasPrice":prepared.transaction().gas_price.to_string(),"maximumFeeBaseUnits":prepared.maximum_fee().to_string(),"signingDigest":prepared.signing_digest().to_string()});
+            let review = serde_json::json!({"operation":operation,"stage":"prepared","chainId":15000,"from":addresses[owner].to_string(),"to":prepared.transaction().to.map(|a| a.to_string()),"valueBaseUnits":prepared.transaction().value.to_string(),"nonce":prepared.transaction().nonce,"gasLimit":prepared.transaction().gas_limit,"gasPrice":prepared.transaction().gas_price.to_string(),"maximumFeeBaseUnits":prepared.maximum_fee().to_string(),"signingDigest":prepared.signing_digest().to_string()});
             println!("{review}");
             let signed = session.sign(&prepared)?;
             let hash = signed.hash()?;
@@ -336,6 +380,29 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
             println!(
                 "Signed transaction bytes independently reconstructed from the mined RPC response match durable custody."
             );
+            if wrapping {
+                let wrapper = quai_sdk::wrappers::WrappedQuai::new(
+                    quai_sdk::wrappers::WQUAI_ORCHARD_ADDRESS.parse()?,
+                    &provider,
+                )?;
+                let block = BlockTag::Number(U256::from(observed.receipt.inclusion.block_number));
+                let balance = wrapper
+                    .token()?
+                    .balance_of(addresses[owner], addresses[owner], block)
+                    .await?;
+                let expected = if withdrawal {
+                    U256::ZERO
+                } else {
+                    U256::from(10_000_000_000_000_000u64)
+                };
+                println!(
+                    "{}",
+                    serde_json::json!({"operation":operation,"stage":"wrapper-observed","tokenBalanceAfter":balance.to_string(),"nativeBalanceAfter":provider.balance(addresses[owner],block).await?.to_string(),"feeBaseUnits":observed.receipt.fee()?.to_string()})
+                );
+                if balance != expected {
+                    return Err("unexpected WQUAI balance after execution".into());
+                }
+            }
         }
         _ => return Err("expected prepare, broadcast or observe".into()),
     }

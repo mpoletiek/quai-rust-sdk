@@ -8,9 +8,13 @@ use serde_json::json;
 
 /// User-confirmed WQI deployment on mainnet and Orchard Cyprus-1.
 pub const WQI_ADDRESS: &str = "0x002b2596EcF05C93a31ff916E8b456DF6C77c750";
-/// User-configured WQUAI address on mainnet and Orchard Cyprus-1. Code availability
-/// is network/block specific; use a checked binding before a funded workflow.
-pub const WQUAI_ADDRESS: &str = "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB";
+/// Mainnet WQUAI deployment in Cyprus-1. Verify code before a funded workflow.
+pub const WQUAI_MAINNET_ADDRESS: &str = "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB";
+/// Orchard WQUAI deployment, verified by code and token metadata on 2026-09-14.
+pub const WQUAI_ORCHARD_ADDRESS: &str = "0x005c46f661Baef20671943f2b4c087Df3E7CEb13";
+/// Compatibility alias for the mainnet deployment; Orchard uses
+/// [`WQUAI_ORCHARD_ADDRESS`]. A constant does not attest deployment availability.
+pub const WQUAI_ADDRESS: &str = WQUAI_MAINNET_ADDRESS;
 /// WQI has 18 token decimals while native Qi has 3: one Qit = 10^15 token atoms.
 pub const WQI_ATOMS_PER_QIT: u64 = 1_000_000_000_000_000;
 

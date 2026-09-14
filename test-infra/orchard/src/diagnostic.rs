@@ -13,7 +13,7 @@ pub async fn run() -> Result<(), Box<dyn Error>> {
         ("quai_getTransactionReceipt", serde_json::json!([hash])),
         (
             "quai_getCode",
-            serde_json::json!([quai_sdk::wrappers::WQUAI_ADDRESS, head]),
+            serde_json::json!([quai_sdk::wrappers::WQUAI_ORCHARD_ADDRESS, head]),
         ),
         (
             "quai_getCode",

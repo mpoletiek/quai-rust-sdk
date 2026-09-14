@@ -64,7 +64,7 @@ of exact behavior: the restrictions below matter when porting an application.
 | Quai → Qi | Native and browser conversion preparation, simulation/fees/slippage and signed custody; native/browser destination observations | Quote history depends on node behavior; per-operation maturity/production execution need stronger evidence |
 | Qi → Quai | Exact 22-byte conversion form, refund/slippage, explicit or profiled fees and signed recovery | Specialized estimator requires asserted compatible fork/node profile; aggregate Quai balance is not operation-specific maturity proof |
 | Qi → WQI / WQI → Qi | Native 20-byte wrap, WQI backing/claim, ERC-20 operations, redemption gas/dust planning, lock observations | Mature unmodified-network redemption spend and audited contract/profile qualification remain open |
-| Quai ↔ WQUAI | Configured deployment, deposit/withdraw and ERC-20 intents | Mainnet code observed; last Orchard WQUAI code check was empty; funded unmodified/testnet acceptance remains open |
+| Quai ↔ WQUAI | Configured deployment, deposit/withdraw and ERC-20 intents | Distinct mainnet/Orchard deployments; funded Orchard deposit/withdraw and exact balance round trip passed; mainnet funded execution and contract audit remain open |
 | ABI/interfaces | Canonical encoder/decoder, JSON/readable declarations, defaults, packed encoding, EIP-712, event filters and call/log/revert parsing | Positional values and explicit overloads replace JS Proxy/Result/Typed ergonomics; strict bounds and validation differ |
 | Contracts/deployments | Explicit contract calls/intents, ERC-20 helpers, artifacts, constructor data, address grinding, canonical code observations | No dynamic JS method/property generation; input artifacts must have resolved creation bytecode; execution qualification remains separate |
 | RPC and providers | Typed reads, block/pool/log/wallet APIs, exact signed broadcast, bounded receipts/head/ETX tracking | Unregistered account nonce competitors now have bounded signed discovery and native/browser waits; no fabricated `safe`/`finalized` or historical return-data capability |
@@ -140,8 +140,10 @@ and denomination fragmentation after discounts. This is a useful Rust difference
 from the reference's raw-estimate path, not a claim of universal fee sufficiency.
 A matured output from the original conversion was subsequently spent in a
 confirmed 1 Qi self-transfer with all resulting outputs indexed.
-The configured Orchard WQUAI address still returned empty code. Mainnet checks
-remain read-only; live BIP47 receive and mature wrapper redemption remain open.
+The corrected Orchard WQUAI deployment passed a funded 0.01 QUAI deposit/withdraw
+round trip with exact token and native balance accounting. Earlier empty-code
+reports queried the mainnet address on Orchard. Mainnet checks remain read-only;
+live BIP47 receive and mature WQI redemption remain open.
 
 A packageable alpha does not promise production custody safety, unrestricted
 backward compatibility or independent chain verification. General journal

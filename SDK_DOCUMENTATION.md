@@ -638,18 +638,21 @@ different schedule remains an estimation risk. Follow destination receipts and
 outpoints even when the origin succeeds: insufficient ETX gas can produce a
 failed receipt with partial Qi outputs. See [funded Orchard evidence](test-infra/orchard/README.md).
 
-Confirmed configured addresses on both mainnet and Orchard, Cyprus-1:
+Configured deployments in Cyprus-1:
 
-| Asset | Address |
-| --- | --- |
-| WQI | `0x002b2596EcF05C93a31ff916E8b456DF6C77c750` |
-| WQUAI | `0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB` |
+| Asset | Network | Address |
+| --- | --- | --- |
+| WQI | Mainnet and Orchard | `0x002b2596EcF05C93a31ff916E8b456DF6C77c750` |
+| WQUAI | Mainnet | `0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB` |
+| WQUAI | Orchard | `0x005c46f661Baef20671943f2b4c087Df3E7CEb13` |
 
-`wrappers::{WQI_ADDRESS,WQUAI_ADDRESS}` exposes the constants. Constructors also
+`wrappers::{WQI_ADDRESS,WQUAI_MAINNET_ADDRESS,WQUAI_ORCHARD_ADDRESS}`
+exposes explicit deployments. `WQUAI_ADDRESS` remains a mainnet compatibility alias. Constructors also
 accept explicit deployments. `new` constructs an offline binding;
 `new_verified` checks genesis, canonical sampled block, nonempty runtime and an
 optional expected runtime hash. Mainnet reads observed code at both addresses;
-the last retained Orchard check found empty WQUAI code. Configuration therefore
+the corrected Orchard deployment passed a funded 0.01 QUAI wrap/unwrap round trip
+([evidence](test-infra/orchard/wquai-roundtrip-2026-09-14.json)). Configuration nevertheless
 does not guarantee deployment availability. See [code preflight](docs/CONTRACT_CODE_PREFLIGHT.md).
 
 `WrappedQi::unclaimed` queries backing; only the narrowly recognized no-balance

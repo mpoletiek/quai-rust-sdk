@@ -152,19 +152,22 @@ and respect their observed locks before selecting them.
 
 ## WQI and WQUAI
 
-User-confirmed addresses for mainnet and Orchard, Cyprus-1:
+Configured deployments in Cyprus-1:
 
-| Token | Address |
-| --- | --- |
-| WQI | `0x002b2596EcF05C93a31ff916E8b456DF6C77c750` |
-| WQUAI | `0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB` |
+| Token | Network | Address |
+| --- | --- | --- |
+| WQI | Mainnet and Orchard | `0x002b2596EcF05C93a31ff916E8b456DF6C77c750` |
+| WQUAI | Mainnet | `0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB` |
+| WQUAI | Orchard | `0x005c46f661Baef20671943f2b4c087Df3E7CEb13` |
 
-`wrappers::{WQI_ADDRESS, WQUAI_ADDRESS}` expose these constants; adapters also
+`wrappers::{WQI_ADDRESS, WQUAI_MAINNET_ADDRESS, WQUAI_ORCHARD_ADDRESS}`
+expose these constants. `WQUAI_ADDRESS` remains a mainnet compatibility alias. Adapters also
 accept an explicit deployment address. Mainnet code presence was observed for
 both; the [read-only report](../test-infra/reports/wrapper-deployments-2026-09-12.json)
 records runtime SHA-256 values. Later [public mainnet reads](../test-infra/reports/mainnet-public-read-recheck-2026-09-13.json)
-confirmed both deployments. The last retained Orchard code check found empty
-WQUAI code; Orchard was subsequently reported under maintenance. Code presence is not
+confirmed both mainnet deployments. The corrected Orchard WQUAI address returned
+2,029 code bytes, name `Wrapped Quai`, symbol `WQUAI` and 18 decimals on September 14.
+Earlier empty-code reports used the mainnet address on Orchard. Code presence is not
 an implementation audit or funded workflow acceptance.
 
 - Native Qi wrapping uses `QiWrappingTransaction` or

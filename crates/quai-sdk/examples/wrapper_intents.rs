@@ -1,5 +1,5 @@
 //! Offline wrapper intents. Prints call data; never contacts or submits to a node.
-use quai_sdk::wrappers::{WQI_ADDRESS, WQUAI_ADDRESS, WrappedQi, WrappedQuai};
+use quai_sdk::wrappers::{WQI_ADDRESS, WQUAI_ORCHARD_ADDRESS, WrappedQi, WrappedQuai};
 use quai_sdk::{HttpConfig, HttpTransport, Provider, Routing, U256, Zone};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let provider = Provider::new(
@@ -7,7 +7,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into())?,
         U256::from(15000),
     );
-    let wquai = WrappedQuai::new(WQUAI_ADDRESS.parse()?, &provider)?;
+    let wquai = WrappedQuai::new(WQUAI_ORCHARD_ADDRESS.parse()?, &provider)?;
     let wqi = WrappedQi::new(WQI_ADDRESS.parse()?, &provider)?;
     let its = U256::from(1_000_000_000_000_000_000u64);
     let beneficiary = "0x0080000000000000000000000000000000000001".parse()?;

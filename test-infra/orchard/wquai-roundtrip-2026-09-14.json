@@ -1,0 +1,214 @@
+{
+  "recordedAt": "2026-09-14T14:00:23.260885+00:00",
+  "baseCommit": "bbb098bec51f2963d4f6128d2ecc36c8b8246af9",
+  "workingTree": true,
+  "network": "orchard",
+  "chainId": 15000,
+  "address": "0x005c46f661Baef20671943f2b4c087Df3E7CEb13",
+  "amountBaseUnits": "10000000000000000",
+  "combinedFeeBaseUnits": "98737200000000",
+  "nativePrincipalReturned": true,
+  "transactions": {
+    "deposit": {
+      "prepared": [
+        {
+          "nativeBalanceBefore": "644104793861766002992",
+          "operation": "wquai-deposit",
+          "stage": "wrapper-preflight",
+          "tokenAtoms": "10000000000000000",
+          "tokenBalanceBefore": "0"
+        },
+        {
+          "chainId": 15000,
+          "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+          "gasLimit": 70037,
+          "gasPrice": "1200000000",
+          "maximumFeeBaseUnits": "84044400000000",
+          "nonce": 6783,
+          "operation": "wquai-deposit",
+          "signingDigest": "0xb91313aa42eb9664a92b855013256ce51c713d2ff6b6bb0fdbd39d221518ed59",
+          "stage": "prepared",
+          "to": "0x005c46f661Baef20671943f2b4c087Df3E7CEb13",
+          "valueBaseUnits": "10000000000000000"
+        },
+        {
+          "hash": "0x004c00436c4788b3a211acdd80e607ee04fc5af89baeaa6190585a24e055099f",
+          "operation": "wquai-deposit",
+          "stage": "signed-and-persisted"
+        }
+      ],
+      "broadcast": [
+        {
+          "hash": "0x004c00436c4788b3a211acdd80e607ee04fc5af89baeaa6190585a24e055099f",
+          "operation": "wquai-deposit",
+          "stage": "acknowledged"
+        }
+      ],
+      "observed": [
+        {
+          "confirmations": 2,
+          "operation": "wquai-deposit",
+          "receipt": {
+            "blockHash": "0x49fa2b2d8b430cdbb01a6f033aa6af4537d36b74fffd5106f12ef83e5d58b353",
+            "blockNumber": "0x76ef66",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0x10c41",
+            "effectiveGasPrice": "0x47868c00",
+            "etxType": null,
+            "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+            "gasUsed": "0xba39",
+            "logs": [
+              {
+                "address": "0x005c46f661Baef20671943f2b4c087Df3E7CEb13",
+                "blockHash": "0x49fa2b2d8b430cdbb01a6f033aa6af4537d36b74fffd5106f12ef83e5d58b353",
+                "blockNumber": "0x76ef66",
+                "data": "0x000000000000000000000000000000000000000000000000002386f26fc10000",
+                "logIndex": "0x0",
+                "removed": false,
+                "topics": [
+                  "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c",
+                  "0x0000000000000000000000000006506bde7140b85ded58a40d7444f84cde4821"
+                ],
+                "transactionHash": "0x004c00436c4788b3a211acdd80e607ee04fc5af89baeaa6190585a24e055099f",
+                "transactionIndex": "0x1"
+              }
+            ],
+            "originatingTxHash": null,
+            "outboundEtxs": [],
+            "status": "0x1",
+            "to": "0x005c46f661Baef20671943f2b4c087Df3E7CEb13",
+            "transactionHash": "0x004c00436c4788b3a211acdd80e607ee04fc5af89baeaa6190585a24e055099f",
+            "transactionIndex": "0x1",
+            "type": "0x0"
+          },
+          "stage": "observed"
+        },
+        {
+          "feeBaseUnits": "57207600000000",
+          "nativeBalanceAfter": "644094736654166002992",
+          "operation": "wquai-deposit",
+          "stage": "wrapper-observed",
+          "tokenBalanceAfter": "10000000000000000"
+        }
+      ],
+      "durableSignedBytesMatchMinedTransaction": true
+    },
+    "withdraw": {
+      "prepared": [
+        {
+          "nativeBalanceBefore": "644094736654166002992",
+          "operation": "wquai-withdraw",
+          "stage": "wrapper-preflight",
+          "tokenAtoms": "10000000000000000",
+          "tokenBalanceBefore": "10000000000000000"
+        },
+        {
+          "chainId": 15000,
+          "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+          "gasLimit": 56208,
+          "gasPrice": "1200000000",
+          "maximumFeeBaseUnits": "67449600000000",
+          "nonce": 6784,
+          "operation": "wquai-withdraw",
+          "signingDigest": "0x3060cae1d3015dfdb8803cda57cb1ad32ff2c85625fee2a1edf7d3da6d0a7b71",
+          "stage": "prepared",
+          "to": "0x005c46f661Baef20671943f2b4c087Df3E7CEb13",
+          "valueBaseUnits": "0"
+        },
+        {
+          "hash": "0x005200087ed9ff07974fb45128fb9c6a1b556670613977c599373c59c6f95364",
+          "operation": "wquai-withdraw",
+          "stage": "signed-and-persisted"
+        }
+      ],
+      "broadcast": [
+        {
+          "hash": "0x005200087ed9ff07974fb45128fb9c6a1b556670613977c599373c59c6f95364",
+          "operation": "wquai-withdraw",
+          "stage": "acknowledged"
+        }
+      ],
+      "observed": [
+        {
+          "confirmations": 3,
+          "operation": "wquai-withdraw",
+          "receipt": {
+            "blockHash": "0x1ddf0c76132df00a2334f02e9dd46061beb53e2d49d4d83430ccdaa6eb8be916",
+            "blockNumber": "0x76ef77",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0x27360",
+            "effectiveGasPrice": "0x47868c00",
+            "etxType": null,
+            "from": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+            "gasUsed": "0x8730",
+            "logs": [
+              {
+                "address": "0x005c46f661Baef20671943f2b4c087Df3E7CEb13",
+                "blockHash": "0x1ddf0c76132df00a2334f02e9dd46061beb53e2d49d4d83430ccdaa6eb8be916",
+                "blockNumber": "0x76ef77",
+                "data": "0x000000000000000000000000000000000000000000000000002386f26fc10000",
+                "logIndex": "0x0",
+                "removed": false,
+                "topics": [
+                  "0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65",
+                  "0x0000000000000000000000000006506bde7140b85ded58a40d7444f84cde4821"
+                ],
+                "transactionHash": "0x005200087ed9ff07974fb45128fb9c6a1b556670613977c599373c59c6f95364",
+                "transactionIndex": "0x6"
+              }
+            ],
+            "originatingTxHash": null,
+            "outboundEtxs": [],
+            "status": "0x1",
+            "to": "0x005c46f661Baef20671943f2b4c087Df3E7CEb13",
+            "transactionHash": "0x005200087ed9ff07974fb45128fb9c6a1b556670613977c599373c59c6f95364",
+            "transactionIndex": "0x6",
+            "type": "0x0"
+          },
+          "stage": "observed"
+        },
+        {
+          "feeBaseUnits": "41529600000000",
+          "nativeBalanceAfter": "644104695124566002992",
+          "operation": "wquai-withdraw",
+          "stage": "wrapper-observed",
+          "tokenBalanceAfter": "0"
+        }
+      ],
+      "durableSignedBytesMatchMinedTransaction": true
+    }
+  },
+  "liveCodeTest": [
+    {
+      "address": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+      "block": 7794550,
+      "blockHash": "0xe47dc7c968f9a9134fb18a4154e9895a54bb3826c395f44368ccaa17e24272e8",
+      "chainId": "15000",
+      "checkedBindingAccepted": true,
+      "genesis": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+      "kind": "WQI",
+      "runtimeBytes": 7255,
+      "runtimeKeccak256": "0x27886b0f8f6deb1f4c300206f4c0bcc749a3fba2d00bc2da38fe2d90f76c050a"
+    },
+    {
+      "address": "0x005c46f661Baef20671943f2b4c087Df3E7CEb13",
+      "block": 7794550,
+      "blockHash": "0xe47dc7c968f9a9134fb18a4154e9895a54bb3826c395f44368ccaa17e24272e8",
+      "chainId": "15000",
+      "checkedBindingAccepted": true,
+      "genesis": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+      "kind": "WQUAI",
+      "runtimeBytes": 2029,
+      "runtimeKeccak256": "0x72ebc2d882f6c49aa65b9be06e23d07516f7b34d144e132a154a3105eb2a88a9"
+    }
+  ],
+  "validation": {
+    "wrapperAndCodeTestsPassed": 10,
+    "liveCodeTestPassed": 1,
+    "strictSdkClippy": true,
+    "strictHarnessClippy": true,
+    "strictRustdoc": true,
+    "documentationChecks": true
+  },
+  "scope": "One funded development-account deposit/withdraw round trip; not contract audit, mainnet funded execution, or WQI redemption qualification."
+}

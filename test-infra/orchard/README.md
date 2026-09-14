@@ -57,6 +57,13 @@ before running any broadcast stage. Failed or interrupted sends retain signed
 claims; inspect the hash before taking any further action. Confirmed operations
 and consumed reservation IDs cannot be reused.
 
+`prepare/broadcast/observe wquai-deposit` and `wquai-withdraw` exercise a 0.01
+QUAI round trip using distinct account-A reservation IDs 4 and 5. Each prepare
+checks code/genesis and the expected token balance before reserving/signing.
+Withdrawal attaches zero native value. Observations check the minted/burned
+amount at the receipt block. `target/debug/wquai_probe` performs only public
+code/metadata reads at the configured Orchard deployment.
+
 The harness is Unix-specific and intentionally fixed to this qualification
 sequence. `diagnostic` reads the original conversion's public destination receipt,
 outpoints and code at both confirmed wrapper addresses. It does not accept
@@ -98,11 +105,18 @@ observations, not independent consensus proofs or general network qualification.
   were checked. Hash: `0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5`.
   This proves spendability of that converted output, including after the original
   destination failure. It does not recover the original uncreated 1,286 Qits.
-- User-confirmed WQI/WQUAI addresses remain identical on both networks. At
-  Orchard height 7,791,593, WQI returned 7,255 code bytes and WQUAI returned zero.
-  This is recorded as an endpoint/deployment-state discrepancy. WQUAI deposit
-  testing requires visible contract code; no deposit was sent to the empty-code
-  address. `web3_clientVersion` returned -32601 on this endpoint.
+- The earlier shared-address configuration queried mainnet WQUAI on Orchard,
+  returning empty code at height 7,791,593. The user subsequently supplied the
+  correct Orchard address: `0x005c46f661Baef20671943f2b4c087Df3E7CEb13`.
+  [Deployment evidence](wquai-deployment-2026-09-14.json) records 2,029 runtime
+  bytes, name `Wrapped Quai`, symbol `WQUAI`, 18 decimals and a checked binding.
+  Both WQI and corrected WQUAI passed the SDK's live deployment preflight.
+- A [funded WQUAI round trip](wquai-roundtrip-2026-09-14.json) deposited 0.01 QUAI,
+  minted exactly 0.01 WQUAI, then withdrew the same amount. Both receipts succeeded
+  and mined signed bytes matched custody. WQUAI balance returned to zero; the
+  native balance decreased only by combined fees of 0.0000987372 QUAI.
+  This qualifies the observed Orchard deposit/withdraw flow, not an independent
+  contract audit or a mainnet funded test.
 
 Source references: pinned [gas estimator](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/internal/quaiapi/quai_api.go),
 [origin ETX creation](https://github.com/dominant-strategies/go-quai/blob/f3f345c877300c044e3e0081a48bf3cf786fb9cc/core/vm/evm.go),

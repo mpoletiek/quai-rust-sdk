@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated September 13, 2026 (US/Central). The `0.1.0-alpha.1` implementation and
+Updated September 14, 2026 (US/Central). The `0.1.0-alpha.1` implementation and
 published-reference declaration review are complete within the explicit
 [parity differences](SDK_PARITY_ANALYSIS.md). All 3928 rows are reconciled: 74
 implemented, 3854 deliberate deviations, zero partial and zero pending. Counts
@@ -11,6 +11,13 @@ The [SDK guide](SDK_DOCUMENTATION.md) describes current native/browser workflows
 The dated reviews and chronological sections below retain earlier evidence and
 backlogs; use the current comparison for today's implementation assessment.
 Production qualification remains distinct from alpha package preparation.
+
+The [funded Orchard record](test-infra/orchard/README.md) adds confirmed account
+transfers, full corrected conversion output creation and a mature Qi spend.
+Orchard WQUAI uses `0x005c46f661Baef20671943f2b4c087Df3E7CEb13`; its
+code, metadata and a funded 0.01 QUAI deposit/withdraw round trip are verified.
+Earlier empty-code observations queried the
+mainnet WQUAI address on Orchard and remain dated evidence below.
 
 ## Implemented and locally exercised
 

@@ -5,6 +5,8 @@
 Initial modular Quai/Qi SDK release candidate, compared against the published
 `quais@1.0.0-alpha.57` artifact. APIs may change during alpha development.
 
+- Add explicit mainnet/Orchard WQUAI addresses and correct the Orchard example
+  and funded harness to use the verified testnet deployment.
 - Correct Quai-to-Qi preparation gas: include origin costs and conservative
   denomination fragmentation after discounts; preserve the raw estimate API.
 - Twelve crates cover typed addresses/amounts, crypto, consensus serialization,

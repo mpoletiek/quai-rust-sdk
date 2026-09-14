@@ -40,11 +40,15 @@ not request node state. The confirmed address constants do not assert that a
 contract exists on every network or at every block. In particular, the 2026-09-13
 Orchard read-only check found WQI runtime at its configured address and empty code
 at the configured WQUAI address. Checked WQUAI binding rejected that observation;
-the configured addresses were retained. See the
+the observation used the mainnet WQUAI address. Orchard now uses
+`WQUAI_ORCHARD_ADDRESS` (`0x005c46f661Baef20671943f2b4c087Df3E7CEb13`),
+verified on September 14. See the historical
 [qualification report](../test-infra/reports/contract-code-preflight-2026-09-13.json).
 
 The opt-in SDK `contract_code` test accepts `QUAI_RPC_URL`, a decimal
-`QUAI_EXPECTED_CHAIN_ID` and `QUAI_EXPECTED_GENESIS`. It only reads both wrapper
+`QUAI_EXPECTED_CHAIN_ID` and `QUAI_EXPECTED_GENESIS`. Chain 15000 selects the
+Orchard WQUAI address; other chains retain the mainnet default. An optional
+`QUAI_WQUAI_ADDRESS` explicitly overrides that choice. It only reads both wrapper
 addresses and checks availability at exact observed blocks:
 
 ```sh

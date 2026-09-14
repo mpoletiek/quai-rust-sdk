@@ -195,7 +195,7 @@ async fn inspect() -> Result<(), Box<dyn Error>> {
     println!("gas price: {}", provider.gas_price(Zone::Cyprus1).await?);
     for (name, text) in [
         ("WQI", quai_sdk::wrappers::WQI_ADDRESS),
-        ("WQUAI", quai_sdk::wrappers::WQUAI_ADDRESS),
+        ("WQUAI", quai_sdk::wrappers::WQUAI_ORCHARD_ADDRESS),
     ] {
         let address: QuaiAddress = text.parse()?;
         let code = provider.code(address, BlockTag::Latest).await?;

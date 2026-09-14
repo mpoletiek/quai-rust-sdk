@@ -292,7 +292,14 @@ async fn explicit_endpoint_wrapper_code_availability() {
         Routing::direct(&url, Zone::Cyprus1.into()).unwrap(),
         chain,
     );
-    for (kind, address) in [("WQI", WQI_ADDRESS), ("WQUAI", WQUAI_ADDRESS)] {
+    let wquai = std::env::var("QUAI_WQUAI_ADDRESS").unwrap_or_else(|_| {
+        if chain == U256::from(15000) {
+            quai_sdk::wrappers::WQUAI_ORCHARD_ADDRESS.to_owned()
+        } else {
+            WQUAI_ADDRESS.to_owned()
+        }
+    });
+    for (kind, address) in [("WQI", WQI_ADDRESS), ("WQUAI", wquai.as_str())] {
         let address = address.parse().unwrap();
         let o = p
             .observe_contract_code(address, BlockTag::Latest, None)

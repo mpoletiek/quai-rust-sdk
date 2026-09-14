@@ -1,0 +1,25 @@
+   Compiling quai-primitives v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-primitives)
+   Compiling quai-crypto v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-crypto)
+   Compiling quai-abi v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-abi)
+   Compiling quai-rpc v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-rpc)
+   Compiling quai-consensus v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-consensus)
+   Compiling quai-provider v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-provider)
+   Compiling quai-signer v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-signer)
+   Compiling quai-browser v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-browser)
+   Compiling quai-sdk v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-sdk)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.71s
+     Running tests/fixed_completion.rs (target/wasm32-unknown-unknown/debug/deps/fixed_completion-cbc3fd7881ef3ab7.wasm)
+Set timeout to 180 seconds...
+Running headless tests in Chrome on `http://127.0.0.1:37487/`
+Try find `webdriver.json` for configure browser's capabilities:
+Ok
+Loading Wasm module...
+running 5 tests
+test wrapping_is_explicit_and_signed_minimum_remains_in_range ... ok
+test modular_operations_match_reference_or_explicit_signed_minimum_corrections ... ok
+test lossy_float_conversion_matches_ieee_rounding_and_never_mutates_exact_units ... ok
+test format_mismatch_and_zero_division_never_wrap_into_valid_values ... ok
+test all_eight_bit_pairs_match_independent_machine_integer_modular_arithmetic ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 filtered out; finished in 2.51s
+

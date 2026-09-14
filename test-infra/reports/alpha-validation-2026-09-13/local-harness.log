@@ -1,0 +1,8 @@
+test_launch_flags_disable_external_network_and_pin_direct_ports (test_harness.HarnessTests.test_launch_flags_disable_external_network_and_pin_direct_ports) ... ok
+test_requires_marker_and_tmp_work_directory (test_harness.HarnessTests.test_requires_marker_and_tmp_work_directory) ... ok
+test_snapshot_digest_detects_mutation_and_rejects_links (test_harness.HarnessTests.test_snapshot_digest_detects_mutation_and_rejects_links) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+OK

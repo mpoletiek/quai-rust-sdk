@@ -128,4 +128,8 @@ for row in load('compatibility/fixtures/aggregation.json')['vectors']:
 for row in load('compatibility/fixtures/final-utilities.json')['integers']:put('encoding',row['text'].encode())
 for row in load('compatibility/fixtures/final-utilities.json')['hex']:put('encoding',row['text'].encode())
 for raw in ['7ff0000000000000','7ff8000000000000','8000000000000000','4340000000000000']:put('encoding',bytes.fromhex(raw))
+for row in load('compatibility/fixtures/fixed-completion.json')['vectors']:
+ import re
+ match=re.fullmatch(r'(u?)fixed(\d+)x(\d+)',row['format']);width=int(match[2]);decimals=int(match[3]);mask=(1<<width)-1
+ put('fixed',bytes([((width//8-1)<<1)|int(not match[1]),decimals])+(int(row['sourceA'])&mask).to_bytes(width//8,'big')+(int(row['sourceB'])&mask).to_bytes(width//8,'big'))
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

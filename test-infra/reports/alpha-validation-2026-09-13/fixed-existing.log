@@ -1,0 +1,12 @@
+   Compiling quai-primitives v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-primitives)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.84s
+     Running tests/fixed.rs (target/debug/deps/fixed-28e30ecbfd8da691)
+
+running 4 tests
+test formats_rescaling_order_and_chain_units_preserve_exact_values ... ok
+test wide_intermediates_handle_full_fields_and_extreme_scales ... ok
+test mathematical_rounding_corrects_recorded_reference_defects ... ok
+test fixed_point_matches_pinned_parse_arithmetic_and_byte_vectors ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

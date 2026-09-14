@@ -424,6 +424,10 @@
     {
       "source": "compatibility/fixtures/final-utilities.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/final-utilities.json"
+    },
+    {
+      "source": "compatibility/fixtures/fixed-completion.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/fixed-completion.json"
     }
   ]
 }

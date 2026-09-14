@@ -79,8 +79,7 @@ limit. Mnemonic parsing accepts surrounding/repeated Unicode whitespace; this
 is more permissive than some reference wordlist splitters, and seeds derive
 from the canonical validated phrase. Native authenticated full-wallet backups and portable mnemonic generation are
 available. Browser custody and atomic recovery are described in the
-[SDK guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/SDK_DOCUMENTATION.md); complete browser session orchestration
-remains separate.
+[SDK guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/SDK_DOCUMENTATION.md); native, portable and browser session orchestration lives in `quai-sdk`.
 
 The underlying bip32 0.5.3 master API accepts only 16/32/64-byte seeds. This
 crate applies the standard HMAC-SHA512 `Bitcoin seed` master derivation for the
@@ -273,5 +272,5 @@ See the [utility guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/doc
 
 `select_aggregate` and `SweepMode::AggregateThreshold` aggregate small coins up to
 an explicit input threshold and fund exact fees from separate eligible inputs.
-See the [aggregation review](../../docs/CURVE_AND_AGGREGATION_PARITY.md) for
+See the [aggregation review](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/CURVE_AND_AGGREGATION_PARITY.md) for
 ordering, limits, default count reduction and the node block-position requirement.

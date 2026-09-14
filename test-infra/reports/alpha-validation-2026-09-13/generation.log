@@ -1,0 +1,39 @@
+
+> quai-rust-sdk-reference@0.0.0 generate
+> npm run fixtures && npm run inventory && node scripts/generate-transactions.mjs && node scripts/generate-selection.mjs && node scripts/generate-amounts.mjs && node scripts/generate-keystore.mjs && node scripts/generate-encoding.mjs && node scripts/generate-fixed.mjs && node scripts/generate-typed-values.mjs && node scripts/generate-artifacts.mjs && node scripts/generate-key-metadata.mjs && node scripts/generate-qi-use-hints.mjs && node scripts/generate-qi-messages.mjs && node scripts/generate-browser-requests.mjs && node scripts/generate-packed.mjs && node scripts/generate-text-crypto.mjs && node scripts/generate-abi-workflows.mjs && node scripts/generate-human-abi.mjs && node scripts/generate-provider-basics.mjs && node scripts/generate-legacy-wallets.mjs && node scripts/generate-abi-reflection.mjs && node scripts/generate-typed-data-utils.mjs && node scripts/generate-crypto-utils.mjs && node scripts/generate-wordlists.mjs && node scripts/generate-contract-io.mjs && node scripts/generate-fetch.mjs && node scripts/generate-utility-completion.mjs && node scripts/generate-curve.mjs && node scripts/generate-aggregation.mjs && node scripts/generate-final-utilities.mjs && node scripts/generate-fixed-completion.mjs
+
+
+> quai-rust-sdk-reference@0.0.0 fixtures
+> node scripts/generate-fixtures.mjs
+
+Generated 65 primitive and 25 routing vectors.
+
+> quai-rust-sdk-reference@0.0.0 inventory
+> node scripts/inventory.mjs
+
+{"roots":12,"exports":581,"classes":143,"publicClassMembers":3347}
+generated 14 transaction vectors
+69
+generated 94 amount and 30 contract vectors
+15 public keystore vectors
+Generated 80 encoding/boundary vectors
+Generated 172 fixed-point vectors
+Generated 426 typed-value encoder vectors, 64 integer bounds and 107 default sequences
+Generated 12 Solidity artifact/constructor cases
+Generated 40 BIP32 metadata cases
+Generated 8 optional address-use cases
+Generated 16 Qi message cases with both public-key parities
+Generated 3 injected signing RPC requests
+Generated 513 packed encoding/hash observations
+{"texts":75,"decoding":21,"surrogates":5,"uuids":4,"hashes":19,"ids":15}
+Generated 246 filters, 3 calls, 6 reverts and 2 logs
+Generated 180 human ABI formatting cases and 31 Rust rejection cases
+Generated 6 RPC mappings, 2 unsupported actions and 72 inheritance bindings
+Generated 4 legacy wallet migration vectors; compatible normalized exports restored by quais.js
+Generated 6 parameter and 4 gas vectors plus named call/return/error/event encodings
+Generated 107 exact EIP-712 type encodings and a nested visitation vector
+Generated 6 key pairs, 16 signatures and 15 legacy-V vectors
+Generated 10 full wordlists, phrase conventions and 5 custom dictionary mnemonics
+Generated 24 fallback/receive population cases
+{"vectors":129,"underpaid":[3]}
+{"vectors":158,"operations":632,"sourceDifferences":26}

@@ -1,0 +1,15 @@
+    Blocking waiting for file lock on build directory
+   Compiling quai-primitives v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-primitives)
+   Compiling quai-crypto v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-crypto)
+   Compiling quai-rpc v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-rpc)
+   Compiling quai-consensus v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-consensus)
+   Compiling quai-provider v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-provider)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 31.47s
+     Running tests/live_reads.rs (target/debug/deps/live_reads-71f29047ec5b1dd7)
+
+running 2 tests
+test explicit_endpoint_ordinary_qi_fee ... ok
+test explicit_endpoint_wallet_reads ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.25s
+

@@ -1,0 +1,11 @@
+✔ reference negative-result wrapping can violate the declared signed range (2.030697ms)
+✔ overflow wraps in unsafe arithmetic while explicit checked methods fail (1.070063ms)
+✔ lossy floats are explicit and incompatible formats or zero divisors still fail (0.534861ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 239.90702

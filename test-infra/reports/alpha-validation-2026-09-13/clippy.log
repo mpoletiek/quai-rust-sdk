@@ -1,0 +1,15 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+    Checking quai-primitives v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-primitives)
+    Checking quai-crypto v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-crypto)
+    Checking quai-rpc v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-rpc)
+    Checking quai-abi v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-abi)
+    Checking quai-consensus v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-consensus)
+    Checking quai-payments v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-payments)
+    Checking quai-browser v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-browser)
+    Checking quai-provider v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-provider)
+    Checking quai-wallet v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-wallet)
+    Checking quai-signer v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-signer)
+    Checking quai-keystore v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-keystore)
+    Checking quai-sdk v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-sdk)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 30.45s

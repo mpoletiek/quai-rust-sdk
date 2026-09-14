@@ -1,11 +1,12 @@
 # Publishing the Rust SDK
 
 Rust's public package registry is **crates.io**. This workspace contains twelve
-versioned crates and a facade, `quai-sdk`. The current version is
-`0.1.0-alpha.1`; publication remains disabled by the workspace's `publish = false`.
+versioned crates, including the facade `quai-sdk`. The current version is
+`0.1.0-alpha.1`; the workspace policy permits only `crates-io`. This prepares
+package metadata without authorizing an upload.
 No registry upload or crate-name reservation has occurred.
 
-The [September 13 name lookup](../test-infra/reports/crates-name-check-2026-09-13.json)
+The [release-candidate name lookup](../test-infra/reports/alpha-registry-check-2026-09-13.json)
 returned HTTP 404 for each proposed name. That is a dated observation, not a
 reservation or guarantee. Check again immediately before the first upload.
 Names are allocated on a first-come basis, and published versions are immutable.
@@ -22,7 +23,7 @@ modules compiled only for Wasm.
 ## Candidate qualification
 
 1. Review the [parity analysis](../SDK_PARITY_ANALYSIS.md) and retained qualification
-   reports. Unreviewed declarations and unqualified funded behavior remain visible;
+   reports. Deliberate differences and unqualified funded behavior remain visible;
    passing an archive build does not establish complete reference parity.
 2. Require the intended commit's complete CI matrix, including default/all-feature
    and feature-minimal tests, Chromium, package consumers and advisory checks.
@@ -48,8 +49,7 @@ account. Do not put a registry token in the repository or a command transcript.
 Use Cargo's credential provider or a separately configured trusted-publishing
 workflow. No automatic publish-on-push or publish-on-tag action is installed.
 
-After authorization, change the publish policy to allow only `crates-io`, rerun
-verification at that exact revision and use `cargo publish --dry-run --locked -p
+After authorization, rerun verification at that exact revision and use `cargo publish --dry-run --locked -p
 <crate>` before each upload. For a first release, the dependency order (including
 local test dependencies) is:
 
@@ -72,3 +72,19 @@ publication and yanking rules. Finally verify clean registry consumers and hoste
 rustdoc, then create release notes tied to the published source commit. A local
 archive rehearsal cannot prove registry credentials, upload acceptance or hosted
 documentation success.
+
+## Retained release inventory
+
+The [alpha dependency inventory](../test-infra/reports/alpha-dependencies-2026-09-13.json)
+records exact package versions, checksums, declared license expressions, resolved
+features and dependency edges from locked Cargo metadata. It includes development
+and target-specific dependencies, not just components in a particular binary.
+Available root license/notice files have content hashes. It is a custom schema,
+not an SPDX document or legal clearance; absent packaged notice files and upstream
+license expressions remain visible for downstream distribution review.
+
+Regenerate with `python3 test-infra/release_inventory.py --output /tmp/dependencies.json`
+using the locked offline cache. The [alpha release manifest](../test-infra/reports/alpha-release-2026-09-13.json)
+binds archive hashes, source identity, toolchain, reference and retained verification.
+Archive hashes describe the tested dirty checkout and exclude their own later report;
+use the final Git revision and CI run for the committed source identity.

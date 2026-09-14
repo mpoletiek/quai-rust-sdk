@@ -1,15 +1,16 @@
 # Implementation status
 
-Updated 2026-09-13. The [audited plan](QUAI_RUST_SDK_PLAN.md) remains the full
-scope. **The SDK is under construction and has not passed the feature-complete,
-production-security or release gates.** All packages remain unpublished.
-The [feature completeness review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md)
-separates implemented primitives from missing workflows and records completion
-criteria FC01–FC12. Historical test/node results below retain their recorded scope.
+Updated September 13, 2026 (US/Central). The `0.1.0-alpha.1` implementation and
+published-reference declaration review are complete within the explicit
+[parity differences](SDK_PARITY_ANALYSIS.md). All 3928 rows are reconciled: 74
+implemented, 3854 deliberate deviations, zero partial and zero pending. Counts
+are not independent features or proof of production safety. Crates.io-only
+metadata is prepared; all twelve packages remain unpublished.
 
-The [SDK integration guide](SDK_DOCUMENTATION.md) covers the current public
-capabilities; the [comparison](SDK_PARITY_ANALYSIS.md) calls out gaps, deliberate
-differences and Rust additions without treating pending declarations as complete.
+The [SDK guide](SDK_DOCUMENTATION.md) describes current native/browser workflows.
+The dated reviews and chronological sections below retain earlier evidence and
+backlogs; use the current comparison for today's implementation assessment.
+Production qualification remains distinct from alpha package preparation.
 
 ## Implemented and locally exercised
 
@@ -33,7 +34,7 @@ differences and Rust additions without treating pending declarations as complete
 | Payment codes | BIP47 seed/master/account-xprv derivation, registered send destinations and receive gap/deep scanning, verified receive key resolution, monotonic exposure imports and authenticated seed/master/account-xprv channel backup |
 | Discovery | Both the history-capable abstract scanner and supplied current-state Qi scan/refresh; gap 50, explicit deep ranges, all stored origins, fixed denominations/locks and balance buckets; latest-only consistency limits remain explicit |
 | Conversions | Typed rates/calculation, durable Quai-to-Qi and Qi-to-Quai preparation, explicit specialized Qit fees, signed backup/recovery and bounded ETX correlation and attributed current Qi credit/refund locks; automatic fees require the explicit SHA-anchored v0.56.0 profile; maturity qualification remains open |
-| Browser | Real Chromium Fetch/injected-provider tests, recovered personal/typed-data signatures, worker Fetch, HD/imported/BIP47 key resolution, metadata reopen, OS entropy and ordered signing; scoped atomic IndexedDB snapshots; full browser wallet integration and real extension interoperability remain open |
+| Browser | Real Chromium Fetch/injected-provider tests, recovered personal/typed-data signatures, worker Fetch, HD/imported/BIP47 key resolution, metadata reopen, OS entropy and ordered signing; scoped atomic IndexedDB snapshots; full account/Qi browser sessions, durable custody, coordinated capture/restore and settlement are implemented; real extension interoperability remains unqualified |
 | Wrappers | WQI native wrapping/claim/redemption and WQUAI deposit/withdraw; exact units, typed ABI and redemption dust/gas guards; user-confirmed deployment constants; four independent JS/Rust/Go wrapping fixtures |
 
 The native offline example derives both ledger identities and signs/decodes a
@@ -111,28 +112,19 @@ on their separate controller/lock-adjusted profile. Unmodified mature-node write
 and disposable funded Orchard acceptance remain
 required. The documented Orchard faucet hostname currently fails DNS here.
 
-## Open gates
+## Current qualification boundary
 
-See [wallet gaps](docs/WALLET_GAPS.md) for the complete capability matrix.
-Current implementation gaps are complete application of canonical replay to
-wallet state, terminal signed-claim policy, per-operation Quai conversion maturity,
-remaining provider/browser workflows and declaration/overload reconciliation.
-Current gap-50 discovery, optional use hints, imported/BIP47 spending, payment
-key origins, conversions/fees/settlement observations, wrappers, candidate
-families, deployment observation and scoped IndexedDB snapshots are implemented.
-Latest-only outpoint RPC still cannot prove spent history or an atomic historical
-snapshot; default discovery does not require an indexer.
+The current implementation includes native and browser preparation, signing,
+submission, canonical candidate reconciliation and signed-intent settlement.
+Applications explicitly apply observations; absent transactions never implicitly
+release signed claims. Current gap-50 discovery needs no indexer, but latest-only
+outpoints cannot prove fully spent address history or an atomic historical snapshot.
 
-Qualification still requires unmodified/funded Orchard acceptance, broader
-fault/reorg/soak and performance coverage, real injected-extension interoperability,
-external specialist security review, and release/SBOM/advisory closeout. Sustained
-bounded fuzz runs, macOS/Windows CI, and extracted-package consumer/test-target
-checks have passed within their retained evidence boundaries. Browser snapshots
-are an opaque atomic storage substrate; complete browser wallet reservations and
-restore integration remain unfinished. No crate has been published.
-See [local-chain evidence](test-infra/local-chain/README.md) for the patched
-acceptance boundary and retained reports for exact source identities. No stable
-API or efficiency target is yet certified.
+Funded unmodified-node acceptance, mature WQI redemption spend, broader browser
+engines/extensions, sustained fault/reorg/soak/performance/fuzz campaigns and
+independent security review remain production gates. Mainnet checks are read-only;
+[isolated-chain evidence](test-infra/local-chain/README.md) has its own patched
+profile. Registry upload and hosted docs.rs verification have not occurred.
 
 ## Historical internal security review closeout
 
@@ -1116,3 +1108,39 @@ The subsequent deviation audit identified explicit wrapping fixed-point arithmet
 and lossy floating-point conversion as useful remaining functionality, despite
 their earlier intentional-omission mapping. These are being implemented before
 the final release review; zero unreviewed declarations is not itself completion.
+
+## Fixed-point deviation closure — September 13
+
+The five omitted reference wrapping/float operations now have explicit
+`FixedPoint::wrapping_*` and `to_f64_lossy` APIs. Five native/Chromium tests cover
+632 source operations, 26 signed-minimum corrections, 131,072 eight-bit operand
+pairs and explicit lossy conversion. Published placeholder/brand/tuple-name rows
+have also been checked; see the [fixed-point review](docs/FIXED_POINT_PARITY.md).
+
+## Alpha candidate closeout — September 13, 2026
+
+The final omission audit added explicit wrapping fixed-point arithmetic and lossy
+float conversion, then verified 632 differential operations and all 131072 signed/
+unsigned eight-bit operand pairs. Five native and five worker tests, four existing
+fixed-point regressions and three source tests passed. A 120-second ASAN run
+completed 189960 executions without a reported failure. A new tuple metadata
+assertion was corrected to the published source's `null` value before the full
+25-file JavaScript suite passed. Fixture regeneration is unchanged.
+
+The final local workspace checks passed: 617 all-feature tests/doctests and 300
+no-default-feature tests/doctests (overlapping feature runs), strict native/Wasm
+Clippy, warnings-denied rustdoc, 18 harness and three isolated-harness unit tests.
+Read-only mainnet checks passed two provider tests and one wrapper-code test.
+All twelve archives passed three consumer configurations, twelve native target
+compilations and two Wasm target compilations; no upload occurred.
+
+The [alpha manifest](test-infra/reports/alpha-release-2026-09-13.json) binds source,
+archives and verification. The [dependency inventory](test-infra/reports/alpha-dependencies-2026-09-13.json)
+records the locked resolution, including target/dev dependencies. Crates.io-only
+metadata and release instructions are prepared. Actual publication, hosted docs
+and the production qualification limits in the current comparison remain separate.
+
+The preceding commit's first CI attempt had seven successful jobs and a Chromium
+startup crash before IndexedDB fixture progress. The same fixture passed locally;
+the failed browser job was rerun without changing assertions. Final committed
+source must pass its own complete eight-job CI matrix before handoff.

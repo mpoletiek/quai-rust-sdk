@@ -34,7 +34,7 @@ impl SecretKey {
     /// Generate a scalar from the OS CSPRNG, failing rather than degrading randomness.
     ///
     /// Rejection sampling is bounded to 128 attempts; invalid scalar samples are
-    /// never reduced modulo the order. Browser randomness remains unqualified.
+    /// never reduced modulo the order. Browser entropy uses Web Crypto and is exercised in Chromium workers.
     pub fn generate() -> Result<Self, CryptoError> {
         let mut bytes = Zeroizing::new([0; 32]);
         for _ in 0..128 {

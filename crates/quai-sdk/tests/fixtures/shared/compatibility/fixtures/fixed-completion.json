@@ -1,0 +1,7404 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "scope": "Reference methods plus independent BigInt.asIntN/asUintN modular expectations; source signed-minimum defects retained explicitly.",
+  "vectors": [
+    {
+      "format": "fixed8x0",
+      "a": "-128",
+      "b": "-128",
+      "sourceA": "-128",
+      "sourceB": "-128",
+      "floatBits": "c060000000000000",
+      "sourceFloatBits": "c060000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-128",
+      "b": "-127",
+      "sourceA": "-128",
+      "sourceB": "-127",
+      "floatBits": "c060000000000000",
+      "sourceFloatBits": "c060000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "-128",
+            "display": "-128"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-128",
+      "b": "-1",
+      "sourceA": "-128",
+      "sourceB": "-1",
+      "floatBits": "c060000000000000",
+      "sourceFloatBits": "c060000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "-128",
+            "display": "-128"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "-128",
+            "display": "-128"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-128",
+      "b": "0",
+      "sourceA": "-128",
+      "sourceB": "0",
+      "floatBits": "c060000000000000",
+      "sourceFloatBits": "c060000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-128",
+      "b": "1",
+      "sourceA": "-128",
+      "sourceB": "1",
+      "floatBits": "c060000000000000",
+      "sourceFloatBits": "c060000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-128",
+      "b": "127",
+      "sourceA": "-128",
+      "sourceB": "127",
+      "floatBits": "c060000000000000",
+      "sourceFloatBits": "c060000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-127",
+      "b": "-128",
+      "sourceA": "-127",
+      "sourceB": "-128",
+      "floatBits": "c05fc00000000000",
+      "sourceFloatBits": "c05fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "-128",
+            "display": "-128"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-127",
+      "b": "-127",
+      "sourceA": "-127",
+      "sourceB": "-127",
+      "floatBits": "c05fc00000000000",
+      "sourceFloatBits": "c05fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-127",
+      "b": "-1",
+      "sourceA": "-127",
+      "sourceB": "-1",
+      "floatBits": "c05fc00000000000",
+      "sourceFloatBits": "c05fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-126"
+          },
+          "source": {
+            "units": "-126",
+            "display": "-126"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-127",
+      "b": "0",
+      "sourceA": "-127",
+      "sourceB": "0",
+      "floatBits": "c05fc00000000000",
+      "sourceFloatBits": "c05fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-127",
+      "b": "1",
+      "sourceA": "-127",
+      "sourceB": "1",
+      "floatBits": "c05fc00000000000",
+      "sourceFloatBits": "c05fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-126"
+          },
+          "source": {
+            "units": "-126",
+            "display": "-126"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-127",
+      "b": "127",
+      "sourceA": "-127",
+      "sourceB": "127",
+      "floatBits": "c05fc00000000000",
+      "sourceFloatBits": "c05fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-1",
+      "b": "-128",
+      "sourceA": "-1",
+      "sourceB": "-128",
+      "floatBits": "bff0000000000000",
+      "sourceFloatBits": "bff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "-128",
+            "display": "-128"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-1",
+      "b": "-127",
+      "sourceA": "-1",
+      "sourceB": "-127",
+      "floatBits": "bff0000000000000",
+      "sourceFloatBits": "bff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "126"
+          },
+          "source": {
+            "units": "126",
+            "display": "126"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-1",
+      "b": "-1",
+      "sourceA": "-1",
+      "sourceB": "-1",
+      "floatBits": "bff0000000000000",
+      "sourceFloatBits": "bff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-2"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-1",
+      "b": "0",
+      "sourceA": "-1",
+      "sourceB": "0",
+      "floatBits": "bff0000000000000",
+      "sourceFloatBits": "bff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-1",
+      "b": "1",
+      "sourceA": "-1",
+      "sourceB": "1",
+      "floatBits": "bff0000000000000",
+      "sourceFloatBits": "bff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-2"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "-1",
+      "b": "127",
+      "sourceA": "-1",
+      "sourceB": "127",
+      "floatBits": "bff0000000000000",
+      "sourceFloatBits": "bff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "126"
+          },
+          "source": {
+            "units": "126",
+            "display": "126"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "0",
+      "b": "-128",
+      "sourceA": "0",
+      "sourceB": "-128",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "-128",
+            "display": "-128"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "0",
+      "b": "-127",
+      "sourceA": "0",
+      "sourceB": "-127",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "0",
+      "b": "-1",
+      "sourceA": "0",
+      "sourceB": "-1",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "0",
+      "b": "0",
+      "sourceA": "0",
+      "sourceB": "0",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "0",
+      "b": "1",
+      "sourceA": "0",
+      "sourceB": "1",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "0",
+      "b": "127",
+      "sourceA": "0",
+      "sourceB": "127",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "1",
+      "b": "-128",
+      "sourceA": "1",
+      "sourceB": "-128",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "1",
+      "b": "-127",
+      "sourceA": "1",
+      "sourceB": "-127",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-126"
+          },
+          "source": {
+            "units": "-126",
+            "display": "-126"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "-128",
+            "display": "-128"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "1",
+      "b": "-1",
+      "sourceA": "1",
+      "sourceB": "-1",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "1",
+      "b": "0",
+      "sourceA": "1",
+      "sourceB": "0",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "1",
+      "b": "1",
+      "sourceA": "1",
+      "sourceB": "1",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "1",
+      "b": "127",
+      "sourceA": "1",
+      "sourceB": "127",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "-128",
+            "display": "-128"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-126"
+          },
+          "source": {
+            "units": "-126",
+            "display": "-126"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "127",
+      "b": "-128",
+      "sourceA": "127",
+      "sourceB": "-128",
+      "floatBits": "405fc00000000000",
+      "sourceFloatBits": "405fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "128",
+            "display": "128"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "127",
+      "b": "-127",
+      "sourceA": "127",
+      "sourceB": "-127",
+      "floatBits": "405fc00000000000",
+      "sourceFloatBits": "405fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-2"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "127",
+      "b": "-1",
+      "sourceA": "127",
+      "sourceB": "-1",
+      "floatBits": "405fc00000000000",
+      "sourceFloatBits": "405fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "126"
+          },
+          "source": {
+            "units": "126",
+            "display": "126"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "-128",
+            "display": "-128"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-127"
+          },
+          "source": {
+            "units": "-127",
+            "display": "-127"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "127",
+      "b": "0",
+      "sourceA": "127",
+      "sourceB": "0",
+      "floatBits": "405fc00000000000",
+      "sourceFloatBits": "405fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "127",
+      "b": "1",
+      "sourceA": "127",
+      "sourceB": "1",
+      "floatBits": "405fc00000000000",
+      "sourceFloatBits": "405fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-128"
+          },
+          "source": {
+            "units": "-128",
+            "display": "-128"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "126"
+          },
+          "source": {
+            "units": "126",
+            "display": "126"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed8x0",
+      "a": "127",
+      "b": "127",
+      "sourceA": "127",
+      "sourceB": "127",
+      "floatBits": "405fc00000000000",
+      "sourceFloatBits": "405fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-2"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "0",
+      "b": "0",
+      "sourceA": "0",
+      "sourceB": "0",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "0",
+      "b": "1",
+      "sourceA": "0",
+      "sourceB": "1",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "0",
+      "b": "2",
+      "sourceA": "0",
+      "sourceB": "2",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "0",
+      "b": "254",
+      "sourceA": "0",
+      "sourceB": "254",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "0",
+      "b": "255",
+      "sourceA": "0",
+      "sourceB": "255",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "1",
+      "b": "0",
+      "sourceA": "1",
+      "sourceB": "0",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "1",
+      "b": "1",
+      "sourceA": "1",
+      "sourceB": "1",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "1",
+      "b": "2",
+      "sourceA": "1",
+      "sourceB": "2",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "3"
+          },
+          "source": {
+            "units": "3",
+            "display": "3"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "1",
+      "b": "254",
+      "sourceA": "1",
+      "sourceB": "254",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "3"
+          },
+          "source": {
+            "units": "3",
+            "display": "3"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "1",
+      "b": "255",
+      "sourceA": "1",
+      "sourceB": "255",
+      "floatBits": "3ff0000000000000",
+      "sourceFloatBits": "3ff0000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "2",
+      "b": "0",
+      "sourceA": "2",
+      "sourceB": "0",
+      "floatBits": "4000000000000000",
+      "sourceFloatBits": "4000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "2",
+      "b": "1",
+      "sourceA": "2",
+      "sourceB": "1",
+      "floatBits": "4000000000000000",
+      "sourceFloatBits": "4000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "3"
+          },
+          "source": {
+            "units": "3",
+            "display": "3"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "2",
+      "b": "2",
+      "sourceA": "2",
+      "sourceB": "2",
+      "floatBits": "4000000000000000",
+      "sourceFloatBits": "4000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "4"
+          },
+          "source": {
+            "units": "4",
+            "display": "4"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "4"
+          },
+          "source": {
+            "units": "4",
+            "display": "4"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "2",
+      "b": "254",
+      "sourceA": "2",
+      "sourceB": "254",
+      "floatBits": "4000000000000000",
+      "sourceFloatBits": "4000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "4"
+          },
+          "source": {
+            "units": "4",
+            "display": "4"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "252"
+          },
+          "source": {
+            "units": "252",
+            "display": "252"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "2",
+      "b": "255",
+      "sourceA": "2",
+      "sourceB": "255",
+      "floatBits": "4000000000000000",
+      "sourceFloatBits": "4000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "3"
+          },
+          "source": {
+            "units": "3",
+            "display": "3"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "254",
+      "b": "0",
+      "sourceA": "254",
+      "sourceB": "0",
+      "floatBits": "406fc00000000000",
+      "sourceFloatBits": "406fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "254",
+      "b": "1",
+      "sourceA": "254",
+      "sourceB": "1",
+      "floatBits": "406fc00000000000",
+      "sourceFloatBits": "406fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "253"
+          },
+          "source": {
+            "units": "253",
+            "display": "253"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "254",
+      "b": "2",
+      "sourceA": "254",
+      "sourceB": "2",
+      "floatBits": "406fc00000000000",
+      "sourceFloatBits": "406fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "252"
+          },
+          "source": {
+            "units": "252",
+            "display": "252"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "252"
+          },
+          "source": {
+            "units": "252",
+            "display": "252"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "254",
+      "b": "254",
+      "sourceA": "254",
+      "sourceB": "254",
+      "floatBits": "406fc00000000000",
+      "sourceFloatBits": "406fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "252"
+          },
+          "source": {
+            "units": "252",
+            "display": "252"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "4"
+          },
+          "source": {
+            "units": "4",
+            "display": "4"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "254",
+      "b": "255",
+      "sourceA": "254",
+      "sourceB": "255",
+      "floatBits": "406fc00000000000",
+      "sourceFloatBits": "406fc00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "253"
+          },
+          "source": {
+            "units": "253",
+            "display": "253"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "255",
+      "b": "0",
+      "sourceA": "255",
+      "sourceB": "0",
+      "floatBits": "406fe00000000000",
+      "sourceFloatBits": "406fe00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "255",
+      "b": "1",
+      "sourceA": "255",
+      "sourceB": "1",
+      "floatBits": "406fe00000000000",
+      "sourceFloatBits": "406fe00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "255"
+          },
+          "source": {
+            "units": "255",
+            "display": "255"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "255",
+      "b": "2",
+      "sourceA": "255",
+      "sourceB": "2",
+      "floatBits": "406fe00000000000",
+      "sourceFloatBits": "406fe00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "253"
+          },
+          "source": {
+            "units": "253",
+            "display": "253"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "127"
+          },
+          "source": {
+            "units": "127",
+            "display": "127"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "255",
+      "b": "254",
+      "sourceA": "255",
+      "sourceB": "254",
+      "floatBits": "406fe00000000000",
+      "sourceFloatBits": "406fe00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "253"
+          },
+          "source": {
+            "units": "253",
+            "display": "253"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "2"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed8x0",
+      "a": "255",
+      "b": "255",
+      "sourceA": "255",
+      "sourceB": "255",
+      "floatBits": "406fe00000000000",
+      "sourceFloatBits": "406fe00000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "254"
+          },
+          "source": {
+            "units": "254",
+            "display": "254"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "1"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.68",
+      "b": "-327.68",
+      "sourceA": "-32768",
+      "sourceB": "-32768",
+      "floatBits": "c0747ae147ae147b",
+      "sourceFloatBits": "c0747ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-10486"
+          },
+          "source": {
+            "units": "-10486",
+            "display": "-104.86"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "100"
+          },
+          "source": {
+            "units": "100",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.68",
+      "b": "-327.67",
+      "sourceA": "-32768",
+      "sourceB": "-32767",
+      "floatBits": "c0747ae147ae147b",
+      "sourceFloatBits": "c0747ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.01"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.01"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-10814"
+          },
+          "source": {
+            "units": "-10814",
+            "display": "-108.14"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "100"
+          },
+          "source": {
+            "units": "100",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.68",
+      "b": "-0.01",
+      "sourceA": "-32768",
+      "sourceB": "-1",
+      "floatBits": "c0747ae147ae147b",
+      "sourceFloatBits": "c0747ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "32767"
+          },
+          "source": {
+            "units": "32767",
+            "display": "327.67"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32767"
+          },
+          "source": {
+            "units": "-32767",
+            "display": "-327.67"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "327"
+          },
+          "source": {
+            "units": "327",
+            "display": "3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.68",
+      "b": "0.0",
+      "sourceA": "-32768",
+      "sourceB": "0",
+      "floatBits": "c0747ae147ae147b",
+      "sourceFloatBits": "c0747ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "32768",
+            "display": "327.68"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "32768",
+            "display": "327.68"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.68",
+      "b": "0.01",
+      "sourceA": "-32768",
+      "sourceB": "1",
+      "floatBits": "c0747ae147ae147b",
+      "sourceFloatBits": "c0747ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32767"
+          },
+          "source": {
+            "units": "-32767",
+            "display": "-327.67"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "32767"
+          },
+          "source": {
+            "units": "32767",
+            "display": "327.67"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-327"
+          },
+          "source": {
+            "units": "-327",
+            "display": "-3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.68",
+      "b": "327.67",
+      "sourceA": "-32768",
+      "sourceB": "32767",
+      "floatBits": "c0747ae147ae147b",
+      "sourceFloatBits": "c0747ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.01"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.01"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "10814"
+          },
+          "source": {
+            "units": "10814",
+            "display": "108.14"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-100"
+          },
+          "source": {
+            "units": "-100",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.67",
+      "b": "-327.68",
+      "sourceA": "-32767",
+      "sourceB": "-32768",
+      "floatBits": "c0747ab851eb851f",
+      "sourceFloatBits": "c0747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.01"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.01"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-10814"
+          },
+          "source": {
+            "units": "-10814",
+            "display": "-108.14"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "99"
+          },
+          "source": {
+            "units": "99",
+            "display": "0.99"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.67",
+      "b": "-327.67",
+      "sourceA": "-32767",
+      "sourceB": "-32767",
+      "floatBits": "c0747ab851eb851f",
+      "sourceFloatBits": "c0747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.02"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-11142"
+          },
+          "source": {
+            "units": "-11142",
+            "display": "-111.42"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "100"
+          },
+          "source": {
+            "units": "100",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.67",
+      "b": "-0.01",
+      "sourceA": "-32767",
+      "sourceB": "-1",
+      "floatBits": "c0747ab851eb851f",
+      "sourceFloatBits": "c0747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "32768",
+            "display": "327.68"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32766"
+          },
+          "source": {
+            "units": "-32766",
+            "display": "-327.66"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "327"
+          },
+          "source": {
+            "units": "327",
+            "display": "3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-100"
+          },
+          "source": {
+            "units": "-100",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.67",
+      "b": "0.0",
+      "sourceA": "-32767",
+      "sourceB": "0",
+      "floatBits": "c0747ab851eb851f",
+      "sourceFloatBits": "c0747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32767"
+          },
+          "source": {
+            "units": "-32767",
+            "display": "-327.67"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32767"
+          },
+          "source": {
+            "units": "-32767",
+            "display": "-327.67"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.67",
+      "b": "0.01",
+      "sourceA": "-32767",
+      "sourceB": "1",
+      "floatBits": "c0747ab851eb851f",
+      "sourceFloatBits": "c0747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32766"
+          },
+          "source": {
+            "units": "-32766",
+            "display": "-327.66"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "32768",
+            "display": "327.68"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-327"
+          },
+          "source": {
+            "units": "-327",
+            "display": "-3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "100"
+          },
+          "source": {
+            "units": "100",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-327.67",
+      "b": "327.67",
+      "sourceA": "-32767",
+      "sourceB": "32767",
+      "floatBits": "c0747ab851eb851f",
+      "sourceFloatBits": "c0747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.02"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "11142"
+          },
+          "source": {
+            "units": "11142",
+            "display": "111.42"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-100"
+          },
+          "source": {
+            "units": "-100",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-0.01",
+      "b": "-327.68",
+      "sourceA": "-1",
+      "sourceB": "-32768",
+      "floatBits": "bf847ae147ae147b",
+      "sourceFloatBits": "bf847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "32767"
+          },
+          "source": {
+            "units": "32767",
+            "display": "327.67"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "32767"
+          },
+          "source": {
+            "units": "32767",
+            "display": "327.67"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "327"
+          },
+          "source": {
+            "units": "327",
+            "display": "3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-0.01",
+      "b": "-327.67",
+      "sourceA": "-1",
+      "sourceB": "-32767",
+      "floatBits": "bf847ae147ae147b",
+      "sourceFloatBits": "bf847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "32768",
+            "display": "327.68"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "32766"
+          },
+          "source": {
+            "units": "32766",
+            "display": "327.66"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "327"
+          },
+          "source": {
+            "units": "327",
+            "display": "3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-0.01",
+      "b": "-0.01",
+      "sourceA": "-1",
+      "sourceB": "-1",
+      "floatBits": "bf847ae147ae147b",
+      "sourceFloatBits": "bf847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-0.02"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "100"
+          },
+          "source": {
+            "units": "100",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-0.01",
+      "b": "0.0",
+      "sourceA": "-1",
+      "sourceB": "0",
+      "floatBits": "bf847ae147ae147b",
+      "sourceFloatBits": "bf847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.01"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.01"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-0.01",
+      "b": "0.01",
+      "sourceA": "-1",
+      "sourceB": "1",
+      "floatBits": "bf847ae147ae147b",
+      "sourceFloatBits": "bf847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-0.02"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-100"
+          },
+          "source": {
+            "units": "-100",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "-0.01",
+      "b": "327.67",
+      "sourceA": "-1",
+      "sourceB": "32767",
+      "floatBits": "bf847ae147ae147b",
+      "sourceFloatBits": "bf847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "32766"
+          },
+          "source": {
+            "units": "32766",
+            "display": "327.66"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "32768",
+            "display": "327.68"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-327"
+          },
+          "source": {
+            "units": "-327",
+            "display": "-3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.0",
+      "b": "-327.68",
+      "sourceA": "0",
+      "sourceB": "-32768",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "32768",
+            "display": "327.68"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "-32768",
+            "display": "-327.68"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.0",
+      "b": "-327.67",
+      "sourceA": "0",
+      "sourceB": "-32767",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32767"
+          },
+          "source": {
+            "units": "-32767",
+            "display": "-327.67"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "32767"
+          },
+          "source": {
+            "units": "32767",
+            "display": "327.67"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.0",
+      "b": "-0.01",
+      "sourceA": "0",
+      "sourceB": "-1",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.01"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.01"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.0",
+      "b": "0.0",
+      "sourceA": "0",
+      "sourceB": "0",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.0",
+      "b": "0.01",
+      "sourceA": "0",
+      "sourceB": "1",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.01"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.01"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.0",
+      "b": "327.67",
+      "sourceA": "0",
+      "sourceB": "32767",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "32767"
+          },
+          "source": {
+            "units": "32767",
+            "display": "327.67"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32767"
+          },
+          "source": {
+            "units": "-32767",
+            "display": "-327.67"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.01",
+      "b": "-327.68",
+      "sourceA": "1",
+      "sourceB": "-32768",
+      "floatBits": "3f847ae147ae147b",
+      "sourceFloatBits": "3f847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32767"
+          },
+          "source": {
+            "units": "-32767",
+            "display": "-327.67"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32767"
+          },
+          "source": {
+            "units": "-32767",
+            "display": "-327.67"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-327"
+          },
+          "source": {
+            "units": "-327",
+            "display": "-3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.01",
+      "b": "-327.67",
+      "sourceA": "1",
+      "sourceB": "-32767",
+      "floatBits": "3f847ae147ae147b",
+      "sourceFloatBits": "3f847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32766"
+          },
+          "source": {
+            "units": "-32766",
+            "display": "-327.66"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "-32768",
+            "display": "-327.68"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-327"
+          },
+          "source": {
+            "units": "-327",
+            "display": "-3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.01",
+      "b": "-0.01",
+      "sourceA": "1",
+      "sourceB": "-1",
+      "floatBits": "3f847ae147ae147b",
+      "sourceFloatBits": "3f847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.02"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-100"
+          },
+          "source": {
+            "units": "-100",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.01",
+      "b": "0.0",
+      "sourceA": "1",
+      "sourceB": "0",
+      "floatBits": "3f847ae147ae147b",
+      "sourceFloatBits": "3f847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.01"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.01"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.01",
+      "b": "0.01",
+      "sourceA": "1",
+      "sourceB": "1",
+      "floatBits": "3f847ae147ae147b",
+      "sourceFloatBits": "3f847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.02"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "100"
+          },
+          "source": {
+            "units": "100",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "0.01",
+      "b": "327.67",
+      "sourceA": "1",
+      "sourceB": "32767",
+      "floatBits": "3f847ae147ae147b",
+      "sourceFloatBits": "3f847ae147ae147b",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "-32768",
+            "display": "-327.68"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32766"
+          },
+          "source": {
+            "units": "-32766",
+            "display": "-327.66"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "327"
+          },
+          "source": {
+            "units": "327",
+            "display": "3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "327.67",
+      "b": "-327.68",
+      "sourceA": "32767",
+      "sourceB": "-32768",
+      "floatBits": "40747ab851eb851f",
+      "sourceFloatBits": "40747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.01"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.01"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "10814"
+          },
+          "source": {
+            "units": "10814",
+            "display": "108.14"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-99"
+          },
+          "source": {
+            "units": "-99",
+            "display": "-0.99"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "327.67",
+      "b": "-327.67",
+      "sourceA": "32767",
+      "sourceB": "-32767",
+      "floatBits": "40747ab851eb851f",
+      "sourceFloatBits": "40747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-0.02"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "11142"
+          },
+          "source": {
+            "units": "11142",
+            "display": "111.42"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-100"
+          },
+          "source": {
+            "units": "-100",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "327.67",
+      "b": "-0.01",
+      "sourceA": "32767",
+      "sourceB": "-1",
+      "floatBits": "40747ab851eb851f",
+      "sourceFloatBits": "40747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "32766"
+          },
+          "source": {
+            "units": "32766",
+            "display": "327.66"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "-32768",
+            "display": "-327.68"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-327"
+          },
+          "source": {
+            "units": "-327",
+            "display": "-3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "100"
+          },
+          "source": {
+            "units": "100",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "327.67",
+      "b": "0.0",
+      "sourceA": "32767",
+      "sourceB": "0",
+      "floatBits": "40747ab851eb851f",
+      "sourceFloatBits": "40747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "32767"
+          },
+          "source": {
+            "units": "32767",
+            "display": "327.67"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "32767"
+          },
+          "source": {
+            "units": "32767",
+            "display": "327.67"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "327.67",
+      "b": "0.01",
+      "sourceA": "32767",
+      "sourceB": "1",
+      "floatBits": "40747ab851eb851f",
+      "sourceFloatBits": "40747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-32768"
+          },
+          "source": {
+            "units": "-32768",
+            "display": "-327.68"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "32766"
+          },
+          "source": {
+            "units": "32766",
+            "display": "327.66"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "327"
+          },
+          "source": {
+            "units": "327",
+            "display": "3.27"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-100"
+          },
+          "source": {
+            "units": "-100",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed16x2",
+      "a": "327.67",
+      "b": "327.67",
+      "sourceA": "32767",
+      "sourceB": "32767",
+      "floatBits": "40747ab851eb851f",
+      "sourceFloatBits": "40747ab851eb851f",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-0.02"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-11142"
+          },
+          "source": {
+            "units": "-11142",
+            "display": "-111.42"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "100"
+          },
+          "source": {
+            "units": "100",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105728",
+      "b": "-170141183460469231731.687303715884105728",
+      "sourceA": "-170141183460469231731687303715884105728",
+      "sourceB": "-170141183460469231731687303715884105728",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-53202515843169378253203027311879551032"
+          },
+          "source": {
+            "units": "-53202515843169378253203027311879551032",
+            "display": "-53202515843169378253.203027311879551032"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1000000000000000000"
+          },
+          "source": {
+            "units": "1000000000000000000",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105728",
+      "b": "-170141183460469231731.687303715884105727",
+      "sourceA": "-170141183460469231731687303715884105728",
+      "sourceB": "-170141183460469231731687303715884105727",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-53202515843169378423344210772348782764"
+          },
+          "source": {
+            "units": "-53202515843169378423344210772348782764",
+            "display": "-53202515843169378423.344210772348782764"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1000000000000000000"
+          },
+          "source": {
+            "units": "1000000000000000000",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105728",
+      "b": "-0.000000000000000001",
+      "sourceA": "-170141183460469231731687303715884105728",
+      "sourceB": "-1",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105727",
+            "display": "170141183460469231731.687303715884105727"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105727",
+            "display": "-170141183460469231731.687303715884105727"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "170141183460469231731"
+          },
+          "source": {
+            "units": "170141183460469231731",
+            "display": "170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105728",
+      "b": "0.0",
+      "sourceA": "-170141183460469231731687303715884105728",
+      "sourceB": "0",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105728",
+            "display": "170141183460469231731.687303715884105728"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105728",
+            "display": "170141183460469231731.687303715884105728"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105728",
+      "b": "0.000000000000000001",
+      "sourceA": "-170141183460469231731687303715884105728",
+      "sourceB": "1",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105727",
+            "display": "-170141183460469231731.687303715884105727"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105727",
+            "display": "170141183460469231731.687303715884105727"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-170141183460469231731"
+          },
+          "source": {
+            "units": "-170141183460469231731",
+            "display": "-170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105728",
+      "b": "170141183460469231731.687303715884105727",
+      "sourceA": "-170141183460469231731687303715884105728",
+      "sourceB": "170141183460469231731687303715884105727",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "53202515843169378423344210772348782764"
+          },
+          "source": {
+            "units": "53202515843169378423344210772348782764",
+            "display": "53202515843169378423.344210772348782764"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1000000000000000000"
+          },
+          "source": {
+            "units": "-1000000000000000000",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105727",
+      "b": "-170141183460469231731.687303715884105728",
+      "sourceA": "-170141183460469231731687303715884105727",
+      "sourceB": "-170141183460469231731687303715884105728",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-53202515843169378423344210772348782764"
+          },
+          "source": {
+            "units": "-53202515843169378423344210772348782764",
+            "display": "-53202515843169378423.344210772348782764"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "999999999999999999"
+          },
+          "source": {
+            "units": "999999999999999999",
+            "display": "0.999999999999999999"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105727",
+      "b": "-170141183460469231731.687303715884105727",
+      "sourceA": "-170141183460469231731687303715884105727",
+      "sourceB": "-170141183460469231731687303715884105727",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.000000000000000002"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-53202515843169378593485394232818014495"
+          },
+          "source": {
+            "units": "-53202515843169378593485394232818014495",
+            "display": "-53202515843169378593.485394232818014495"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1000000000000000000"
+          },
+          "source": {
+            "units": "1000000000000000000",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105727",
+      "b": "-0.000000000000000001",
+      "sourceA": "-170141183460469231731687303715884105727",
+      "sourceB": "-1",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105728",
+            "display": "170141183460469231731.687303715884105728"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105726"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105726",
+            "display": "-170141183460469231731.687303715884105726"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "170141183460469231731"
+          },
+          "source": {
+            "units": "170141183460469231731",
+            "display": "170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1000000000000000000"
+          },
+          "source": {
+            "units": "-1000000000000000000",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105727",
+      "b": "0.0",
+      "sourceA": "-170141183460469231731687303715884105727",
+      "sourceB": "0",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105727",
+            "display": "-170141183460469231731.687303715884105727"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105727",
+            "display": "-170141183460469231731.687303715884105727"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105727",
+      "b": "0.000000000000000001",
+      "sourceA": "-170141183460469231731687303715884105727",
+      "sourceB": "1",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105726"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105726",
+            "display": "-170141183460469231731.687303715884105726"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105728",
+            "display": "170141183460469231731.687303715884105728"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-170141183460469231731"
+          },
+          "source": {
+            "units": "-170141183460469231731",
+            "display": "-170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1000000000000000000"
+          },
+          "source": {
+            "units": "1000000000000000000",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-170141183460469231731.687303715884105727",
+      "b": "170141183460469231731.687303715884105727",
+      "sourceA": "-170141183460469231731687303715884105727",
+      "sourceB": "170141183460469231731687303715884105727",
+      "floatBits": "c422725dd1d243ac",
+      "sourceFloatBits": "c422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.000000000000000002"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "53202515843169378593485394232818014495"
+          },
+          "source": {
+            "units": "53202515843169378593485394232818014495",
+            "display": "53202515843169378593.485394232818014495"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1000000000000000000"
+          },
+          "source": {
+            "units": "-1000000000000000000",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-0.000000000000000001",
+      "b": "-170141183460469231731.687303715884105728",
+      "sourceA": "-1",
+      "sourceB": "-170141183460469231731687303715884105728",
+      "floatBits": "bc32725dd1d243ac",
+      "sourceFloatBits": "bc32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105727",
+            "display": "170141183460469231731.687303715884105727"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105727",
+            "display": "170141183460469231731.687303715884105727"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "170141183460469231731"
+          },
+          "source": {
+            "units": "170141183460469231731",
+            "display": "170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-0.000000000000000001",
+      "b": "-170141183460469231731.687303715884105727",
+      "sourceA": "-1",
+      "sourceB": "-170141183460469231731687303715884105727",
+      "floatBits": "bc32725dd1d243ac",
+      "sourceFloatBits": "bc32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105728",
+            "display": "170141183460469231731.687303715884105728"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "170141183460469231731687303715884105726"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105726",
+            "display": "170141183460469231731.687303715884105726"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "170141183460469231731"
+          },
+          "source": {
+            "units": "170141183460469231731",
+            "display": "170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-0.000000000000000001",
+      "b": "-0.000000000000000001",
+      "sourceA": "-1",
+      "sourceB": "-1",
+      "floatBits": "bc32725dd1d243ac",
+      "sourceFloatBits": "bc32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-0.000000000000000002"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1000000000000000000"
+          },
+          "source": {
+            "units": "1000000000000000000",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-0.000000000000000001",
+      "b": "0.0",
+      "sourceA": "-1",
+      "sourceB": "0",
+      "floatBits": "bc32725dd1d243ac",
+      "sourceFloatBits": "bc32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-0.000000000000000001",
+      "b": "0.000000000000000001",
+      "sourceA": "-1",
+      "sourceB": "1",
+      "floatBits": "bc32725dd1d243ac",
+      "sourceFloatBits": "bc32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-0.000000000000000002"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1000000000000000000"
+          },
+          "source": {
+            "units": "-1000000000000000000",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "-0.000000000000000001",
+      "b": "170141183460469231731.687303715884105727",
+      "sourceA": "-1",
+      "sourceB": "170141183460469231731687303715884105727",
+      "floatBits": "bc32725dd1d243ac",
+      "sourceFloatBits": "bc32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "170141183460469231731687303715884105726"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105726",
+            "display": "170141183460469231731.687303715884105726"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105728",
+            "display": "170141183460469231731.687303715884105728"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-170141183460469231731"
+          },
+          "source": {
+            "units": "-170141183460469231731",
+            "display": "-170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.0",
+      "b": "-170141183460469231731.687303715884105728",
+      "sourceA": "0",
+      "sourceB": "-170141183460469231731687303715884105728",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105728",
+            "display": "170141183460469231731.687303715884105728"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105728",
+            "display": "-170141183460469231731.687303715884105728"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.0",
+      "b": "-170141183460469231731.687303715884105727",
+      "sourceA": "0",
+      "sourceB": "-170141183460469231731687303715884105727",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105727",
+            "display": "-170141183460469231731.687303715884105727"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105727",
+            "display": "170141183460469231731.687303715884105727"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.0",
+      "b": "-0.000000000000000001",
+      "sourceA": "0",
+      "sourceB": "-1",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.0",
+      "b": "0.0",
+      "sourceA": "0",
+      "sourceB": "0",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.0",
+      "b": "0.000000000000000001",
+      "sourceA": "0",
+      "sourceB": "1",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.0",
+      "b": "170141183460469231731.687303715884105727",
+      "sourceA": "0",
+      "sourceB": "170141183460469231731687303715884105727",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105727",
+            "display": "170141183460469231731.687303715884105727"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105727",
+            "display": "-170141183460469231731.687303715884105727"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.000000000000000001",
+      "b": "-170141183460469231731.687303715884105728",
+      "sourceA": "1",
+      "sourceB": "-170141183460469231731687303715884105728",
+      "floatBits": "3c32725dd1d243ac",
+      "sourceFloatBits": "3c32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105727",
+            "display": "-170141183460469231731.687303715884105727"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105727",
+            "display": "-170141183460469231731.687303715884105727"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-170141183460469231731"
+          },
+          "source": {
+            "units": "-170141183460469231731",
+            "display": "-170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.000000000000000001",
+      "b": "-170141183460469231731.687303715884105727",
+      "sourceA": "1",
+      "sourceB": "-170141183460469231731687303715884105727",
+      "floatBits": "3c32725dd1d243ac",
+      "sourceFloatBits": "3c32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105726"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105726",
+            "display": "-170141183460469231731.687303715884105726"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105728",
+            "display": "-170141183460469231731.687303715884105728"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-170141183460469231731"
+          },
+          "source": {
+            "units": "-170141183460469231731",
+            "display": "-170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.000000000000000001",
+      "b": "-0.000000000000000001",
+      "sourceA": "1",
+      "sourceB": "-1",
+      "floatBits": "3c32725dd1d243ac",
+      "sourceFloatBits": "3c32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.000000000000000002"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1000000000000000000"
+          },
+          "source": {
+            "units": "-1000000000000000000",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.000000000000000001",
+      "b": "0.0",
+      "sourceA": "1",
+      "sourceB": "0",
+      "floatBits": "3c32725dd1d243ac",
+      "sourceFloatBits": "3c32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.000000000000000001",
+      "b": "0.000000000000000001",
+      "sourceA": "1",
+      "sourceB": "1",
+      "floatBits": "3c32725dd1d243ac",
+      "sourceFloatBits": "3c32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.000000000000000002"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1000000000000000000"
+          },
+          "source": {
+            "units": "1000000000000000000",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "0.000000000000000001",
+      "b": "170141183460469231731.687303715884105727",
+      "sourceA": "1",
+      "sourceB": "170141183460469231731687303715884105727",
+      "floatBits": "3c32725dd1d243ac",
+      "sourceFloatBits": "3c32725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105728",
+            "display": "-170141183460469231731.687303715884105728"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105726"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105726",
+            "display": "-170141183460469231731.687303715884105726"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "170141183460469231731"
+          },
+          "source": {
+            "units": "170141183460469231731",
+            "display": "170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "170141183460469231731.687303715884105727",
+      "b": "-170141183460469231731.687303715884105728",
+      "sourceA": "170141183460469231731687303715884105727",
+      "sourceB": "-170141183460469231731687303715884105728",
+      "floatBits": "4422725dd1d243ac",
+      "sourceFloatBits": "4422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-1"
+          },
+          "source": {
+            "units": "-1",
+            "display": "-0.000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "53202515843169378423344210772348782764"
+          },
+          "source": {
+            "units": "53202515843169378423344210772348782764",
+            "display": "53202515843169378423.344210772348782764"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-999999999999999999"
+          },
+          "source": {
+            "units": "-999999999999999999",
+            "display": "-0.999999999999999999"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "170141183460469231731.687303715884105727",
+      "b": "-170141183460469231731.687303715884105727",
+      "sourceA": "170141183460469231731687303715884105727",
+      "sourceB": "-170141183460469231731687303715884105727",
+      "floatBits": "4422725dd1d243ac",
+      "sourceFloatBits": "4422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-0.000000000000000002"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "53202515843169378593485394232818014495"
+          },
+          "source": {
+            "units": "53202515843169378593485394232818014495",
+            "display": "53202515843169378593.485394232818014495"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1000000000000000000"
+          },
+          "source": {
+            "units": "-1000000000000000000",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "170141183460469231731.687303715884105727",
+      "b": "-0.000000000000000001",
+      "sourceA": "170141183460469231731687303715884105727",
+      "sourceB": "-1",
+      "floatBits": "4422725dd1d243ac",
+      "sourceFloatBits": "4422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "170141183460469231731687303715884105726"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105726",
+            "display": "170141183460469231731.687303715884105726"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105728",
+            "display": "-170141183460469231731.687303715884105728"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-170141183460469231731"
+          },
+          "source": {
+            "units": "-170141183460469231731",
+            "display": "-170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1000000000000000000"
+          },
+          "source": {
+            "units": "1000000000000000000",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "170141183460469231731.687303715884105727",
+      "b": "0.0",
+      "sourceA": "170141183460469231731687303715884105727",
+      "sourceB": "0",
+      "floatBits": "4422725dd1d243ac",
+      "sourceFloatBits": "4422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105727",
+            "display": "170141183460469231731.687303715884105727"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "170141183460469231731687303715884105727"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105727",
+            "display": "170141183460469231731.687303715884105727"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "170141183460469231731.687303715884105727",
+      "b": "0.000000000000000001",
+      "sourceA": "170141183460469231731687303715884105727",
+      "sourceB": "1",
+      "floatBits": "4422725dd1d243ac",
+      "sourceFloatBits": "4422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-170141183460469231731687303715884105728"
+          },
+          "source": {
+            "units": "-170141183460469231731687303715884105728",
+            "display": "-170141183460469231731.687303715884105728"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "170141183460469231731687303715884105726"
+          },
+          "source": {
+            "units": "170141183460469231731687303715884105726",
+            "display": "170141183460469231731.687303715884105726"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "170141183460469231731"
+          },
+          "source": {
+            "units": "170141183460469231731",
+            "display": "170.141183460469231731"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "-1000000000000000000"
+          },
+          "source": {
+            "units": "-1000000000000000000",
+            "display": "-1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "fixed128x18",
+      "a": "170141183460469231731.687303715884105727",
+      "b": "170141183460469231731.687303715884105727",
+      "sourceA": "170141183460469231731687303715884105727",
+      "sourceB": "170141183460469231731687303715884105727",
+      "floatBits": "4422725dd1d243ac",
+      "sourceFloatBits": "4422725dd1d243ac",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "-2"
+          },
+          "source": {
+            "units": "-2",
+            "display": "-0.000000000000000002"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "-53202515843169378593485394232818014495"
+          },
+          "source": {
+            "units": "-53202515843169378593485394232818014495",
+            "display": "-53202515843169378593.485394232818014495"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1000000000000000000"
+          },
+          "source": {
+            "units": "1000000000000000000",
+            "display": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.0",
+      "b": "0.0",
+      "sourceA": "0",
+      "sourceB": "0",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.0",
+      "b": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "sourceA": "0",
+      "sourceB": "1",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.0",
+      "b": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002",
+      "sourceA": "0",
+      "sourceB": "2",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.0",
+      "b": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "sourceA": "0",
+      "sourceB": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.0",
+      "b": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "sourceA": "0",
+      "sourceB": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "floatBits": "0000000000000000",
+      "sourceFloatBits": "0000000000000000",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "b": "0.0",
+      "sourceA": "1",
+      "sourceB": "0",
+      "floatBits": "2f52f8ac174d6123",
+      "sourceFloatBits": "2f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "b": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "sourceA": "1",
+      "sourceB": "1",
+      "floatBits": "2f52f8ac174d6123",
+      "sourceFloatBits": "2f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120735232"
+          },
+          "source": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120735232",
+            "display": "0.00071426988196123349458239937502335522628003233552193233948105001170969120735232"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "b": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002",
+      "sourceA": "1",
+      "sourceB": "2",
+      "floatBits": "2f52f8ac174d6123",
+      "sourceFloatBits": "2f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "3"
+          },
+          "source": {
+            "units": "3",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000003"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "93609538716719772440905461255511715240636609108916898993781292589441125187584"
+          },
+          "source": {
+            "units": "93609538716719772440905461255511715240636609108916898993781292589441125187584",
+            "display": "0.00093609538716719772440905461255511715240636609108916898993781292589441125187584"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "b": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "sourceA": "1",
+      "sourceB": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "floatBits": "2f52f8ac174d6123",
+      "sourceFloatBits": "2f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "3"
+          },
+          "source": {
+            "units": "3",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000003"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "863"
+          },
+          "source": {
+            "units": "863",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000863"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "b": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "sourceA": "1",
+      "sourceB": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "floatBits": "2f52f8ac174d6123",
+      "sourceFloatBits": "2f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "863"
+          },
+          "source": {
+            "units": "863",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000863"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002",
+      "b": "0.0",
+      "sourceA": "2",
+      "sourceB": "0",
+      "floatBits": "2f62f8ac174d6123",
+      "sourceFloatBits": "2f62f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "2"
+          },
+          "source": {
+            "units": "2",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002",
+      "b": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "sourceA": "2",
+      "sourceB": "1",
+      "floatBits": "2f62f8ac174d6123",
+      "sourceFloatBits": "2f62f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "3"
+          },
+          "source": {
+            "units": "3",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000003"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "27061887154930503492908889995983137402736482438745903856752418334025111830528"
+          },
+          "source": {
+            "units": "27061887154930503492908889995983137402736482438745903856752418334025111830528",
+            "display": "0.00027061887154930503492908889995983137402736482438745903856752418334025111830528"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002",
+      "b": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002",
+      "sourceA": "2",
+      "sourceB": "2",
+      "floatBits": "2f62f8ac174d6123",
+      "sourceFloatBits": "2f62f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "4"
+          },
+          "source": {
+            "units": "4",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000004"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120735232"
+          },
+          "source": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120735232",
+            "display": "0.00071426988196123349458239937502335522628003233552193233948105001170969120735232"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002",
+      "b": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "sourceA": "2",
+      "sourceB": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "floatBits": "2f62f8ac174d6123",
+      "sourceFloatBits": "2f62f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "4"
+          },
+          "source": {
+            "units": "4",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000004"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1727"
+          },
+          "source": {
+            "units": "1727",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000001727"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002",
+      "b": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "sourceA": "2",
+      "sourceB": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "floatBits": "2f62f8ac174d6123",
+      "sourceFloatBits": "2f62f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "3"
+          },
+          "source": {
+            "units": "3",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000003"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "1727"
+          },
+          "source": {
+            "units": "1727",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000001727"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "b": "0.0",
+      "sourceA": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "sourceB": "0",
+      "floatBits": "3f52f8ac174d6123",
+      "sourceFloatBits": "3f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "b": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "sourceA": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "sourceB": "1",
+      "floatBits": "3f52f8ac174d6123",
+      "sourceFloatBits": "3f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639933"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639933",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639933"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "88730202082385691930662095012704770450533502226894660182705165673888017809408"
+          },
+          "source": {
+            "units": "88730202082385691930662095012704770450533502226894660182705165673888017809408",
+            "display": "0.00088730202082385691930662095012704770450533502226894660182705165673888017809408"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "b": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002",
+      "sourceA": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "sourceB": "2",
+      "floatBits": "3f52f8ac174d6123",
+      "sourceFloatBits": "3f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639932"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639932",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639932"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "44365101041192845965331047506352385225266751113447330091352582836944008904704"
+          },
+          "source": {
+            "units": "44365101041192845965331047506352385225266751113447330091352582836944008904704",
+            "display": "0.00044365101041192845965331047506352385225266751113447330091352582836944008904704"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "b": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "sourceA": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "sourceB": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "floatBits": "3f52f8ac174d6123",
+      "sourceFloatBits": "3f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639932"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639932",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639932"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "134078079299425970995740249982058461274793658205923933777235614437217640300"
+          },
+          "source": {
+            "units": "134078079299425970995740249982058461274793658205923933777235614437217640300",
+            "display": "0.000001340780792994259709957402499820584612747936582059239337772356144372176403"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120735232"
+          },
+          "source": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120735232",
+            "display": "0.00071426988196123349458239937502335522628003233552193233948105001170969120735232"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "b": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "sourceA": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "sourceB": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "floatBits": "3f52f8ac174d6123",
+      "sourceFloatBits": "3f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639933"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639933",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639933"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "134078079299425970995740249982058461274793658205923933777235614437217640300"
+          },
+          "source": {
+            "units": "134078079299425970995740249982058461274793658205923933777235614437217640300",
+            "display": "0.000001340780792994259709957402499820584612747936582059239337772356144372176403"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120734368"
+          },
+          "source": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120734368",
+            "display": "0.00071426988196123349458239937502335522628003233552193233948105001170969120734368"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "b": "0.0",
+      "sourceA": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "sourceB": "0",
+      "floatBits": "3f52f8ac174d6123",
+      "sourceFloatBits": "3f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "error": true
+          },
+          "source": {
+            "error": true
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "b": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "sourceA": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "sourceB": "1",
+      "floatBits": "3f52f8ac174d6123",
+      "sourceFloatBits": "3f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "44365101041192845965331047506352385225266751113447330091352582836944008904704"
+          },
+          "source": {
+            "units": "44365101041192845965331047506352385225266751113447330091352582836944008904704",
+            "display": "0.00044365101041192845965331047506352385225266751113447330091352582836944008904704"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "b": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000002",
+      "sourceA": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "sourceB": "2",
+      "floatBits": "3f52f8ac174d6123",
+      "sourceFloatBits": "3f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639933"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639933",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639933"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "22182550520596422982665523753176192612633375556723665045676291418472004452352"
+          },
+          "source": {
+            "units": "22182550520596422982665523753176192612633375556723665045676291418472004452352",
+            "display": "0.00022182550520596422982665523753176192612633375556723665045676291418472004452352"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "b": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "sourceA": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "sourceB": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+      "floatBits": "3f52f8ac174d6123",
+      "sourceFloatBits": "3f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639933"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639933",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639933"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "1"
+          },
+          "source": {
+            "units": "1",
+            "display": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000001"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "134078079299425970995740249982058461274793658205923933777235614437217640300"
+          },
+          "source": {
+            "units": "134078079299425970995740249982058461274793658205923933777235614437217640300",
+            "display": "0.000001340780792994259709957402499820584612747936582059239337772356144372176403"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120736095"
+          },
+          "source": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120736095",
+            "display": "0.00071426988196123349458239937502335522628003233552193233948105001170969120736095"
+          }
+        }
+      }
+    },
+    {
+      "format": "ufixed256x80",
+      "a": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "b": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "sourceA": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "sourceB": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "floatBits": "3f52f8ac174d6123",
+      "sourceFloatBits": "3f52f8ac174d6123",
+      "outputs": {
+        "add": {
+          "correct": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          },
+          "source": {
+            "units": "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+            "display": "0.00115792089237316195423570985008687907853269984665640564039457584007913129639934"
+          }
+        },
+        "sub": {
+          "correct": {
+            "units": "0"
+          },
+          "source": {
+            "units": "0",
+            "display": "0.0"
+          }
+        },
+        "mul": {
+          "correct": {
+            "units": "134078079299425970995740249982058461274793658205923933777235614437217640300"
+          },
+          "source": {
+            "units": "134078079299425970995740249982058461274793658205923933777235614437217640300",
+            "display": "0.000001340780792994259709957402499820584612747936582059239337772356144372176403"
+          }
+        },
+        "div": {
+          "correct": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120735232"
+          },
+          "source": {
+            "units": "71426988196123349458239937502335522628003233552193233948105001170969120735232",
+            "display": "0.00071426988196123349458239937502335522628003233552193233948105001170969120735232"
+          }
+        }
+      }
+    }
+  ]
+}

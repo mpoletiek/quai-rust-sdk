@@ -1,0 +1,20 @@
+{
+  "recordedAt": "2026-09-14T03:23:09.082329+00:00",
+  "url": "https://registry.npmjs.org/quais/latest",
+  "version": "1.0.0-alpha.57",
+  "dist": {
+    "shasum": "32fa3b6c043d4fdceba5a25d4f09b0299bb8d01f",
+    "tarball": "https://registry.npmjs.org/quais/-/quais-1.0.0-alpha.57.tgz",
+    "fileCount": 1431,
+    "integrity": "sha512-asseq9pWXSwr9+FNOsIa7e4H4b+tKSIDOVh16xjwAtzqNS9zYsYAQak/OJzMKbvehzgurqF/7GcTOQb9RrYt1Q==",
+    "signatures": [
+      {
+        "sig": "MEQCIEMqUJwmADLcUdubBhP6VluoNuaE2Bo6ZPA54YOmBYOMAiBppgpudj2XOucW2/n074sviapRLGJFpJRE0tTSJKhPjw==",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+      }
+    ],
+    "unpackedSize": 19385558
+  },
+  "gitHead": "3bd0bf5b077f4aa5fab480474e3982e50e1af506",
+  "qualification": "Dated registry observation; pinned artifact remains the comparison reference."
+}

@@ -41,8 +41,8 @@ cross-zone destination settlement.
 
 This is an unpublished alpha SDK. The repository contains compatibility vectors,
 platform CI, extracted-package consumer tests and qualified node evidence;
-funded testnet acceptance, remaining API parity and independent security/release
-qualification are tracked in the implementation status.
+the complete reference mapping, deliberate Rust differences and remaining
+funded-node/security qualification are tracked in the current parity analysis.
 
 - [Workflow guide and runnable examples](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/WALLET_WORKFLOWS.md)
 - [Implementation status and remaining work](https://github.com/mpoletiek/quai-rust-sdk/blob/main/IMPLEMENTATION_STATUS.md)

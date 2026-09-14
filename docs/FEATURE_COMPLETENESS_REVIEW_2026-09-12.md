@@ -1,5 +1,11 @@
 # Feature completeness review and implementation — 2026-09-12
 
+Historical review: its earlier implementation backlog is superseded by the
+[current parity analysis](../SDK_PARITY_ANALYSIS.md) and
+[SDK guide](../SDK_DOCUMENTATION.md). Retained qualification requirements still
+need their own evidence.
+
+
 The requested Qi discovery, mixed-origin spending, payment-code workflows,
 conversion preparation and WQI/WQUAI operations now have public implementations.
 The SDK is **not yet feature complete or release-qualified** across the entire

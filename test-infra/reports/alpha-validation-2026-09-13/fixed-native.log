@@ -1,0 +1,21 @@
+   Compiling quai-primitives v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-primitives)
+   Compiling quai-crypto v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-crypto)
+   Compiling quai-abi v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-abi)
+   Compiling quai-rpc v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-rpc)
+   Compiling quai-consensus v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-consensus)
+   Compiling quai-signer v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-signer)
+   Compiling quai-wallet v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-wallet)
+   Compiling quai-provider v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-provider)
+   Compiling quai-sdk v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-sdk)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.57s
+     Running tests/fixed_completion.rs (target/debug/deps/fixed_completion-f1d5a4b75089daeb)
+
+running 5 tests
+test format_mismatch_and_zero_division_never_wrap_into_valid_values ... ok
+test wrapping_is_explicit_and_signed_minimum_remains_in_range ... ok
+test lossy_float_conversion_matches_ieee_rounding_and_never_mutates_exact_units ... ok
+test modular_operations_match_reference_or_explicit_signed_minimum_corrections ... ok
+test all_eight_bit_pairs_match_independent_machine_integer_modular_arithmetic ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.51s
+

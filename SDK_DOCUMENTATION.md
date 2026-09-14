@@ -8,9 +8,10 @@ The companion [parity analysis](SDK_PARITY_ANALYSIS.md) identifies differences
 from the pinned published `quais@1.0.0-alpha.57` SDK.
 
 The SDK is an alpha. Implemented functionality and passing tests do not establish
-complete quais.js parity or production qualification. The repository is public
-and MIT licensed. All crates currently have `publish = false`; no crates.io
-release is available from this project.
+identical JavaScript behavior or production qualification. The reviewed reference
+capabilities and deliberate differences are documented in the comparison. The
+repository is public and MIT licensed; crates.io-only alpha metadata is prepared,
+but no registry upload has occurred.
 
 ## Contents
 
@@ -176,6 +177,83 @@ assuming continuity. Browser sockets require explicit reconnect and history
 reconciliation. Receipt waits have bounded polls/time and canonical checks;
 a receipt is an observation, not permanent finality or destination settlement.
 
+
+### Indexed transaction waits and Qi response verification
+
+`Provider::observe_transaction_confirmation` provides a portable one-shot
+confirmation check without requiring receipts. Native `Provider::wait_for_transaction`
+and browser `wait_for_transaction` add explicit deadlines/polling limits, including
+Qi transactions. They check numbered block membership, transaction index,
+refreshed fields and the sampled head; unknown or changed observations remain
+pending. `Provider::transaction_block` exposes the block association check.
+
+`Transaction::verified_qi` separately verifies supported Qi transfer, conversion
+and wrapping signatures and locally computed IDs, preserving input order. It
+complements `verified_quai`. Inclusion checks are node observations; signature
+checks do not prove input existence, maturity, spendability or finality. Neither
+operation changes custody or retries a submission. See [response parity](docs/TRANSACTION_RESPONSE_PARITY.md).
+
+
+### General resource requests
+
+`rpc::fetch::FetchClient` handles resources separately from JSON-RPC. Choose
+`NativeFetch` with the `http` feature or `browser::BrowserResourceFetch` on Wasm.
+`FetchRequest` supports validated headers, Basic authentication and byte/text/JSON
+bodies; `FetchResponse` retains error bodies and offers strict text/JSON/status
+inspection. Defaults permit one exchange and no redirects. `FetchConfig` and
+`FetchHooks` express bounded retries, explicit redirects, custom gateways and
+preflight/processing policy. `FetchCancellation` or dropping send releases active
+local work; use a fresh token after cancellation.
+
+`data_resource` decodes local data URIs. `ipfs_resource` requires a caller-selected
+gateway and does not authenticate CID content. Browser CORS, opaque redirects
+and compression negotiation have explicit limits. See [resource reference and
+parity](docs/FETCH_PARITY.md) for bounds, examples and corrected source behavior.
+Exact large JSON numbers must be strings; float round-trip support preserves
+binary floats rather than arbitrary-precision integers.
+
+
+### Network metadata
+
+`provider::Network` carries an immutable name and exact chain ID; `NetworkRegistry`
+provides bounded, atomic caller-owned aliases. `NetworkMatch` chooses name or
+chain comparison explicitly. These labels never authenticate genesis or choose a
+provider. `FeeData` is an optional exact gas-price view; live lookup still propagates
+RPC errors.
+
+
+### Block, receipt and log views
+
+Mined full and hash-only blocks support exact `BlockTransactionId` lookup and
+normalized `to_rpc_json()` export. `metadata()` exposes exact timestamp/size/entropy,
+header maps and bounded interlink, manifest, uncle, work-share and outbound ETX
+views. Outbound ETXs remain separate from transactions executed in the block.
+
+Transactions, receipts and logs export normalized node JSON while preserving
+exact quantities and top-level extensions. `Receipt::fee()` checks U256 overflow.
+With feature `abi`, `contracts::decode_receipt_logs` preserves decoded, unknown
+and malformed logs in order; `Contract::receipt_logs` restricts interpretation to
+its bound emitter. See [response API and parity details](docs/RESPONSE_PARITY.md)
+for limits, field mappings, canonicality and published lookup defects.
+
+
+### Passive accounts and portable event delivery
+
+`Provider::accounts(zone, max_accounts)` lists already exposed remote Quai accounts
+without prompting for access. It preserves order and rejects duplicate, malformed,
+wrong-ledger or oversized responses. Select a concrete account and trusted network
+scope explicitly before constructing a remote signer.
+
+`provider::event_hub::EventHub<K, E>` supplies bounded typed local `on`, `once`,
+`emit`, `poll`, listener inspection/removal, pause/resume and close operations.
+Applications explicitly feed transport notifications or canonical head updates.
+Capacity failures leave all queues unchanged; no silent eviction or automatic
+network subscription occurs. Limits count queued items, so bound payload sizes
+and share large values with `Arc`/`Rc` as appropriate. Native WebSocket `is_open`
+reports observed local session state, matching the browser socket convenience.
+See [provider lifecycle and parity](docs/PROVIDER_PARITY.md) for API usage and the
+mapping of JS initialization, callbacks, options and transport internals.
+
 ## Addresses, amounts and utilities
 
 `Address` is 20 bytes. `QuaiAddress` and `QiAddress` add ledger and known-zone
@@ -220,6 +298,30 @@ exposes both first-output and all-output zone metadata. Raw protobuf DTOs retain
 optional field presence; bounded helpers check encoding, while typed decoders
 check semantics and signatures. `access_list_from_json` accepts ordered list or
 explicit map normalization forms. See [transaction interchange and limits](docs/TRANSACTION_INTERCHANGE_PARITY.md).
+
+
+### Numeric interchange and shard metadata
+
+`primitives::numeric` provides exact signed integer parsing, unsigned byte/hex/RPC
+quantity conversions, explicitly checked JavaScript-number bridges and
+`HexFormat` validation. General signed parsing is bounded to 512 bits; transaction
+quantities use U256. `SignedUnits::INT256_MIN` and `INT256_MAX` provide the signed
+256-bit limits. `Shard::ALL`, `Shard::metadata` and `Zone::metadata` expose the
+published labels while retaining typed hierarchy and zone validation.
+
+
+See [numeric reference](docs/DECLARATION_PARITY.md).
+
+
+### Checked and wrapping fixed-point arithmetic
+
+`primitives::FixedPoint` offers `checked_add/sub/mul/div` and explicit
+`wrapping_add/sub/mul/div`. Wrapping uses the configured integer field width;
+multiplication/division truncate fractional scaled units toward zero. Format
+mismatch and division by zero remain errors. `to_f64_lossy` is an explicitly
+approximate presentation conversion; stored units remain exact. See the
+[fixed-point comparison](docs/FIXED_POINT_PARITY.md) for the corrected source
+signed-minimum behavior and exhaustive tests.
 
 ## Keys, HD derivation and signing
 
@@ -274,6 +376,63 @@ fields. Typed-data chain policy is explicit. Secrets use guarded wrappers with
 redacted diagnostics and zeroization of owned buffers. Caller copies and every
 compiler/dependency temporary cannot be guaranteed erased.
 
+
+### Public roots and standalone KDFs
+
+`wallet::ExtendedPublicKey::from_public_key_chain_code` creates a synthetic public
+derivation root. `from_components` preserves checked supplied BIP32 metadata;
+neither proves ancestry. Both support bounded public child derivation without
+private material.
+
+`keystore::derive` exposes standalone PBKDF2-HMAC-SHA256/SHA512 and scrypt with
+exact byte inputs, parameter/output-work budgets and zeroizing derived output.
+Run CPU work on a bounded native or dedicated browser worker. Optional Started/
+Completed callbacks can cancel at checkpoints; they do not provide intermediate
+progress or interrupt the underlying KDF loop. See [utility reference and parity](docs/UTILITY_PARITY.md).
+
+
+### Curve arithmetic
+
+`crypto::curve::CurveScalar` supports canonical zero-inclusive scalar parsing,
+reduction, addition, multiplication and negation with guarded output. Validated
+`PublicKey` values support multiplication, multiply-add, negation, X extraction
+and even-Y lifting. Public field helpers and multipart/tagged SHA256 are bounded;
+use `quais_tagged_sha256` for the reference's non-ASCII tag encoding and
+`tagged_sha256` for UTF-8. These helpers do not create distributed signing sessions.
+
+
+See [curve reference](docs/CURVE_AND_AGGREGATION_PARITY.md).
+
+
+### Recovered signers
+
+`crypto::recover_message_signer` recovers from exact personal-message bytes.
+`recover_typed_data_signer` accepts a validated `abi::TypedData` document and
+canonical signature. Both return an address that the caller must compare with
+its expected signer; domain/chain authorization remains explicit. `VERSION` is
+the Rust package version. See the [complete declaration mappings and numeric
+boundaries](docs/DECLARATION_PARITY.md), including source coercions intentionally
+rejected by Rust and the remaining platform/runtime differences.
+
+
+### Specialized HD wallet parity
+
+The [HD wallet review](docs/HD_WALLET_PARITY_REVIEW.md) maps Quai/Qi identity,
+address lookup, channels, current scans, key ownership and transaction workflows.
+Verified legacy wallet-JSON migration and cached address-status/gap views now
+have native and browser-worker implementations. Authenticated Rust backups and typed current observations already exist;
+these should not be confused with the reference's plaintext wallet schema or
+mutable status cache.
+
+
+### Signature metadata and shared-secret utilities
+
+The crypto layer supports EIP-2098 compact signatures, explicit legacy EIP-155
+metadata, checked chain/V conversion helpers, full SEC1 ECDH shared points and
+public-point addition. Shared secret outputs use redacted zeroizing buffers.
+See [crypto parity](docs/CRYPTO_PARITY.md) for exact format distinctions, key and
+signature validation, published constructor defects and the complete API mapping.
+
 ## Qi discovery and fixed denominations
 
 Qi outputs encode a denomination index, not an arbitrary output amount. The
@@ -311,6 +470,17 @@ A mnemonic-only gap scan can stop before old fully spent/burned ranges. Restore
 retained cursors and known addresses, and use explicit deeper ranges as needed.
 Ordinary current discovery does not require an external indexer; stronger
 historical recovery requires independently qualified observations.
+
+
+### Qi address inventory and cached usage
+
+`wallet::qi_addresses::QiAddressBook` provides exact public origin lookup, HD
+branch/account views, verified payment receive views and cached gap filters.
+`discovery::refresh_qi_address_book` refreshes all registered origins with bounded
+outpoint reads and commits only after the final network/head checks. Usage hints
+are optional and work with worker-local callbacks. Errors and cancellation preserve
+the prior cache. See [Qi address views](docs/QI_ADDRESS_VIEWS.md) for registration,
+status transitions, reorg invalidation and the separation from allocation/custody.
 
 ## Native transaction workflows
 
@@ -371,6 +541,48 @@ a block; preparation does not secure that position.
 Qit fee. `prepare_special_estimated` requires a selected compatible node fee
 profile. Exact specialized data, claims and signed bytes survive backup/restart.
 See the next section for profile and settlement boundaries.
+
+
+### Threshold aggregation
+
+`wallet::select_aggregate` applies an input denomination threshold, funds the exact
+fee from eligible outside coins and appends the separately denominated fee refund.
+Use `SweepMode::AggregateThreshold(AggregationPolicy::default())` in `quote_qi` or
+native `prepare_sweep` for fee-converged preparation. Defaults are input index 6,
+output index 14 and required UTXO-count reduction. Set `require_reduction: false`
+explicitly for non-reducing plans. Larger denominations still require the node's
+first-Qi block-position exception. See [complete mappings, bounds and examples of
+reference differences](docs/CURVE_AND_AGGREGATION_PARITY.md).
+
+
+### Unknown account nonce competitors
+
+`provider.observe_account_replacements(&signed_original, trusted_genesis, request)`
+scans an explicit bounded page for the original or a mined same-sender/nonce
+transaction, including unregistered repricing, cancellation or changed recipients.
+It verifies signatures and canonical associations without adopting candidates or
+releasing claims. Native `wait_for_account_transaction` follows bounded pages
+under an overall deadline; `quai_browser::wait_for_account_transaction` adds
+window/worker deadlines and a page/poll budget. Both use the portable
+`AccountReplacementTracker` for executor-independent composition.
+See [account nonce replacement discovery](docs/ACCOUNT_NONCE_REPLACEMENTS.md) for
+coverage, missing receipts, reorg behavior and the published-reference differences.
+
+
+### Remote account signing and external custody
+
+`rpc_signer::RpcAccountSigner` supports verified personal and typed-data signatures,
+exact remote Quai transaction signing, finite-duration account unlocking and
+wallet-mediated submission acknowledgements on native and Wasm transports.
+`RpcSignerError::dispatched` preserves the distinction between preflight failure
+and a potentially accepted request. No request is automatically retried.
+
+Native and browser prepared account transactions accept verified external bytes
+through `commit_external_signature`; the exact reviewed fields and live reservation
+must still match before persistence. Wallet-mediated sends instead return a
+`RemoteSendAcknowledgement` for independent signed-transaction observation and
+explicit comparison with the original request. See [remote signer documentation](docs/RPC_SIGNER.md)
+for construction, durable workflow, cancellation, limits and quais.js differences.
 
 ## Payment codes
 
@@ -490,6 +702,49 @@ salt/attempts and init data. Native deployment preparation couples a reserved
 nonce, payability, fees and allowed-zone/ledger search; deployment observations
 verify receipt/canonical code without treating simulation as execution.
 
+
+### Contract fallback, event delivery and code waits
+
+`Contract::prepare_fallback(data, value)` produces a `FallbackCall`;
+`simulate_fallback` returns raw bytes and `estimate_fallback` returns gas.
+`into_account_intent` carries exact calldata/value/access entries into native or
+browser durable signing. `Contract::attach` and `connect` explicitly bind another
+address/provider without I/O. ABI receive/fallback declaration order does not
+change mutability.
+
+`query_logs(range, topics, max_logs)` returns owned `ContractLog` values retaining
+decoded, unknown and malformed events, including removal/association metadata.
+The query bounds result count and aggregate decoded expansion and shares event
+declarations. Applications feed these values into their own bounded event queues.
+
+For an address with no known deployment transaction, construct `ContractCodeTarget`
+with the trusted genesis and optional runtime hash, then use native/browser
+`wait_for_contract_code` with explicit `CodeWaitConfig` deadline, interval and
+poll limit. Empty/changed views remain pending; source errors stop and dropping
+the future cancels reads. Code presence does not establish finality.
+See [contract parity and limits](docs/CONTRACT_PARITY.md) for the complete mapping.
+
+
+### ABI parameter reflection, gas hints and named results
+
+The ABI layer now exposes named input/output parameter trees, individual fragment
+formatting and exact function/constructor gas metadata. `AbiResult` supports eager
+named decoding for calls, returns, custom errors and events, with checked slices,
+name-preserving filtering and collision-safe object views. Parameter walks support
+sync and non-Send async callbacks, exact named tuples and aggregate resource
+limits. Gas hints remain metadata; contract transaction fee policy is unchanged.
+See [ABI reflection and result parity](docs/ABI_REFLECTION_PARITY.md) for API
+mappings, examples of the parameter syntax, limits and published JavaScript defects.
+
+
+### EIP-712 utility parity
+
+`TypedDataEncoder` exposes borrowed schema metadata, reusable encoders for primitive,
+array and struct roots, and shape-checked value visitors. These utilities support
+binding generation and deliberate value transformations before normal domain and
+signer validation. See [typed-data parity](docs/TYPED_DATA_PARITY.md) for the complete
+published API mapping, exact encoding rules, callback semantics and resource limits.
+
 ## Persistence, backups and recovery
 
 Native SQLite schema v5 stores scoped public ownership, nonce/outpoint claims,
@@ -577,6 +832,22 @@ Legacy keystores do not include wallet claims, allocation/channel history or a
 fully authenticated public wallet state. Prefer full-wallet AEAD recovery for
 that purpose. KDF bounds apply before expensive work; browser KDFs belong in a
 worker. See [keystore documentation](crates/quai-keystore/README.md).
+
+
+### Whole legacy wallet JSON migration
+
+`wallet::full_backup::legacy::import_quais_json` verifies the original language,
+passphrase and trusted public root, then proves every HD/imported/payment address
+and returns an authenticated-backup-ready inventory with known index floors.
+Cached chain observations are discarded. `export_quais_json` returns guarded
+plaintext for representable identities and rejects loss of custody or burned
+allocation ranges. See [legacy wallet migration](docs/LEGACY_WALLET_MIGRATION.md)
+for API usage, resource limits and safe restoration.
+
+Both pinned quais.js HD `xPub()` methods return xprv, despite their names. Rust's
+`root_public_key` always returns a public key. Neuter the reference result before
+using it as a public migration trust anchor; the Rust public-key importer rejects
+raw xprv strings.
 
 ## Browser integration
 
@@ -718,6 +989,19 @@ aggregation placement, broader reorg/fault/soak/performance tests, additional
 browser engines/extensions and independent specialist security review remain
 qualification work. No mainnet transaction was submitted during this review.
 
+
+### Reference selection review and publishing
+
+The [Qi selection review](docs/QI_SELECTION_PARITY_REVIEW.md) maps denominations,
+coin metadata, selection results and fee adjustments, including reference bugs
+that Rust corrects. [Publishing instructions](docs/PUBLISHING.md) cover package
+metadata, docs.rs targets, extracted archive checks and first-release dependency
+order. Actual upload requires separate authorization and a registry account.
+
+Use [private vulnerability reporting](https://github.com/mpoletiek/quai-rust-sdk/security/advisories/new)
+for security findings; follow the [security policy](SECURITY.md) and use public
+toy reproductions instead of credentials or funded wallet material.
+
 ## Detailed reference index
 
 These documents provide deeper contracts, binary field layouts and source-linked
@@ -740,245 +1024,3 @@ evidence. They supplement the generated native/browser signature reference.
 | Parity evidence | [analysis](SDK_PARITY_ANALYSIS.md), [machine-readable ledger](compatibility/parity.json), [reference lock](compatibility/reference-lock.json) |
 | Test provenance | [retained reports](test-infra/reports), [isolated chain](test-infra/local-chain/README.md), [CI](.github/workflows/ci.yml) |
 | Release/security | [security review](docs/SECURITY_REVIEW_2026-09-11.md), [dependency audit](docs/dependency-audit.md), [third-party notices](THIRD_PARTY_NOTICES.md) |
-
-## Unknown account nonce competitors
-
-`provider.observe_account_replacements(&signed_original, trusted_genesis, request)`
-scans an explicit bounded page for the original or a mined same-sender/nonce
-transaction, including unregistered repricing, cancellation or changed recipients.
-It verifies signatures and canonical associations without adopting candidates or
-releasing claims. Native `wait_for_account_transaction` follows bounded pages
-under an overall deadline; `quai_browser::wait_for_account_transaction` adds
-window/worker deadlines and a page/poll budget. Both use the portable
-`AccountReplacementTracker` for executor-independent composition.
-See [account nonce replacement discovery](docs/ACCOUNT_NONCE_REPLACEMENTS.md) for
-coverage, missing receipts, reorg behavior and the published-reference differences.
-
-## Reference selection review and publishing
-
-The [Qi selection review](docs/QI_SELECTION_PARITY_REVIEW.md) maps denominations,
-coin metadata, selection results and fee adjustments, including reference bugs
-that Rust corrects. [Publishing instructions](docs/PUBLISHING.md) cover package
-metadata, docs.rs targets, extracted archive checks and first-release dependency
-order. Upload remains disabled and requires separate authorization.
-
-Use [private vulnerability reporting](https://github.com/mpoletiek/quai-rust-sdk/security/advisories/new)
-for security findings; follow the [security policy](SECURITY.md) and use public
-toy reproductions instead of credentials or funded wallet material.
-
-## Specialized HD wallet parity
-
-The [HD wallet review](docs/HD_WALLET_PARITY_REVIEW.md) maps Quai/Qi identity,
-address lookup, channels, current scans, key ownership and transaction workflows.
-Verified legacy wallet-JSON migration and cached address-status/gap views now
-have native and browser-worker implementations. Authenticated Rust backups and typed current observations already exist;
-these should not be confused with the reference's plaintext wallet schema or
-mutable status cache.
-
-## Qi address inventory and cached usage
-
-`wallet::qi_addresses::QiAddressBook` provides exact public origin lookup, HD
-branch/account views, verified payment receive views and cached gap filters.
-`discovery::refresh_qi_address_book` refreshes all registered origins with bounded
-outpoint reads and commits only after the final network/head checks. Usage hints
-are optional and work with worker-local callbacks. Errors and cancellation preserve
-the prior cache. See [Qi address views](docs/QI_ADDRESS_VIEWS.md) for registration,
-status transitions, reorg invalidation and the separation from allocation/custody.
-
-## Whole legacy wallet JSON migration
-
-`wallet::full_backup::legacy::import_quais_json` verifies the original language,
-passphrase and trusted public root, then proves every HD/imported/payment address
-and returns an authenticated-backup-ready inventory with known index floors.
-Cached chain observations are discarded. `export_quais_json` returns guarded
-plaintext for representable identities and rejects loss of custody or burned
-allocation ranges. See [legacy wallet migration](docs/LEGACY_WALLET_MIGRATION.md)
-for API usage, resource limits and safe restoration.
-
-Both pinned quais.js HD `xPub()` methods return xprv, despite their names. Rust's
-`root_public_key` always returns a public key. Neuter the reference result before
-using it as a public migration trust anchor; the Rust public-key importer rejects
-raw xprv strings.
-
-## Remote account signing and external custody
-
-`rpc_signer::RpcAccountSigner` supports verified personal and typed-data signatures,
-exact remote Quai transaction signing, finite-duration account unlocking and
-wallet-mediated submission acknowledgements on native and Wasm transports.
-`RpcSignerError::dispatched` preserves the distinction between preflight failure
-and a potentially accepted request. No request is automatically retried.
-
-Native and browser prepared account transactions accept verified external bytes
-through `commit_external_signature`; the exact reviewed fields and live reservation
-must still match before persistence. Wallet-mediated sends instead return a
-`RemoteSendAcknowledgement` for independent signed-transaction observation and
-explicit comparison with the original request. See [remote signer documentation](docs/RPC_SIGNER.md)
-for construction, durable workflow, cancellation, limits and quais.js differences.
-
-## Block, receipt and log views
-
-Mined full and hash-only blocks support exact `BlockTransactionId` lookup and
-normalized `to_rpc_json()` export. `metadata()` exposes exact timestamp/size/entropy,
-header maps and bounded interlink, manifest, uncle, work-share and outbound ETX
-views. Outbound ETXs remain separate from transactions executed in the block.
-
-Transactions, receipts and logs export normalized node JSON while preserving
-exact quantities and top-level extensions. `Receipt::fee()` checks U256 overflow.
-With feature `abi`, `contracts::decode_receipt_logs` preserves decoded, unknown
-and malformed logs in order; `Contract::receipt_logs` restricts interpretation to
-its bound emitter. See [response API and parity details](docs/RESPONSE_PARITY.md)
-for limits, field mappings, canonicality and published lookup defects.
-
-## Passive accounts and portable event delivery
-
-`Provider::accounts(zone, max_accounts)` lists already exposed remote Quai accounts
-without prompting for access. It preserves order and rejects duplicate, malformed,
-wrong-ledger or oversized responses. Select a concrete account and trusted network
-scope explicitly before constructing a remote signer.
-
-`provider::event_hub::EventHub<K, E>` supplies bounded typed local `on`, `once`,
-`emit`, `poll`, listener inspection/removal, pause/resume and close operations.
-Applications explicitly feed transport notifications or canonical head updates.
-Capacity failures leave all queues unchanged; no silent eviction or automatic
-network subscription occurs. Limits count queued items, so bound payload sizes
-and share large values with `Arc`/`Rc` as appropriate. Native WebSocket `is_open`
-reports observed local session state, matching the browser socket convenience.
-See [provider lifecycle and parity](docs/PROVIDER_PARITY.md) for API usage and the
-mapping of JS initialization, callbacks, options and transport internals.
-
-
-## ABI parameter reflection, gas hints and named results
-
-The ABI layer now exposes named input/output parameter trees, individual fragment
-formatting and exact function/constructor gas metadata. `AbiResult` supports eager
-named decoding for calls, returns, custom errors and events, with checked slices,
-name-preserving filtering and collision-safe object views. Parameter walks support
-sync and non-Send async callbacks, exact named tuples and aggregate resource
-limits. Gas hints remain metadata; contract transaction fee policy is unchanged.
-See [ABI reflection and result parity](docs/ABI_REFLECTION_PARITY.md) for API
-mappings, examples of the parameter syntax, limits and published JavaScript defects.
-
-## EIP-712 utility parity
-
-`TypedDataEncoder` exposes borrowed schema metadata, reusable encoders for primitive,
-array and struct roots, and shape-checked value visitors. These utilities support
-binding generation and deliberate value transformations before normal domain and
-signer validation. See [typed-data parity](docs/TYPED_DATA_PARITY.md) for the complete
-published API mapping, exact encoding rules, callback semantics and resource limits.
-
-## Signature metadata and shared-secret utilities
-
-The crypto layer supports EIP-2098 compact signatures, explicit legacy EIP-155
-metadata, checked chain/V conversion helpers, full SEC1 ECDH shared points and
-public-point addition. Shared secret outputs use redacted zeroizing buffers.
-See [crypto parity](docs/CRYPTO_PARITY.md) for exact format distinctions, key and
-signature validation, published constructor defects and the complete API mapping.
-
-
-## Indexed transaction waits and Qi response verification
-
-`Provider::observe_transaction_confirmation` provides a portable one-shot
-confirmation check without requiring receipts. Native `Provider::wait_for_transaction`
-and browser `wait_for_transaction` add explicit deadlines/polling limits, including
-Qi transactions. They check numbered block membership, transaction index,
-refreshed fields and the sampled head; unknown or changed observations remain
-pending. `Provider::transaction_block` exposes the block association check.
-
-`Transaction::verified_qi` separately verifies supported Qi transfer, conversion
-and wrapping signatures and locally computed IDs, preserving input order. It
-complements `verified_quai`. Inclusion checks are node observations; signature
-checks do not prove input existence, maturity, spendability or finality. Neither
-operation changes custody or retries a submission. See [response parity](docs/TRANSACTION_RESPONSE_PARITY.md).
-
-### Contract fallback, event delivery and code waits
-
-`Contract::prepare_fallback(data, value)` produces a `FallbackCall`;
-`simulate_fallback` returns raw bytes and `estimate_fallback` returns gas.
-`into_account_intent` carries exact calldata/value/access entries into native or
-browser durable signing. `Contract::attach` and `connect` explicitly bind another
-address/provider without I/O. ABI receive/fallback declaration order does not
-change mutability.
-
-`query_logs(range, topics, max_logs)` returns owned `ContractLog` values retaining
-decoded, unknown and malformed events, including removal/association metadata.
-The query bounds result count and aggregate decoded expansion and shares event
-declarations. Applications feed these values into their own bounded event queues.
-
-For an address with no known deployment transaction, construct `ContractCodeTarget`
-with the trusted genesis and optional runtime hash, then use native/browser
-`wait_for_contract_code` with explicit `CodeWaitConfig` deadline, interval and
-poll limit. Empty/changed views remain pending; source errors stop and dropping
-the future cancels reads. Code presence does not establish finality.
-See [contract parity and limits](docs/CONTRACT_PARITY.md) for the complete mapping.
-
-### General resource requests
-
-`rpc::fetch::FetchClient` handles resources separately from JSON-RPC. Choose
-`NativeFetch` with the `http` feature or `browser::BrowserResourceFetch` on Wasm.
-`FetchRequest` supports validated headers, Basic authentication and byte/text/JSON
-bodies; `FetchResponse` retains error bodies and offers strict text/JSON/status
-inspection. Defaults permit one exchange and no redirects. `FetchConfig` and
-`FetchHooks` express bounded retries, explicit redirects, custom gateways and
-preflight/processing policy. `FetchCancellation` or dropping send releases active
-local work; use a fresh token after cancellation.
-
-`data_resource` decodes local data URIs. `ipfs_resource` requires a caller-selected
-gateway and does not authenticate CID content. Browser CORS, opaque redirects
-and compression negotiation have explicit limits. See [resource reference and
-parity](docs/FETCH_PARITY.md) for bounds, examples and corrected source behavior.
-Exact large JSON numbers must be strings; float round-trip support preserves
-binary floats rather than arbitrary-precision integers.
-
-### Network metadata, public roots and standalone KDFs
-
-`provider::Network` carries an immutable name and exact chain ID; `NetworkRegistry`
-provides bounded, atomic caller-owned aliases. `NetworkMatch` chooses name or
-chain comparison explicitly. These labels never authenticate genesis or choose a
-provider. `FeeData` is an optional exact gas-price view; live lookup still propagates
-RPC errors.
-
-`wallet::ExtendedPublicKey::from_public_key_chain_code` creates a synthetic public
-derivation root. `from_components` preserves checked supplied BIP32 metadata;
-neither proves ancestry. Both support bounded public child derivation without
-private material.
-
-`keystore::derive` exposes standalone PBKDF2-HMAC-SHA256/SHA512 and scrypt with
-exact byte inputs, parameter/output-work budgets and zeroizing derived output.
-Run CPU work on a bounded native or dedicated browser worker. Optional Started/
-Completed callbacks can cancel at checkpoints; they do not provide intermediate
-progress or interrupt the underlying KDF loop. See [utility reference and parity](docs/UTILITY_PARITY.md).
-
-### Curve arithmetic and threshold aggregation
-
-`crypto::curve::CurveScalar` supports canonical zero-inclusive scalar parsing,
-reduction, addition, multiplication and negation with guarded output. Validated
-`PublicKey` values support multiplication, multiply-add, negation, X extraction
-and even-Y lifting. Public field helpers and multipart/tagged SHA256 are bounded;
-use `quais_tagged_sha256` for the reference's non-ASCII tag encoding and
-`tagged_sha256` for UTF-8. These helpers do not create distributed signing sessions.
-
-`wallet::select_aggregate` applies an input denomination threshold, funds the exact
-fee from eligible outside coins and appends the separately denominated fee refund.
-Use `SweepMode::AggregateThreshold(AggregationPolicy::default())` in `quote_qi` or
-native `prepare_sweep` for fee-converged preparation. Defaults are input index 6,
-output index 14 and required UTXO-count reduction. Set `require_reduction: false`
-explicitly for non-reducing plans. Larger denominations still require the node's
-first-Qi block-position exception. See [complete mappings, bounds and examples of
-reference differences](docs/CURVE_AND_AGGREGATION_PARITY.md).
-
-### Numeric interchange, shard metadata and recovered signers
-
-`primitives::numeric` provides exact signed integer parsing, unsigned byte/hex/RPC
-quantity conversions, explicitly checked JavaScript-number bridges and
-`HexFormat` validation. General signed parsing is bounded to 512 bits; transaction
-quantities use U256. `SignedUnits::INT256_MIN` and `INT256_MAX` provide the signed
-256-bit limits. `Shard::ALL`, `Shard::metadata` and `Zone::metadata` expose the
-published labels while retaining typed hierarchy and zone validation.
-
-`crypto::recover_message_signer` recovers from exact personal-message bytes.
-`recover_typed_data_signer` accepts a validated `abi::TypedData` document and
-canonical signature. Both return an address that the caller must compare with
-its expected signer; domain/chain authorization remains explicit. `VERSION` is
-the Rust package version. See the [complete declaration mappings and numeric
-boundaries](docs/DECLARATION_PARITY.md), including source coercions intentionally
-rejected by Rust and the remaining platform/runtime differences.

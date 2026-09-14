@@ -5,9 +5,10 @@ account ledger and Qi UTXO ledger. It includes native HTTP/WebSocket providers,
 local signing, HD wallets, durable wallet operations, contracts, payment codes,
 and browser adapters.
 
-**Development status:** `0.1.0-alpha.1`, with breaking changes expected. This
-project is not feature complete or production-qualified for real-fund custody.
-The repository is MIT licensed; crates.io publication remains disabled.
+**Release candidate:** `0.1.0-alpha.1`, with breaking changes expected. The pinned
+quais.js declaration review is complete, with explicit Rust differences. This
+alpha is not production-qualified for real-fund custody. The public repository is
+MIT licensed; package metadata is prepared for crates.io, but no upload has occurred.
 Read the [complete SDK guide](SDK_DOCUMENTATION.md) and
 [quais.js comparison, gaps and Rust additions](SDK_PARITY_ANALYSIS.md).
 See [implementation status](IMPLEMENTATION_STATUS.md),
@@ -178,11 +179,11 @@ verified transfers, deployments, multi-input Qi, replacement and conversion beha
 on explicitly patched development profiles. The [high-level Qi run](test-infra/local-chain/HIGHLEVEL.md)
 also verified fee convergence, persisted signatures, process restart and exact outputs.
 
-**Open node blocker:** the pinned disposable node crashes on pending-state account
-gas/balance RPCs. Account preparation safely stops before reservations or signing;
-high-level account/deployment live qualification remains open. Patched-node evidence
-does not qualify unmodified networks or funded Orchard transactions. Mainnet testing
-was read-only, and all owned disposable nodes were stopped after the recorded tests.
+The pinned node's pending-state account RPC failures and isolated-chain patches
+are documented in the retained reports. Current preparation has explicit
+pending/latest policy, and later isolated-chain account/deployment checks have
+their own evidence. Patched-node success does not qualify unmodified networks,
+funded Orchard transactions or mature redemption spend. Mainnet tests are read-only.
 
 Run the standard checks from the repository root:
 
@@ -212,10 +213,11 @@ alone does not establish macOS, Windows or remote CI qualification.
 
 The [build plan](QUAI_RUST_SDK_PLAN.md), [plan audit](QUAI_RUST_SDK_AUDIT.md),
 [architecture](docs/architecture.md) and [wallet gaps](docs/WALLET_GAPS.md) track scope.
-Remaining gates include production discovery and durable reorg reconciliation,
-account node compatibility, funded testnet acceptance, broader wallet key origins,
-browser persistence/extension interoperability, sustained fuzz/fault testing,
-performance baselines, external security review and release packaging.
+The [current parity analysis](SDK_PARITY_ANALYSIS.md) supersedes historical backlog
+statements. Remaining production qualification includes funded unmodified-node
+acceptance, mature redemption spend, broader engine/extension interoperability,
+sustained fault/fuzz/performance work and independent security review. See the
+[changelog](CHANGELOG.md) and [publishing guide](docs/PUBLISHING.md) for this alpha.
 
 Changes should document API behavior and limitations, include meaningful regressions
 or independent compatibility evidence, and pass the relevant checks above. Keep
@@ -229,8 +231,8 @@ secrets in a public issue. Use [private vulnerability reporting](https://github.
 First-party SDK code is licensed under the **[MIT License](LICENSE)**.
 Third-party code, reference data and tools retain their original licenses and
 attribution; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Referencing or
-building go-quai does not relicense its code under MIT. All Rust SDK crates remain
-`publish = false` until their release gates pass.
+building go-quai does not relicense its code under MIT. All Rust SDK crates restrict publication to crates.io; actual upload is separate
+from committing or pushing this repository.
 
 Contract bindings include exact fallback/receive intents, lossless bounded event
 queries, and native/browser code appearance waits. See [contract operations and

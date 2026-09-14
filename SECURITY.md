@@ -1,6 +1,6 @@
 # Development security status
 
-This workspace is not production-qualified. All crates have `publish = false`.
+This workspace is not production-qualified. The crates.io-only alpha packages are prepared but remain unpublished.
 It contains wallet keys, encrypted seed/full-wallet backups, transaction signing,
 legacy keystore import/export and account/Qi submission APIs. Public fixtures are reproducible and must never hold
 real funds. Mainnet testing in this development session is read-only.
@@ -35,7 +35,7 @@ not independently verified chain proofs. Conversion receipt success alone does n
 establish maturity or spendability. Signed claims must not be released automatically
 on missing receipts, incomplete scans, cancellation or transport errors.
 
-See [architecture](docs/architecture.md), [wallet gaps](docs/WALLET_GAPS.md),
+See [architecture](docs/architecture.md), [current parity and qualification](SDK_PARITY_ANALYSIS.md),
 [backup format](crates/quai-wallet/BACKUP_FORMAT.md),
 [full-wallet format](crates/quai-wallet/FULL_BACKUP_FORMAT.md), and
 [dependency advisory evidence](docs/dependency-audit.md). Advisory reports bind

@@ -129,7 +129,9 @@ pub enum FixedError {
     Amount(#[from] AmountError),
 }
 /// An exact decimal value with a checked integer field. Arithmetic never uses
-/// floating point or silently wraps overflow. Comparisons compare numeric value
+/// floating point or silently wraps overflow. Explicit wrapping methods opt into
+/// modular arithmetic, and to_f64_lossy is a separate presentation conversion.
+/// Comparisons compare numeric value
 /// across formats; arithmetic requires equal formats unless explicitly rescaled.
 #[derive(Clone, Copy, Debug)]
 pub struct FixedPoint {
@@ -268,7 +270,7 @@ impl FixedPoint {
             Ok(())
         }
     }
-    fn add_parts(self, negative: bool, magnitude: Wide) -> Result<Self, FixedError> {
+    fn sum_parts(self, negative: bool, magnitude: Wide) -> Result<(bool, Wide), FixedError> {
         let own = Wide::from(self.units.magnitude());
         let (sign, result) = if self.is_negative() == negative {
             (
@@ -280,7 +282,83 @@ impl FixedPoint {
         } else {
             (negative, magnitude - own)
         };
+        Ok((sign, result))
+    }
+    fn add_parts(self, negative: bool, magnitude: Wide) -> Result<Self, FixedError> {
+        let (sign, result) = self.sum_parts(negative, magnitude)?;
         Self::parts(sign, result, self.format)
+    }
+    fn wrapping_parts(
+        negative: bool,
+        magnitude: Wide,
+        format: FixedFormat,
+    ) -> Result<Self, FixedError> {
+        let modulus = Wide::from(1) << usize::from(format.width);
+        let residue = magnitude & (modulus - Wide::from(1));
+        let residue = if negative && residue != Wide::ZERO {
+            modulus - residue
+        } else {
+            residue
+        };
+        if format.signed && residue.bit(usize::from(format.width - 1)) {
+            Self::parts(true, modulus - residue, format)
+        } else {
+            Self::parts(false, residue, format)
+        }
+    }
+    /// Add equal-format values modulo 2^width, interpreting signed results in
+    /// two's complement. Overflow wraps only through this explicitly named API.
+    pub fn wrapping_add(self, other: Self) -> Result<Self, FixedError> {
+        self.same(other)?;
+        let (negative, value) =
+            self.sum_parts(other.is_negative(), Wide::from(other.units.magnitude()))?;
+        Self::wrapping_parts(negative, value, self.format)
+    }
+    /// Subtract equal-format values modulo 2^width, including signed minimums.
+    pub fn wrapping_sub(self, other: Self) -> Result<Self, FixedError> {
+        self.same(other)?;
+        let (negative, value) =
+            self.sum_parts(!other.is_negative(), Wide::from(other.units.magnitude()))?;
+        Self::wrapping_parts(negative, value, self.format)
+    }
+    /// Multiply equal-format values, truncate fractional scaled units toward zero,
+    /// then wrap modulo 2^width. Use checked_mul for explicit rounding/overflow checks.
+    pub fn wrapping_mul(self, other: Self) -> Result<Self, FixedError> {
+        self.same(other)?;
+        let value = Wide::from(self.units.magnitude())
+            .checked_mul(Wide::from(other.units.magnitude()))
+            .ok_or(FixedError::Overflow)?
+            / tens(self.format.unit.decimals());
+        Self::wrapping_parts(
+            self.is_negative() != other.is_negative(),
+            value,
+            self.format,
+        )
+    }
+    /// Divide equal-format values, truncate toward zero, then wrap modulo
+    /// 2^width. Division by zero and mismatched formats always return errors.
+    pub fn wrapping_div(self, other: Self) -> Result<Self, FixedError> {
+        self.same(other)?;
+        if other.is_zero() {
+            return Err(FixedError::DivisionByZero);
+        }
+        let value = Wide::from(self.units.magnitude())
+            .checked_mul(tens(self.format.unit.decimals()))
+            .ok_or(FixedError::Overflow)?
+            / Wide::from(other.units.magnitude());
+        Self::wrapping_parts(
+            self.is_negative() != other.is_negative(),
+            value,
+            self.format,
+        )
+    }
+    /// Explicit approximate f64 display conversion. Rounding may discard integer
+    /// or fractional precision; never use this result to authorize chain amounts.
+    /// The supported fixed formats have finite values within the f64 exponent range.
+    pub fn to_f64_lossy(self) -> f64 {
+        self.to_string()
+            .parse()
+            .expect("validated bounded decimal is a finite f64 input")
     }
     /// Add equal-format values with overflow checks.
     pub fn checked_add(self, other: Self) -> Result<Self, FixedError> {

@@ -33,3 +33,8 @@ test('deferred ABI failures are reported by path whereas Rust results eagerly va
 test('crypto backend lock blocks subsequent global registration',()=>{
  lock();assert.throws(()=>sha256.register(()=>new Uint8Array(32)));
 });
+test('named Typed tuples are an unimplemented source factory; generic tuple metadata is null',async()=>{
+ const {Typed}=await import('quais');
+ assert.throws(()=>Typed.tuple([], 'Public'),/not implemented/);
+ assert.equal(Typed.from('tuple',[]).tupleName,null);
+});

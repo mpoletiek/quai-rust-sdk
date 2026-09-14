@@ -1,0 +1,37 @@
+
+> quai-rust-sdk-reference@0.0.0 test
+> node --test scripts/*.test.mjs
+
+✔ scripts/abi-reflection.test.mjs (504.736914ms)
+✔ scripts/account-replacement.test.mjs (527.705822ms)
+✔ scripts/aggregation.test.mjs (307.730438ms)
+✔ scripts/contract-io.test.mjs (609.577883ms)
+✔ scripts/crypto-utils.test.mjs (716.081792ms)
+✔ scripts/curve.test.mjs (567.731491ms)
+✔ scripts/fetch.test.mjs (625.388838ms)
+✔ scripts/final-utilities.test.mjs (555.050573ms)
+✔ scripts/fixed-completion.test.mjs (600.747956ms)
+✔ scripts/fixtures.test.mjs (749.474038ms)
+✔ scripts/hd-wallet-workflows.test.mjs (11599.266107ms)
+✔ scripts/inventory-paths.test.mjs (207.27006ms)
+✔ scripts/provider-basics.test.mjs (761.284525ms)
+✔ scripts/provider-lifecycle.test.mjs (574.312981ms)
+✔ scripts/response-views.test.mjs (594.14701ms)
+✔ scripts/rpc-signer.test.mjs (802.929831ms)
+✔ scripts/selection-fee-regressions.test.mjs (348.308504ms)
+✔ scripts/signer-basics.test.mjs (778.936277ms)
+✔ scripts/subscriber-lifecycle.test.mjs (520.370289ms)
+✔ scripts/transaction-documents.test.mjs (780.555837ms)
+✔ scripts/transaction-responses.test.mjs (572.488038ms)
+✔ scripts/typed-data-utils.test.mjs (489.811465ms)
+✔ scripts/utility-completion.test.mjs (1139.239945ms)
+✔ scripts/wallet-regressions.test.mjs (1360.49091ms)
+✔ scripts/wordlists.test.mjs (614.436179ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11660.300005

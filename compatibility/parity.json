@@ -15458,16 +15458,20 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "primitives",
+      "rust_api": [
+        "quai_primitives::FixedPoint::wrapping_add"
+      ],
+      "feature": "primitives; native and Wasm",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/fixed_completion.rs",
+        "compatibility/scripts/fixed-completion.test.mjs",
         "crates/quai-primitives/tests/fixed.rs"
       ],
       "docs": [
-        "crates/quai-primitives/README.md"
+        "docs/FIXED_POINT_PARITY.md"
       ],
-      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
+      "deviation": "Explicit wrapping_add preserves the source modular/approximate operation within validated formats. Signed wrapping keeps the result inside the declared two-complement range, correcting the source negative-minimum normalization defect. Fractional scaled units truncate toward zero; zero division and format mismatch fail. Lossy floats are an explicit presentation-only conversion and never alter stored units."
     },
     {
       "id": ".:FixedNumber:instance:ceiling",
@@ -15586,16 +15590,20 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "primitives",
+      "rust_api": [
+        "quai_primitives::FixedPoint::wrapping_div"
+      ],
+      "feature": "primitives; native and Wasm",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/fixed_completion.rs",
+        "compatibility/scripts/fixed-completion.test.mjs",
         "crates/quai-primitives/tests/fixed.rs"
       ],
       "docs": [
-        "crates/quai-primitives/README.md"
+        "docs/FIXED_POINT_PARITY.md"
       ],
-      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
+      "deviation": "Explicit wrapping_div preserves the source modular/approximate operation within validated formats. Signed wrapping keeps the result inside the declared two-complement range, correcting the source negative-minimum normalization defect. Fractional scaled units truncate toward zero; zero division and format mismatch fail. Lossy floats are an explicit presentation-only conversion and never alter stored units."
     },
     {
       "id": ".:FixedNumber:instance:eq",
@@ -15846,16 +15854,20 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "primitives",
+      "rust_api": [
+        "quai_primitives::FixedPoint::wrapping_mul"
+      ],
+      "feature": "primitives; native and Wasm",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/fixed_completion.rs",
+        "compatibility/scripts/fixed-completion.test.mjs",
         "crates/quai-primitives/tests/fixed.rs"
       ],
       "docs": [
-        "crates/quai-primitives/README.md"
+        "docs/FIXED_POINT_PARITY.md"
       ],
-      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
+      "deviation": "Explicit wrapping_mul preserves the source modular/approximate operation within validated formats. Signed wrapping keeps the result inside the declared two-complement range, correcting the source negative-minimum normalization defect. Fractional scaled units truncate toward zero; zero division and format mismatch fail. Lossy floats are an explicit presentation-only conversion and never alter stored units."
     },
     {
       "id": ".:FixedNumber:instance:round",
@@ -15930,16 +15942,20 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "primitives",
+      "rust_api": [
+        "quai_primitives::FixedPoint::wrapping_sub"
+      ],
+      "feature": "primitives; native and Wasm",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/fixed_completion.rs",
+        "compatibility/scripts/fixed-completion.test.mjs",
         "crates/quai-primitives/tests/fixed.rs"
       ],
       "docs": [
-        "crates/quai-primitives/README.md"
+        "docs/FIXED_POINT_PARITY.md"
       ],
-      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
+      "deviation": "Explicit wrapping_sub preserves the source modular/approximate operation within validated formats. Signed wrapping keeps the result inside the declared two-complement range, correcting the source negative-minimum normalization defect. Fractional scaled units truncate toward zero; zero division and format mismatch fail. Lossy floats are an explicit presentation-only conversion and never alter stored units."
     },
     {
       "id": ".:FixedNumber:instance:toFormat",
@@ -15994,16 +16010,20 @@
         "(): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "primitives",
+      "rust_api": [
+        "quai_primitives::FixedPoint::to_f64_lossy"
+      ],
+      "feature": "primitives; native and Wasm",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/fixed_completion.rs",
+        "compatibility/scripts/fixed-completion.test.mjs",
         "crates/quai-primitives/tests/fixed.rs"
       ],
       "docs": [
-        "crates/quai-primitives/README.md"
+        "docs/FIXED_POINT_PARITY.md"
       ],
-      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
+      "deviation": "Explicit to_f64_lossy preserves the source modular/approximate operation within validated formats. Signed wrapping keeps the result inside the declared two-complement range, correcting the source negative-minimum normalization defect. Fractional scaled units truncate toward zero; zero division and format mismatch fail. Lossy floats are an explicit presentation-only conversion and never alter stored units."
     },
     {
       "id": ".:FixedNumber:instance:value",
@@ -41372,7 +41392,9 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
+      "rust_api": [
+        "quai_abi::AbiValue"
+      ],
       "feature": "abi",
       "status": "deviation",
       "test_ids": [
@@ -41564,16 +41586,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
+      "rust_api": [
+        "quai_abi::AbiParameter::name",
+        "quai_abi::AbiValue"
+      ],
       "feature": "abi",
       "status": "deviation",
       "test_ids": [
-        "crates/quai-abi/tests/typed_values.rs"
+        "compatibility/scripts/final-utilities.test.mjs",
+        "crates/quai-abi/tests/reflection.rs"
       ],
       "docs": [
-        "crates/quai-abi/README.md"
+        "docs/FIXED_POINT_PARITY.md",
+        "docs/ABI_REFLECTION_PARITY.md"
       ],
-      "deviation": "ABI values are positional; JS tuple-name metadata is not represented."
+      "deviation": "Published Typed.tuple is an unimplemented factory; generic Typed.from(tuple, value) has null tupleName metadata. Rust uses named AbiParameter tuple declarations separately from validated AbiValue content, providing explicit name metadata without JS private option state."
     },
     {
       "id": ".:Typed:instance:type",
@@ -43186,7 +43213,9 @@
         "(value: any): value is Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
+      "rust_api": [
+        "quai_abi::AbiValue"
+      ],
       "feature": "abi",
       "status": "deviation",
       "test_ids": [
@@ -56463,7 +56492,9 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
+      "rust_api": [
+        "quai_abi::AbiValue"
+      ],
       "feature": "abi",
       "status": "deviation",
       "test_ids": [
@@ -56655,16 +56686,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
+      "rust_api": [
+        "quai_abi::AbiParameter::name",
+        "quai_abi::AbiValue"
+      ],
       "feature": "abi",
       "status": "deviation",
       "test_ids": [
-        "crates/quai-abi/tests/typed_values.rs"
+        "compatibility/scripts/final-utilities.test.mjs",
+        "crates/quai-abi/tests/reflection.rs"
       ],
       "docs": [
-        "crates/quai-abi/README.md"
+        "docs/FIXED_POINT_PARITY.md",
+        "docs/ABI_REFLECTION_PARITY.md"
       ],
-      "deviation": "ABI values are positional; JS tuple-name metadata is not represented."
+      "deviation": "Published Typed.tuple is an unimplemented factory; generic Typed.from(tuple, value) has null tupleName metadata. Rust uses named AbiParameter tuple declarations separately from validated AbiValue content, providing explicit name metadata without JS private option state."
     },
     {
       "id": "./abi:Typed:instance:type",
@@ -58277,7 +58313,9 @@
         "(value: any): value is Typed"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
+      "rust_api": [
+        "quai_abi::AbiValue"
+      ],
       "feature": "abi",
       "status": "deviation",
       "test_ids": [
@@ -91881,16 +91919,20 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "primitives",
+      "rust_api": [
+        "quai_primitives::FixedPoint::wrapping_add"
+      ],
+      "feature": "primitives; native and Wasm",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/fixed_completion.rs",
+        "compatibility/scripts/fixed-completion.test.mjs",
         "crates/quai-primitives/tests/fixed.rs"
       ],
       "docs": [
-        "crates/quai-primitives/README.md"
+        "docs/FIXED_POINT_PARITY.md"
       ],
-      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
+      "deviation": "Explicit wrapping_add preserves the source modular/approximate operation within validated formats. Signed wrapping keeps the result inside the declared two-complement range, correcting the source negative-minimum normalization defect. Fractional scaled units truncate toward zero; zero division and format mismatch fail. Lossy floats are an explicit presentation-only conversion and never alter stored units."
     },
     {
       "id": "./utils:FixedNumber:instance:ceiling",
@@ -92009,16 +92051,20 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "primitives",
+      "rust_api": [
+        "quai_primitives::FixedPoint::wrapping_div"
+      ],
+      "feature": "primitives; native and Wasm",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/fixed_completion.rs",
+        "compatibility/scripts/fixed-completion.test.mjs",
         "crates/quai-primitives/tests/fixed.rs"
       ],
       "docs": [
-        "crates/quai-primitives/README.md"
+        "docs/FIXED_POINT_PARITY.md"
       ],
-      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
+      "deviation": "Explicit wrapping_div preserves the source modular/approximate operation within validated formats. Signed wrapping keeps the result inside the declared two-complement range, correcting the source negative-minimum normalization defect. Fractional scaled units truncate toward zero; zero division and format mismatch fail. Lossy floats are an explicit presentation-only conversion and never alter stored units."
     },
     {
       "id": "./utils:FixedNumber:instance:eq",
@@ -92269,16 +92315,20 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "primitives",
+      "rust_api": [
+        "quai_primitives::FixedPoint::wrapping_mul"
+      ],
+      "feature": "primitives; native and Wasm",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/fixed_completion.rs",
+        "compatibility/scripts/fixed-completion.test.mjs",
         "crates/quai-primitives/tests/fixed.rs"
       ],
       "docs": [
-        "crates/quai-primitives/README.md"
+        "docs/FIXED_POINT_PARITY.md"
       ],
-      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
+      "deviation": "Explicit wrapping_mul preserves the source modular/approximate operation within validated formats. Signed wrapping keeps the result inside the declared two-complement range, correcting the source negative-minimum normalization defect. Fractional scaled units truncate toward zero; zero division and format mismatch fail. Lossy floats are an explicit presentation-only conversion and never alter stored units."
     },
     {
       "id": "./utils:FixedNumber:instance:round",
@@ -92353,16 +92403,20 @@
         "(other: FixedNumber): FixedNumber"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "primitives",
+      "rust_api": [
+        "quai_primitives::FixedPoint::wrapping_sub"
+      ],
+      "feature": "primitives; native and Wasm",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/fixed_completion.rs",
+        "compatibility/scripts/fixed-completion.test.mjs",
         "crates/quai-primitives/tests/fixed.rs"
       ],
       "docs": [
-        "crates/quai-primitives/README.md"
+        "docs/FIXED_POINT_PARITY.md"
       ],
-      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
+      "deviation": "Explicit wrapping_sub preserves the source modular/approximate operation within validated formats. Signed wrapping keeps the result inside the declared two-complement range, correcting the source negative-minimum normalization defect. Fractional scaled units truncate toward zero; zero division and format mismatch fail. Lossy floats are an explicit presentation-only conversion and never alter stored units."
     },
     {
       "id": "./utils:FixedNumber:instance:toFormat",
@@ -92417,16 +92471,20 @@
         "(): number"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "primitives",
+      "rust_api": [
+        "quai_primitives::FixedPoint::to_f64_lossy"
+      ],
+      "feature": "primitives; native and Wasm",
       "status": "deviation",
       "test_ids": [
+        "crates/quai-sdk/tests/fixed_completion.rs",
+        "compatibility/scripts/fixed-completion.test.mjs",
         "crates/quai-primitives/tests/fixed.rs"
       ],
       "docs": [
-        "crates/quai-primitives/README.md"
+        "docs/FIXED_POINT_PARITY.md"
       ],
-      "deviation": "Validated byte-aligned 8..256-bit exact decimal fields; typed formats and signed units replace JS coercions. Unsafe wrapping arithmetic and implicit floating-point conversion are intentionally unsupported; checked integer arithmetic and exact decimal display are provided."
+      "deviation": "Explicit to_f64_lossy preserves the source modular/approximate operation within validated formats. Signed wrapping keeps the result inside the declared two-complement range, correcting the source negative-minimum normalization defect. Fractional scaled units truncate toward zero; zero division and format mismatch fail. Lossy floats are an explicit presentation-only conversion and never alter stored units."
     },
     {
       "id": "./utils:FixedNumber:instance:value",

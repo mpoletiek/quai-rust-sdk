@@ -1,0 +1,1000 @@
+   Compiling tungstenite v0.30.0
+   Compiling quai-rpc v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-rpc)
+   Compiling quai-wallet v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-wallet)
+   Compiling quai-provider v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-provider)
+   Compiling quai-browser v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-browser)
+   Compiling tokio-tungstenite v0.30.0
+   Compiling quai-keystore v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-keystore)
+   Compiling quai-sdk v0.1.0-alpha.1 (/home/mpoletiek/Devspace/quai-rust-sdk/crates/quai-sdk)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.82s
+     Running unittests src/lib.rs (target/debug/deps/quai_abi-acf3650c0f622b2f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/abi.rs (target/debug/deps/abi-e2f54fe66e732f3c)
+
+running 11 tests
+test canonical_offset_padding_utf8_and_length_rejections ... ok
+test indexed_compound_topics_follow_in_place_padding_rules ... ok
+test four_byte_selector_collisions_require_explicit_signature_selection ... ok
+test bounded_zero_size_arrays_and_expansion_attacks ... ok
+test interface_rejects_duplicate_keys_declarations_and_invalid_metadata ... ok
+test arbitrary_short_bytes_never_panic_and_success_is_canonical ... ok
+test pinned_js_rejections_and_strict_primitive_words ... ok
+test indexed_and_anonymous_event_logs_match_js ... ok
+test interface_calls_errors_returns_and_overloads_match_js ... ok
+test explicit_strict_decoding_policies_reject_js_permissive_cases ... ok
+test all_js_encodings_and_supported_decodings_match_and_roundtrip ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/artifacts.rs (target/debug/deps/artifacts-31cee7af51c5079c)
+
+running 3 tests
+test compiler_output_requires_explicit_source_and_contract_selection ... ok
+test compiler_artifacts_preserve_exact_creation_and_constructor_bytes ... ok
+test duplicate_fields_resource_bounds_and_constructor_arity_fail_closed ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/human.rs (target/debug/deps/human-1dbabe335c97a340)
+
+running 3 tests
+test metadata_export_retains_order_names_internal_types_and_overloads ... ok
+test malformed_or_unsupported_fragments_fail_as_a_whole_with_bounded_work ... ok
+test pinned_readable_fragments_format_and_roundtrip_with_exact_selectors ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/packed.rs (target/debug/deps/packed-ec0c8c2fd6ed031c)
+
+running 4 tests
+test packed_dynamic_fields_are_intentionally_ambiguous_and_reference_extensions_are_explicit ... ok
+test declared_array_integer_widths_sign_extension_and_bytes_padding_are_exact ... ok
+test packed_values_keep_global_resource_limits_and_reject_tuples_even_in_empty_arrays ... ok
+test all_pinned_packed_encodings_and_hashes_match_or_reject_documented_coercions ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/reflection.rs (target/debug/deps/reflection-99a370f6f2230a01)
+
+running 7 tests
+test result_names_are_unique_bounded_and_free_of_object_prototype_collisions ... ok
+test traversal_validates_complete_shape_then_visits_sync_and_non_send_async_leaves ... ok
+test published_parameter_formats_and_array_metadata_roundtrip ... ok
+test named_decoding_retains_call_return_error_and_indexed_event_identity ... ok
+test gas_hints_are_exact_metadata_and_never_affect_selectors_or_encoding ... ok
+test individual_fragment_formats_preserve_normalized_metadata_and_order ... ok
+test traversal_enforces_combined_output_and_input_budgets ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/typed_data.rs (target/debug/deps/typed_data-9675b999019d5782)
+
+running 8 tests
+test schema_graph_validation_and_unknown_struct_access ... ok
+test changing_domain_or_declared_field_order_changes_signing_hash ... ok
+test json_rejects_duplicates_mismatched_primary_and_domain_and_trailing_data ... ok
+test bounds_schema_depth_nodes_and_bytes_before_encoding ... ok
+test every_integer_width_rejects_both_adjacent_out_of_range_values ... ok
+test shared_rejections_and_deliberately_stricter_inputs ... ok
+test rpc_documents_roundtrip_reference_hashes_and_emit_exact_integer_strings ... ok
+test all_pinned_js_hashes_encodings_domains_and_signatures_match ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.52s
+
+     Running tests/typed_utils.rs (target/debug/deps/typed_utils-7331a125d722eeaf)
+
+running 4 tests
+test shape_errors_precede_callbacks_and_processing_failures_stop_immediately ... ok
+test visits_and_type_encoders_share_bounded_input_and_combined_output_limits ... ok
+test nested_visits_match_published_leaf_order_and_preserve_exact_named_objects ... ok
+test all_published_type_encoders_and_hashes_match_and_schema_views_stay_immutable ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/typed_values.rs (target/debug/deps/typed_values-cfb7e5747200cf6c)
+
+running 5 tests
+test defaults_preflight_text_and_encoding_budgets_and_coercions_are_rejected ... ok
+test defaults_match_solidity_types_and_metadata_remains_explicit ... ok
+test typed_values_validate_all_integer_widths_and_byte_lengths_before_encoding ... ok
+test sequence_defaults_match_pinned_reference_values_and_encoding ... ok
+test sequence_defaults_share_field_node_text_and_encoding_budgets ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/workflows.rs (target/debug/deps/workflows-31efd46c4c1029ba)
+
+running 4 tests
+test automatic_decoding_never_guesses_unknown_anonymous_or_colliding_declarations ... ok
+test pinned_calls_logs_and_builtin_and_custom_reverts_decode_canonically ... ok
+test pinned_filters_use_canonical_words_and_explicit_strict_deviations ... ok
+test filters_bound_all_alternatives_before_hashing_and_distinguish_arrays_from_or ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.56s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_browser-8941ab6651cdb14d)
+
+running 3 tests
+test socket_config_tests::socket_limits_bound_outgoing_buffers_and_notification_state ... ok
+test tests::config_and_authorization_boundaries ... ok
+test tests::bounded_encoding_and_strict_response_envelopes ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/account_wait.rs (target/debug/deps/account_wait-8911e93c250e0c16)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/browser.rs (target/debug/deps/browser-09e3d071abd1386e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/worker.rs (target/debug/deps/worker-f68de85bb96e6f3f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_consensus-95d7bdc97fb29970)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/conversions.rs (target/debug/deps/conversions-50878d6cb8a1178a)
+
+running 4 tests
+test conversion_static_rules_reject_wrong_data_scope_destinations_and_reuse ... ok
+test quai_conversion_minimum_data_and_recovered_sender_scope_are_exact ... ok
+test signed_mutations_and_wrong_order_keys_fail_without_changing_authorized_bytes ... ok
+test pinned_js_conversion_wire_hash_signature_and_intent_match_for_all_local_key_forms ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+
+     Running tests/documents.rs (target/debug/deps/documents-9a00083f6433f10e)
+
+running 5 tests
+test access_list_arrays_retain_order_and_maps_normalize_exact_bytes ... ok
+test explicit_unsigned_claims_full_u64_and_all_qi_destination_zones ... ok
+test false_identity_signature_lock_and_inexact_quantity_claims_reject ... ok
+test raw_protobuf_and_json_resource_bounds_precede_conversion ... ok
+test published_documents_roundtrip_all_supported_signed_and_unsigned_operations ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.77s
+
+     Running tests/qi_vectors.rs (target/debug/deps/qi_vectors-dd3635056c224301)
+
+running 5 tests
+test all_denomination_indices_have_exact_qit_values ... ok
+test changing_authorized_payload_invalidates_qi_signature ... ok
+test malformed_wire_duplicate_spends_and_output_reuse_are_rejected ... ok
+test nested_message_budget_precedes_protobuf_heap_allocation ... ok
+test single_input_unsigned_signed_digest_and_id_match_reference ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+     Running tests/quai_vectors.rs (target/debug/deps/quai_vectors-271f9972707a0664)
+
+running 4 tests
+test ambiguous_and_truncated_wire_data_fail_closed ... ok
+test native_nonce_covers_node_u64_range_without_js_number_narrowing ... ok
+test changing_payload_does_not_mutate_existing_signature_and_zero_chain_cannot_sign ... ok
+test signed_bytes_digests_ids_and_recovery_match_published_sdk ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/wrapping.rs (target/debug/deps/wrapping-c7c44bc8920cff11)
+
+running 1 test
+test wrapping_matches_pinned_js_for_single_ordered_reversed_and_repeated_keys ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_crypto-624188bfbd5266f0)
+
+running 3 tests
+test secret_bytes::tests::fixed_size_secret_buffers_zeroize_and_keep_drop_guards ... ok
+test entropy::tests::entropy_failure_clears_partial_output_and_oversize_never_calls_backend ... ok
+test keys::tests::official_bip340_auxiliary_randomness_signing_vectors ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/aggregate.rs (target/debug/deps/aggregate-515403536b297335)
+
+running 3 tests
+test rejects_unsupported_counts_before_backend_panics_or_allocates ... ok
+test rejects_missing_extra_wrong_and_reordered_secrets ... ok
+test ordered_duplicate_key_and_signature_vectors_match_js_and_go ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+
+     Running tests/crypto.rs (target/debug/deps/crypto-b162fe007a2e7a80)
+
+running 11 tests
+test hmac_verification_rejects_changes ... ok
+test personal_message_hash_is_byte_exact_and_uses_ethereum_prefix ... ok
+test rejects_secret_and_public_key_boundaries ... ok
+test standard_hash_and_rfc4231_hmac_vectors ... ok
+test explicit_export_is_guarded_and_key_diagnostics_remain_redacted ... ok
+test secret_diagnostics_are_redacted_and_generated_keys_work ... ok
+test guarded_ecdh_and_additive_tweaks_match_known_curve_points ... ok
+test rejects_high_s_and_recovery_corruption ... ok
+test official_bip340_verification_vectors ... ok
+test schnorr_os_randomized_signing_verifies_exact_bytes ... ok
+test pinned_quais_ecdsa_and_public_key_vectors ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.59s
+
+     Running tests/metadata.rs (target/debug/deps/metadata-3376cec2029e3c58)
+
+running 4 tests
+test compact_signatures_reject_zero_high_s_and_unrepresentable_recovery_bits ... ok
+test legacy_v_helpers_reject_invalid_values_and_exact_overflow ... ok
+test full_ecdh_and_public_addition_match_and_secret_outputs_redact ... ok
+test exact_eip2098_and_legacy_metadata_match_public_reference_vectors ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/utilities.rs (target/debug/deps/utilities-71e08d7e79c4c34e)
+
+running 2 tests
+test bounded_entropy_supports_empty_and_maximum_requests_and_leaves_oversize_untouched ... ok
+test ripemd160_and_utf8_identifier_hashes_match_pinned_reference ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_keystore-1570ee96cfebd512)
+
+running 2 tests
+test tests::normalized_password_growth_is_bounded_before_secret_reallocation ... ok
+test tests::deterministic_rust_encryption_matches_javascript_ciphertext_mac_and_uuid ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+
+     Running tests/keystore.rs (target/debug/deps/keystore-2c0faa3965eed603)
+
+running 6 tests
+test scrypt_budget_covers_downstream_parallel_feature_unification ... ok
+test resource_and_format_rejections_happen_before_kdf ... ok
+test hostile_json_aliases_depth_numeric_tokens_and_trailing_data_fail_closed ... ok
+test wrong_password_ciphertext_iv_address_and_unmaced_mnemonic_tampering_fail ... ok
+test all_pinned_js_key_kdfs_password_forms_and_mnemonic_languages_match ... ok
+test native_export_uses_fresh_entropy_fixed_scrypt_and_roundtrips has been running for over 60 seconds
+test native_export_uses_fresh_entropy_fixed_scrypt_and_roundtrips ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 62.90s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_payments-ec8263952546f006)
+
+running 2 tests
+test channel::advance_tests::external_cursor_advance_is_owner_checked_and_irreversible ... ok
+test code::tests::published_bip47_alice_bob_codes_shared_secrets_and_ten_destinations ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests/payments.rs (target/debug/deps/payments-5cb53829e90510d8)
+
+running 9 tests
+test malformed_code_components_checksum_and_index_boundaries_are_rejected ... ok
+test channel_restore_checks_owner_schema_cursors_and_duplicate_fields ... ok
+test channel_cancellation_progress_and_exhausted_cursor_survive_backup ... ok
+test payment_master_and_account_xprv_match_seed_and_reject_wrong_depth ... ok
+test search_cancellation_exhaustion_and_overflow_return_precise_continuations ... ok
+test exact_codes_notifications_and_bidirectional_keys_match_js ... ok
+test all_standard_seed_lengths_are_supported ... ok
+test explicit_reservation_updates_only_its_cursor_and_survives_restore ... ok
+test first_matching_zone_and_direction_searches_match_js ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.40s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_primitives-219a2cce6d613de5)
+
+running 1 test
+test hash::tests::exact_width_roundtrip_and_rejection ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/amounts.rs (target/debug/deps/amounts-1d6d903a3d5f7f06)
+
+running 3 tests
+test signed_decimal_units_match_reference_and_chain_amounts_reject_negatives ... ok
+test contract_predictions_preserve_exact_code_and_record_legacy_difference ... ok
+test amount_boundary_roundtrips_without_floating_point ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.17s
+
+     Running tests/differential.rs (target/debug/deps/differential-67033e86ec9a8127)
+
+running 1 test
+test address_operations_match_pinned_javascript_oracle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/encoding.rs (target/debug/deps/encoding-09ffbdee90217b64)
+
+running 2 tests
+test encodings_match_published_reference_vectors_including_zeroes_and_signed_boundaries ... ok
+test invalid_encodings_resource_bounds_and_strict_decoding_are_explicit ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/fixed.rs (target/debug/deps/fixed-f6a09d11aa422a87)
+
+running 4 tests
+test formats_rescaling_order_and_chain_units_preserve_exact_values ... ok
+test wide_intermediates_handle_full_fields_and_extreme_scales ... ok
+test mathematical_rounding_corrects_recorded_reference_defects ... ok
+test fixed_point_matches_pinned_parse_arithmetic_and_byte_vectors ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/primitives.rs (target/debug/deps/primitives-262bd28206dd56e3)
+
+running 9 tests
+test malformed_inputs_are_rejected_without_normalization ... ok
+test raw_addresses_preserve_unknown_zones_but_typed_addresses_reject_them ... ok
+test shard_identifiers_round_trip_and_levels_are_distinct ... ok
+test changing_one_checksum_letter_is_rejected ... ok
+test every_zone_byte_is_validated_exhaustively ... ok
+test pinned_quais_account_checksum_vectors ... ok
+test explicit_checksum_import_requires_exact_reference_spelling ... ok
+test deterministic_byte_patterns_round_trip_without_panics ... ok
+test ledger_classification_checks_the_entire_second_byte_range ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/text.rs (target/debug/deps/text-e74e74144a21c422)
+
+running 4 tests
+test uuid_sets_version_and_variant_without_mutating_callers_entropy ... ok
+test normalization_bytes_and_scalar_values_match_pinned_reference ... ok
+test strict_decoding_rejects_invalid_scalars_overlongs_and_truncation ... ok
+test unicode_input_and_expanded_output_limits_apply_without_implicit_normalization ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_provider-c91d969cf28fe7b0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/account_replacement.rs (target/debug/deps/account_replacement-4a6e64bd9983eb53)
+
+running 5 tests
+test portable_cursor_rechecks_prior_page_even_when_head_retreats_and_errors_do_not_advance ... ok
+test original_failed_and_missing_receipts_remain_distinct_from_missing_blocks ... ok
+test detects_unregistered_repricing_cancellation_and_changed_recipient ... ok
+test invalid_page_and_scope_reject_before_io_and_budgets_do_not_silently_truncate ... ok
+test forged_signatures_receipts_reorgs_and_competing_occupants_reject ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+
+     Running tests/basic_reference.rs (target/debug/deps/basic_reference-3798789ffa495b5b)
+
+running 1 test
+test typed_basic_reads_match_pinned_rpc_actions_and_keep_full_width_values ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/blocks.rs (target/debug/deps/blocks-55cd577aa7b706dd)
+
+running 4 tests
+test hash_only_blocks_keep_order_and_reject_duplicate_or_malformed_identities ... ok
+test request_bounds_precede_io_and_unavailable_is_not_rejection ... ok
+test wrong_hash_height_zone_and_inclusion_fail_closed ... ok
+test exact_full_block_selectors_validate_and_preserve_executed_order ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/confirmation.rs (target/debug/deps/confirmation-356cb0ac3800986c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/conversion_tracking.rs (target/debug/deps/conversion_tracking-f9956a81c53aaa1e)
+
+running 15 tests
+test locked_balance_is_latest_aggregate_with_explicit_moving_head ... ok
+test redemption_credit_tracks_lock_boundary_absence_and_reorg_without_guessing_spendability ... ok
+test reorgs_parent_discontinuity_and_origin_reorgs_are_explicit ... ok
+test duplicate_correlations_and_malformed_block_positions_are_rejected ... ok
+test scan_resource_budgets_precede_requests_and_typed_block_allocations ... ok
+test failed_origin_receipt_still_requires_signed_sender_and_destination_association ... ok
+test locked_and_failed_conversion_receipts_preserve_current_partial_qi_outputs ... ok
+test captured_block_and_final_hashes_correlate_conversion_and_refund_without_maturity_claims ... ok
+test refund_amount_is_preserved_and_genesis_pagination_anchor_supports_unavailable_history ... ok
+test conversion_qi_credit_uses_signed_refund_beneficiary_and_rejects_overcredit ... ok
+test unknown_subtypes_failed_execution_and_lossy_success_are_preserved ... ok
+test unavailable_history_and_receipts_are_not_rejection_or_success ... ok
+test cross_zone_qi_credit_keeps_original_output_identity_and_converts_denomination_index ... ok
+test mismatched_intent_origin_emission_and_receipt_associations_fail_closed ... ok
+test wrapping_and_redemption_bind_both_emission_and_execution_to_signed_intent ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+     Running tests/conversions.rs (target/debug/deps/conversions-a402a9f83b94b71b)
+
+running 2 tests
+test explicit_broadcast_preserves_all_conversion_bytes_and_ambiguity_without_retry ... ok
+test conversion_estimator_fails_explicitly_before_any_rpc_or_data_loss ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/deployment.rs (target/debug/deps/deployment-4827aea356bae803)
+
+running 3 tests
+test failed_locked_absent_and_empty_code_are_distinct ... ok
+test captured_creation_binds_exact_signed_address_and_inclusion_block_runtime ... ok
+test receipt_mismatches_reorgs_and_unavailable_state_fail_closed ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/head_tracker.rs (target/debug/deps/head_tracker-dfc969a7f61aa733)
+
+running 5 tests
+test pruned_history_deep_reorg_and_foreign_genesis_leave_cursor_unchanged ... ok
+test restored_ancestry_replays_reorg_after_restart_and_retains_exact_bounds ... ok
+test malformed_cursor_bytes_and_repeated_node_hashes_fail_without_advancing ... ok
+test paginates_missed_heads_and_replays_reorganization_in_application_order ... ok
+test cursor_maximum_ancestry_is_bounded_before_allocation_and_checks_height_overflow ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/live_reads.rs (target/debug/deps/live_reads-857dc6cf0ccbc39d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/logs.rs (target/debug/deps/logs-360d8c84125a28a2)
+
+running 5 tests
+test invalid_log_bounds_fail_without_network_calls ... ok
+test explicit_range_topic_or_and_removal_are_preserved ... ok
+test foreign_out_of_range_wrong_topic_and_duplicate_logs_fail ... ok
+test qi_protocol_logs_are_distinct_from_contract_events_and_preserve_zone_checks ... ok
+test captured_redemption_receipt_accepts_qi_beneficiary_and_checks_log_association ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/provider.rs (target/debug/deps/provider-5e1085b5fc087145)
+
+running 15 tests
+test block_number_preserves_method_and_direct_no_pathing_endpoint ... ok
+test account_amounts_retain_all_256_bits ... ok
+test account_zone_routes_chain_check_and_balance_to_same_explicit_endpoint ... ok
+test block_selectors_use_exact_node_parameters ... ok
+test empty_running_zones_is_valid_without_inventing_default_zone ... ok
+test chain_mismatch_prevents_state_query ... ok
+test missing_prime_route_prevents_discovery_request ... ok
+test running_zones_uses_prime_and_does_not_add_advertised_routes ... ok
+test invalid_chain_response_and_transport_error_stop_state_reads ... ok
+test unavailable_address_zone_never_falls_back_or_contacts_default ... ok
+test oversized_block_numbers_are_rejected_before_rpc_and_cannot_become_hashes ... ok
+test malformed_running_zones_are_rejected_as_a_whole ... ok
+test genesis_reads_root_header_on_zone_route_with_chain_preflight ... ok
+test genesis_rejects_missing_or_wrong_height_location_parent_and_hash ... ok
+test amounts_reject_non_quantity_and_overflow_results ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/qi.rs (target/debug/deps/qi-cec718751bbb3240)
+
+running 3 tests
+test fee_estimation_uses_exact_order_public_keys_outputs_and_zero_locks ... ok
+test unsupported_fee_data_chain_and_malformed_inputs_fail_before_io ... ok
+test qi_send_retains_id_on_timeout_and_never_retries ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/qi_special_fee.rs (target/debug/deps/qi_special_fee-18c49207f5f29f5a)
+
+running 3 tests
+test special_gas_bounds_and_scaling_threshold ... ok
+test specialized_fee_rounds_up_and_pins_rates_to_sampled_height ... ok
+test rejects_unsupported_profile_head_drift_inconsistent_rounding_and_overflow ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/submission.rs (target/debug/deps/submission-b1d47560acbbc3a7)
+
+running 5 tests
+test successful_submit_sends_exact_protobuf_once_and_matches_local_id ... ok
+test malformed_or_conflicting_acknowledgements_remain_ambiguous ... ok
+test signed_chain_mismatch_fails_before_any_rpc ... ok
+test node_chain_mismatch_does_not_submit ... ok
+test send_errors_retain_expected_id_and_never_retry ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/verified_transaction.rs (target/debug/deps/verified_transaction-5d657ef5f716ee96)
+
+running 2 tests
+test captured_mainnet_account_transaction_reconstructs_and_verifies_exact_identity ... ok
+test changed_rpc_fields_signature_and_oversized_metadata_cannot_be_verified ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/wallet_reads.rs (target/debug/deps/wallet_reads-3c619a0eba92e8bf)
+
+running 18 tests
+test null_lookups_preserve_unknown_instead_of_fabricated_objects ... ok
+test cross_zone_account_simulation_routes_by_sender_and_preserves_destination ... ok
+test simulations_use_actual_input_gasprice_txtype_and_block_contract ... ok
+test invalid_simulations_and_out_of_range_selectors_stop_before_io ... ok
+test pool_counts_pending_wire_and_advertised_regions_have_explicit_routes ... ok
+test access_list_creation_preserves_order_and_rejects_vm_errors_and_overflow ... ok
+test raw_call_objects_reject_ambiguous_unsupported_and_overflow_fields ... ok
+test uint64_reads_and_storage_words_reject_overflow_or_wrong_width ... ok
+test typed_conversion_quotes_preserve_units_selectors_and_missing_data ... ok
+test wrapped_qi_protocol_deposit_and_delta_queries_have_strict_identity_and_bounds ... ok
+test bytes_are_bounded_preserve_zeroes_and_do_not_leak_in_debug ... ok
+test outpoint_index_results_validate_duplicates_bounds_and_locks ... ok
+test captured_read_methods_route_and_decode_with_exact_parameters ... ok
+test pool_content_checks_sender_nonce_chain_and_pending_identity ... ok
+test lookup_hash_and_embedded_chain_are_checked ... ok
+test transaction_variants_fail_closed_and_preserve_pending_and_wide_amounts ... ok
+test receipt_rejects_ethereum_bloom_wrong_status_and_log_association ... ok
+test parse_captured_etx_and_account_receipts_from_both_node_versions ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_rpc-8724b99ffd71c07d)
+
+running 6 tests
+test quantity::tests::canonical_quantities_and_full_width ... ok
+test routing::tests::debug_omits_secrets_even_in_path ... ok
+test routing::tests::false_preserves_direct_endpoints ... ok
+test routing::tests::gateway_uses_immutable_base_and_keeps_query ... ok
+test routing::tests::explicit_ports_and_custom_ws_paths ... ok
+test routing::tests::rejects_ambiguous_invalid_and_duplicate_routes ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/fetch.rs (target/debug/deps/fetch-2e6f6f04439011cb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/http.rs (target/debug/deps/http-5f5596eb993ccccf)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/routing_differential.rs (target/debug/deps/routing_differential-e80d4494dd07d33a)
+
+running 4 tests
+test environment_false_is_boolean_false_instead_of_javascript_truthy_string ... ok
+test unavailable_shards_fail_instead_of_using_javascript_last_connection_fallback ... ok
+test each_gateway_route_uses_original_base_and_rejects_prepathed_base ... ok
+test routes_match_all_pinned_javascript_vectors ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/websocket.rs (target/debug/deps/websocket-4aa4253e03868a46)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_sdk-6e12c8874da9bead)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/account_backup.rs (target/debug/deps/account_backup-a1edc4c7d5210456)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/account_custody.rs (target/debug/deps/account_custody-17c91720aae5b95e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/account_preflight.rs (target/debug/deps/account_preflight-70e29e91f0d83a55)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/accounts.rs (target/debug/deps/accounts-4b85ac6ca688392e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/address_allocation.rs (target/debug/deps/address_allocation-0724bcd4b3f8bcfd)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/aggregation.rs (target/debug/deps/aggregation-bc97e82a6b8b3cf5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/allocation_merge.rs (target/debug/deps/allocation_merge-b1e3b33e89f88393)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/browser_discovery.rs (target/debug/deps/browser_discovery-2332d6aa90823459)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/browser_recovery.rs (target/debug/deps/browser_recovery-e71056d948e7b3d2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/contract_code.rs (target/debug/deps/contract_code-e2cfe790f3c1b598)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/contract_io.rs (target/debug/deps/contract_io-310833779523dda9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/contracts.rs (target/debug/deps/contracts-001cc07c63e98016)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/curve.rs (target/debug/deps/curve-028a444b2b11936d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/discovery.rs (target/debug/deps/discovery-16c685991242c7aa)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/events.rs (target/debug/deps/events-d5aab2736beee59f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/final_utilities.rs (target/debug/deps/final_utilities-3efce5b2b0087b21)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/fixed_completion.rs (target/debug/deps/fixed_completion-47eaac9f255a159a)
+
+running 5 tests
+test format_mismatch_and_zero_division_never_wrap_into_valid_values ... ok
+test wrapping_is_explicit_and_signed_minimum_remains_in_range ... ok
+test lossy_float_conversion_matches_ieee_rounding_and_never_mutates_exact_units ... ok
+test modular_operations_match_reference_or_explicit_signed_minimum_corrections ... ok
+test all_eight_bit_pairs_match_independent_machine_integer_modular_arithmetic ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.46s
+
+     Running tests/human_abi.rs (target/debug/deps/human_abi-550de8eff0c8a37b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/key_origins.rs (target/debug/deps/key_origins-6e6f28e4fd9d168e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/legacy_wallets.rs (target/debug/deps/legacy_wallets-2e3c5de6876608fb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/payment_allocation.rs (target/debug/deps/payment_allocation-d72190e4ec61fd13)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/portable_backups.rs (target/debug/deps/portable_backups-f5c94cc044cc90f7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/portable_capture.rs (target/debug/deps/portable_capture-4339b38401bf9cd1)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/provider_events.rs (target/debug/deps/provider_events-7c85e5e4b92842b0)
+
+running 5 tests
+test capacity_failure_is_atomic_across_listeners_and_event_can_be_explicitly_retried ... ok
+test fanout_is_ordered_keyed_and_once_listener_is_removed_after_its_first_delivery ... ok
+test invalid_limits_and_registration_capacity_fail_without_reusing_ids ... ok
+test pause_buffer_and_drop_have_explicit_distinct_delivery_semantics ... ok
+test removal_clears_queued_once_registrations_and_close_never_reopens ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/qi.rs (target/debug/deps/qi-93de41d7de84d403)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/qi_address_book.rs (target/debug/deps/qi_address_book-2a77189a659afa19)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/qi_custody.rs (target/debug/deps/qi_custody-44c43f556af243fe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/qi_preflight.rs (target/debug/deps/qi_preflight-e19a6f2b476e1665)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/receipt_confirmation.rs (target/debug/deps/receipt_confirmation-03d61dcb4ae24a51)
+
+running 3 tests
+test cancelled_observation_drops_pending_non_send_read_and_errors_do_not_retry ... ok
+test changing_candidate_receipt_or_head_never_returns_confirmation ... ok
+test portable_non_send_observer_returns_missing_pending_and_rechecked_receipts ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/replay.rs (target/debug/deps/replay-77dc5fce084cb6b7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/resources.rs (target/debug/deps/resources-9abf89d6a1da4773)
+
+running 4 tests
+test redirect_and_authentication_policy_prevents_credential_forwarding ... ok
+test data_ipfs_and_response_views_preserve_bytes_and_reject_hostile_inputs ... ok
+test published_body_and_data_fixtures_match_without_numeric_coercion ... ok
+test models_preserve_exact_bodies_and_bound_and_redact_headers ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/response_views.rs (target/debug/deps/response_views-5b034ca056be1132)
+
+running 6 tests
+test hash_block_lookup_fetches_only_member_and_rejects_wrong_inclusion ... ok
+test full_blocks_lookup_exact_hash_and_preserve_metadata_and_outbound_separation ... ok
+test metadata_bounds_and_malformed_outbound_items_are_explicit ... ok
+test receipt_export_preserves_all_outcomes_and_rejects_mutated_associations ... ok
+test all_retained_transaction_and_receipt_variants_round_trip_with_exact_quantities ... ok
+test invalid_mutated_qi_and_quai_fields_cannot_export_as_valid_node_dtos ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+
+     Running tests/rpc_signer.rs (target/debug/deps/rpc_signer-7fb9d93573575177)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/transaction_confirmation.rs (target/debug/deps/transaction_confirmation-2cd9c58dcda42417)
+
+running 4 tests
+test dropping_portable_observation_releases_read_and_error_stops_immediately ... ok
+test portable_transaction_wait_observes_qi_without_receipt_queries ... ok
+test wrong_block_position_changed_payload_inclusion_and_head_never_confirm ... ok
+test rpc_qi_verification_covers_transfer_multi_input_conversion_and_wrapping ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+     Running tests/transaction_documents.rs (target/debug/deps/transaction_documents-2a307b788603ec6e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/utility_completion.rs (target/debug/deps/utility_completion-577ad92d90ed3c11)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/wordlists.rs (target/debug/deps/wordlists-e2bc5217d3a55fc3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/wrappers.rs (target/debug/deps/wrappers-3929615429352907)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_signer-34370de61cd71d4d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/signers.rs (target/debug/deps/signers-1358b13df479d304)
+
+running 5 tests
+test watch_only_never_signs_and_retains_public_identity ... ok
+test transaction_cannot_escape_signer_network ... ok
+test personal_message_recovers_signer_without_leaking_key_in_debug ... ok
+test typed_data_requires_explicit_chain_policy_and_cannot_escape_network ... ok
+test qi_messages_match_published_wallet_and_bind_full_public_key ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+
+     Running unittests src/lib.rs (target/debug/deps/quai_wallet-ca3a8f62b440067d)
+
+running 12 tests
+test backup::tests::untrusted_sizes_and_costs_reject_before_kdf ... ok
+test backup::tests::seed_and_password_validation_and_redaction ... ok
+test mnemonic::generation_tests::native_generation_validates_and_redacts ... ok
+test backup::tests::authenticated_invalid_seed_length_is_rejected_without_slicing_panic ... ok
+test backup::tests::independent_argon2_and_libsodium_vector_matches ... ok
+test backup::tests::production_encryption_uses_fresh_salt_and_nonce ... ok
+test discovery::tests::watch_only_quai_both_branches_and_spendability_flags ... ok
+test discovery::tests::historical_ever_used_continues_across_fully_spent_addresses ... ok
+test discovery::tests::unavailable_history_inconsistent_checkpoints_and_cancellation_are_explicit ... ok
+test discovery::tests::current_only_gap_cannot_recover_fully_spent_run_but_explicit_ranges_find_later_funds ... ok
+test backup::tests::encrypted_roundtrip_preserves_short_intermediate_and_full_seeds ... ok
+test backup::tests::corruption_and_wrong_password_share_unlock_error ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 41.52s
+
+     Running tests/reference.rs (target/debug/deps/reference-11b451fc382d0393)
+
+running 11 tests
+test malformed_extended_key_metadata_and_material_are_rejected ... ok
+test invalid_mnemonics_entropy_seeds_and_paths_are_rejected_without_echo ... ok
+test all_ten_complete_wordlists_match_pinned_quais ... ok
+test secret_debug_is_redacted_and_watch_only_rejects_private_input ... ok
+test passphrase_changes_identity_and_composed_unicode_is_equivalent ... ok
+test extended_keys_and_variable_seed_lengths_match_quais ... ok
+test relative_paths_match_reference_subtrees_and_check_depth_before_deriving ... ok
+test extended_metadata_matches_quais_and_survives_import ... ok
+test search_cancels_and_resumes_without_overflow_or_silent_index_changes ... ok
+test all_languages_entropy_lengths_and_nfkd_seeds_match_quais ... ok
+test account_watch_only_and_bounded_grinding_match_quais ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.85s
+
+     Running tests/selection.rs (target/debug/deps/selection-a4da7cabff7b1254)
+
+running 7 tests
+test duplicate_snapshots_overflow_and_unbounded_shapes_fail ... ok
+test fee_convergence_uses_final_shape_and_respects_authorized_budget ... ok
+test fee_reselection_preserves_target_and_never_reports_uncovered_or_reversed_adjustments ... ok
+test lock_equality_expiry_and_reservations_are_enforced ... ok
+test output_capacity_cannot_combine_small_coins_in_ordinary_transfers ... ok
+test sweep_limits_locks_fee_and_aggregation_are_explicit ... ok
+test all_69_fixed_fee_vectors_match_reference_input_and_output_order ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/wordlists.rs (target/debug/deps/wordlists-f3e254ef9dd47e15)
+
+running 5 tests
+test entropy_export_uses_validated_indexes_for_every_language_size_and_pattern ... ok
+test phrase_conventions_match_and_unseparated_chinese_recovers_same_identity ... ok
+test malformed_dictionaries_expansions_accents_and_phrase_budgets_reject ... ok
+test all_published_dictionaries_and_compressed_overlays_preserve_exact_indexes ... ok
+test dictionary_mnemonic_entropy_seeds_and_hd_roots_match_published_identities ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.49s
+
+   Doc-tests quai_abi
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_browser
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_consensus
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_crypto
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_keystore
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_payments
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_primitives
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_provider
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_rpc
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_sdk
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_signer
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quai_wallet
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

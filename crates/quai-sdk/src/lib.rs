@@ -1,4 +1,4 @@
-//! Quai SDK under construction; wallet derivation and offline signing are available.
+//! Modular Quai/Qi alpha SDK with native and browser wallet workflows and recovery.
 /// Rust package version; independent of the pinned quais.js reference version.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 

@@ -80,9 +80,9 @@ would otherwise overflow during multiplication or rescaling.
 
 Multiplication, division and rescaling take `Rounding`: exact, toward zero,
 floor, ceiling, nearest ties to even, or nearest ties toward positive infinity.
-Overflow always fails, including rounding at a field boundary. Unsafe wrapping
-arithmetic and implicit floating-point conversion are intentionally absent;
-use exact decimal strings or integer units. `from_bytes` accepts at most 32
+Checked arithmetic rejects overflow, including rounding at a field boundary.
+Explicit wrapping methods normalize to the field width; implicit floating-point
+conversion is absent. Use exact decimal strings or integer units for amounts. `from_bytes` accepts at most 32
 bytes, ignores redundant leading zeros and interprets signed patterns at the
 full format width. `to_bytes` emits the complete field width. Guarded JavaScript
 constructors and loose numeric/format coercions become validated Rust types.
@@ -144,4 +144,9 @@ zero address/hash, maximum unsigned integer and 10^18 base-unit constants.
 The `numeric` module supplies bounded exact integer parsing, byte/hex/quantity
 conversion, safe-number bridges and hexadecimal shape validation. `ShardMetadata`
 retains all published labels; typed shards determine hierarchy. See the
-[declaration review](../../docs/DECLARATION_PARITY.md) for supported grammar and bounds.
+[declaration review](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/DECLARATION_PARITY.md) for supported grammar and bounds.
+
+Explicit `wrapping_add/sub/mul/div` normalize scaled results to the configured
+field width. `to_f64_lossy` provides approximate display conversion without
+changing stored units. See [fixed-point parity](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/FIXED_POINT_PARITY.md)
+for exact bounds, signed-minimum corrections and exhaustive arithmetic tests.

@@ -289,3 +289,12 @@ The facade's `browser_backups::merge_wallet_backup` validates owned recovery
 merges across initialized HD, account, Qi and payment books before this commit.
 See [atomic restore](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/BROWSER_ATOMIC_RESTORE.md) and the
 [SDK guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/SDK_DOCUMENTATION.md).
+
+
+`wait_for_transaction` waits for indexed Quai/Qi/ETX inclusion without requiring
+a receipt. It uses the same `BrowserWaitConfig` deadline and completed-poll
+budget as receipt waiting, checks exact block position and refreshed transaction
+fields/head, and stops active reads on drop. It does not infer finality, verify
+signatures, discover unregistered Qi competitors or release custody claims.
+Use `Transaction::verified_qi` separately when verifying RPC signature/hash
+claims. See [transaction responses](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/TRANSACTION_RESPONSE_PARITY.md).

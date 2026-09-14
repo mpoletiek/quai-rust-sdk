@@ -155,3 +155,13 @@ from a trusted signed original and an explicit bounded block range. Matching RPC
 transactions are signature/hash verified; canonical anchors and receipts are
 rechecked. Native `wait_for_account_transaction` follows bounded pages under an
 overall timeout. Results never adopt unknown candidates or release wallet claims.
+
+
+`observe_transaction_confirmation` and native `wait_for_transaction` also handle
+indexed Qi transactions without receipts. They recheck numbered block membership,
+transaction position, refreshed fields and head under explicit depth/deadline
+limits. `transaction_block` performs the inclusion/hash-position check directly.
+These observations do not verify signatures. `Transaction::verified_qi` separately
+reconstructs and verifies ordinary, conversion and wrapping signatures and IDs,
+complementing `verified_quai`. No absence/timeout releases signed custody claims.
+See [transaction responses](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/TRANSACTION_RESPONSE_PARITY.md).

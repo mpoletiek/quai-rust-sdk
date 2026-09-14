@@ -104,4 +104,9 @@ for source in ['compatibility/fixtures/transactions.json','crates/quai-consensus
  for row in load(source)['vectors']:put('transactions',json.dumps(row['input']).encode())
 address='0x0011223344556677889900112233445566778899';slot='0x'+'ab'*32
 for value in [[[address,[slot,slot]]],{address:[slot,slot]},[{'address':address,'storageKeys':[slot]}]]:put('transactions',json.dumps(value).encode())
+for source in ['compatibility/fixtures/transactions.json','crates/quai-consensus/tests/conversion-vectors.json','crates/quai-consensus/tests/wrapping-vectors.json']:
+ for row in load(source)['vectors']:
+  if row['kind']!='qi':continue
+  v=row['input'];rpc={'hash':row['hash'],'type':'0x2','blockHash':None,'blockNumber':None,'transactionIndex':None,'chainId':hex(int(v['chainId'])),'gas':'0x0','nonce':'0x0','input':v['data'] or '0x','utxoSignature':v['signature'],'inputs':[{'previousOutPoint':{'txHash':i['txhash'],'index':hex(i['index'])},'pubKey':i['pubkey']} for i in v['txInputs']],'outputs':[{'address':o['address'],'denomination':hex(o['denomination']),'lock':None} for o in v['txOutputs']]}
+  put('transactions',json.dumps(rpc).encode())
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

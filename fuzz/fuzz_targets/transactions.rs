@@ -20,6 +20,10 @@ fuzz_target!(|data: &[u8]| {
             assert_eq!(access_list_from_json(&access_list_to_json(&list).unwrap()).unwrap(), list);
         }
         if let Ok(tx) = quai_provider::Transaction::try_from(value.clone()) {
+            if let Ok(signed) = tx.verified_qi() {
+                assert_eq!(signed.hash().unwrap(), tx.hash);
+                assert_eq!(SignedQiOperation::decode(&signed.signed_bytes().unwrap()).unwrap().hash().unwrap(), tx.hash);
+            }
             let exported = tx.to_rpc_json().unwrap();
             assert_eq!(quai_provider::Transaction::try_from(exported).unwrap(), tx);
         }

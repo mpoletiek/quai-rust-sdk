@@ -484,6 +484,90 @@ impl Transaction {
         }
         Ok(signed)
     }
+
+    /// Reconstruct and verify a supported Qi transfer/conversion/wrapping from
+    /// indexed RPC fields. Checks actual public keys, ordered aggregation,
+    /// operation data, zero user-created output locks and locally computed hash.
+    /// Inclusion metadata, input existence, value and spendability are not proved.
+    pub fn verified_qi(&self) -> Result<quai_consensus::SignedQiOperation, ProviderError> {
+        use quai_consensus::{
+            Denomination, OutPoint, QiConversionTransaction, QiInput, QiOutput, QiTransaction,
+            QiWrappingTransaction, SignedQiOperation,
+        };
+        let TransactionDetails::Qi(fields) = &self.details else {
+            return Err(invalid("expected signed Qi transaction"));
+        };
+        let messages = fields
+            .inputs
+            .len()
+            .checked_mul(3)
+            .and_then(|n| n.checked_add(fields.outputs.len()))
+            .and_then(|n| n.checked_add(3));
+        if messages.is_none_or(|n| n > quai_consensus::MAX_TRANSACTION_MESSAGES)
+            || self.input.bytes().len() > quai_consensus::MAX_TRANSACTION_BYTES
+        {
+            return Err(invalid("oversized Qi transaction"));
+        }
+        let inputs = fields
+            .inputs
+            .iter()
+            .map(|i| {
+                Ok(QiInput {
+                    previous_output: OutPoint {
+                        transaction_hash: i.previous_out_point.tx_hash,
+                        index: i.previous_out_point.index,
+                    },
+                    public_key: quai_crypto::PublicKey::from_sec1_bytes(i.public_key.bytes())
+                        .map_err(|_| invalid("invalid Qi public key"))?,
+                })
+            })
+            .collect::<Result<Vec<_>, ProviderError>>()?;
+        let outputs = fields
+            .outputs
+            .iter()
+            .map(|o| {
+                if o.lock.is_some_and(|v| v != U256::ZERO) {
+                    return Err(invalid("nonzero user-created Qi output lock"));
+                }
+                Ok(QiOutput {
+                    address: o.address,
+                    denomination: Denomination::new(o.denomination)
+                        .map_err(|_| invalid("invalid denomination"))?,
+                })
+            })
+            .collect::<Result<Vec<_>, ProviderError>>()?;
+        let tx = QiTransaction {
+            chain_id: fields.chain_id,
+            inputs,
+            outputs,
+            data: self.input.bytes().to_vec(),
+        };
+        let signature = quai_crypto::SchnorrSignature::from_bytes(
+            fields
+                .signature
+                .bytes()
+                .try_into()
+                .map_err(|_| invalid("invalid Qi signature"))?,
+        )
+        .map_err(|_| invalid("invalid Qi signature"))?;
+        let signed = match tx.data.len() {
+            0 => tx
+                .attach_signature(signature)
+                .map(SignedQiOperation::Transfer),
+            20 => QiWrappingTransaction::from_transaction(tx)
+                .and_then(|tx| tx.attach_signature(signature))
+                .map(SignedQiOperation::Wrapping),
+            22 => QiConversionTransaction::from_transaction(tx)
+                .and_then(|tx| tx.attach_signature(signature))
+                .map(SignedQiOperation::Conversion),
+            _ => return Err(invalid("unsupported Qi operation data")),
+        }
+        .map_err(|_| invalid("invalid signed Qi operation"))?;
+        if signed.hash().ok() != Some(self.hash) {
+            return Err(invalid("Qi transaction identity mismatch"));
+        }
+        Ok(signed)
+    }
     /// Return the validated discriminator.
     pub fn kind(&self) -> TransactionKind {
         match self.details {

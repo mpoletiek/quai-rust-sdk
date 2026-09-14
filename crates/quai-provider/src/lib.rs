@@ -5,7 +5,9 @@ use serde_json::{Value, json};
 use thiserror::Error;
 
 mod confirmation;
+mod transaction_confirmation;
 pub use confirmation::{ConfirmedReceipt, ReceiptConfirmation};
+pub use transaction_confirmation::{ConfirmedTransaction, TransactionConfirmation};
 mod account_replacement;
 pub use account_replacement::{
     AccountNonceCandidate, AccountReplacementPoll, AccountReplacementScan,

@@ -4,7 +4,7 @@ use quai_rpc::Transport;
 use std::time::Duration;
 use thiserror::Error;
 
-/// Explicit limits for native receipt polling. No retry/submission is performed.
+/// Explicit limits for native confirmation polling. No retry/submission is performed.
 #[derive(Clone, Copy, Debug)]
 pub struct WaitConfig {
     /// Positive block confirmation count, including the receipt's own block.
@@ -15,7 +15,7 @@ pub struct WaitConfig {
     pub poll_interval: Duration,
 }
 
-/// Native receipt-wait failures never imply a transaction was rejected or cancelled.
+/// Native confirmation-wait failures never imply a transaction was rejected or cancelled.
 #[derive(Debug, Error)]
 pub enum WaitError {
     /// No RPC was made because configuration cannot produce a bounded poll loop.
@@ -30,7 +30,7 @@ pub enum WaitError {
         last_observed_inclusion: Option<Inclusion>,
     },
     /// A read failed. The caller decides whether to start a new wait.
-    #[error("receipt wait for transaction {transaction_hash} failed: {source}")]
+    #[error("transaction wait for {transaction_hash} failed: {source}")]
     Provider {
         /// Identity being watched.
         transaction_hash: Hash32,
@@ -146,6 +146,55 @@ impl<T: Transport> Provider<T> {
                     .await?
                 {
                     return Ok(receipt);
+                }
+                tokio::time::sleep(config.poll_interval).await;
+            }
+        };
+        match tokio::time::timeout(config.timeout, work).await {
+            Ok(result) => result.map_err(|source| WaitError::Provider {
+                transaction_hash,
+                source,
+            }),
+            Err(_) => Err(WaitError::Timeout {
+                transaction_hash,
+                last_observed_inclusion,
+            }),
+        }
+    }
+    /// Wait for indexed transaction inclusion, including Qi without receipts.
+    /// Canonical block position, refreshed transaction fields and head are checked
+    /// by the portable observer. Deadline includes stalled RPCs; dropping the
+    /// future cancels polling, never the transaction. Errors do not retry.
+    pub async fn wait_for_transaction(
+        &self,
+        zone: Zone,
+        transaction_hash: Hash32,
+        config: WaitConfig,
+    ) -> Result<crate::ConfirmedTransaction, WaitError> {
+        if transaction_hash == Hash32::ZERO
+            || config.confirmations == 0
+            || config.timeout.is_zero()
+            || config.poll_interval.is_zero()
+            || config.poll_interval > config.timeout
+            || tokio::time::Instant::now()
+                .checked_add(config.timeout)
+                .is_none()
+        {
+            return Err(WaitError::InvalidConfig);
+        }
+        let mut last_observed_inclusion = None;
+        let work = async {
+            loop {
+                if let Some(tx) = self
+                    .transaction_confirmation_poll(
+                        zone,
+                        transaction_hash,
+                        config.confirmations,
+                        &mut last_observed_inclusion,
+                    )
+                    .await?
+                {
+                    return Ok(tx);
                 }
                 tokio::time::sleep(config.poll_interval).await;
             }

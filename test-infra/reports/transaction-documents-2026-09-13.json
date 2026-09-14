@@ -286,5 +286,19 @@
     "No new funded transaction or unmodified-network acceptance.",
     "Bounded sanitizer smoke is not sustained security qualification.",
     "Remaining declaration audit: 825 pending and 16 partial."
-  ]
+  ],
+  "subsequentCi": {
+    "run": 34792470499,
+    "commit": "1e24a5f",
+    "jobs": {
+      "reference-and-harness": "success",
+      "browser": "success",
+      "packaged-consumer": "success",
+      "rust (ubuntu-24.04)": "success",
+      "fuzz-smoke": "success",
+      "dependency-advisories": "success",
+      "rust (windows-2025)": "success",
+      "rust (macos-15)": "success"
+    }
+  }
 }

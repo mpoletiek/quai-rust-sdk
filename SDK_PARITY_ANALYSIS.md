@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 3021 | Documented replacement, stricter behavior, correction or omission |
+| `deviation` | 3167 | Documented replacement, stricter behavior, correction or omission |
 | `partial` | 16 | A mapping exists with unfinished behavior or scope |
-| `pending` | 825 | No completed row-level reconciliation; not proof of absence |
+| `pending` | 679 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -236,10 +236,7 @@ root/subpath exports account for much of the volume.
 | --- | ---: | ---: | ---: | ---: |
 | `FetchRequest` | 64 | 0 | 0 | 0 |
 | `BaseContract` | 50 | 4 | 0 | 2 |
-| `ContractTransactionResponse` | 52 | 0 | 0 | 6 |
-| `QuaiTransactionResponse` | 52 | 0 | 0 | 6 |
 | `Contract` | 46 | 4 | 0 | 2 |
-| `QiTransactionResponse` | 40 | 0 | 0 | 0 |
 | `FetchResponse` | 32 | 0 | 0 | 0 |
 | `ContractEventPayload` | 24 | 0 | 0 | 0 |
 | `BaseWallet` | 20 | 0 | 0 | 0 |
@@ -379,7 +376,6 @@ root/subpath exports account for much of the volume.
 | `TransactionReceiptParams` | 2 | 0 | 0 | 0 |
 | `TransactionReplacedError` | 2 | 0 | 0 | 0 |
 | `TransactionRequest` | 2 | 0 | 0 | 0 |
-| `TransactionResponse` | 2 | 0 | 0 | 0 |
 | `TransactionResponseParams` | 2 | 0 | 0 | 0 |
 | `TypedDataDomain` | 2 | 0 | 0 | 0 |
 | `TypedDataField` | 2 | 0 | 0 | 0 |
@@ -523,3 +519,18 @@ are documented differences. Public DTOs are not proof of transaction validity.
 This review closes 137 rows: 117 pending and 20 partial. Current totals are
 66 implemented, 3021 deviations, 16 partial and 825 pending. These declaration
 counts do not imply complete application workflows or funded acceptance.
+
+## Transaction response review — 2026-09-13
+
+[Response parity](docs/TRANSACTION_RESPONSE_PARITY.md) reconciles typed account,
+Qi and contract response classes with explicit provider ownership, exact node
+JSON, canonical membership/depth observations and bounded native/browser waits.
+New transaction waits support Qi without requiring account-style receipts;
+`Transaction::verified_qi` independently verifies fourteen supported signing
+vectors across transfers, ordered aggregation, conversions and wraps.
+
+The review updates 158 rows, closing 146 pending mappings while retaining twelve
+previously reviewed differences. Current totals are 66 implemented, 3167
+deviations, 16 partial and 679 pending. No pending declaration is promoted merely
+because a similarly named field exists; detached state, explicit lifecycle,
+unsupported source conveniences and node claims are documented separately.

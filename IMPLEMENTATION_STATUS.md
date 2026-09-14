@@ -980,3 +980,22 @@ JSON data coercion, discarded locks and hex-case access-map deduplication.
 Wordlist commit `63d6f9ca8342cb0618ed7885eb5dfa58c3027543` subsequently passed
 all eight jobs in CI run 34791584063, including Windows. This verifies the
 contention regression change on the supported Windows runner.
+
+## Transaction response parity — September 13
+
+Receipt-independent `observe_transaction_confirmation` and native/browser
+`wait_for_transaction` now check indexed Qi/Quai/ETX inclusion against exact block
+position, refreshed fields and rechecked head. Explicit deadlines, cancellation
+and browser completed-poll limits retain custody on uncertain results.
+`Transaction::verified_qi` reconstructs and verifies supported signed Qi operations
+separately from those observations. See [response review](docs/TRANSACTION_RESPONSE_PARITY.md).
+
+Six native and six Chromium worker tests pass; four portable tests also pass
+without default SDK features. They cover fourteen valid Qi signing fixtures,
+wrong block positions, changed fields/head, stalled-read deadlines, drop,
+provider errors and browser poll exhaustion. Eleven existing provider block and
+receipt confirmation regressions pass. Four published-source tests identify
+Promise-refresh/unchecked-confirmation behavior and document response differences.
+
+Transaction interchange commit `1e24a5f` passed all eight jobs in CI run
+34792470499, including Windows, macOS, browser and package checks.

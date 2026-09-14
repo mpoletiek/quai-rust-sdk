@@ -873,3 +873,19 @@ metadata, checked chain/V conversion helpers, full SEC1 ECDH shared points and
 public-point addition. Shared secret outputs use redacted zeroizing buffers.
 See [crypto parity](docs/CRYPTO_PARITY.md) for exact format distinctions, key and
 signature validation, published constructor defects and the complete API mapping.
+
+
+## Indexed transaction waits and Qi response verification
+
+`Provider::observe_transaction_confirmation` provides a portable one-shot
+confirmation check without requiring receipts. Native `Provider::wait_for_transaction`
+and browser `wait_for_transaction` add explicit deadlines/polling limits, including
+Qi transactions. They check numbered block membership, transaction index,
+refreshed fields and the sampled head; unknown or changed observations remain
+pending. `Provider::transaction_block` exposes the block association check.
+
+`Transaction::verified_qi` separately verifies supported Qi transfer, conversion
+and wrapping signatures and locally computed IDs, preserving input order. It
+complements `verified_quai`. Inclusion checks are node observations; signature
+checks do not prove input existence, maturity, spendability or finality. Neither
+operation changes custody or retries a submission. See [response parity](docs/TRANSACTION_RESPONSE_PARITY.md).

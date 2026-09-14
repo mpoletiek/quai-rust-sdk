@@ -114,4 +114,8 @@ for row in workflows['logs'] if 'logs' in workflows else []:
  if 'topics' not in row or 'data' not in row:continue
  log={'address':address,'blockHash':'0x'+'11'*32,'blockNumber':'0xa','transactionHash':'0x'+'22'*32,'transactionIndex':'0x0','logIndex':'0x0','removed':True,'topics':row['topics'],'data':row['data']}
  put('abi',json.dumps({'abi':workflows['abi'],'log':log}).encode())
+for row in load('compatibility/fixtures/fetch.json')['data']:put('encoding',row['uri'].encode())
+for uri in ['https://example.invalid/public','ipfs://QmPublic/a.json','data:;base64,AAH/','https://user:pw@example.invalid/']:put('encoding',uri.encode())
+for v in [{'header':'Authorization','value':'Bearer PUBLIC-TOY'},{'header':'x-public','value':'bad\r\nheader'},{'n':'9007199254740993'}]:put('encoding',json.dumps(v).encode())
+put('encoding',b'266666666666666666666666666666666626666666666666222242')
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

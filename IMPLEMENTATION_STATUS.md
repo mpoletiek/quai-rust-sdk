@@ -1022,3 +1022,35 @@ The contract batch also passed strict rustdoc and a 120-second ASAN smoke
 (458,952 executions). All twelve extracted archives passed three consumer tests,
 twelve native and two Wasm target compilations. This rehearsal did not upload or
 execute the packaged test targets. Evidence: [contract report](test-infra/reports/contract-io-2026-09-13.json).
+
+## General resource fetching — September 13
+
+`quai_rpc::fetch` now supplies explicit request/response models, validated headers
+and bodies, native gzip/streaming limits, browser resource Fetch, per-client hooks,
+data/custom/IPFS gateways and bounded retry/redirect policy. Cancellation covers
+hooks, network reads and delays. Source credential forwarding and Retry-After unit
+handling are corrected; browser opaque redirects remain unsupported. Twelve
+reference fixtures and five source tests cover the mapping. Eight native shared
+tests, nine worker tests and three native HTTP server tests cover behavior.
+The [fetch review](docs/FETCH_PARITY.md) closes 116 pending rows; 389 remain.
+
+Fuzzing found one-ULP drift when a large JSON integer had already become a binary
+float. The resource dependency now enables serde_json float round-trip parsing,
+and the public failing input is a native/worker regression and corpus seed. This
+does not make large JSON integers exact; chain quantities remain strings.
+
+Contract commit `df6967e` passed all eight jobs in CI run `34795218246`.
+The fetch batch passed 200 RPC/provider/ABI/consensus regression tests (four live
+checks ignored), eight shared native and nine worker tests, and a fresh 120-second
+ASAN run with 392,388 executions after the float regression fix. Strict rustdoc
+and native/Wasm Clippy pass; the worker fixture environment expectation is
+explicitly exempted from the compile-time-env lint so extracted targets compile
+without a running fixture server. All 19 reference test files pass.
+
+The final resource archive rehearsal passed all twelve packages, three consumer
+tests, twelve native and two Wasm target compilations, with 102 public file mirrors.
+The rehearsal did not upload packages or execute packaged test targets.
+Evidence: [fetch report](test-infra/reports/fetch-2026-09-13.json),
+[corrected fuzz regression](test-infra/reports/fetch-fuzz-regression-2026-09-13.json),
+[final sanitizer run](test-infra/reports/fetch-fuzz-2026-09-13.json) and
+[dependency snapshot audit](test-infra/reports/fetch-dependencies-2026-09-13.json).

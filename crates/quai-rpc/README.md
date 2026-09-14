@@ -51,3 +51,9 @@ Live pending-transaction/log event streams, Qi events, TLS failure fixtures, dis
 ## Protocol and dependency sources
 
 Subscription names and envelopes follow pinned `quais.js` `provider-socket.ts` and `subscriber-connection.ts`, plus go-quai `quai/filters/api.go` at commit `f3f345c877300c044e3e0081a48bf3cf786fb9cc`. The native dependency is tokio-tungstenite 0.30.0: [async connect API](https://docs.rs/tokio-tungstenite/0.30.0/tokio_tungstenite/fn.connect_async_with_config.html), [TLS feature definitions](https://docs.rs/crate/tokio-tungstenite/0.30.0/features), and [frame/message configuration](https://docs.rs/tungstenite/0.30.0/tungstenite/protocol/struct.WebSocketConfig.html). Dependencies are pinned by the workspace lockfile; updating them requires rerunning the protocol and lifecycle checks.
+
+General resource requests are available through `quai_rpc::fetch::FetchClient`.
+Use `NativeFetch` on native HTTP or `quai_browser::BrowserResourceFetch` in Wasm.
+Models, hooks, gateways, cancellation and bounded policy are documented in the
+[resource guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/FETCH_PARITY.md).
+These operations are separate from JSON-RPC transport and submission policy.

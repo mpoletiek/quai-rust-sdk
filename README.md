@@ -235,3 +235,6 @@ building go-quai does not relicense its code under MIT. All Rust SDK crates rema
 Contract bindings include exact fallback/receive intents, lossless bounded event
 queries, and native/browser code appearance waits. See [contract operations and
 parity](docs/CONTRACT_PARITY.md).
+
+General resource fetching supports native HTTP and browser workers with bounded
+bodies, cancellation and explicit hooks/gateways. See [resource fetching](docs/FETCH_PARITY.md).

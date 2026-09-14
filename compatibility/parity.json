@@ -13308,12 +13308,21 @@
         "new (request: FetchRequest): FetchCancelSignal"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchCancellation",
+        "quai_rpc::fetch::FetchClient::send"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Cloneable cancellation token with permanent cancellation and one active operation replaces a WeakMap signal/listener list. Cancellation wakes the registered task, and dropping send releases active reads/hooks/timers. A pending cancellation check rejects before I/O; it never rolls back a remote request."
     },
     {
       "id": ".:FetchCancelSignal:instance:addListener",
@@ -13324,12 +13333,21 @@
         "(listener: () => void): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchCancellation",
+        "quai_rpc::fetch::FetchClient::send"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Cloneable cancellation token with permanent cancellation and one active operation replaces a WeakMap signal/listener list. Cancellation wakes the registered task, and dropping send releases active reads/hooks/timers. A pending cancellation check rejects before I/O; it never rolls back a remote request."
     },
     {
       "id": ".:FetchCancelSignal:instance:cancelled",
@@ -13338,12 +13356,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchCancellation",
+        "quai_rpc::fetch::FetchClient::send"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Cloneable cancellation token with permanent cancellation and one active operation replaces a WeakMap signal/listener list. Cancellation wakes the registered task, and dropping send releases active reads/hooks/timers. A pending cancellation check rejects before I/O; it never rolls back a remote request."
     },
     {
       "id": ".:FetchCancelSignal:instance:checkSignal",
@@ -13354,12 +13381,21 @@
         "(): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchCancellation",
+        "quai_rpc::fetch::FetchClient::send"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Cloneable cancellation token with permanent cancellation and one active operation replaces a WeakMap signal/listener list. Cancellation wakes the registered task, and dropping send releases active reads/hooks/timers. A pending cancellation check rejects before I/O; it never rolls back a remote request."
     },
     {
       "id": ".:FetchGatewayFunc",
@@ -13368,12 +13404,21 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::gateway",
+        "quai_rpc::fetch::FetchGateway"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchGetUrlFunc",
@@ -13382,12 +13427,22 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchBackend",
+        "quai_rpc::fetch::NativeFetch",
+        "quai_browser::BrowserResourceFetch"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchPreflightFunc",
@@ -13396,12 +13451,20 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::preflight"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchProcessFunc",
@@ -13410,12 +13473,21 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::process",
+        "quai_rpc::fetch::FetchAction"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchRequest",
@@ -13426,12 +13498,20 @@
         "new (url: string): FetchRequest"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::new"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchRequest:instance:__@iterator@274",
@@ -13442,12 +13522,22 @@
         "(): Iterator<[key: string, value: string]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchRequest::headers",
+        "quai_rpc::fetch::FetchRequest::headers_mut"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Case-insensitive validated ASCII header values, 128 fields and 16 KiB aggregate; failed mutation is atomic. Intrinsic content/compression headers are derived separately. Host/framing overrides reject; browser forbidden headers and CORS remain platform policy."
     },
     {
       "id": ".:FetchRequest:instance:allowGzip",
@@ -13456,12 +13546,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::allow_gzip",
+        "quai_rpc::fetch::NativeFetch",
+        "quai_browser::BrowserResourceFetch"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Native gzip negotiation/decompression enforces wire and decoded limits. Browser compression negotiation is platform-owned and cannot be disabled through a forbidden Accept-Encoding header; decoded streams remain bounded."
     },
     {
       "id": ".:FetchRequest:instance:allowInsecureAuthentication",
@@ -13470,12 +13570,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::set_credentials",
+        "quai_rpc::fetch::FetchRequest::allow_insecure_authentication",
+        "quai_rpc::fetch::FetchHeaders::get"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded Basic authentication stores the explicit Authorization header without keeping a separate plaintext username:password property. HTTP authentication requires a per-request opt-in; arbitrary authorization headers obey the same rule. Cross-origin redirects clear all explicit headers and opt-ins."
     },
     {
       "id": ".:FetchRequest:instance:body",
@@ -13484,12 +13594,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::body",
+        "quai_rpc::fetch::FetchRequest::set_bytes",
+        "quai_rpc::fetch::FetchRequest::set_text",
+        "quai_rpc::fetch::FetchRequest::set_json",
+        "quai_rpc::fetch::FetchRequest::clear_body"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded byte/text/JSON setters retain absent versus empty bodies and derive Content-Type unless explicitly overridden. JSON has depth/node/string preflight; use decimal strings for exact chain quantities. GET/HEAD bodies reject for portable HTTP semantics."
     },
     {
       "id": ".:FetchRequest:instance:cancel",
@@ -13500,12 +13622,20 @@
         "(): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchCancellation::cancel"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchRequest:instance:clearHeaders",
@@ -13516,12 +13646,22 @@
         "(): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchRequest::headers",
+        "quai_rpc::fetch::FetchRequest::headers_mut"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Case-insensitive validated ASCII header values, 128 fields and 16 KiB aggregate; failed mutation is atomic. Intrinsic content/compression headers are derived separately. Host/framing overrides reject; browser forbidden headers and CORS remain platform policy."
     },
     {
       "id": ".:FetchRequest:instance:clone",
@@ -13532,12 +13672,20 @@
         "(): FetchRequest"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Owned Clone copies bounded request values without sharing sent/cancelled state; cancellation tokens and client policy are explicitly separate."
     },
     {
       "id": ".:FetchRequest:instance:credentials",
@@ -13546,12 +13694,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::set_credentials",
+        "quai_rpc::fetch::FetchRequest::allow_insecure_authentication",
+        "quai_rpc::fetch::FetchHeaders::get"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded Basic authentication stores the explicit Authorization header without keeping a separate plaintext username:password property. HTTP authentication requires a per-request opt-in; arbitrary authorization headers obey the same rule. Cross-origin redirects clear all explicit headers and opt-ins."
     },
     {
       "id": ".:FetchRequest:instance:getHeader",
@@ -13562,12 +13720,22 @@
         "(key: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchRequest::headers",
+        "quai_rpc::fetch::FetchRequest::headers_mut"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Case-insensitive validated ASCII header values, 128 fields and 16 KiB aggregate; failed mutation is atomic. Intrinsic content/compression headers are derived separately. Host/framing overrides reject; browser forbidden headers and CORS remain platform policy."
     },
     {
       "id": ".:FetchRequest:instance:getUrlFunc",
@@ -13578,12 +13746,23 @@
         "(req: FetchRequest, signal?: FetchCancelSignal): Promise<GetUrlResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchBackend",
+        "quai_rpc::fetch::NativeFetch",
+        "quai_browser::BrowserResourceFetch",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit per-client backend selects native pooled rustls, browser Fetch or application custom I/O. Native futures are Send; browser futures may own thread-local handles. Backend execute is one exchange; callers use FetchClient::send for overall deadline/cancellation. No mutable global transport registration."
     },
     {
       "id": ".:FetchRequest:instance:hasBody",
@@ -13594,12 +13773,24 @@
         "(): this is FetchRequest & { body: Uint8Array; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::body",
+        "quai_rpc::fetch::FetchRequest::set_bytes",
+        "quai_rpc::fetch::FetchRequest::set_text",
+        "quai_rpc::fetch::FetchRequest::set_json",
+        "quai_rpc::fetch::FetchRequest::clear_body"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded byte/text/JSON setters retain absent versus empty bodies and derive Content-Type unless explicitly overridden. JSON has depth/node/string preflight; use decimal strings for exact chain quantities. GET/HEAD bodies reject for portable HTTP semantics."
     },
     {
       "id": ".:FetchRequest:instance:headers",
@@ -13608,12 +13799,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchRequest::headers",
+        "quai_rpc::fetch::FetchRequest::headers_mut"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Case-insensitive validated ASCII header values, 128 fields and 16 KiB aggregate; failed mutation is atomic. Intrinsic content/compression headers are derived separately. Host/framing overrides reject; browser forbidden headers and CORS remain platform policy."
     },
     {
       "id": ".:FetchRequest:instance:method",
@@ -13622,12 +13823,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::method",
+        "quai_rpc::fetch::FetchRequest::set_method"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchRequest:instance:preflightFunc",
@@ -13638,12 +13848,20 @@
         "(req: FetchRequest): Promise<FetchRequest>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Per-client async hooks run under the overall deadline and cancellation guard; outputs are revalidated. Typed processing/retry decisions replace special thrown errors. Source errors stop without automatic transport retries."
     },
     {
       "id": ".:FetchRequest:instance:processFunc",
@@ -13654,12 +13872,20 @@
         "(req: FetchRequest, resp: FetchResponse): Promise<FetchResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Per-client async hooks run under the overall deadline and cancellation guard; outputs are revalidated. Typed processing/retry decisions replace special thrown errors. Source errors stop without automatic transport retries."
     },
     {
       "id": ".:FetchRequest:instance:redirect",
@@ -13670,12 +13896,20 @@
         "(location: string): FetchRequest"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::redirect"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit GET/HEAD redirects support relative or absolute HTTP(S) targets, reject HTTPS downgrade and clear every custom header across origins, correcting published credential forwarding. Native client follow is bounded and opt-in. Browser opaque redirects reject because Fetch hides Location and cannot expose a safely countable chain."
     },
     {
       "id": ".:FetchRequest:instance:retryFunc",
@@ -13686,12 +13920,20 @@
         "(req: FetchRequest, resp: FetchResponse, attempt: number): Promise<boolean>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Per-client async hooks run under the overall deadline and cancellation guard; outputs are revalidated. Typed processing/retry decisions replace special thrown errors. Source errors stop without automatic transport retries."
     },
     {
       "id": ".:FetchRequest:instance:send",
@@ -13702,12 +13944,21 @@
         "(): Promise<FetchResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchClient::send",
+        "quai_rpc::fetch::FetchedResource"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit immutable request/client and one-operation token support bounded hooks/gateways/redirect/retry processing. Defaults do not replay requests. Overall deadlines cover stalled hooks and I/O, drop aborts local work, and non-success responses retain body/status. Remote acceptance is not rolled back by cancellation."
     },
     {
       "id": ".:FetchRequest:instance:setCredentials",
@@ -13718,12 +13969,22 @@
         "(username: string, password: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::set_credentials",
+        "quai_rpc::fetch::FetchRequest::allow_insecure_authentication",
+        "quai_rpc::fetch::FetchHeaders::get"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded Basic authentication stores the explicit Authorization header without keeping a separate plaintext username:password property. HTTP authentication requires a per-request opt-in; arbitrary authorization headers obey the same rule. Cross-origin redirects clear all explicit headers and opt-ins."
     },
     {
       "id": ".:FetchRequest:instance:setHeader",
@@ -13734,12 +13995,22 @@
         "(key: string, value: string | number): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchRequest::headers",
+        "quai_rpc::fetch::FetchRequest::headers_mut"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Case-insensitive validated ASCII header values, 128 fields and 16 KiB aggregate; failed mutation is atomic. Intrinsic content/compression headers are derived separately. Host/framing overrides reject; browser forbidden headers and CORS remain platform policy."
     },
     {
       "id": ".:FetchRequest:instance:setThrottleParams",
@@ -13750,12 +14021,20 @@
         "(params: FetchThrottleParams): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchConfig"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Immutable per-client overall deadline, decoded/wire body limit, maximum 12 exchanges and 10 redirects, base retry delay and explicit non-GET/HEAD retry permission. Defaults perform one exchange and no redirects. Retry-After delta-seconds are interpreted as seconds, correcting the published millisecond behavior; exponential backoff is deterministic rather than implicit random jitter."
     },
     {
       "id": ".:FetchRequest:instance:timeout",
@@ -13764,12 +14043,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchConfig"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Immutable per-client overall deadline, decoded/wire body limit, maximum 12 exchanges and 10 redirects, base retry delay and explicit non-GET/HEAD retry permission. Defaults perform one exchange and no redirects. Retry-After delta-seconds are interpreted as seconds, correcting the published millisecond behavior; exponential backoff is deterministic rather than implicit random jitter."
     },
     {
       "id": ".:FetchRequest:instance:toString",
@@ -13780,12 +14067,20 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Redacted Debug shows only body length, correcting source diagnostic exposure of URLs, headers and bodies. Explicit getters remain available for intentional inspection."
     },
     {
       "id": ".:FetchRequest:instance:url",
@@ -13794,12 +14089,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::url",
+        "quai_rpc::fetch::FetchRequest::set_url"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit validated lowercase schemes, bounded URLs, no HTTP userinfo/fragments/control bytes. Construction and URL replacement do not perform I/O or select an implicit IPFS gateway."
     },
     {
       "id": ".:FetchRequest:static:createDataGateway",
@@ -13810,12 +14114,20 @@
         "(): FetchGatewayFunc"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::data_resource"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded strict percent/base64 data URI decoding replaces permissive malformed-percent passthrough and synthetic error responses. Supported media types use the source simple MIME/base64 grammar; no hidden network request."
     },
     {
       "id": ".:FetchRequest:static:createGetUrlFunc",
@@ -13826,12 +14138,23 @@
         "(options?: Record<string, any>): FetchGetUrlFunc"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchBackend",
+        "quai_rpc::fetch::NativeFetch",
+        "quai_browser::BrowserResourceFetch",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit per-client backend selects native pooled rustls, browser Fetch or application custom I/O. Native futures are Send; browser futures may own thread-local handles. Backend execute is one exchange; callers use FetchClient::send for overall deadline/cancellation. No mutable global transport registration."
     },
     {
       "id": ".:FetchRequest:static:createIpfsGatewayFunc",
@@ -13842,12 +14165,20 @@
         "(baseUrl: string): FetchGatewayFunc"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::ipfs_resource"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Caller-selected HTTP(S) gateway resolution rejects path traversal and query/fragment injection; no implicit third-party gateway or CID/content authentication is claimed."
     },
     {
       "id": ".:FetchRequest:static:getGateway",
@@ -13858,12 +14189,21 @@
         "(scheme: string): null | FetchGatewayFunc"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::gateway",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Application-owned gateway dispatch and immutable client construction replace a process-global mutable registry/lock. HTTP(S) exchanges cannot be overridden by a gateway; custom backends remain explicit. Default local data support is provided, while IPFS requires a caller-selected gateway."
     },
     {
       "id": ".:FetchRequest:static:lockConfig",
@@ -13874,12 +14214,21 @@
         "(): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::gateway",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Application-owned gateway dispatch and immutable client construction replace a process-global mutable registry/lock. HTTP(S) exchanges cannot be overridden by a gateway; custom backends remain explicit. Default local data support is provided, while IPFS requires a caller-selected gateway."
     },
     {
       "id": ".:FetchRequest:static:registerGateway",
@@ -13890,12 +14239,21 @@
         "(scheme: string, func: FetchGatewayFunc): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::gateway",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Application-owned gateway dispatch and immutable client construction replace a process-global mutable registry/lock. HTTP(S) exchanges cannot be overridden by a gateway; custom backends remain explicit. Default local data support is provided, while IPFS requires a caller-selected gateway."
     },
     {
       "id": ".:FetchRequest:static:registerGetUrl",
@@ -13906,12 +14264,23 @@
         "(getUrl: FetchGetUrlFunc): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchBackend",
+        "quai_rpc::fetch::NativeFetch",
+        "quai_browser::BrowserResourceFetch",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit per-client backend selects native pooled rustls, browser Fetch or application custom I/O. Native futures are Send; browser futures may own thread-local handles. Backend execute is one exchange; callers use FetchClient::send for overall deadline/cancellation. No mutable global transport registration."
     },
     {
       "id": ".:FetchResponse",
@@ -13922,12 +14291,20 @@
         "new (statusCode: number, statusMessage: string, headers: Readonly<Record<string, string>>, body: null | Uint8Array, request?: FetchRequest): FetchResponse"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::new"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchResponse:instance:__@iterator@274",
@@ -13938,12 +14315,22 @@
         "(): Iterator<[key: string, value: string]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchHeaders::iter",
+        "quai_rpc::fetch::FetchResponse::headers"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchResponse:instance:assertOk",
@@ -13954,12 +14341,20 @@
         "(): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::assert_ok"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchResponse:instance:body",
@@ -13968,12 +14363,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::body"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Optional borrowed exact bytes preserve absent versus empty bodies in the model. Network adapters normalize an empty HTTP stream to Some(empty). Models and adapters enforce finite body limits."
     },
     {
       "id": ".:FetchResponse:instance:bodyJson",
@@ -13982,12 +14385,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::json"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Strict UTF-8 and bounded serde_json parsing replace dynamic coercion. Float round-trip parsing is enabled; exact large chain quantities still require strings rather than binary floats. Raw body bytes remain available for an application-selected parser."
     },
     {
       "id": ".:FetchResponse:instance:bodyText",
@@ -13996,12 +14407,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::text"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Strict UTF-8 and bounded serde_json parsing replace dynamic coercion. Float round-trip parsing is enabled; exact large chain quantities still require strings rather than binary floats. Raw body bytes remain available for an application-selected parser."
     },
     {
       "id": ".:FetchResponse:instance:getHeader",
@@ -14012,12 +14431,22 @@
         "(key: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchHeaders::iter",
+        "quai_rpc::fetch::FetchResponse::headers"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchResponse:instance:hasBody",
@@ -14028,12 +14457,20 @@
         "(): this is FetchResponse & { body: Uint8Array; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::body"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Optional borrowed exact bytes preserve absent versus empty bodies in the model. Network adapters normalize an empty HTTP stream to Some(empty). Models and adapters enforce finite body limits."
     },
     {
       "id": ".:FetchResponse:instance:headers",
@@ -14042,12 +14479,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchHeaders::iter",
+        "quai_rpc::fetch::FetchResponse::headers"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchResponse:instance:makeServerError",
@@ -14058,12 +14505,20 @@
         "(message?: string, error?: Error): FetchResponse"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::server_error"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit synthetic 599 preserves headers/body and uses fixed redacted diagnostic text; arbitrary nested exceptions are not retained in diagnostics."
     },
     {
       "id": ".:FetchResponse:instance:ok",
@@ -14074,12 +14529,20 @@
         "(): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::ok"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchResponse:instance:request",
@@ -14088,12 +14551,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchedResource"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit original and final requests plus completed exchange count live beside the response; a detached response need not clone private request context."
     },
     {
       "id": ".:FetchResponse:instance:statusCode",
@@ -14102,12 +14573,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::status"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchResponse:instance:statusMessage",
@@ -14116,12 +14595,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::status_message"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FetchResponse:instance:throwThrottleError",
@@ -14132,12 +14619,20 @@
         "(message?: string, stall?: number): never"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchAction::Retry"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Typed retry decision replaces thrown exception metadata. Per-client attempts/method/deadline policy and retry hook still apply; process hooks run for 429 too, and local gateway responses are processed once."
     },
     {
       "id": ".:FetchResponse:instance:toString",
@@ -14148,12 +14643,20 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Redacted Debug shows status and body length; explicit getters expose content. Arbitrary body, reason text, URL and credentials are not printed automatically."
     },
     {
       "id": ".:FetchRetryFunc",
@@ -14162,12 +14665,20 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::retry"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:FewestCoinSelector",
@@ -16388,12 +16899,20 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": ".:getZoneForAddress",
@@ -85913,12 +86432,21 @@
         "new (request: FetchRequest): FetchCancelSignal"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchCancellation",
+        "quai_rpc::fetch::FetchClient::send"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Cloneable cancellation token with permanent cancellation and one active operation replaces a WeakMap signal/listener list. Cancellation wakes the registered task, and dropping send releases active reads/hooks/timers. A pending cancellation check rejects before I/O; it never rolls back a remote request."
     },
     {
       "id": "./utils:FetchCancelSignal:instance:addListener",
@@ -85929,12 +86457,21 @@
         "(listener: () => void): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchCancellation",
+        "quai_rpc::fetch::FetchClient::send"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Cloneable cancellation token with permanent cancellation and one active operation replaces a WeakMap signal/listener list. Cancellation wakes the registered task, and dropping send releases active reads/hooks/timers. A pending cancellation check rejects before I/O; it never rolls back a remote request."
     },
     {
       "id": "./utils:FetchCancelSignal:instance:cancelled",
@@ -85943,12 +86480,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchCancellation",
+        "quai_rpc::fetch::FetchClient::send"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Cloneable cancellation token with permanent cancellation and one active operation replaces a WeakMap signal/listener list. Cancellation wakes the registered task, and dropping send releases active reads/hooks/timers. A pending cancellation check rejects before I/O; it never rolls back a remote request."
     },
     {
       "id": "./utils:FetchCancelSignal:instance:checkSignal",
@@ -85959,12 +86505,21 @@
         "(): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchCancellation",
+        "quai_rpc::fetch::FetchClient::send"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Cloneable cancellation token with permanent cancellation and one active operation replaces a WeakMap signal/listener list. Cancellation wakes the registered task, and dropping send releases active reads/hooks/timers. A pending cancellation check rejects before I/O; it never rolls back a remote request."
     },
     {
       "id": "./utils:FetchGatewayFunc",
@@ -85973,12 +86528,21 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::gateway",
+        "quai_rpc::fetch::FetchGateway"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchGetUrlFunc",
@@ -85987,12 +86551,22 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchBackend",
+        "quai_rpc::fetch::NativeFetch",
+        "quai_browser::BrowserResourceFetch"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchPreflightFunc",
@@ -86001,12 +86575,20 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::preflight"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchProcessFunc",
@@ -86015,12 +86597,21 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::process",
+        "quai_rpc::fetch::FetchAction"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchRequest",
@@ -86031,12 +86622,20 @@
         "new (url: string): FetchRequest"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::new"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchRequest:instance:__@iterator@274",
@@ -86047,12 +86646,22 @@
         "(): Iterator<[key: string, value: string]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchRequest::headers",
+        "quai_rpc::fetch::FetchRequest::headers_mut"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Case-insensitive validated ASCII header values, 128 fields and 16 KiB aggregate; failed mutation is atomic. Intrinsic content/compression headers are derived separately. Host/framing overrides reject; browser forbidden headers and CORS remain platform policy."
     },
     {
       "id": "./utils:FetchRequest:instance:allowGzip",
@@ -86061,12 +86670,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::allow_gzip",
+        "quai_rpc::fetch::NativeFetch",
+        "quai_browser::BrowserResourceFetch"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Native gzip negotiation/decompression enforces wire and decoded limits. Browser compression negotiation is platform-owned and cannot be disabled through a forbidden Accept-Encoding header; decoded streams remain bounded."
     },
     {
       "id": "./utils:FetchRequest:instance:allowInsecureAuthentication",
@@ -86075,12 +86694,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::set_credentials",
+        "quai_rpc::fetch::FetchRequest::allow_insecure_authentication",
+        "quai_rpc::fetch::FetchHeaders::get"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded Basic authentication stores the explicit Authorization header without keeping a separate plaintext username:password property. HTTP authentication requires a per-request opt-in; arbitrary authorization headers obey the same rule. Cross-origin redirects clear all explicit headers and opt-ins."
     },
     {
       "id": "./utils:FetchRequest:instance:body",
@@ -86089,12 +86718,24 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::body",
+        "quai_rpc::fetch::FetchRequest::set_bytes",
+        "quai_rpc::fetch::FetchRequest::set_text",
+        "quai_rpc::fetch::FetchRequest::set_json",
+        "quai_rpc::fetch::FetchRequest::clear_body"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded byte/text/JSON setters retain absent versus empty bodies and derive Content-Type unless explicitly overridden. JSON has depth/node/string preflight; use decimal strings for exact chain quantities. GET/HEAD bodies reject for portable HTTP semantics."
     },
     {
       "id": "./utils:FetchRequest:instance:cancel",
@@ -86105,12 +86746,20 @@
         "(): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchCancellation::cancel"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchRequest:instance:clearHeaders",
@@ -86121,12 +86770,22 @@
         "(): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchRequest::headers",
+        "quai_rpc::fetch::FetchRequest::headers_mut"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Case-insensitive validated ASCII header values, 128 fields and 16 KiB aggregate; failed mutation is atomic. Intrinsic content/compression headers are derived separately. Host/framing overrides reject; browser forbidden headers and CORS remain platform policy."
     },
     {
       "id": "./utils:FetchRequest:instance:clone",
@@ -86137,12 +86796,20 @@
         "(): FetchRequest"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Owned Clone copies bounded request values without sharing sent/cancelled state; cancellation tokens and client policy are explicitly separate."
     },
     {
       "id": "./utils:FetchRequest:instance:credentials",
@@ -86151,12 +86818,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::set_credentials",
+        "quai_rpc::fetch::FetchRequest::allow_insecure_authentication",
+        "quai_rpc::fetch::FetchHeaders::get"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded Basic authentication stores the explicit Authorization header without keeping a separate plaintext username:password property. HTTP authentication requires a per-request opt-in; arbitrary authorization headers obey the same rule. Cross-origin redirects clear all explicit headers and opt-ins."
     },
     {
       "id": "./utils:FetchRequest:instance:getHeader",
@@ -86167,12 +86844,22 @@
         "(key: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchRequest::headers",
+        "quai_rpc::fetch::FetchRequest::headers_mut"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Case-insensitive validated ASCII header values, 128 fields and 16 KiB aggregate; failed mutation is atomic. Intrinsic content/compression headers are derived separately. Host/framing overrides reject; browser forbidden headers and CORS remain platform policy."
     },
     {
       "id": "./utils:FetchRequest:instance:getUrlFunc",
@@ -86183,12 +86870,23 @@
         "(req: FetchRequest, signal?: FetchCancelSignal): Promise<GetUrlResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchBackend",
+        "quai_rpc::fetch::NativeFetch",
+        "quai_browser::BrowserResourceFetch",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit per-client backend selects native pooled rustls, browser Fetch or application custom I/O. Native futures are Send; browser futures may own thread-local handles. Backend execute is one exchange; callers use FetchClient::send for overall deadline/cancellation. No mutable global transport registration."
     },
     {
       "id": "./utils:FetchRequest:instance:hasBody",
@@ -86199,12 +86897,24 @@
         "(): this is FetchRequest & { body: Uint8Array; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::body",
+        "quai_rpc::fetch::FetchRequest::set_bytes",
+        "quai_rpc::fetch::FetchRequest::set_text",
+        "quai_rpc::fetch::FetchRequest::set_json",
+        "quai_rpc::fetch::FetchRequest::clear_body"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded byte/text/JSON setters retain absent versus empty bodies and derive Content-Type unless explicitly overridden. JSON has depth/node/string preflight; use decimal strings for exact chain quantities. GET/HEAD bodies reject for portable HTTP semantics."
     },
     {
       "id": "./utils:FetchRequest:instance:headers",
@@ -86213,12 +86923,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchRequest::headers",
+        "quai_rpc::fetch::FetchRequest::headers_mut"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Case-insensitive validated ASCII header values, 128 fields and 16 KiB aggregate; failed mutation is atomic. Intrinsic content/compression headers are derived separately. Host/framing overrides reject; browser forbidden headers and CORS remain platform policy."
     },
     {
       "id": "./utils:FetchRequest:instance:method",
@@ -86227,12 +86947,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::method",
+        "quai_rpc::fetch::FetchRequest::set_method"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchRequest:instance:preflightFunc",
@@ -86243,12 +86972,20 @@
         "(req: FetchRequest): Promise<FetchRequest>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Per-client async hooks run under the overall deadline and cancellation guard; outputs are revalidated. Typed processing/retry decisions replace special thrown errors. Source errors stop without automatic transport retries."
     },
     {
       "id": "./utils:FetchRequest:instance:processFunc",
@@ -86259,12 +86996,20 @@
         "(req: FetchRequest, resp: FetchResponse): Promise<FetchResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Per-client async hooks run under the overall deadline and cancellation guard; outputs are revalidated. Typed processing/retry decisions replace special thrown errors. Source errors stop without automatic transport retries."
     },
     {
       "id": "./utils:FetchRequest:instance:redirect",
@@ -86275,12 +87020,20 @@
         "(location: string): FetchRequest"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::redirect"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit GET/HEAD redirects support relative or absolute HTTP(S) targets, reject HTTPS downgrade and clear every custom header across origins, correcting published credential forwarding. Native client follow is bounded and opt-in. Browser opaque redirects reject because Fetch hides Location and cannot expose a safely countable chain."
     },
     {
       "id": "./utils:FetchRequest:instance:retryFunc",
@@ -86291,12 +87044,20 @@
         "(req: FetchRequest, resp: FetchResponse, attempt: number): Promise<boolean>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Per-client async hooks run under the overall deadline and cancellation guard; outputs are revalidated. Typed processing/retry decisions replace special thrown errors. Source errors stop without automatic transport retries."
     },
     {
       "id": "./utils:FetchRequest:instance:send",
@@ -86307,12 +87068,21 @@
         "(): Promise<FetchResponse>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchClient::send",
+        "quai_rpc::fetch::FetchedResource"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit immutable request/client and one-operation token support bounded hooks/gateways/redirect/retry processing. Defaults do not replay requests. Overall deadlines cover stalled hooks and I/O, drop aborts local work, and non-success responses retain body/status. Remote acceptance is not rolled back by cancellation."
     },
     {
       "id": "./utils:FetchRequest:instance:setCredentials",
@@ -86323,12 +87093,22 @@
         "(username: string, password: string): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::set_credentials",
+        "quai_rpc::fetch::FetchRequest::allow_insecure_authentication",
+        "quai_rpc::fetch::FetchHeaders::get"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded Basic authentication stores the explicit Authorization header without keeping a separate plaintext username:password property. HTTP authentication requires a per-request opt-in; arbitrary authorization headers obey the same rule. Cross-origin redirects clear all explicit headers and opt-ins."
     },
     {
       "id": "./utils:FetchRequest:instance:setHeader",
@@ -86339,12 +87119,22 @@
         "(key: string, value: string | number): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchRequest::headers",
+        "quai_rpc::fetch::FetchRequest::headers_mut"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Case-insensitive validated ASCII header values, 128 fields and 16 KiB aggregate; failed mutation is atomic. Intrinsic content/compression headers are derived separately. Host/framing overrides reject; browser forbidden headers and CORS remain platform policy."
     },
     {
       "id": "./utils:FetchRequest:instance:setThrottleParams",
@@ -86355,12 +87145,20 @@
         "(params: FetchThrottleParams): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchConfig"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Immutable per-client overall deadline, decoded/wire body limit, maximum 12 exchanges and 10 redirects, base retry delay and explicit non-GET/HEAD retry permission. Defaults perform one exchange and no redirects. Retry-After delta-seconds are interpreted as seconds, correcting the published millisecond behavior; exponential backoff is deterministic rather than implicit random jitter."
     },
     {
       "id": "./utils:FetchRequest:instance:timeout",
@@ -86369,12 +87167,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchConfig"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Immutable per-client overall deadline, decoded/wire body limit, maximum 12 exchanges and 10 redirects, base retry delay and explicit non-GET/HEAD retry permission. Defaults perform one exchange and no redirects. Retry-After delta-seconds are interpreted as seconds, correcting the published millisecond behavior; exponential backoff is deterministic rather than implicit random jitter."
     },
     {
       "id": "./utils:FetchRequest:instance:toString",
@@ -86385,12 +87191,20 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Redacted Debug shows only body length, correcting source diagnostic exposure of URLs, headers and bodies. Explicit getters remain available for intentional inspection."
     },
     {
       "id": "./utils:FetchRequest:instance:url",
@@ -86399,12 +87213,21 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchRequest::url",
+        "quai_rpc::fetch::FetchRequest::set_url"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit validated lowercase schemes, bounded URLs, no HTTP userinfo/fragments/control bytes. Construction and URL replacement do not perform I/O or select an implicit IPFS gateway."
     },
     {
       "id": "./utils:FetchRequest:static:createDataGateway",
@@ -86415,12 +87238,20 @@
         "(): FetchGatewayFunc"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::data_resource"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Bounded strict percent/base64 data URI decoding replaces permissive malformed-percent passthrough and synthetic error responses. Supported media types use the source simple MIME/base64 grammar; no hidden network request."
     },
     {
       "id": "./utils:FetchRequest:static:createGetUrlFunc",
@@ -86431,12 +87262,23 @@
         "(options?: Record<string, any>): FetchGetUrlFunc"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchBackend",
+        "quai_rpc::fetch::NativeFetch",
+        "quai_browser::BrowserResourceFetch",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit per-client backend selects native pooled rustls, browser Fetch or application custom I/O. Native futures are Send; browser futures may own thread-local handles. Backend execute is one exchange; callers use FetchClient::send for overall deadline/cancellation. No mutable global transport registration."
     },
     {
       "id": "./utils:FetchRequest:static:createIpfsGatewayFunc",
@@ -86447,12 +87289,20 @@
         "(baseUrl: string): FetchGatewayFunc"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::ipfs_resource"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Caller-selected HTTP(S) gateway resolution rejects path traversal and query/fragment injection; no implicit third-party gateway or CID/content authentication is claimed."
     },
     {
       "id": "./utils:FetchRequest:static:getGateway",
@@ -86463,12 +87313,21 @@
         "(scheme: string): null | FetchGatewayFunc"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::gateway",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Application-owned gateway dispatch and immutable client construction replace a process-global mutable registry/lock. HTTP(S) exchanges cannot be overridden by a gateway; custom backends remain explicit. Default local data support is provided, while IPFS requires a caller-selected gateway."
     },
     {
       "id": "./utils:FetchRequest:static:lockConfig",
@@ -86479,12 +87338,21 @@
         "(): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::gateway",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Application-owned gateway dispatch and immutable client construction replace a process-global mutable registry/lock. HTTP(S) exchanges cannot be overridden by a gateway; custom backends remain explicit. Default local data support is provided, while IPFS requires a caller-selected gateway."
     },
     {
       "id": "./utils:FetchRequest:static:registerGateway",
@@ -86495,12 +87363,21 @@
         "(scheme: string, func: FetchGatewayFunc): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::gateway",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Application-owned gateway dispatch and immutable client construction replace a process-global mutable registry/lock. HTTP(S) exchanges cannot be overridden by a gateway; custom backends remain explicit. Default local data support is provided, while IPFS requires a caller-selected gateway."
     },
     {
       "id": "./utils:FetchRequest:static:registerGetUrl",
@@ -86511,12 +87388,23 @@
         "(getUrl: FetchGetUrlFunc): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchBackend",
+        "quai_rpc::fetch::NativeFetch",
+        "quai_browser::BrowserResourceFetch",
+        "quai_rpc::fetch::FetchClient::with_hooks"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit per-client backend selects native pooled rustls, browser Fetch or application custom I/O. Native futures are Send; browser futures may own thread-local handles. Backend execute is one exchange; callers use FetchClient::send for overall deadline/cancellation. No mutable global transport registration."
     },
     {
       "id": "./utils:FetchResponse",
@@ -86527,12 +87415,20 @@
         "new (statusCode: number, statusMessage: string, headers: Readonly<Record<string, string>>, body: null | Uint8Array, request?: FetchRequest): FetchResponse"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::new"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchResponse:instance:__@iterator@274",
@@ -86543,12 +87439,22 @@
         "(): Iterator<[key: string, value: string]>"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchHeaders::iter",
+        "quai_rpc::fetch::FetchResponse::headers"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchResponse:instance:assertOk",
@@ -86559,12 +87465,20 @@
         "(): void"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::assert_ok"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchResponse:instance:body",
@@ -86573,12 +87487,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::body"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Optional borrowed exact bytes preserve absent versus empty bodies in the model. Network adapters normalize an empty HTTP stream to Some(empty). Models and adapters enforce finite body limits."
     },
     {
       "id": "./utils:FetchResponse:instance:bodyJson",
@@ -86587,12 +87509,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::json"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Strict UTF-8 and bounded serde_json parsing replace dynamic coercion. Float round-trip parsing is enabled; exact large chain quantities still require strings rather than binary floats. Raw body bytes remain available for an application-selected parser."
     },
     {
       "id": "./utils:FetchResponse:instance:bodyText",
@@ -86601,12 +87531,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::text"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Strict UTF-8 and bounded serde_json parsing replace dynamic coercion. Float round-trip parsing is enabled; exact large chain quantities still require strings rather than binary floats. Raw body bytes remain available for an application-selected parser."
     },
     {
       "id": "./utils:FetchResponse:instance:getHeader",
@@ -86617,12 +87555,22 @@
         "(key: string): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchHeaders::iter",
+        "quai_rpc::fetch::FetchResponse::headers"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchResponse:instance:hasBody",
@@ -86633,12 +87581,20 @@
         "(): this is FetchResponse & { body: Uint8Array; }"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::body"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Optional borrowed exact bytes preserve absent versus empty bodies in the model. Network adapters normalize an empty HTTP stream to Some(empty). Models and adapters enforce finite body limits."
     },
     {
       "id": "./utils:FetchResponse:instance:headers",
@@ -86647,12 +87603,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHeaders",
+        "quai_rpc::fetch::FetchHeaders::iter",
+        "quai_rpc::fetch::FetchResponse::headers"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchResponse:instance:makeServerError",
@@ -86663,12 +87629,20 @@
         "(message?: string, error?: Error): FetchResponse"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::server_error"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit synthetic 599 preserves headers/body and uses fixed redacted diagnostic text; arbitrary nested exceptions are not retained in diagnostics."
     },
     {
       "id": "./utils:FetchResponse:instance:ok",
@@ -86679,12 +87653,20 @@
         "(): boolean"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::ok"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchResponse:instance:request",
@@ -86693,12 +87675,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchedResource"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit original and final requests plus completed exchange count live beside the response; a detached response need not clone private request context."
     },
     {
       "id": "./utils:FetchResponse:instance:statusCode",
@@ -86707,12 +87697,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::status"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchResponse:instance:statusMessage",
@@ -86721,12 +87719,20 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse::status_message"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FetchResponse:instance:throwThrottleError",
@@ -86737,12 +87743,20 @@
         "(message?: string, stall?: number): never"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchAction::Retry"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Typed retry decision replaces thrown exception metadata. Per-client attempts/method/deadline policy and retry hook still apply; process hooks run for 429 too, and local gateway responses are processed once."
     },
     {
       "id": "./utils:FetchResponse:instance:toString",
@@ -86753,12 +87767,20 @@
         "(): string"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Redacted Debug shows status and body length; explicit getters expose content. Arbitrary body, reason text, URL and credentials are not printed automatically."
     },
     {
       "id": "./utils:FetchRetryFunc",
@@ -86767,12 +87789,20 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchHooks::retry"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:FixedFormat",
@@ -87762,12 +88792,20 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_rpc::fetch::FetchResponse"
+      ],
+      "feature": "always; http or browser for platform execution",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/fetch.test.mjs",
+        "crates/quai-sdk/tests/resources.rs",
+        "crates/quai-rpc/tests/fetch.rs"
+      ],
+      "docs": [
+        "docs/FETCH_PARITY.md"
+      ],
+      "deviation": "Explicit bounded resource models, per-client hooks and runtime ownership replace mutable JavaScript fetch wrappers. Resource policy is separate from JSON-RPC submission policy."
     },
     {
       "id": "./utils:getZoneForAddress",

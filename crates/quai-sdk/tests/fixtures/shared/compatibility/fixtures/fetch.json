@@ -1,0 +1,94 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "bodies": [
+    {
+      "kind": "none",
+      "input": null,
+      "method": "GET",
+      "body": null,
+      "contentType": null
+    },
+    {
+      "kind": "text",
+      "input": "hello π",
+      "method": "POST",
+      "body": "0x68656c6c6f20cf80",
+      "contentType": "text/plain"
+    },
+    {
+      "kind": "text",
+      "input": "",
+      "method": "POST",
+      "body": "0x",
+      "contentType": "text/plain"
+    },
+    {
+      "kind": "bytes",
+      "input": "0x0001ff",
+      "method": "POST",
+      "body": "0x0001ff",
+      "contentType": "application/octet-stream"
+    },
+    {
+      "kind": "bytes",
+      "input": "0x",
+      "method": "POST",
+      "body": "0x",
+      "contentType": "application/octet-stream"
+    },
+    {
+      "kind": "json",
+      "input": {
+        "count": "9007199254740993",
+        "ok": true
+      },
+      "method": "POST",
+      "body": "0x7b22636f756e74223a2239303037313939323534373430393933222c226f6b223a747275657d",
+      "contentType": "application/json"
+    }
+  ],
+  "data": [
+    {
+      "uri": "data:,hello%20world",
+      "rustReject": false,
+      "status": 200,
+      "body": "0x68656c6c6f20776f726c64",
+      "contentType": "text/plain"
+    },
+    {
+      "uri": "data:application/json,%7B%22ok%22%3Atrue%7D",
+      "rustReject": false,
+      "status": 200,
+      "body": "0x7b226f6b223a747275657d",
+      "contentType": "application/json"
+    },
+    {
+      "uri": "data:;base64,AAH/",
+      "rustReject": false,
+      "status": 200,
+      "body": "0x0001ff",
+      "contentType": "text/plain"
+    },
+    {
+      "uri": "data:,a+b%20c",
+      "rustReject": false,
+      "status": 200,
+      "body": "0x612b622063",
+      "contentType": "text/plain"
+    },
+    {
+      "uri": "data:,",
+      "rustReject": false,
+      "status": 200,
+      "body": "0x",
+      "contentType": "text/plain"
+    },
+    {
+      "uri": "data:,%gg",
+      "rustReject": true,
+      "status": 200,
+      "body": "0x256767",
+      "contentType": "text/plain"
+    }
+  ]
+}

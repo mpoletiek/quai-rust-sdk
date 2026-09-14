@@ -3,6 +3,9 @@
 //! Routing has no network side effects. Native HTTP and WebSocket transports are
 //! optional; native futures are Send while browser adapters have a separate bound.
 
+/// General resource requests with explicit limits and lifecycle.
+pub mod fetch;
+
 mod quantity;
 mod routing;
 mod transport;

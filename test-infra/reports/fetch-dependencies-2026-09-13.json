@@ -1,0 +1,296 @@
+{
+  "recordedAt": "2026-09-14T01:39:34.083173+00:00",
+  "auditScope": "Offline advisory database snapshot 455fd4bac659b5f1fca3810661c2d8b3c25dad05; no fresh network advisory fetch or yanked-package check claimed.",
+  "changes": {
+    "Cargo.lock": {
+      "addedPackages": [
+        [
+          "adler2",
+          "2.0.1",
+          "registry+https://github.com/rust-lang/crates.io-index",
+          "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
+        ],
+        [
+          "crc32fast",
+          "1.5.1",
+          "registry+https://github.com/rust-lang/crates.io-index",
+          "8498c871161e1742aaa9d52551b2d6ebdd4c3d45a3be423e3728f33b955be550"
+        ],
+        [
+          "flate2",
+          "1.1.10",
+          "registry+https://github.com/rust-lang/crates.io-index",
+          "6e634e2e0ebac1ee034020da1ca582e17ffe4e0f5e985823721e168928136dcb"
+        ],
+        [
+          "miniz_oxide",
+          "0.9.1",
+          "registry+https://github.com/rust-lang/crates.io-index",
+          "b63fbc4a50860e98e7b2aa7804ded1db5cbc3aff9193adaff57a6931bf7c4b4c"
+        ],
+        [
+          "simd-adler32",
+          "0.3.10",
+          "registry+https://github.com/rust-lang/crates.io-index",
+          "3a219298ac11a56ea9a6d2120044824d6f01aeb034955e7af7bc16858527deea"
+        ],
+        [
+          "zlib-rs",
+          "0.6.7",
+          "registry+https://github.com/rust-lang/crates.io-index",
+          "34b31d188d9d685a4f9c7b46d6e36631b07058d2cfe190267adce54dc230bf12"
+        ]
+      ],
+      "removedPackages": [],
+      "sha256": "e76e2d120d4bddea672caedf996d0cbc719ad3ab86ed0b96d8bdc3e18c80e00a"
+    },
+    "fuzz/Cargo.lock": {
+      "addedPackages": [],
+      "removedPackages": [],
+      "sha256": "52a8d1236ba645860c948e90ad2002f2cff5093c45c8b130655d9a63ddcd6808"
+    }
+  },
+  "audits": {
+    "Cargo.lock": {
+      "database": {
+        "advisory-count": 1244,
+        "last-commit": null,
+        "last-updated": null
+      },
+      "lockfile": {
+        "dependency-count": 379
+      },
+      "settings": {
+        "target_arch": [],
+        "target_os": [],
+        "severity": null,
+        "ignore": [],
+        "informational_warnings": [
+          "unmaintained",
+          "unsound",
+          "notice"
+        ]
+      },
+      "vulnerabilities": {
+        "found": false,
+        "count": 0,
+        "list": []
+      },
+      "warnings": {
+        "unmaintained": [
+          {
+            "kind": "unmaintained",
+            "package": {
+              "name": "derivative",
+              "version": "2.2.0",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "checksum": "fcc3dd5e9e9c0b295d6e1e4d811fb6f157d5ffd784b8d202fc62eac8035a770b",
+              "dependencies": [
+                {
+                  "name": "proc-macro2",
+                  "version": "1.0.107",
+                  "source": "registry+https://github.com/rust-lang/crates.io-index"
+                },
+                {
+                  "name": "quote",
+                  "version": "1.0.47",
+                  "source": "registry+https://github.com/rust-lang/crates.io-index"
+                },
+                {
+                  "name": "syn",
+                  "version": "1.0.109",
+                  "source": "registry+https://github.com/rust-lang/crates.io-index"
+                }
+              ],
+              "replace": null
+            },
+            "advisory": {
+              "id": "RUSTSEC-2024-0388",
+              "package": "derivative",
+              "title": "`derivative` is unmaintained; consider using an alternative",
+              "description": "The [`derivative`](https://crates.io/crates/derivative) crate is no longer maintained.\nConsider using any alternative, for instance:\n- [derive_more](https://crates.io/crates/derive_more)\n- [derive-where](https://crates.io/crates/derive-where)\n- [educe](https://crates.io/crates/educe)",
+              "date": "2024-06-26",
+              "aliases": [],
+              "related": [],
+              "collection": "crates",
+              "categories": [],
+              "keywords": [],
+              "cvss": null,
+              "informational": "unmaintained",
+              "references": [],
+              "source": null,
+              "url": "https://github.com/mcarton/rust-derivative/issues/117",
+              "withdrawn": null,
+              "license": "CC0-1.0",
+              "expect-deleted": false
+            },
+            "affected": null,
+            "versions": {
+              "patched": [],
+              "unaffected": []
+            }
+          },
+          {
+            "kind": "unmaintained",
+            "package": {
+              "name": "paste",
+              "version": "1.0.15",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "checksum": "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a",
+              "replace": null
+            },
+            "advisory": {
+              "id": "RUSTSEC-2024-0436",
+              "package": "paste",
+              "title": "paste - no longer maintained",
+              "description": "The creator of the crate `paste` has stated in the [`README.md`](https://github.com/dtolnay/paste/blob/master/README.md) \nthat this project is not longer maintained as well as archived the repository\n\n## Possible Alternative(s)\n\n- [`pastey`]: a fork of paste and is aimed to be a drop-in replacement with additional features for paste crate\n- [`with_builtin_macros`]: crate providing a [superset of `paste`'s functionality including general `macro_rules!` eager expansions](https://docs.rs/with_builtin_macros/0.1.0/with_builtin_macros/macro.with_eager_expansions.html)  and `concat!`/`concat_idents!` macros\n\n[`pastey`]: https://crates.io/crates/pastey\n[`with_builtin_macros`]: https://crates.io/crates/with_builtin_macros",
+              "date": "2024-10-07",
+              "aliases": [],
+              "related": [],
+              "collection": "crates",
+              "categories": [],
+              "keywords": [],
+              "cvss": null,
+              "informational": "unmaintained",
+              "references": [],
+              "source": null,
+              "url": "https://github.com/dtolnay/paste",
+              "withdrawn": null,
+              "license": "CC0-1.0",
+              "expect-deleted": false
+            },
+            "affected": null,
+            "versions": {
+              "patched": [],
+              "unaffected": []
+            }
+          }
+        ]
+      }
+    },
+    "fuzz/Cargo.lock": {
+      "database": {
+        "advisory-count": 1244,
+        "last-commit": null,
+        "last-updated": null
+      },
+      "lockfile": {
+        "dependency-count": 291
+      },
+      "settings": {
+        "target_arch": [],
+        "target_os": [],
+        "severity": null,
+        "ignore": [],
+        "informational_warnings": [
+          "unmaintained",
+          "unsound",
+          "notice"
+        ]
+      },
+      "vulnerabilities": {
+        "found": false,
+        "count": 0,
+        "list": []
+      },
+      "warnings": {
+        "unmaintained": [
+          {
+            "kind": "unmaintained",
+            "package": {
+              "name": "derivative",
+              "version": "2.2.0",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "checksum": "fcc3dd5e9e9c0b295d6e1e4d811fb6f157d5ffd784b8d202fc62eac8035a770b",
+              "dependencies": [
+                {
+                  "name": "proc-macro2",
+                  "version": "1.0.107",
+                  "source": "registry+https://github.com/rust-lang/crates.io-index"
+                },
+                {
+                  "name": "quote",
+                  "version": "1.0.47",
+                  "source": "registry+https://github.com/rust-lang/crates.io-index"
+                },
+                {
+                  "name": "syn",
+                  "version": "1.0.109",
+                  "source": "registry+https://github.com/rust-lang/crates.io-index"
+                }
+              ],
+              "replace": null
+            },
+            "advisory": {
+              "id": "RUSTSEC-2024-0388",
+              "package": "derivative",
+              "title": "`derivative` is unmaintained; consider using an alternative",
+              "description": "The [`derivative`](https://crates.io/crates/derivative) crate is no longer maintained.\nConsider using any alternative, for instance:\n- [derive_more](https://crates.io/crates/derive_more)\n- [derive-where](https://crates.io/crates/derive-where)\n- [educe](https://crates.io/crates/educe)",
+              "date": "2024-06-26",
+              "aliases": [],
+              "related": [],
+              "collection": "crates",
+              "categories": [],
+              "keywords": [],
+              "cvss": null,
+              "informational": "unmaintained",
+              "references": [],
+              "source": null,
+              "url": "https://github.com/mcarton/rust-derivative/issues/117",
+              "withdrawn": null,
+              "license": "CC0-1.0",
+              "expect-deleted": false
+            },
+            "affected": null,
+            "versions": {
+              "patched": [],
+              "unaffected": []
+            }
+          },
+          {
+            "kind": "unmaintained",
+            "package": {
+              "name": "paste",
+              "version": "1.0.15",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "checksum": "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a",
+              "replace": null
+            },
+            "advisory": {
+              "id": "RUSTSEC-2024-0436",
+              "package": "paste",
+              "title": "paste - no longer maintained",
+              "description": "The creator of the crate `paste` has stated in the [`README.md`](https://github.com/dtolnay/paste/blob/master/README.md) \nthat this project is not longer maintained as well as archived the repository\n\n## Possible Alternative(s)\n\n- [`pastey`]: a fork of paste and is aimed to be a drop-in replacement with additional features for paste crate\n- [`with_builtin_macros`]: crate providing a [superset of `paste`'s functionality including general `macro_rules!` eager expansions](https://docs.rs/with_builtin_macros/0.1.0/with_builtin_macros/macro.with_eager_expansions.html)  and `concat!`/`concat_idents!` macros\n\n[`pastey`]: https://crates.io/crates/pastey\n[`with_builtin_macros`]: https://crates.io/crates/with_builtin_macros",
+              "date": "2024-10-07",
+              "aliases": [],
+              "related": [],
+              "collection": "crates",
+              "categories": [],
+              "keywords": [],
+              "cvss": null,
+              "informational": "unmaintained",
+              "references": [],
+              "source": null,
+              "url": "https://github.com/dtolnay/paste",
+              "withdrawn": null,
+              "license": "CC0-1.0",
+              "expect-deleted": false
+            },
+            "affected": null,
+            "versions": {
+              "patched": [],
+              "unaffected": []
+            }
+          }
+        ]
+      }
+    }
+  },
+  "features": "Native optional flate2 uses the Rust miniz backend. zlib-rs is locked but inactive. Resource JSON enables serde_json float_roundtrip; no other package version changes.",
+  "activeTreeSha256": "edbe81752a5c1630298dc7c5f5b7a62bae1a8a7cfeed187cc477e22a85370379",
+  "inactiveWarnings": {
+    "derivative v": true,
+    "paste v": true
+  },
+  "zlibRsInactive": true
+}

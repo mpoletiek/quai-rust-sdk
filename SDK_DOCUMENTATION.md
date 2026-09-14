@@ -910,3 +910,21 @@ with the trusted genesis and optional runtime hash, then use native/browser
 poll limit. Empty/changed views remain pending; source errors stop and dropping
 the future cancels reads. Code presence does not establish finality.
 See [contract parity and limits](docs/CONTRACT_PARITY.md) for the complete mapping.
+
+### General resource requests
+
+`rpc::fetch::FetchClient` handles resources separately from JSON-RPC. Choose
+`NativeFetch` with the `http` feature or `browser::BrowserResourceFetch` on Wasm.
+`FetchRequest` supports validated headers, Basic authentication and byte/text/JSON
+bodies; `FetchResponse` retains error bodies and offers strict text/JSON/status
+inspection. Defaults permit one exchange and no redirects. `FetchConfig` and
+`FetchHooks` express bounded retries, explicit redirects, custom gateways and
+preflight/processing policy. `FetchCancellation` or dropping send releases active
+local work; use a fresh token after cancellation.
+
+`data_resource` decodes local data URIs. `ipfs_resource` requires a caller-selected
+gateway and does not authenticate CID content. Browser CORS, opaque redirects
+and compression negotiation have explicit limits. See [resource reference and
+parity](docs/FETCH_PARITY.md) for bounds, examples and corrected source behavior.
+Exact large JSON numbers must be strings; float round-trip support preserves
+binary floats rather than arbitrary-precision integers.

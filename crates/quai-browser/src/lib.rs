@@ -14,6 +14,8 @@ use serde_json::Value;
 #[cfg(target_arch = "wasm32")]
 mod browser;
 #[cfg(target_arch = "wasm32")]
+mod resource;
+#[cfg(target_arch = "wasm32")]
 pub use browser::{
     BrowserFetchTransport, InjectedProvider, InjectedSubmissionTransport,
     WalletSendAcknowledgement, WalletSendError, WalletSendIdentity, WalletSendObservation,
@@ -21,6 +23,8 @@ pub use browser::{
 };
 #[cfg(target_arch = "wasm32")]
 pub use quai_signer::{DomainPolicy, TypedData};
+#[cfg(target_arch = "wasm32")]
+pub use resource::BrowserResourceFetch;
 
 /// Browser resource limits. Concurrent calls fail fast when capacity is exhausted.
 #[derive(Clone, Copy, Debug)]

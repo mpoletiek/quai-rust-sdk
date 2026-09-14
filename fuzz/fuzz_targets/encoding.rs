@@ -15,6 +15,16 @@ fuzz_target!(|data: &[u8]| {
     }
     let _ = to_utf8_string(data);
     if let Ok(text) = std::str::from_utf8(data) {
+        use quai_sdk::rpc::fetch::*;
+        let _=data_resource(text);
+        let _=ipfs_resource(text,"https://gateway.invalid/ipfs/");
+        if let Ok(mut request)=FetchRequest::new(text) {assert_eq!(request.url(),text);let _=request.validate();let _=request.redirect(text);let _=request.set_text(text);assert!(request.body().map_or(true,|b|b.len()<=MAX_FETCH_BYTES));}
+        if let Ok(value)=serde_json::from_str::<serde_json::Value>(text){
+            let mut request=FetchRequest::new("https://example.invalid/").unwrap();
+            if request.set_json(&value).is_ok(){assert_eq!(serde_json::from_slice::<serde_json::Value>(request.body().unwrap()).unwrap(),value);}
+            if let (Some(name),Some(value))=(value["header"].as_str(),value["value"].as_str()){let mut h=FetchHeaders::default();if h.set(name,value).is_ok(){assert_eq!(h.get(name),Some(value));}}
+        }
+
         for form in [None,Some(Utf8Normalization::Nfc),Some(Utf8Normalization::Nfd),Some(Utf8Normalization::Nfkc),Some(Utf8Normalization::Nfkd)] {
             if let Ok(bytes) = to_utf8_bytes(text,form) {
                 let normalized = to_utf8_string(&bytes).unwrap();

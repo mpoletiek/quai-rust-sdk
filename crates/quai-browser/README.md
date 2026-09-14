@@ -298,3 +298,9 @@ fields/head, and stops active reads on drop. It does not infer finality, verify
 signatures, discover unregistered Qi competitors or release custody claims.
 Use `Transaction::verified_qi` separately when verifying RPC signature/hash
 claims. See [transaction responses](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/TRANSACTION_RESPONSE_PARITY.md).
+
+General resource requests are available through `quai_rpc::fetch::FetchClient`.
+Use `NativeFetch` on native HTTP or `quai_browser::BrowserResourceFetch` in Wasm.
+Models, hooks, gateways, cancellation and bounded policy are documented in the
+[resource guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/FETCH_PARITY.md).
+These operations are separate from JSON-RPC transport and submission policy.

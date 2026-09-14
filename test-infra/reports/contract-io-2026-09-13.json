@@ -352,5 +352,44 @@
     },
     "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
   },
-  "qualification": "Offline/reference/Chromium/owned harness evidence. No new funded-network acceptance, crates.io upload or production-finality claim. Fuzz directly exercises fallback population and owned log decoding, not asynchronous query scheduling."
+  "qualification": "Offline/reference/Chromium/owned harness evidence. No new funded-network acceptance, crates.io upload or production-finality claim. Fuzz directly exercises fallback population and owned log decoding, not asynchronous query scheduling.",
+  "commitCi": {
+    "runId": 34795218246,
+    "headSha": "df6967e60f12b54ff4010e6fa59a2d4bb6bd8b5f",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "packaged-consumer",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (macos-15)",
+        "conclusion": "success"
+      },
+      {
+        "name": "fuzz-smoke",
+        "conclusion": "success"
+      },
+      {
+        "name": "browser",
+        "conclusion": "success"
+      },
+      {
+        "name": "reference-and-harness",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (ubuntu-24.04)",
+        "conclusion": "success"
+      },
+      {
+        "name": "dependency-advisories",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (windows-2025)",
+        "conclusion": "success"
+      }
+    ]
+  }
 }

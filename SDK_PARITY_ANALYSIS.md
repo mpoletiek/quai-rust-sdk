@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 3357 | Documented replacement, stricter behavior, correction or omission |
+| `deviation` | 3473 | Documented replacement, stricter behavior, correction or omission |
 | `partial` | 0 | A mapping exists with unfinished behavior or scope |
-| `pending` | 505 | No completed row-level reconciliation; not proof of absence |
+| `pending` | 389 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -234,8 +234,6 @@ root/subpath exports account for much of the volume.
 <!-- parity-family-table:start -->
 | Export family | Pending | Partial | Implemented | Deviation |
 | --- | ---: | ---: | ---: | ---: |
-| `FetchRequest` | 64 | 0 | 0 | 0 |
-| `FetchResponse` | 32 | 0 | 0 | 0 |
 | `BaseWallet` | 20 | 0 | 0 | 0 |
 | `SocketEventSubscriber` | 18 | 0 | 0 | 0 |
 | `Network` | 16 | 0 | 0 | 0 |
@@ -245,7 +243,6 @@ root/subpath exports account for much of the volume.
 | `BIP44` | 12 | 0 | 0 | 0 |
 | `UnmanagedSubscriber` | 12 | 0 | 0 | 0 |
 | `AggregateCoinSelector` | 8 | 0 | 0 | 0 |
-| `FetchCancelSignal` | 8 | 0 | 0 | 0 |
 | `FeeData` | 6 | 0 | 0 | 0 |
 | `ActionRejectedError` | 2 | 0 | 0 | 0 |
 | `Addressable` | 2 | 0 | 0 | 0 |
@@ -271,11 +268,6 @@ root/subpath exports account for much of the volume.
 | `ErrorCode` | 2 | 0 | 0 | 0 |
 | `EventEmitterable` | 2 | 0 | 0 | 0 |
 | `EventFilter` | 2 | 0 | 0 | 0 |
-| `FetchGatewayFunc` | 2 | 0 | 0 | 0 |
-| `FetchGetUrlFunc` | 2 | 0 | 0 | 0 |
-| `FetchPreflightFunc` | 2 | 0 | 0 | 0 |
-| `FetchProcessFunc` | 2 | 0 | 0 | 0 |
-| `FetchRetryFunc` | 2 | 0 | 0 | 0 |
 | `Filter` | 2 | 0 | 0 | 0 |
 | `FilterByBlockHash` | 2 | 0 | 0 | 0 |
 | `FixedFormat` | 2 | 0 | 0 | 0 |
@@ -284,7 +276,6 @@ root/subpath exports account for much of the volume.
 | `getBigInt` | 2 | 0 | 0 | 0 |
 | `getNumber` | 2 | 0 | 0 | 0 |
 | `getUint` | 2 | 0 | 0 | 0 |
-| `GetUrlResponse` | 2 | 0 | 0 | 0 |
 | `InsufficientFundsError` | 2 | 0 | 0 | 0 |
 | `InterfaceAbi` | 2 | 0 | 0 | 0 |
 | `InvalidArgumentError` | 2 | 0 | 0 | 0 |
@@ -524,3 +515,14 @@ fallback/receive preparation, simulation and estimation, lossless bounded event
 queries, and address-only code appearance waits now have native/worker tests.
 Published receive-order, TODO-query and factory-grinding behaviors are explicitly
 reviewed. Event delivery and signing remain application-owned compositions.
+
+## Resource fetch review — 2026-09-13
+
+[Fetch parity](docs/FETCH_PARITY.md) closes 116 pending rows with explicit bounded
+request/response models, native/browser execution, cancellation, per-client hooks,
+data/custom/IPFS gateways and opt-in retry/redirect policy. Source credential
+forwarding, Retry-After unit handling and diagnostic exposure are corrected.
+Browser opaque redirects and compression negotiation remain documented platform
+differences. The ledger now has 389 pending rows, zero partial rows, 3473 deliberate
+differences and 66 directly implemented mappings; these are declarations, not
+independent features or a completion percentage.

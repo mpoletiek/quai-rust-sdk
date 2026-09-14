@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run browser wasm tests against an isolated public-data-only loopback RPC fixture."""
 import http.server
+import gzip
 import websocket_fixture
 import argparse
 import json
@@ -15,17 +16,22 @@ class Fixture(http.server.BaseHTTPRequestHandler):
     def log_message(self, *_args): pass
     def cors(self):
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Headers', 'content-type')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'content-type,x-public')
+        self.send_header('Access-Control-Expose-Headers', 'content-encoding,location,retry-after')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, HEAD, OPTIONS')
     def do_OPTIONS(self):
         self.send_response(204); self.cors(); self.send_header('Content-Length', '0'); self.end_headers()
     def do_GET(self):
-        if self.path.startswith('/socket/'):
+        if self.path.startswith('/resource/'):
+            self.resource()
+        elif self.path.startswith('/socket/'):
             websocket_fixture.serve(self)
         else:
             self.send_error(404)
 
     def do_POST(self):
+        if self.path.startswith('/resource/'):
+            self.resource(); return
         length = int(self.headers.get('Content-Length', '0'))
         if not 0 < length < 65536:
             self.send_error(400); return
@@ -54,6 +60,32 @@ class Fixture(http.server.BaseHTTPRequestHandler):
         try: self.wfile.write(body)
         except (BrokenPipeError,ConnectionResetError): pass
         if self.path == '/oversize': self.close_connection=True
+
+    def resource(self):
+        body = b'{"ok":true}'
+        status = 200
+        encoding = None
+        if self.path == '/resource/echo':
+            size = int(self.headers.get('Content-Length', '0'))
+            if not 0 <= size <= 1048576:
+                self.send_error(400); return
+            body = self.rfile.read(size)
+        if self.path == '/resource/error':
+            status, body = 418, b'PUBLIC error'
+        if self.path == '/resource/gzip':
+            body, encoding = gzip.compress(body), 'gzip'
+        if self.path == '/resource/bomb':
+            body, encoding = gzip.compress(b'x' * 8192), 'gzip'
+        if self.path == '/resource/oversize': body = b'x' * 2048
+        if self.path == '/resource/slow': time.sleep(0.2)
+        if self.path == '/resource/redirect': status, body = 302, b''
+        self.send_response(status); self.cors()
+        if status == 302: self.send_header('Location', '/resource/json')
+        if encoding: self.send_header('Content-Encoding', encoding)
+        self.send_header('Content-Type', 'application/octet-stream')
+        self.send_header('Content-Length', str(len(body))); self.end_headers()
+        try: self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError): pass
 
     def account_result(self, request):
         method, params = request.get('method'), request.get('params')
@@ -92,7 +124,7 @@ class Fixture(http.server.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--suite', choices=['browser', 'worker', 'sdk-contract-io', 'sdk-transaction-confirmations', 'sdk-transaction-documents', 'sdk-wordlists', 'sdk-rpc-signer', 'sdk-response-views', 'sdk-provider-events', 'account_wait', 'sdk-legacy-wallets', 'sdk-address-book', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody', 'sdk-account-backup', 'sdk-contract-code', 'sdk-qi-custody', 'sdk-portable-capture', 'sdk-allocation-merge', 'sdk-account-preflight', 'sdk-recovery', 'sdk-qi-preflight'], default='browser')
+    parser.add_argument('--suite', choices=['sdk-resources', 'browser', 'worker', 'sdk-contract-io', 'sdk-transaction-confirmations', 'sdk-transaction-documents', 'sdk-wordlists', 'sdk-rpc-signer', 'sdk-response-views', 'sdk-provider-events', 'account_wait', 'sdk-legacy-wallets', 'sdk-address-book', 'sdk-worker', 'sdk-contracts', 'sdk-events', 'sdk-keys', 'sdk-backups', 'sdk-allocations', 'sdk-payment-allocations', 'sdk-human-abi', 'sdk-receipts', 'sdk-account-custody', 'sdk-account-backup', 'sdk-contract-code', 'sdk-qi-custody', 'sdk-portable-capture', 'sdk-allocation-merge', 'sdk-account-preflight', 'sdk-recovery', 'sdk-qi-preflight'], default='browser')
     arguments = parser.parse_args()
     root = pathlib.Path(__file__).resolve().parents[3]
     server = http.server.ThreadingHTTPServer(('127.0.0.1',0), Fixture)
@@ -105,7 +137,7 @@ if __name__ == '__main__':
     env.setdefault('CHROMEDRIVER','/usr/bin/chromedriver')
     env.setdefault('WASM_BINDGEN_TEST_WEBDRIVER_JSON',str(pathlib.Path(__file__).with_name('webdriver.json')))
     try:
-        sdk_suites = {'sdk-contract-io': ('contract_io', 'wallet,abi,browser'),'sdk-transaction-confirmations': ('transaction_confirmation', 'abi,browser'),'sdk-transaction-documents': ('transaction_documents', 'abi,browser'),'sdk-wordlists': ('wordlists', 'wallet,browser'),
+        sdk_suites = {'sdk-resources': ('resources', 'browser'),'sdk-contract-io': ('contract_io', 'wallet,abi,browser'),'sdk-transaction-confirmations': ('transaction_confirmation', 'abi,browser'),'sdk-transaction-documents': ('transaction_documents', 'abi,browser'),'sdk-wordlists': ('wordlists', 'wallet,browser'),
                       'sdk-provider-events': ('provider_events', 'browser'),
                       'sdk-response-views': ('response_views', 'browser'),
                       'sdk-rpc-signer': ('rpc_signer', 'wallet,browser'),

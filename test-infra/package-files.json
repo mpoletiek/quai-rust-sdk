@@ -404,6 +404,10 @@
     {
       "source": "compatibility/fixtures/contract-io.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/contract-io.json"
+    },
+    {
+      "source": "compatibility/fixtures/fetch.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/fetch.json"
     }
   ]
 }

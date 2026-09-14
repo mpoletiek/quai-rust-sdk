@@ -88,10 +88,10 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
-| `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 3627 | Documented replacement, stricter behavior, correction or omission |
+| `implemented` | 74 | An explicitly mapped behavior, still subject to qualification |
+| `deviation` | 3854 | Documented replacement, stricter behavior, correction or omission |
 | `partial` | 0 | A mapping exists with unfinished behavior or scope |
-| `pending` | 235 | No completed row-level reconciliation; not proof of absence |
+| `pending` | 0 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -234,134 +234,6 @@ root/subpath exports account for much of the volume.
 <!-- parity-family-table:start -->
 | Export family | Pending | Partial | Implemented | Deviation |
 | --- | ---: | ---: | ---: | ---: |
-| `ActionRejectedError` | 2 | 0 | 0 | 0 |
-| `Addressable` | 2 | 0 | 0 | 0 |
-| `AddressLike` | 2 | 0 | 0 | 0 |
-| `AddressStatus` | 2 | 0 | 0 | 0 |
-| `AllowedCoinType` | 2 | 0 | 0 | 0 |
-| `BadDataError` | 2 | 0 | 0 | 0 |
-| `BigNumberish` | 2 | 0 | 0 | 0 |
-| `BlockParams` | 2 | 0 | 0 | 0 |
-| `BlockTag` | 2 | 0 | 0 | 0 |
-| `BufferOverrunError` | 2 | 0 | 0 | 0 |
-| `BytesLike` | 2 | 0 | 0 | 0 |
-| `CallExceptionAction` | 2 | 0 | 0 | 0 |
-| `CallExceptionError` | 2 | 0 | 0 | 0 |
-| `CallExceptionTransaction` | 2 | 0 | 0 | 0 |
-| `CancelledError` | 2 | 0 | 0 | 0 |
-| `checkResultErrors` | 2 | 0 | 0 | 0 |
-| `CodedquaisError` | 2 | 0 | 0 | 0 |
-| `copyRequest` | 2 | 0 | 0 | 0 |
-| `DebugEventBrowserProvider` | 2 | 0 | 0 | 0 |
-| `Eip1193Provider` | 2 | 0 | 0 | 0 |
-| `EncryptOptions` | 2 | 0 | 0 | 0 |
-| `ErrorCode` | 2 | 0 | 0 | 0 |
-| `EventEmitterable` | 2 | 0 | 0 | 0 |
-| `EventFilter` | 2 | 0 | 0 | 0 |
-| `Filter` | 2 | 0 | 0 | 0 |
-| `FilterByBlockHash` | 2 | 0 | 0 | 0 |
-| `FixedFormat` | 2 | 0 | 0 | 0 |
-| `FormatType` | 2 | 0 | 0 | 0 |
-| `FragmentType` | 2 | 0 | 0 | 0 |
-| `getBigInt` | 2 | 0 | 0 | 0 |
-| `getNumber` | 2 | 0 | 0 | 0 |
-| `getUint` | 2 | 0 | 0 | 0 |
-| `InsufficientFundsError` | 2 | 0 | 0 | 0 |
-| `InterfaceAbi` | 2 | 0 | 0 | 0 |
-| `InvalidArgumentError` | 2 | 0 | 0 | 0 |
-| `isAddressable` | 2 | 0 | 0 | 0 |
-| `isBytesLike` | 2 | 0 | 0 | 0 |
-| `isCallException` | 2 | 0 | 0 | 0 |
-| `isError` | 2 | 0 | 0 | 0 |
-| `isHexString` | 2 | 0 | 0 | 0 |
-| `JsonFragment` | 2 | 0 | 0 | 0 |
-| `JsonFragmentType` | 2 | 0 | 0 | 0 |
-| `JsonRpcApiProviderOptions` | 2 | 0 | 0 | 0 |
-| `JsonRpcError` | 2 | 0 | 0 | 0 |
-| `JsonRpcPayload` | 2 | 0 | 0 | 0 |
-| `JsonRpcResult` | 2 | 0 | 0 | 0 |
-| `JsonRpcTransactionRequest` | 2 | 0 | 0 | 0 |
-| `Ledger` | 2 | 0 | 0 | 0 |
-| `Listener` | 2 | 0 | 0 | 0 |
-| `lock` | 2 | 0 | 0 | 0 |
-| `LogParams` | 2 | 0 | 0 | 0 |
-| `makeError` | 2 | 0 | 0 | 0 |
-| `MaxInt256` | 2 | 0 | 0 | 0 |
-| `MinedBlock` | 2 | 0 | 0 | 0 |
-| `MinedTransactionResponse` | 2 | 0 | 0 | 0 |
-| `MinInt256` | 2 | 0 | 0 | 0 |
-| `MissingArgumentError` | 2 | 0 | 0 | 0 |
-| `NetworkError` | 2 | 0 | 0 | 0 |
-| `NeuteredAddressInfo` | 2 | 0 | 0 | 0 |
-| `NonceExpiredError` | 2 | 0 | 0 | 0 |
-| `NotImplementedError` | 2 | 0 | 0 | 0 |
-| `Numeric` | 2 | 0 | 0 | 0 |
-| `NumericFaultError` | 2 | 0 | 0 | 0 |
-| `OrphanFilter` | 2 | 0 | 0 | 0 |
-| `OutpointInfo` | 2 | 0 | 0 | 0 |
-| `ParamTypeWalkAsyncFunc` | 2 | 0 | 0 | 0 |
-| `ParamTypeWalkFunc` | 2 | 0 | 0 | 0 |
-| `PerformActionFilter` | 2 | 0 | 0 | 0 |
-| `PerformActionRequest` | 2 | 0 | 0 | 0 |
-| `PerformActionTransaction` | 2 | 0 | 0 | 0 |
-| `PreparedTransactionRequest` | 2 | 0 | 0 | 0 |
-| `Provider` | 2 | 0 | 0 | 0 |
-| `ProviderEvent` | 2 | 0 | 0 | 0 |
-| `QiAddressInfo` | 2 | 0 | 0 | 0 |
-| `quaisError` | 2 | 0 | 0 | 0 |
-| `quaisymbol` | 2 | 0 | 0 | 0 |
-| `ReplacementUnderpricedError` | 2 | 0 | 0 | 0 |
-| `SerializedHDWallet` | 2 | 0 | 0 | 0 |
-| `SerializedQiHDWallet` | 2 | 0 | 0 | 0 |
-| `ServerError` | 2 | 0 | 0 | 0 |
-| `Shard` | 2 | 0 | 0 | 0 |
-| `SignatureLike` | 2 | 0 | 0 | 0 |
-| `Subscriber` | 2 | 0 | 0 | 0 |
-| `Subscription` | 2 | 0 | 0 | 0 |
-| `TimeoutError` | 2 | 0 | 0 | 0 |
-| `toBeArray` | 2 | 0 | 0 | 0 |
-| `toBeHex` | 2 | 0 | 0 | 0 |
-| `toBigInt` | 2 | 0 | 0 | 0 |
-| `toNumber` | 2 | 0 | 0 | 0 |
-| `TopicFilter` | 2 | 0 | 0 | 0 |
-| `toQuantity` | 2 | 0 | 0 | 0 |
-| `toShard` | 2 | 0 | 0 | 0 |
-| `toZone` | 2 | 0 | 0 | 0 |
-| `TransactionReceiptParams` | 2 | 0 | 0 | 0 |
-| `TransactionReplacedError` | 2 | 0 | 0 | 0 |
-| `TransactionRequest` | 2 | 0 | 0 | 0 |
-| `TransactionResponseParams` | 2 | 0 | 0 | 0 |
-| `TypedDataDomain` | 2 | 0 | 0 | 0 |
-| `TypedDataField` | 2 | 0 | 0 | 0 |
-| `UnexpectedArgumentError` | 2 | 0 | 0 | 0 |
-| `UnknownError` | 2 | 0 | 0 | 0 |
-| `UnsupportedOperationError` | 2 | 0 | 0 | 0 |
-| `verifyMessage` | 2 | 0 | 0 | 0 |
-| `verifyTypedData` | 2 | 0 | 0 | 0 |
-| `WebSocketCreator` | 2 | 0 | 0 | 0 |
-| `WebSocketLike` | 2 | 0 | 0 | 0 |
-| `Zone` | 2 | 0 | 0 | 0 |
-| `assert` | 1 | 0 | 0 | 0 |
-| `assertArgument` | 1 | 0 | 0 | 0 |
-| `assertArgumentCount` | 1 | 0 | 0 | 0 |
-| `assertNormalize` | 1 | 0 | 0 | 0 |
-| `assertPrivate` | 1 | 0 | 0 | 0 |
-| `DataHexString` | 1 | 0 | 0 | 0 |
-| `defineProperties` | 1 | 0 | 0 | 0 |
-| `HexString` | 1 | 0 | 0 | 0 |
-| `QiJsonRpcTransactionRequest` | 1 | 0 | 0 | 0 |
-| `QiPreparedTransactionRequest` | 1 | 0 | 0 | 0 |
-| `QiTransactionRequest` | 1 | 0 | 0 | 0 |
-| `QuaiJsonRpcTransactionRequest` | 1 | 0 | 0 | 0 |
-| `QuaiPreparedTransactionRequest` | 1 | 0 | 0 | 0 |
-| `quais` | 1 | 0 | 0 | 0 |
-| `QuaiTransactionRequest` | 1 | 0 | 0 | 0 |
-| `resolveProperties` | 1 | 0 | 0 | 0 |
-| `ShardData` | 1 | 0 | 0 | 0 |
-| `Signer` | 1 | 0 | 0 | 0 |
-| `SpendTarget` | 1 | 0 | 0 | 0 |
-| `version` | 1 | 0 | 0 | 0 |
-| `ZoneData` | 1 | 0 | 0 | 0 |
 <!-- parity-family-table:end -->
 
 ## Remote JSON-RPC account signer reconciliation
@@ -535,3 +407,13 @@ Threshold aggregation now supports the source's small-coin threshold, separate
 fee inputs and ordered fee refunds. It corrects the source's underpaid-fee case
 and applies explicit spendability/resource/reduction policy. Twelve declaration
 rows are reconciled; 235 remain pending.
+
+### Final declaration reconciliation
+
+The [final declaration review](docs/DECLARATION_PARITY.md) closes the last 235
+pending rows. All 3928 declarations are now mapped: 74 are marked implemented
+and 3854 carry an explicit deviation; none are pending or partial. These counts
+are declaration bookkeeping, not independent-feature percentages or a statement
+that every accepted JS input has identical behavior. The review includes new
+numeric interchange, shard metadata and signer-recovery utilities, plus specific
+Rust equivalents for the remaining type aliases and runtime helpers.

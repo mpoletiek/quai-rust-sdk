@@ -420,6 +420,10 @@
     {
       "source": "compatibility/fixtures/aggregation.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/aggregation.json"
+    },
+    {
+      "source": "compatibility/fixtures/final-utilities.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/final-utilities.json"
     }
   ]
 }

@@ -1,4 +1,19 @@
 //! Quai SDK under construction; wallet derivation and offline signing are available.
+/// Rust package version; independent of the pinned quais.js reference version.
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// Recover the address signing an exact validated typed-data document. This does
+/// not approve its domain or authorize the recovered account; compare the result
+/// and apply the application's expected chain/domain policy independently.
+#[cfg(all(feature = "wallet", feature = "abi"))]
+pub fn recover_typed_data_signer(
+    document: &quai_abi::TypedData,
+    signature: &quai_crypto::RecoverableSignature,
+) -> Result<quai_primitives::Address, quai_crypto::CryptoError> {
+    signature
+        .recover_prehash(document.signing_hash().bytes())
+        .map(quai_crypto::PublicKey::address)
+}
 #[cfg(feature = "wallet")]
 pub mod account_preflight;
 /// Portable fee-only account replacement quotation.

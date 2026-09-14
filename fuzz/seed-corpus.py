@@ -125,4 +125,7 @@ for data in [bytes([0,1,0,31,1,2,3,4]),bytes([0,2,1,63,1,2,3,4]),bytes([4,1,1,32
 for row in load('compatibility/fixtures/curve.json')['scalars']:put('wallet_import',hexbytes(row['a'])+hexbytes(row['b']))
 for row in load('compatibility/fixtures/aggregation.json')['vectors']:
  put('wallet_import',b'QAGG'+int(row['fee']).to_bytes(2,'big')+bytes([row['maximumInput'],row['maximumOutput']])+bytes(v for d in row['denominations'] for v in [d,0]))
+for row in load('compatibility/fixtures/final-utilities.json')['integers']:put('encoding',row['text'].encode())
+for row in load('compatibility/fixtures/final-utilities.json')['hex']:put('encoding',row['text'].encode())
+for raw in ['7ff0000000000000','7ff8000000000000','8000000000000000','4340000000000000']:put('encoding',bytes.fromhex(raw))
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

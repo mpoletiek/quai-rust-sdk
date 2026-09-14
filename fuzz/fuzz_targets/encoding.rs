@@ -3,6 +3,10 @@ use libfuzzer_sys::fuzz_target;
 use quai_consensus::U256;
 use quai_primitives::*;
 fuzz_target!(|data: &[u8]| {
+    use quai_primitives::numeric::*;
+    if let Ok(value)=uint_from_be_bytes(data){assert_eq!(uint_from_be_bytes(&uint_to_be_array(value)).unwrap(),value);assert_eq!(parse_uint(&uint_to_quantity(value)).unwrap(),value);assert_eq!(parse_uint(&uint_to_be_hex(value,None).unwrap()).unwrap(),value);}
+    if data.len()>=8 {let bits=u64::from_be_bytes(data[..8].try_into().unwrap());let number=f64::from_bits(bits);if let Ok(integer)=integer_from_safe_number(number){assert_eq!(integer_to_safe_number(integer).unwrap(),number);}}
+
     if let Ok(encoded) = hexlify(data) {
         assert_eq!(get_bytes(&encoded).unwrap(), data);
     }
@@ -15,6 +19,9 @@ fuzz_target!(|data: &[u8]| {
     }
     let _ = to_utf8_string(data);
     if let Ok(text) = std::str::from_utf8(data) {
+        if let Ok(integer)=parse_integer(text){let canonical=integer.format(Unit::new(0).unwrap());assert_eq!(parse_integer(&canonical).unwrap(),integer);if let Ok(value)=integer.try_u256(){assert_eq!(parse_uint(text).unwrap(),value);}}
+        if is_hex_string(text,HexFormat::Bytes){let bytes=get_bytes(text).unwrap();assert!(is_hex_string(text,HexFormat::Exact(bytes.len())));assert!(is_hex_string(text,HexFormat::Any));}
+
         use quai_sdk::rpc::fetch::*;
         let _=data_resource(text);
         let _=ipfs_resource(text,"https://gateway.invalid/ipfs/");

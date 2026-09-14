@@ -140,3 +140,8 @@ Existing exact CREATE/CREATE2 predictors correspond to `getCreateAddress` and
 `getCreate2Address`, with u64 nonces and fixed-size salt/hash inputs. Typed
 `Address::ZERO`, `Hash32::ZERO`, SDK `U256::MAX`, and `parse_quai("1")` cover the
 zero address/hash, maximum unsigned integer and 10^18 base-unit constants.
+
+The `numeric` module supplies bounded exact integer parsing, byte/hex/quantity
+conversion, safe-number bridges and hexadecimal shape validation. `ShardMetadata`
+retains all published labels; typed shards determine hierarchy. See the
+[declaration review](../../docs/DECLARATION_PARITY.md) for supported grammar and bounds.

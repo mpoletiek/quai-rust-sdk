@@ -27,6 +27,18 @@ pub use hash::{
 pub use keys::{PublicKey, SecretKey};
 pub use signatures::{RecoverableSignature, SchnorrPublicKey, SchnorrSignature};
 
+/// Recover the address signing exact personal-message bytes. Text callers pass
+/// UTF-8 bytes; hex-looking text is not decoded. Recovery does not authenticate
+/// an expected signer: compare the returned address with the authorized address.
+pub fn recover_message_signer(
+    message: &[u8],
+    signature: &RecoverableSignature,
+) -> Result<quai_primitives::Address, CryptoError> {
+    signature
+        .recover_prehash(&hash_message(message))
+        .map(PublicKey::address)
+}
+
 /// Errors never include secret input or backend diagnostic strings.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CryptoError {

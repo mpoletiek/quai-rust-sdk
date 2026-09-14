@@ -1,0 +1,21 @@
+{
+  "recordedAt": "2026-09-14T02:54:37.272359+00:00",
+  "kind": "bounded sanitizer fuzz smoke; not sustained security qualification",
+  "fuzzLockSha256": "52a8d1236ba645860c948e90ad2002f2cff5093c45c8b130655d9a63ddcd6808",
+  "sdkLockSha256": "e76e2d120d4bddea672caedf996d0cbc719ad3ab86ed0b96d8bdc3e18c80e00a",
+  "targets": [
+    {
+      "name": "encoding",
+      "binarySha256": "992aae8d3a38f308c4c058691354499f08473383829544d5ba343957fc8e4409",
+      "seconds": 120,
+      "exitCode": 0,
+      "addressSanitizer": true,
+      "initialCorpusFiles": 113,
+      "finalCorpusFiles": 2023,
+      "executions": 248101,
+      "coverageCounters": 5780,
+      "features": 16532,
+      "rssMiB": 477
+    }
+  ]
+}

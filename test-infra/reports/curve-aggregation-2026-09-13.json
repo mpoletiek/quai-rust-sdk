@@ -175,5 +175,44 @@
     "Aggregation still requires node block-placement exception; fee quote is not acceptance proof.",
     "Archive test targets compiled, not executed; no package publication or funded network write."
   ],
-  "dependencies": "All three lockfiles unchanged from base commit."
+  "dependencies": "All three lockfiles unchanged from base commit.",
+  "githubCi": {
+    "headSha": "e7422f009d88b7bbfb3238b46e986c83c2eb39a3",
+    "conclusion": "success",
+    "runId": 34799724756,
+    "jobs": [
+      {
+        "name": "fuzz-smoke",
+        "conclusion": "success"
+      },
+      {
+        "name": "browser",
+        "conclusion": "success"
+      },
+      {
+        "name": "reference-and-harness",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (ubuntu-24.04)",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (windows-2025)",
+        "conclusion": "success"
+      },
+      {
+        "name": "dependency-advisories",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (macos-15)",
+        "conclusion": "success"
+      },
+      {
+        "name": "packaged-consumer",
+        "conclusion": "success"
+      }
+    ]
+  }
 }

@@ -965,3 +965,20 @@ output index 14 and required UTXO-count reduction. Set `require_reduction: false
 explicitly for non-reducing plans. Larger denominations still require the node's
 first-Qi block-position exception. See [complete mappings, bounds and examples of
 reference differences](docs/CURVE_AND_AGGREGATION_PARITY.md).
+
+### Numeric interchange, shard metadata and recovered signers
+
+`primitives::numeric` provides exact signed integer parsing, unsigned byte/hex/RPC
+quantity conversions, explicitly checked JavaScript-number bridges and
+`HexFormat` validation. General signed parsing is bounded to 512 bits; transaction
+quantities use U256. `SignedUnits::INT256_MIN` and `INT256_MAX` provide the signed
+256-bit limits. `Shard::ALL`, `Shard::metadata` and `Zone::metadata` expose the
+published labels while retaining typed hierarchy and zone validation.
+
+`crypto::recover_message_signer` recovers from exact personal-message bytes.
+`recover_typed_data_signer` accepts a validated `abi::TypedData` document and
+canonical signature. Both return an address that the caller must compare with
+its expected signer; domain/chain authorization remains explicit. `VERSION` is
+the Rust package version. See the [complete declaration mappings and numeric
+boundaries](docs/DECLARATION_PARITY.md), including source coercions intentionally
+rejected by Rust and the remaining platform/runtime differences.

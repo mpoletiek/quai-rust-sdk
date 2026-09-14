@@ -1093,3 +1093,26 @@ The 120-second ASAN campaign completed 12,742 executions without findings.
 All twelve archives passed three consumer tests, twelve native and two Wasm
 target compilations with 105 public file mirrors. No dependency lockfiles changed;
 no package upload or funded network write occurred. Evidence: [batch report](test-infra/reports/curve-aggregation-2026-09-13.json).
+
+## Final declaration reconciliation — September 13
+
+Added bounded numeric interchange, safe-number bridges, hex predicates, exact
+signed constants, complete shard metadata and explicit recovered-signer helpers.
+Eight native/Chromium utility tests and seven source semantics tests qualify the
+new helpers. The [declaration review](docs/DECLARATION_PARITY.md) reconciles the
+remaining 235 rows: 74 implemented, 3854 explicit deviations, no pending/partial.
+This closes inventory review; the documented platform and qualification limits
+still require separate interpretation rather than a blanket parity percentage.
+
+Curve/aggregation commit `e7422f0` passed all eight CI jobs in run `34799724756`.
+This batch passed 24 primitive and 77 crypto/ABI/signer regression tests, strict
+native/Wasm Clippy and rustdoc, all 24 source test files, and a 120-second ASAN
+run with 248,101 executions. Twelve archives passed three consumer tests, twelve
+native and two Wasm target compilations with 106 public mirrors. All lockfiles
+are unchanged. Packaged test targets were compiled, not executed; no upload or
+funded network transaction occurred. Evidence: [utility/declaration report](test-infra/reports/final-utilities-2026-09-13.json).
+
+The subsequent deviation audit identified explicit wrapping fixed-point arithmetic
+and lossy floating-point conversion as useful remaining functionality, despite
+their earlier intentional-omission mapping. These are being implemented before
+the final release review; zero unreviewed declarations is not itself completion.

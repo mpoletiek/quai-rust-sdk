@@ -9,6 +9,10 @@
 //! Lowercase and uppercase inputs are accepted; mixed-case inputs are checked.
 
 mod fixed;
+pub mod numeric;
+/// The published reference's legacy display symbol (Greek capital Xi).
+/// Presentation metadata, not an amount unit or protocol discriminator.
+pub const QUAIS_SYMBOL: &str = "\u{039e}";
 pub use fixed::{FixedError, FixedFormat, FixedPoint, Rounding};
 mod encoding;
 mod text;
@@ -35,4 +39,4 @@ pub use amount::{
 };
 pub use contract::{contract_address, create2_address};
 pub use hash::{Hash32, Hash32Error};
-pub use shard::{Region, Shard, ShardError, Zone};
+pub use shard::{Region, Shard, ShardError, ShardMetadata, Zone};

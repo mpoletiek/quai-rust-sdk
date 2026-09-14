@@ -73,6 +73,16 @@ pub struct SignedUnits {
     magnitude: U512,
 }
 impl SignedUnits {
+    /// Smallest signed 256-bit integer, -2^255.
+    pub const INT256_MIN: Self = Self {
+        negative: true,
+        magnitude: U512::from_limbs([0, 0, 0, 0x8000000000000000, 0, 0, 0, 0]),
+    };
+    /// Largest signed 256-bit integer, 2^255-1.
+    pub const INT256_MAX: Self = Self {
+        negative: false,
+        magnitude: U512::from_limbs([u64::MAX, u64::MAX, u64::MAX, 0x7fffffffffffffff, 0, 0, 0, 0]),
+    };
     /// Construct a signed integer with checked reference range.
     pub fn new(negative: bool, magnitude: U512) -> Result<Self, AmountError> {
         let boundary = U512::from(1) << 511;

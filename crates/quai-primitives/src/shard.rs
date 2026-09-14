@@ -1,5 +1,22 @@
 use core::{fmt, str::FromStr};
 
+/// Immutable published shard labels. These labels do not establish network
+/// activation, endpoint identity or finality.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ShardMetadata {
+    /// Published human-readable name.
+    pub name: &'static str,
+    /// Lowercase provider path nickname.
+    pub nickname: &'static str,
+    /// Published textual hierarchy identifier.
+    pub shard: &'static str,
+    /// Published metadata value: the reference sets this to 2 for every shard,
+    /// including Prime and regions. Use the Shard enum to determine hierarchy.
+    pub context: u8,
+    /// Encoded value, whose nibble length distinguishes levels.
+    pub byte: &'static str,
+}
+
 /// An invalid shard identifier. No unknown zone is silently mapped to a default.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ShardError {
@@ -114,6 +131,10 @@ pub enum Zone {
 }
 
 impl Zone {
+    /// Immutable metadata corresponding to the published ZoneData row.
+    pub const fn metadata(self) -> ShardMetadata {
+        Shard::Zone(self).metadata()
+    }
     /// All published zones in encoding order.
     pub const ALL: [Self; 9] = [
         Self::Cyprus1,
@@ -233,6 +254,47 @@ pub enum Shard {
     Zone(Zone),
 }
 impl Shard {
+    /// All published shards in ShardData order: zones, regions, then Prime.
+    pub const ALL: [Self; 13] = [
+        Self::Zone(Zone::Cyprus1),
+        Self::Zone(Zone::Cyprus2),
+        Self::Zone(Zone::Cyprus3),
+        Self::Zone(Zone::Paxos1),
+        Self::Zone(Zone::Paxos2),
+        Self::Zone(Zone::Paxos3),
+        Self::Zone(Zone::Hydra1),
+        Self::Zone(Zone::Hydra2),
+        Self::Zone(Zone::Hydra3),
+        Self::Region(Region::Cyprus),
+        Self::Region(Region::Paxos),
+        Self::Region(Region::Hydra),
+        Self::Prime,
+    ];
+    /// Immutable metadata corresponding to the published ShardData row.
+    pub const fn metadata(self) -> ShardMetadata {
+        let (name, shard) = match self {
+            Self::Prime => ("Prime", "prime"),
+            Self::Region(Region::Cyprus) => ("Cyprus", "region-0"),
+            Self::Region(Region::Paxos) => ("Paxos", "region-1"),
+            Self::Region(Region::Hydra) => ("Hydra", "region-2"),
+            Self::Zone(Zone::Cyprus1) => ("Cyprus One", "zone-0-0"),
+            Self::Zone(Zone::Cyprus2) => ("Cyprus Two", "zone-0-1"),
+            Self::Zone(Zone::Cyprus3) => ("Cyprus Three", "zone-0-2"),
+            Self::Zone(Zone::Paxos1) => ("Paxos One", "zone-1-0"),
+            Self::Zone(Zone::Paxos2) => ("Paxos Two", "zone-1-1"),
+            Self::Zone(Zone::Paxos3) => ("Paxos Three", "zone-1-2"),
+            Self::Zone(Zone::Hydra1) => ("Hydra One", "zone-2-0"),
+            Self::Zone(Zone::Hydra2) => ("Hydra Two", "zone-2-1"),
+            Self::Zone(Zone::Hydra3) => ("Hydra Three", "zone-2-2"),
+        };
+        ShardMetadata {
+            name,
+            nickname: self.nickname(),
+            shard,
+            context: 2,
+            byte: self.encoded(),
+        }
+    }
     /// The lowercase provider path name.
     pub const fn nickname(self) -> &'static str {
         match self {

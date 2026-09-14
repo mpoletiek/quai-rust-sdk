@@ -1,0 +1,959 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "integers": [
+    {
+      "text": "0",
+      "source": {
+        "value": "0"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "-0",
+      "source": {
+        "value": "0"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "0012",
+      "source": {
+        "value": "12"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "-12",
+      "source": {
+        "value": "-12"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "0xff",
+      "source": {
+        "value": "255"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "-0xff",
+      "source": {
+        "value": "-255"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "0b101",
+      "source": {
+        "value": "5"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "-0b101",
+      "source": {
+        "value": "-5"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "0o777",
+      "source": {
+        "value": "511"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "-0o777",
+      "source": {
+        "value": "-511"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "57896044618658097711785492504343953926634992332820282019728792003956564819967",
+      "source": {
+        "value": "57896044618658097711785492504343953926634992332820282019728792003956564819967"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "-57896044618658097711785492504343953926634992332820282019728792003956564819968",
+      "source": {
+        "value": "-57896044618658097711785492504343953926634992332820282019728792003956564819968"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042047",
+      "source": {
+        "value": "6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042047"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "-6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042048",
+      "source": {
+        "value": "-6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042048"
+      },
+      "rustReject": false
+    },
+    {
+      "text": "6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042048",
+      "source": {
+        "value": "6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042048"
+      },
+      "rustReject": true
+    },
+    {
+      "text": "-6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042049",
+      "source": {
+        "value": "-6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042049"
+      },
+      "rustReject": true
+    },
+    {
+      "text": "",
+      "source": {
+        "error": true
+      },
+      "rustReject": false
+    },
+    {
+      "text": "-",
+      "source": {
+        "value": "0"
+      },
+      "rustReject": true
+    },
+    {
+      "text": "0x",
+      "source": {
+        "error": true
+      },
+      "rustReject": false
+    },
+    {
+      "text": "0b2",
+      "source": {
+        "error": true
+      },
+      "rustReject": false
+    },
+    {
+      "text": "1.0",
+      "source": {
+        "error": true
+      },
+      "rustReject": false
+    },
+    {
+      "text": "1e3",
+      "source": {
+        "error": true
+      },
+      "rustReject": false
+    },
+    {
+      "text": "1_000",
+      "source": {
+        "error": true
+      },
+      "rustReject": false
+    },
+    {
+      "text": "--1",
+      "source": {
+        "error": true
+      },
+      "rustReject": false
+    },
+    {
+      "text": "+1",
+      "source": {
+        "value": "1"
+      },
+      "rustReject": true
+    },
+    {
+      "text": " 1 ",
+      "source": {
+        "value": "1"
+      },
+      "rustReject": true
+    },
+    {
+      "text": " ",
+      "source": {
+        "value": "0"
+      },
+      "rustReject": true
+    },
+    {
+      "text": "0Xff",
+      "source": {
+        "value": "255"
+      },
+      "rustReject": true
+    }
+  ],
+  "numbers": [
+    {
+      "input": 0,
+      "source": {
+        "value": "0"
+      }
+    },
+    {
+      "input": 0,
+      "source": {
+        "value": "0"
+      }
+    },
+    {
+      "input": 1,
+      "source": {
+        "value": "1"
+      }
+    },
+    {
+      "input": -1,
+      "source": {
+        "value": "-1"
+      }
+    },
+    {
+      "input": 9007199254740991,
+      "source": {
+        "value": "9007199254740991"
+      }
+    },
+    {
+      "input": -9007199254740991,
+      "source": {
+        "value": "-9007199254740991"
+      }
+    },
+    {
+      "input": 9007199254740992,
+      "source": {
+        "error": true
+      }
+    },
+    {
+      "input": -9007199254740992,
+      "source": {
+        "error": true
+      }
+    },
+    {
+      "input": 1.5,
+      "source": {
+        "error": true
+      }
+    }
+  ],
+  "unsigned": [
+    {
+      "value": "0",
+      "array": "0x",
+      "quantity": "0x0",
+      "widths": [
+        {
+          "width": null,
+          "source": {
+            "value": "0x00"
+          }
+        },
+        {
+          "width": 0,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 1,
+          "source": {
+            "value": "0x00"
+          }
+        },
+        {
+          "width": 2,
+          "source": {
+            "value": "0x0000"
+          }
+        },
+        {
+          "width": 32,
+          "source": {
+            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        {
+          "width": 33,
+          "source": {
+            "value": "0x000000000000000000000000000000000000000000000000000000000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "value": "1",
+      "array": "0x01",
+      "quantity": "0x1",
+      "widths": [
+        {
+          "width": null,
+          "source": {
+            "value": "0x01"
+          }
+        },
+        {
+          "width": 0,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 1,
+          "source": {
+            "value": "0x01"
+          }
+        },
+        {
+          "width": 2,
+          "source": {
+            "value": "0x0001"
+          }
+        },
+        {
+          "width": 32,
+          "source": {
+            "value": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          }
+        },
+        {
+          "width": 33,
+          "source": {
+            "value": "0x000000000000000000000000000000000000000000000000000000000000000001"
+          }
+        }
+      ]
+    },
+    {
+      "value": "15",
+      "array": "0x0f",
+      "quantity": "0xf",
+      "widths": [
+        {
+          "width": null,
+          "source": {
+            "value": "0x0f"
+          }
+        },
+        {
+          "width": 0,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 1,
+          "source": {
+            "value": "0x0f"
+          }
+        },
+        {
+          "width": 2,
+          "source": {
+            "value": "0x000f"
+          }
+        },
+        {
+          "width": 32,
+          "source": {
+            "value": "0x000000000000000000000000000000000000000000000000000000000000000f"
+          }
+        },
+        {
+          "width": 33,
+          "source": {
+            "value": "0x00000000000000000000000000000000000000000000000000000000000000000f"
+          }
+        }
+      ]
+    },
+    {
+      "value": "16",
+      "array": "0x10",
+      "quantity": "0x10",
+      "widths": [
+        {
+          "width": null,
+          "source": {
+            "value": "0x10"
+          }
+        },
+        {
+          "width": 0,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 1,
+          "source": {
+            "value": "0x10"
+          }
+        },
+        {
+          "width": 2,
+          "source": {
+            "value": "0x0010"
+          }
+        },
+        {
+          "width": 32,
+          "source": {
+            "value": "0x0000000000000000000000000000000000000000000000000000000000000010"
+          }
+        },
+        {
+          "width": 33,
+          "source": {
+            "value": "0x000000000000000000000000000000000000000000000000000000000000000010"
+          }
+        }
+      ]
+    },
+    {
+      "value": "255",
+      "array": "0xff",
+      "quantity": "0xff",
+      "widths": [
+        {
+          "width": null,
+          "source": {
+            "value": "0xff"
+          }
+        },
+        {
+          "width": 0,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 1,
+          "source": {
+            "value": "0xff"
+          }
+        },
+        {
+          "width": 2,
+          "source": {
+            "value": "0x00ff"
+          }
+        },
+        {
+          "width": 32,
+          "source": {
+            "value": "0x00000000000000000000000000000000000000000000000000000000000000ff"
+          }
+        },
+        {
+          "width": 33,
+          "source": {
+            "value": "0x0000000000000000000000000000000000000000000000000000000000000000ff"
+          }
+        }
+      ]
+    },
+    {
+      "value": "256",
+      "array": "0x0100",
+      "quantity": "0x100",
+      "widths": [
+        {
+          "width": null,
+          "source": {
+            "value": "0x0100"
+          }
+        },
+        {
+          "width": 0,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 1,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 2,
+          "source": {
+            "value": "0x0100"
+          }
+        },
+        {
+          "width": 32,
+          "source": {
+            "value": "0x0000000000000000000000000000000000000000000000000000000000000100"
+          }
+        },
+        {
+          "width": 33,
+          "source": {
+            "value": "0x000000000000000000000000000000000000000000000000000000000000000100"
+          }
+        }
+      ]
+    },
+    {
+      "value": "9007199254740993",
+      "array": "0x20000000000001",
+      "quantity": "0x20000000000001",
+      "widths": [
+        {
+          "width": null,
+          "source": {
+            "value": "0x20000000000001"
+          }
+        },
+        {
+          "width": 0,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 1,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 2,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 32,
+          "source": {
+            "value": "0x0000000000000000000000000000000000000000000000000020000000000001"
+          }
+        },
+        {
+          "width": 33,
+          "source": {
+            "value": "0x000000000000000000000000000000000000000000000000000020000000000001"
+          }
+        }
+      ]
+    },
+    {
+      "value": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "array": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "quantity": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "widths": [
+        {
+          "width": null,
+          "source": {
+            "value": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          }
+        },
+        {
+          "width": 0,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 1,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 2,
+          "source": {
+            "error": true
+          }
+        },
+        {
+          "width": 32,
+          "source": {
+            "value": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          }
+        },
+        {
+          "width": 33,
+          "source": {
+            "value": "0x00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          }
+        }
+      ]
+    }
+  ],
+  "hex": [
+    {
+      "text": "0x",
+      "any": true,
+      "bytes": true,
+      "exact": [
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "text": "0x0",
+      "any": true,
+      "bytes": false,
+      "exact": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "text": "0x00",
+      "any": true,
+      "bytes": true,
+      "exact": [
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "text": "0xABcd",
+      "any": true,
+      "bytes": true,
+      "exact": [
+        false,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "text": "0Xab",
+      "any": false,
+      "bytes": false,
+      "exact": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "text": "0xgg",
+      "any": false,
+      "bytes": false,
+      "exact": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "text": " 0x00",
+      "any": false,
+      "bytes": false,
+      "exact": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "text": "0x000001",
+      "any": true,
+      "bytes": true,
+      "exact": [
+        false,
+        false,
+        false,
+        true
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "bytes": "0x",
+      "signature": "0x0ac02a3eb3039b7a3ebb6a35f1e0dd31a4ed51781205a2c193354752a25edad50593868baf38c519b78bdc61a23c3f55e058c29f8b83d79ae48cc47d931afaed1b",
+      "address": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+    },
+    {
+      "bytes": "0x5055424c494320cf80",
+      "signature": "0x925bf430aeefc42cbd868310e1795aaaf08cb88b5081a7f72e68eb1920933b0138621550c30e1f0de810a9556bf6f27535ce1a4172015b99e46ed2c13b48c9c81c",
+      "address": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+    },
+    {
+      "bytes": "0x307834323433",
+      "signature": "0xdcff5ac1d06e26512fd81cdcd92c2405acb3efff4ca085be71aaca7ea02bd5637bcb9b883b9c3cf142263dcbc4e915fcfd75ad746a2ec1f51b263fe0b21baa121c",
+      "address": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+    },
+    {
+      "bytes": "0x4243",
+      "signature": "0x18cf46f28736b61c664ce43ec3bcb41e3ae8bf72801e7b6ec00a0f2b880ea7036ce8f5b3074f8ac9f0e4497f0394a76d7f1de63664c19b88c9f56e08a3dbbf3e1b",
+      "address": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+    },
+    {
+      "bytes": "0x00ff",
+      "signature": "0x7d82564f62272f82e8c4b2eec5f670a8ce8e149bdaff7389e2956cc96ae317186fdfacab72e037009f3eac0e93be6cd9eed6bbb9e1a6c6c4867d3aa43a5345141b",
+      "address": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+    }
+  ],
+  "typed": [
+    {
+      "document": {
+        "types": {
+          "Mail": [
+            {
+              "name": "message",
+              "type": "string"
+            },
+            {
+              "name": "count",
+              "type": "uint256"
+            }
+          ],
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            }
+          ]
+        },
+        "domain": {
+          "name": "PUBLIC SDK test",
+          "chainId": "0x9"
+        },
+        "primaryType": "Mail",
+        "message": {
+          "message": "PUBLIC π",
+          "count": "57896044618658097711785492504343953926634992332820282019728792003956564819975"
+        }
+      },
+      "signature": "0x54abdbbdf104a1cd557de292d2c931c7aeb528979fa1a4712ed0e6e02e4ea23a7bca6630d8acb49c0ab93c01b892cc585613c986f1e6c0224151aff381437d7d1b",
+      "address": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+    },
+    {
+      "document": {
+        "types": {
+          "Mail": [
+            {
+              "name": "message",
+              "type": "string"
+            },
+            {
+              "name": "count",
+              "type": "uint256"
+            }
+          ],
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            }
+          ]
+        },
+        "domain": {
+          "name": "PUBLIC SDK test",
+          "chainId": "0x3a98"
+        },
+        "primaryType": "Mail",
+        "message": {
+          "message": "PUBLIC π",
+          "count": "57896044618658097711785492504343953926634992332820282019728792003956564819975"
+        }
+      },
+      "signature": "0xde7c249a533ce48ed4123336ac7545dc1b861d812616f86e47f2233de9a227007883bbdf67182f44782e23a6b375643c7123bc8d5e0db134eb4b7576b6f0276c1c",
+      "address": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+    }
+  ],
+  "shards": [
+    {
+      "name": "Cyprus One",
+      "nickname": "cyprus1",
+      "shard": "zone-0-0",
+      "context": 2,
+      "byte": "0x00"
+    },
+    {
+      "name": "Cyprus Two",
+      "nickname": "cyprus2",
+      "shard": "zone-0-1",
+      "context": 2,
+      "byte": "0x01"
+    },
+    {
+      "name": "Cyprus Three",
+      "nickname": "cyprus3",
+      "shard": "zone-0-2",
+      "context": 2,
+      "byte": "0x02"
+    },
+    {
+      "name": "Paxos One",
+      "nickname": "paxos1",
+      "shard": "zone-1-0",
+      "context": 2,
+      "byte": "0x10"
+    },
+    {
+      "name": "Paxos Two",
+      "nickname": "paxos2",
+      "shard": "zone-1-1",
+      "context": 2,
+      "byte": "0x11"
+    },
+    {
+      "name": "Paxos Three",
+      "nickname": "paxos3",
+      "shard": "zone-1-2",
+      "context": 2,
+      "byte": "0x12"
+    },
+    {
+      "name": "Hydra One",
+      "nickname": "hydra1",
+      "shard": "zone-2-0",
+      "context": 2,
+      "byte": "0x20"
+    },
+    {
+      "name": "Hydra Two",
+      "nickname": "hydra2",
+      "shard": "zone-2-1",
+      "context": 2,
+      "byte": "0x21"
+    },
+    {
+      "name": "Hydra Three",
+      "nickname": "hydra3",
+      "shard": "zone-2-2",
+      "context": 2,
+      "byte": "0x22"
+    },
+    {
+      "name": "Cyprus",
+      "nickname": "cyprus",
+      "shard": "region-0",
+      "context": 2,
+      "byte": "0x0"
+    },
+    {
+      "name": "Paxos",
+      "nickname": "paxos",
+      "shard": "region-1",
+      "context": 2,
+      "byte": "0x1"
+    },
+    {
+      "name": "Hydra",
+      "nickname": "hydra",
+      "shard": "region-2",
+      "context": 2,
+      "byte": "0x2"
+    },
+    {
+      "name": "Prime",
+      "nickname": "prime",
+      "shard": "prime",
+      "context": 2,
+      "byte": "0x"
+    }
+  ],
+  "zones": [
+    {
+      "name": "Cyprus One",
+      "nickname": "cyprus1",
+      "shard": "zone-0-0",
+      "context": 2,
+      "byte": "0x00"
+    },
+    {
+      "name": "Cyprus Two",
+      "nickname": "cyprus2",
+      "shard": "zone-0-1",
+      "context": 2,
+      "byte": "0x01"
+    },
+    {
+      "name": "Cyprus Three",
+      "nickname": "cyprus3",
+      "shard": "zone-0-2",
+      "context": 2,
+      "byte": "0x02"
+    },
+    {
+      "name": "Paxos One",
+      "nickname": "paxos1",
+      "shard": "zone-1-0",
+      "context": 2,
+      "byte": "0x10"
+    },
+    {
+      "name": "Paxos Two",
+      "nickname": "paxos2",
+      "shard": "zone-1-1",
+      "context": 2,
+      "byte": "0x11"
+    },
+    {
+      "name": "Paxos Three",
+      "nickname": "paxos3",
+      "shard": "zone-1-2",
+      "context": 2,
+      "byte": "0x12"
+    },
+    {
+      "name": "Hydra One",
+      "nickname": "hydra1",
+      "shard": "zone-2-0",
+      "context": 2,
+      "byte": "0x20"
+    },
+    {
+      "name": "Hydra Two",
+      "nickname": "hydra2",
+      "shard": "zone-2-1",
+      "context": 2,
+      "byte": "0x21"
+    },
+    {
+      "name": "Hydra Three",
+      "nickname": "hydra3",
+      "shard": "zone-2-2",
+      "context": 2,
+      "byte": "0x22"
+    }
+  ],
+  "constants": {
+    "maxInt256": "57896044618658097711785492504343953926634992332820282019728792003956564819967",
+    "minInt256": "-57896044618658097711785492504343953926634992332820282019728792003956564819968",
+    "symbol": "Ξ"
+  }
+}

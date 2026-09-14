@@ -4,6 +4,9 @@ use quai_rpc::{QuantityError, RouteError, Routing, RpcError, Transport, U256, pa
 use serde_json::{Value, json};
 use thiserror::Error;
 
+mod network;
+pub use network::{FeeData, Network, NetworkError, NetworkMatch, NetworkRegistry};
+
 mod confirmation;
 mod transaction_confirmation;
 pub use confirmation::{ConfirmedReceipt, ReceiptConfirmation};

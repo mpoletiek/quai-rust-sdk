@@ -20,6 +20,8 @@ fuzz_target!(|data: &[u8]| {
         let _=ipfs_resource(text,"https://gateway.invalid/ipfs/");
         if let Ok(mut request)=FetchRequest::new(text) {assert_eq!(request.url(),text);let _=request.validate();let _=request.redirect(text);let _=request.set_text(text);assert!(request.body().map_or(true,|b|b.len()<=MAX_FETCH_BYTES));}
         if let Ok(value)=serde_json::from_str::<serde_json::Value>(text){
+            if let Ok(network)=quai_provider::Network::from_json(&value){assert_eq!(quai_provider::Network::from_json(&network.to_json()).unwrap(),network);let mut registry=quai_provider::NetworkRegistry::new(3).unwrap();registry.register(network.clone()).unwrap();assert_eq!(registry.by_chain_id(network.chain_id()),network);}
+
             let mut request=FetchRequest::new("https://example.invalid/").unwrap();
             if request.set_json(&value).is_ok(){assert_eq!(serde_json::from_slice::<serde_json::Value>(request.body().unwrap()).unwrap(),value);}
             if let (Some(name),Some(value))=(value["header"].as_str(),value["value"].as_str()){let mut h=FetchHeaders::default();if h.set(name,value).is_ok(){assert_eq!(h.get(name),Some(value));}}

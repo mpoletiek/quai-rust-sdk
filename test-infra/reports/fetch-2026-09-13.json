@@ -257,5 +257,44 @@
     },
     "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
   },
-  "qualification": "Reference, offline, owned loopback and real Chromium evidence. Resource JSON is not an arbitrary-precision number model. Browser CORS/compression/opaque redirects remain explicit platform differences. No funded chain writes, production security guarantee, crates.io upload or hosted-doc qualification claimed."
+  "qualification": "Reference, offline, owned loopback and real Chromium evidence. Resource JSON is not an arbitrary-precision number model. Browser CORS/compression/opaque redirects remain explicit platform differences. No funded chain writes, production security guarantee, crates.io upload or hosted-doc qualification claimed.",
+  "githubCi": {
+    "headSha": "bfdd25f50fb13750d27aff3c695f8d481bd0cf44",
+    "conclusion": "success",
+    "runId": 34796838633,
+    "jobs": [
+      {
+        "name": "dependency-advisories",
+        "conclusion": "success"
+      },
+      {
+        "name": "browser",
+        "conclusion": "success"
+      },
+      {
+        "name": "packaged-consumer",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (macos-15)",
+        "conclusion": "success"
+      },
+      {
+        "name": "fuzz-smoke",
+        "conclusion": "success"
+      },
+      {
+        "name": "reference-and-harness",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (ubuntu-24.04)",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (windows-2025)",
+        "conclusion": "success"
+      }
+    ]
+  }
 }

@@ -118,4 +118,8 @@ for row in load('compatibility/fixtures/fetch.json')['data']:put('encoding',row[
 for uri in ['https://example.invalid/public','ipfs://QmPublic/a.json','data:;base64,AAH/','https://user:pw@example.invalid/']:put('encoding',uri.encode())
 for v in [{'header':'Authorization','value':'Bearer PUBLIC-TOY'},{'header':'x-public','value':'bad\r\nheader'},{'n':'9007199254740993'}]:put('encoding',json.dumps(v).encode())
 put('encoding',b'266666666666666666666666666666666626666666666666222242')
+utilities=load('compatibility/fixtures/utility-completion.json')
+for row in utilities['networks']:put('encoding',json.dumps(row).encode())
+put('wallet_import',hexbytes(utilities['publicNode']['publicKey'])+hexbytes(utilities['publicNode']['chainCode']))
+for data in [bytes([0,1,0,31,1,2,3,4]),bytes([0,2,1,63,1,2,3,4]),bytes([4,1,1,32,1,2,3,4]),bytes([16,1,1,32,1,2,3,4])]:put('wallet_import',data)
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

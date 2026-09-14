@@ -13,6 +13,8 @@ use std::fmt;
 use subtle::ConstantTimeEq;
 use unicode_normalization::UnicodeNormalization;
 use zeroize::Zeroizing;
+/// Standalone guarded key derivation, independent of encrypted document parsing.
+pub mod derive;
 mod json;
 
 /// Sanitized failures never include passwords, keys or mnemonic metadata.

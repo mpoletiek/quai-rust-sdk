@@ -928,3 +928,22 @@ and compression negotiation have explicit limits. See [resource reference and
 parity](docs/FETCH_PARITY.md) for bounds, examples and corrected source behavior.
 Exact large JSON numbers must be strings; float round-trip support preserves
 binary floats rather than arbitrary-precision integers.
+
+### Network metadata, public roots and standalone KDFs
+
+`provider::Network` carries an immutable name and exact chain ID; `NetworkRegistry`
+provides bounded, atomic caller-owned aliases. `NetworkMatch` chooses name or
+chain comparison explicitly. These labels never authenticate genesis or choose a
+provider. `FeeData` is an optional exact gas-price view; live lookup still propagates
+RPC errors.
+
+`wallet::ExtendedPublicKey::from_public_key_chain_code` creates a synthetic public
+derivation root. `from_components` preserves checked supplied BIP32 metadata;
+neither proves ancestry. Both support bounded public child derivation without
+private material.
+
+`keystore::derive` exposes standalone PBKDF2-HMAC-SHA256/SHA512 and scrypt with
+exact byte inputs, parameter/output-work budgets and zeroizing derived output.
+Run CPU work on a bounded native or dedicated browser worker. Optional Started/
+Completed callbacks can cancel at checkpoints; they do not provide intermediate
+progress or interrupt the underlying KDF loop. See [utility reference and parity](docs/UTILITY_PARITY.md).

@@ -267,3 +267,6 @@ preserve key identity. See [wordlist parity](https://github.com/mpoletiek/quai-r
 Native SQLite callers can select a whole-millisecond lock-wait budget from zero
 to 60 seconds using `SqliteStore::open_with_busy_timeout`. `open` keeps its
 five-second default. Lock errors do not retry wallet operations automatically.
+
+ExtendedPublicKey supports validated raw point/chain-code roots and explicit BIP32 metadata construction; synthetic roots do not prove ancestry.
+See the [utility guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/UTILITY_PARITY.md).

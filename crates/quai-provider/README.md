@@ -165,3 +165,6 @@ These observations do not verify signatures. `Transaction::verified_qi` separate
 reconstructs and verifies ordinary, conversion and wrapping signatures and IDs,
 complementing `verified_quai`. No absence/timeout releases signed custody claims.
 See [transaction responses](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/TRANSACTION_RESPONSE_PARITY.md).
+
+Network labels and caller-owned registries are explicit bounded metadata, separate from trusted genesis/endpoint identities. FeeData exposes exact optional gas-price metadata.
+See the [utility guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/UTILITY_PARITY.md).

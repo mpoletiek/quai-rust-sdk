@@ -35,3 +35,6 @@ wrapping all three vectors in `Zeroizing`, with identical KDF vectors and featur
 tests. Such a patch must cover both paths and receive separate review; it would still
 not prove erasure of SHA/Salsa/compiler temporaries. No backend fork, dependency
 replacement or independent external security audit is claimed here.
+
+The derive module exposes standalone bounded PBKDF2-HMAC-SHA256/SHA512 and scrypt, guarded output and coarse before/after lifecycle checkpoints. Run CPU work on caller-owned bounded workers.
+See the [utility guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/UTILITY_PARITY.md).

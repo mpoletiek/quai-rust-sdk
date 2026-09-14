@@ -1,0 +1,277 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "networks": [
+    {
+      "name": "mainnet",
+      "chainId": "9"
+    },
+    {
+      "name": "orchard",
+      "chainId": "15000"
+    },
+    {
+      "name": "custom",
+      "chainId": "0"
+    },
+    {
+      "name": "large",
+      "chainId": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    }
+  ],
+  "fees": [
+    {
+      "_type": "FeeData",
+      "gasPrice": null
+    },
+    {
+      "_type": "FeeData",
+      "gasPrice": "0"
+    },
+    {
+      "_type": "FeeData",
+      "gasPrice": "15000"
+    },
+    {
+      "_type": "FeeData",
+      "gasPrice": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    }
+  ],
+  "publicNode": {
+    "seed": "0x0707070707070707070707070707070707070707070707070707070707070707",
+    "accountXpub": "xpub6CUr9yZAJdsY6D7VkEyJqP3yisJxebNNTVLo9wB4YMKxat7XjmrKPrf8UC3XWtYtmdXyGDPSQPNP5P8t7rdEUjJu9nFxGyG5ch42qUwkXxU",
+    "publicKey": "0x02d2b4701857f6eb01166ad0b71a37f529276efd997f694f69f569fada2274482d",
+    "chainCode": "0x737092297e3da0e09a372d4f89c18115e6b6d77152a2bec6d4616aba2d61f2f4",
+    "children": [
+      {
+        "change": 0,
+        "index": 0,
+        "expected": {
+          "publicKey": "0x03865e28477052d974e78ea727a7ca7546ffbb2dcab16a7d8f313f3dac8af44ef0",
+          "chainCode": "0xc3c7162ea5b7c04f846dd36838a14fc381e46c903c9de64e60860eb79a2fc2cb",
+          "address": "0xbdAD193B04169B2fC93672E766b9722c9529f71E",
+          "path": "0'/0/0"
+        }
+      },
+      {
+        "change": 0,
+        "index": 1,
+        "expected": {
+          "publicKey": "0x02e35d00ba4ed07a7581fa0342f2e16824002959f23fd16cb8bfa5dfb5e069fa2d",
+          "chainCode": "0xf49e6e9213403b5dbe698b1962de8bb7dcde45f03722ce20741cf5be644922b3",
+          "address": "0x8bF0EfB6BE689EFB46803FEb869e02fC29c108e2",
+          "path": "0'/0/1"
+        }
+      },
+      {
+        "change": 0,
+        "index": 31,
+        "expected": {
+          "publicKey": "0x03b5a80fc48a6319a69e07171e73c0149ceb47917873d9d5c8042e3b4585e4c9bf",
+          "chainCode": "0x14b35ab52f99408a990df24369cdb89e40ebcadbccf7d1cc7275a181ce19b16b",
+          "address": "0x96fDeBA7a51d7f25c01a44da8135F3f840c4A110",
+          "path": "0'/0/31"
+        }
+      },
+      {
+        "change": 0,
+        "index": 2147483647,
+        "expected": {
+          "publicKey": "0x023b4b3a551ddd02f41bd373d8aa47e7ea8d2e4a53a9a401f2ab36a0d9c6c36bf0",
+          "chainCode": "0xc25bb03ed3295c36a628d3d484b40601794f10e044f8b86418d712414a21d722",
+          "address": "0xad9374335A90359cED1Cd558b0b3B2fc0acE4e1B",
+          "path": "0'/0/2147483647"
+        }
+      },
+      {
+        "change": 1,
+        "index": 0,
+        "expected": {
+          "publicKey": "0x02528a4570f760c73d7d13d643878b4dcd0396b7d974097176be59225bb736758c",
+          "chainCode": "0xab17037550d2452cbccdcb01f9661dca95651d66f7f92bd428d04a7f8f63d936",
+          "address": "0xA452a14422Bc44b76cf8e3bFf16eF0369456B570",
+          "path": "0'/1/0"
+        }
+      },
+      {
+        "change": 1,
+        "index": 1,
+        "expected": {
+          "publicKey": "0x03e0cbbefe39661ac0024fb918aba2ff709fc45641f01bba6f1fdaff9d6b0ae3ba",
+          "chainCode": "0xfaa8cf39db02742bd7877f1df3e420406244bb492ad3c57f45f45e6d49f229eb",
+          "address": "0x54Dd6998A1Dc6608dbdDFa9200c211AA44646eEc",
+          "path": "0'/1/1"
+        }
+      },
+      {
+        "change": 1,
+        "index": 31,
+        "expected": {
+          "publicKey": "0x0383cd9d71b9b031f6a279d1ace2e1a8adb36cff7a3b392346e1823d988967b6f0",
+          "chainCode": "0x1b957d39acc0fe6f4cf74737bed73fbb7a1e4fb9d4ff1c6604a3f1f4269b3c48",
+          "address": "0x088cf9F7764cE3618dCffB7a94f78EFfec74dB27",
+          "path": "0'/1/31"
+        }
+      },
+      {
+        "change": 1,
+        "index": 2147483647,
+        "expected": {
+          "publicKey": "0x0237b379c12dc22de75d8847445c3b0c5109960c5eaf66107e1a7321140accfb81",
+          "chainCode": "0xed09c369dfe495cbc31cedef857b1e415ec4b22208a483cb5104d816c27dd052",
+          "address": "0x45Cb5D6D4B00A7D7D2d2423a768c31B76aBcfECF",
+          "path": "0'/1/2147483647"
+        }
+      }
+    ]
+  },
+  "kdfs": [
+    {
+      "kind": "pbkdf2",
+      "hash": "sha256",
+      "rounds": 1,
+      "length": 32,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x46d74f5ce8636f2cbb6ffa088901890a24066b88be7536d62a63ba3d832ad2e2"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha256",
+      "rounds": 1,
+      "length": 96,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x46d74f5ce8636f2cbb6ffa088901890a24066b88be7536d62a63ba3d832ad2e2ae72494441924d656433cec747189d268088a45b461d79a6fd6231ba1ac1a03224cb8fb903dc7a60843fc8bdccd2fbb02329d3c4d088ed7f00005b26e553fcda"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha256",
+      "rounds": 2,
+      "length": 32,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x260cddbac56a5c1a779a65da28cefe6ba53f0529b0b346b1a8a584f3d494d8a0"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha256",
+      "rounds": 2,
+      "length": 96,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x260cddbac56a5c1a779a65da28cefe6ba53f0529b0b346b1a8a584f3d494d8a055b1f908fdb0b52e94b0454e72b9eff96b2bfa8943c08c696d8785c9436349db5f9e08f3326a5c573f8848653c41d5c0e33eb67a9a7618da035fcd464f47ef65"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha256",
+      "rounds": 1024,
+      "length": 32,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x858fe89edfef7e78b39ca9b6de5b95835ea83ff61e3075f535347171cf3315d7"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha256",
+      "rounds": 1024,
+      "length": 96,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x858fe89edfef7e78b39ca9b6de5b95835ea83ff61e3075f535347171cf3315d7194158c910d30133be5298fef04f8da7c3a908756fd78a34e939e0c67b815cd6cb0e00f569444721eb0537abba4b27567a814f36764d1a79347034feafc78f35"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha512",
+      "rounds": 1,
+      "length": 32,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x817139904db4d3bccbc976d26b90b95b20a9f02a7cb62d4ef4558d4d8ac07c9f"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha512",
+      "rounds": 1,
+      "length": 96,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x817139904db4d3bccbc976d26b90b95b20a9f02a7cb62d4ef4558d4d8ac07c9f37aa2c3e30837081bcdcf9c219d89a4e3d770cd81f813165644c7cc04c768a0cbb57a7fbecfe0ef1ac5038b9c9dae4f385c28012632476a2b6a3dbcafbd3ffc6"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha512",
+      "rounds": 2,
+      "length": 32,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0xa2a476ba8ec57b0ec706369a2c8cf0bb08e79f0ff4ea5fe88a14c0e1c2e64999"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha512",
+      "rounds": 2,
+      "length": 96,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0xa2a476ba8ec57b0ec706369a2c8cf0bb08e79f0ff4ea5fe88a14c0e1c2e6499936beb36e86ece66339f113c649e90f6f9f48468f1777812f353ad066e315d3d45afdec1bc0f21d4004c379fa5dbba4c9651c480736df1538ab4e3b37d9abb1a3"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha512",
+      "rounds": 1024,
+      "length": 32,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x1f2bc3ec2b6f3f6d6a2d191e16f71e3fa5e25d4c1ac7ad4316dfa35bf81465c8"
+    },
+    {
+      "kind": "pbkdf2",
+      "hash": "sha512",
+      "rounds": 1024,
+      "length": 96,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x1f2bc3ec2b6f3f6d6a2d191e16f71e3fa5e25d4c1ac7ad4316dfa35bf81465c8ab2057950ac2243399c98e49be529b49ba30669539d92331679f9d3f874511b36a7cdb96407e4135446a522570f1f22df71942226a8bbfa1b7f3c6b7e95ce535"
+    },
+    {
+      "kind": "scrypt",
+      "logN": 4,
+      "r": 1,
+      "p": 1,
+      "length": 32,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0xf728fafa0b7a20fa64c95007380d7eb5ee50a077fd1662ca87d2fa5c2120d22f"
+    },
+    {
+      "kind": "scrypt",
+      "logN": 4,
+      "r": 1,
+      "p": 1,
+      "length": 96,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0xf728fafa0b7a20fa64c95007380d7eb5ee50a077fd1662ca87d2fa5c2120d22fabc552825b45a62443a4e0a1cedd215f26052a75f98479a27351eb57660c5f573b0bc766478b2b0ac97648cc366655cf285fb449ba06f0368380f42ff9b79974"
+    },
+    {
+      "kind": "scrypt",
+      "logN": 10,
+      "r": 8,
+      "p": 1,
+      "length": 64,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x02a98f5bc733745236d53b7942878f78b4eb7cec635362067d5e97045ba856b44c482d9575fe978f9731763b46d03c6cd6fd43ebc26b54e08c1d18f9cfe51573"
+    },
+    {
+      "kind": "scrypt",
+      "logN": 4,
+      "r": 1,
+      "p": 2,
+      "length": 64,
+      "password": "0x5055424c49432070617373776f726420cf80",
+      "salt": "0x00010203040506070809",
+      "output": "0x523767f6f856e6cac2e581a249547f9321bc3086481ab20141280b56fe219009c156cce6aec690363b54dae034aae951d96c28094d8e4ec5e6a5fdecb2bb96e2"
+    }
+  ]
+}

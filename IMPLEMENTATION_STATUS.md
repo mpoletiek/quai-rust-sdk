@@ -1054,3 +1054,23 @@ Evidence: [fetch report](test-infra/reports/fetch-2026-09-13.json),
 [corrected fuzz regression](test-infra/reports/fetch-fuzz-regression-2026-09-13.json),
 [final sanitizer run](test-infra/reports/fetch-fuzz-2026-09-13.json) and
 [dependency snapshot audit](test-infra/reports/fetch-dependencies-2026-09-13.json).
+
+## Metadata and standalone key utilities — September 13
+
+Added bounded immutable network descriptors/registries and exact fee views, raw
+public-key/chain-code derivation roots with optional checked BIP32 metadata, and
+standalone PBKDF2/scrypt with guarded output and total output-block work limits.
+Six native and six real-worker tests pass against four network, four fee, eight
+public-child and sixteen KDF cases. Five utility and three subscriber source tests
+document semantics, including xPub private export and BaseWallet override defects.
+KDF progress has explicit Started/Completed checkpoints rather than fine-grained
+loop callbacks. The [utility review](docs/UTILITY_PARITY.md) reconciles 142 rows;
+247 declarations remain pending.
+
+Fetch commit `bfdd25f` passed all eight jobs in CI run `34796838633`. The utility
+batch also passed 21 signer/HD/event regression tests, strict native/Wasm Clippy
+and rustdoc, plus 120-second ASAN runs with 17,266 wallet-import executions and
+335,556 encoding executions. No dependency lockfiles changed. All twelve package
+archives passed three consumer tests, twelve native and two Wasm target
+compilations with 103 public file mirrors. Packaged test targets were compiled,
+not executed; no packages were uploaded. Evidence: [utility report](test-infra/reports/utilities-2026-09-13.json).

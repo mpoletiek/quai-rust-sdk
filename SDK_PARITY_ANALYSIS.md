@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 3473 | Documented replacement, stricter behavior, correction or omission |
+| `deviation` | 3615 | Documented replacement, stricter behavior, correction or omission |
 | `partial` | 0 | A mapping exists with unfinished behavior or scope |
-| `pending` | 389 | No completed row-level reconciliation; not proof of absence |
+| `pending` | 247 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -234,16 +234,7 @@ root/subpath exports account for much of the volume.
 <!-- parity-family-table:start -->
 | Export family | Pending | Partial | Implemented | Deviation |
 | --- | ---: | ---: | ---: | ---: |
-| `BaseWallet` | 20 | 0 | 0 | 0 |
-| `SocketEventSubscriber` | 18 | 0 | 0 | 0 |
-| `Network` | 16 | 0 | 0 | 0 |
-| `SocketBlockSubscriber` | 16 | 0 | 0 | 0 |
-| `SocketPendingSubscriber` | 16 | 0 | 0 | 0 |
-| `SocketSubscriber` | 16 | 0 | 0 | 0 |
-| `BIP44` | 12 | 0 | 0 | 0 |
-| `UnmanagedSubscriber` | 12 | 0 | 0 | 0 |
 | `AggregateCoinSelector` | 8 | 0 | 0 | 0 |
-| `FeeData` | 6 | 0 | 0 | 0 |
 | `ActionRejectedError` | 2 | 0 | 0 | 0 |
 | `Addressable` | 2 | 0 | 0 | 0 |
 | `AddressLike` | 2 | 0 | 0 | 0 |
@@ -304,7 +295,6 @@ root/subpath exports account for much of the volume.
 | `musigCrypto` | 2 | 0 | 0 | 0 |
 | `N` | 2 | 0 | 0 | 0 |
 | `NetworkError` | 2 | 0 | 0 | 0 |
-| `Networkish` | 2 | 0 | 0 | 0 |
 | `NeuteredAddressInfo` | 2 | 0 | 0 | 0 |
 | `NonceExpiredError` | 2 | 0 | 0 | 0 |
 | `NotImplementedError` | 2 | 0 | 0 | 0 |
@@ -314,20 +304,16 @@ root/subpath exports account for much of the volume.
 | `OutpointInfo` | 2 | 0 | 0 | 0 |
 | `ParamTypeWalkAsyncFunc` | 2 | 0 | 0 | 0 |
 | `ParamTypeWalkFunc` | 2 | 0 | 0 | 0 |
-| `pbkdf2` | 2 | 0 | 0 | 0 |
 | `PerformActionFilter` | 2 | 0 | 0 | 0 |
 | `PerformActionRequest` | 2 | 0 | 0 | 0 |
 | `PerformActionTransaction` | 2 | 0 | 0 | 0 |
 | `PreparedTransactionRequest` | 2 | 0 | 0 | 0 |
-| `ProgressCallback` | 2 | 0 | 0 | 0 |
 | `Provider` | 2 | 0 | 0 | 0 |
 | `ProviderEvent` | 2 | 0 | 0 | 0 |
 | `QiAddressInfo` | 2 | 0 | 0 | 0 |
 | `quaisError` | 2 | 0 | 0 | 0 |
 | `quaisymbol` | 2 | 0 | 0 | 0 |
 | `ReplacementUnderpricedError` | 2 | 0 | 0 | 0 |
-| `scrypt` | 2 | 0 | 0 | 0 |
-| `scryptSync` | 2 | 0 | 0 | 0 |
 | `SerializedHDWallet` | 2 | 0 | 0 | 0 |
 | `SerializedQiHDWallet` | 2 | 0 | 0 | 0 |
 | `ServerError` | 2 | 0 | 0 | 0 |
@@ -526,3 +512,15 @@ Browser opaque redirects and compression negotiation remain documented platform
 differences. The ledger now has 389 pending rows, zero partial rows, 3473 deliberate
 differences and 66 directly implemented mappings; these are declarations, not
 independent features or a completion percentage.
+
+## Network, public-node and KDF review — 2026-09-13
+
+[Utility parity](docs/UTILITY_PARITY.md) reconciles 142 rows for network/fee
+metadata, BIP44, BaseWallet, standalone PBKDF2/scrypt and subscriber lifecycles.
+Network registries are explicit and bounded; raw public derivation supports
+synthetic roots or checked metadata. KDF outputs are guarded and total output-block
+work is capped. KDF progress is deliberately coarse, with before/after checkpoints
+and caller-owned worker scheduling; fine-grained loop callbacks are not claimed.
+Six native/worker tests, eight utility/subscriber source tests and sanitizer runs
+support the review. There are 247 pending declarations, including low-level
+MuSig adapter operations and aggregation threshold policy still under review.

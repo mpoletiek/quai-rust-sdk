@@ -6,6 +6,21 @@ use quai_wallet::{Mnemonic,Language,ExtendedPrivateKey,ExtendedPublicKey};
 use quai_crypto::{PublicKey,RecoverableSignature,SchnorrSignature,SecretKey,SignatureMetadata,U256,legacy_chain_id,legacy_chain_v,normalized_v};
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
+ if data.len()>=65 {
+  if let Ok(public)=PublicKey::from_sec1_bytes(&data[..33]) {
+   let chain:[u8;32]=data[33..65].try_into().unwrap();let node=ExtendedPublicKey::from_public_key_chain_code(public,chain).unwrap();
+   assert_eq!(ExtendedPublicKey::import(&node.export()).unwrap().export(),node.export());
+   assert_eq!(ExtendedPublicKey::from_components(public,node.metadata()).unwrap().export(),node.export());
+   if let Ok(child)=node.derive_child(u32::from(data[0]),false){assert_eq!(ExtendedPublicKey::from_components(child.public_key().unwrap(),child.metadata()).unwrap().export(),child.export());}
+  }
+ }
+ if data.len()>=8 {
+  use quai_keystore::derive::{DeriveParams,DeriveLimits,Pbkdf2Hash,derive_key};
+  let limits=DeriveLimits{max_output_bytes:128,max_pbkdf2_work:4096,..DeriveLimits::default()};
+  let params=DeriveParams::Scrypt{log_n:data[0],r:u32::from(data[1]),p:u32::from(data[2])};let _=params.validate(usize::from(data[3]),limits);
+  if data[0]==0 {let params=DeriveParams::Pbkdf2{rounds:u32::from(data[1])+1,hash:if data[2]&1==0{Pbkdf2Hash::Sha256}else{Pbkdf2Hash::Sha512}};if let Ok(key)=derive_key(&data[4..data.len().min(64)],&data[..4],params,usize::from(data[3])+1,limits){assert_eq!(key.as_bytes().len(),usize::from(data[3])+1);}}
+ }
+
  if data.first()==Some(&b'{') {
   use quai_wallet::wordlist::{Wordlist,WordlistStyle,CustomMnemonic};
   if let Ok(value)=serde_json::from_slice::<serde_json::Value>(data) {

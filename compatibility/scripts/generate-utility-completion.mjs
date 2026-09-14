@@ -1,0 +1,11 @@
+import {Network,FeeData,HDNodeWallet,BIP44,hexlify,pbkdf2,scryptSync} from 'quais';
+import {writeFileSync} from 'node:fs';
+const networks=[['mainnet',9n],['orchard',15000n],['custom',0n],['large',(1n<<256n)-1n]].map(([name,id])=>new Network(name,id).toJSON());
+const fees=[null,0n,15000n,(1n<<256n)-1n].map(n=>new FeeData(n).toJSON());
+const seed=new Uint8Array(32).fill(7);const coin=HDNodeWallet.fromSeed(seed).derivePath("m/44'/969'");const account=coin.deriveChild(0x80000000);const children=[];
+for(const change of [0,1])for(const index of [0,1,31,0x7fffffff])children.push({change,index,expected:BIP44.deriveChildFromPublic(account.publicKey,account.chainCode,0,change,index)});
+const publicNode={seed:hexlify(seed),accountXpub:account.neuter().extendedKey,publicKey:account.publicKey,chainCode:account.chainCode,children};
+const kdfs=[];const password=hexlify(new TextEncoder().encode('PUBLIC password π'));const salt='0x00010203040506070809';
+for(const hash of ['sha256','sha512'])for(const rounds of [1,2,1024])for(const length of [32,96])kdfs.push({kind:'pbkdf2',hash,rounds,length,password,salt,output:pbkdf2(password,salt,rounds,length,hash)});
+for(const [logN,r,p,length] of [[4,1,1,32],[4,1,1,96],[10,8,1,64],[4,1,2,64]])kdfs.push({kind:'scrypt',logN,r,p,length,password,salt,output:scryptSync(password,salt,2**logN,r,p,length)});
+writeFileSync(new URL('../fixtures/utility-completion.json',import.meta.url),JSON.stringify({reference:'quais@1.0.0-alpha.57',networks,fees,publicNode,kdfs},null,2)+'\n');

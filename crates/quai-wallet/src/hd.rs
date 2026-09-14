@@ -247,6 +247,52 @@ impl fmt::Debug for ExtendedPublicKey {
     }
 }
 impl ExtendedPublicKey {
+    /// Construct a synthetic depth-zero public derivation root from a validated
+    /// point and chain code. It does not prove master ancestry: use from_components
+    /// when actual depth/parent/child metadata is known. No private key is needed.
+    pub fn from_public_key_chain_code(
+        public_key: PublicKey,
+        chain_code: [u8; 32],
+    ) -> Result<Self, WalletError> {
+        let key = ExtendedKey {
+            prefix: Prefix::XPUB,
+            attrs: ExtendedKeyAttrs {
+                depth: 0,
+                parent_fingerprint: [0; 4],
+                child_number: ChildNumber(0),
+                chain_code,
+            },
+            key_bytes: public_key.to_compressed(),
+        };
+        XPub::try_from(key)
+            .map(Self)
+            .map_err(|_| WalletError::InvalidExtendedKey)
+    }
+    /// Construct a public node with explicit BIP32 metadata. Master metadata and
+    /// this point's fingerprint are checked; parent identity/ancestry are still
+    /// caller claims, not authenticated by a four-byte fingerprint.
+    pub fn from_components(
+        public_key: PublicKey,
+        metadata: ExtendedKeyMetadata,
+    ) -> Result<Self, WalletError> {
+        let attrs = ExtendedKeyAttrs {
+            depth: metadata.depth,
+            parent_fingerprint: metadata.parent_fingerprint,
+            child_number: ChildNumber(metadata.child_number),
+            chain_code: metadata.chain_code,
+        };
+        validate_root(&attrs)?;
+        let key = ExtendedKey {
+            prefix: Prefix::XPUB,
+            attrs,
+            key_bytes: public_key.to_compressed(),
+        };
+        let node = XPub::try_from(key).map_err(|_| WalletError::InvalidExtendedKey)?;
+        if node.fingerprint() != metadata.fingerprint {
+            return Err(WalletError::InvalidExtendedKey);
+        }
+        Ok(Self(node))
+    }
     /// Import an xpub, rejecting xprv input even though the underlying library accepts it.
     pub fn import(encoded: &str) -> Result<Self, WalletError> {
         let extended = decode_extended(encoded, Prefix::XPUB)?;

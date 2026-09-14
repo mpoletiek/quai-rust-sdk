@@ -9,7 +9,7 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen(module = "/src/timer.js")]
 extern "C" {
     #[wasm_bindgen(catch, js_name = monotonicNow)]
-    fn now() -> Result<f64, JsValue>;
+    pub(crate) fn now() -> Result<f64, JsValue>;
     #[wasm_bindgen(catch, js_name = newTimer)]
     fn new_timer(milliseconds: u32) -> Result<JsValue, JsValue>;
     #[wasm_bindgen(catch, js_name = waitTimer)]
@@ -17,14 +17,14 @@ extern "C" {
     #[wasm_bindgen(js_name = closeTimer)]
     fn close_timer(handle: &JsValue);
 }
-struct Timer(JsValue);
+pub(crate) struct Timer(JsValue);
 impl Timer {
-    fn new(ms: u32) -> Result<Self, BrowserError> {
+    pub(crate) fn new(ms: u32) -> Result<Self, BrowserError> {
         new_timer(ms)
             .map(Self)
             .map_err(|_| BrowserError::InvalidConfig)
     }
-    async fn wait(&self) -> Result<(), BrowserError> {
+    pub(crate) async fn wait(&self) -> Result<(), BrowserError> {
         let elapsed = wait_timer(&self.0)
             .await
             .map_err(|_| BrowserError::InvalidResult)?;

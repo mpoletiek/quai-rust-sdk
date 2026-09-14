@@ -311,5 +311,44 @@
     "No funded transaction or production finality claimed.",
     "Bounded sanitizer smoke is not sustained security qualification.",
     "Remaining declaration audit: 679 pending and 16 partial."
-  ]
+  ],
+  "commitCi": {
+    "runId": 34793413427,
+    "headSha": "ca5c563fa0a0e8971fe50403a3345e4a1f7090c9",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "browser",
+        "conclusion": "success"
+      },
+      {
+        "name": "reference-and-harness",
+        "conclusion": "success"
+      },
+      {
+        "name": "dependency-advisories",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (macos-15)",
+        "conclusion": "success"
+      },
+      {
+        "name": "packaged-consumer",
+        "conclusion": "success"
+      },
+      {
+        "name": "fuzz-smoke",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (windows-2025)",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (ubuntu-24.04)",
+        "conclusion": "success"
+      }
+    ]
+  }
 }

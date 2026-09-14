@@ -322,6 +322,10 @@ impl BrowserSocketConfig {
     }
 }
 #[cfg(target_arch = "wasm32")]
+mod code_wait;
+#[cfg(target_arch = "wasm32")]
+pub use code_wait::wait_for_contract_code;
+#[cfg(target_arch = "wasm32")]
 mod transaction_wait;
 #[cfg(target_arch = "wasm32")]
 pub use transaction_wait::{BrowserTransactionWaitError, wait_for_transaction};

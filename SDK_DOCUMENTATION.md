@@ -889,3 +889,24 @@ and wrapping signatures and locally computed IDs, preserving input order. It
 complements `verified_quai`. Inclusion checks are node observations; signature
 checks do not prove input existence, maturity, spendability or finality. Neither
 operation changes custody or retries a submission. See [response parity](docs/TRANSACTION_RESPONSE_PARITY.md).
+
+### Contract fallback, event delivery and code waits
+
+`Contract::prepare_fallback(data, value)` produces a `FallbackCall`;
+`simulate_fallback` returns raw bytes and `estimate_fallback` returns gas.
+`into_account_intent` carries exact calldata/value/access entries into native or
+browser durable signing. `Contract::attach` and `connect` explicitly bind another
+address/provider without I/O. ABI receive/fallback declaration order does not
+change mutability.
+
+`query_logs(range, topics, max_logs)` returns owned `ContractLog` values retaining
+decoded, unknown and malformed events, including removal/association metadata.
+The query bounds result count and aggregate decoded expansion and shares event
+declarations. Applications feed these values into their own bounded event queues.
+
+For an address with no known deployment transaction, construct `ContractCodeTarget`
+with the trusted genesis and optional runtime hash, then use native/browser
+`wait_for_contract_code` with explicit `CodeWaitConfig` deadline, interval and
+poll limit. Empty/changed views remain pending; source errors stop and dropping
+the future cancels reads. Code presence does not establish finality.
+See [contract parity and limits](docs/CONTRACT_PARITY.md) for the complete mapping.

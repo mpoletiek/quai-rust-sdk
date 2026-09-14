@@ -231,3 +231,7 @@ Third-party code, reference data and tools retain their original licenses and
 attribution; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Referencing or
 building go-quai does not relicense its code under MIT. All Rust SDK crates remain
 `publish = false` until their release gates pass.
+
+Contract bindings include exact fallback/receive intents, lossless bounded event
+queries, and native/browser code appearance waits. See [contract operations and
+parity](docs/CONTRACT_PARITY.md).

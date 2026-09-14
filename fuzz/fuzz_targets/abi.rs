@@ -1,6 +1,14 @@
 #![no_main]
 use libfuzzer_sys::fuzz_target;
 use quai_abi::{AbiCoder,AbiType,AbiInterface,AbiValue,SolidityArtifact,TypedData,AbiParameter,AbiFormat,AbiResult};
+struct NoIo;
+impl quai_sdk::rpc::Transport for NoIo {
+ async fn request(&self,_:&quai_sdk::Endpoint,_:&str,_:serde_json::Value)->Result<serde_json::Value,quai_sdk::rpc::RpcError>{panic!("offline contract decoding must not request RPC")}
+}
+fn contract_provider()-> &'static quai_sdk::Provider<NoIo>{
+ static P:std::sync::OnceLock<quai_sdk::Provider<NoIo>>=std::sync::OnceLock::new();
+ P.get_or_init(||quai_sdk::Provider::new(NoIo,quai_sdk::Routing::direct("http://127.0.0.1:9200",quai_sdk::Zone::Cyprus1.into()).unwrap(),quai_sdk::U256::from(9)))
+}
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
  for event in [false,true] {
@@ -36,6 +44,14 @@ fuzz_target!(|data:&[u8]| {
   }
   if let Some(document)=value.get("abi") {
    if let Ok(interface)=AbiInterface::from_json(&serde_json::to_vec(document).unwrap()) {
+    let contract=quai_sdk::contracts::Contract::new("0x0011223344556677889900112233445566778899".parse().unwrap(),interface.clone(),contract_provider());
+    if let Some(raw)=value.get("data").and_then(|v|v.as_str()).and_then(|v|quai_primitives::get_bytes(v).ok()).and_then(|v|quai_provider::RpcData::new(v).ok()) {
+     let amount=value.get("value").and_then(|v|v.as_str()).and_then(|v|quai_sdk::U256::from_str_radix(v,10).ok()).unwrap_or_default();
+     if let Ok(call)=contract.prepare_fallback(raw.clone(),amount){assert_eq!(call.data(),&raw);assert_eq!(call.value(),amount);assert_eq!(call.destination(),contract.address());}
+    }
+    if let Some(log)=value.get("log").and_then(|v|quai_provider::Log::try_from(v.clone()).ok()) {
+     let decoded=contract.decode_log(log.clone());assert_eq!(decoded.log(),&log);
+    }
     if let Some(bytes)=value.get("data").and_then(|v|v.as_str()).and_then(|s|quai_primitives::get_bytes(s).ok()) {
      if let Ok(call)=interface.parse_call(&bytes){assert_eq!(call.function.encode_call(&call.arguments).unwrap(),bytes);assert_eq!(call.function.decode_call_named(&bytes).unwrap().values(),call.arguments);}
      let _=interface.parse_revert(&bytes);

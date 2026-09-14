@@ -109,4 +109,9 @@ for source in ['compatibility/fixtures/transactions.json','crates/quai-consensus
   if row['kind']!='qi':continue
   v=row['input'];rpc={'hash':row['hash'],'type':'0x2','blockHash':None,'blockNumber':None,'transactionIndex':None,'chainId':hex(int(v['chainId'])),'gas':'0x0','nonce':'0x0','input':v['data'] or '0x','utxoSignature':v['signature'],'inputs':[{'previousOutPoint':{'txHash':i['txhash'],'index':hex(i['index'])},'pubKey':i['pubkey']} for i in v['txInputs']],'outputs':[{'address':o['address'],'denomination':hex(o['denomination']),'lock':None} for o in v['txOutputs']]}
   put('transactions',json.dumps(rpc).encode())
+for row in load('compatibility/fixtures/contract-io.json')['vectors']:put('abi',json.dumps({k:row[k] for k in ['abi','data','value']}).encode())
+for row in workflows['logs'] if 'logs' in workflows else []:
+ if 'topics' not in row or 'data' not in row:continue
+ log={'address':address,'blockHash':'0x'+'11'*32,'blockNumber':'0xa','transactionHash':'0x'+'22'*32,'transactionIndex':'0x0','logIndex':'0x0','removed':True,'topics':row['topics'],'data':row['data']}
+ put('abi',json.dumps({'abi':workflows['abi'],'log':log}).encode())
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

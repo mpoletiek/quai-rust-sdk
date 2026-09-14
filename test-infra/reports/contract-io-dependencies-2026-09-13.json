@@ -1,0 +1,14 @@
+{
+  "recordedAt": "2026-09-14T01:11:11.587175+00:00",
+  "scope": "Fuzz graph only; added local quai-sdk abi dependency to directly exercise contract wrappers. No changed registry package versions/sources/checksums. No new advisory scan claimed.",
+  "addedPackages": [
+    [
+      "quai-sdk",
+      "0.1.0-alpha.1",
+      null,
+      null
+    ]
+  ],
+  "removedPackages": [],
+  "lockSha256": "52a8d1236ba645860c948e90ad2002f2cff5093c45c8b130655d9a63ddcd6808"
+}

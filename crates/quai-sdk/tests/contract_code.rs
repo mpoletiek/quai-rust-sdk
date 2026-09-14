@@ -21,6 +21,7 @@ struct State {
     code: String,
     calls: Vec<(String, Value)>,
     genesis_reads: u8,
+    code_reads: u8,
     headers: u8,
     active: bool,
 }
@@ -92,6 +93,10 @@ impl Transport for Mock {
                     return Ok(header(if s.mode == 1 && s.headers == 2 { 9 } else { 2 }));
                 }
                 "quai_getCode" => {
+                    s.code_reads += 1;
+                    if s.mode == 8 && s.code_reads == 1 {
+                        return Ok(json!("0x"));
+                    }
                     assert_eq!(params[1], "0x10");
                     if s.mode == 6 {
                         return Err(RpcError::Transport);
@@ -325,4 +330,140 @@ async fn explicit_endpoint_wrapper_code_availability() {
             json!({"kind":kind,"chainId":chain.to_string(),"genesis":genesis.to_string(),"address":address.to_string(),"block":o.block.number,"blockHash":o.block.hash.to_string(),"runtimeBytes":o.code.bytes.bytes().len(),"runtimeKeccak256":o.code.hash.to_string(),"checkedBindingAccepted":!o.code.bytes.bytes().is_empty()})
         );
     }
+}
+
+fn code_target() -> quai_sdk::provider::ContractCodeTarget {
+    quai_sdk::provider::ContractCodeTarget {
+        address: WQUAI_ADDRESS.parse().unwrap(),
+        genesis: hash(1),
+        expected_runtime: None,
+    }
+}
+#[cfg(any(target_arch = "wasm32", feature = "http", feature = "ws"))]
+fn code_wait_config(timeout_ms: u32, max_polls: u32) -> quai_sdk::provider::CodeWaitConfig {
+    quai_sdk::provider::CodeWaitConfig {
+        timeout_ms,
+        poll_interval_ms: 1,
+        max_polls,
+    }
+}
+#[cfg(all(not(target_arch = "wasm32"), any(feature = "http", feature = "ws")))]
+async fn wait_code(
+    provider: &Provider<Mock>,
+    target: quai_sdk::provider::ContractCodeTarget,
+    config: quai_sdk::provider::CodeWaitConfig,
+) -> Result<quai_sdk::provider::ContractCodeObservation, quai_sdk::provider::CodeWaitError> {
+    provider.wait_for_contract_code(target, config).await
+}
+#[cfg(target_arch = "wasm32")]
+async fn wait_code(
+    provider: &Provider<Mock>,
+    target: quai_sdk::provider::ContractCodeTarget,
+    config: quai_sdk::provider::CodeWaitConfig,
+) -> Result<quai_sdk::provider::ContractCodeObservation, quai_sdk::provider::CodeWaitError> {
+    quai_sdk::browser::wait_for_contract_code(provider, target, config).await
+}
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn code_target_checks_empty_code_runtime_and_trusted_genesis_without_deployment_hash() {
+    let mock = Mock::new(8, "0x6000");
+    let provider = mock.provider();
+    let target = code_target();
+    assert!(target.observe(&provider).await.unwrap().is_none());
+    let observed = target.observe(&provider).await.unwrap().unwrap();
+    assert_eq!(observed.address, target.address);
+    assert_eq!(observed.code.bytes.to_hex(), "0x6000");
+    let mismatch = quai_sdk::provider::ContractCodeTarget {
+        genesis: hash(9),
+        ..target
+    };
+    assert!(mismatch.observe(&provider).await.is_err());
+    let mismatch = quai_sdk::provider::ContractCodeTarget {
+        expected_runtime: Some(hash(9)),
+        ..target
+    };
+    assert!(mismatch.observe(&provider).await.is_err());
+    let matching = quai_sdk::provider::ContractCodeTarget {
+        expected_runtime: Some(observed.code.hash),
+        ..target
+    };
+    assert!(matching.observe(&provider).await.unwrap().is_some());
+    let changed = Mock::new(1, "0x6000");
+    assert!(target.observe(&changed.provider()).await.unwrap().is_none());
+    let invalid = quai_sdk::provider::ContractCodeTarget {
+        genesis: Hash32::ZERO,
+        ..target
+    };
+    let calls = mock.state().calls.len();
+    assert!(invalid.observe(&provider).await.is_err());
+    assert_eq!(calls, mock.state().calls.len());
+}
+#[cfg(any(target_arch = "wasm32", feature = "http", feature = "ws"))]
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn native_and_browser_code_appearance_waits_enforce_polls_deadlines_and_drop() {
+    use quai_sdk::provider::CodeWaitError;
+    let mock = Mock::new(8, "0x6000");
+    let provider = mock.provider();
+    assert_eq!(
+        wait_code(&provider, code_target(), code_wait_config(2000, 3))
+            .await
+            .unwrap()
+            .code
+            .bytes
+            .to_hex(),
+        "0x6000"
+    );
+    assert_eq!(mock.state().code_reads, 2);
+    let empty = Mock::new(0, "0x");
+    assert!(matches!(
+        wait_code(&empty.provider(), code_target(), code_wait_config(1000, 1)).await,
+        Err(CodeWaitError::PollLimit {
+            polls_completed: 1,
+            ..
+        })
+    ));
+    let stalled = Mock::new(7, "0x6000");
+    assert!(matches!(
+        wait_code(&stalled.provider(), code_target(), code_wait_config(30, 3)).await,
+        Err(CodeWaitError::Timeout {
+            polls_completed: 0,
+            ..
+        })
+    ));
+    assert!(!stalled.state().active);
+    let failed = Mock::new(6, "0x6000");
+    assert!(matches!(
+        wait_code(&failed.provider(), code_target(), code_wait_config(1000, 3)).await,
+        Err(CodeWaitError::Provider(_))
+    ));
+    assert_eq!(failed.state().code_reads, 1);
+    let invalid = Mock::new(0, "0x6000");
+    for config in [
+        code_wait_config(0, 3),
+        code_wait_config(1, 0),
+        code_wait_config(u32::MAX, 3),
+    ] {
+        assert!(matches!(
+            wait_code(&invalid.provider(), code_target(), config).await,
+            Err(CodeWaitError::InvalidConfig)
+        ));
+    }
+    assert!(invalid.state().calls.is_empty());
+    use std::{future::Future, task::Poll};
+    let stalled = Mock::new(7, "0x6000");
+    let provider = stalled.provider();
+    let mut future = Box::pin(wait_code(
+        &provider,
+        code_target(),
+        code_wait_config(1000, 3),
+    ));
+    std::future::poll_fn(|cx| {
+        assert!(future.as_mut().poll(cx).is_pending());
+        Poll::Ready(())
+    })
+    .await;
+    assert!(stalled.state().active);
+    drop(future);
+    assert!(!stalled.state().active);
 }

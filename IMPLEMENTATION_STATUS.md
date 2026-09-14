@@ -999,3 +999,26 @@ Promise-refresh/unchecked-confirmation behavior and document response difference
 
 Transaction interchange commit `1e24a5f` passed all eight jobs in CI run
 34792470499, including Windows, macOS, browser and package checks.
+
+## Contract operations parity — September 13
+
+Raw fallback/receive preparation, simulation and estimation now preserve exact
+data/value/access lists through account-intent conversion. Bounded wildcard
+queries retain unknown/malformed/removed logs, share event declarations and cap
+aggregate decoded nodes/string bytes. Explicit native/browser code waits support
+existing addresses without deployment hashes and enforce genesis/runtime checks,
+deadlines, poll budgets and cancellation. Four contract-I/O and six contract-code
+tests pass natively and in a real Chromium worker; one live code test stays
+ignored offline. Five published-source tests document behavior and source defects.
+Strict native/Wasm Clippy passes. The [contract review](docs/CONTRACT_PARITY.md)
+reconciles 212 rows, closing 174 pending and all 16 partial rows; 505 declarations
+remain pending. This is not a claim of complete parity or funded qualification.
+
+Qi response commit `ca5c563` passed all eight jobs in CI run `34793413427`,
+including Windows, macOS, Linux, browser, archive consumers, reference checks,
+advisories and sanitizer smoke.
+
+The contract batch also passed strict rustdoc and a 120-second ASAN smoke
+(458,952 executions). All twelve extracted archives passed three consumer tests,
+twelve native and two Wasm target compilations. This rehearsal did not upload or
+execute the packaged test targets. Evidence: [contract report](test-infra/reports/contract-io-2026-09-13.json).

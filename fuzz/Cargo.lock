@@ -1823,6 +1823,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "quai-sdk"
+version = "0.1.0-alpha.1"
+dependencies = [
+ "quai-abi",
+ "quai-consensus",
+ "quai-primitives",
+ "quai-provider",
+ "quai-rpc",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "quai-sdk-fuzz"
 version = "0.0.0"
 dependencies = [
@@ -1834,6 +1847,7 @@ dependencies = [
  "quai-payments",
  "quai-primitives",
  "quai-provider",
+ "quai-sdk",
  "quai-wallet",
  "serde_json",
 ]

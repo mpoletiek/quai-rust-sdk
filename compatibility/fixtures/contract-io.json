@@ -1,0 +1,446 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "address": "0x0011223344556677889900112233445566778899",
+  "vectors": [
+    {
+      "abi": [],
+      "data": "0x",
+      "value": "0",
+      "expected": null,
+      "rustExpected": null,
+      "difference": null
+    },
+    {
+      "abi": [],
+      "data": "0x",
+      "value": "1",
+      "expected": null,
+      "rustExpected": null,
+      "difference": null
+    },
+    {
+      "abi": [],
+      "data": "0x1234",
+      "value": "0",
+      "expected": null,
+      "rustExpected": null,
+      "difference": null
+    },
+    {
+      "abi": [],
+      "data": "0x1234",
+      "value": "1",
+      "expected": null,
+      "rustExpected": null,
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "fallback",
+          "stateMutability": "nonpayable"
+        }
+      ],
+      "data": "0x",
+      "value": "0",
+      "expected": {
+        "data": "0x",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "fallback",
+          "stateMutability": "nonpayable"
+        }
+      ],
+      "data": "0x",
+      "value": "1",
+      "expected": null,
+      "rustExpected": null,
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "fallback",
+          "stateMutability": "nonpayable"
+        }
+      ],
+      "data": "0x1234",
+      "value": "0",
+      "expected": {
+        "data": "0x1234",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x1234",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "fallback",
+          "stateMutability": "nonpayable"
+        }
+      ],
+      "data": "0x1234",
+      "value": "1",
+      "expected": null,
+      "rustExpected": null,
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "fallback",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x",
+      "value": "0",
+      "expected": {
+        "data": "0x",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "fallback",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x",
+      "value": "1",
+      "expected": {
+        "data": "0x",
+        "value": "1",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x",
+        "value": "1",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "fallback",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x1234",
+      "value": "0",
+      "expected": {
+        "data": "0x1234",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x1234",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "fallback",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x1234",
+      "value": "1",
+      "expected": {
+        "data": "0x1234",
+        "value": "1",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x1234",
+        "value": "1",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x",
+      "value": "0",
+      "expected": {
+        "data": "0x",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x",
+      "value": "1",
+      "expected": {
+        "data": "0x",
+        "value": "1",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x",
+        "value": "1",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x1234",
+      "value": "0",
+      "expected": null,
+      "rustExpected": null,
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x1234",
+      "value": "1",
+      "expected": null,
+      "rustExpected": null,
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        },
+        {
+          "type": "fallback",
+          "stateMutability": "nonpayable"
+        }
+      ],
+      "data": "0x",
+      "value": "0",
+      "expected": {
+        "data": "0x",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        },
+        {
+          "type": "fallback",
+          "stateMutability": "nonpayable"
+        }
+      ],
+      "data": "0x",
+      "value": "1",
+      "expected": null,
+      "rustExpected": {
+        "to": "0x0011223344556677889900112233445566778899",
+        "data": "0x",
+        "value": "1"
+      },
+      "difference": "published interface overwrites receive with later nonpayable fallback"
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        },
+        {
+          "type": "fallback",
+          "stateMutability": "nonpayable"
+        }
+      ],
+      "data": "0x1234",
+      "value": "0",
+      "expected": {
+        "data": "0x1234",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x1234",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        },
+        {
+          "type": "fallback",
+          "stateMutability": "nonpayable"
+        }
+      ],
+      "data": "0x1234",
+      "value": "1",
+      "expected": null,
+      "rustExpected": null,
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        },
+        {
+          "type": "fallback",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x",
+      "value": "0",
+      "expected": {
+        "data": "0x",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        },
+        {
+          "type": "fallback",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x",
+      "value": "1",
+      "expected": {
+        "data": "0x",
+        "value": "1",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x",
+        "value": "1",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        },
+        {
+          "type": "fallback",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x1234",
+      "value": "0",
+      "expected": {
+        "data": "0x1234",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x1234",
+        "value": "0",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    },
+    {
+      "abi": [
+        {
+          "type": "receive",
+          "stateMutability": "payable"
+        },
+        {
+          "type": "fallback",
+          "stateMutability": "payable"
+        }
+      ],
+      "data": "0x1234",
+      "value": "1",
+      "expected": {
+        "data": "0x1234",
+        "value": "1",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "rustExpected": {
+        "data": "0x1234",
+        "value": "1",
+        "to": "0x0011223344556677889900112233445566778899"
+      },
+      "difference": null
+    }
+  ]
+}

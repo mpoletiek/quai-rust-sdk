@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 3167 | Documented replacement, stricter behavior, correction or omission |
-| `partial` | 16 | A mapping exists with unfinished behavior or scope |
-| `pending` | 679 | No completed row-level reconciliation; not proof of absence |
+| `deviation` | 3357 | Documented replacement, stricter behavior, correction or omission |
+| `partial` | 0 | A mapping exists with unfinished behavior or scope |
+| `pending` | 505 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -235,13 +235,9 @@ root/subpath exports account for much of the volume.
 | Export family | Pending | Partial | Implemented | Deviation |
 | --- | ---: | ---: | ---: | ---: |
 | `FetchRequest` | 64 | 0 | 0 | 0 |
-| `BaseContract` | 50 | 4 | 0 | 2 |
-| `Contract` | 46 | 4 | 0 | 2 |
 | `FetchResponse` | 32 | 0 | 0 | 0 |
-| `ContractEventPayload` | 24 | 0 | 0 | 0 |
 | `BaseWallet` | 20 | 0 | 0 | 0 |
 | `SocketEventSubscriber` | 18 | 0 | 0 | 0 |
-| `ContractUnknownEventPayload` | 16 | 0 | 0 | 0 |
 | `Network` | 16 | 0 | 0 | 0 |
 | `SocketBlockSubscriber` | 16 | 0 | 0 | 0 |
 | `SocketPendingSubscriber` | 16 | 0 | 0 | 0 |
@@ -249,8 +245,6 @@ root/subpath exports account for much of the volume.
 | `BIP44` | 12 | 0 | 0 | 0 |
 | `UnmanagedSubscriber` | 12 | 0 | 0 | 0 |
 | `AggregateCoinSelector` | 8 | 0 | 0 | 0 |
-| `ContractFactory` | 0 | 8 | 0 | 18 |
-| `EventPayload` | 8 | 0 | 0 | 0 |
 | `FetchCancelSignal` | 8 | 0 | 0 | 0 |
 | `FeeData` | 6 | 0 | 0 | 0 |
 | `ActionRejectedError` | 2 | 0 | 0 | 0 |
@@ -259,7 +253,6 @@ root/subpath exports account for much of the volume.
 | `AddressStatus` | 2 | 0 | 0 | 0 |
 | `AllowedCoinType` | 2 | 0 | 0 | 0 |
 | `BadDataError` | 2 | 0 | 0 | 0 |
-| `BaseContractMethod` | 2 | 0 | 0 | 0 |
 | `BigNumberish` | 2 | 0 | 0 | 0 |
 | `BlockParams` | 2 | 0 | 0 | 0 |
 | `BlockTag` | 2 | 0 | 0 | 0 |
@@ -271,19 +264,8 @@ root/subpath exports account for much of the volume.
 | `CancelledError` | 2 | 0 | 0 | 0 |
 | `checkResultErrors` | 2 | 0 | 0 | 0 |
 | `CodedquaisError` | 2 | 0 | 0 | 0 |
-| `ConstantContractMethod` | 2 | 0 | 0 | 0 |
-| `ContractDeployTransaction` | 2 | 0 | 0 | 0 |
-| `ContractEvent` | 2 | 0 | 0 | 0 |
-| `ContractEventArgs` | 2 | 0 | 0 | 0 |
-| `ContractEventName` | 2 | 0 | 0 | 0 |
-| `ContractInterface` | 2 | 0 | 0 | 0 |
-| `ContractMethod` | 2 | 0 | 0 | 0 |
-| `ContractMethodArgs` | 2 | 0 | 0 | 0 |
-| `ContractRunner` | 2 | 0 | 0 | 0 |
-| `ContractTransaction` | 2 | 0 | 0 | 0 |
 | `copyRequest` | 2 | 0 | 0 | 0 |
 | `DebugEventBrowserProvider` | 2 | 0 | 0 | 0 |
-| `DeferredTopicFilter` | 2 | 0 | 0 | 0 |
 | `Eip1193Provider` | 2 | 0 | 0 | 0 |
 | `EncryptOptions` | 2 | 0 | 0 | 0 |
 | `ErrorCode` | 2 | 0 | 0 | 0 |
@@ -339,14 +321,12 @@ root/subpath exports account for much of the volume.
 | `NumericFaultError` | 2 | 0 | 0 | 0 |
 | `OrphanFilter` | 2 | 0 | 0 | 0 |
 | `OutpointInfo` | 2 | 0 | 0 | 0 |
-| `Overrides` | 2 | 0 | 0 | 0 |
 | `ParamTypeWalkAsyncFunc` | 2 | 0 | 0 | 0 |
 | `ParamTypeWalkFunc` | 2 | 0 | 0 | 0 |
 | `pbkdf2` | 2 | 0 | 0 | 0 |
 | `PerformActionFilter` | 2 | 0 | 0 | 0 |
 | `PerformActionRequest` | 2 | 0 | 0 | 0 |
 | `PerformActionTransaction` | 2 | 0 | 0 | 0 |
-| `PostfixOverrides` | 2 | 0 | 0 | 0 |
 | `PreparedTransactionRequest` | 2 | 0 | 0 | 0 |
 | `ProgressCallback` | 2 | 0 | 0 | 0 |
 | `Provider` | 2 | 0 | 0 | 0 |
@@ -386,7 +366,6 @@ root/subpath exports account for much of the volume.
 | `verifyTypedData` | 2 | 0 | 0 | 0 |
 | `WebSocketCreator` | 2 | 0 | 0 | 0 |
 | `WebSocketLike` | 2 | 0 | 0 | 0 |
-| `WrappedFallback` | 2 | 0 | 0 | 0 |
 | `Zone` | 2 | 0 | 0 | 0 |
 | `assert` | 1 | 0 | 0 | 0 |
 | `assertArgument` | 1 | 0 | 0 | 0 |
@@ -534,3 +513,14 @@ previously reviewed differences. Current totals are 66 implemented, 3167
 deviations, 16 partial and 679 pending. No pending declaration is promoted merely
 because a similarly named field exists; detached state, explicit lifecycle,
 unsupported source conveniences and node claims are documented separately.
+
+## Contract review — 2026-09-13
+
+[Contract parity](docs/CONTRACT_PARITY.md) reconciles 212 binding, factory, event
+payload and associated type rows: 174 pending and all 16 remaining partial rows
+now have concrete equivalents or documented differences. The ledger has 505
+pending declarations; this is not a feature-completion percentage. Raw
+fallback/receive preparation, simulation and estimation, lossless bounded event
+queries, and address-only code appearance waits now have native/worker tests.
+Published receive-order, TODO-query and factory-grinding behaviors are explicitly
+reviewed. Event delivery and signing remain application-owned compositions.

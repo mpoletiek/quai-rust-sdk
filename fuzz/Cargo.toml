@@ -13,6 +13,7 @@ cargo-fuzz = true
 members = ["."]
 
 [dependencies]
+quai-sdk = { path = "../crates/quai-sdk", default-features = false, features = ["abi"] }
 libfuzzer-sys = "=0.4.13"
 quai-provider = { path = "../crates/quai-provider", default-features = false }
 quai-consensus = { path = "../crates/quai-consensus" }

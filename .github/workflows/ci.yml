@@ -115,6 +115,7 @@ jobs:
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-address-book
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-worker
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-contract-code
+      - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-contract-io
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-contracts
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-events
       - run: python3 crates/quai-browser/tests/run_browser.py --suite sdk-human-abi

@@ -1,4 +1,6 @@
 //! ABI-bound account contract calls with explicit simulation and authorization boundaries.
+mod io;
+pub use io::{ContractLog, FallbackCall, MAX_QUERY_VALUE_BYTES, MAX_QUERY_VALUE_NODES};
 use quai_abi::{
     AbiError, AbiEventValue, AbiFilterTopic, AbiFilterValue, AbiFunction, AbiInterface,
     StateMutability,
@@ -14,6 +16,9 @@ use thiserror::Error;
 /// Contract operations fail before submission; sending belongs to a wallet workflow.
 #[derive(Debug, Error)]
 pub enum ContractError {
+    /// The selected raw-data path has no declared receive/fallback entry point.
+    #[error("contract ABI has no applicable receive or fallback entry point")]
+    MissingFallback,
     /// Invalid/ambiguous ABI symbol or noncanonical data.
     #[error(transparent)]
     Abi(#[from] AbiError),

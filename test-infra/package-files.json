@@ -400,6 +400,10 @@
     {
       "source": "crates/quai-consensus/tests/wrapping-vectors.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/crates/quai-consensus/tests/wrapping-vectors.json"
+    },
+    {
+      "source": "compatibility/fixtures/contract-io.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/contract-io.json"
     }
   ]
 }

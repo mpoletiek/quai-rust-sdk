@@ -17,7 +17,9 @@ mod deployment;
 #[cfg(all(feature = "polling", not(target_arch = "wasm32")))]
 pub use deployment::DeploymentWaitError;
 pub use deployment::{DeploymentCode, DeploymentObservation, DeploymentReference};
+mod code_wait;
 mod contract_code;
+pub use code_wait::{CodeWaitConfig, CodeWaitError, ContractCodeTarget};
 pub use contract_code::ContractCodeObservation;
 mod blocks;
 pub use blocks::{

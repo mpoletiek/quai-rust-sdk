@@ -248,6 +248,38 @@ impl SignedQiConversionTransaction {
     }
 }
 
+/// Conservative basis points removed by the pinned node's cubic flow discount from
+/// every conversion in one prime-block batch. `batch_total` is the combined
+/// pre-discount Quai value (Its) of all conversions processed up to and including
+/// the one being evaluated; `flow_amount` is the block's conversion flow amount.
+///
+/// Conversions are processed in descending slippage order, and a conversion is
+/// refunded when this discount exceeds its slippage. Other users' concurrent
+/// conversions therefore affect the result, so single-transaction quote RPCs
+/// cannot predict it. Returns 20 at or below the flow amount, `10 + ceil(10·(T/F)³)`
+/// up to ten times it, and the node's 9000 floor beyond. Any k-Quai discount is
+/// separate. Returns `None` for a zero flow amount or arithmetic overflow.
+pub fn conversion_batch_discount_bps(batch_total: U256, flow_amount: U256) -> Option<u16> {
+    if flow_amount == U256::ZERO {
+        return None;
+    }
+    if batch_total <= flow_amount {
+        return Some(20);
+    }
+    if batch_total > flow_amount.checked_mul(U256::from(10))? {
+        return Some(9000);
+    }
+    let numerator = batch_total
+        .checked_mul(batch_total)?
+        .checked_mul(batch_total)?
+        .checked_mul(U256::from(10))?;
+    let denominator = flow_amount
+        .checked_mul(flow_amount)?
+        .checked_mul(flow_amount)?;
+    let cubic = numerator.div_ceil(denominator);
+    u16::try_from(cubic.checked_add(U256::from(10))?.min(U256::from(9000))).ok()
+}
+
 /// Static minimum value for Quai-to-Qi conversion in the pinned node: 10^19 base units.
 pub const MIN_QUAI_CONVERSION_VALUE: u64 = 10_000_000_000_000_000_000;
 /// Immutable explicit type-0 Quai-to-Qi request. Runtime activation and fee checks remain external.

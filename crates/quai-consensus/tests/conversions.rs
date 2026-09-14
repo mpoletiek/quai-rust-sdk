@@ -240,3 +240,27 @@ fn quai_conversion_minimum_data_and_recovered_sender_scope_are_exact() {
     );
     assert!(QuaiToQiTransaction::new(tx).unwrap().sign(&key).is_err());
 }
+
+#[test]
+fn batch_discount_matches_the_pinned_cubic_formula_and_mainnet_observations() {
+    use quai_consensus::conversion_batch_discount_bps as bps;
+    let quai = |n: u64| U256::from(n) * U256::from(10u64).pow(U256::from(18));
+    assert_eq!(bps(quai(1), U256::ZERO), None);
+    // At or below the flow amount only the 20 basis-point minimum applies.
+    assert_eq!(bps(quai(100), quai(125)), Some(20));
+    assert_eq!(bps(quai(125), quai(125)), Some(20));
+    // Continuous above it: twice the flow is 10 + 10·8 basis points.
+    assert_eq!(bps(quai(250), quai(125)), Some(90));
+    // Ten times the flow is the largest cubic value; beyond it the node's 10% floor applies.
+    assert_eq!(bps(quai(1250), quai(125)), Some(9000));
+    assert_eq!(bps(quai(1251), quai(125)), Some(9000));
+    // Mainnet 2026-09-14: 200 QUAI shared a batch with ~277 QUAI at flow ~126.04 QUAI
+    // and realized 1362 of 1440 quoted Qits (542 bps); two ~253 QUAI competitors
+    // (~706 QUAI total) would exceed an 800 basis-point bound and were refunded.
+    let flow = U256::from(126_040_000_000_000_000_000u128);
+    let one = bps(quai(477), flow).unwrap();
+    assert!((530..=560).contains(&one), "{one}");
+    assert!(bps(quai(706), flow).unwrap() > 800);
+    // Cubing extreme values overflows instead of wrapping.
+    assert_eq!(bps(U256::from(1u8) << 201, U256::from(1u8) << 200), None);
+}

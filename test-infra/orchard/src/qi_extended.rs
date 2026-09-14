@@ -37,8 +37,8 @@ pub(super) fn load_named_wallet(
 
 pub(super) fn scope() -> Result<NetworkScope, Box<dyn Error>> {
     Ok(NetworkScope {
-        chain_id: U256::from(15000),
-        genesis: "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b".parse()?,
+        chain_id: U256::from(net().chain_id),
+        genesis: net().genesis.parse()?,
         zone: Zone::Cyprus1,
     })
 }
@@ -86,22 +86,33 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
         "convert-qi-to-quai" => (4, false),
         "aggregate" => (5, false),
         "sweep" => (2, true),
-        _ => return Err("expected wrap, payment-send or payment-return".into()),
+        "self-transfer" if net().mainnet() => (6, false),
+        _ => return Err("unsupported Qi extended operation".into()),
+    };
+    let mainnet = net().mainnet();
+    // Mainnet amounts are scaled for 1 Qi ≈ 146 QUAI; Orchard keeps its recorded values.
+    let payment_qits = |orchard: u64, mainnet_value: u64| {
+        U256::from(if mainnet { mainnet_value } else { orchard })
     };
     let scope = scope()?;
     let provider = Provider::new(
         DiagnosticTransport(HttpTransport::new(HttpConfig::default())?),
-        Routing::direct(
-            "https://orchard.rpc.quai.network/cyprus1",
-            scope.zone.into(),
-        )?,
+        Routing::direct(net().endpoint, scope.zone.into())?,
         scope.chain_id,
     );
     if provider.genesis_hash(scope.zone).await? != scope.genesis
         || provider.chain_id(scope.zone.into()).await? != scope.chain_id
     {
-        return Err("Orchard identity mismatch".into());
+        return Err("network identity mismatch".into());
     }
+    let accounts: [QuaiAddress; 2] = {
+        let content = Zeroizing::new(fs::read_to_string(dir().join("wallets.json"))?);
+        let supplied: Supplied = serde_json::from_str(&content).map_err(|_| "wallet JSON")?;
+        [
+            supplied.wallets[0].address.parse()?,
+            supplied.wallets[1].address.parse()?,
+        ]
+    };
     let conversion = operation == "convert-qi-to-quai";
     let sweeping = matches!(operation, "aggregate" | "sweep");
     let redemption = operation == "redemption-spend";
@@ -132,7 +143,7 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
         )?;
     }
     let id = ReservationId([index; 16]);
-    let beneficiary: QuaiAddress = "0x0006506bDE7140b85DED58a40D7444F84cde4821".parse()?;
+    let beneficiary = accounts[0];
     let wrapper = WrappedQi::new(WQI_ADDRESS.parse()?, &provider)?;
     match stage {
         "probe" => {
@@ -217,16 +228,17 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                     6000,
                     || false,
                 )?;
-                let destination: QuaiAddress =
-                    "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2".parse()?;
+                let destination = accounts[1];
+                // Mainnet discounts whole prime-block batches; see mainnet-2026-09-14.json.
+                let slippage = if mainnet { 2000 } else { 100 };
                 let intent = quai_sdk::consensus::QiConversionIntent {
                     destination,
                     refund: refund.address.address().try_into()?,
-                    slippage: quai_sdk::consensus::ConversionSlippage::new(100)?,
+                    slippage: quai_sdk::consensus::ConversionSlippage::new(slippage)?,
                 };
                 println!(
                     "{}",
-                    json!({"stage":"conversion-preflight","destination":destination.to_string(),"refund":intent.refund.to_string(),"amountQits":"1000","slippageBasisPoints":100,"quotedIts":provider.qi_to_quai(scope.zone,U256::from(1000),BlockTag::Latest).await?.map(|q|q.to_string()),"balanceBeforeIts":provider.balance(destination,BlockTag::Latest).await?.to_string(),"lockedBeforeIts":provider.locked_quai_balance(destination).await?.balance.to_string()})
+                    json!({"stage":"conversion-preflight","destination":destination.to_string(),"refund":intent.refund.to_string(),"amountQits":"1000","slippageBasisPoints":slippage,"quotedIts":provider.qi_to_quai(scope.zone,U256::from(1000),BlockTag::Latest).await?.map(|q|q.to_string()),"balanceBeforeIts":provider.balance(destination,BlockTag::Latest).await?.to_string(),"lockedBeforeIts":provider.locked_quai_balance(destination).await?.balance.to_string()})
                 );
                 Some(intent)
             } else {
@@ -246,14 +258,25 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                 attempts,
                 || false,
             )?;
-            let intent = if operation != "wrap" && !conversion && !sweeping {
-                let amount = U256::from(if redemption {
-                    500
+            let intent = if operation == "self-transfer" {
+                let receiver = store.allocate_address_compact(
+                    &wallet.account_public(0)?,
+                    false,
+                    100_000,
+                    || false,
+                )?;
+                Some(quai_sdk::qi::QiIntent {
+                    amount: U256::from(100),
+                    destinations: vec![receiver.address.address().try_into()?],
+                })
+            } else if operation != "wrap" && !conversion && !sweeping {
+                let amount = if redemption {
+                    payment_qits(500, 250)
                 } else if is_peer {
-                    1000
+                    payment_qits(1000, 250)
                 } else {
-                    5000
-                });
+                    payment_qits(5000, 500)
+                };
                 Some(quai_sdk::payment_channels::payment_intent(
                     &mut store,
                     &payment,
@@ -272,7 +295,12 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
             let mut session = QiSession::with_keys(&provider, &keys, &mut store);
             let policy = QiPolicy {
                 initial_fee: U256::ZERO,
-                max_fee: U256::from(if sweeping { 500 } else { 100 }),
+                max_fee: U256::from(match (mainnet, sweeping) {
+                    (true, true) => 1000,
+                    (true, false) => 200,
+                    (false, true) => 500,
+                    (false, false) => 100,
+                }),
                 max_inputs: if sweeping { 128 } else { 8 },
                 max_outputs: 32,
                 max_fee_rounds: 8,
@@ -290,16 +318,29 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                 let fee = prepared.fee();
                 (SignedQiOperation::Transfer(session.sign(&prepared)?), fee)
             } else if let Some(intent) = conversion_intent {
-                let prepared = session
-                    .prepare_special(
-                        id,
-                        U256::from(1000),
-                        QiSpecialIntent::Conversion(intent),
-                        U256::from(100),
-                        policy,
-                        pool,
-                    )
-                    .await?;
+                let prepared = if mainnet {
+                    session
+                        .prepare_special_estimated(
+                            id,
+                            U256::from(1000),
+                            QiSpecialIntent::Conversion(intent),
+                            quai_sdk::provider::QiFeeProfile::V056ShaAnchored,
+                            policy,
+                            pool,
+                        )
+                        .await?
+                } else {
+                    session
+                        .prepare_special(
+                            id,
+                            U256::from(1000),
+                            QiSpecialIntent::Conversion(intent),
+                            U256::from(100),
+                            policy,
+                            pool,
+                        )
+                        .await?
+                };
                 let fee = prepared.fee();
                 (session.sign_special(&prepared)?, fee)
             } else if let Some(intent) = intent {
@@ -307,21 +348,29 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                 let fee = prepared.fee();
                 (SignedQiOperation::Transfer(session.sign(&prepared)?), fee)
             } else {
-                let prepared = session
-                    .prepare_special(
-                        id,
-                        U256::from(1000),
-                        QiSpecialIntent::Wrapping(QiWrappingIntent {
-                            destination: beneficiary,
-                            owner_contract: WQI_ADDRESS.parse()?,
-                        }),
-                        // Orchard does not satisfy the estimator's pinned activation profile.
-                        // Explicit 0.1 Qi qualification fee, bounded by the same policy cap.
-                        U256::from(100),
-                        policy,
-                        pool,
-                    )
-                    .await?;
+                let wrap = QiSpecialIntent::Wrapping(QiWrappingIntent {
+                    destination: beneficiary,
+                    owner_contract: WQI_ADDRESS.parse()?,
+                });
+                let prepared = if mainnet {
+                    // Mainnet satisfies the pinned activation profile (checked 2026-09-14).
+                    session
+                        .prepare_special_estimated(
+                            id,
+                            U256::from(1000),
+                            wrap,
+                            quai_sdk::provider::QiFeeProfile::V056ShaAnchored,
+                            policy,
+                            pool,
+                        )
+                        .await?
+                } else {
+                    // Orchard does not satisfy the estimator's pinned activation profile.
+                    // Explicit 0.1 Qi qualification fee, bounded by the same policy cap.
+                    session
+                        .prepare_special(id, U256::from(1000), wrap, U256::from(100), policy, pool)
+                        .await?
+                };
                 let fee = prepared.fee();
                 (session.sign_special(&prepared)?, fee)
             };
@@ -354,7 +403,7 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                         hash,
                         WaitConfig {
                             confirmations: 2,
-                            timeout: std::time::Duration::from_secs(55),
+                            timeout: std::time::Duration::from_secs(if mainnet { 300 } else { 55 }),
                             poll_interval: std::time::Duration::from_secs(2),
                         },
                     )
@@ -397,6 +446,10 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                     .filter(|t| t.kind() == quai_sdk::provider::TransactionKind::Qi)
                     .count();
                 if operation == "aggregate" && qi_before != 0 {
+                    println!(
+                        "{}",
+                        json!({"stage":"aggregation-position","operation":operation,"block":observed.receipt.inclusion.block_number,"qiTransactionsBefore":qi_before})
+                    );
                     return Err("aggregation not first Qi in block".into());
                 }
                 let destinations = signed
@@ -455,7 +508,7 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
             )
             .await?;
             let observation = update.conversion.ok_or("no conversion observation")?;
-            let destination: QuaiAddress = "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2".parse()?;
+            let destination = accounts[1];
             println!(
                 "{}",
                 json!({"stage":"conversion-credit","operation":operation,"effect":format!("{:?}",observation.effect),"execution":observation.scan.as_ref().and_then(|s|s.execution.as_ref()).map(|e|json!({"hash":e.transaction.hash.to_string(),"block":e.transaction.inclusion.map(|i|i.block_number),"transaction":e.transaction.to_rpc_json().ok(),"outcome":e.receipt.as_ref().map(|r|format!("{:?}",r.outcome))})),"head":head.number,"balanceIts":provider.balance(destination,BlockTag::Latest).await?.to_string(),"lockedIts":provider.locked_quai_balance(destination).await?.balance.to_string()})

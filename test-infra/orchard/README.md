@@ -271,3 +271,46 @@ avoidable gaps without claiming that seed-only gap-50 scans recover every wallet
 Automatic specialized Orchard fee estimation, competing-peer reorgs, sustained
 fault/load testing, actual Pelagus interoperability and cross-zone execution are
 not established by these runs. Cross-zone qualification remains deferred.
+
+## Mainnet qualification (from September 14)
+
+`QUAI_QUALIFICATION_NETWORK=mainnet` selects chain 9, its genesis,
+`https://rpc.quai.network/cyprus1` and mainnet WQUAI. Custody lives in the 0700
+directory `~/.local/share/quai-sdk-mainnet-qualification`, never `/tmp`. Do not
+submit through a node without hashrate. Run stages through bash with `pipefail`
+so a failed preparation stops a chain of stages.
+
+[Mainnet record](mainnet-2026-09-14.json) and [checks](mainnet-checks-2026-09-14.json):
+transfers, WQUAI deposit/withdraw and token approve/transferFrom/transfer, fee-only
+replacement, withheld acknowledgement, unregistered cancellation discovery, a
+ground deployment, and six Quai-to-Qi conversions. Batch-wide conversion discounts
+from third-party flow refunded three conversions; three credited 3,416 Qits,
+locked until blocks 10,338,942, 10,339,066 and 10,339,111. Read-only checks
+(`mainnet-check recovery|locked-spend|special-fee|backup|events|interchange`)
+verified seed-only recovery, locked exclusion, automatic specialized fees (36 Qits
+for a 1 Qi conversion, 33 for a wrap), backup restore and interchange.
+
+`target/release/head_soak` is a detached read-only WebSocket head follower writing
+`soak/head-soak.jsonl`; `fork_watch.py` records prime blocks around 2,237,000.
+Stop them with `pkill -x head_soak` and `pkill -f fork_watch.py`.
+
+### Unlock-day sequence
+
+Run only after every lock height has passed. Each funded stage is one-use.
+
+1. `qi-extended aggregate inventory`: confirm spendable Qits; 1-Qit outputs may
+   be trimmed as they unlock.
+2. `qi-extended self-transfer prepare|broadcast|observe` (0.1 Qi).
+3. `qi-extended payment-send prepare|broadcast|observe` (0.5 Qi to the peer code),
+   `payment-return scan`, `payment-return prepare|broadcast|observe` (0.25 Qi),
+   then `payment-send scan`.
+4. `qi-extended wrap prepare|broadcast|observe|credit` (1 Qi, estimated fee),
+   `prepare|broadcast|observe wqi-claim`, `prepare|broadcast|observe|credit wqi-unwrap`,
+   then `qi-extended redemption-spend prepare|broadcast|observe` (0.25 Qi) once the
+   10-block post-fork unwrap lock expires.
+5. `qi-extended convert-qi-to-quai prepare|broadcast|observe|credit` (1 Qi, 2000
+   basis points, estimated fee). Account B's credit is locked for two weeks.
+6. `qi-extended aggregate prepare|broadcast|observe`; first-Qi block placement is
+   recorded, not guaranteed. `qi-extended sweep` sweeps the peer wallet.
+
+A Pelagus-funded payment-code receive needs the sender's public payment code.

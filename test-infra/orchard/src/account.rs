@@ -36,6 +36,8 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 | "wquai-deposit"
                 | "wquai-withdraw"
                 | "conversion-credit-spend"
+                | "wqi-claim"
+                | "wqi-unwrap"
         )
         && conversion_number(operation).is_none()
     {
@@ -186,7 +188,7 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 }
                 println!(
                     "{}",
-                    serde_json::json!({"operation":operation,"valueBaseUnits":value.to_string(),"quotedQits":quoted.to_string(),"destination":address.to_string(),"slippageBasisPoints":net().conversion_slippage_bps})
+                    serde_json::json!({"operation":operation,"valueBaseUnits":value.to_string(),"quotedQits":quoted.to_string(),"calculatedSingleTransactionQits":provider.calculate_conversion_amount(addresses[owner].address(),address.address(),value).await.map(|q|q.to_string()).ok(),"destination":address.to_string(),"slippageBasisPoints":net().conversion_slippage_bps})
                 );
                 Some(address)
             } else {
@@ -234,8 +236,16 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 } else {
                     let (wallet, _) = super::qi_extended::load_named_wallet("qi-redemption.json")?;
                     let mut qi = SqliteStore::open(state.join("qi-redemption.sqlite"), scope)?;
-                    let allocation =
-                        qi.allocate_address(&wallet.account_public(0)?, false, 6000, || false)?;
+                    let allocation = if net().mainnet() {
+                        qi.allocate_address_compact(
+                            &wallet.account_public(0)?,
+                            false,
+                            100_000,
+                            || false,
+                        )?
+                    } else {
+                        qi.allocate_address(&wallet.account_public(0)?, false, 6000, || false)?
+                    };
                     let address: quai_sdk::QiAddress = allocation.address.address().try_into()?;
                     let metadata = serde_json::json!({"address":address.to_string(),"origin":format!("{:?}",allocation.address.origin())});
                     super::qi_extended::save("wqi-redemption-recipient.json", &metadata)?;
@@ -558,7 +568,8 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                     hash,
                     WaitConfig {
                         confirmations: 2,
-                        timeout: Duration::from_secs(90),
+                        // Mainnet inclusion exceeded 90 s on 2026-09-14.
+                        timeout: Duration::from_secs(if net().mainnet() { 300 } else { 90 }),
                         poll_interval: Duration::from_secs(2),
                     },
                 )

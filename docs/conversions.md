@@ -63,6 +63,29 @@ advisory for a later larger quote or a different node gas schedule.
 The [Orchard record](../test-infra/orchard/README.md) captures the original failure,
 which produced partial locked outputs despite a successful origin receipt.
 
+## Slippage and batch-wide discounts
+
+The pinned node prices conversions per prime-block batch, not per transaction.
+It processes a block's conversions in descending slippage order and applies the
+cubic flow discount to their combined pre-discount Quai value. A conversion whose
+discount exceeds its slippage is refunded as a `ConversionRevertType` ETX; only
+its origin fee is lost. Other users' concurrent conversions therefore change the
+outcome, and neither `quai_quaiToQi` nor `quai_calculateConversionAmount`, which
+price one transaction, can predict it.
+
+`conversion_batch_discount_bps(batch_total, flow_amount)` reproduces the pinned
+formula for a hypothetical batch total and the block's `conversionFlowAmount`: 20
+basis points at or below the flow amount, `10 + ceil(10·(T/F)³)` up to ten times it,
+and the node's 9000 floor beyond. Size slippage against the flow you are willing to
+share a batch with. Any k-Quai discount is applied separately.
+
+On mainnet on 2026-09-14, a recurring third-party Qi-to-Quai conversion of about
+255–280 QUAI at 1500 basis points shared every observed batch. It refunded a
+100 QUAI conversion at 100 basis points and another at 500 (two competitors), and
+reduced successful conversions by 2.8–5.5%. A 200 QUAI size with an 800 basis-point
+bound accepted single-competitor batches and refunded a two-competitor batch.
+See the [mainnet record](../test-infra/orchard/mainnet-2026-09-14.json).
+
 ## Explicit fee profiles
 
 `Provider::estimate_qi_conversion_fee` returns `ProviderError::ConversionFeeEstimationUnavailable` without network I/O. The provider does not quietly route this request through its ordinary Qi estimator.

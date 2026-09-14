@@ -251,9 +251,6 @@ async fn main() {
         "generate" => generate("qi-wallet.json"),
         "generate-peer" => generate("qi-peer.json"),
         "generate-redemption" => generate("qi-redemption.json"),
-        "qi-extended" if net().mainnet() => {
-            Err("qi-extended is not enabled for mainnet qualification".into())
-        }
         "qi-extended" => {
             qi_extended::run(
                 &std::env::args().nth(2).unwrap_or_default(),

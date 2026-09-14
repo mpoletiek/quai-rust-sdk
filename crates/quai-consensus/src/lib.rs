@@ -10,7 +10,7 @@ mod qi;
 mod quai;
 pub use conversion::{
     ConversionSlippage, MIN_QUAI_CONVERSION_VALUE, QiConversionIntent, QiConversionTransaction,
-    QuaiToQiTransaction, SignedQiConversionTransaction,
+    QuaiToQiTransaction, SignedQiConversionTransaction, conversion_batch_discount_bps,
 };
 use prost::Message;
 pub use qi::{Denomination, OutPoint, QiInput, QiOutput, QiTransaction, SignedQiTransaction};

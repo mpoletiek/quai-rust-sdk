@@ -1,6 +1,6 @@
 # quai-keystore
 
-Legacy Web3 v3 and `x-quais` JSON keystore interchange, under development and unpublished. Native full-wallet backups belong to `quai-wallet`; this legacy format cannot preserve accounts, payment channels, UTXOs, reservations or arbitrary key origins.
+Legacy Web3 v3 and `x-quais` JSON keystore interchange, published as an alpha under active development. Native full-wallet backups belong to `quai-wallet`; this legacy format cannot preserve accounts, payment channels, UTXOs, reservations or arbitrary key origins.
 
 `Keystore::from_json(bytes, limits)` validates a bounded document before KDF work. `decrypt(Password::Text(...), limits)` uses NFKC-normalized UTF-8, matching pinned quais.js; `Password::Bytes(...)` preserves exact bytes. Decryption supports AES-128-CTR and scrypt or PBKDF2-HMAC-SHA256/SHA512. Scrypt derives 64 bytes as the JS implementation does, while the serialized v3 `dklen` remains 32. The legacy key MAC covers derived-key bytes 16–31 plus ciphertext and is checked in constant time before decryption.
 

@@ -1,7 +1,7 @@
 # quai-crypto
 
-Experimental cryptographic foundations for the Quai Rust SDK. This crate is not
-published, independently audited, or qualified for production funds.
+Experimental cryptographic foundations for the Quai Rust SDK. This crate is an
+alpha; it is not independently audited or qualified for production funds.
 
 The public API provides:
 

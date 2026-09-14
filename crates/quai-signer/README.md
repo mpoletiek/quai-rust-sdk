@@ -18,7 +18,7 @@ Asynchronous injected-wallet signing lives in `quai-browser`.
 
 The [SDK workflow guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/WALLET_WORKFLOWS.md)
 shows durable preparation, authorization, signing, broadcast and recovery.
-This crate remains unpublished; see the repository's
+This crate is an alpha; see the repository's
 [implementation status](https://github.com/mpoletiek/quai-rust-sdk/blob/main/IMPLEMENTATION_STATUS.md)
 for compatibility evidence and open qualification gates.
 

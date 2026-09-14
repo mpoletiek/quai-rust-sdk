@@ -1,6 +1,6 @@
 # quai-rpc
 
-Explicit shard routing and bounded native HTTP and WebSocket JSON-RPC transports. This crate is an unpublished alpha; live checks establish the narrow compatibility described below.
+Explicit shard routing and bounded native HTTP and WebSocket JSON-RPC transports. This crate is an alpha; live checks establish the narrow compatibility described below.
 
 `HttpTransport::batch` submits 1–128 explicit JSON-RPC calls in one HTTP request,
 with a 2 MiB encoded request cap and the configured response/deadline/concurrency

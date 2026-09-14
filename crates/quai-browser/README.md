@@ -1,6 +1,6 @@
 # quai-browser
 
-Concrete wasm32 adapters for browser Fetch, WebSocket and an explicitly supplied Quai wallet provider. This unpublished alpha adds browser transport and a small permission API; it composes with the portable wallet sessions in `quai-sdk` and supplies IndexedDB custody and recovery adapters. Native SQLite storage is a separate backend.
+Concrete wasm32 adapters for browser Fetch, WebSocket and an explicitly supplied Quai wallet provider. This alpha adds browser transport and a small permission API; it composes with the portable wallet sessions in `quai-sdk` and supplies IndexedDB custody and recovery adapters. Native SQLite storage is a separate backend.
 
 The crate exposes `BrowserConfig`, `BrowserSocketConfig` and sanitized `BrowserError` on all targets. `BrowserFetchTransport`, `BrowserWebSocketTransport`, `BrowserSubscription`, `InjectedProvider`, `InjectedSubmissionTransport` and `fill_random` exist only on wasm32. There is no native browser stub silently substituting another transport. The transport adapters implement the existing non-`Send` wasm `quai_rpc::Transport` contract and can be used with `Provider` and explicit `Routing` without enabling native HTTP or wallet features.
 

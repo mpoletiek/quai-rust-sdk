@@ -1,8 +1,9 @@
 # Changelog
 
-## 0.1.0-alpha.1 — prepared, unpublished
+## 0.1.0-alpha.1 — 2026-09-14
 
-Initial modular Quai/Qi SDK release candidate, compared against the published
+Initial modular Quai/Qi SDK alpha, published to crates.io from commit `bf315ee`
+(tag `v0.1.0-alpha.1`) and compared against the published
 `quais@1.0.0-alpha.57` artifact. APIs may change during alpha development.
 
 - Add `AccountSession::observe_nonce`, combining durable candidate reconciliation
@@ -35,8 +36,9 @@ Initial modular Quai/Qi SDK release candidate, compared against the published
 The [complete SDK guide](SDK_DOCUMENTATION.md) describes usage. The
 [current comparison](SDK_PARITY_ANALYSIS.md) records the audited scope, deliberate
 omissions, source corrections and useful Rust additions. The
-[publishing guide](docs/PUBLISHING.md) describes the prepared registry metadata
-and ordered upload procedure. No crate has been uploaded or name reserved.
+[publishing guide](docs/PUBLISHING.md) describes the registry metadata and ordered
+upload procedure. All twelve crates are on crates.io, with API documentation
+built on docs.rs.
 
 This alpha is not production-qualified. Unmodified funded-node execution, mature
 redemption spend, broader engines/extensions, sustained reliability/fuzz campaigns

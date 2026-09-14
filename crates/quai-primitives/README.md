@@ -1,7 +1,7 @@
 # quai-primitives
 
 Address, shard, exact amount, byte and text utilities for the Quai Rust SDK. This crate is
-experimental and is not published or approved for production wallet use.
+an experimental alpha and is not approved for production wallet use.
 
 - `Address` stores any 20-byte address and enforces the pinned quais.js
   mixed-case Keccak checksum when parsing strings.

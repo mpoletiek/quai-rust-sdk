@@ -5,10 +5,14 @@ account ledger and Qi UTXO ledger. It includes native HTTP/WebSocket providers,
 local signing, HD wallets, durable wallet operations, contracts, payment codes,
 and browser adapters.
 
-**Release candidate:** `0.1.0-alpha.1`, with breaking changes expected. The pinned
+[![crates.io](https://img.shields.io/crates/v/quai-sdk.svg)](https://crates.io/crates/quai-sdk)
+[![docs.rs](https://img.shields.io/docsrs/quai-sdk)](https://docs.rs/quai-sdk)
+
+**Alpha release:** `0.1.0-alpha.1` is published on
+[crates.io](https://crates.io/crates/quai-sdk), with breaking changes expected. The pinned
 quais.js declaration review is complete, with explicit Rust differences. This
 alpha is not production-qualified for real-fund custody. The public repository is
-MIT licensed; package metadata is prepared for crates.io, but no upload has occurred.
+MIT licensed; API documentation is hosted on [docs.rs](https://docs.rs/quai-sdk).
 Read the [complete SDK guide](SDK_DOCUMENTATION.md) and
 [quais.js comparison, gaps and Rust additions](SDK_PARITY_ANALYSIS.md).
 See [implementation status](IMPLEMENTATION_STATUS.md),
@@ -31,18 +35,19 @@ cargo run --locked -p quai-sdk --example offline_wallet
 The offline example derives wallet identities and signs a transaction without
 submitting it. Its deterministic keys are public fixtures: **never fund them**.
 
-For an application outside this workspace, use the Git dependency:
+For an application outside this workspace, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { git = "https://github.com/mpoletiek/quai-rust-sdk", branch = "main", features = ["sqlite", "abi"] }
+quai-sdk = { version = "=0.1.0-alpha.1", features = ["sqlite", "abi"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
-The branch follows ongoing development. For reproducible integrations, replace
-`branch` with an explicitly reviewed `rev` and commit your application's lockfile.
-A neighboring checkout can
-instead use `quai-sdk = { path = "../quai-rust-sdk/crates/quai-sdk" }`.
+Pre-release versions are only selected when requested explicitly. The `=` pin
+keeps a later alpha, which may break the API, from being picked up automatically;
+commit your application's lockfile as well. To follow unreleased development,
+use `git = "https://github.com/mpoletiek/quai-rust-sdk"` with a reviewed `rev`,
+or `path = "../quai-rust-sdk/crates/quai-sdk"` for a neighboring checkout.
 
 ### Read a node
 
@@ -233,8 +238,8 @@ secrets in a public issue. Use [private vulnerability reporting](https://github.
 First-party SDK code is licensed under the **[MIT License](LICENSE)**.
 Third-party code, reference data and tools retain their original licenses and
 attribution; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Referencing or
-building go-quai does not relicense its code under MIT. All Rust SDK crates restrict publication to crates.io; actual upload is separate
-from committing or pushing this repository.
+building go-quai does not relicense its code under MIT. All Rust SDK crates restrict publication to crates.io; uploads are a separate
+release step from committing or pushing this repository.
 
 Contract bindings include exact fallback/receive intents, lossless bounded event
 queries, and native/browser code appearance waits. See [contract operations and

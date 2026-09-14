@@ -4,8 +4,9 @@ Updated September 14, 2026 (US/Central). The `0.1.0-alpha.1` implementation and
 published-reference declaration review are complete within the explicit
 [parity differences](SDK_PARITY_ANALYSIS.md). All 3928 rows are reconciled: 74
 implemented, 3854 deliberate deviations, zero partial and zero pending. Counts
-are not independent features or proof of production safety. Crates.io-only
-metadata is prepared; all twelve packages remain unpublished.
+are not independent features or proof of production safety. All twelve packages
+are published on crates.io as `0.1.0-alpha.1` (tag `v0.1.0-alpha.1`), and their
+docs.rs builds succeeded.
 
 The [SDK guide](SDK_DOCUMENTATION.md) describes current native/browser workflows.
 The dated reviews and chronological sections below retain earlier evidence and
@@ -132,7 +133,8 @@ Funded unmodified-node acceptance, mature WQI redemption spend, broader browser
 engines/extensions, sustained fault/reorg/soak/performance/fuzz campaigns and
 independent security review remain production gates. Mainnet checks are read-only;
 [isolated-chain evidence](test-infra/local-chain/README.md) has its own patched
-profile. Registry upload and hosted docs.rs verification have not occurred.
+profile. Registry publication and hosted docs.rs builds completed on
+September 14, 2026; neither establishes production qualification.
 
 ## Historical internal security review closeout
 

@@ -2,14 +2,20 @@
 
 Rust's public package registry is **crates.io**. This workspace contains twelve
 versioned crates, including the facade `quai-sdk`. The current version is
-`0.1.0-alpha.1`; the workspace policy permits only `crates-io`. This prepares
-package metadata without authorizing an upload.
-No registry upload or crate-name reservation has occurred.
+`0.1.0-alpha.1`; the workspace policy permits only `crates-io`. Metadata in the
+repository does not by itself authorize an upload.
+
+## Release record
+
+| Version | Date | Source | Result |
+| --- | --- | --- | --- |
+| `0.1.0-alpha.1` | 2026-09-14 | `bf315ee`, tag `v0.1.0-alpha.1` | All twelve crates on crates.io; all twelve docs.rs builds succeeded |
 
 The [release-candidate name lookup](../test-infra/reports/alpha-registry-check-2026-09-13.json)
-returned HTTP 404 for each proposed name. That is a dated observation, not a
-reservation or guarantee. Check again immediately before the first upload.
-Names are allocated on a first-come basis, and published versions are immutable.
+returned HTTP 404 for each name before the first upload; the names are now owned
+by the publishing account. Published versions are immutable: a mistake needs a
+new version and, where appropriate, a yank. Crate READMEs are captured in each
+archive, so README edits appear on crates.io only with the next published version.
 See the [Cargo publishing guide](https://doc.rust-lang.org/cargo/reference/publishing.html).
 
 Each package declares its license, description, repository, homepage, README,
@@ -32,8 +38,8 @@ modules compiled only for Wasm.
    twelve extracted archives, three consumer feature configurations, every native
    test/example target and two Wasm target configurations. It does not upload.
 4. Inspect package contents, sizes, licenses and metadata. Archive validation
-   uses an isolated local registry to resolve unpublished sibling versions;
-   crates.io will require those versions to exist before dependents can publish.
+   uses an isolated local registry to resolve new sibling versions; crates.io
+   requires those versions to exist before dependents can publish.
 5. Select the release version, support expectations and changelog. Resolve any
    actual remaining feature gap or explicitly retain a documented difference;
    do not promote ledger entries merely to bypass a release gate.
@@ -49,9 +55,16 @@ account. Do not put a registry token in the repository or a command transcript.
 Use Cargo's credential provider or a separately configured trusted-publishing
 workflow. No automatic publish-on-push or publish-on-tag action is installed.
 
-After authorization, rerun verification at that exact revision and use `cargo publish --dry-run --locked -p
-<crate>` before each upload. For a first release, the dependency order (including
-local test dependencies) is:
+The account must have a verified email address; crates.io rejects uploads from
+an unverified account with HTTP 400. Scope API tokens to `publish-update` (and
+`publish-new` only when adding a crate), restrict them to the `quai-*` pattern,
+give them a short expiry and revoke them after the release.
+
+After authorization, bump `version` in the root `Cargo.toml` (the workspace
+dependency entries must match), rerun verification at that exact revision and run
+`cargo publish --workspace --dry-run --locked`, which verifies every archive against
+its new sibling versions. Upload in dependency order (including local test
+dependencies):
 
 1. `quai-primitives`
 2. `quai-crypto`
@@ -66,8 +79,14 @@ local test dependencies) is:
 11. `quai-browser`
 12. `quai-sdk`
 
-Verify registry availability of each exact uploaded version before its dependents.
-A partial upload cannot be rolled back by reusing a version; follow Cargo's
+`cargo publish -p <crate>` waits for each upload to reach the index before
+returning, so a sequential loop over this list is sufficient. crates.io limits new
+crate names to a short burst (five during the first release) followed by one
+every ten minutes, returning HTTP 429 with a retry time; the first release took
+about eighty minutes. New versions of existing crates have a separate, looser
+limit. Before retrying after a failure, check
+`https://crates.io/api/v1/crates/<crate>/<version>` and skip versions that already
+exist. A partial upload cannot be rolled back by reusing a version; follow Cargo's
 publication and yanking rules. Finally verify clean registry consumers and hosted
 rustdoc, then create release notes tied to the published source commit. A local
 archive rehearsal cannot prove registry credentials, upload acceptance or hosted

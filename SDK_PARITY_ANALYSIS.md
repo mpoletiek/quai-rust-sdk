@@ -72,7 +72,7 @@ of exact behavior: the restrictions below matter when porting an application.
 | Browser transport/signing | Actual Wasm Fetch/WS, workers, injected message/typed/transaction verification, explicit raw submission capability | No automatic wallet selection, chain switching or permission manager; real extensions/other engines need qualification |
 | Browser persistence | Durable allocation, account/Qi custody, consistent backup capture and atomic multi-journal live restore | Explicit enumeration; initialized targets required by the coordinator; account call/conversion/deployment fee/prepare/sign/root-submit orchestration now exists; account/Qi candidate reconciliation exists; Qi preparation now includes current discovery and persisted owners; destination observations now exist; native persisted destination cursors and general history compaction differ |
 | Backup/restore | Authenticated private origins, public ownership proofs, channels, burned floors, exact candidate families, monotonic merge | Portable backups retain floors/exposures rather than missing allocation request history; browser/native storage APIs differ |
-| Platform and release | Linux/macOS/Windows CI, Chromium, native/Wasm extracted package checks and bounded sanitizer fuzzing | Broader engine/extension/fault/reorg/soak/performance, funded acceptance and independent security review remain open; crates.io-only alpha metadata prepared; no upload has occurred |
+| Platform and release | Linux/macOS/Windows CI, Chromium, native/Wasm extracted package checks and bounded sanitizer fuzzing | Broader engine/extension/fault/reorg/soak/performance, funded acceptance and independent security review remain open; `0.1.0-alpha.1` published on crates.io with docs.rs builds |
 
 Evidence for the wallet rows is linked from [wallet workflows](docs/WALLET_WORKFLOWS.md),
 [browser custody](docs/BROWSER_QI_CUSTODY.md), [atomic restore](docs/BROWSER_ATOMIC_RESTORE.md),
@@ -199,7 +199,8 @@ backward compatibility or independent chain verification. General journal
 compaction, automatic peer notification protocols and hardware/distributed custody
 are possible future additions, not features silently asserted by this comparison.
 The [security policy](SECURITY.md) retains specific memory-erasure and trust limits.
-No crates.io upload, name reservation or hosted docs.rs build has occurred.
+The `0.1.0-alpha.1` crates are published on crates.io and documented on docs.rs;
+publication does not change the qualification limits above.
 
 ## Unfinished declaration families
 

@@ -3,15 +3,16 @@
 This is the integration guide for the SDK in this repository, version
 `0.1.0-alpha.1`. It covers the public crate layers, native and browser workflows,
 recovery formats, limits, examples and verification. Exact Rust signatures and
-field documentation are generated from the same checkout with `cargo doc`.
+field documentation are hosted on [docs.rs](https://docs.rs/quai-sdk) or can be
+generated from the same checkout with `cargo doc`.
 The companion [parity analysis](SDK_PARITY_ANALYSIS.md) identifies differences
 from the pinned published `quais@1.0.0-alpha.57` SDK.
 
 The SDK is an alpha. Implemented functionality and passing tests do not establish
 identical JavaScript behavior or production qualification. The reviewed reference
 capabilities and deliberate differences are documented in the comparison. The
-repository is public and MIT licensed; crates.io-only alpha metadata is prepared,
-but no registry upload has occurred.
+repository is public and MIT licensed; all twelve crates are published on
+[crates.io](https://crates.io/crates/quai-sdk).
 
 ## Contents
 
@@ -44,17 +45,21 @@ cargo build --workspace --locked
 cargo run -p quai-sdk --example offline_wallet --locked
 ```
 
-For another Rust project:
+For another Rust project, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { git = "https://github.com/mpoletiek/quai-rust-sdk", branch = "main", features = ["sqlite", "abi", "payments", "backup"] }
+quai-sdk = { version = "=0.1.0-alpha.1", features = ["sqlite", "abi", "payments", "backup"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
-Replace `branch` with a reviewed `rev` and commit the application's lockfile for
-reproducible builds. A local checkout can use
-`path = "../quai-rust-sdk/crates/quai-sdk"` instead.
+Pre-release versions are only selected when requested explicitly. The `=` pin
+keeps a later, possibly breaking alpha from being picked up automatically; commit
+the application's lockfile for reproducible builds. To follow unreleased
+development, use `git = "https://github.com/mpoletiek/quai-rust-sdk"` with a
+reviewed `rev`, or `path = "../quai-rust-sdk/crates/quai-sdk"` for a local checkout.
+The individual crates (`quai-primitives`, `quai-provider`, `quai-wallet` and so on)
+are published at the same version for applications that do not need the facade.
 
 | Facade feature | Capabilities and dependencies |
 | --- | --- |
@@ -1102,7 +1107,8 @@ The [Qi selection review](docs/QI_SELECTION_PARITY_REVIEW.md) maps denominations
 coin metadata, selection results and fee adjustments, including reference bugs
 that Rust corrects. [Publishing instructions](docs/PUBLISHING.md) cover package
 metadata, docs.rs targets, extracted archive checks and first-release dependency
-order. Actual upload requires separate authorization and a registry account.
+order, plus the procedure and rate limits observed for the `0.1.0-alpha.1` upload.
+Later uploads still require separate authorization and a registry account.
 
 Use [private vulnerability reporting](https://github.com/mpoletiek/quai-rust-sdk/security/advisories/new)
 for security findings; follow the [security policy](SECURITY.md) and use public

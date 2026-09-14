@@ -412,6 +412,14 @@
     {
       "source": "compatibility/fixtures/utility-completion.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/utility-completion.json"
+    },
+    {
+      "source": "compatibility/fixtures/curve.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/curve.json"
+    },
+    {
+      "source": "compatibility/fixtures/aggregation.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/aggregation.json"
     }
   ]
 }

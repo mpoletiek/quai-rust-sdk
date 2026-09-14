@@ -3,6 +3,8 @@ use quai_consensus::{Denomination, MAX_TRANSACTION_MESSAGES, OutPoint, U256};
 use quai_primitives::{QiAddress, Zone};
 use std::collections::BTreeSet;
 use thiserror::Error;
+mod aggregation;
+pub use aggregation::{AggregationPolicy, select_aggregate};
 
 /// Caller-supplied, validated-index UTXO candidate; this type does not prove on-chain ownership.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -44,7 +46,8 @@ pub struct SelectionRequest {
 pub struct CoinSelection {
     /// Ordered selected coins; stable reference ordering is retained for equal values.
     pub inputs: Vec<CandidateCoin>,
-    /// Recipient denominations, largest first and no larger than the largest input.
+    /// Recipient denominations. Ordinary selection preserves denomination capacity;
+    /// aggregation may increase denominations and appends its fee refund separately.
     pub spend_outputs: Vec<Denomination>,
     /// Fresh-change denominations, largest first.
     pub change_outputs: Vec<Denomination>,
@@ -82,9 +85,12 @@ pub enum SelectionError {
     EstimationFailed,
 }
 
-/// Output policy for spending every eligible coin in a bounded snapshot.
+/// Output policy for sweeping or threshold aggregation in a bounded snapshot.
 #[derive(Clone, Copy, Debug)]
 pub enum SweepMode {
+    /// Aggregate eligible coins up to an input denomination threshold, using
+    /// other coins for the exact fee as needed. May leave larger coins unspent.
+    AggregateThreshold(AggregationPolicy),
     /// Preserve input denomination capacity, valid at any Qi position in a block.
     PreserveDenominations,
     /// Combine denominations, requiring the node's first-Qi-transaction block
@@ -95,15 +101,20 @@ pub enum SweepMode {
     },
 }
 
-/// Spend every eligible, unreserved coin with no change. `request.target` must
+/// Spend eligible, unreserved coins with no change. `request.target` must
 /// be zero; output value is total minus the explicit fee. Exceeding an input
 /// bound fails instead of silently leaving coins behind. Aggregation must reduce
 /// output count and may need a node capable of arranging first-Qi block placement.
+/// AggregateThreshold delegates to select_aggregate and has its own explicit
+/// threshold/reduction policy; the other modes spend every eligible coin.
 pub fn select_sweep(
     coins: &[CandidateCoin],
     request: &SelectionRequest,
     mode: SweepMode,
 ) -> Result<CoinSelection, SelectionError> {
+    if let SweepMode::AggregateThreshold(policy) = mode {
+        return select_aggregate(coins, request, policy);
+    }
     if request.target != U256::ZERO
         || request.fee > request.max_fee
         || !(1..=4096).contains(&request.max_inputs)
@@ -149,6 +160,7 @@ pub fn select_sweep(
     }
     let value = total - request.fee;
     let spend_outputs = match mode {
+        SweepMode::AggregateThreshold(_) => unreachable!("threshold policy dispatched above"),
         SweepMode::PreserveDenominations => {
             denominate_available(value, &mut capacity, request.max_outputs)?
         }

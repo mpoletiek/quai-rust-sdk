@@ -6,6 +6,32 @@ use quai_wallet::{Mnemonic,Language,ExtendedPrivateKey,ExtendedPublicKey};
 use quai_crypto::{PublicKey,RecoverableSignature,SchnorrSignature,SecretKey,SignatureMetadata,U256,legacy_chain_id,legacy_chain_v,normalized_v};
 fuzz_target!(|data:&[u8]| {
  if data.len()>65_536{return;}
+ if data.len()>=32 && data.len()<=128 {
+  use quai_crypto::curve::{CurveScalar,public_curve_rhs,public_jacobi_symbol,FIELD_PRIME};
+  let raw:[u8;32]=data[..32].try_into().unwrap();let a=CurveScalar::reduce_bytes(&raw);
+  assert!(a.add(&a.negate()).is_zero());assert_eq!(a.negate().negate().export_bytes().as_bytes(),a.export_bytes().as_bytes());
+  if let Ok(secret)=SecretKey::from_bytes(a.export_bytes().as_bytes()) {
+   let mut one=[0;32];one[31]=1;let generator=SecretKey::from_bytes(&one).unwrap().public_key();let point=generator.multiply(&a).unwrap();
+   assert_eq!(point,secret.public_key());assert!(point.add_point(point.negate()).is_err());assert_eq!(PublicKey::lift_x(&point.x_coordinate()).unwrap().x_coordinate(),point.x_coordinate());
+  }
+  if data[0]==255 {let x=U256::from_be_bytes(raw);assert_eq!(public_curve_rhs(x),public_curve_rhs(x%FIELD_PRIME));assert!((-1..=1).contains(&public_jacobi_symbol(x)));}
+ }
+ if data.starts_with(b"QAGG") && data.len()>=8 {
+  use quai_wallet::{CandidateCoin,SelectionRequest,AggregationPolicy,select_aggregate,select_sweep,SweepMode};
+  use quai_consensus::{Denomination,OutPoint};use quai_primitives::{Hash32,Zone};
+  let mut hash=[0;32];hash[3]=0x80;let address="0x0088223344556677889900112233445566778899".parse().unwrap();
+  let coins:Vec<_>=data[8..].chunks(2).take(128).enumerate().map(|(i,b)|CandidateCoin{outpoint:OutPoint{transaction_hash:Hash32::from_bytes(hash),index:i as u16},address,denomination:Denomination::new(b[0]%15).unwrap(),unlock_height:U256::from(if b.get(1).copied().unwrap_or(0)&2==0{0}else{101}),expires_at:if b.get(1).copied().unwrap_or(0)&4==0{None}else{Some(U256::from(100))},reserved:b.get(1).copied().unwrap_or(0)&1!=0}).collect();
+  let request=SelectionRequest{zone:Zone::Cyprus1,candidate_height:U256::from(100),target:U256::ZERO,fee:U256::from(u16::from_be_bytes([data[4],data[5]])),max_fee:U256::from(65535),max_inputs:128,max_outputs:128};
+  let policy=AggregationPolicy{maximum_input:Denomination::new(data[6]%15).unwrap(),maximum_output:Denomination::new(data[7]%15).unwrap(),require_reduction:data[6]&128!=0};
+  if let Ok(plan)=select_aggregate(&coins,&request,policy) {
+   assert_eq!(select_sweep(&coins,&request,SweepMode::AggregateThreshold(policy)).unwrap(),plan);
+   let input:U256=plan.inputs.iter().map(|c|U256::from(c.denomination.value())).sum();let output:U256=plan.spend_outputs.iter().map(|d|U256::from(d.value())).sum();
+   assert_eq!(input,plan.input_value);assert_eq!(input-output,request.fee);assert_eq!(plan.fee,request.fee);assert!(plan.change_outputs.is_empty());
+   assert!(plan.inputs.iter().all(|c|!c.reserved&&c.unlock_height<=request.candidate_height&&c.expires_at.is_none_or(|end|end>request.candidate_height)));
+   assert!(plan.spend_outputs.iter().all(|d|d.index()<=policy.maximum_output.index()));if policy.require_reduction{assert!(plan.spend_outputs.len()<plan.inputs.len());}
+  }
+ }
+
  if data.len()>=65 {
   if let Ok(public)=PublicKey::from_sec1_bytes(&data[..33]) {
    let chain:[u8;32]=data[33..65].try_into().unwrap();let node=ExtendedPublicKey::from_public_key_chain_code(public,chain).unwrap();

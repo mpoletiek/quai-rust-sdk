@@ -26793,12 +26793,27 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::curve::CurveScalar",
+        "quai_crypto::PublicKey::multiply",
+        "quai_crypto::PublicKey::multiply_add",
+        "quai_crypto::PublicKey::lift_x",
+        "quai_crypto::curve::quais_tagged_sha256",
+        "quai_crypto::curve::public_jacobi_symbol"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "All 26 object helpers have specific mappings in the linked review: fixed U256/guarded scalar math, validated point operations, bounded public field and multipart hash utilities. Invalid/infinite points fail; real X-only lifting is added. Source non-ASCII tag truncation is an explicit compatibility API alongside UTF-8 hashing. No global backend override/cache or distributed nonce/session protocol is implied."
     },
     {
       "id": ".:N",
@@ -26807,12 +26822,22 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::curve::CURVE_ORDER"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "Exact U256 secp256k1 scalar order replaces arbitrary-precision JS BigInt; FIELD_PRIME is additionally public."
     },
     {
       "id": ".:NamedFragment",
@@ -58258,12 +58283,22 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::curve::CURVE_ORDER"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "Exact U256 secp256k1 scalar order replaces arbitrary-precision JS BigInt; FIELD_PRIME is additionally public."
     },
     {
       "id": "./constants:quaisymbol",
@@ -64049,12 +64084,27 @@
       "behavior": "export/constructor",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_crypto::curve::CurveScalar",
+        "quai_crypto::PublicKey::multiply",
+        "quai_crypto::PublicKey::multiply_add",
+        "quai_crypto::PublicKey::lift_x",
+        "quai_crypto::curve::quais_tagged_sha256",
+        "quai_crypto::curve::public_jacobi_symbol"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "All 26 object helpers have specific mappings in the linked review: fixed U256/guarded scalar math, validated point operations, bounded public field and multipart hash utilities. Invalid/infinite points fail; real X-only lifting is added. Source non-ASCII tag truncation is an explicit compatibility API alongside UTF-8 hashing. No global backend override/cache or distributed nonce/session protocol is implied."
     },
     {
       "id": "./crypto:pbkdf2",
@@ -85631,12 +85681,25 @@
         "new (availableUTXOs?: UTXO[]): AggregateCoinSelector"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_aggregate",
+        "quai_wallet::AggregationPolicy",
+        "quai_wallet::SweepMode::AggregateThreshold",
+        "quai_sdk::qi_preflight::quote_qi"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "Bounded pure threshold aggregation and exact fee re-selection replace mutable selector state. Stable fee-first input order and separately appended refund denominations match covered source cases. Locks/reservations/expiry/zone/duplicate/resource checks apply; the source 25-percent fee-shortfall acceptance is corrected. Count reduction is required by default and can be explicitly disabled; first-Qi block placement remains a node requirement."
     },
     {
       "id": "./transaction:AggregateCoinSelector:instance:availableUTXOs",
@@ -85645,12 +85708,23 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CandidateCoin",
+        "quai_wallet::select_aggregate"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "Caller-owned explicit snapshot input replaces mutable availableUTXOs; all outpoints are validated before spendability filtering, and selection does not reserve them."
     },
     {
       "id": "./transaction:AggregateCoinSelector:instance:changeOutputs",
@@ -85659,12 +85733,23 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CoinSelection::spend_outputs",
+        "quai_wallet::CoinSelection::change_outputs"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "Typed output denominations contain aggregation outputs followed by separately denominated fee refunds; change is empty. Counts and exact value conservation are enforced."
     },
     {
       "id": "./transaction:AggregateCoinSelector:instance:performSelection",
@@ -85675,12 +85760,25 @@
         "(config: CoinSelectionConfig): SelectedCoinsResult"
       ],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::select_aggregate",
+        "quai_wallet::AggregationPolicy",
+        "quai_wallet::SweepMode::AggregateThreshold",
+        "quai_sdk::qi_preflight::quote_qi"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "Bounded pure threshold aggregation and exact fee re-selection replace mutable selector state. Stable fee-first input order and separately appended refund denominations match covered source cases. Locks/reservations/expiry/zone/duplicate/resource checks apply; the source 25-percent fee-shortfall acceptance is corrected. Count reduction is required by default and can be explicitly disabled; first-Qi block placement remains a node requirement."
     },
     {
       "id": "./transaction:AggregateCoinSelector:instance:selectedUTXOs",
@@ -85689,12 +85787,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CoinSelection::inputs"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "Owned exact selected coins preserve stable fee-first ordering; no implicit mutation or reservation of a selector object."
     },
     {
       "id": "./transaction:AggregateCoinSelector:instance:spendOutputs",
@@ -85703,12 +85811,23 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CoinSelection::spend_outputs",
+        "quai_wallet::CoinSelection::change_outputs"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "Typed output denominations contain aggregation outputs followed by separately denominated fee refunds; change is empty. Counts and exact value conservation are enforced."
     },
     {
       "id": "./transaction:AggregateCoinSelector:instance:target",
@@ -85717,12 +85836,22 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::SelectionRequest::target"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "Aggregation explicitly requires target zero; source inherited target state is not an independent spend destination or amount. Nonzero transfer selection uses select_fewest."
     },
     {
       "id": "./transaction:AggregateCoinSelector:instance:totalInputValue",
@@ -85731,12 +85860,23 @@
       "behavior": "instance",
       "signatures": [],
       "reference_version": "quais@1.0.0-alpha.57",
-      "rust_api": [],
-      "feature": "unmapped",
-      "status": "pending",
-      "test_ids": [],
-      "docs": [],
-      "deviation": null
+      "rust_api": [
+        "quai_wallet::CoinSelection::input_value",
+        "quai_wallet::CandidateCoin::denomination"
+      ],
+      "feature": "crypto directly; wallet for SDK reexports and selection; browser/native quote composition",
+      "status": "deviation",
+      "test_ids": [
+        "compatibility/scripts/curve.test.mjs",
+        "compatibility/scripts/aggregation.test.mjs",
+        "crates/quai-sdk/tests/curve.rs",
+        "crates/quai-sdk/tests/aggregation.rs",
+        "crates/quai-sdk/tests/qi_preflight.rs"
+      ],
+      "docs": [
+        "docs/CURVE_AND_AGGREGATION_PARITY.md"
+      ],
+      "deviation": "Rust reports the exact selected input sum. Source mutable totalInputValue instead sums every available record before selection, including unselected large coins; applications can explicitly sum their supplied snapshot for that separate metric."
     },
     {
       "id": "./transaction:denominations",

@@ -147,3 +147,8 @@ Both require the calling protocol's KDF, redact diagnostics and zeroize owned
 buffers. Backend/compiler transients and caller copies cannot be guaranteed erased.
 `PublicKey::add_point` adds validated points and rejects infinity; use the separate
 ordered aggregation API when a MuSig signing protocol is required.
+
+The `curve` module supplies guarded zero-inclusive scalar arithmetic, validated
+point multiplication/lifting, public field utilities and bounded multipart/tagged
+hashes. See the [curve adapter review](../../docs/CURVE_AND_AGGREGATION_PARITY.md)
+for source mappings, tag encoding and protocol/secret-handling limits.

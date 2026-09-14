@@ -89,9 +89,9 @@ and per-row Rust APIs, test paths, documentation and deviation notes.
 | Ledger status | Rows | Meaning |
 | --- | ---: | --- |
 | `implemented` | 66 | An explicitly mapped behavior, still subject to qualification |
-| `deviation` | 3615 | Documented replacement, stricter behavior, correction or omission |
+| `deviation` | 3627 | Documented replacement, stricter behavior, correction or omission |
 | `partial` | 0 | A mapping exists with unfinished behavior or scope |
-| `pending` | 247 | No completed row-level reconciliation; not proof of absence |
+| `pending` | 235 | No completed row-level reconciliation; not proof of absence |
 
 There is no defensible feature-completion percentage from these counts. A
 `deviation` can be a deliberate Rust design choice or an absent convenience API;
@@ -234,7 +234,6 @@ root/subpath exports account for much of the volume.
 <!-- parity-family-table:start -->
 | Export family | Pending | Partial | Implemented | Deviation |
 | --- | ---: | ---: | ---: | ---: |
-| `AggregateCoinSelector` | 8 | 0 | 0 | 0 |
 | `ActionRejectedError` | 2 | 0 | 0 | 0 |
 | `Addressable` | 2 | 0 | 0 | 0 |
 | `AddressLike` | 2 | 0 | 0 | 0 |
@@ -292,8 +291,6 @@ root/subpath exports account for much of the volume.
 | `MinedTransactionResponse` | 2 | 0 | 0 | 0 |
 | `MinInt256` | 2 | 0 | 0 | 0 |
 | `MissingArgumentError` | 2 | 0 | 0 | 0 |
-| `musigCrypto` | 2 | 0 | 0 | 0 |
-| `N` | 2 | 0 | 0 | 0 |
 | `NetworkError` | 2 | 0 | 0 | 0 |
 | `NeuteredAddressInfo` | 2 | 0 | 0 | 0 |
 | `NonceExpiredError` | 2 | 0 | 0 | 0 |
@@ -524,3 +521,17 @@ and caller-owned worker scheduling; fine-grained loop callbacks are not claimed.
 Six native/worker tests, eight utility/subscriber source tests and sanitizer runs
 support the review. There are 247 pending declarations, including low-level
 MuSig adapter operations and aggregation threshold policy still under review.
+
+### Curve adapter and aggregation review
+
+The [curve and aggregation review](docs/CURVE_AND_AGGREGATION_PARITY.md) maps all
+26 operations inside the published `musigCrypto` object and the `N` constant.
+New guarded scalar arithmetic, validated point multiplication/lifting and bounded
+multipart/tagged hashes complete this adapter. UTF-8 tags are available separately
+from the reference's truncated UTF-16 tag encoding. This is not a distributed
+MuSig session API.
+
+Threshold aggregation now supports the source's small-coin threshold, separate
+fee inputs and ordered fee refunds. It corrects the source's underpaid-fee case
+and applies explicit spendability/resource/reduction policy. Twelve declaration
+rows are reconciled; 235 remain pending.

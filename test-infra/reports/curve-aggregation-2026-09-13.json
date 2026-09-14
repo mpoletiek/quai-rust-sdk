@@ -1,0 +1,179 @@
+{
+  "recordedAt": "2026-09-14T02:35:04.271238+00:00",
+  "baseCommit": "23058427cfc480ddba01e6b5cfcc573c94756a6f",
+  "testedWorkingTree": true,
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "8ff34afe71f05b25089f5bb2cb920618115918f4709476cd167a529582281a46",
+    "IMPLEMENTATION_STATUS.md": "ac9f530f1e9261fba466ac1a8f5de7c3f0af9b0f11fe2e07217e692d9095920a",
+    "SDK_DOCUMENTATION.md": "b6ad1a13298ad74a7c1d624ac798239e15c3821b5b5c6dc286dcbe97a93e5951",
+    "SDK_PARITY_ANALYSIS.md": "035417537596b7897426b5714c7b4b558cdaf401d70329c35e5267a7f67344cd",
+    "compatibility/package.json": "cb1274fe573d386895dffc8d6cde91f7ebce53fe0103001810d24f3c1640da6f",
+    "compatibility/parity.json": "0c6ed73c083d9e09edb4ee07e53282e8f7f89bc57368c21c045dc80d64200dd6",
+    "crates/quai-browser/tests/run_browser.py": "6bb4fc4d8b9676ceba6001ca95d09cd933b336b0354714d56e0381e0f8de1f33",
+    "crates/quai-crypto/README.md": "3171d1c40715a69e531760ba1b1a8b5963d7606ced4c82dc62b6ecdc9166a459",
+    "crates/quai-crypto/src/lib.rs": "bbc5b74320d31ac1bfdc912aaa8a3fdc8fedd9c2855b551b8f48646a24bafb80",
+    "crates/quai-sdk/src/qi/sweep.rs": "fc391eef9420101382eb6bb011084a4e3fefbeacc938998d4f86f9875fe7bc68",
+    "crates/quai-sdk/tests/qi_preflight.rs": "621a51881f1bddbb68fcabd5cb7d255931e06002aaa7b05e92fe644be27ee72f",
+    "crates/quai-wallet/README.md": "8d31a0cb9226f7a5398bb36ffdbbdd69792e1dd5faaac45ca39b134456000dd5",
+    "crates/quai-wallet/src/lib.rs": "0bb72030c8a2eda501f28e0a61f5104ac853f852e9a3a24bdb5e8ace1c59d198",
+    "crates/quai-wallet/src/selection.rs": "7a3da50a6ee41dc23c0a07f95a26399effa1486df366881925148ef85ed9ed73",
+    "fuzz/fuzz_targets/wallet_import.rs": "fa679cf1235c7185692d914c3a74fa20c9edd9d9e7ca6007fab0c1cc8fdf2331",
+    "fuzz/seed-corpus.py": "4ffea3b392beb486b9e9a854738ce6b79e53e8dc560b01ee658c1e3d70ff44a9",
+    "test-infra/package-files.json": "596825c599936bb780a195e08074912c92390bb4f2c84db3b2530ca426cba100",
+    "compatibility/fixtures/aggregation.json": "73662f25f8a65116bc496d94a6d2026098f1dae463bc242a11d3dcf685511cbe",
+    "compatibility/fixtures/curve.json": "7e167be0f92956fb63b2d16e4b8a01868e95e7ac15e65cff75c4bfa37c6cdb2a",
+    "compatibility/scripts/aggregation.test.mjs": "1d744dca35080f3a2c3c0bb2c69aa58c5ca9b65da22a272edc75d4aea4bc5455",
+    "compatibility/scripts/curve.test.mjs": "efa32bb2b47ac4276d25016be0c49a4098932fa4db9c0cfbb7467a6c849116aa",
+    "compatibility/scripts/generate-aggregation.mjs": "b9bfa067e0ec20b7386ef52c123fd5b76d33cb4f2801b34ce5b1ed59b297280b",
+    "compatibility/scripts/generate-curve.mjs": "9c7f7b99bbfae685b7bd537d1b4bb41f78f7ff337aaa713ec15682bdaaa49e5f",
+    "crates/quai-crypto/src/curve.rs": "69a21845c762e21f93f42aaa8b3570a7cd9e65653a1763f8d38cd7fea8c4279a",
+    "crates/quai-sdk/tests/aggregation.rs": "de377adeaffc5a86b21ba0e4897a668060516b2482bebfca81826dca643a6846",
+    "crates/quai-sdk/tests/curve.rs": "f4ab524dada13ad596fbdc11a09ce2a27fd3741ef1030b42de13c843d29a6b89",
+    "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/aggregation.json": "73662f25f8a65116bc496d94a6d2026098f1dae463bc242a11d3dcf685511cbe",
+    "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/curve.json": "7e167be0f92956fb63b2d16e4b8a01868e95e7ac15e65cff75c4bfa37c6cdb2a",
+    "crates/quai-wallet/src/selection/aggregation.rs": "bb46eb0632d93b5361df1b259cba81f5cf944bc7908e32ba725f6e56adab8744",
+    "docs/CURVE_AND_AGGREGATION_PARITY.md": "0241e695705bf4464bab7d07a4aaf09b39fb29dbbe2824c7ded7a9ab514cf169"
+  },
+  "parityRows": [
+    ".:musigCrypto",
+    ".:N",
+    "./constants:N",
+    "./crypto:musigCrypto",
+    "./transaction:AggregateCoinSelector",
+    "./transaction:AggregateCoinSelector:instance:availableUTXOs",
+    "./transaction:AggregateCoinSelector:instance:changeOutputs",
+    "./transaction:AggregateCoinSelector:instance:performSelection",
+    "./transaction:AggregateCoinSelector:instance:selectedUTXOs",
+    "./transaction:AggregateCoinSelector:instance:spendOutputs",
+    "./transaction:AggregateCoinSelector:instance:target",
+    "./transaction:AggregateCoinSelector:instance:totalInputValue"
+  ],
+  "checks": {
+    "nativeCurve": 6,
+    "workerCurve": 6,
+    "nativeAggregation": 5,
+    "workerAggregation": 5,
+    "nativeQiPreflight": 7,
+    "workerQiPreflight": 13,
+    "cryptoWalletRegression": 102,
+    "sourceTestFiles": 23,
+    "strictNativeClippy": "pass",
+    "strictWasmClippy": "pass",
+    "strictRustdoc": "pass",
+    "packageMirrors": 105
+  },
+  "packageRehearsal": {
+    "schemaVersion": 1,
+    "published": false,
+    "networkAccess": false,
+    "sourceCommit": "23058427cfc480ddba01e6b5cfcc573c94756a6f",
+    "sourceDirty": true,
+    "packages": [
+      {
+        "name": "quai-primitives",
+        "version": "0.1.0-alpha.1",
+        "bytes": 62242,
+        "sha256": "abced761bfbeb5a8e992eb7e283ae06a1933cbf68d4cd46825692b36037f3b2b"
+      },
+      {
+        "name": "quai-rpc",
+        "version": "0.1.0-alpha.1",
+        "bytes": 56956,
+        "sha256": "34b2b5f9ab91bcc5c9c21969086e8e2bf14616b500339a2445339e38587ed7b3"
+      },
+      {
+        "name": "quai-provider",
+        "version": "0.1.0-alpha.1",
+        "bytes": 151502,
+        "sha256": "df192110649a6ffa9bd0fbdef8c7b7ddea031068db8952f29981c67c50a115cc"
+      },
+      {
+        "name": "quai-consensus",
+        "version": "0.1.0-alpha.1",
+        "bytes": 55205,
+        "sha256": "93443feb45a5f696b1a0c45241deade51cf5276f51916a673829fd9929462877"
+      },
+      {
+        "name": "quai-crypto",
+        "version": "0.1.0-alpha.1",
+        "bytes": 59495,
+        "sha256": "9993490dfc0444a2a0f1af3f15554961afa54097a1edbca4d955febad0d8f70a"
+      },
+      {
+        "name": "quai-sdk",
+        "version": "0.1.0-alpha.1",
+        "bytes": 451802,
+        "sha256": "6d008d6b9fc762fbc3472d89da29f6d001f782c2ae9679444cbba8cdbf8e598e"
+      },
+      {
+        "name": "quai-abi",
+        "version": "0.1.0-alpha.1",
+        "bytes": 188545,
+        "sha256": "aae2808c30087d29489c5a1eb124ce539cf5308d3624e18f1389444acfa45fa4"
+      },
+      {
+        "name": "quai-browser",
+        "version": "0.1.0-alpha.1",
+        "bytes": 90973,
+        "sha256": "2cb773f3a5eefcec8b95f6bd18a7e1d8f03cce239e362699120d834590cc18fe"
+      },
+      {
+        "name": "quai-signer",
+        "version": "0.1.0-alpha.1",
+        "bytes": 24763,
+        "sha256": "d19bfa029929a137ffc66b84e2c32839dc4660971db456affa4f7e1034a555bc"
+      },
+      {
+        "name": "quai-keystore",
+        "version": "0.1.0-alpha.1",
+        "bytes": 36415,
+        "sha256": "47c3d85ea563e43e22d46918433dd82a76c8b5c9b97e69b33cfc0ab9c98307cc"
+      },
+      {
+        "name": "quai-wallet",
+        "version": "0.1.0-alpha.1",
+        "bytes": 407122,
+        "sha256": "db8e176b8765af6829779f2edd8f3766b2cfb2cc63e9f05796ccad35be241231"
+      },
+      {
+        "name": "quai-payments",
+        "version": "0.1.0-alpha.1",
+        "bytes": 39574,
+        "sha256": "21dd5b2f64bac138fa9cf351fdbb22d880cde6ed9c0a1dd2c30c01e9e4f8635e"
+      }
+    ],
+    "consumerTests": {
+      "minimal": "passed",
+      "default": "passed",
+      "full": "passed"
+    },
+    "packagedTargetChecks": {
+      "quai-primitives": "passed",
+      "quai-rpc": "passed",
+      "quai-provider": "passed",
+      "quai-consensus": "passed",
+      "quai-crypto": "passed",
+      "quai-sdk": "passed",
+      "quai-abi": "passed",
+      "quai-browser": "passed",
+      "quai-signer": "passed",
+      "quai-keystore": "passed",
+      "quai-wallet": "passed",
+      "quai-payments": "passed"
+    },
+    "packagedWasmChecks": {
+      "quai-browser": "passed",
+      "quai-sdk": "passed"
+    },
+    "qualification": "Extracted source archive consumer tests; not public-registry publication, packaged test execution, docs.rs or release certification."
+  },
+  "fuzzReport": "curve-aggregation-fuzz-2026-09-13.json",
+  "limits": [
+    "Not distributed MuSig session coordination or independent cryptographic review.",
+    "Public field math is variable time and only for public inputs.",
+    "Quais truncated non-ASCII tag encoding is explicit alongside UTF-8.",
+    "Aggregation still requires node block-placement exception; fee quote is not acceptance proof.",
+    "Archive test targets compiled, not executed; no package publication or funded network write."
+  ],
+  "dependencies": "All three lockfiles unchanged from base commit."
+}

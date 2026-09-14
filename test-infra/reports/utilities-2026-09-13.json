@@ -302,5 +302,44 @@
     "Fuzzing covers public-node construction, KDF validation and small PBKDF2 calls; not scrypt inner-loop state.",
     "No funded public-network write or crate publication."
   ],
-  "dependencies": "All three lockfiles unchanged from base commit."
+  "dependencies": "All three lockfiles unchanged from base commit.",
+  "githubCi": {
+    "headSha": "23058427cfc480ddba01e6b5cfcc573c94756a6f",
+    "conclusion": "success",
+    "runId": 34798647241,
+    "jobs": [
+      {
+        "name": "browser",
+        "conclusion": "success"
+      },
+      {
+        "name": "packaged-consumer",
+        "conclusion": "success"
+      },
+      {
+        "name": "reference-and-harness",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (macos-15)",
+        "conclusion": "success"
+      },
+      {
+        "name": "dependency-advisories",
+        "conclusion": "success"
+      },
+      {
+        "name": "fuzz-smoke",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (windows-2025)",
+        "conclusion": "success"
+      },
+      {
+        "name": "rust (ubuntu-24.04)",
+        "conclusion": "success"
+      }
+    ]
+  }
 }

@@ -6,6 +6,7 @@
 //! exercised in the SDK's actual Chromium worker tests.
 
 mod aggregate;
+pub mod curve;
 mod entropy;
 mod hash;
 pub use entropy::{MAX_RANDOM_BYTES, fill_random};
@@ -29,6 +30,10 @@ pub use signatures::{RecoverableSignature, SchnorrPublicKey, SchnorrSignature};
 /// Errors never include secret input or backend diagnostic strings.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CryptoError {
+    /// A scalar encoding is outside the secp256k1 group order.
+    InvalidScalar,
+    /// A multipart hash exceeds its explicit part, tag or byte limit.
+    HashLimit,
     /// A secret scalar is zero or outside the secp256k1 group order.
     InvalidSecretKey,
     /// Ordered key aggregation requires two through the configured maximum keys.
@@ -60,6 +65,8 @@ pub enum CryptoError {
 impl core::fmt::Display for CryptoError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(match self {
+            Self::InvalidScalar => "invalid secp256k1 scalar",
+            Self::HashLimit => "hash input exceeds resource limit",
             Self::InvalidSecretKey => "invalid secp256k1 secret key",
             Self::InvalidKeyCount => "invalid ordered aggregation key count",
             Self::InvalidKeyAggregation => "invalid ordered public key aggregate",

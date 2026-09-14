@@ -1027,3 +1027,54 @@ mod browser {
         assert!(m.state().sends.is_empty());
     }
 }
+
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn threshold_aggregation_reselects_after_node_fee_and_keeps_exact_value() {
+    let m = Mock::default();
+    let mut src = source();
+    let template = src.coins[0].clone();
+    src.coins = (0..3)
+        .map(|index| {
+            let mut coin = template.clone();
+            coin.outpoint.index = index;
+            coin.denomination = Denomination::new(1).unwrap();
+            coin
+        })
+        .collect();
+    let q = quote_qi(
+        &m.provider(),
+        QiQuoteRequest {
+            source: &src,
+            intent: QiOperationIntent::Sweep {
+                destinations: vec![
+                    "0x0080000000000000000000000000000000000001"
+                        .parse()
+                        .unwrap(),
+                    "0x0080000000000000000000000000000000000002"
+                        .parse()
+                        .unwrap(),
+                ],
+                mode: SweepMode::AggregateThreshold(quai_sdk::wallet::AggregationPolicy::default()),
+            },
+            policy: policy(),
+            fees: QiFeeMode::Node,
+            change: &[],
+        },
+    )
+    .await
+    .unwrap();
+    assert_eq!(q.fee(), U256::from(5));
+    assert_eq!(
+        q.transaction()
+            .inputs
+            .iter()
+            .map(|i| i.previous_output.index)
+            .collect::<Vec<_>>(),
+        [2, 0, 1]
+    );
+    assert_eq!(q.transaction().outputs.len(), 1);
+    assert_eq!(q.transaction().outputs[0].denomination.value(), 10);
+    assert!(m.state().fee_calls >= 2);
+    assert!(m.state().sends.is_empty());
+}

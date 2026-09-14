@@ -1,0 +1,5350 @@
+{
+  "reference": "quais@1.0.0-alpha.57",
+  "vectors": [
+    {
+      "id": 0,
+      "denominations": [
+        1,
+        1,
+        1
+      ],
+      "fee": "0",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          1,
+          2
+        ],
+        "spend": [
+          2,
+          1
+        ],
+        "change": [],
+        "actualFee": "0"
+      }
+    },
+    {
+      "id": 1,
+      "denominations": [
+        1,
+        1,
+        1,
+        7,
+        8
+      ],
+      "fee": "1",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          0,
+          1,
+          2
+        ],
+        "spend": [
+          2,
+          1,
+          6,
+          6,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1"
+      }
+    },
+    {
+      "id": 2,
+      "denominations": [
+        1,
+        1,
+        1,
+        7,
+        8
+      ],
+      "fee": "7",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          0,
+          1,
+          2
+        ],
+        "spend": [
+          2,
+          1,
+          6,
+          6,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "7"
+      }
+    },
+    {
+      "id": 3,
+      "denominations": [
+        1,
+        1,
+        1
+      ],
+      "fee": "6",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          0,
+          1
+        ],
+        "spend": [
+          2
+        ],
+        "change": [],
+        "actualFee": "5"
+      }
+    },
+    {
+      "id": 4,
+      "denominations": [
+        1
+      ],
+      "fee": "1",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0
+        ],
+        "spend": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1"
+      }
+    },
+    {
+      "id": 5,
+      "denominations": [
+        1,
+        1,
+        1
+      ],
+      "fee": "15",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 6,
+      "denominations": [
+        7,
+        8
+      ],
+      "fee": "0",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 7,
+      "denominations": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "fee": "0",
+      "maximumInput": 0,
+      "maximumOutput": 0,
+      "expected": {
+        "inputs": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "spend": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "0"
+      }
+    },
+    {
+      "id": 8,
+      "denominations": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        7
+      ],
+      "fee": "1100",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "spend": [
+          4,
+          4,
+          3,
+          6,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          4
+        ],
+        "change": [],
+        "actualFee": "1100"
+      }
+    },
+    {
+      "id": 9,
+      "denominations": [
+        0
+      ],
+      "fee": "0",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0
+        ],
+        "spend": [
+          0
+        ],
+        "change": [],
+        "actualFee": "0"
+      }
+    },
+    {
+      "id": 10,
+      "denominations": [
+        7,
+        2
+      ],
+      "fee": "53",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 11,
+      "denominations": [
+        6,
+        1,
+        4
+      ],
+      "fee": "106",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          0,
+          1
+        ],
+        "spend": [
+          1,
+          5,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "106"
+      }
+    },
+    {
+      "id": 12,
+      "denominations": [
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "159",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          1,
+          2
+        ],
+        "spend": [
+          3,
+          0,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "159"
+      }
+    },
+    {
+      "id": 13,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "212",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          4,
+          2,
+          0
+        ],
+        "spend": [
+          4,
+          2,
+          0,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "212"
+      }
+    },
+    {
+      "id": 14,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "265",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          2,
+          5,
+          0,
+          3
+        ],
+        "spend": [
+          4,
+          3,
+          2,
+          1,
+          5,
+          4,
+          4,
+          2,
+          2,
+          2,
+          1
+        ],
+        "change": [],
+        "actualFee": "265"
+      }
+    },
+    {
+      "id": 15,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "318",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          5,
+          0,
+          3,
+          6,
+          1,
+          4
+        ],
+        "spend": [
+          6,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "318"
+      }
+    },
+    {
+      "id": 16,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "371",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          3,
+          6,
+          1,
+          4,
+          5
+        ],
+        "spend": [
+          0,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "371"
+      }
+    },
+    {
+      "id": 17,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "424",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          6,
+          1,
+          4,
+          7,
+          0,
+          8,
+          3
+        ],
+        "spend": [
+          1,
+          0,
+          0,
+          4,
+          4,
+          2,
+          2,
+          2,
+          1,
+          0
+        ],
+        "change": [],
+        "actualFee": "424"
+      }
+    },
+    {
+      "id": 18,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "477",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          4,
+          7,
+          2,
+          3,
+          6,
+          1,
+          9
+        ],
+        "spend": [
+          2,
+          2,
+          1,
+          0,
+          4,
+          3,
+          2,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "477"
+      }
+    },
+    {
+      "id": 19,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "530",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          10,
+          5,
+          6,
+          1,
+          9,
+          4,
+          7
+        ],
+        "spend": [
+          3,
+          2,
+          2,
+          0,
+          4,
+          3,
+          2,
+          2
+        ],
+        "change": [],
+        "actualFee": "530"
+      }
+    },
+    {
+      "id": 20,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "583",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          8,
+          1,
+          9,
+          4,
+          7,
+          2,
+          10,
+          5
+        ],
+        "spend": [
+          4,
+          4,
+          2,
+          1,
+          0,
+          0,
+          4,
+          4,
+          4,
+          4,
+          2,
+          1,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "583"
+      }
+    },
+    {
+      "id": 21,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "636",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          6,
+          4,
+          12,
+          7,
+          2,
+          10,
+          5,
+          0,
+          8,
+          3,
+          11
+        ],
+        "spend": [
+          6,
+          4,
+          4,
+          3,
+          2,
+          2,
+          1,
+          0,
+          0,
+          4,
+          4,
+          4,
+          3,
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "636"
+      }
+    },
+    {
+      "id": 22,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "689",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          4,
+          7,
+          2,
+          10,
+          5,
+          13,
+          0,
+          8,
+          3,
+          11,
+          6,
+          1,
+          9
+        ],
+        "spend": [
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          0,
+          6,
+          6,
+          6,
+          6,
+          4,
+          4,
+          4,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "689"
+      }
+    },
+    {
+      "id": 23,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "742",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          13,
+          0,
+          8,
+          3,
+          11,
+          6,
+          14,
+          1,
+          2,
+          10
+        ],
+        "spend": [
+          0,
+          0,
+          3,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "742"
+      }
+    },
+    {
+      "id": 24,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "795",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          11,
+          6,
+          14,
+          1,
+          9,
+          4,
+          5,
+          13,
+          0,
+          8
+        ],
+        "spend": [
+          2,
+          0,
+          0,
+          2,
+          2,
+          1
+        ],
+        "change": [],
+        "actualFee": "795"
+      }
+    },
+    {
+      "id": 25,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "848",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          9,
+          4,
+          12,
+          7,
+          15,
+          0,
+          8,
+          16,
+          3,
+          11,
+          6,
+          14
+        ],
+        "spend": [
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          4,
+          4,
+          4,
+          4,
+          3,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "848"
+      }
+    },
+    {
+      "id": 26,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "901",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          15,
+          2,
+          10,
+          3,
+          11,
+          6,
+          14,
+          1,
+          9,
+          17,
+          4,
+          12
+        ],
+        "spend": [
+          4,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "901"
+      }
+    },
+    {
+      "id": 27,
+      "denominations": [
+        6
+      ],
+      "fee": "954",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 28,
+      "denominations": [
+        5,
+        0
+      ],
+      "fee": "1007",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 29,
+      "denominations": [
+        4,
+        7,
+        2
+      ],
+      "fee": "1060",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          2,
+          0
+        ],
+        "spend": [
+          4,
+          2,
+          6,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          2
+        ],
+        "change": [],
+        "actualFee": "1060"
+      }
+    },
+    {
+      "id": 30,
+      "denominations": [
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "1113",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 31,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "1166",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          3,
+          1,
+          4,
+          2
+        ],
+        "spend": [
+          0,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1166"
+      }
+    },
+    {
+      "id": 32,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "1219",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          4,
+          2,
+          5,
+          0,
+          3
+        ],
+        "spend": [
+          2,
+          1,
+          0,
+          6,
+          6,
+          6,
+          6,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "1219"
+      }
+    },
+    {
+      "id": 33,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "1272",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          4,
+          2,
+          5,
+          0,
+          3,
+          6,
+          1
+        ],
+        "spend": [
+          3,
+          2,
+          1,
+          0,
+          6,
+          6,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1272"
+      }
+    },
+    {
+      "id": 34,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "1325",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          5,
+          3,
+          6,
+          1,
+          4,
+          7
+        ],
+        "spend": [
+          4,
+          3,
+          2,
+          1,
+          0,
+          4,
+          3,
+          2,
+          2,
+          1
+        ],
+        "change": [],
+        "actualFee": "1325"
+      }
+    },
+    {
+      "id": 35,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "1378",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          8,
+          6,
+          1,
+          4,
+          7,
+          2,
+          5
+        ],
+        "spend": [
+          5,
+          4,
+          3,
+          2,
+          1,
+          0,
+          5,
+          4,
+          2,
+          2,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1378"
+      }
+    },
+    {
+      "id": 36,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "1431",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          6,
+          1,
+          9,
+          4,
+          7,
+          2,
+          5,
+          0,
+          8,
+          3
+        ],
+        "spend": [
+          6,
+          6,
+          4,
+          3,
+          2,
+          1,
+          0,
+          0,
+          6,
+          6,
+          6,
+          5,
+          3,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1431"
+      }
+    },
+    {
+      "id": 37,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "1484",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          2,
+          10,
+          5,
+          0,
+          8,
+          3,
+          6,
+          4
+        ],
+        "spend": [
+          0,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "1484"
+      }
+    },
+    {
+      "id": 38,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "1537",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          0,
+          8,
+          3,
+          11,
+          6,
+          1,
+          7,
+          2,
+          10
+        ],
+        "spend": [
+          2,
+          0,
+          4,
+          4,
+          3,
+          2,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1537"
+      }
+    },
+    {
+      "id": 39,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "1590",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          11,
+          6,
+          1,
+          9,
+          4,
+          2,
+          10,
+          5,
+          0,
+          8
+        ],
+        "spend": [
+          2,
+          2,
+          1,
+          0,
+          0,
+          5,
+          4,
+          2
+        ],
+        "change": [],
+        "actualFee": "1590"
+      }
+    },
+    {
+      "id": 40,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "1643",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          9,
+          4,
+          12,
+          7,
+          5,
+          13,
+          0,
+          8,
+          3,
+          11,
+          6
+        ],
+        "spend": [
+          3,
+          2,
+          2,
+          2,
+          0,
+          0,
+          5,
+          3,
+          1,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1643"
+      }
+    },
+    {
+      "id": 41,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "1696",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          2,
+          10,
+          0,
+          8,
+          3,
+          11,
+          6,
+          14,
+          1,
+          9,
+          4,
+          12
+        ],
+        "spend": [
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          0,
+          0,
+          5,
+          4,
+          4,
+          4,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1696"
+      }
+    },
+    {
+      "id": 42,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "1749",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          13,
+          3,
+          11,
+          6,
+          14,
+          1,
+          9,
+          4,
+          12,
+          7,
+          15,
+          2,
+          10
+        ],
+        "spend": [
+          6,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          0,
+          0,
+          4,
+          4,
+          3,
+          0
+        ],
+        "change": [],
+        "actualFee": "1749"
+      }
+    },
+    {
+      "id": 43,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "1802",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          6,
+          14,
+          1,
+          9,
+          4,
+          12,
+          7,
+          15,
+          2,
+          10,
+          5,
+          13,
+          0,
+          8,
+          16
+        ],
+        "spend": [
+          6,
+          6,
+          6,
+          6,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          0,
+          0,
+          6,
+          6,
+          6,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1802"
+      }
+    },
+    {
+      "id": 44,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "1855",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          4,
+          12,
+          7,
+          15,
+          2,
+          10,
+          5,
+          13,
+          0,
+          8,
+          16,
+          3,
+          1,
+          9,
+          17
+        ],
+        "spend": [
+          0,
+          0,
+          0,
+          5,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          1
+        ],
+        "change": [],
+        "actualFee": "1855"
+      }
+    },
+    {
+      "id": 45,
+      "denominations": [
+        4
+      ],
+      "fee": "1908",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 46,
+      "denominations": [
+        3,
+        6
+      ],
+      "fee": "1961",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 47,
+      "denominations": [
+        2,
+        5,
+        0
+      ],
+      "fee": "2014",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 48,
+      "denominations": [
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "2067",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          0,
+          3,
+          1
+        ],
+        "spend": [
+          4,
+          2,
+          1,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2067"
+      }
+    },
+    {
+      "id": 49,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "2120",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 50,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "2173",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          3,
+          1,
+          4,
+          2,
+          5
+        ],
+        "spend": [
+          6,
+          5,
+          3,
+          2,
+          0,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          2,
+          2,
+          1,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2173"
+      }
+    },
+    {
+      "id": 51,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "2226",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          4,
+          2,
+          5,
+          0,
+          3,
+          6
+        ],
+        "spend": [
+          0,
+          6,
+          6,
+          6,
+          6,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2226"
+      }
+    },
+    {
+      "id": 52,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "2279",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          2,
+          5,
+          0,
+          3,
+          6,
+          1,
+          4
+        ],
+        "spend": [
+          1,
+          0,
+          6,
+          6,
+          6,
+          6,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "2279"
+      }
+    },
+    {
+      "id": 53,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "2332",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          0,
+          8,
+          3,
+          6,
+          1,
+          4,
+          7,
+          2
+        ],
+        "spend": [
+          2,
+          1,
+          0,
+          6,
+          6,
+          6,
+          6,
+          4,
+          4,
+          4,
+          4,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2332"
+      }
+    },
+    {
+      "id": 54,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "2385",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          6,
+          1,
+          9,
+          7,
+          2,
+          5,
+          0,
+          8
+        ],
+        "spend": [
+          4,
+          2,
+          1,
+          0,
+          4,
+          4,
+          2,
+          1
+        ],
+        "change": [],
+        "actualFee": "2385"
+      }
+    },
+    {
+      "id": 55,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "2438",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          9,
+          4,
+          7,
+          2,
+          10,
+          5,
+          0,
+          8,
+          3,
+          6
+        ],
+        "spend": [
+          4,
+          3,
+          2,
+          2,
+          1,
+          0,
+          0,
+          6,
+          6,
+          6,
+          6,
+          5,
+          3,
+          2,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2438"
+      }
+    },
+    {
+      "id": 56,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "2491",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          2,
+          5,
+          0,
+          8,
+          3,
+          11,
+          6,
+          1,
+          9,
+          4
+        ],
+        "spend": [
+          5,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          0,
+          6,
+          6,
+          6,
+          5,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2491"
+      }
+    },
+    {
+      "id": 57,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "2544",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          0,
+          8,
+          3,
+          11,
+          6,
+          1,
+          9,
+          4,
+          12,
+          7,
+          2,
+          10
+        ],
+        "spend": [
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          2,
+          2,
+          0,
+          0,
+          6,
+          6,
+          4,
+          4,
+          4,
+          4,
+          3,
+          1,
+          0
+        ],
+        "change": [],
+        "actualFee": "2544"
+      }
+    },
+    {
+      "id": 58,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "2597",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          6,
+          1,
+          9,
+          4,
+          12,
+          7,
+          2,
+          10,
+          5,
+          13,
+          3,
+          11
+        ],
+        "spend": [
+          0,
+          0,
+          5,
+          4,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2597"
+      }
+    },
+    {
+      "id": 59,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "2650",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          4,
+          12,
+          7,
+          2,
+          10,
+          5,
+          13,
+          0,
+          8,
+          6,
+          14,
+          1,
+          9
+        ],
+        "spend": [
+          2,
+          0,
+          0,
+          5,
+          4,
+          2,
+          2
+        ],
+        "change": [],
+        "actualFee": "2650"
+      }
+    },
+    {
+      "id": 60,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "2703",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          10,
+          5,
+          13,
+          0,
+          8,
+          3,
+          11,
+          1,
+          9,
+          4,
+          12,
+          7,
+          15
+        ],
+        "spend": [
+          2,
+          2,
+          2,
+          0,
+          0,
+          5,
+          3,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2703"
+      }
+    },
+    {
+      "id": 61,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "2756",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          8,
+          16,
+          3,
+          11,
+          6,
+          14,
+          4,
+          12,
+          7,
+          15,
+          2,
+          10,
+          5,
+          13
+        ],
+        "spend": [
+          4,
+          2,
+          2,
+          2,
+          0,
+          0,
+          5,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2756"
+      }
+    },
+    {
+      "id": 62,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "2809",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          6,
+          14,
+          1,
+          9,
+          7,
+          15,
+          2,
+          10,
+          5,
+          13,
+          0,
+          8,
+          16,
+          3,
+          11
+        ],
+        "spend": [
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          0,
+          0,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "2809"
+      }
+    },
+    {
+      "id": 63,
+      "denominations": [
+        2
+      ],
+      "fee": "2862",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 64,
+      "denominations": [
+        1,
+        4
+      ],
+      "fee": "2915",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 65,
+      "denominations": [
+        0,
+        3,
+        6
+      ],
+      "fee": "2968",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 66,
+      "denominations": [
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "21",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          2,
+          3
+        ],
+        "spend": [
+          0,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "21"
+      }
+    },
+    {
+      "id": 67,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "74",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          1,
+          4
+        ],
+        "spend": [
+          2,
+          1,
+          2,
+          2,
+          1,
+          0
+        ],
+        "change": [],
+        "actualFee": "74"
+      }
+    },
+    {
+      "id": 68,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "127",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          0,
+          1,
+          4,
+          2
+        ],
+        "spend": [
+          3,
+          1,
+          0,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "127"
+      }
+    },
+    {
+      "id": 69,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "180",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          4,
+          2,
+          5,
+          0
+        ],
+        "spend": [
+          4,
+          3,
+          2,
+          0,
+          4,
+          4,
+          4,
+          2,
+          2
+        ],
+        "change": [],
+        "actualFee": "180"
+      }
+    },
+    {
+      "id": 70,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "233",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          7,
+          2,
+          5,
+          0,
+          3,
+          6
+        ],
+        "spend": [
+          5,
+          4,
+          3,
+          2,
+          1,
+          0,
+          5,
+          4,
+          4,
+          3,
+          2,
+          1,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "233"
+      }
+    },
+    {
+      "id": 71,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "286",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          2,
+          5,
+          0,
+          8,
+          3,
+          6,
+          1,
+          4
+        ],
+        "spend": [
+          6,
+          5,
+          4,
+          3,
+          2,
+          2,
+          1,
+          0,
+          6,
+          6,
+          6,
+          6,
+          5,
+          4,
+          4,
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "286"
+      }
+    },
+    {
+      "id": 72,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "339",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          8,
+          3,
+          6,
+          1,
+          9,
+          4,
+          5
+        ],
+        "spend": [
+          0,
+          4,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "339"
+      }
+    },
+    {
+      "id": 73,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "392",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          6,
+          1,
+          9,
+          4,
+          7,
+          0,
+          8,
+          3
+        ],
+        "spend": [
+          1,
+          0,
+          0,
+          4,
+          4,
+          4,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "392"
+      }
+    },
+    {
+      "id": 74,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "445",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          4,
+          7,
+          2,
+          3,
+          11,
+          6,
+          1,
+          9
+        ],
+        "spend": [
+          2,
+          2,
+          1,
+          0,
+          0,
+          4,
+          4,
+          1
+        ],
+        "change": [],
+        "actualFee": "445"
+      }
+    },
+    {
+      "id": 75,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "498",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          10,
+          5,
+          6,
+          1,
+          9,
+          4,
+          12,
+          7
+        ],
+        "spend": [
+          3,
+          2,
+          2,
+          2,
+          0,
+          4,
+          4,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "498"
+      }
+    },
+    {
+      "id": 76,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "551",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          8,
+          1,
+          9,
+          4,
+          12,
+          7,
+          2,
+          10,
+          5,
+          13
+        ],
+        "spend": [
+          4,
+          4,
+          4,
+          2,
+          2,
+          0,
+          0,
+          4,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "551"
+      }
+    },
+    {
+      "id": 77,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "604",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          6,
+          4,
+          12,
+          7,
+          2,
+          10,
+          5,
+          13,
+          0,
+          8,
+          3,
+          11
+        ],
+        "spend": [
+          6,
+          4,
+          4,
+          4,
+          2,
+          2,
+          1,
+          0,
+          0,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0
+        ],
+        "change": [],
+        "actualFee": "604"
+      }
+    },
+    {
+      "id": 78,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "657",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          4,
+          7,
+          15,
+          2,
+          10,
+          5,
+          13,
+          0,
+          8,
+          3,
+          11,
+          6,
+          14,
+          1,
+          9
+        ],
+        "spend": [
+          6,
+          6,
+          6,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          0,
+          0,
+          6,
+          6,
+          6,
+          6,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "657"
+      }
+    },
+    {
+      "id": 79,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "710",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          13,
+          0,
+          8,
+          16,
+          3,
+          11,
+          6,
+          14,
+          1,
+          2,
+          10
+        ],
+        "spend": [
+          0,
+          0,
+          4,
+          2,
+          2,
+          2
+        ],
+        "change": [],
+        "actualFee": "710"
+      }
+    },
+    {
+      "id": 80,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "763",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          11,
+          6,
+          14,
+          1,
+          9,
+          17,
+          4,
+          5,
+          13,
+          0,
+          8,
+          16
+        ],
+        "spend": [
+          2,
+          1,
+          0,
+          0,
+          4,
+          3,
+          1,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "763"
+      }
+    },
+    {
+      "id": 81,
+      "denominations": [
+        0
+      ],
+      "fee": "816",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 82,
+      "denominations": [
+        7,
+        2
+      ],
+      "fee": "869",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          1
+        ],
+        "spend": [
+          2,
+          6,
+          6,
+          6,
+          6,
+          4,
+          2,
+          2,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "869"
+      }
+    },
+    {
+      "id": 83,
+      "denominations": [
+        6,
+        1,
+        4
+      ],
+      "fee": "922",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          1,
+          2
+        ],
+        "spend": [
+          4,
+          1,
+          3,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "922"
+      }
+    },
+    {
+      "id": 84,
+      "denominations": [
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "975",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          1,
+          2,
+          0
+        ],
+        "spend": [
+          5,
+          3,
+          0,
+          2,
+          2,
+          1
+        ],
+        "change": [],
+        "actualFee": "975"
+      }
+    },
+    {
+      "id": 85,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "1028",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          4,
+          2,
+          0,
+          3
+        ],
+        "spend": [
+          5,
+          4,
+          2,
+          0,
+          6,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1028"
+      }
+    },
+    {
+      "id": 86,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "1081",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 87,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "1134",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          3,
+          6,
+          1,
+          4,
+          2,
+          5
+        ],
+        "spend": [
+          1,
+          0,
+          5,
+          2,
+          2,
+          1,
+          0
+        ],
+        "change": [],
+        "actualFee": "1134"
+      }
+    },
+    {
+      "id": 88,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "1187",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          6,
+          1,
+          4,
+          7,
+          5,
+          0,
+          3
+        ],
+        "spend": [
+          2,
+          1,
+          0,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1187"
+      }
+    },
+    {
+      "id": 89,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "1240",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          4,
+          7,
+          2,
+          0,
+          8,
+          3,
+          6,
+          1
+        ],
+        "spend": [
+          3,
+          2,
+          1,
+          0,
+          0,
+          4,
+          4,
+          4,
+          3,
+          2
+        ],
+        "change": [],
+        "actualFee": "1240"
+      }
+    },
+    {
+      "id": 90,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "1293",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          5,
+          3,
+          6,
+          1,
+          9,
+          4,
+          7
+        ],
+        "spend": [
+          4,
+          3,
+          2,
+          2,
+          1,
+          0,
+          4,
+          4,
+          1,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1293"
+      }
+    },
+    {
+      "id": 91,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "1346",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          8,
+          6,
+          1,
+          9,
+          4,
+          7,
+          2,
+          10,
+          5
+        ],
+        "spend": [
+          5,
+          4,
+          4,
+          3,
+          2,
+          2,
+          0,
+          5,
+          4,
+          3,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1346"
+      }
+    },
+    {
+      "id": 92,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "1399",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          6,
+          1,
+          9,
+          4,
+          7,
+          2,
+          10,
+          5,
+          0,
+          8,
+          3,
+          11
+        ],
+        "spend": [
+          6,
+          6,
+          6,
+          4,
+          4,
+          2,
+          1,
+          0,
+          0,
+          6,
+          6,
+          6,
+          5,
+          4,
+          0
+        ],
+        "change": [],
+        "actualFee": "1399"
+      }
+    },
+    {
+      "id": 93,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "1452",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          2,
+          10,
+          5,
+          0,
+          8,
+          3,
+          11,
+          6,
+          4,
+          12
+        ],
+        "spend": [
+          0,
+          0,
+          5,
+          4,
+          4,
+          4,
+          2,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1452"
+      }
+    },
+    {
+      "id": 94,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "1505",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          13,
+          0,
+          8,
+          3,
+          11,
+          6,
+          1,
+          7,
+          2,
+          10
+        ],
+        "spend": [
+          2,
+          0,
+          4,
+          4,
+          4,
+          2,
+          1
+        ],
+        "change": [],
+        "actualFee": "1505"
+      }
+    },
+    {
+      "id": 95,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "1558",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          11,
+          6,
+          14,
+          1,
+          9,
+          4,
+          2,
+          10,
+          5,
+          13,
+          0,
+          8
+        ],
+        "spend": [
+          2,
+          2,
+          2,
+          0,
+          0,
+          5,
+          4,
+          4,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1558"
+      }
+    },
+    {
+      "id": 96,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "1611",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          9,
+          4,
+          12,
+          7,
+          5,
+          13,
+          0,
+          8,
+          3,
+          11,
+          6,
+          14
+        ],
+        "spend": [
+          4,
+          2,
+          2,
+          2,
+          0,
+          0,
+          5,
+          3,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1611"
+      }
+    },
+    {
+      "id": 97,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "1664",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          15,
+          2,
+          0,
+          8,
+          16,
+          3,
+          11,
+          6,
+          14,
+          1,
+          9,
+          4,
+          12
+        ],
+        "spend": [
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          1,
+          0
+        ],
+        "change": [],
+        "actualFee": "1664"
+      }
+    },
+    {
+      "id": 98,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "1717",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          13,
+          3,
+          11,
+          6,
+          14,
+          1,
+          9,
+          17,
+          4,
+          12,
+          7,
+          15,
+          2,
+          10
+        ],
+        "spend": [
+          6,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "1717"
+      }
+    },
+    {
+      "id": 99,
+      "denominations": [
+        6
+      ],
+      "fee": "1770",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 100,
+      "denominations": [
+        5,
+        0
+      ],
+      "fee": "1823",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 101,
+      "denominations": [
+        4,
+        7,
+        2
+      ],
+      "fee": "1876",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 102,
+      "denominations": [
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "1929",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 103,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "1982",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 104,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "2035",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          4,
+          2,
+          5,
+          0,
+          3,
+          1
+        ],
+        "spend": [
+          4,
+          2,
+          1,
+          0,
+          6,
+          6,
+          6,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          1
+        ],
+        "change": [],
+        "actualFee": "2035"
+      }
+    },
+    {
+      "id": 105,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "2088",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          5,
+          0,
+          3,
+          6,
+          1,
+          4
+        ],
+        "spend": [
+          4,
+          3,
+          2,
+          1,
+          0,
+          6,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          2,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2088"
+      }
+    },
+    {
+      "id": 106,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "2141",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          3,
+          6,
+          1,
+          4,
+          7,
+          2,
+          5
+        ],
+        "spend": [
+          6,
+          5,
+          4,
+          3,
+          2,
+          1,
+          0,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          3,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2141"
+      }
+    },
+    {
+      "id": 107,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "2194",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          4,
+          7,
+          2,
+          5,
+          0,
+          8,
+          6
+        ],
+        "spend": [
+          0,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "2194"
+      }
+    },
+    {
+      "id": 108,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "2247",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          2,
+          5,
+          0,
+          8,
+          3,
+          6,
+          1,
+          9,
+          4
+        ],
+        "spend": [
+          1,
+          0,
+          0,
+          6,
+          6,
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2247"
+      }
+    },
+    {
+      "id": 109,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "2300",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          0,
+          8,
+          3,
+          6,
+          1,
+          4,
+          7,
+          2,
+          10
+        ],
+        "spend": [
+          2,
+          2,
+          1,
+          0,
+          6,
+          6,
+          6,
+          6,
+          4,
+          4,
+          4,
+          4,
+          3
+        ],
+        "change": [],
+        "actualFee": "2300"
+      }
+    },
+    {
+      "id": 110,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "2353",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          11,
+          6,
+          1,
+          9,
+          7,
+          2,
+          10,
+          5,
+          0,
+          8
+        ],
+        "spend": [
+          4,
+          2,
+          2,
+          0,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2353"
+      }
+    },
+    {
+      "id": 111,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "2406",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          9,
+          4,
+          12,
+          2,
+          10,
+          5,
+          0,
+          8,
+          3,
+          11,
+          6
+        ],
+        "spend": [
+          4,
+          4,
+          2,
+          2,
+          1,
+          0,
+          0,
+          5,
+          3,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2406"
+      }
+    },
+    {
+      "id": 112,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "2459",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          2,
+          5,
+          13,
+          0,
+          8,
+          3,
+          11,
+          6,
+          1,
+          9,
+          4,
+          12
+        ],
+        "spend": [
+          6,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          0,
+          0,
+          6,
+          6,
+          6,
+          5,
+          2,
+          2,
+          2,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "2459"
+      }
+    },
+    {
+      "id": 113,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "2512",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          0,
+          8,
+          3,
+          11,
+          6,
+          14,
+          1,
+          9,
+          4,
+          12,
+          7,
+          2,
+          10
+        ],
+        "spend": [
+          6,
+          6,
+          5,
+          4,
+          4,
+          4,
+          2,
+          2,
+          2,
+          0,
+          0,
+          6,
+          6,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2512"
+      }
+    },
+    {
+      "id": 114,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "2565",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          6,
+          14,
+          1,
+          9,
+          4,
+          12,
+          7,
+          15,
+          2,
+          10,
+          5,
+          13,
+          3,
+          11
+        ],
+        "spend": [
+          0,
+          0,
+          5,
+          4,
+          4,
+          3,
+          2,
+          1
+        ],
+        "change": [],
+        "actualFee": "2565"
+      }
+    },
+    {
+      "id": 115,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "2618",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          4,
+          12,
+          7,
+          15,
+          2,
+          10,
+          5,
+          13,
+          0,
+          8,
+          6,
+          14,
+          1,
+          9
+        ],
+        "spend": [
+          2,
+          0,
+          0,
+          5,
+          4,
+          4,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2618"
+      }
+    },
+    {
+      "id": 116,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "2671",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          10,
+          5,
+          13,
+          0,
+          8,
+          16,
+          3,
+          1,
+          9,
+          17,
+          4,
+          12,
+          7,
+          15
+        ],
+        "spend": [
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          4,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2671"
+      }
+    },
+    {
+      "id": 117,
+      "denominations": [
+        4
+      ],
+      "fee": "2724",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 118,
+      "denominations": [
+        3,
+        6
+      ],
+      "fee": "2777",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 119,
+      "denominations": [
+        2,
+        5,
+        0
+      ],
+      "fee": "2830",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 120,
+      "denominations": [
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "2883",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          0,
+          3,
+          1
+        ],
+        "spend": [
+          4,
+          2,
+          1,
+          6,
+          6,
+          4,
+          2,
+          1,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "2883"
+      }
+    },
+    {
+      "id": 121,
+      "denominations": [
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "2936",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "error": true
+      }
+    },
+    {
+      "id": 122,
+      "denominations": [
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "2989",
+      "maximumInput": 1,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          4,
+          2,
+          5,
+          0,
+          3
+        ],
+        "spend": [
+          0,
+          6,
+          6,
+          6,
+          5,
+          3,
+          2,
+          2,
+          0
+        ],
+        "change": [],
+        "actualFee": "2989"
+      }
+    },
+    {
+      "id": 123,
+      "denominations": [
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "42",
+      "maximumInput": 2,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          2,
+          6,
+          1,
+          4
+        ],
+        "spend": [
+          2,
+          1,
+          0,
+          3,
+          1,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "42"
+      }
+    },
+    {
+      "id": 124,
+      "denominations": [
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "95",
+      "maximumInput": 3,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          5,
+          1,
+          4,
+          7,
+          2
+        ],
+        "spend": [
+          3,
+          2,
+          1,
+          0,
+          1
+        ],
+        "change": [],
+        "actualFee": "95"
+      }
+    },
+    {
+      "id": 125,
+      "denominations": [
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4
+      ],
+      "fee": "148",
+      "maximumInput": 4,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          3,
+          4,
+          7,
+          2,
+          5,
+          0,
+          8
+        ],
+        "spend": [
+          4,
+          4,
+          3,
+          2,
+          1,
+          0,
+          4,
+          4,
+          4,
+          3,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "148"
+      }
+    },
+    {
+      "id": 126,
+      "denominations": [
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6
+      ],
+      "fee": "201",
+      "maximumInput": 5,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          1,
+          7,
+          2,
+          5,
+          0,
+          8,
+          3,
+          6
+        ],
+        "spend": [
+          5,
+          4,
+          4,
+          2,
+          1,
+          0,
+          5,
+          4,
+          4,
+          3,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "201"
+      }
+    },
+    {
+      "id": 127,
+      "denominations": [
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2,
+        5,
+        0
+      ],
+      "fee": "254",
+      "maximumInput": 6,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          7,
+          2,
+          10,
+          5,
+          0,
+          8,
+          3,
+          6,
+          1,
+          9,
+          4
+        ],
+        "spend": [
+          6,
+          6,
+          4,
+          3,
+          2,
+          2,
+          1,
+          0,
+          0,
+          6,
+          6,
+          6,
+          6,
+          5,
+          4,
+          4,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0
+        ],
+        "change": [],
+        "actualFee": "254"
+      }
+    },
+    {
+      "id": 128,
+      "denominations": [
+        1,
+        4,
+        7,
+        2,
+        5,
+        0,
+        3,
+        6,
+        1,
+        4,
+        7,
+        2
+      ],
+      "fee": "307",
+      "maximumInput": 0,
+      "maximumOutput": 14,
+      "expected": {
+        "inputs": [
+          0,
+          8,
+          3,
+          11,
+          6,
+          1,
+          9,
+          4,
+          5
+        ],
+        "spend": [
+          0,
+          4,
+          4,
+          4,
+          4,
+          3,
+          2,
+          2,
+          0,
+          0,
+          0
+        ],
+        "change": [],
+        "actualFee": "307"
+      }
+    }
+  ]
+}

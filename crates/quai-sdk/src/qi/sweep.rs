@@ -3,10 +3,12 @@ use super::*;
 use quai_wallet::{SweepMode, select_sweep};
 
 impl<T: Transport> QiSession<'_, T> {
-    /// Spend all eligible coins into fresh owned outputs with exact fee
+    /// Sweep or threshold-aggregate eligible coins into fresh owned outputs with exact fee
     /// convergence. Allocate the output pool, then refresh before calling.
     /// `Aggregate` increases denominations and requires first-Qi block placement
     /// on the pinned node; this SDK cannot reserve that position with miners.
+    /// AggregateThreshold applies its input threshold and may leave larger coins
+    /// unspent; every convergence round reselects and covers the quoted fee.
     pub async fn prepare_sweep(
         &mut self,
         id: ReservationId,

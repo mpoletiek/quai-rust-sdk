@@ -30,8 +30,8 @@ mod state;
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod storage;
 pub use selection::{
-    CandidateCoin, CoinSelection, SelectionError, SelectionRequest, SweepMode,
-    preserves_denominations, select_fewest, select_sweep, select_with_fee,
+    AggregationPolicy, CandidateCoin, CoinSelection, SelectionError, SelectionRequest, SweepMode,
+    preserves_denominations, select_aggregate, select_fewest, select_sweep, select_with_fee,
 };
 mod mnemonic;
 pub mod wordlist;

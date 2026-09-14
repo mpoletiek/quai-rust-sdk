@@ -947,3 +947,21 @@ exact byte inputs, parameter/output-work budgets and zeroizing derived output.
 Run CPU work on a bounded native or dedicated browser worker. Optional Started/
 Completed callbacks can cancel at checkpoints; they do not provide intermediate
 progress or interrupt the underlying KDF loop. See [utility reference and parity](docs/UTILITY_PARITY.md).
+
+### Curve arithmetic and threshold aggregation
+
+`crypto::curve::CurveScalar` supports canonical zero-inclusive scalar parsing,
+reduction, addition, multiplication and negation with guarded output. Validated
+`PublicKey` values support multiplication, multiply-add, negation, X extraction
+and even-Y lifting. Public field helpers and multipart/tagged SHA256 are bounded;
+use `quais_tagged_sha256` for the reference's non-ASCII tag encoding and
+`tagged_sha256` for UTF-8. These helpers do not create distributed signing sessions.
+
+`wallet::select_aggregate` applies an input denomination threshold, funds the exact
+fee from eligible outside coins and appends the separately denominated fee refund.
+Use `SweepMode::AggregateThreshold(AggregationPolicy::default())` in `quote_qi` or
+native `prepare_sweep` for fee-converged preparation. Defaults are input index 6,
+output index 14 and required UTXO-count reduction. Set `require_reduction: false`
+explicitly for non-reducing plans. Larger denominations still require the node's
+first-Qi block-position exception. See [complete mappings, bounds and examples of
+reference differences](docs/CURVE_AND_AGGREGATION_PARITY.md).

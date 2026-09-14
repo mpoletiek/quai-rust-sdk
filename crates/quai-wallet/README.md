@@ -270,3 +270,8 @@ five-second default. Lock errors do not retry wallet operations automatically.
 
 ExtendedPublicKey supports validated raw point/chain-code roots and explicit BIP32 metadata construction; synthetic roots do not prove ancestry.
 See the [utility guide](https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/UTILITY_PARITY.md).
+
+`select_aggregate` and `SweepMode::AggregateThreshold` aggregate small coins up to
+an explicit input threshold and fund exact fees from separate eligible inputs.
+See the [aggregation review](../../docs/CURVE_AND_AGGREGATION_PARITY.md) for
+ordering, limits, default count reduction and the node block-position requirement.

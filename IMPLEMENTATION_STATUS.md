@@ -1074,3 +1074,22 @@ and rustdoc, plus 120-second ASAN runs with 17,266 wallet-import executions and
 archives passed three consumer tests, twelve native and two Wasm target
 compilations with 103 public file mirrors. Packaged test targets were compiled,
 not executed; no packages were uploaded. Evidence: [utility report](test-infra/reports/utilities-2026-09-13.json).
+
+## Curve adapters and threshold aggregation — September 13
+
+Added guarded canonical scalar math, validated point multiplication/lifting,
+public field helpers and bounded multipart/tagged hashes. Both the reference's
+non-ASCII tag encoding and UTF-8 are explicit. Threshold aggregation now selects
+small coins and fee inputs separately, conserves value exactly, respects wallet
+spendability and flows through sweep/quote fee convergence. The six-Qit source
+fee-shortfall case is corrected. See the [review](docs/CURVE_AND_AGGREGATION_PARITY.md).
+The ledger closes twelve rows; 235 remain pending.
+
+Utility commit `2305842` passed all eight jobs in CI run `34798647241`. This batch
+passed six native/worker curve tests, five native/worker aggregation tests, seven
+native and thirteen worker Qi preflight tests, and 102 crypto/wallet regression
+tests. All 23 source test files and strict native/Wasm Clippy and rustdoc pass.
+The 120-second ASAN campaign completed 12,742 executions without findings.
+All twelve archives passed three consumer tests, twelve native and two Wasm
+target compilations with 105 public file mirrors. No dependency lockfiles changed;
+no package upload or funded network write occurred. Evidence: [batch report](test-infra/reports/curve-aggregation-2026-09-13.json).

@@ -69,6 +69,7 @@ jobs:
         run: |
           cargo fetch --locked
           python3 test-infra/local-chain/highlevel_harness.py build
+          python3 test-infra/local-chain/check_qualification_clients.py
       - name: Check the funded Orchard client without keys or network execution
         run: |
           cargo fmt --manifest-path test-infra/orchard/Cargo.toml --check

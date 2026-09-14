@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-14",
+  "provenance": {
+    "baseCommit": "104f690a6e03c99e026b667cf953e39860309981",
+    "sourceDirty": true,
+    "sourceSha256": {
+      "crates/quai-consensus/src/qi.rs": "a4c2afe8ce12355b1a4a9fc14aa219e4b05c16c4f9a7700a55568b596688032e",
+      "crates/quai-consensus/src/conversion.rs": "6259fbf3e07938f09c5323b8681d09df78c5c07cfe0e0c9cc5f9c23e4b51ece9",
+      "crates/quai-sdk/src/qi.rs": "4744dcc5b9af38d8b9380206045faab9b7857e760b999b963de9e1734abe09e4",
+      "crates/quai-sdk/src/payment_channels.rs": "3432fee8387d36e3019053e11af87bf8579e648cf18cbdc3793c5f0742952fc2",
+      "crates/quai-wallet/src/storage.rs": "7bdd847b15649db703c86a2396fd0fc2fca191b3997161f2c79bdeb799218f84",
+      "crates/quai-wallet/src/storage/payment.rs": "0d5f22701ad1c2211e8500ec36cc823b3f554e5da0d53ec9ab600c743311e28b",
+      "crates/quai-wallet/src/selection.rs": "58d24f4fde536c556a9fe89830335c13570f43baa14917daf9bb2ac37e170694",
+      "crates/quai-wallet/src/qi_custody.rs": "5f6ae0e755ba586c7b708c5abe7a7e0159cd972d6617ce329b14c94db3e1ff8f",
+      "test-infra/orchard/src/main.rs": "b57293626d3019dd8eed88c6917a80d197dec52bb8238fff33618b9eabaa73b0",
+      "test-infra/orchard/src/account.rs": "231715d5bc0a5a690c59a087830d245c0604f8236a5357735e112534bee3b700",
+      "test-infra/orchard/src/qi_extended.rs": "38eb96cd75299434f204143dbefeb73c9480fb1c1ef19af027feb1e7ce2e100d",
+      "test-infra/local-chain/refund_client.rs": "6f50d8983065710d2e55f7a878ee68cb5fffa83ab08a018637e76b5ef66acd18",
+      "test-infra/local-chain/recovery_client.rs": "589bed7916153b3062857569ada0917f1adc8b2d91f4a660562b47b8187665d4"
+    },
+    "executionScope": "Stages executed as harness support was added; this manifest identifies the final reviewed sources, not a claim that all stages used one immutable binary."
+  },
+  "network": "orchard",
+  "chainId": 15000,
+  "genesis": "0x663a73416275109a01aad3a4c29ea9e310aded63c5eea491243b7312ad8cd16b",
+  "prepare": [
+    {
+      "amountQits": "1000",
+      "balanceBeforeIts": "337536892018988364781",
+      "destination": "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2",
+      "lockedBeforeIts": "0",
+      "quotedIts": "25839169377906112",
+      "refund": "0x00eB175ea13Bc25BE12a1aCFA77D257EE676104D",
+      "slippageBasisPoints": 100,
+      "stage": "conversion-preflight"
+    },
+    {
+      "head": "7795055",
+      "lockedQits": "0",
+      "stage": "refresh",
+      "unreservedQits": "765676"
+    },
+    {
+      "dataLength": 22,
+      "feeQits": "100",
+      "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+      "inputs": [
+        {
+          "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+          "index": 1
+        }
+      ],
+      "operation": "convert-qi-to-quai",
+      "outputs": [
+        {
+          "address": "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2",
+          "denomination": 6
+        },
+        {
+          "address": "0x0098834a19fe9d95070293d530eAc56d6Bc1A7b4",
+          "denomination": 7
+        },
+        {
+          "address": "0x00DB27091720988987490D70B2017784ba4f1E34",
+          "denomination": 6
+        },
+        {
+          "address": "0x00F66d9a37bDB6C7439DA73a5106ed731A9A52fC",
+          "denomination": 6
+        },
+        {
+          "address": "0x00dF3645257Aa1C9A75b2AcF2532858d590465A4",
+          "denomination": 6
+        },
+        {
+          "address": "0x00C2Bb2023B422AA0B311847d9D78F6b393d78Df",
+          "denomination": 5
+        },
+        {
+          "address": "0x009aB4122CE2360Daa2CD4fcD5eF6EA286837047",
+          "denomination": 4
+        },
+        {
+          "address": "0x00e9528C10b26d352F80Ab1805d15c31C6A835B1",
+          "denomination": 4
+        },
+        {
+          "address": "0x008B59C733caE5Ff4673042cc6BC8C8C9687C31C",
+          "denomination": 4
+        },
+        {
+          "address": "0x00e25372Ce651223498A55016a51d0e078A3ed3d",
+          "denomination": 4
+        }
+      ],
+      "stage": "signed-persisted"
+    }
+  ],
+  "broadcast": [
+    {
+      "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+      "operation": "convert-qi-to-quai",
+      "stage": "acknowledged"
+    }
+  ],
+  "origin": [
+    {
+      "confirmations": 2,
+      "operation": "convert-qi-to-quai",
+      "receipt": {
+        "blockHash": "0x157b2c21cbc0fe7b31f06445d1b7de2094f50e09d2118ae2fd45d8b3de4088ef",
+        "blockNumber": "0x76f173",
+        "contractAddress": null,
+        "cumulativeGasUsed": "0x0",
+        "effectiveGasPrice": "0x3b9aca00",
+        "etxType": null,
+        "from": null,
+        "gasUsed": "0x1d5f4",
+        "logs": [],
+        "originatingTxHash": null,
+        "outboundEtxs": [
+          {
+            "accessList": [],
+            "blockHash": "0x157b2c21cbc0fe7b31f06445d1b7de2094f50e09d2118ae2fd45d8b3de4088ef",
+            "blockNumber": "0x76f173",
+            "etxIndex": "0x0",
+            "etxType": "0x2",
+            "from": "0x0000000000000000000000000000000000000000",
+            "gas": "0x2462e0",
+            "hash": "0x000b003b32886de85346c7959c49a175bccd95807b1e1c3ec072fff428f2929d",
+            "input": "0x006400eb175ea13bc25be12a1acfa77d257ee676104d",
+            "nonce": "0x0",
+            "originatingTxHash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+            "to": "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2",
+            "transactionIndex": "0x0",
+            "type": "0x1",
+            "value": "0x3e8"
+          }
+        ],
+        "status": "0x1",
+        "to": null,
+        "transactionHash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "transactionIndex": "0x0",
+        "type": "0x2"
+      },
+      "stage": "observed"
+    },
+    {
+      "durableSignedBytesMatchMinedTransaction": true,
+      "operation": "convert-qi-to-quai",
+      "stage": "verified"
+    }
+  ],
+  "lockedCredit": [
+    {
+      "balanceIts": "337536892018988364781",
+      "effect": "Some(ConversionReported)",
+      "execution": {
+        "block": 7795064,
+        "hash": "0x000c003f340d842cbf8dcdf12002b4db5545048eb25265bae5b5bf38d3ee7a24",
+        "outcome": "Succeeded",
+        "transaction": {
+          "accessList": [],
+          "blockHash": "0x0b49af0879a67460c2b62e301ae5ffe6653da979d97facbd7b1ba5dd0a41911c",
+          "blockNumber": "0x76f178",
+          "etxIndex": "0x0",
+          "etxType": "0x2",
+          "from": "0x0000000000000000000000000000000000000000",
+          "gas": "0x2462e0",
+          "hash": "0x000c003f340d842cbf8dcdf12002b4db5545048eb25265bae5b5bf38d3ee7a24",
+          "input": "0x006400eb175ea13bc25be12a1acfa77d257ee676104d",
+          "nonce": "0x0",
+          "originatingTxHash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+          "to": "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2",
+          "transactionIndex": "0x0",
+          "type": "0x1",
+          "value": "0x5b8616472e580d"
+        }
+      },
+      "head": 7795065,
+      "lockedIts": "25761653122291725",
+      "operation": "convert-qi-to-quai",
+      "stage": "conversion-credit"
+    }
+  ],
+  "lastLockedCredit": [
+    {
+      "balanceIts": "337536892018988364781",
+      "effect": "Some(ConversionReported)",
+      "execution": {
+        "block": 7795064,
+        "hash": "0x000c003f340d842cbf8dcdf12002b4db5545048eb25265bae5b5bf38d3ee7a24",
+        "outcome": "Succeeded",
+        "transaction": {
+          "accessList": [],
+          "blockHash": "0x0b49af0879a67460c2b62e301ae5ffe6653da979d97facbd7b1ba5dd0a41911c",
+          "blockNumber": "0x76f178",
+          "etxIndex": "0x0",
+          "etxType": "0x2",
+          "from": "0x0000000000000000000000000000000000000000",
+          "gas": "0x2462e0",
+          "hash": "0x000c003f340d842cbf8dcdf12002b4db5545048eb25265bae5b5bf38d3ee7a24",
+          "input": "0x006400eb175ea13bc25be12a1acfa77d257ee676104d",
+          "nonce": "0x0",
+          "originatingTxHash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+          "to": "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2",
+          "transactionIndex": "0x0",
+          "type": "0x1",
+          "value": "0x5b8616472e580d"
+        }
+      },
+      "head": 7795157,
+      "lockedIts": "25761653122291725",
+      "operation": "convert-qi-to-quai",
+      "stage": "conversion-credit"
+    }
+  ],
+  "matureCredit": {
+    "balanceIts": "337562653672110656506",
+    "effect": "Some(ConversionReported)",
+    "execution": {
+      "block": 7795064,
+      "hash": "0x000c003f340d842cbf8dcdf12002b4db5545048eb25265bae5b5bf38d3ee7a24",
+      "outcome": "Succeeded",
+      "transaction": {
+        "accessList": [],
+        "blockHash": "0x0b49af0879a67460c2b62e301ae5ffe6653da979d97facbd7b1ba5dd0a41911c",
+        "blockNumber": "0x76f178",
+        "etxIndex": "0x0",
+        "etxType": "0x2",
+        "from": "0x0000000000000000000000000000000000000000",
+        "gas": "0x2462e0",
+        "hash": "0x000c003f340d842cbf8dcdf12002b4db5545048eb25265bae5b5bf38d3ee7a24",
+        "input": "0x006400eb175ea13bc25be12a1acfa77d257ee676104d",
+        "nonce": "0x0",
+        "originatingTxHash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "to": "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2",
+        "transactionIndex": "0x0",
+        "type": "0x1",
+        "value": "0x5b8616472e580d"
+      }
+    },
+    "head": 7795168,
+    "lockedIts": "0",
+    "operation": "convert-qi-to-quai",
+    "stage": "conversion-credit"
+  },
+  "spendPrepare": [
+    {
+      "chainId": 15000,
+      "from": "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2",
+      "gasLimit": 30800,
+      "gasPrice": "1200000000",
+      "maximumFeeBaseUnits": "36960000000000",
+      "nonce": 1566,
+      "operation": "conversion-credit-spend",
+      "signingDigest": "0x93f021a0f140245621205e2b550f74148b8c11571ccc34163c2ce9b4617ca130",
+      "stage": "prepared",
+      "to": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+      "valueBaseUnits": "10000000000000000"
+    },
+    {
+      "hash": "0x005a005eb70d8aff375be12a819497da28af0820bd7a261e5d1ed76143ed4b82",
+      "operation": "conversion-credit-spend",
+      "stage": "signed-and-persisted"
+    }
+  ],
+  "replacement": [
+    {
+      "gasPrice": "2400000000",
+      "hash": "0x0031005bf5ac208e367dc4ab04b2fb86db4d7e3317438efba65bcea8ea2c2531",
+      "nonce": 1566,
+      "operation": "conversion-credit-spend",
+      "parent": "0x005a005eb70d8aff375be12a819497da28af0820bd7a261e5d1ed76143ed4b82",
+      "stage": "replacement-persisted",
+      "valueIts": "10000000000000000"
+    }
+  ],
+  "familyBroadcast": [
+    {
+      "hash": "0x005a005eb70d8aff375be12a819497da28af0820bd7a261e5d1ed76143ed4b82",
+      "operation": "conversion-credit-spend",
+      "stage": "candidate-acknowledged"
+    },
+    {
+      "hash": "0x0031005bf5ac208e367dc4ab04b2fb86db4d7e3317438efba65bcea8ea2c2531",
+      "operation": "conversion-credit-spend",
+      "stage": "candidate-acknowledged"
+    }
+  ],
+  "familyVerification": {
+    "canonical": "0x0031005bf5ac208e367dc4ab04b2fb86db4d7e3317438efba65bcea8ea2c2531",
+    "durableBytesMatch": true,
+    "observation": "AccountFamilyObservation { candidates: [(0x005a005eb70d8aff375be12a819497da28af0820bd7a261e5d1ed76143ed4b82, NotObserved), (0x0031005bf5ac208e367dc4ab04b2fb86db4d7e3317438efba65bcea8ea2c2531, Included { block: BlockReference { number: 7795176, hash: 0x0de6d5b56d9b7fb2f6edc59e19e3035082db3fe39a0f8393bee4de529e631608 }, outcome: Succeeded, confirmations: 10 })], canonical: Some(0x0031005bf5ac208e367dc4ab04b2fb86db4d7e3317438efba65bcea8ea2c2531) }",
+    "operation": "conversion-credit-spend",
+    "receipt": {
+      "blockHash": "0x0de6d5b56d9b7fb2f6edc59e19e3035082db3fe39a0f8393bee4de529e631608",
+      "blockNumber": "0x76f1e8",
+      "contractAddress": null,
+      "cumulativeGasUsed": "0x5208",
+      "effectiveGasPrice": "0x8f0d1800",
+      "etxType": null,
+      "from": "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2",
+      "gasUsed": "0x5208",
+      "logs": [],
+      "originatingTxHash": null,
+      "outboundEtxs": [],
+      "status": "0x1",
+      "to": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+      "transactionHash": "0x0031005bf5ac208e367dc4ab04b2fb86db4d7e3317438efba65bcea8ea2c2531",
+      "transactionIndex": "0x0",
+      "type": "0x0"
+    },
+    "recipientBalanceIts": "644114543406166002992",
+    "senderBalanceIts": "337552603272110656506",
+    "stage": "family-verified"
+  },
+  "assertions": {
+    "balanceIncreaseExactlyEqualsExecutedEtxValue": true,
+    "creditedIts": "25761653122291725",
+    "lockedBalanceReturnedToZero": true,
+    "spendAndFeeExactlyExplainLaterDebit": true,
+    "spendFeeIts": "50400000000000",
+    "replacementMinedOriginalNotObserved": true
+  },
+  "limits": [
+    "Specialized conversion used explicit 100-Qit fee, not automatic Orchard estimation.",
+    "Balances are fungible: the subsequent transfer is supported by exact maturity/delta observations, not identification of individual Quai units.",
+    "This Orchard run converted successfully; strict-slippage refunds were tested separately on a patched synthetic chain."
+  ]
+}

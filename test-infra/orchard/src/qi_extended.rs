@@ -83,6 +83,9 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
         "payment-send" => (3, false),
         "payment-return" => (1, true),
         "redemption-spend" => (1, false),
+        "convert-qi-to-quai" => (4, false),
+        "aggregate" => (5, false),
+        "sweep" => (2, true),
         _ => return Err("expected wrap, payment-send or payment-return".into()),
     };
     let scope = scope()?;
@@ -99,6 +102,8 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
     {
         return Err("Orchard identity mismatch".into());
     }
+    let conversion = operation == "convert-qi-to-quai";
+    let sweeping = matches!(operation, "aggregate" | "sweep");
     let redemption = operation == "redemption-spend";
     let (wallet, payment) = if redemption {
         load_named_wallet("qi-redemption.json")?
@@ -167,6 +172,21 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                 json!({"stage":"payment-scan","ownerCode":payment.public_code().to_base58(),"peerCode":peer.public_code().to_base58(),"indexes":report.indexes,"nextIndex":report.next_index,"stop":format!("{:?}",report.stopped),"coins":snapshot.coins.iter().map(|c|json!({"hash":c.outpoint.transaction_hash.to_string(),"index":c.outpoint.index,"address":c.address.to_string(),"qits":c.denomination.value()})).collect::<Vec<_>>()})
             );
         }
+        "inventory" => {
+            refresh(&provider, &mut store).await?;
+            let snapshot = store.snapshot()?;
+            println!(
+                "{}",
+                json!({"stage":"inventory","operation":operation,"coins":snapshot.coins.iter().map(|c|json!({"hash":c.outpoint.transaction_hash.to_string(),"index":c.outpoint.index,"address":c.address.to_string(),"qits":c.denomination.value(),"reserved":c.reserved,"origin":store.addresses().ok().and_then(|rows|rows.into_iter().find(|a|a.address()==c.address.address())).map(|a|format!("{:?}",a.origin()))})).collect::<Vec<_>>() })
+            );
+        }
+        "reconcile" => {
+            let result = quai_sdk::recovery::reconcile_operation(&provider, &mut store, id).await?;
+            println!(
+                "{}",
+                json!({"stage":"reconcile","operation":operation,"observation":format!("{result:?}")})
+            );
+        }
         "prepare" => {
             if store.reservation(id)?.is_some() {
                 return Err("existing operation; recover instead".into());
@@ -190,7 +210,31 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                     return Err("expected zero WQI backing and tokens before wrap".into());
                 }
             }
-            let (count, attempts) = if operation == "payment-send" {
+            let conversion_intent = if conversion {
+                let refund = store.allocate_address_compact(
+                    &wallet.account_public(0)?,
+                    false,
+                    6000,
+                    || false,
+                )?;
+                let destination: QuaiAddress =
+                    "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2".parse()?;
+                let intent = quai_sdk::consensus::QiConversionIntent {
+                    destination,
+                    refund: refund.address.address().try_into()?,
+                    slippage: quai_sdk::consensus::ConversionSlippage::new(100)?,
+                };
+                println!(
+                    "{}",
+                    json!({"stage":"conversion-preflight","destination":destination.to_string(),"refund":intent.refund.to_string(),"amountQits":"1000","slippageBasisPoints":100,"quotedIts":provider.qi_to_quai(scope.zone,U256::from(1000),BlockTag::Latest).await?.map(|q|q.to_string()),"balanceBeforeIts":provider.balance(destination,BlockTag::Latest).await?.to_string(),"lockedBeforeIts":provider.locked_quai_balance(destination).await?.balance.to_string()})
+                );
+                Some(intent)
+            } else {
+                None
+            };
+            let (count, attempts) = if sweeping {
+                (32, 3000)
+            } else if operation == "payment-send" {
                 (24, 4000)
             } else {
                 (16, 6000)
@@ -202,7 +246,7 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                 attempts,
                 || false,
             )?;
-            let intent = if operation != "wrap" {
+            let intent = if operation != "wrap" && !conversion && !sweeping {
                 let amount = U256::from(if redemption {
                     500
                 } else if is_peer {
@@ -228,13 +272,37 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
             let mut session = QiSession::with_keys(&provider, &keys, &mut store);
             let policy = QiPolicy {
                 initial_fee: U256::ZERO,
-                max_fee: U256::from(100),
-                max_inputs: 8,
+                max_fee: U256::from(if sweeping { 500 } else { 100 }),
+                max_inputs: if sweeping { 128 } else { 8 },
                 max_outputs: 32,
                 max_fee_rounds: 8,
                 max_snapshot_age: 5,
             };
-            let (signed, fee) = if let Some(intent) = intent {
+            let (signed, fee) = if sweeping {
+                let mode = if operation == "aggregate" {
+                    quai_sdk::wallet::SweepMode::AggregateThreshold(
+                        quai_sdk::wallet::AggregationPolicy::default(),
+                    )
+                } else {
+                    quai_sdk::wallet::SweepMode::PreserveDenominations
+                };
+                let prepared = session.prepare_sweep(id, mode, policy, pool).await?;
+                let fee = prepared.fee();
+                (SignedQiOperation::Transfer(session.sign(&prepared)?), fee)
+            } else if let Some(intent) = conversion_intent {
+                let prepared = session
+                    .prepare_special(
+                        id,
+                        U256::from(1000),
+                        QiSpecialIntent::Conversion(intent),
+                        U256::from(100),
+                        policy,
+                        pool,
+                    )
+                    .await?;
+                let fee = prepared.fee();
+                (session.sign_special(&prepared)?, fee)
+            } else if let Some(intent) = intent {
                 let prepared = session.prepare(id, intent, policy, pool).await?;
                 let fee = prepared.fee();
                 (SignedQiOperation::Transfer(session.sign(&prepared)?), fee)
@@ -262,11 +330,11 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
             save(&format!("{operation}-signed-review.json"), &record)?;
             println!("{record}");
         }
-        "broadcast" | "observe" => {
+        "broadcast" | "broadcast-lost-ack" | "observe" => {
             let bytes = store.signed_payload(id)?.ok_or("no signed operation")?;
             let signed = SignedQiOperation::decode(&bytes)?;
             let hash = signed.hash()?;
-            if stage == "broadcast" {
+            if stage.starts_with("broadcast") {
                 if provider.receipt(scope.zone, hash).await?.is_some() {
                     return Err("receipt exists; observe instead".into());
                 }
@@ -311,11 +379,87 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                 if mined.signed_bytes()? != bytes {
                     return Err("mined bytes differ from custody".into());
                 }
+                let block = provider
+                    .block_with_transactions(
+                        scope.zone,
+                        observed.receipt.inclusion.block_number,
+                        4096,
+                    )
+                    .await?
+                    .ok_or("missing block")?;
+                let position = block
+                    .transactions
+                    .iter()
+                    .position(|t| t.hash == hash)
+                    .ok_or("transaction absent from block")?;
+                let qi_before = block.transactions[..position]
+                    .iter()
+                    .filter(|t| t.kind() == quai_sdk::provider::TransactionKind::Qi)
+                    .count();
+                if operation == "aggregate" && qi_before != 0 {
+                    return Err("aggregation not first Qi in block".into());
+                }
+                let destinations = signed
+                    .transaction()
+                    .outputs
+                    .iter()
+                    .filter_map(|o| quai_sdk::QiAddress::try_from(o.address).ok())
+                    .collect::<Vec<_>>();
+                let reads = provider.outpoints_many(&destinations).await?;
+                let mut observed_qits = U256::ZERO;
+                let mut matched = 0;
+                for (index, output) in signed.transaction().outputs.iter().enumerate() {
+                    if let Ok(address) = quai_sdk::QiAddress::try_from(output.address) {
+                        let outpoints = reads.get(&address).ok_or("missing output response")?;
+                        if let Some(coin) = outpoints.iter().find(|c| {
+                            c.outpoint.tx_hash == hash && c.outpoint.index == index as u16
+                        }) {
+                            if coin.denomination != output.denomination.index() {
+                                return Err("output denomination mismatch".into());
+                            }
+                            observed_qits += U256::from(output.denomination.value());
+                            matched += 1;
+                        }
+                    }
+                }
                 println!(
                     "{}",
-                    json!({"stage":"verified","operation":operation,"durableSignedBytesMatchMinedTransaction":true})
+                    json!({"stage":"verified","operation":operation,"durableSignedBytesMatchMinedTransaction":true,"inputs":signed.transaction().inputs.len(),"heldInputClaims":store.reserved_outpoints(id)?.len(),"qiTransactionsBefore":qi_before,"matchedCurrentOutputs":matched,"matchedQits":observed_qits.to_string()})
                 );
             }
+        }
+        "credit" if conversion => {
+            let bytes = store.signed_payload(id)?.ok_or("no signed conversion")?;
+            let hash = SignedQiOperation::decode(&bytes)?.hash()?;
+            let receipt = provider
+                .receipt(scope.zone, hash)
+                .await?
+                .ok_or("no origin receipt")?;
+            let head = provider.latest_header(scope.zone).await?.ok_or("head")?;
+            let from = receipt.inclusion.block_number;
+            let update = quai_sdk::settlement::track_settlement(
+                &provider,
+                &mut store,
+                id,
+                hash,
+                quai_sdk::settlement::SettlementKind::Conversion,
+                quai_sdk::provider::EtxScanRequest {
+                    zone: scope.zone,
+                    from,
+                    to: head.number.min(from + 31),
+                    max_transactions_per_block: 4096,
+                    max_total_transactions: 65536,
+                    preceding_block: None,
+                },
+                100,
+            )
+            .await?;
+            let observation = update.conversion.ok_or("no conversion observation")?;
+            let destination: QuaiAddress = "0x001e38e6bA8E8E6F45d809Aa03420aCf112369b2".parse()?;
+            println!(
+                "{}",
+                json!({"stage":"conversion-credit","operation":operation,"effect":format!("{:?}",observation.effect),"execution":observation.scan.as_ref().and_then(|s|s.execution.as_ref()).map(|e|json!({"hash":e.transaction.hash.to_string(),"block":e.transaction.inclusion.map(|i|i.block_number),"transaction":e.transaction.to_rpc_json().ok(),"outcome":e.receipt.as_ref().map(|r|format!("{:?}",r.outcome))})),"head":head.number,"balanceIts":provider.balance(destination,BlockTag::Latest).await?.to_string(),"lockedIts":provider.locked_quai_balance(destination).await?.balance.to_string()})
+            );
         }
         "credit" if operation == "wrap" => {
             let bytes = store.signed_payload(id)?.ok_or("no signed wrap")?;

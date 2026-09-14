@@ -252,7 +252,32 @@ impl SqliteStore {
         max_attempts: u32,
         mut cancelled: impl FnMut() -> bool,
     ) -> Result<AllocatedAddress> {
+        self.allocate_address_inner(account, change, (max_attempts, false), &mut cancelled)
+    }
+
+    /// Derive under the SQLite write lock and commit only the examined range.
+    /// No address escapes before its cursor and metadata are durable. Failed or
+    /// cancelled searches expose nothing and roll back; previously committed
+    /// allocations are never reused. The bounded search holds the write lock.
+    pub fn allocate_address_compact(
+        &mut self,
+        account: &AccountPublic,
+        change: bool,
+        max_attempts: u32,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<AllocatedAddress> {
+        self.allocate_address_inner(account, change, (max_attempts, true), &mut cancelled)
+    }
+
+    fn allocate_address_inner(
+        &mut self,
+        account: &AccountPublic,
+        change: bool,
+        search: (u32, bool),
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<AllocatedAddress> {
         use crate::{Search, WalletError};
+        let (max_attempts, compact) = search;
         if max_attempts == 0 || max_attempts > 100_000 {
             return Err(StorageError::Invalid);
         }
@@ -315,35 +340,50 @@ impl SqliteStore {
             drop(rows);
             drop(statement);
         }
-        let end = start
+        let limit = start
             .checked_add(max_attempts)
             .filter(|end| *end <= 1 << 31)
             .ok_or(StorageError::Overflow)?;
+        let mut derive = || {
+            account
+                .search(
+                    change,
+                    Search {
+                        zone: self.scope.zone,
+                        start_index: start,
+                        max_attempts,
+                    },
+                    &mut cancelled,
+                )
+                .map_err(|error| match error {
+                    WalletError::Cancelled { .. } => StorageError::Cancelled,
+                    WalletError::SearchExhausted { .. } => StorageError::DerivationExhausted,
+                    _ => StorageError::Invalid,
+                })
+        };
+        let found = if compact { Some(derive()?) } else { None };
+        let end = found
+            .as_ref()
+            .map_or(limit, |found| found.address.index + 1);
         tx.execute("INSERT INTO derivation_cursors VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(scope,coin,account,change_branch) DO UPDATE SET next_index=excluded.next_index",params![&self.key[..],coin,account_index,change,xpub,end])?;
-        tx.commit()?;
-        let found = account
-            .search(
-                change,
-                Search {
-                    zone: self.scope.zone,
-                    start_index: start,
-                    max_attempts,
-                },
-                &mut cancelled,
-            )
-            .map_err(|error| match error {
-                WalletError::Cancelled { .. } => StorageError::Cancelled,
-                WalletError::SearchExhausted { .. } => StorageError::DerivationExhausted,
-                _ => StorageError::Invalid,
-            })?;
+        // For compact allocation, retain the same lock until metadata is committed.
+        // Legacy allocation deliberately burns its full range before searching.
+        let (tx, found) = match found {
+            Some(found) => (tx, found),
+            None => {
+                tx.commit()?;
+                let found = derive()?;
+                let tx = self
+                    .connection
+                    .transaction_with_behavior(TransactionBehavior::Immediate)?;
+                (tx, found)
+            }
+        };
         if cancelled() {
             return Err(StorageError::Cancelled);
         }
         let address = PublicAddress::derive(account, change, found.address.index)?;
         // Import+checkpoint invalidation is committed before any address leaves this API.
-        let tx = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)?;
         let generation = checkpoint_read(&tx, &self.key)?.0;
         let next = next_generation(&tx, &self.key, generation as u64)?;
         let count: i64 = tx.query_row(
@@ -480,7 +520,7 @@ impl SqliteStore {
             let hash = coin.outpoint.transaction_hash.bytes();
             if coin.address.zone() != self.scope.zone
                 || hash[2] != self.scope.zone.byte()
-                || hash[3] & 0x80 == 0
+                || *hash == [0; 32]
                 || !outpoints.insert(coin.outpoint)
                 || coin
                     .expires_at
@@ -565,7 +605,7 @@ impl SqliteStore {
             let hash = coin.outpoint.transaction_hash.bytes();
             if coin.address.zone() != self.scope.zone
                 || hash[2] != self.scope.zone.byte()
-                || hash[3] & 0x80 == 0
+                || *hash == [0; 32]
                 || !seen.insert(coin.outpoint)
                 || coin
                     .expires_at
@@ -621,7 +661,7 @@ impl SqliteStore {
                     .map_err(|_| StorageError::Invalid)?;
                 if address.zone() != self.scope.zone
                     || hash.bytes()[2] != self.scope.zone.byte()
-                    || hash.bytes()[3] & 0x80 == 0
+                    || hash == Hash32::ZERO
                 {
                     return Err(StorageError::Invalid);
                 }

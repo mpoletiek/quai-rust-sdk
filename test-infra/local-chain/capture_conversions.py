@@ -3,13 +3,16 @@
 import argparse,json,pathlib,re
 import harness
 p=argparse.ArgumentParser(description=__doc__)
-p.add_argument('--quai',required=True);p.add_argument('--qi',required=True);p.add_argument('--output',type=pathlib.Path,required=True)
+p.add_argument('--quai');p.add_argument('--qi');p.add_argument('--output',type=pathlib.Path,required=True)
 a=p.parse_args()
-for txhash in [a.quai,a.qi]:
+origins={h for h in [a.quai,a.qi] if h is not None}
+if not origins:p.error("at least one conversion origin is required")
+for txhash in origins:
     if re.fullmatch('0x[0-9a-f]{64}',txhash) is None:raise ValueError('invalid origin hash')
 harness.GENESIS='0xff38a93744ee5aae738addc88da4f6b171528244e81d34aa4b25579fa3f44ed2'
 result={'state':harness.check(),'transactions':{},'originReceipts':{},'destinationReceipts':{}}
 for kind,txhash in [('quaiToQi',a.quai),('qiToQuai',a.qi)]:
+    if txhash is None:continue
     result['transactions'][kind]=harness.rpc('quai_getTransactionByHash',[txhash])
     receipt=harness.rpc('quai_getTransactionReceipt',[txhash]);result['originReceipts'][kind]=receipt
     if receipt:
@@ -24,7 +27,7 @@ if head-start>128:raise ValueError('capture span exceeds128 blocks')
 for height in range(start,head+1):
     block=harness.rpc('quai_getBlockByNumber',[hex(height),True])
     for tx in block['transactions']:
-        if tx.get('originatingTxHash') in [a.quai,a.qi]:
+        if tx.get('originatingTxHash') in origins:
             receipt=harness.rpc('quai_getTransactionReceipt',[tx['hash']])
             if receipt is None or receipt['blockHash']!=block['hash']:raise ValueError('inconsistent settlement receipt')
             result['settlements'].append({'transaction':tx,'receipt':receipt})

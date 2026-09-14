@@ -1,0 +1,945 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-14",
+  "provenance": {
+    "baseCommit": "104f690a6e03c99e026b667cf953e39860309981",
+    "sourceDirty": true,
+    "sourceSha256": {
+      "crates/quai-consensus/src/qi.rs": "a4c2afe8ce12355b1a4a9fc14aa219e4b05c16c4f9a7700a55568b596688032e",
+      "crates/quai-consensus/src/conversion.rs": "6259fbf3e07938f09c5323b8681d09df78c5c07cfe0e0c9cc5f9c23e4b51ece9",
+      "crates/quai-sdk/src/qi.rs": "4744dcc5b9af38d8b9380206045faab9b7857e760b999b963de9e1734abe09e4",
+      "crates/quai-sdk/src/payment_channels.rs": "3432fee8387d36e3019053e11af87bf8579e648cf18cbdc3793c5f0742952fc2",
+      "crates/quai-wallet/src/storage.rs": "7bdd847b15649db703c86a2396fd0fc2fca191b3997161f2c79bdeb799218f84",
+      "crates/quai-wallet/src/storage/payment.rs": "0d5f22701ad1c2211e8500ec36cc823b3f554e5da0d53ec9ab600c743311e28b",
+      "crates/quai-wallet/src/selection.rs": "58d24f4fde536c556a9fe89830335c13570f43baa14917daf9bb2ac37e170694",
+      "crates/quai-wallet/src/qi_custody.rs": "5f6ae0e755ba586c7b708c5abe7a7e0159cd972d6617ce329b14c94db3e1ff8f",
+      "test-infra/orchard/src/main.rs": "b57293626d3019dd8eed88c6917a80d197dec52bb8238fff33618b9eabaa73b0",
+      "test-infra/orchard/src/account.rs": "231715d5bc0a5a690c59a087830d245c0604f8236a5357735e112534bee3b700",
+      "test-infra/orchard/src/qi_extended.rs": "38eb96cd75299434f204143dbefeb73c9480fb1c1ef19af027feb1e7ce2e100d",
+      "test-infra/local-chain/refund_client.rs": "6f50d8983065710d2e55f7a878ee68cb5fffa83ab08a018637e76b5ef66acd18",
+      "test-infra/local-chain/recovery_client.rs": "589bed7916153b3062857569ada0917f1adc8b2d91f4a660562b47b8187665d4"
+    },
+    "executionScope": "Stages executed as harness support was added; this manifest identifies the final reviewed sources, not a claim that all stages used one immutable binary."
+  },
+  "network": "orchard",
+  "chainId": 15000,
+  "aggregation": {
+    "prepare": [
+      {
+        "head": "7795066",
+        "lockedQits": "0",
+        "stage": "refresh",
+        "unreservedQits": "764576"
+      },
+      {
+        "dataLength": 0,
+        "feeQits": "15",
+        "hash": "0x00a900d8acea31b6ff86fda673e51bdfc6d1bb768b617fb0bd9c7af34873496c",
+        "inputs": [
+          {
+            "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+            "index": 1
+          },
+          {
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 16
+          },
+          {
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 15
+          },
+          {
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 12
+          },
+          {
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 13
+          },
+          {
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 14
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 12
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 13
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 14
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 15
+          },
+          {
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 11
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 11
+          },
+          {
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 9
+          },
+          {
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 10
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 7
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 8
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 9
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 10
+          },
+          {
+            "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+            "index": 6
+          },
+          {
+            "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+            "index": 7
+          },
+          {
+            "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+            "index": 8
+          },
+          {
+            "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+            "index": 9
+          },
+          {
+            "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+            "index": 5
+          },
+          {
+            "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+            "index": 6
+          },
+          {
+            "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+            "index": 7
+          },
+          {
+            "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+            "index": 8
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 6
+          },
+          {
+            "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+            "index": 5
+          },
+          {
+            "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+            "index": 4
+          },
+          {
+            "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+            "index": 4
+          },
+          {
+            "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+            "index": 8
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 0
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 2
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 3
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 4
+          },
+          {
+            "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+            "index": 5
+          },
+          {
+            "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+            "index": 2
+          },
+          {
+            "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+            "index": 3
+          },
+          {
+            "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+            "index": 4
+          },
+          {
+            "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+            "index": 1
+          },
+          {
+            "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+            "index": 2
+          },
+          {
+            "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+            "index": 3
+          },
+          {
+            "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+            "index": 0
+          },
+          {
+            "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+            "index": 1
+          },
+          {
+            "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+            "index": 2
+          },
+          {
+            "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+            "index": 3
+          }
+        ],
+        "operation": "aggregate",
+        "outputs": [
+          {
+            "address": "0x009Eca5083CA6027aE87cD5D19c79aa06c806EDc",
+            "denomination": 8
+          },
+          {
+            "address": "0x00Df46Ad7076b90626179c9eA3249fcf18060BEe",
+            "denomination": 7
+          },
+          {
+            "address": "0x00A889C1D644ffb583627BC3a1482b38045B0710",
+            "denomination": 6
+          },
+          {
+            "address": "0x0091865e27771B567cBF8738EF4E4BE5B0598DC7",
+            "denomination": 6
+          },
+          {
+            "address": "0x00af51Ab732842307545678F876385B39FFB11A6",
+            "denomination": 6
+          },
+          {
+            "address": "0x00f155530A79A4B966F4FF663D710ae254068f07",
+            "denomination": 6
+          },
+          {
+            "address": "0x00da41154E4557D804b2B223Df0E2aF037c664d7",
+            "denomination": 5
+          },
+          {
+            "address": "0x00B607C7823Cea9FbdabE20c94F5A9cD7D5Cb67b",
+            "denomination": 3
+          },
+          {
+            "address": "0x00d295E03364E5d3004d1AD4Eaff4dD0CB439E65",
+            "denomination": 2
+          },
+          {
+            "address": "0x00e73519F000F3d561f3a06496BAc2da05038bb1",
+            "denomination": 2
+          },
+          {
+            "address": "0x00D9BDf9a59251115a25d8Ee2fAdF7b238E26360",
+            "denomination": 1
+          },
+          {
+            "address": "0x00C0A309f896DE58f1c874C8D7A9CF7A464db71A",
+            "denomination": 0
+          },
+          {
+            "address": "0x0097dEbB4f68b474142DA21D6eE391eCB8b5F7f4",
+            "denomination": 6
+          },
+          {
+            "address": "0x00A565a9FF019dF1EBE6335e3fb949a043ade010",
+            "denomination": 6
+          },
+          {
+            "address": "0x00820142cfcfC1cc20B8ADba2De3070Da75B5919",
+            "denomination": 6
+          },
+          {
+            "address": "0x00f39661F105Fd20c8922681840e85a029454E5c",
+            "denomination": 6
+          },
+          {
+            "address": "0x00b3702C7B65F9BFB6dadc8291141669Eaef4E7c",
+            "denomination": 5
+          },
+          {
+            "address": "0x00946b31e9A0B97e8c782B74cB2d218575F8c6Eb",
+            "denomination": 4
+          },
+          {
+            "address": "0x00e8c1440d9cc3Ea6807e347989e095AAa23006d",
+            "denomination": 4
+          },
+          {
+            "address": "0x00FFaE1080B8bAFFF5e16F1dCf085727d2a1Dd67",
+            "denomination": 4
+          },
+          {
+            "address": "0x00eE6136843269091021CD400c32448Bee9CE3CE",
+            "denomination": 4
+          },
+          {
+            "address": "0x008B205b11789Be0D2cd33473bDBb7793452bcc8",
+            "denomination": 3
+          },
+          {
+            "address": "0x00c403f3208803f15849FF4D6a3dF56B308F2dE0",
+            "denomination": 2
+          },
+          {
+            "address": "0x00957B637036669161BeA92e1aB4F0D0f67fFA45",
+            "denomination": 2
+          },
+          {
+            "address": "0x00F01181851D9399A42658B94Cca027524bb3Bad",
+            "denomination": 2
+          },
+          {
+            "address": "0x008BdE4aB36C03db0Df4Aa76a4b1034380063762",
+            "denomination": 1
+          }
+        ],
+        "stage": "signed-persisted"
+      }
+    ],
+    "selectedInputs": [
+      {
+        "address": "0x0098834a19fe9d95070293d530eAc56d6Bc1A7b4",
+        "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "index": 1,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 960026 }",
+        "qits": 5000,
+        "reserved": false
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 16,
+        "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 101644 }",
+        "qits": 1,
+        "reserved": false
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 15,
+        "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 101644 }",
+        "qits": 5,
+        "reserved": false
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 12,
+        "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 101644 }",
+        "qits": 10,
+        "reserved": false
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 13,
+        "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 101644 }",
+        "qits": 10,
+        "reserved": false
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 14,
+        "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 101644 }",
+        "qits": 10,
+        "reserved": false
+      },
+      {
+        "address": "0x008E180615df76a84c153255514977d83658A7ce",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 12,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 908944 }",
+        "qits": 10,
+        "reserved": false
+      },
+      {
+        "address": "0x00a81599fa953819E4763432328e2AefDB2dF066",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 13,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 912294 }",
+        "qits": 10,
+        "reserved": false
+      },
+      {
+        "address": "0x00e136CeeeaF6364EB54DA52402727D50219FeB8",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 14,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 916468 }",
+        "qits": 10,
+        "reserved": false
+      },
+      {
+        "address": "0x00Da13Fa1572002BC28a2aE32075966c3562e93D",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 15,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 920148 }",
+        "qits": 10,
+        "reserved": false
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 11,
+        "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 101644 }",
+        "qits": 50,
+        "reserved": false
+      },
+      {
+        "address": "0x0088824650180E7efA13f58a05B0c40816308D8B",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 11,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 904965 }",
+        "qits": 50,
+        "reserved": false
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 9,
+        "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 101644 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 10,
+        "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 101644 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x00dd65EEe05410cc300f066A7b38EDdA410F411F",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 7,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 888119 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x00873cc5B67177dB009B57AbF8dDa905F3f2B9cC",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 8,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 892354 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x008bAbE24017FF75Db91eE64A62ef40CA6eaf249",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 9,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 897154 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x0097Da80431D71E0a6d8d5A44aADB19554c59603",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 10,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 900043 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x009aB4122CE2360Daa2CD4fcD5eF6EA286837047",
+        "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "index": 6,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 961103 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x00e9528C10b26d352F80Ab1805d15c31C6A835B1",
+        "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "index": 7,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 961739 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x008B59C733caE5Ff4673042cc6BC8C8C9687C31C",
+        "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "index": 8,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 961819 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x00e25372Ce651223498A55016a51d0e078A3ed3d",
+        "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "index": 9,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 962559 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x009ec44403AfeEcCdd7Efb14f886f6c7FC68de85",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 5,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 409794 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x00991c4780BC0A3c235f3a0523AECBD8b41236C7",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 6,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 414189 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x00f42A1D3Ea67C12a541a26c0F767bC508961751",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 7,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 420111 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x00E288fC73237c1F3539D059502831F1332Fd094",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 8,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 426568 }",
+        "qits": 100,
+        "reserved": false
+      },
+      {
+        "address": "0x00c7809b23Ee55c7C7A1CD85C188Da216b691a6F",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 6,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 884232 }",
+        "qits": 500,
+        "reserved": false
+      },
+      {
+        "address": "0x00C2Bb2023B422AA0B311847d9D78F6b393d78Df",
+        "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "index": 5,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 961066 }",
+        "qits": 500,
+        "reserved": false
+      },
+      {
+        "address": "0x009B9705563d6437602a14dfbF346B4242D2080D",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 4,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 402109 }",
+        "qits": 500,
+        "reserved": false
+      },
+      {
+        "address": "0x0095cc430a8F00c07d8dDe2B383b0Bb150C3b1f2",
+        "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "index": 4,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 210385 }",
+        "qits": 500,
+        "reserved": false
+      },
+      {
+        "address": "0x00bB21BD48534583526e02d9afFBCD59D4d4BF82",
+        "hash": "0x000c00f4a354df58b18bee045356b0e175f7d8151092b259a458eb52ad04c9a7",
+        "index": 8,
+        "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 101644 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00Fc22e143942F9FC9D8Ff8fEbc9E4F646057974",
+        "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+        "index": 0,
+        "origin": "ImportedPublic",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00D6743185FaF61396955A3B708cA048FB809Ad6",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 2,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 868766 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00FF18d4061bafAe7aA50D79b85B9fFF16900285",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 3,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 872398 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00E18324CD1Eb76FC3EB4F642Bb48B6bd6e62380",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 4,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 876257 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00d1768983cd786CEaD9B19b093900Ef39F7A856",
+        "hash": "0x0095008905d4ce03452b50f0d8d00c9bef414c0b25ceeff3077f77c3005c2bd9",
+        "index": 5,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 880767 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00DB27091720988987490D70B2017784ba4f1E34",
+        "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "index": 2,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 960975 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00F66d9a37bDB6C7439DA73a5106ed731A9A52fC",
+        "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "index": 3,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 961048 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00dF3645257Aa1C9A75b2AcF2532858d590465A4",
+        "hash": "0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717",
+        "index": 4,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 961054 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00B4Ce61832E5C8FF80CB57a1589b259298cEce0",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 1,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 384815 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00D2Bb2d7D5C991232f878C5EfAc4a25BAD04D58",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 2,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 390041 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x009C2A0134c2BA62cD10c8a25902D008D4433976",
+        "hash": "0x00d300af37d6f5f03b9431d6c7e7eec5c428a741e1d8469d28b492cccb760b9b",
+        "index": 3,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 396030 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x009Eb316466eb0E4eaC36a7Fb95236254Ddc6846",
+        "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "index": 0,
+        "origin": "Bip44 { coin: Qi, account: 0, change: false, index: 300387 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00892Fdd8755D18DaD7C0091D4d58a2D6201AEe5",
+        "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "index": 1,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 192263 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00bF699F16F0b88D55a82D24700B3aAaDD5559a0",
+        "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "index": 2,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 199145 }",
+        "qits": 1000,
+        "reserved": false
+      },
+      {
+        "address": "0x00fD5663a83EEaE4E145CEda3e5DB8FE77566E00",
+        "hash": "0x00ff00d2c61e20af1f794827be205828e982eed048e02bbacb2ffd9a427421e5",
+        "index": 3,
+        "origin": "Bip44 { coin: Qi, account: 0, change: true, index: 205041 }",
+        "qits": 1000,
+        "reserved": false
+      }
+    ],
+    "broadcast": [
+      {
+        "hash": "0x00a900d8acea31b6ff86fda673e51bdfc6d1bb768b617fb0bd9c7af34873496c",
+        "operation": "aggregate",
+        "stage": "acknowledged"
+      }
+    ],
+    "verification": [
+      {
+        "confirmations": 6,
+        "operation": "aggregate",
+        "receipt": {
+          "blockHash": "0xd0df87c53a6451dd3182d9ef7bd574827fed1b1dafd5156c3ff736118b981a54",
+          "blockNumber": "0x76f180",
+          "contractAddress": null,
+          "cumulativeGasUsed": "0x0",
+          "effectiveGasPrice": "0x3b9aca00",
+          "etxType": null,
+          "from": null,
+          "gasUsed": "0x46c58",
+          "logs": [],
+          "originatingTxHash": null,
+          "outboundEtxs": [],
+          "status": "0x1",
+          "to": null,
+          "transactionHash": "0x00a900d8acea31b6ff86fda673e51bdfc6d1bb768b617fb0bd9c7af34873496c",
+          "transactionIndex": "0x0",
+          "type": "0x2"
+        },
+        "stage": "observed"
+      },
+      {
+        "durableSignedBytesMatchMinedTransaction": true,
+        "heldInputClaims": 46,
+        "inputs": 46,
+        "matchedCurrentOutputs": 26,
+        "matchedQits": "24561",
+        "operation": "aggregate",
+        "qiTransactionsBefore": 0,
+        "stage": "verified"
+      }
+    ],
+    "inputQits": 24576,
+    "paymentCodeInputs": 1,
+    "distinctInputAddresses": 38
+  },
+  "sweep": {
+    "prepare": [
+      {
+        "head": "7795077",
+        "lockedQits": "0",
+        "stage": "refresh",
+        "unreservedQits": "3992"
+      },
+      {
+        "dataLength": 0,
+        "feeQits": "8",
+        "hash": "0x008f00de8d397aef23cd32e94d7eb3c70ccf0ac5ea1c8a1a7899a7ac9a0c4ca1",
+        "inputs": [
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 1
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 2
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 3
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 4
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 5
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 6
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 7
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 8
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 9
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 10
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 11
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 12
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 13
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 14
+          },
+          {
+            "hash": "0x008a00d528bfd51b16c6f433d9a8bf8f20bef9c52cf31682ad9a7c0d35233059",
+            "index": 15
+          }
+        ],
+        "operation": "sweep",
+        "outputs": [
+          {
+            "address": "0x00dad2D813253B8688AB26f9b57aA6d917B33615",
+            "denomination": 6
+          },
+          {
+            "address": "0x00bA9cd3fddbbe4D05AEE05cF1221d151bC1119c",
+            "denomination": 6
+          },
+          {
+            "address": "0x00B88e7131bC54a57c474973AECDcEc6BD1574CC",
+            "denomination": 6
+          },
+          {
+            "address": "0x008baC41eF0FA5e5420a7555091564FE8394aA0F",
+            "denomination": 5
+          },
+          {
+            "address": "0x00eB795F6Ce34DD15d2d557fFaC57025Bb8eDD92",
+            "denomination": 4
+          },
+          {
+            "address": "0x00e9Ad5f9f43Fe7f9CD8bd773F9137aB7757Cdc8",
+            "denomination": 4
+          },
+          {
+            "address": "0x0080d413644F9f21acA4dC86d3CDf3F66BafFe27",
+            "denomination": 4
+          },
+          {
+            "address": "0x00f2986E5C24b8BD9920A3AAe5172c0976Ab0a3d",
+            "denomination": 4
+          },
+          {
+            "address": "0x00c96169018d6Cee570A394dFBb0E9A6f652dC7d",
+            "denomination": 3
+          },
+          {
+            "address": "0x00d9822b3dc1afF57E22E818078A7eff6Fb60ea1",
+            "denomination": 2
+          },
+          {
+            "address": "0x008E4DAb45Cef3C9A2DebF71E0Ef46f378dE50Ae",
+            "denomination": 2
+          },
+          {
+            "address": "0x00cBe2D12bB5F00bB74ee9e8fDb01c2354491Eb0",
+            "denomination": 2
+          },
+          {
+            "address": "0x00Dc039d324275818Ca232A1EdC2F77e8179d505",
+            "denomination": 0
+          },
+          {
+            "address": "0x00d845A85ade58430201e04090b5B58F6288f1C9",
+            "denomination": 0
+          },
+          {
+            "address": "0x0084B1Fa2fc028D7bA4f6429a69E4e5F85aB5d6D",
+            "denomination": 0
+          },
+          {
+            "address": "0x00fF8ae5d03C53b0Ec175Af840e6CC790bC8A5Dd",
+            "denomination": 0
+          }
+        ],
+        "stage": "signed-persisted"
+      }
+    ],
+    "fault": "Harness forwarded exactly one sendRawTransaction and then withheld its successful acknowledgement, returning RpcError::Timeout to the SDK.",
+    "result": "qualification fault: successful submission acknowledgement withheld\nOrchard setup operation failed: transaction 0x008f00de8d397aef23cd32e94d7eb3c70ccf0ac5ea1c8a1a7899a7ac9a0c4ca1 submission outcome is ambiguous: RPC request timed out",
+    "reopenedReconciliation": [
+      {
+        "observation": "Included { block: Checkpoint { hash: 0xc62c38697e2eefd82e4888a852396a1fe395232fac7e5a10169cbdbddaa421dc, height: 7795097 }, outcome: Succeeded, confirmations: 7 }",
+        "operation": "sweep",
+        "stage": "reconcile"
+      }
+    ],
+    "verification": [
+      {
+        "confirmations": 9,
+        "operation": "sweep",
+        "receipt": {
+          "blockHash": "0xc62c38697e2eefd82e4888a852396a1fe395232fac7e5a10169cbdbddaa421dc",
+          "blockNumber": "0x76f199",
+          "contractAddress": null,
+          "cumulativeGasUsed": "0x0",
+          "effectiveGasPrice": "0x3b9aca00",
+          "etxType": null,
+          "from": null,
+          "gasUsed": "0x29192",
+          "logs": [],
+          "originatingTxHash": null,
+          "outboundEtxs": [],
+          "status": "0x1",
+          "to": null,
+          "transactionHash": "0x008f00de8d397aef23cd32e94d7eb3c70ccf0ac5ea1c8a1a7899a7ac9a0c4ca1",
+          "transactionIndex": "0x0",
+          "type": "0x2"
+        },
+        "stage": "observed"
+      },
+      {
+        "durableSignedBytesMatchMinedTransaction": true,
+        "heldInputClaims": 15,
+        "inputs": 15,
+        "matchedCurrentOutputs": 16,
+        "matchedQits": "3984",
+        "operation": "sweep",
+        "qiTransactionsBefore": 0,
+        "stage": "verified"
+      }
+    ],
+    "broadcasts": 1
+  },
+  "limits": [
+    "Aggregation position was verified for this block; the SDK cannot guarantee miner placement.",
+    "Sweep preparation initially rejected three changing-head refresh observations before any reservation/signature; committed change addresses remained consumed.",
+    "The acknowledgement loss was deliberately injected at the client transport boundary; Orchard was not disrupted."
+  ]
+}

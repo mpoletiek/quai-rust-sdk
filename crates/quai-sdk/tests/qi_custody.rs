@@ -178,11 +178,7 @@ fn source_lock_expiry_bounds_duplicate_claims_and_release_are_checked_atomically
                 h[2] = 0x10;
                 c[0].outpoint.transaction_hash = Hash32::from_bytes(h);
             }
-            _ => {
-                let mut h = *c[0].outpoint.transaction_hash.bytes();
-                h[3] = 0;
-                c[0].outpoint.transaction_hash = Hash32::from_bytes(h);
-            }
+            _ => c[0].outpoint.transaction_hash = Hash32::ZERO,
         }
         assert!(
             b.reserve(id(1), checkpoint(), U256::from(10), &c, &owners)
@@ -1243,4 +1239,35 @@ mod backup_tests {
         assert_eq!(live.export_state().unwrap(), before);
         assert_eq!(source.operation(id(1)).unwrap().replacements.len(), 17);
     }
+}
+
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+fn refund_outpoints_retain_quai_hash_bits_in_portable_custody() {
+    let row = &vectors()[0];
+    let mut tx = root(row).transaction().clone();
+    for input in &mut tx.inputs {
+        let mut hash = *input.previous_output.transaction_hash.bytes();
+        hash[3] &= 0x7f;
+        input.previous_output.transaction_hash = Hash32::from_bytes(hash);
+    }
+    let signed = sign(&tx, &keys(row));
+    let mut b = book();
+    reserve(&mut b, 1, &tx);
+    b.commit_signed(id(1), &signed).unwrap();
+    let bytes = b.export_state().unwrap();
+    let reopened = QiOperationBook::from_state(&bytes, scope(), identity()).unwrap();
+    assert_eq!(reopened.export_state().unwrap(), bytes);
+    assert_eq!(
+        reopened.operation(id(1)).unwrap().claims.len(),
+        tx.inputs.len()
+    );
+    tx.inputs[0].previous_output.transaction_hash = Hash32::ZERO;
+    assert!(tx.signing_digest().is_err());
+    let (coins, owners) = source(&tx);
+    assert!(
+        book()
+            .reserve(id(2), checkpoint(), U256::from(10), &coins, &owners)
+            .is_err()
+    );
 }

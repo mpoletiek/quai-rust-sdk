@@ -109,7 +109,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             "quai-to-qi={:?}",
             provider.broadcast(&tx.sign(&account)?).await?
         );
-    } else if mode == "qi-to-quai" {
+    } else if matches!(
+        mode.as_str(),
+        "qi-to-quai" | "qi-to-quai-strict" | "qi-to-quai-strict-whole" | "qi-to-quai-strict-large"
+    ) {
         let qi = key(130);
         let tx = QiConversionTransaction::new(
             U256::from(1337),
@@ -122,12 +125,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 },
                 public_key: qi.public_key(),
             }],
-            vec![Denomination::new(4)?],
+            vec![Denomination::new(if mode == "qi-to-quai-strict-large" {
+                7
+            } else if mode == "qi-to-quai-strict-whole" {
+                6
+            } else {
+                4
+            })?],
             vec![],
             QiConversionIntent {
                 destination: sender,
                 refund: QiAddress::try_from(key(2285).public_key().address())?,
-                slippage: ConversionSlippage::new(9000)?,
+                slippage: ConversionSlippage::new(if mode.starts_with("qi-to-quai-strict") {
+                    30
+                } else {
+                    9000
+                })?,
             },
         )?;
         println!(

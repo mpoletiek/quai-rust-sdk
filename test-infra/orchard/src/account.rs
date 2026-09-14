@@ -23,7 +23,7 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
         | "wquai-withdraw"
         | "wqi-claim"
         | "wqi-unwrap" => 0,
-        "transfer-b-a" => 1,
+        "transfer-b-a" | "conversion-credit-spend" => 1,
         _ => return Err("unsupported operation".into()),
     };
     let keys = [
@@ -81,7 +81,9 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
     let withdrawal = operation == "wquai-withdraw";
     let wqi = operation.starts_with("wqi-");
     let id = ReservationId(
-        [if operation == "wqi-claim" {
+        [if operation == "conversion-credit-spend" {
+            2
+        } else if operation == "wqi-claim" {
             6
         } else if operation == "wqi-unwrap" {
             7
@@ -297,6 +299,88 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
             println!(
                 "{}",
                 serde_json::json!({"operation":operation,"stage":"signed-and-persisted","hash":hash.to_string()})
+            );
+        }
+        "prepare-replacement" if operation == "conversion-credit-spend" => {
+            let mut session = AccountSession::new(&provider, &signer, &mut store)?
+                .with_observation_policy(AccountObservationPolicy::PinnedLatest);
+            let candidates = session.signed_candidates(id)?;
+            if candidates.len() != 1 {
+                return Err("replacement already prepared".into());
+            }
+            let prepared = session
+                .prepare_replacement(
+                    id,
+                    candidates[0].hash()?,
+                    quai_sdk::accounts::ReplacementPolicy {
+                        minimum_price_bump_percent: 100,
+                        fees: FeePolicy {
+                            max_gas: 500_000,
+                            max_gas_price: U256::from(100_000_000_000u64),
+                            max_total_fee: U256::from(10_000_000_000_000_000u64),
+                            gas_margin_bps: 1000,
+                        },
+                    },
+                )
+                .await?;
+            let signed = session.sign_replacement(&prepared)?;
+            println!(
+                "{}",
+                serde_json::json!({"stage":"replacement-persisted","operation":operation,"parent":prepared.parent_hash().to_string(),"hash":signed.hash()?.to_string(),"nonce":signed.transaction().nonce,"gasPrice":signed.transaction().gas_price.to_string(),"valueIts":signed.transaction().value.to_string()})
+            );
+        }
+        "broadcast-family" if operation == "conversion-credit-spend" => {
+            let mut session = AccountSession::new(&provider, &signer, &mut store)?;
+            let candidates = session.signed_candidates(id)?;
+            if candidates.len() != 2 {
+                return Err("expected original and one replacement".into());
+            }
+            for candidate in &candidates {
+                if provider
+                    .receipt(scope.zone, candidate.hash()?)
+                    .await?
+                    .is_some()
+                {
+                    return Err("family already mined; observe instead".into());
+                }
+            }
+            for candidate in candidates {
+                let ack = session.broadcast_candidate(id, candidate.hash()?).await?;
+                println!(
+                    "{}",
+                    serde_json::json!({"stage":"candidate-acknowledged","operation":operation,"hash":ack.transaction_hash.to_string()})
+                );
+            }
+        }
+        "observe-family" if operation == "conversion-credit-spend" => {
+            let mut session = AccountSession::new(&provider, &signer, &mut store)?;
+            let observation = session.observe_candidates(id).await?;
+            let hash = observation
+                .canonical
+                .ok_or("no canonical family member yet")?;
+            let signed = session
+                .signed_candidates(id)?
+                .into_iter()
+                .find(|c| c.hash().ok() == Some(hash))
+                .ok_or("candidate absent")?;
+            let mined = provider
+                .transaction(scope.zone, hash)
+                .await?
+                .ok_or("mined transaction absent")?
+                .verified_quai()?;
+            if mined.signed_bytes()? != signed.signed_bytes()? {
+                return Err("mined family bytes differ".into());
+            }
+            let receipt = provider
+                .receipt(scope.zone, hash)
+                .await?
+                .ok_or("receipt absent")?;
+            if receipt.outcome != ReceiptOutcome::Succeeded {
+                return Err("spend failed".into());
+            }
+            println!(
+                "{}",
+                serde_json::json!({"stage":"family-verified","operation":operation,"canonical":hash.to_string(),"observation":format!("{observation:?}"),"receipt":receipt.to_rpc_json()?,"durableBytesMatch":true,"senderBalanceIts":provider.balance(addresses[owner],BlockTag::Latest).await?.to_string(),"recipientBalanceIts":provider.balance(addresses[1-owner],BlockTag::Latest).await?.to_string()})
             );
         }
         "broadcast" => {

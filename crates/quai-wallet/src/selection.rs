@@ -131,9 +131,7 @@ pub fn select_sweep(
     let mut total = U256::ZERO;
     for coin in coins {
         let hash = coin.outpoint.transaction_hash.bytes();
-        if !seen.insert(coin.outpoint)
-            || hash[2] != coin.address.zone().byte()
-            || hash[3] & 0x80 == 0
+        if !seen.insert(coin.outpoint) || hash[2] != coin.address.zone().byte() || *hash == [0; 32]
         {
             return Err(SelectionError::InvalidCoin);
         }
@@ -219,9 +217,7 @@ pub fn select_fewest(
     let mut buckets: [Vec<&CandidateCoin>; 15] = std::array::from_fn(|_| Vec::new());
     for coin in coins {
         let hash = coin.outpoint.transaction_hash.bytes();
-        if !seen.insert(coin.outpoint)
-            || hash[2] != coin.address.zone().byte()
-            || hash[3] & 0x80 == 0
+        if !seen.insert(coin.outpoint) || hash[2] != coin.address.zone().byte() || *hash == [0; 32]
         {
             return Err(SelectionError::InvalidCoin);
         }

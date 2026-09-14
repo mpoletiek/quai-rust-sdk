@@ -29,7 +29,7 @@ pub struct VersionedPaymentChannel {
 pub struct PaymentAddressAllocation {
     /// Exact matched payment address, public point and child index.
     pub found: PaymentSearchResult,
-    /// Whole range consumed before search, including unexamined trailing candidates.
+    /// Durably consumed range; compact allocation excludes trailing candidates.
     pub burned: crate::discovery::IndexRange,
     /// Channel generation at which the range was reserved.
     pub channel_generation: u64,
@@ -239,6 +239,45 @@ impl SqliteStore {
         max_attempts: u32,
         mut cancelled: impl FnMut() -> bool,
     ) -> Result<PaymentAddressAllocation> {
+        self.allocate_payment_address_inner(
+            owner,
+            peer,
+            direction,
+            (max_attempts, false),
+            &mut cancelled,
+        )
+    }
+
+    /// Allocate without burning unused trailing search candidates. The bounded
+    /// derivation holds the write lock; cursor and exposure commit together before
+    /// return. Cancellation/error rolls back only this unexposed allocation.
+    /// Existing committed ranges remain consumed across failures and restarts.
+    pub fn allocate_payment_address_compact(
+        &mut self,
+        owner: &PrivatePaymentCode,
+        peer: &PaymentCode,
+        direction: PaymentDirection,
+        max_attempts: u32,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<PaymentAddressAllocation> {
+        self.allocate_payment_address_inner(
+            owner,
+            peer,
+            direction,
+            (max_attempts, true),
+            &mut cancelled,
+        )
+    }
+
+    fn allocate_payment_address_inner(
+        &mut self,
+        owner: &PrivatePaymentCode,
+        peer: &PaymentCode,
+        direction: PaymentDirection,
+        search: (u32, bool),
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<PaymentAddressAllocation> {
+        let (max_attempts, compact) = search;
         if max_attempts == 0 || max_attempts > quai_payments::MAX_SEARCH_ATTEMPTS {
             return Err(StorageError::Invalid);
         }
@@ -254,10 +293,30 @@ impl SqliteStore {
             .channel
             .next_index(direction, self.scope.zone)
             .ok_or(StorageError::DerivationExhausted)?;
-        let end = start
+        let limit = start
             .checked_add(max_attempts)
             .filter(|v| *v <= 1 << 31)
             .ok_or(StorageError::Overflow)?;
+        let mut derive = || {
+            owner
+                .search(
+                    peer,
+                    direction,
+                    PaymentSearch {
+                        zone: self.scope.zone,
+                        start_index: start,
+                        max_attempts,
+                    },
+                    &mut cancelled,
+                )
+                .map_err(|error| match error {
+                    PaymentError::SearchCancelled { .. } => StorageError::Cancelled,
+                    PaymentError::SearchExhausted { .. } => StorageError::DerivationExhausted,
+                    _ => StorageError::Invalid,
+                })
+        };
+        let found = if compact { Some(derive()?) } else { None };
+        let end = found.as_ref().map_or(limit, |found| found.index + 1);
         stored
             .channel
             .advance_cursor(
@@ -273,23 +332,18 @@ impl SqliteStore {
             .filter(|v| *v <= i64::MAX as u64)
             .ok_or(StorageError::Overflow)?;
         write_channel(&tx, &self.key[..64], &stored.channel, generation)?;
-        tx.commit()?;
-        let found = owner
-            .search(
-                peer,
-                direction,
-                PaymentSearch {
-                    zone: self.scope.zone,
-                    start_index: start,
-                    max_attempts,
-                },
-                &mut cancelled,
-            )
-            .map_err(|error| match error {
-                PaymentError::SearchCancelled { .. } => StorageError::Cancelled,
-                PaymentError::SearchExhausted { .. } => StorageError::DerivationExhausted,
-                _ => StorageError::Invalid,
-            })?;
+
+        let (tx, found) = match found {
+            Some(found) => (tx, found),
+            None => {
+                tx.commit()?;
+                let found = derive()?;
+                let tx = self
+                    .connection
+                    .transaction_with_behavior(TransactionBehavior::Immediate)?;
+                (tx, found)
+            }
+        };
         if cancelled() {
             return Err(StorageError::Cancelled);
         }
@@ -301,9 +355,6 @@ impl SqliteStore {
             public_key: found.public_key,
             burned: crate::discovery::IndexRange { start, end },
         };
-        let tx = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)?;
         let current =
             read_channel(&tx, &self.key[..64], owner, peer)?.ok_or(StorageError::Invalid)?;
         if cursor_value(current.channel.next_index(direction, self.scope.zone)) < end {
@@ -654,6 +705,146 @@ mod tests {
             PrivatePaymentCode::from_seed(&[1; 16], 0).unwrap(),
         )
     }
+    #[test]
+    fn concurrent_compact_payment_allocators_commit_disjoint_examined_ranges() {
+        let db = Database::new();
+        let (owner, peer) = pair();
+        db.open()
+            .import_payment_channel(
+                &owner,
+                &PaymentChannel::new(&owner, peer.public_code().clone()),
+                None,
+            )
+            .unwrap();
+        let barrier = std::sync::Arc::new(std::sync::Barrier::new(2));
+        let workers = (0..2)
+            .map(|_| {
+                let path = db.0.clone();
+                let barrier = barrier.clone();
+                std::thread::spawn(move || {
+                    let (owner, peer) = pair();
+                    let mut store = SqliteStore::open_with_busy_timeout(
+                        path,
+                        scope(),
+                        std::time::Duration::from_secs(60),
+                    )
+                    .unwrap();
+                    barrier.wait();
+                    store
+                        .allocate_payment_address_compact(
+                            &owner,
+                            peer.public_code(),
+                            PaymentDirection::Send,
+                            10000,
+                            || false,
+                        )
+                        .unwrap()
+                })
+            })
+            .collect::<Vec<_>>();
+        let mut rows = workers
+            .into_iter()
+            .map(|w| w.join().unwrap())
+            .collect::<Vec<_>>();
+        rows.sort_by_key(|r| r.burned.start);
+        assert_eq!(rows[0].burned.start, 0);
+        assert_eq!(rows[0].burned.end, rows[0].found.index + 1);
+        assert_eq!(rows[1].burned.start, rows[0].burned.end);
+        assert_ne!(rows[0].found.address, rows[1].found.address);
+        assert_eq!(
+            db.open()
+                .payment_addresses(&owner, peer.public_code(), PaymentDirection::Send)
+                .unwrap()
+                .len(),
+            2
+        );
+    }
+
+    #[test]
+    fn compact_payment_allocation_is_atomic_across_cancellation_and_restart() {
+        let db = Database::new();
+        let (owner, peer) = pair();
+        let mut store = db.open();
+        store
+            .import_payment_channel(
+                &owner,
+                &PaymentChannel::new(&owner, peer.public_code().clone()),
+                None,
+            )
+            .unwrap();
+        let old = store
+            .allocate_payment_address(
+                &owner,
+                peer.public_code(),
+                PaymentDirection::Send,
+                10000,
+                || false,
+            )
+            .unwrap();
+        let mut calls = 0;
+        assert!(matches!(
+            store.allocate_payment_address_compact(
+                &owner,
+                peer.public_code(),
+                PaymentDirection::Send,
+                10000,
+                || {
+                    calls += 1;
+                    calls > 2
+                }
+            ),
+            Err(StorageError::Cancelled)
+        ));
+        let first = store
+            .allocate_payment_address_compact(
+                &owner,
+                peer.public_code(),
+                PaymentDirection::Send,
+                10000,
+                || false,
+            )
+            .unwrap();
+        assert_eq!(first.burned.start, old.burned.end);
+        assert_eq!(first.burned.end, first.found.index + 1);
+        drop(store);
+        let mut store = db.open();
+        let next = store
+            .allocate_payment_address_compact(
+                &owner,
+                peer.public_code(),
+                PaymentDirection::Send,
+                10000,
+                || false,
+            )
+            .unwrap();
+        assert_eq!(next.burned.start, first.burned.end);
+        assert_ne!(next.found.address, first.found.address);
+        assert_eq!(
+            store
+                .payment_addresses(&owner, peer.public_code(), PaymentDirection::Send)
+                .unwrap()
+                .len(),
+            3
+        );
+        let receive = store
+            .allocate_payment_address_compact(
+                &owner,
+                peer.public_code(),
+                PaymentDirection::Receive,
+                10000,
+                || false,
+            )
+            .unwrap();
+        assert!(
+            store
+                .addresses()
+                .unwrap()
+                .iter()
+                .any(|a| a.address() == receive.found.address.address())
+        );
+        assert_eq!(receive.burned.end, receive.found.index + 1);
+    }
+
     #[test]
     fn channel_listing_recovers_peers_scopes_and_cursors_without_mutation() {
         let db = Database::new();

@@ -64,8 +64,12 @@ impl QiChangePool {
             if cancelled() {
                 return Err(QiError::Cancelled);
             }
-            let allocated =
-                store.allocate_address(account, true, attempts_per_address, &mut cancelled)?;
+            let allocated = store.allocate_address_compact(
+                account,
+                true,
+                attempts_per_address,
+                &mut cancelled,
+            )?;
             burned_through = Some(allocated.burned.end);
             addresses.push(allocated.address);
         }

@@ -49,6 +49,15 @@ impl quai_sdk::rpc::Transport for DiagnosticTransport {
                 serde_json::json!({"diagnosticRpc":method,"params":params,"code":error.code,"message":error.message.chars().take(1000).collect::<String>()})
             );
         }
+        // Explicit qualification-only fault: the node accepted the write but its
+        // acknowledgement is hidden from the SDK. Never replay the request here.
+        if method == "quai_sendRawTransaction"
+            && result.is_ok()
+            && std::env::args().any(|arg| arg == "broadcast-lost-ack")
+        {
+            eprintln!("qualification fault: successful submission acknowledgement withheld");
+            return Err(quai_sdk::rpc::RpcError::Timeout);
+        }
         result
     }
 }
@@ -254,7 +263,13 @@ async fn main() {
         "qi-allocate-conversion" | "qi-prepare" | "qi-broadcast" | "qi-observe" => {
             qi::run(&mode).await
         }
-        "prepare" | "broadcast" | "observe" | "credit" => {
+        "prepare"
+        | "broadcast"
+        | "observe"
+        | "credit"
+        | "prepare-replacement"
+        | "broadcast-family"
+        | "observe-family" => {
             account::run(&mode, &std::env::args().nth(2).unwrap_or_default()).await
         }
         _ => Err("expected generate or inspect".into()),

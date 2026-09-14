@@ -222,3 +222,52 @@ Chromium worker tests passed, strict workspace/harness Clippy and rustdoc passed
 and native/Wasm package rehearsals passed for all twelve archives. The additional
 batch tests cover reordered replies, duplicate/missing/foreign IDs, remote errors,
 request/response limits, chain changes, bounded concurrency and no automatic replay.
+
+## September 14: reverse conversion, aggregation, sweep and recovery
+
+[Qi-to-Quai evidence](qi-to-quai-2026-09-14.json) records a 1 Qi conversion with
+explicit 0.1 Qi fee and 100-basis-point slippage. Origin
+`0x009b008ee78133025674ecfe8ecb9be8426f1d89738dfa1132591c1db9223717`
+succeeded; the matched destination ETX executed at height 7,795,064 with value
+25,761,653,122,291,725 Its. That exact amount was initially locked. It was still
+locked at head 7,795,157 and unlocked by 7,795,168; the account balance increased
+by exactly that amount and locked balance became zero.
+
+The recipient then sent 0.01 QUAI to the other supplied account. Both original
+and fee-only 2× gas-price replacement were durably signed before submission.
+The replacement `0x0031005bf5ac208e367dc4ab04b2fb86db4d7e3317438efba65bcea8ea2c2531`
+mined at height 7,795,176; the original had no receipt. Mined bytes matched the
+saved replacement and the sender's debit equaled value plus 50,400,000,000,000 Its
+in fees. This combines exact conversion maturity accounting with a subsequent
+spend; fungible account units are not individually traced.
+
+[Transaction scenario evidence](transaction-scenarios-2026-09-14.json) records:
+
+- Aggregation `0x00a900d8acea31b6ff86fda673e51bdfc6d1bb768b617fb0bd9c7af34873496c`:
+  46 inputs from 38 distinct addresses, including BIP47 and repeated HD keys;
+  24,576 Qits became 26 outputs totaling 24,561 Qits with a 15-Qit fee. It was
+  verified as the first Qi transaction in its canonical block; all outputs matched.
+- Sweep `0x008f00de8d397aef23cd32e94d7eb3c70ccf0ac5ea1c8a1a7899a7ac9a0c4ca1`:
+  15 inputs totaling 3,992 Qits became 16 denomination-preserving outputs totaling
+  3,984 Qits. The explicit `broadcast-lost-ack` harness stage forwarded one request,
+  withheld its successful response, and returned timeout. A new process reconciled
+  the successful inclusion without rebroadcast; all 15 claims and exact bytes remained.
+
+New explicit operations are `qi-extended convert-qi-to-quai`, `aggregate`, and
+`sweep`, with `prepare`, `broadcast`, `observe`, `inventory`, and `reconcile`
+stages as applicable; conversion also supports `credit`. Account operation
+`conversion-credit-spend` adds `prepare-replacement`, `broadcast-family`, and
+`observe-family`. Every recorded reservation has been consumed; rerunning
+preparation against these stores must fail. Do not delete state to repeat tests.
+Use fresh operation IDs and fresh destinations for a subsequent authorized run.
+
+Native compact allocation was used for the new change pools. Earlier burned
+ranges were preserved. Tests cover cancellation before exposure, restart,
+concurrent allocators, and continuation beyond a persisted empty gap. This reduces
+avoidable gaps without claiming that seed-only gap-50 scans recover every wallet.
+
+[Isolated refund](../local-chain/refund-2026-09-14.json) and
+[rollback](../local-chain/recovery-2026-09-14.json) checks supplement Orchard.
+Automatic specialized Orchard fee estimation, competing-peer reorgs, sustained
+fault/load testing, actual Pelagus interoperability and cross-zone execution are
+not established by these runs. Cross-zone qualification remains deferred.

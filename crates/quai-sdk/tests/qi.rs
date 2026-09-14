@@ -355,7 +355,24 @@ async fn preallocation_requires_refresh_and_failed_capacity_never_claims_coins()
         .next_derivation_index(&env.wallet.account_public(0).unwrap(), true)
         .unwrap()
         .unwrap();
-    assert_eq!(cursor, 4000);
+    let expected = env
+        .wallet
+        .account_public(0)
+        .unwrap()
+        .search(
+            true,
+            Search {
+                zone: Zone::Cyprus1,
+                start_index: 0,
+                max_attempts: 4000,
+            },
+            || false,
+        )
+        .unwrap()
+        .address
+        .index
+        + 1;
+    assert_eq!(cursor, expected);
     refresh(&mut env);
     let change = pool(&mut env, 0);
     let mut constraints = policy();
@@ -643,7 +660,7 @@ async fn tip_age_and_expiry_during_estimation_are_rechecked_before_claiming() {
 }
 
 #[test]
-fn allocation_cancellation_burns_reserved_range_and_resource_limits_fail_early() {
+fn unexposed_compact_allocation_rolls_back_and_resource_limits_fail_early() {
     let mut env = setup();
     let account = env.wallet.account_public(0).unwrap();
     let mut checks = 0;
@@ -656,7 +673,7 @@ fn allocation_cancellation_burns_reserved_range_and_resource_limits_fail_early()
     );
     assert_eq!(
         env.store.next_derivation_index(&account, true).unwrap(),
-        Some(4000)
+        None
     );
     assert!(matches!(
         QiChangePool::allocate(&mut env.store, &account, 1025, 1, || false),
@@ -668,7 +685,7 @@ fn allocation_cancellation_burns_reserved_range_and_resource_limits_fail_early()
     ));
     assert_eq!(
         env.store.next_derivation_index(&account, true).unwrap(),
-        Some(4000)
+        None
     );
 }
 
@@ -2069,4 +2086,131 @@ fn balance_buckets_cover_all_origins_and_preserve_claim_priority() {
         Err(QiError::MissingSnapshot)
     ));
     assert_eq!(reopened.reserved_outpoints(id(120)).unwrap().len(), 1);
+}
+
+#[cfg(feature = "payments")]
+#[tokio::test]
+async fn payment_discovery_continues_past_an_empty_gap_after_reopen() {
+    use quai_sdk::payment_channels::{
+        PaymentScanOptions, continue_payment_channel, scan_payment_channel,
+    };
+    use quai_sdk::payments::{PaymentChannel, PaymentDirection, PrivatePaymentCode};
+    let mut env = setup();
+    let receiver = PrivatePaymentCode::from_seed(&[1; 32], 0).unwrap();
+    let sender = PrivatePaymentCode::from_seed(&[2; 32], 0).unwrap();
+    let peer = sender.public_code();
+    env.store
+        .import_payment_channel(
+            &receiver,
+            &PaymentChannel::new(&receiver, peer.clone()),
+            None,
+        )
+        .unwrap();
+    let options = PaymentScanOptions {
+        gap_limit: Some(1),
+        ..Default::default()
+    };
+    let first = scan_payment_channel(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        peer,
+        &options,
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(first.indexes.len(), 1);
+    assert!(env.store.snapshot().unwrap().coins.is_empty());
+    let found = receiver
+        .search(
+            peer,
+            PaymentDirection::Receive,
+            quai_sdk::payments::PaymentSearch {
+                zone: Zone::Cyprus1,
+                start_index: first.next_index,
+                max_attempts: 10000,
+            },
+            || false,
+        )
+        .unwrap();
+    env.mock.outpoints.lock().unwrap().insert(found.address.to_string(),json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x6","lock":"0x0"}]));
+    // Reopen only the persisted metadata; no in-memory report supplies the cursor.
+    env.store = SqliteStore::open(&env.path, env.store.scope()).unwrap();
+    let next = continue_payment_channel(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        peer,
+        &options,
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(next.indexes[0], found.index);
+    assert_eq!(next.indexes.len(), 2);
+    assert_eq!(env.store.snapshot().unwrap().coins.len(), 1);
+    assert_eq!(
+        env.store
+            .payment_channel(&receiver, peer)
+            .unwrap()
+            .unwrap()
+            .channel
+            .next_index(PaymentDirection::Send, Zone::Cyprus1),
+        Some(0)
+    );
+    // A full rescan remains possible, without replacing the explicit range by a cursor.
+    let deep = PaymentScanOptions {
+        range: quai_sdk::wallet::discovery::IndexRange {
+            start: 0,
+            end: next.next_index,
+        },
+        gap_limit: None,
+        ..Default::default()
+    };
+    let all = scan_payment_channel(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        peer,
+        &deep,
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(all.indexes.len(), 3);
+    assert_eq!(env.store.snapshot().unwrap().coins.len(), 1);
+}
+
+#[tokio::test]
+async fn refund_outpoints_with_quai_hash_bits_survive_selection_signing_and_restart() {
+    let mut env = setup();
+    let mut snapshot = env.store.snapshot().unwrap();
+    for coin in &mut snapshot.coins {
+        let mut bytes = *coin.outpoint.transaction_hash.bytes();
+        bytes[3] &= 0x7f;
+        coin.outpoint.transaction_hash = quai_sdk::primitives::Hash32::from_bytes(bytes);
+    }
+    env.store.replace_snapshot(&snapshot).unwrap();
+    let outputs = pool(&mut env, 0);
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let prepared = session
+        .prepare(id(111), intent(), policy(), outputs)
+        .await
+        .unwrap();
+    let signed = session.sign(&prepared).unwrap();
+    assert!(
+        signed
+            .transaction()
+            .inputs
+            .iter()
+            .all(|i| i.previous_output.transaction_hash.bytes()[3] & 0x80 == 0)
+    );
+    let saved = signed.signed_bytes().unwrap();
+    env.store = SqliteStore::open(&env.path, env.store.scope()).unwrap();
+    assert_eq!(env.store.signed_payload(id(111)).unwrap().unwrap(), saved);
+    assert!(!env.store.reserved_outpoints(id(111)).unwrap().is_empty());
+    let mut invalid = env.store.snapshot().unwrap();
+    invalid.coins[0].outpoint.transaction_hash = quai_sdk::primitives::Hash32::ZERO;
+    assert!(env.store.replace_snapshot(&invalid).is_err());
 }

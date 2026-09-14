@@ -10,7 +10,7 @@ if profile.get('genesisHash')==harness.GENESIS:raise ValueError('conversion prof
 harness.GENESIS=profile['genesisHash']
 harness.CLIENT_SOURCE=harness.HERE/'conversion_client.rs'
 harness.CLIENT_NAME='quai-conversion-acceptance'
-harness.CLIENT_MODES=['quai-to-qi','qi-to-quai','quai-to-qi-large','qi-spend-converted']
+harness.CLIENT_MODES=['quai-to-qi','qi-to-quai','qi-to-quai-strict','qi-to-quai-strict-whole','qi-to-quai-strict-large','quai-to-qi-large','qi-spend-converted']
 # Inject the profile work argument when not explicitly present.
 import sys
 if '--work' not in sys.argv:sys.argv.extend(['--work',str(work)])

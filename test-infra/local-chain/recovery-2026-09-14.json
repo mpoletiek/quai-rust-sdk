@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-14",
+  "provenance": {
+    "baseCommit": "104f690a6e03c99e026b667cf953e39860309981",
+    "sourceDirty": true,
+    "sourceSha256": {
+      "crates/quai-consensus/src/qi.rs": "a4c2afe8ce12355b1a4a9fc14aa219e4b05c16c4f9a7700a55568b596688032e",
+      "crates/quai-consensus/src/conversion.rs": "6259fbf3e07938f09c5323b8681d09df78c5c07cfe0e0c9cc5f9c23e4b51ece9",
+      "crates/quai-sdk/src/qi.rs": "4744dcc5b9af38d8b9380206045faab9b7857e760b999b963de9e1734abe09e4",
+      "crates/quai-sdk/src/payment_channels.rs": "3432fee8387d36e3019053e11af87bf8579e648cf18cbdc3793c5f0742952fc2",
+      "crates/quai-wallet/src/storage.rs": "7bdd847b15649db703c86a2396fd0fc2fca191b3997161f2c79bdeb799218f84",
+      "crates/quai-wallet/src/storage/payment.rs": "0d5f22701ad1c2211e8500ec36cc823b3f554e5da0d53ec9ab600c743311e28b",
+      "crates/quai-wallet/src/selection.rs": "58d24f4fde536c556a9fe89830335c13570f43baa14917daf9bb2ac37e170694",
+      "crates/quai-wallet/src/qi_custody.rs": "5f6ae0e755ba586c7b708c5abe7a7e0159cd972d6617ce329b14c94db3e1ff8f",
+      "test-infra/orchard/src/main.rs": "b57293626d3019dd8eed88c6917a80d197dec52bb8238fff33618b9eabaa73b0",
+      "test-infra/orchard/src/account.rs": "231715d5bc0a5a690c59a087830d245c0604f8236a5357735e112534bee3b700",
+      "test-infra/orchard/src/qi_extended.rs": "38eb96cd75299434f204143dbefeb73c9480fb1c1ef19af027feb1e7ce2e100d",
+      "test-infra/local-chain/refund_client.rs": "6f50d8983065710d2e55f7a878ee68cb5fffa83ab08a018637e76b5ef66acd18",
+      "test-infra/local-chain/recovery_client.rs": "589bed7916153b3062857569ada0917f1adc8b2d91f4a660562b47b8187665d4"
+    },
+    "executionScope": "Stages executed as harness support was added; this manifest identifies the final reviewed sources, not a claim that all stages used one immutable binary."
+  },
+  "network": "patched-isolated-chain",
+  "chainId": 1337,
+  "genesis": "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee",
+  "initialHead": 26,
+  "rolledBackHead": 3,
+  "before": [
+    {
+      "after": "Confirmed",
+      "before": "Confirmed",
+      "claimsUnchanged": true,
+      "hash": "0x00cf00f60caf9938d15cd5981a36b13a9a0a6bc392e452a6a942a9fa69888d4e",
+      "heldInputs": 1,
+      "observation": "Included { block: Checkpoint { hash: 0x000001f28d1f163eae612a195b9edb585fffcc7ca61345efafe55777ef9d710e, height: 5 }, outcome: Succeeded, confirmations: 22 }",
+      "signedBytesUnchanged": true,
+      "stage": "included"
+    }
+  ],
+  "removed": [
+    {
+      "after": "Submitted",
+      "before": "Confirmed",
+      "claimsUnchanged": true,
+      "hash": "0x00cf00f60caf9938d15cd5981a36b13a9a0a6bc392e452a6a942a9fa69888d4e",
+      "heldInputs": 1,
+      "observation": "Reorganized",
+      "signedBytesUnchanged": true,
+      "stage": "removed"
+    },
+    {
+      "claimsUnchanged": true,
+      "observation": "NotObserved",
+      "signedBytesUnchanged": true,
+      "stage": "removed-after-reopen"
+    }
+  ],
+  "restored": [
+    {
+      "after": "Confirmed",
+      "before": "Submitted",
+      "claimsUnchanged": true,
+      "hash": "0x00cf00f60caf9938d15cd5981a36b13a9a0a6bc392e452a6a942a9fa69888d4e",
+      "heldInputs": 1,
+      "observation": "Included { block: Checkpoint { hash: 0x000001f28d1f163eae612a195b9edb585fffcc7ca61345efafe55777ef9d710e, height: 5 }, outcome: Succeeded, confirmations: 22 }",
+      "signedBytesUnchanged": true,
+      "stage": "included"
+    }
+  ],
+  "limits": [
+    "Controlled stopped-database rollback and restoration, not consensus adoption of a competing peer branch.",
+    "Only copied node data and copied public-fixture wallet custody were rewound; original databases were preserved.",
+    "Initial aborted fixture setup found a missing runtime file and another node occupying the shared RPC; those startup responses were excluded from this qualified sequence. Startup now checks port availability."
+  ]
+}

@@ -40,7 +40,7 @@ UTXO limits are at most 100,000. Account enumeration is explicit: scan each desi
 account xpub and do not infer unbounded account recovery from one account.
 
 The source must return the exact scope, address and checkpoint requested. Every
-response is checked, including UTXO ownership, zone/ledger hashes and duplicate
+response is checked, including UTXO ownership, nonzero creating hashes, destination zones and duplicate
 outpoints. Remote `reserved` flags are discarded. `classify_coin` combines the
 candidate block height with locally recovered reservation state to expose
 independent locked, expired and reserved flags plus spendability.
@@ -209,3 +209,16 @@ worker tests exercise contention, dropped writes, restart, corruption/tombstones
 backup floors and send/receive ownership. Twenty-four independent Node encodings
 use six pinned quais.js payment address vectors. Full live wallet state merge,
 UTXO/nonce custody and transaction orchestration remain separate work.
+
+Native `SqliteStore::allocate_address_compact` derives under a bounded SQLite
+write lock and commits only the examined range plus the returned address metadata.
+`allocate_payment_address_compact` provides the same contract for registered BIP47
+channels. No address is exposed before commit; cancellation before commit rolls
+back that unexposed allocation. Returned allocations and all preexisting burned
+ranges remain consumed. The original range-before-search APIs retain their legacy
+behavior. Native SDK change pools and payment intents use compact allocation.
+
+A Qi refund can have a creating ETX hash with the Quai ledger bit. The creating
+hash must be nonzero and in the correct destination zone, but its ledger bit does
+not identify the output's ledger. Verified ownership, fixed denominations, locks,
+claims and current UTXO observations remain necessary.

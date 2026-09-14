@@ -536,8 +536,12 @@ immutable payment intent and held nonce ownership.
 ### Qi payments, sweep and special operations
 
 `QiSession::new` uses HD keys; `with_keys` accepts a mixed-origin resolver.
-`QiChangePool::allocate` burns bounded ranges before exposing addresses. Allocate
-before refreshing because new ownership metadata invalidates the old snapshot.
+`QiChangePool::allocate` uses compact native allocation: it commits the examined
+child range and ownership metadata before returning each address. It does not
+burn unused trailing search candidates. A failed preparation still consumes all
+addresses already returned; old burned ranges never rewind. The bounded search
+holds a SQLite write lock. Allocate before refreshing because new ownership
+metadata invalidates the old snapshot.
 
 `prepare` selects inputs and converges the fee against the final payload under
 `QiPolicy`. Supply distinct recipient address capacity for denomination outputs.
@@ -616,7 +620,14 @@ owner and stores send/receive cursors per zone. Exhaustion never rewinds.
 Native `SqliteStore::import_payment_channel` registers an owned channel;
 `payment_channels::payment_intent` allocates fresh send destinations;
 `scan_payment_channel` performs gap-50 or deep receive scans and persists verified
-exposures. `QiKeyring::load_payment_channel` enables spending those outputs.
+exposures. `continue_payment_channel` explicitly extends scanning beyond the highest
+persisted receive exposure in the current zone, including after reopening or a
+refresh failure after metadata import. Sparse imported metadata is not coverage;
+use an explicit range with `gap_limit: None` for bounded deep recovery. A default
+50-address gap can still miss funds beyond old spent or abandoned ranges.
+`QiKeyring::load_payment_channel` enables spending those outputs. Native payment
+intents use `allocate_payment_address_compact`; previously returned addresses and
+legacy burned ranges stay consumed.
 
 Browser `BrowserPaymentBook` persists the range before search and a completed
 exposure before return. Each allocation has a caller-retained ID. Cancellation
@@ -624,6 +635,14 @@ or failure burns the range. Automatic notification-transaction discovery,
 blinding and peer-code exchange are not implemented.
 
 ## Conversions and wrapped assets
+
+Qi-to-Quai refunds need separate output accounting. The pinned node omits refund
+denominations at or below 500 Qits: a refund smaller than 1 Qi can report a
+successful receipt while creating no outputs. Gas limits can further reduce
+creation. Inspect `observe_conversion_qi_credit` and its `unobserved_qits` instead
+of treating receipt success as full repayment. A refunded Qi output can be keyed
+by an ETX hash with the Quai ledger bit; SDK validation checks its nonzero hash,
+zone and actual Qi ownership rather than rejecting that bit.
 
 `Provider::qi_to_quai`, `quai_to_qi` and `calculate_conversion_amount` retain exact
 integer quantities and unknown results. A historical selector is not a promise
@@ -1020,7 +1039,17 @@ records exact transactions, fee profiles and limitations. The [payment-code roun
 exercised local send, receiver-key recovery, return spending and discovery.
 The failed preparations' burned send ranges required explicit receive-scan
 continuation beyond the first empty gap; this remains distinct from Pelagus testing.
-Broader unmodified-node acceptance, aggregation placement, reorg/fault/soak/performance tests, additional
+The [Qi-to-Quai run](test-infra/orchard/qi-to-quai-2026-09-14.json) verified a 1 Qi
+conversion, exact locked-to-unlocked account credit, and a subsequent 0.01 QUAI
+spend whose fee-only replacement mined. The [transaction-scenario run](test-infra/orchard/transaction-scenarios-2026-09-14.json)
+verified 46-input aggregation (including HD and BIP47 keys) in the first Qi block
+position, and a 15-input sweep recovered after an injected lost acknowledgement.
+The [isolated rollback test](test-infra/local-chain/recovery-2026-09-14.json) retained
+custody through canonical-inclusion removal, reopening and restoration. The
+[isolated refund test](test-infra/local-chain/refund-2026-09-14.json) verified strict
+slippage, a real refunded Qi output, and its subsequent wallet-session spend.
+Broader unmodified-node acceptance, consensus-driven competing-branch reorgs,
+sustained fault/soak/performance tests, additional
 browser engines/extensions and independent specialist security review remain
 qualification work. No mainnet transaction was submitted during this review.
 Cross-zone qualification is deferred while only Cyprus-1 is available.

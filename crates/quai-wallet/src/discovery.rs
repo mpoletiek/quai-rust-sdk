@@ -434,7 +434,7 @@ pub async fn discover<S: ObservationSource>(
                 let hash = coin.outpoint.transaction_hash.bytes();
                 if coin.address.address() != derived.address
                     || hash[2] != request.scope.zone.byte()
-                    || hash[3] & 0x80 == 0
+                    || *hash == [0; 32]
                     || !seen.insert(coin.outpoint)
                     || coin
                         .expires_at

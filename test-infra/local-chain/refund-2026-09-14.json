@@ -1,0 +1,345 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-14",
+  "provenance": {
+    "baseCommit": "104f690a6e03c99e026b667cf953e39860309981",
+    "sourceDirty": true,
+    "sourceSha256": {
+      "crates/quai-consensus/src/qi.rs": "a4c2afe8ce12355b1a4a9fc14aa219e4b05c16c4f9a7700a55568b596688032e",
+      "crates/quai-consensus/src/conversion.rs": "6259fbf3e07938f09c5323b8681d09df78c5c07cfe0e0c9cc5f9c23e4b51ece9",
+      "crates/quai-sdk/src/qi.rs": "4744dcc5b9af38d8b9380206045faab9b7857e760b999b963de9e1734abe09e4",
+      "crates/quai-sdk/src/payment_channels.rs": "3432fee8387d36e3019053e11af87bf8579e648cf18cbdc3793c5f0742952fc2",
+      "crates/quai-wallet/src/storage.rs": "7bdd847b15649db703c86a2396fd0fc2fca191b3997161f2c79bdeb799218f84",
+      "crates/quai-wallet/src/storage/payment.rs": "0d5f22701ad1c2211e8500ec36cc823b3f554e5da0d53ec9ab600c743311e28b",
+      "crates/quai-wallet/src/selection.rs": "58d24f4fde536c556a9fe89830335c13570f43baa14917daf9bb2ac37e170694",
+      "crates/quai-wallet/src/qi_custody.rs": "5f6ae0e755ba586c7b708c5abe7a7e0159cd972d6617ce329b14c94db3e1ff8f",
+      "test-infra/orchard/src/main.rs": "b57293626d3019dd8eed88c6917a80d197dec52bb8238fff33618b9eabaa73b0",
+      "test-infra/orchard/src/account.rs": "231715d5bc0a5a690c59a087830d245c0604f8236a5357735e112534bee3b700",
+      "test-infra/orchard/src/qi_extended.rs": "38eb96cd75299434f204143dbefeb73c9480fb1c1ef19af027feb1e7ce2e100d",
+      "test-infra/local-chain/refund_client.rs": "6f50d8983065710d2e55f7a878ee68cb5fffa83ab08a018637e76b5ef66acd18",
+      "test-infra/local-chain/recovery_client.rs": "589bed7916153b3062857569ada0917f1adc8b2d91f4a660562b47b8187665d4"
+    },
+    "executionScope": "Stages executed as harness support was added; this manifest identifies the final reviewed sources, not a claim that all stages used one immutable binary."
+  },
+  "network": "patched-conversion-development",
+  "chainId": 1337,
+  "genesis": "0xff38a93744ee5aae738addc88da4f6b171528244e81d34aa4b25579fa3f44ed2",
+  "sourceNodeCommit": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
+  "profile": "Existing controller-1/lock-4 profile; pre-ConversionSlipChangeBlock behavior, otherwise unchanged from the documented conversion fixture.",
+  "observations": {
+    "dust": {
+      "head": "0x13",
+      "originReceipts": {
+        "qiToQuai": {
+          "blockHash": "0x000022a65d04ca295fd7e13c16dda9a7782eff7ebb3aa5a16670b1f138aa2e2b",
+          "blockNumber": "0x8",
+          "contractAddress": null,
+          "cumulativeGasUsed": "0x0",
+          "effectiveGasPrice": "0x3873415d98767",
+          "gasUsed": "0x8408",
+          "logs": [],
+          "outboundEtxs": [
+            {
+              "blockHash": "0x000022a65d04ca295fd7e13c16dda9a7782eff7ebb3aa5a16670b1f138aa2e2b",
+              "blockNumber": "0x8",
+              "from": "0x0000000000000000000000000000000000000000",
+              "gas": "0x3d153569757",
+              "hash": "0x006200764de5ff6d5c9e2b39a23bfe0eb1421c49725f9c68a448f166649e9f94",
+              "input": "0x001e00d7bfbbdd71a5ac547956d138a72ce7f9527369",
+              "nonce": "0x0",
+              "to": "0x0049CdA3305ccB9cB23E7Ce2528ceF555E9a5B32",
+              "transactionIndex": "0x2",
+              "value": "0x64",
+              "type": "0x1",
+              "accessList": [],
+              "originatingTxHash": "0x00a800a31a58c8a1f8c34b54d2ebd374bc38709e10a5f69aa0a55eca3fc4b0c2",
+              "etxIndex": "0x0",
+              "etxType": "0x2"
+            }
+          ],
+          "status": "0x1",
+          "transactionHash": "0x00a800a31a58c8a1f8c34b54d2ebd374bc38709e10a5f69aa0a55eca3fc4b0c2",
+          "transactionIndex": "0x2",
+          "type": "0x2"
+        }
+      },
+      "settlements": [
+        {
+          "transaction": {
+            "blockHash": "0x00001e618ece99373d3c99c0aa09f996772446abb4c7a753ec095cb55d31c130",
+            "blockNumber": "0xd",
+            "from": "0x0000000000000000000000000000000000000000",
+            "gas": "0x3d153569757",
+            "hash": "0x007f0025a17afb9d34fb4d6c979890a230bd91c6400028c22e2930247b782896",
+            "input": "0x001e00d7bfbbdd71a5ac547956d138a72ce7f9527369",
+            "nonce": "0x0",
+            "to": "0x0049CdA3305ccB9cB23E7Ce2528ceF555E9a5B32",
+            "transactionIndex": "0x0",
+            "value": "0x64",
+            "type": "0x1",
+            "accessList": [],
+            "originatingTxHash": "0x00a800a31a58c8a1f8c34b54d2ebd374bc38709e10a5f69aa0a55eca3fc4b0c2",
+            "etxIndex": "0x0",
+            "etxType": "0x5"
+          },
+          "receipt": {
+            "blockHash": "0x00001e618ece99373d3c99c0aa09f996772446abb4c7a753ec095cb55d31c130",
+            "blockNumber": "0xd",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0x0",
+            "effectiveGasPrice": "0x381e1ff7e795b",
+            "etxType": "0x5",
+            "gasUsed": "0x0",
+            "logs": [
+              {
+                "address": "0x0049cda3305ccb9cb23e7ce2528cef555e9a5b32",
+                "topics": [
+                  "0xf24afee098446c1e55da6dca01701576a75ab8e7ec2aca6a219ea356bad3b8af"
+                ],
+                "data": "0x",
+                "blockNumber": "0xd",
+                "transactionHash": "0x007f0025a17afb9d34fb4d6c979890a230bd91c6400028c22e2930247b782896",
+                "transactionIndex": "0x0",
+                "blockHash": "0x00001e618ece99373d3c99c0aa09f996772446abb4c7a753ec095cb55d31c130",
+                "logIndex": "0x0",
+                "removed": false
+              }
+            ],
+            "originatingTxHash": "0x00a800a31a58c8a1f8c34b54d2ebd374bc38709e10a5f69aa0a55eca3fc4b0c2",
+            "status": "0x1",
+            "transactionHash": "0x007f0025a17afb9d34fb4d6c979890a230bd91c6400028c22e2930247b782896",
+            "transactionIndex": "0x0",
+            "type": "0x1"
+          }
+        }
+      ],
+      "refundQiOutpoints": []
+    },
+    "wholeQiSuccessControl": {
+      "head": "0x13",
+      "originReceipts": {
+        "qiToQuai": {
+          "blockHash": "0x0000017339bd200b1a8fd160f5c0fa3efeabb90dbfbcc34d99c0ca76880f58a1",
+          "blockNumber": "0x8",
+          "contractAddress": null,
+          "cumulativeGasUsed": "0x0",
+          "effectiveGasPrice": "0x3873415d98767",
+          "gasUsed": "0x8408",
+          "logs": [],
+          "outboundEtxs": [
+            {
+              "blockHash": "0x0000017339bd200b1a8fd160f5c0fa3efeabb90dbfbcc34d99c0ca76880f58a1",
+              "blockNumber": "0x8",
+              "from": "0x0000000000000000000000000000000000000000",
+              "gas": "0x3d1531cf237",
+              "hash": "0x00390072bd5003c41b0c01b05065032c22d518b7367e89522fdef04e47fdfdb4",
+              "input": "0x001e00d7bfbbdd71a5ac547956d138a72ce7f9527369",
+              "nonce": "0x0",
+              "to": "0x0049CdA3305ccB9cB23E7Ce2528ceF555E9a5B32",
+              "transactionIndex": "0x2",
+              "value": "0x3e8",
+              "type": "0x1",
+              "accessList": [],
+              "originatingTxHash": "0x00cc00ad265432f7544b7fcb1dde88a406949b14b23a57125a1cffa4d8bccbf7",
+              "etxIndex": "0x0",
+              "etxType": "0x2"
+            }
+          ],
+          "status": "0x1",
+          "transactionHash": "0x00cc00ad265432f7544b7fcb1dde88a406949b14b23a57125a1cffa4d8bccbf7",
+          "transactionIndex": "0x2",
+          "type": "0x2"
+        }
+      },
+      "settlements": [
+        {
+          "transaction": {
+            "blockHash": "0x00001da8920b0e1734242219bd90916c890c877ad378c5f8317494067f22845d",
+            "blockNumber": "0xf",
+            "from": "0x0000000000000000000000000000000000000000",
+            "gas": "0x3d1531cf237",
+            "hash": "0x006600253f2277e75689f81187832cdb9261fff1103cd8ee99ff87fa3298a414",
+            "input": "0x001e00d7bfbbdd71a5ac547956d138a72ce7f9527369",
+            "nonce": "0x0",
+            "to": "0x0049CdA3305ccB9cB23E7Ce2528ceF555E9a5B32",
+            "transactionIndex": "0x0",
+            "value": "0x215a9fa94c3bff31668",
+            "type": "0x1",
+            "accessList": [],
+            "originatingTxHash": "0x00cc00ad265432f7544b7fcb1dde88a406949b14b23a57125a1cffa4d8bccbf7",
+            "etxIndex": "0x0",
+            "etxType": "0x2"
+          },
+          "receipt": {
+            "blockHash": "0x00001da8920b0e1734242219bd90916c890c877ad378c5f8317494067f22845d",
+            "blockNumber": "0xf",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0x0",
+            "effectiveGasPrice": "0x382032c1ca523",
+            "etxType": "0x2",
+            "gasUsed": "0x186a0",
+            "logs": [],
+            "originatingTxHash": "0x00cc00ad265432f7544b7fcb1dde88a406949b14b23a57125a1cffa4d8bccbf7",
+            "status": "0x1",
+            "transactionHash": "0x006600253f2277e75689f81187832cdb9261fff1103cd8ee99ff87fa3298a414",
+            "transactionIndex": "0x0",
+            "type": "0x1"
+          }
+        }
+      ],
+      "refundQiOutpoints": []
+    },
+    "fiveQiRefund": {
+      "head": "0x13",
+      "originReceipts": {
+        "qiToQuai": {
+          "blockHash": "0x0000151b39efbbd31ab23b8f8fffaf2068b6836d2dfe3a3fc99f49d6bb481c08",
+          "blockNumber": "0x8",
+          "contractAddress": null,
+          "cumulativeGasUsed": "0x0",
+          "effectiveGasPrice": "0x3873415d98767",
+          "gasUsed": "0x8408",
+          "logs": [],
+          "outboundEtxs": [
+            {
+              "blockHash": "0x0000151b39efbbd31ab23b8f8fffaf2068b6836d2dfe3a3fc99f49d6bb481c08",
+              "blockNumber": "0x8",
+              "from": "0x0000000000000000000000000000000000000000",
+              "gas": "0x3d1521cbf00",
+              "hash": "0x0031000ef44d3aac367811e6c039bd2d55982d16e96517d935f0d7c46a736ecd",
+              "input": "0x001e00d7bfbbdd71a5ac547956d138a72ce7f9527369",
+              "nonce": "0x0",
+              "to": "0x0049CdA3305ccB9cB23E7Ce2528ceF555E9a5B32",
+              "transactionIndex": "0x2",
+              "value": "0x1388",
+              "type": "0x1",
+              "accessList": [],
+              "originatingTxHash": "0x00a500c3a5dd1e0244342db369cc57a8de2152713cf9a291e0aa29440190932b",
+              "etxIndex": "0x0",
+              "etxType": "0x2"
+            }
+          ],
+          "status": "0x1",
+          "transactionHash": "0x00a500c3a5dd1e0244342db369cc57a8de2152713cf9a291e0aa29440190932b",
+          "transactionIndex": "0x2",
+          "type": "0x2"
+        }
+      },
+      "settlements": [
+        {
+          "transaction": {
+            "blockHash": "0x00001d40638ea26ae61c8f2f7629fd5087f8f330ab9b9416126277825886d603",
+            "blockNumber": "0xc",
+            "from": "0x0000000000000000000000000000000000000000",
+            "gas": "0x3d1521cbf00",
+            "hash": "0x00450074c6b126aea05bd25af653fd4735d5c64d7be1d94f2fb52497261bc8c7",
+            "input": "0x001e00d7bfbbdd71a5ac547956d138a72ce7f9527369",
+            "nonce": "0x0",
+            "to": "0x0049CdA3305ccB9cB23E7Ce2528ceF555E9a5B32",
+            "transactionIndex": "0x0",
+            "value": "0x1388",
+            "type": "0x1",
+            "accessList": [],
+            "originatingTxHash": "0x00a500c3a5dd1e0244342db369cc57a8de2152713cf9a291e0aa29440190932b",
+            "etxIndex": "0x0",
+            "etxType": "0x5"
+          },
+          "receipt": {
+            "blockHash": "0x00001d40638ea26ae61c8f2f7629fd5087f8f330ab9b9416126277825886d603",
+            "blockNumber": "0xc",
+            "contractAddress": null,
+            "cumulativeGasUsed": "0x0",
+            "effectiveGasPrice": "0x3820e41a6aa4a",
+            "etxType": "0x5",
+            "gasUsed": "0x2328",
+            "logs": [
+              {
+                "address": "0x0049cda3305ccb9cb23e7ce2528cef555e9a5b32",
+                "topics": [
+                  "0xf24afee098446c1e55da6dca01701576a75ab8e7ec2aca6a219ea356bad3b8af"
+                ],
+                "data": "0x1388",
+                "blockNumber": "0xc",
+                "transactionHash": "0x00450074c6b126aea05bd25af653fd4735d5c64d7be1d94f2fb52497261bc8c7",
+                "transactionIndex": "0x0",
+                "blockHash": "0x00001d40638ea26ae61c8f2f7629fd5087f8f330ab9b9416126277825886d603",
+                "logIndex": "0x0",
+                "removed": false
+              }
+            ],
+            "originatingTxHash": "0x00a500c3a5dd1e0244342db369cc57a8de2152713cf9a291e0aa29440190932b",
+            "status": "0x1",
+            "transactionHash": "0x00450074c6b126aea05bd25af653fd4735d5c64d7be1d94f2fb52497261bc8c7",
+            "transactionIndex": "0x0",
+            "type": "0x1"
+          }
+        }
+      ],
+      "refundQiOutpoints": [
+        {
+          "denomination": "0x7",
+          "index": "0x0",
+          "lock": "0x10",
+          "txHash": "0x00450074c6b126aea05bd25af653fd4735d5c64d7be1d94f2fb52497261bc8c7"
+        }
+      ]
+    }
+  },
+  "sdkCredit": {
+    "beneficiary": "0x00d7BfBbdD71A5Ac547956D138a72CE7F9527369",
+    "creatingHash": "0x00450074c6b126aea05bd25af653fd4735d5c64d7be1d94f2fb52497261bc8c7",
+    "effect": "Some(RefundReported { beneficiary: 0x00d7BfBbdD71A5Ac547956D138a72CE7F9527369 })",
+    "head": 19,
+    "lockedQits": "0",
+    "origin": "0x00a500c3a5dd1e0244342db369cc57a8de2152713cf9a291e0aa29440190932b",
+    "outputs": [
+      {
+        "denomination": 7,
+        "hash": "0x00450074c6b126aea05bd25af653fd4735d5c64d7be1d94f2fb52497261bc8c7",
+        "index": 0,
+        "lock": "16"
+      }
+    ],
+    "stage": "refund-credit",
+    "unlockedQits": "5000",
+    "unobservedQits": "0"
+  },
+  "spendPrepare": [
+    {
+      "amountQits": "1000",
+      "feeQits": "40",
+      "hash": "0x009900b91141439638c8f8f728148a76dacd8f1fc863c191f9a16218d8c413b2",
+      "inputHash": "0x00450074c6b126aea05bd25af653fd4735d5c64d7be1d94f2fb52497261bc8c7",
+      "outputQits": 4960,
+      "outputs": 11,
+      "stage": "refund-spend-signed"
+    }
+  ],
+  "spendBroadcast": [
+    {
+      "hash": "0x009900b91141439638c8f8f728148a76dacd8f1fc863c191f9a16218d8c413b2",
+      "stage": "refund-spend-acknowledged"
+    }
+  ],
+  "spendVerification": {
+    "destinationQuaiBalance": "1000000029253044184239900395",
+    "durableBytesMatch": true,
+    "hash": "0x009900b91141439638c8f8f728148a76dacd8f1fc863c191f9a16218d8c413b2",
+    "heldClaims": 1,
+    "matchedQits": 4960,
+    "observation": "Included { block: Checkpoint { hash: 0x000023436ce61d26c59fd4475f4096395ac276a8420ea345d15417a693162dfa, height: 20 }, outcome: Succeeded, confirmations: 1 }",
+    "refundOutpointsRemaining": 0,
+    "stage": "refund-spend-verified"
+  },
+  "findings": [
+    "A 100-Qit strict-slippage refund reports success but creates zero outputs because denominations <=500 Qits are omitted.",
+    "A 1000-Qit strict-slippage conversion succeeded under the same profile; slippage outcomes are amount/controller-state dependent.",
+    "A 5000-Qit strict-slippage refund created one denomination-7 output under its Quai-ledger ETX hash. The SDK now accepts such nonzero same-zone creating hashes across signing, selection, discovery and custody.",
+    "The 5000-Qit refund matured at height 16 and was spent at height 20 through the native wallet session: 1000-Qit recipient, 3960-Qit change, 40-Qit estimated fee."
+  ],
+  "limits": [
+    "Synthetic bootstrap inputs and deliberately excessive conversion fixture fees; not economic/automatic-fee qualification.",
+    "Refund execution was tested on the patched isolated profile, not Orchard or mainnet.",
+    "No guarantee of complete refund value from status alone; denomination cutoff, gas and current indexing must be considered."
+  ]
+}

@@ -644,7 +644,7 @@ impl WalletBackup {
                         if owner.zone() != scope.scope.zone
                             || !addresses.contains_key(address)
                             || outpoint.transaction_hash.bytes()[2] != scope.scope.zone.byte()
-                            || outpoint.transaction_hash.bytes()[3] & 0x80 == 0
+                            || outpoint.transaction_hash == Hash32::ZERO
                             || !outpoints.insert(*outpoint)
                         {
                             return Err(WalletBackupError::InvalidInput);

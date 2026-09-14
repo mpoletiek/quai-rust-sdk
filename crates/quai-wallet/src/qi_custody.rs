@@ -147,7 +147,7 @@ impl QiOperationBook {
         let hash = claim.outpoint.transaction_hash.bytes();
         claim.owner.zone() == self.scope.zone
             && hash[2] == self.scope.zone.byte()
-            && hash[3] & 0x80 != 0
+            && *hash != [0; 32]
             && self.addresses.contains_key(&claim.owner.address())
     }
     /// Consume exact selected outputs after checking supplied fixed denominations,

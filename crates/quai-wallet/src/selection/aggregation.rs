@@ -52,9 +52,7 @@ pub fn select_aggregate(
     let mut small_value = U256::ZERO;
     for coin in coins {
         let hash = coin.outpoint.transaction_hash.bytes();
-        if !seen.insert(coin.outpoint)
-            || hash[2] != coin.address.zone().byte()
-            || hash[3] & 0x80 == 0
+        if !seen.insert(coin.outpoint) || hash[2] != coin.address.zone().byte() || *hash == [0; 32]
         {
             return Err(SelectionError::InvalidCoin);
         }

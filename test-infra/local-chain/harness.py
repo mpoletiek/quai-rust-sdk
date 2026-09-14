@@ -8,6 +8,7 @@ import os
 import pathlib
 import shutil
 import signal
+import socket
 import subprocess
 import tarfile
 import time
@@ -105,6 +106,11 @@ def main():
     if a.command=='mine':
         check();subprocess.run([str(work/'sdk-local-tools'),'mine',URL,GENESIS,str(a.count)],check=True);return
     if a.command=='start':
+        # A different fixture can share this genesis. Do not accept its RPC as
+        # readiness for our child, including when startup fails immediately.
+        with socket.socket() as probe:
+            try:probe.bind(('127.0.0.1',19200))
+            except OSError as error:raise ValueError('local fixture RPC port is unavailable; stop the existing fixture first') from error
         no_running(work);(work/'development-config').mkdir(exist_ok=True)
         env={k:v for k,v in os.environ.items() if not k.startswith('GO_QUAI_')};env['GOMAXPROCS']='4'
         with open(work/'development.log','ab') as log:

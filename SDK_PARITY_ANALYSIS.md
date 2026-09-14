@@ -57,12 +57,12 @@ of exact behavior: the restrictions below matter when porting an application.
 | BIP39/BIP32/BIP44 | All ten wordlists, 16–64-byte seeds, xprv/xpub metadata, absolute/relative paths, both coin types, bounded zone search | Rare invalid children fail at their actual index; explicit master/subtree APIs and bounded cancellation replace convenience loops |
 | Imported and watch-only keys | Validated ownership metadata and mixed-origin key resolver; watch-only types cannot sign | Private imports are guarded rather than serialized through general public objects |
 | Qi discovery | Receive/change default gap 50 matching Qi addresses, deep ranges, every persisted origin refresh, lock/balance classes | Latest-only outpoints cannot prove historical address use; optional external use hints and explicit recovery ranges are needed for stronger recovery |
-| Qi selection/signing | Fixed denomination inventory, exact output/address capacity, single/multi-input signing, sweep and explicit aggregation | No fee-shortfall success; aggregation block placement remains unqualified |
+| Qi selection/signing | Fixed denomination inventory, exact output/address capacity, single/multi-input signing, sweep and explicit aggregation | No fee-shortfall success; funded Orchard 46-input mixed-key aggregation and first-Qi block placement verified, plus 15-input sweep |
 | Quai transactions | Native durable prepare/review/sign/broadcast, nonce reservation, access lists, deployment and cross-zone intents | Native SQLite sessions and the browser account session use explicit pending/latest policy; browser replacement preparation, candidate selection and reconciliation exist |
 | Qi transactions | Native and browser durable selection/fee convergence/preparation/signing/submission; exact special-operation custody and candidate reconciliation | Browser signed-intent destination observations exist; only native resume persists destination cursors; observations remain source claims |
 | Payment codes | Version-one BIP47 seed/master/account origins, matching send/receive keys, registered channels, gap/deep scans and mixed-origin spending | Peer-code exchange is out of band; automatic notification discovery/blinding is absent; bounded cursors deliberately avoid reuse |
 | Quai → Qi | Native and browser conversion preparation, simulation/fees/slippage and signed custody; native/browser destination observations | Funded Orchard creation, unlocking and converted-output spending passed; quote/fork behavior and broader production execution require qualification |
-| Qi → Quai | Exact 22-byte conversion form, refund/slippage, explicit or profiled fees and signed recovery | Specialized estimator requires asserted compatible fork/node profile; aggregate Quai balance is not operation-specific maturity proof |
+| Qi → Quai | Exact 22-byte conversion form, refund/slippage, explicit or profiled fees and signed recovery | Funded Orchard conversion, exact maturity credit and subsequent spend passed; isolated strict-slippage refund and refund-output spend passed; automatic Orchard specialized estimation remains open |
 | Qi → WQI / WQI → Qi | Native 20-byte wrap, WQI backing/claim, ERC-20 operations, redemption gas/dust planning, lock observations | Funded Orchard wrap/claim/redeem/mature-spend passed with explicit wrapping fee; automatic Orchard specialized fee estimation and audited contract/profile qualification remain open |
 | Quai ↔ WQUAI | Configured deployment, deposit/withdraw and ERC-20 intents | Distinct mainnet/Orchard deployments; funded Orchard deposit/withdraw and exact balance round trip passed; mainnet funded execution and contract audit remain open |
 | ABI/interfaces | Canonical encoder/decoder, JSON/readable declarations, defaults, packed encoding, EIP-712, event filters and call/log/revert parsing | Positional values and explicit overloads replace JS Proxy/Result/Typed ergonomics; strict bounds and validation differ |
@@ -127,8 +127,7 @@ bind their source and lock hashes; historical results do not automatically quali
 a later commit. CI on the release revision must pass before handoff.
 
 The following remain production qualification work rather than hidden implemented
-features: broader funded execution against unmodified target nodes and aggregation
-block placement; real extension and
+features: broader funded execution against unmodified target nodes; real extension and
 additional browser-engine coverage; sustained fault/reorg/soak/performance and fuzz
 campaigns; and independent security review. The owned isolated chain used documented
 patches and toy keys. Its success does not establish unmodified-network acceptance.
@@ -156,9 +155,30 @@ That test sent 5 Qi, recovered it using the receiver seed and sender public code
 spent the recovered BIP47 output in a 1 Qi return payment, and discovered the
 return with a default gap-50 scan. Failed preparations had burned enough send
 ranges that the first receive scan needed explicit continuation past its initial
-50 empty addresses. This is a demonstrated recovery limitation, not evidence that
-gap scanning always finds all funds. Pinned quais.js matched both payment codes
+50 empty addresses. Compact native allocation now commits only examined children,
+so failed preparations no longer burn thousands of unused trailing candidates.
+Existing floors are preserved; explicit persisted-metadata continuation and deep
+ranges remain necessary for old or fully spent gaps. Pinned quais.js matched both payment codes
 and the actual funded receive key/address and return address.
+
+Additional [Orchard qualification](test-infra/orchard/qi-to-quai-2026-09-14.json)
+verified 1 Qi → 0.025761653122291725 QUAI, the exact locked-to-spendable balance
+transition, and a 0.01 QUAI transfer whose 2× gas-price replacement mined.
+[Aggregation and sweep evidence](test-infra/orchard/transaction-scenarios-2026-09-14.json)
+records 46 inputs (HD plus BIP47, including repeated keys), verified first-Qi block
+placement, exact 26-output accounting, and a 15-input sweep recovered after the
+client deliberately withheld an accepted submission's acknowledgement.
+A [copied-node rollback test](test-infra/local-chain/recovery-2026-09-14.json)
+verified invalidation, reopening and reconfirmation without releasing claims.
+This is controlled database rollback, not a competing-peer consensus reorg.
+
+The [isolated refund test](test-infra/local-chain/refund-2026-09-14.json) exposed and
+fixed rejection of valid Qi refund outpoints carrying a Quai-ledger creating hash.
+The fix covers native/portable custody, discovery, selection, signing and backups.
+It also established that sub-1-Qi refund amounts may create no outputs despite a
+successful receipt under the pinned denomination cutoff. A real 5 Qi refund was
+discovered, matured and spent through the SDK; controller and refund evidence is
+from the documented synthetic profile, not Orchard.
 
 A packageable alpha does not promise production custody safety, unrestricted
 backward compatibility or independent chain verification. General journal

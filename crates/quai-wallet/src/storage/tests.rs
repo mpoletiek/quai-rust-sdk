@@ -1505,3 +1505,44 @@ fn explicit_busy_budget_is_bounded_and_failed_nonce_claims_leave_no_state() {
     let mut store = SqliteStore::open_with_busy_timeout(&db.0, scope(), Duration::ZERO).unwrap();
     assert_eq!(store.reserve_nonce(id(221), address, 0).unwrap(), 1);
 }
+
+#[test]
+fn compact_hd_allocations_commit_only_examined_children_and_preserve_old_floors() {
+    let db = Database::new();
+    let account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let mut store = db.open();
+    let legacy = store
+        .allocate_address(&account, false, 10000, || false)
+        .unwrap();
+    let mut calls = 0;
+    assert!(matches!(
+        store.allocate_address_compact(&account, false, 10000, || {
+            calls += 1;
+            calls > 2
+        }),
+        Err(StorageError::Cancelled)
+    ));
+    assert_eq!(
+        store.next_derivation_index(&account, false).unwrap(),
+        Some(legacy.burned.end)
+    );
+    let first = store
+        .allocate_address_compact(&account, false, 10000, || false)
+        .unwrap();
+    let KeyOrigin::Bip44 { index, .. } = first.address.origin() else {
+        panic!("HD origin")
+    };
+    assert_eq!(first.burned.start, legacy.burned.end);
+    assert_eq!(first.burned.end, index + 1);
+    drop(store);
+    let mut store = db.open();
+    let next = store
+        .allocate_address_compact(&account, false, 10000, || false)
+        .unwrap();
+    assert_eq!(next.burned.start, first.burned.end);
+    assert_ne!(next.address, first.address);
+    assert_eq!(store.addresses().unwrap().len(), 3);
+}

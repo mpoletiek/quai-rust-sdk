@@ -10,7 +10,8 @@ use quai_wallet::discovery::{IndexRange, ScanStop};
 use quai_wallet::storage::SqliteStore;
 
 /// Allocate a destination per possible denomination output before preparing a
-/// payment. Send ranges remain burned on partial failure. The peer code must
+/// payment. Only examined candidates are consumed, before returning each address.
+/// Already returned destinations remain consumed on partial failure. The peer code must
 /// already be registered and exchanged out of band; no notification is inferred.
 pub fn payment_intent(
     store: &mut SqliteStore,
@@ -35,7 +36,7 @@ pub fn payment_intent(
         }
         destinations.push(
             store
-                .allocate_payment_address(
+                .allocate_payment_address_compact(
                     owner,
                     peer,
                     PaymentDirection::Send,
@@ -98,14 +99,7 @@ pub async fn scan_payment_channel<T: Transport>(
     options: &PaymentScanOptions,
     mut cancelled: impl FnMut() -> bool,
 ) -> Result<PaymentScanReport, QiError> {
-    if !(1..=1024).contains(&options.max_addresses)
-        || options.gap_limit.is_some_and(|n| n == 0 || n > 1024)
-        || options.range.start > options.range.end
-        || options.range.end > 1 << 31
-        || options.range.end - options.range.start > 1_000_000
-    {
-        return Err(QiError::InvalidPolicy);
-    }
+    validate_scan_options(options)?;
     let scope = store.scope();
     if store.payment_channel(owner, peer)?.is_none() {
         return Err(QiError::IdentityMismatch);
@@ -169,4 +163,44 @@ pub async fn scan_payment_channel<T: Transport>(
     store.import_payment_receive_indexes(owner, peer, &report.indexes)?;
     refresh_qi(provider, store, 100_000, cancelled).await?;
     Ok(report)
+}
+
+fn validate_scan_options(options: &PaymentScanOptions) -> Result<(), QiError> {
+    if !(1..=1024).contains(&options.max_addresses)
+        || options.gap_limit.is_some_and(|n| n == 0 || n > 1024)
+        || options.range.start > options.range.end
+        || options.range.end > 1 << 31
+        || options.range.end - options.range.start > 1_000_000
+    {
+        return Err(QiError::InvalidPolicy);
+    }
+    Ok(())
+}
+
+/// Continue beyond this zone's highest persisted receive exposure. This is an
+/// explicit extension of discovery, not a historical coverage claim: imported
+/// metadata can be sparse. Existing addresses are refreshed along with new ones.
+/// Useful after a gap-limited page or a refresh failure after metadata import.
+/// For a complete bounded rescan, use `scan_payment_channel` with an explicit
+/// range and no gap limit instead. Neither method rewinds send allocation cursors.
+pub async fn continue_payment_channel<T: Transport>(
+    provider: &Provider<T>,
+    store: &mut SqliteStore,
+    owner: &PrivatePaymentCode,
+    peer: &PaymentCode,
+    options: &PaymentScanOptions,
+    cancelled: impl FnMut() -> bool,
+) -> Result<PaymentScanReport, QiError> {
+    validate_scan_options(options)?;
+    let mut next = options.clone();
+    let last = store
+        .payment_addresses(owner, peer, PaymentDirection::Receive)?
+        .into_iter()
+        .filter(|record| record.zone == store.scope().zone)
+        .map(|record| record.index)
+        .max();
+    if let Some(last) = last {
+        next.range.start = next.range.start.max(last + 1).min(next.range.end);
+    }
+    scan_payment_channel(provider, store, owner, peer, &next, cancelled).await
 }

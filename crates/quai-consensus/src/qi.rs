@@ -43,7 +43,9 @@ impl Denomination {
 /// Unique reference to an existing transaction output.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct OutPoint {
-    /// Originating transaction ID, whose destination bytes identify the UTXO zone.
+    /// Creating transaction ID, whose destination zone byte identifies the UTXO zone.
+    /// Its ledger bit may be Quai: a Qi-to-Quai refund creates Qi outputs under
+    /// the refund ETX hash. Ownership and UTXO existence require separate checks.
     pub transaction_hash: Hash32,
     /// Node-supported output index.
     pub index: u16,
@@ -137,7 +139,7 @@ impl QiTransaction {
             let h = input.previous_output.transaction_hash.bytes();
             let address = QiAddress::try_from(input.public_key.address())
                 .map_err(|_| TransactionError::InvalidScope)?;
-            if h[2] != origin.byte() || h[3] & 0x80 == 0 || address.zone() != origin {
+            if h[2] != origin.byte() || *h == [0; 32] || address.zone() != origin {
                 return Err(TransactionError::InvalidScope);
             }
             addresses.insert(address.address());

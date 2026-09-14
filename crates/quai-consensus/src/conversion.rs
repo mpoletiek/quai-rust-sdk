@@ -34,6 +34,9 @@ pub struct QiConversionIntent {
     /// Single same-zone account destination; repeated denominations aggregate here.
     pub destination: QuaiAddress,
     /// Same-zone Qi refund destination, retained in the signed data.
+    /// The pinned node emits refund denominations of at least 1 Qi (1000 Qits);
+    /// a smaller remainder may create no outputs even with a successful receipt.
+    /// Inspect attributed outpoints rather than assuming the full value returned.
     pub refund: QiAddress,
     /// Caller-selected slippage; no implicit default.
     pub slippage: ConversionSlippage,

@@ -5,6 +5,14 @@
 Initial modular Quai/Qi SDK release candidate, compared against the published
 `quais@1.0.0-alpha.57` artifact. APIs may change during alpha development.
 
+- Add `AccountSession::observe_nonce`, combining durable candidate reconciliation
+  with discovery of unregistered same-nonce transactions.
+- Add Pelagus-compatible `payment_mailbox` announcements and
+  `discover_mailbox_channels`; the SDK discovered and paid a real Pelagus wallet.
+- Add `conversion_batch_discount_bps` for the pinned batch-wide conversion discount.
+- Accept Qi refund outpoints whose creating ETX hash carries the Quai ledger bit.
+- Allocate native change and payment destinations compactly, committing only
+  examined children; add `continue_payment_channel`.
 - Add explicit mainnet/Orchard WQUAI addresses and correct the Orchard example
   and funded harness to use the verified testnet deployment.
 - Correct Quai-to-Qi preparation gas: include origin costs and conservative

@@ -281,3 +281,170 @@ impl<T: Transport, S: Signer> AccountSession<'_, T, S> {
         })
     }
 }
+
+/// Nonce reconciliation outcome across durable candidates and unregistered occupants.
+#[derive(Clone, Debug)]
+pub enum AccountNonceOutcome {
+    /// A durable candidate is canonically included.
+    Registered(Hash32),
+    /// A verified same-sender, same-nonce transaction unknown to this store occupies the
+    /// nonce, for example from another device or a restored copy. The claim stays held;
+    /// the application decides how to account for the external transaction.
+    Unregistered(Box<quai_provider::AccountNonceCandidate>),
+    /// No occupant was found. Absence covers only `scanned_through` and never
+    /// means dropped, cancelled or safe to reuse.
+    Unresolved {
+        /// Last contiguous block examined; the next page's preceding anchor.
+        scanned_through: Option<quai_provider::BlockReference>,
+        /// First unavailable block, when the page stopped early.
+        missing_block: Option<u64>,
+    },
+}
+/// Durable family observation together with its nonce outcome.
+#[derive(Clone, Debug)]
+pub struct AccountNonceObservation {
+    /// Registered candidates, exactly as from `observe_candidates`.
+    pub family: AccountFamilyObservation,
+    /// Registered winner, unregistered occupant or bounded absence.
+    pub outcome: AccountNonceOutcome,
+}
+impl<T: Transport, S: Signer> AccountSession<'_, T, S> {
+    /// Reconcile durable candidates, then, if none is canonical, scan one bounded
+    /// page for any verified same-sender, same-nonce transaction. This combines
+    /// registered-family reconciliation with unregistered replacement discovery.
+    /// No broadcast, candidate deletion or nonce release occurs.
+    pub async fn observe_nonce(
+        &mut self,
+        id: ReservationId,
+        request: quai_provider::AccountReplacementScanRequest,
+    ) -> Result<AccountNonceObservation, AccountError> {
+        let family = self.observe_candidates(id).await?;
+        if let Some(hash) = family.canonical {
+            return Ok(AccountNonceObservation {
+                family,
+                outcome: AccountNonceOutcome::Registered(hash),
+            });
+        }
+        let original = self
+            .signed_candidates(id)?
+            .into_iter()
+            .next()
+            .ok_or(AccountError::MissingSignedPayload)?;
+        let scan = self
+            .provider
+            .observe_account_replacements(&original, self.store.scope().genesis, request)
+            .await?;
+        let known: Vec<Hash32> = family.candidates.iter().map(|(hash, _)| *hash).collect();
+        let outcome = resolve_nonce(
+            &known,
+            scan.candidate,
+            scan.scanned_through,
+            scan.missing_block,
+        )?;
+        Ok(AccountNonceObservation { family, outcome })
+    }
+}
+/// A scan occupant that is itself a durable candidate contradicts the family
+/// observation just made, so the caller must observe again.
+fn resolve_nonce(
+    known: &[Hash32],
+    candidate: Option<quai_provider::AccountNonceCandidate>,
+    scanned_through: Option<quai_provider::BlockReference>,
+    missing_block: Option<u64>,
+) -> Result<AccountNonceOutcome, AccountError> {
+    match candidate {
+        Some(candidate) => {
+            let hash = candidate
+                .transaction
+                .hash()
+                .map_err(|_| AccountError::InvalidOperation)?;
+            if known.contains(&hash) {
+                Err(AccountError::ObservationChanged)
+            } else {
+                Ok(AccountNonceOutcome::Unregistered(Box::new(candidate)))
+            }
+        }
+        None => Ok(AccountNonceOutcome::Unresolved {
+            scanned_through,
+            missing_block,
+        }),
+    }
+}
+#[cfg(test)]
+mod nonce_tests {
+    use super::*;
+    use quai_crypto::SecretKey;
+    use quai_provider::{AccountNonceCandidate, BlockReference, Inclusion, ReplacementReason};
+
+    /// Deterministic public test key whose address is in the Cyprus-1 Quai scope.
+    fn key() -> SecretKey {
+        (1u32..)
+            .find_map(|n| {
+                let mut bytes = [7u8; 32];
+                bytes[28..].copy_from_slice(&n.to_be_bytes());
+                let key = SecretKey::from_bytes(&bytes).ok()?;
+                quai_primitives::QuaiAddress::try_from(key.public_key().address())
+                    .ok()
+                    .filter(|a| a.zone() == quai_primitives::Zone::Cyprus1)
+                    .map(|_| key)
+            })
+            .unwrap()
+    }
+    fn signed(value: u64) -> SignedQuaiTransaction {
+        QuaiTransaction {
+            chain_id: U256::from(9),
+            nonce: 13,
+            to: Some(
+                "0x0006506bDE7140b85DED58a40D7444F84cde4821"
+                    .parse()
+                    .unwrap(),
+            ),
+            value: U256::from(value),
+            gas_limit: 21_000,
+            gas_price: U256::from(1),
+            data: vec![],
+            access_list: vec![],
+        }
+        .sign(&key())
+        .unwrap()
+    }
+    fn candidate(tx: SignedQuaiTransaction) -> AccountNonceCandidate {
+        AccountNonceCandidate {
+            transaction: tx,
+            reason: Some(ReplacementReason::Cancelled),
+            inclusion: Inclusion {
+                block_hash: Hash32::from_bytes([1; 32]),
+                block_number: 10,
+                transaction_index: 0,
+            },
+            receipt: None,
+            confirmations: 2,
+        }
+    }
+
+    #[test]
+    fn unregistered_occupants_absence_and_contradictions_are_distinct() {
+        let original = signed(1);
+        let known = vec![original.hash().unwrap()];
+        let external = signed(0);
+        let AccountNonceOutcome::Unregistered(found) =
+            resolve_nonce(&known, Some(candidate(external.clone())), None, None).unwrap()
+        else {
+            panic!("external occupant not reported")
+        };
+        assert_eq!(found.transaction.hash().unwrap(), external.hash().unwrap());
+        let anchor = BlockReference {
+            number: 9,
+            hash: Hash32::from_bytes([2; 32]),
+        };
+        assert!(matches!(
+            resolve_nonce(&known, None, Some(anchor), Some(11)).unwrap(),
+            AccountNonceOutcome::Unresolved { scanned_through: Some(a), missing_block: Some(11) } if a == anchor
+        ));
+        // The family just reported no canonical member; a scan finding one must re-observe.
+        assert!(matches!(
+            resolve_nonce(&known, Some(candidate(original)), None, None),
+            Err(AccountError::ObservationChanged)
+        ));
+    }
+}

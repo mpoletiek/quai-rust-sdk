@@ -55,6 +55,7 @@ fn notify_calldata_matches_pelagus_and_quais() {
     );
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 #[tokio::test]
 async fn notifications_are_validated_deduplicated_and_bounded() {
     let v = vectors();

@@ -166,11 +166,11 @@ security audit or production certification has occurred.
 
 ## Validation and node evidence
 
-Recorded Linux validation includes **254 native tests plus three subprocess checks**,
-169 tests without default features, strict Clippy/rustdoc/format checks, actual Chromium
-worker tests, and **875,310 sanitizer fuzz executions** in short bounded runs.
-The [retained evidence](test-infra/reports/security-2026-09-11/summary.json) describes
-its precise scope. Dependency scans found no known vulnerability matches; two inactive
+The 2026-09-11 security baseline recorded 254 native tests, three subprocess checks
+and 875,310 short sanitizer fuzz executions; the [retained evidence](test-infra/reports/security-2026-09-11/summary.json)
+describes that scope. The current all-features workspace suite is larger (637 passing
+tests on 2026-09-14) and runs in CI with strict Clippy, rustdoc, format, no-default-feature
+and Chromium worker checks. Dependency scans found no known vulnerability matches; two inactive
 optional unmaintained dependencies remain documented in the [advisory report](docs/dependency-audit.md).
 
 Read-only HTTP and actual WebSocket head notifications were exercised against the
@@ -183,7 +183,9 @@ The pinned node's pending-state account RPC failures and isolated-chain patches
 are documented in the retained reports. Current preparation has explicit
 pending/latest policy, and later isolated-chain account/deployment checks have
 their own evidence. Patched-node success does not qualify unmodified networks,
-funded Orchard transactions or mature redemption spend. Mainnet tests are read-only.
+funded Orchard transactions or mature redemption spend. Funded mainnet
+qualification is recorded separately in the [mainnet harness](test-infra/orchard/README.md);
+ordinary tests never send mainnet transactions.
 
 Run the standard checks from the repository root:
 

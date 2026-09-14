@@ -689,5 +689,6 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
 
 mod replacements;
 pub use replacements::{
-    AccountCandidateStatus, AccountFamilyObservation, PreparedAccountReplacement, ReplacementPolicy,
+    AccountCandidateStatus, AccountFamilyObservation, AccountNonceObservation, AccountNonceOutcome,
+    PreparedAccountReplacement, ReplacementPolicy,
 };

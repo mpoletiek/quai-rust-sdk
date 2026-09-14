@@ -134,10 +134,11 @@
     "A quai_call with the contract's own address as from was rejected with -32000; an account caller succeeds.",
     "Mailbox announcements are unauthenticated public data: anyone can notify any receiver, so codes must be validated and channel scanning bounded.",
     "A Pelagus-compatible notify from the Rust SDK mined at block 10098750 using 243807 gas (9.33 QUAI); the mailbox then listed our code for the Pelagus receiver.",
-    "A 1 Qi return payment to the Pelagus channel was prepared and signed spending the 5 Qi output received from Pelagus with its BIP47 receive key (fee 40 Qits)."
+    "A 1 Qi return payment to the Pelagus channel was prepared and signed spending the 5 Qi output received from Pelagus with its BIP47 receive key (fee 40 Qits).",
+    "The 1 Qi return mined at block 10098870; its output is indexed at the Pelagus channel send address and mined bytes matched custody."
   ],
   "limits": [
-    "Return payment not yet broadcast; Pelagus-side discovery of it is pending.",
+    "Pelagus-side display of the returned 1 Qi is confirmed by the user, not by this harness.",
     "The sender code is inferred from the mailbox; the user did not separately confirm it."
   ],
   "returnDirection": {
@@ -217,6 +218,19 @@
       ],
       "stage": "pelagus-return-signed"
     },
-    "returnBroadcast": "not yet submitted; the signed payload and its 5 Qi input claim are held in custody"
+    "returnBroadcast": {
+      "block": 10098870,
+      "hash": "0x00f000c913982acec149325c179bb5adb43bb68936e6091e3027cb63047f4080",
+      "minedBytesMatchCustody": true,
+      "outcome": "Succeeded",
+      "stage": "pelagus-return-observed",
+      "toPelagus": [
+        {
+          "address": "0x0082aBB8405c2e940830Ba9405525787341aA6c9",
+          "indexed": true,
+          "qits": 1000
+        }
+      ]
+    }
   }
 }

@@ -59,6 +59,17 @@ cancelled polls retain the cursor. It is an in-memory cursor, not a serializable
 chain snapshot: after a reorg, reconstruct it from an explicitly trusted start.
 Hash-only receipt polling and registered-family reconciliation remain separate APIs.
 
+## Combined wallet reconciliation
+
+`AccountSession::observe_nonce(id, request)` reconciles a durable family first and,
+only when no registered candidate is canonical, scans one bounded page. It returns
+`Registered(hash)`, `Unregistered(candidate)` or `Unresolved { scanned_through,
+missing_block }`. A scan occupant that is itself a durable candidate contradicts the
+family read and returns `ObservationChanged`. The claim stays held in every case.
+On mainnet (2026-09-14) a same-key cancellation signed outside the store at nonce 13
+was reported as `Unregistered` with reason `Cancelled`; see the
+[mainnet checks](../test-infra/orchard/mainnet-checks-2026-09-14.json).
+
 ## Published-reference comparison
 
 The executable [reference tests](../compatibility/scripts/account-replacement.test.mjs)

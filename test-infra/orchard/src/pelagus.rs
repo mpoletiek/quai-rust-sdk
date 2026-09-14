@@ -109,6 +109,47 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
                     "walletBalance":{"total":balance.total.to_string(),"spendable":balance.spendable.to_string(),"locked":balance.locked.to_string()}})
             );
         }
+        "mailbox-scan" => {
+            // The SDK's combined discovery: read announcements, register bounded channels, scan.
+            let ctx = super::mainnet_extra::Ctx::load().await?;
+            let mailbox = PaymentMailbox::new(PELAGUS_MAILBOX_ADDRESS.parse()?, &provider)?;
+            let mut store = SqliteStore::open(dir().join("state/qi.sqlite"), scope)?;
+            let mut result = None;
+            for attempt in 1..=4 {
+                match quai_sdk::payment_channels::discover_mailbox_channels(
+                    &provider,
+                    &mut store,
+                    &owner,
+                    &mailbox,
+                    ctx.addresses[0],
+                    8,
+                    &PaymentScanOptions::default(),
+                    || false,
+                )
+                .await
+                {
+                    Ok(r) => {
+                        result = Some(r);
+                        break;
+                    }
+                    Err(quai_sdk::qi::QiError::StaleSnapshot) if attempt < 4 => {
+                        tokio::time::sleep(std::time::Duration::from_secs(2)).await
+                    }
+                    Err(error) => return Err(error.into()),
+                }
+            }
+            let report = result.ok_or("no stable mailbox scan")?;
+            let snapshot = store.snapshot()?;
+            let checkpoint = snapshot.checkpoint.ok_or("missing checkpoint")?;
+            let balance =
+                quai_sdk::qi_discovery::qi_balance(&mut store, checkpoint.height + U256::from(1))?;
+            println!(
+                "{}",
+                json!({"stage":"sdk-mailbox-discovery","scanned":report.scanned.iter().map(|c|json!({"sender":c.sender.to_base58(),"newlyRegistered":c.newly_registered,"indexes":c.report.indexes.len(),"firstIndexes":c.report.indexes.iter().take(3).collect::<Vec<_>>(),"stop":format!("{:?}",c.report.stopped)})).collect::<Vec<_>>(),
+                    "deferred":report.deferred.len(),"invalid":report.invalid,"duplicates":report.duplicates,
+                    "walletBalance":{"total":balance.total.to_string(),"spendable":balance.spendable.to_string(),"locked":balance.locked.to_string()}})
+            );
+        }
         "return-notify" | "return-prepare" | "return-broadcast" | "return-observe" => {
             let record: Value = serde_json::from_slice(&fs::read(&senders_path)?)?;
             let peer = quai_sdk::payments::PaymentCode::from_base58(

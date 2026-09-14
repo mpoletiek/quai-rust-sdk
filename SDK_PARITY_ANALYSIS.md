@@ -149,8 +149,8 @@ reports queried the mainnet address on Orchard. Funded WQI qualification now als
 includes a [1 Qi backing deposit](test-infra/orchard/wqi-roundtrip-2026-09-14.json), claiming 1 WQI, redemption to an observed locked
 Qi output, expiry of its Orchard lock, and a confirmed spend of that exact output.
 The wrap used an explicit 0.1 Qi fee because Orchard did not satisfy the pinned
-specialized estimator's activation profile. Mainnet checks remain read-only;
-real Pelagus interoperability remains separate from [funded local payment-code testing](test-infra/orchard/payment-codes-2026-09-14.json).
+specialized estimator's activation profile; the same estimator produced mainnet
+quotes. Real Pelagus interoperability is recorded separately from [funded local payment-code testing](test-infra/orchard/payment-codes-2026-09-14.json).
 That test sent 5 Qi, recovered it using the receiver seed and sender public code,
 spent the recovered BIP47 output in a 1 Qi return payment, and discovered the
 return with a default gap-50 scan. Failed preparations had burned enough send
@@ -171,6 +171,20 @@ client deliberately withheld an accepted submission's acknowledgement.
 A [copied-node rollback test](test-infra/local-chain/recovery-2026-09-14.json)
 verified invalidation, reopening and reconfirmation without releasing claims.
 This is controlled database rollback, not a competing-peer consensus reorg.
+
+Funded **mainnet** qualification began on 2026-09-14 through `https://rpc.quai.network`
+([record](test-infra/orchard/mainnet-2026-09-14.json), [checks](test-infra/orchard/mainnet-checks-2026-09-14.json),
+[Pelagus](test-infra/orchard/mainnet-pelagus-2026-09-14.json)). It covers QUAI transfers,
+WQUAI deposit/withdraw and approve/transferFrom/transfer, a fee-only replacement,
+reconciliation after a withheld acknowledgement, discovery of an unregistered nonce
+cancellation, a ground deployment with code wait, seed-only recovery of locked
+conversion Qi, automatic specialized fee quotes (36 Qits for a 1 Qi conversion, 33
+for a wrap), authenticated backup restore and six Quai-to-Qi conversions. Batch-wide
+conversion discounts from concurrent third-party flow refunded three conversions;
+three credited 3,416 Qits. Pelagus interoperability passed in both directions: the
+SDK discovered a Pelagus sender through its mailbox contract, recovered 15 Qi, sent a
+Pelagus-compatible `notify`, and returned 1 Qi from the received output. Qi spending
+of conversion outputs, WQI and Qi-to-Quai on mainnet await lock expiry or activation.
 
 The [isolated refund test](test-infra/local-chain/refund-2026-09-14.json) exposed and
 fixed rejection of valid Qi refund outpoints carrying a Quai-ledger creating hash.

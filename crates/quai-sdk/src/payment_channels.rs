@@ -204,3 +204,92 @@ pub async fn continue_payment_channel<T: Transport>(
     }
     scan_payment_channel(provider, store, owner, peer, &next, cancelled).await
 }
+
+/// One announced channel scanned during mailbox discovery.
+#[cfg(feature = "abi")]
+#[derive(Clone, Debug)]
+pub struct MailboxChannelScan {
+    /// Validated sender code taken from the mailbox.
+    pub sender: PaymentCode,
+    /// Whether this call registered the channel; existing channels are rescanned.
+    pub newly_registered: bool,
+    /// Receive scan result for this channel.
+    pub report: PaymentScanReport,
+}
+
+/// Bounded mailbox discovery result. Absence of funds is not proof of none.
+#[cfg(feature = "abi")]
+#[derive(Clone, Debug, Default)]
+pub struct MailboxDiscoveryReport {
+    /// Announced channels registered (if needed) and scanned, in announcement order.
+    pub scanned: Vec<MailboxChannelScan>,
+    /// Valid announcements beyond `max_channels`; call again to process them.
+    pub deferred: Vec<PaymentCode>,
+    /// Announced entries that are not valid payment codes.
+    pub invalid: Vec<String>,
+    /// Repeated valid announcements that were collapsed.
+    pub duplicates: usize,
+}
+
+/// Read Pelagus-compatible mailbox announcements for `owner`, register up to
+/// `max_channels` announced senders (1..=64) and scan each with `options`.
+/// Announcements are unauthenticated: anyone can make this call register a
+/// code, so the channel count is bounded and registration persists metadata.
+/// Already-registered channels count toward the bound and are rescanned.
+/// Send cursors never change; nothing is notified or broadcast.
+#[cfg(feature = "abi")]
+#[allow(clippy::too_many_arguments)]
+pub async fn discover_mailbox_channels<T: Transport>(
+    provider: &Provider<T>,
+    store: &mut SqliteStore,
+    owner: &PrivatePaymentCode,
+    mailbox: &crate::payment_mailbox::PaymentMailbox<'_, T>,
+    caller: quai_primitives::QuaiAddress,
+    max_channels: usize,
+    options: &PaymentScanOptions,
+    mut cancelled: impl FnMut() -> bool,
+) -> Result<MailboxDiscoveryReport, QiError> {
+    if !(1..=64).contains(&max_channels) {
+        return Err(QiError::InvalidPolicy);
+    }
+    validate_scan_options(options)?;
+    let announced = mailbox
+        .notifications(caller, owner.public_code(), quai_provider::BlockTag::Latest)
+        .await
+        .map_err(|error| match error {
+            crate::contracts::ContractError::Provider(error) => QiError::Provider(error),
+            _ => QiError::IdentityMismatch,
+        })?;
+    let mut report = MailboxDiscoveryReport {
+        invalid: announced.invalid,
+        duplicates: announced.duplicates,
+        ..Default::default()
+    };
+    let mut senders = announced.senders.into_iter();
+    for sender in senders.by_ref().take(max_channels) {
+        if cancelled() {
+            return Err(QiError::Cancelled);
+        }
+        if sender == *owner.public_code() {
+            report.invalid.push(sender.to_base58());
+            continue;
+        }
+        let newly_registered = store.payment_channel(owner, &sender)?.is_none();
+        if newly_registered {
+            store.import_payment_channel(
+                owner,
+                &quai_payments::PaymentChannel::new(owner, sender.clone()),
+                None,
+            )?;
+        }
+        let scan =
+            scan_payment_channel(provider, store, owner, &sender, options, &mut cancelled).await?;
+        report.scanned.push(MailboxChannelScan {
+            sender,
+            newly_registered,
+            report: scan,
+        });
+    }
+    report.deferred = senders.collect();
+    Ok(report)
+}

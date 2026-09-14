@@ -645,6 +645,51 @@ pub async fn run(op: &str) -> Result<(), Box<dyn Error>> {
                 return Err("receipt contract address differs from prediction".into());
             }
         }
+        "nonce-outcome" => {
+            // Re-check the held nonce-13 reservation through the combined SDK API.
+            let id = ReservationId([25; 16]);
+            let signer = ctx.signer(0)?;
+            let mut store = ctx.store(0)?;
+            let head = u64::try_from(ctx.provider.block_number(Zone::Cyprus1.into()).await?)
+                .map_err(|_| "height")?;
+            let from = 10_097_890;
+            let observation = AccountSession::new(&ctx.provider, &signer, &mut store)?
+                .observe_nonce(
+                    id,
+                    quai_sdk::provider::AccountReplacementScanRequest {
+                        from_block: from,
+                        to_block: head.min(from + 255),
+                        max_transactions_per_block: 4096,
+                        max_total_transactions: 65_536,
+                        preceding_block: None,
+                    },
+                )
+                .await?;
+            let summary = match &observation.outcome {
+                quai_sdk::accounts::AccountNonceOutcome::Registered(hash) => {
+                    json!({"outcome":"registered","hash":hash.to_string()})
+                }
+                quai_sdk::accounts::AccountNonceOutcome::Unregistered(c) => {
+                    json!({"outcome":"unregistered","hash":c.transaction.hash()?.to_string(),"reason":format!("{:?}",c.reason),"block":c.inclusion.block_number,"confirmations":c.confirmations})
+                }
+                quai_sdk::accounts::AccountNonceOutcome::Unresolved {
+                    scanned_through,
+                    missing_block,
+                } => {
+                    json!({"outcome":"unresolved","scannedThrough":scanned_through.map(|b|b.number),"missingBlock":missing_block})
+                }
+            };
+            save_record(
+                "nonce-outcome",
+                &json!({"check":"observe-nonce-combined-reconciliation","family":format!("{:?}",observation.family),"result":summary,"reservation":store.reservation(id)?.map(|r|format!("{:?}",r.state))}),
+            )?;
+            if summary["outcome"] != "unregistered"
+                || summary["hash"]
+                    != "0x007a003c4f13ab9de078f3d5a3315d4fb61c5720d83d26e03a901a01c78c6adc"
+            {
+                return Err("observe_nonce did not report the unregistered cancellation".into());
+            }
+        }
         _ => {
             return Err("expected token-roundtrip, lost-ack, unknown-replacement or deploy".into());
         }

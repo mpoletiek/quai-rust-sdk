@@ -29,6 +29,7 @@ struct Mock {
     send_started: Arc<tokio::sync::Notify>,
     invalidate: Arc<Mutex<Option<(std::path::PathBuf, NetworkScope)>>>,
     outpoints: Arc<Mutex<std::collections::BTreeMap<String, Value>>>,
+    call_result: Arc<Mutex<Option<Value>>>,
 }
 impl Transport for Mock {
     async fn request(&self, _: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
@@ -54,6 +55,12 @@ impl Transport for Mock {
                 json!({"woHeader":{"hash":if mode==5 {GENESIS} else {CHECKPOINT}, "number": if params[0]=="latest" && mode==6 {"0x11"} else {"0x10"},"location":"0x0000","parentHash":GENESIS,"primeTerminusNumber": if mode==8 {"0x1ac778"} else {"0x10"}},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
             }
             "quai_getLatestUTXOSetSize" => json!("0x1"),
+            "quai_call" => self
+                .call_result
+                .lock()
+                .unwrap()
+                .clone()
+                .expect("unexpected quai_call"),
             "quai_quaiToQi" => json!("0x5"),
             "quai_qiToQuai" => json!("0xffffffffff"),
             "quai_estimateFeeForQi" => {
@@ -2213,4 +2220,112 @@ async fn refund_outpoints_with_quai_hash_bits_survive_selection_signing_and_rest
     let mut invalid = env.store.snapshot().unwrap();
     invalid.coins[0].outpoint.transaction_hash = quai_sdk::primitives::Hash32::ZERO;
     assert!(env.store.replace_snapshot(&invalid).is_err());
+}
+
+#[cfg(all(feature = "payments", feature = "abi"))]
+#[tokio::test]
+async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds() {
+    use quai_sdk::payment_channels::{PaymentScanOptions, discover_mailbox_channels};
+    use quai_sdk::payment_mailbox::{PELAGUS_MAILBOX_ADDRESS, PaymentMailbox};
+    use quai_sdk::payments::{PaymentDirection, PaymentSearch, PrivatePaymentCode};
+    let mut env = setup();
+    let receiver = PrivatePaymentCode::from_seed(&[1; 32], 0).unwrap();
+    let sender = PrivatePaymentCode::from_seed(&[2; 32], 0).unwrap();
+    let other = PrivatePaymentCode::from_seed(&[3; 32], 0).unwrap();
+    // Funds at the first receive address derived for the announced sender.
+    let found = receiver
+        .search(
+            sender.public_code(),
+            PaymentDirection::Receive,
+            PaymentSearch {
+                zone: Zone::Cyprus1,
+                start_index: 0,
+                max_attempts: 10000,
+            },
+            || false,
+        )
+        .unwrap();
+    env.mock.outpoints.lock().unwrap().insert(found.address.to_string(),json!([{"txHash":"0x0080008044444444444444444444444444444444444444444444444444444444","index":"0x0","denomination":"0x7","lock":"0x0"}]));
+    let announced = [
+        sender.public_code().to_base58(),
+        receiver.public_code().to_base58(), // a self-announcement is not a channel
+        "not-a-payment-code".to_string(),
+        other.public_code().to_base58(),
+        sender.public_code().to_base58(),
+    ];
+    let encoded = quai_sdk::abi::AbiCoder::encode(
+        &[quai_sdk::abi::AbiType::parse("string[]").unwrap()],
+        &[json!(announced)],
+    )
+    .unwrap();
+    *env.mock.call_result.lock().unwrap() = Some(json!(RpcData::new(encoded).unwrap().to_hex()));
+    let mailbox =
+        PaymentMailbox::new(PELAGUS_MAILBOX_ADDRESS.parse().unwrap(), &env.provider).unwrap();
+    let caller = "0x0006506bDE7140b85DED58a40D7444F84cde4821"
+        .parse()
+        .unwrap();
+    let options = PaymentScanOptions {
+        gap_limit: Some(2),
+        ..Default::default()
+    };
+    assert!(
+        discover_mailbox_channels(
+            &env.provider,
+            &mut env.store,
+            &receiver,
+            &mailbox,
+            caller,
+            0,
+            &options,
+            || false
+        )
+        .await
+        .is_err()
+    );
+    // Two slots: the sender and the self-announcement; the other peer is deferred.
+    let report = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        2,
+        &options,
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(report.scanned.len(), 1);
+    assert_eq!(report.scanned[0].sender, *sender.public_code());
+    assert!(report.scanned[0].newly_registered);
+    assert_eq!(report.scanned[0].report.indexes[0], found.index);
+    assert_eq!(report.deferred, vec![other.public_code().clone()]);
+    assert_eq!(report.duplicates, 1);
+    assert_eq!(report.invalid.len(), 2);
+    assert!(
+        env.store
+            .payment_channel(&receiver, other.public_code())
+            .unwrap()
+            .is_none()
+    );
+    let coins = env.store.snapshot().unwrap().coins;
+    assert!(
+        coins
+            .iter()
+            .any(|c| c.address.to_string() == found.address.to_string())
+    );
+    // Rerunning keeps the registered channel and rescans it without re-registration.
+    let again = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        2,
+        &options,
+        || false,
+    )
+    .await
+    .unwrap();
+    assert!(!again.scanned[0].newly_registered);
 }

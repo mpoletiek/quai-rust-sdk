@@ -586,6 +586,13 @@ window/worker deadlines and a page/poll budget. Both use the portable
 See [account nonce replacement discovery](docs/ACCOUNT_NONCE_REPLACEMENTS.md) for
 coverage, missing receipts, reorg behavior and the published-reference differences.
 
+Native `AccountSession::observe_nonce(id, request)` combines both views. It first
+reconciles durable candidates; when none is canonical it scans the bounded page and
+returns `AccountNonceOutcome::Registered`, `Unregistered` (a verified same-nonce
+transaction unknown to the store, such as one from another device) or `Unresolved`
+with coverage. No claim is released. On mainnet it reported an externally signed
+cancellation as `Unregistered` while the durable original remained held.
+
 
 ### Remote account signing and external custody
 
@@ -643,8 +650,11 @@ address Pelagus uses; identical runtime bytes were observed on mainnet and
 Orchard. This is a wallet convention, not a protocol rule. Announcements are
 unauthenticated and public: anyone can announce a code, and a `notify` links
 both codes on-chain. A Pelagus recipient only discovers a channel after
-`notify`, which cost 243,807 gas on mainnet. Register returned codes as
-channels and scan them with the ordinary bounded scans.
+`notify`, which cost 243,807 gas on mainnet. Native
+`payment_channels::discover_mailbox_channels` reads announcements, registers at most
+`max_channels` (1–64) announced senders, scans each and reports deferred, invalid and
+duplicate entries. Because announcements are unauthenticated, each registration
+persists metadata for a code anyone could have announced; keep the bound small.
 
 ## Conversions and wrapped assets
 
@@ -655,6 +665,11 @@ creation. Inspect `observe_conversion_qi_credit` and its `unobserved_qits` inste
 of treating receipt success as full repayment. A refunded Qi output can be keyed
 by an ETX hash with the Quai ledger bit; SDK validation checks its nonzero hash,
 zone and actual Qi ownership rather than rejecting that bit.
+
+Mainnet prices conversions per prime-block batch: concurrent conversions share
+one cubic discount and conversions exceeding their slippage are refunded, which
+single-transaction quotes cannot predict. `conversion_batch_discount_bps` reproduces
+the pinned formula; see [conversion slippage](docs/conversions.md).
 
 `Provider::qi_to_quai`, `quai_to_qi` and `calculate_conversion_amount` retain exact
 integer quantities and unknown results. A historical selector is not a promise
@@ -1063,7 +1078,21 @@ slippage, a real refunded Qi output, and its subsequent wallet-session spend.
 Broader unmodified-node acceptance, consensus-driven competing-branch reorgs,
 sustained fault/soak/performance tests, additional
 browser engines/extensions and independent specialist security review remain
-qualification work. No mainnet transaction was submitted during this review.
+qualification work.
+
+Funded **mainnet** qualification began on 2026-09-14 through `https://rpc.quai.network`
+([record](test-infra/orchard/mainnet-2026-09-14.json), [checks](test-infra/orchard/mainnet-checks-2026-09-14.json),
+[Pelagus](test-infra/orchard/mainnet-pelagus-2026-09-14.json)). It covers QUAI transfers,
+WQUAI deposit/withdraw and approve/transferFrom/transfer, a fee-only replacement,
+reconciliation after a withheld acknowledgement, discovery of an unregistered nonce
+cancellation, a ground deployment with code wait, seed-only recovery of locked
+conversion Qi, automatic specialized fee quotes (36 Qits for a 1 Qi conversion, 33
+for a wrap), authenticated backup restore and six Quai-to-Qi conversions. Batch-wide
+conversion discounts from concurrent third-party flow refunded three conversions;
+three credited 3,416 Qits. Pelagus interoperability passed in both directions: the
+SDK discovered a Pelagus sender through its mailbox contract, recovered 15 Qi, sent a
+Pelagus-compatible `notify`, and returned 1 Qi from the received output. Qi spending
+of conversion outputs, WQI and Qi-to-Quai on mainnet await lock expiry or activation.
 Cross-zone qualification is deferred while only Cyprus-1 is available.
 
 

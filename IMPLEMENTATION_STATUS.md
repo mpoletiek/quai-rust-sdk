@@ -113,7 +113,8 @@ below and in the retained platform reports.
 `quai_clientVersion` reports LAN `go-quai/v0.56.0-f3f345c8` and Orchard
 `go-quai/v0.34.0-pre-82368aff`. These are self-reported versions, not build or
 synchronization attestations; the differing versions require separate protocol
-qualification. No mainnet transaction has been submitted. The isolated funded harness is available with documented development patches;
+qualification. (Historical: no mainnet transaction had been submitted at that point;
+see the September 14 mainnet section.) The isolated funded harness is available with documented development patches;
 both conversion directions, refund and maturity/spend acceptance now also pass
 on their separate controller/lock-adjusted profile. Unmodified mature-node writes
 and disposable funded Orchard acceptance remain
@@ -1151,3 +1152,28 @@ The preceding commit's first CI attempt had seven successful jobs and a Chromium
 startup crash before IndexedDB fixture progress. The same fixture passed locally;
 the failed browser job was rerun without changing assertions. Final committed
 source must pass its own complete eight-job CI matrix before handoff.
+
+## Funded mainnet and Pelagus qualification — September 14, 2026
+
+Funded **mainnet** qualification began on 2026-09-14 through `https://rpc.quai.network`
+([record](test-infra/orchard/mainnet-2026-09-14.json), [checks](test-infra/orchard/mainnet-checks-2026-09-14.json),
+[Pelagus](test-infra/orchard/mainnet-pelagus-2026-09-14.json)). It covers QUAI transfers,
+WQUAI deposit/withdraw and approve/transferFrom/transfer, a fee-only replacement,
+reconciliation after a withheld acknowledgement, discovery of an unregistered nonce
+cancellation, a ground deployment with code wait, seed-only recovery of locked
+conversion Qi, automatic specialized fee quotes (36 Qits for a 1 Qi conversion, 33
+for a wrap), authenticated backup restore and six Quai-to-Qi conversions. Batch-wide
+conversion discounts from concurrent third-party flow refunded three conversions;
+three credited 3,416 Qits. Pelagus interoperability passed in both directions: the
+SDK discovered a Pelagus sender through its mailbox contract, recovered 15 Qi, sent a
+Pelagus-compatible `notify`, and returned 1 Qi from the received output. Qi spending
+of conversion outputs, WQI and Qi-to-Quai on mainnet await lock expiry or activation.
+
+New APIs from this work: `conversion_batch_discount_bps` (pinned batch discount),
+`payment_mailbox::PaymentMailbox` and `payment_channels::discover_mailbox_channels`
+(Pelagus-compatible announcements), and `AccountSession::observe_nonce` (registered
+and unregistered nonce outcomes). A detached WebSocket soak recorded real depth-1
+reorgs handled by canonical replay. Open items: WQI after the unwrap-lock activation,
+conversion-output spending after lock expiry, Qi-to-Quai on mainnet, header-level
+rather than funded-transaction reorgs, and verification that the quais package's
+compiled `lib/` (reporting 1.0.0-alpha.52) matches its alpha.57 source.

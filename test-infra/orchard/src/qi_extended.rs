@@ -270,10 +270,12 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                     destinations: vec![receiver.address.address().try_into()?],
                 })
             } else if operation != "wrap" && !conversion && !sweeping {
+                // Each payment uses one recipient address, so mainnet amounts must be
+                // a single Qi denomination (250 Qits would need three outputs).
                 let amount = if redemption {
-                    payment_qits(500, 250)
+                    payment_qits(500, 500)
                 } else if is_peer {
-                    payment_qits(1000, 250)
+                    payment_qits(1000, 100)
                 } else {
                     payment_qits(5000, 500)
                 };
@@ -291,7 +293,7 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
             };
             refresh(&provider, &mut store).await?;
             let mut keys = QiKeyring::new(Some(&wallet))?;
-            keys.load_payment_channel(&store, &payment, peer.public_code())?;
+            keys.load_payment_channels(&store, &payment)?;
             let mut session = QiSession::with_keys(&provider, &keys, &mut store);
             let policy = QiPolicy {
                 initial_fee: U256::ZERO,
@@ -388,7 +390,7 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                     return Err("receipt exists; observe instead".into());
                 }
                 let mut keys = QiKeyring::new(Some(&wallet))?;
-                keys.load_payment_channel(&store, &payment, peer.public_code())?;
+                keys.load_payment_channels(&store, &payment)?;
                 let ack = QiSession::with_keys(&provider, &keys, &mut store)
                     .broadcast(id)
                     .await?;

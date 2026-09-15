@@ -1127,6 +1127,10 @@ async fn payment_scan_imports_matching_receive_children_and_is_idempotent() {
         keys.load_payment_channel(&env.store, &owner, peer).unwrap(),
         3
     );
+    // Loading every registered channel finds the same keys without the peer code.
+    let mut all = QiKeyring::new(None).unwrap();
+    assert_eq!(all.load_payment_channels(&env.store, &owner).unwrap(), 3);
+    assert_eq!(keys.load_payment_channels(&env.store, &owner).unwrap(), 0);
     let metadata = env
         .store
         .addresses()
@@ -2276,6 +2280,7 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
             &mailbox,
             caller,
             0,
+            0,
             &options,
             || false
         )
@@ -2289,6 +2294,7 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
         &receiver,
         &mailbox,
         caller,
+        0,
         2,
         &options,
         || false,
@@ -2300,6 +2306,7 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     assert!(report.scanned[0].newly_registered);
     assert_eq!(report.scanned[0].report.indexes[0], found.index);
     assert_eq!(report.deferred, vec![other.public_code().clone()]);
+    assert_eq!(report.next_start, Some(2));
     assert_eq!(report.duplicates, 1);
     assert_eq!(report.invalid.len(), 2);
     assert!(
@@ -2321,6 +2328,7 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
         &receiver,
         &mailbox,
         caller,
+        0,
         2,
         &options,
         || false,
@@ -2328,4 +2336,24 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     .await
     .unwrap();
     assert!(!again.scanned[0].newly_registered);
+    assert_eq!(again.next_start, Some(2));
+    // The next page reaches the deferred announcement instead of rescanning the first.
+    let next = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        again.next_start.unwrap(),
+        2,
+        &options,
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(next.scanned.len(), 1);
+    assert_eq!(next.scanned[0].sender, *other.public_code());
+    assert!(next.scanned[0].newly_registered);
+    assert!(next.deferred.is_empty());
+    assert_eq!(next.next_start, None);
 }

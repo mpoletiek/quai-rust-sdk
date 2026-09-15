@@ -8,7 +8,7 @@ and browser adapters.
 [![crates.io](https://img.shields.io/crates/v/quai-sdk.svg)](https://crates.io/crates/quai-sdk)
 [![docs.rs](https://img.shields.io/docsrs/quai-sdk)](https://docs.rs/quai-sdk)
 
-**Alpha release:** `0.1.0-alpha.2` is published on
+**Alpha release:** `0.1.0-alpha.3` is published on
 [crates.io](https://crates.io/crates/quai-sdk), with breaking changes expected. The pinned
 quais.js declaration review is complete, with explicit Rust differences. This
 alpha is not production-qualified for real-fund custody. The public repository is
@@ -39,7 +39,7 @@ For an application outside this workspace, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.2", features = ["sqlite", "abi"] }
+quai-sdk = { version = "=0.1.0-alpha.3", features = ["sqlite", "abi"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 

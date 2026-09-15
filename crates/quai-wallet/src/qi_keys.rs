@@ -133,6 +133,23 @@ impl<'a> QiKeyring<'a> {
         self.imported.extend(staged);
         Ok(count)
     }
+    /// Load receive exposures for every channel registered to `owner` in this store,
+    /// so coin selection cannot choose a channel output whose key was never loaded.
+    /// Each channel is verified and loaded atomically; on error, channels loaded
+    /// earlier remain (they are verified keys) and the rest are not loaded.
+    #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+    pub fn load_payment_channels(
+        &mut self,
+        store: &SqliteStore,
+        owner: &PrivatePaymentCode,
+    ) -> Result<usize, StorageError> {
+        let mut count = 0;
+        for channel in store.payment_channels(owner)? {
+            count +=
+                self.load_payment_channel(store, owner, channel.channel.counterparty_code())?;
+        }
+        Ok(count)
+    }
 }
 impl QiKeyResolver for QiKeyring<'_> {
     fn resolve(&self, address: &PublicAddress) -> Result<SecretKey, StorageError> {

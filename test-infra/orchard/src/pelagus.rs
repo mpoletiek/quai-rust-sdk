@@ -122,6 +122,7 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
                     &owner,
                     &mailbox,
                     ctx.addresses[0],
+                    0,
                     8,
                     &PaymentScanOptions::default(),
                     || false,

@@ -223,7 +223,8 @@ The optional `payments` feature adds `import_payment_receive(owner, peer, index)
 for an explicitly selected BIP47 receive key. It verifies ownership but does not
 allocate or save a payment exposure. The application must persist channel ranges
 before exposing addresses. Native `load_payment_channel` still loads verified,
-registered receive exposures atomically; `sqlite` enables `payments` automatically.
+registered receive exposures atomically, and `load_payment_channels` does so for every
+channel registered to the owner; `sqlite` enables `payments` automatically.
 The SDK's `payments` feature also enables this integration when `wallet` is active.
 
 Actual Chromium worker tests cover HD/imported/payment ownership, ordered mixed

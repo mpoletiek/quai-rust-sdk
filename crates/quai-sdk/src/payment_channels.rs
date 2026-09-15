@@ -223,20 +223,23 @@ pub struct MailboxChannelScan {
 pub struct MailboxDiscoveryReport {
     /// Announced channels registered (if needed) and scanned, in announcement order.
     pub scanned: Vec<MailboxChannelScan>,
-    /// Valid announcements beyond `max_channels`; call again to process them.
+    /// Valid announcements after this page, not registered or scanned.
     pub deferred: Vec<PaymentCode>,
+    /// `start` for the next page when `deferred` is nonempty.
+    pub next_start: Option<usize>,
     /// Announced entries that are not valid payment codes.
     pub invalid: Vec<String>,
     /// Repeated valid announcements that were collapsed.
     pub duplicates: usize,
 }
 
-/// Read Pelagus-compatible mailbox announcements for `owner`, register up to
-/// `max_channels` announced senders (1..=64) and scan each with `options`.
-/// Announcements are unauthenticated: anyone can make this call register a
-/// code, so the channel count is bounded and registration persists metadata.
-/// Already-registered channels count toward the bound and are rescanned.
-/// Send cursors never change; nothing is notified or broadcast.
+/// Read Pelagus-compatible mailbox announcements for `owner`, then register and
+/// scan one page of up to `max_channels` (1..=64) distinct valid senders beginning
+/// at index `start`. Continue with `next_start` until it is `None`; the mailbox
+/// only appends, so indexes are stable. Announcements are unauthenticated: anyone
+/// can add codes (including ahead of a real sender), so each page is bounded and
+/// registration persists metadata. Already-registered channels in the page are
+/// rescanned. Send cursors never change; nothing is notified or broadcast.
 #[cfg(feature = "abi")]
 #[allow(clippy::too_many_arguments)]
 pub async fn discover_mailbox_channels<T: Transport>(
@@ -245,6 +248,7 @@ pub async fn discover_mailbox_channels<T: Transport>(
     owner: &PrivatePaymentCode,
     mailbox: &crate::payment_mailbox::PaymentMailbox<'_, T>,
     caller: quai_primitives::QuaiAddress,
+    start: usize,
     max_channels: usize,
     options: &PaymentScanOptions,
     mut cancelled: impl FnMut() -> bool,
@@ -265,7 +269,8 @@ pub async fn discover_mailbox_channels<T: Transport>(
         duplicates: announced.duplicates,
         ..Default::default()
     };
-    let mut senders = announced.senders.into_iter();
+    let end = start.saturating_add(max_channels);
+    let mut senders = announced.senders.into_iter().skip(start);
     for sender in senders.by_ref().take(max_channels) {
         if cancelled() {
             return Err(QiError::Cancelled);
@@ -291,5 +296,6 @@ pub async fn discover_mailbox_channels<T: Transport>(
         });
     }
     report.deferred = senders.collect();
+    report.next_start = (!report.deferred.is_empty()).then_some(end);
     Ok(report)
 }

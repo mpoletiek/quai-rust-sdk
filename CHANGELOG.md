@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.0-alpha.3
+
+Security, stability and wallet-usability fixes from a full project review.
+
+- **Breaking:** `payment_channels::discover_mailbox_channels` now takes a `start`
+  index and reports `next_start`. Previously every call processed the first
+  `max_channels` announced senders again, so senders beyond that page were never
+  scanned; because mailbox announcements are unauthenticated, anyone could hide a
+  real sender's channel by announcing 64 codes first.
+- Add `QiKeyring::load_payment_channels`, which loads receive keys for every channel
+  registered to an owner. A channel left unloaded let coin selection choose its
+  outputs and then fail the whole spend.
+- Funded mainnet WQI round trip after prime block 2,237,000: wrap, claim, unwrap,
+  a 10-block redemption lock, and a spend of the redeemed Qi
+  (`test-infra/orchard/mainnet-wqi-roundtrip-2026-09-15.json`).
+- Qualification harness: Qi stages load all registered payment channels, and mainnet
+  payment amounts use a single Qi denomination.
+
 ## 0.1.0-alpha.2
 
 Documentation-only release; no API or behavior changes from `0.1.0-alpha.1`.

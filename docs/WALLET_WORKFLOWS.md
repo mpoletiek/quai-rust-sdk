@@ -95,8 +95,10 @@ all burned ranges on partial failure. It feeds ordinary `QiSession::prepare`.
 `scan_payment_channel` searches the registered peer's receive derivation with
 default gap 50 or explicit deep ranges, persists locally ownership-verified
 receive exposures, and refreshes all known Qi addresses. Repeating a scan is
-idempotent for exposures and never rewinds a cursor. `QiKeyring::load_payment_channel`
-derives and verifies those receive keys, enabling mixed-origin spending.
+idempotent for exposures and never rewinds a cursor. `QiKeyring::load_payment_channels`
+derives and verifies those receive keys for every registered channel, enabling
+mixed-origin spending; a channel left unloaded makes a spend that selects its
+outputs fail at preparation.
 Notification transaction discovery and automatic peer-code exchange are not
 implemented. A sender with large burned ranges can require explicit deeper
 receive scanning or shared recovery metadata.

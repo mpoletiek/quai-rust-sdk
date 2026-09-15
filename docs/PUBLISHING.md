@@ -10,6 +10,7 @@ repository does not by itself authorize an upload.
 | Version | Date | Source | Result |
 | --- | --- | --- | --- |
 | `0.1.0-alpha.1` | 2026-09-14 | `bf315ee`, tag `v0.1.0-alpha.1` | All twelve crates on crates.io; all twelve docs.rs builds succeeded |
+| `0.1.0-alpha.2` | 2026-09-15 | `d33923f`, tag `v0.1.0-alpha.2` | First tag-triggered Trusted Publishing release; a missing crate configuration stopped it after seven crates, and rerunning the job published the rest |
 
 The [release-candidate name lookup](../test-infra/reports/alpha-registry-check-2026-09-13.json)
 returned HTTP 404 for each name before the first upload; the names are now owned

@@ -1,7 +1,7 @@
 # Quai Rust SDK documentation
 
 This is the integration guide for the SDK in this repository, version
-`0.1.0-alpha.2`. It covers the public crate layers, native and browser workflows,
+`0.1.0-alpha.3`. It covers the public crate layers, native and browser workflows,
 recovery formats, limits, examples and verification. Exact Rust signatures and
 field documentation are hosted on [docs.rs](https://docs.rs/quai-sdk) or can be
 generated from the same checkout with `cargo doc`.
@@ -49,7 +49,7 @@ For another Rust project, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.2", features = ["sqlite", "abi", "payments", "backup"] }
+quai-sdk = { version = "=0.1.0-alpha.3", features = ["sqlite", "abi", "payments", "backup"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -637,7 +637,9 @@ persisted receive exposure in the current zone, including after reopening or a
 refresh failure after metadata import. Sparse imported metadata is not coverage;
 use an explicit range with `gap_limit: None` for bounded deep recovery. A default
 50-address gap can still miss funds beyond old spent or abandoned ranges.
-`QiKeyring::load_payment_channel` enables spending those outputs. Native payment
+`QiKeyring::load_payment_channels` loads every registered channel's receive keys and
+enables spending those outputs; load them before preparing any spend, because coin
+selection can choose a channel output and signing then fails. Native payment
 intents use `allocate_payment_address_compact`; previously returned addresses and
 legacy burned ranges stay consumed.
 
@@ -656,10 +658,12 @@ Orchard. This is a wallet convention, not a protocol rule. Announcements are
 unauthenticated and public: anyone can announce a code, and a `notify` links
 both codes on-chain. A Pelagus recipient only discovers a channel after
 `notify`, which cost 243,807 gas on mainnet. Native
-`payment_channels::discover_mailbox_channels` reads announcements, registers at most
-`max_channels` (1–64) announced senders, scans each and reports deferred, invalid and
-duplicate entries. Because announcements are unauthenticated, each registration
-persists metadata for a code anyone could have announced; keep the bound small.
+`payment_channels::discover_mailbox_channels` reads announcements, registers and scans
+one page of at most `max_channels` (1–64) distinct senders from index `start`, and
+reports deferred, invalid and duplicate entries. Call again with `next_start` until it
+is `None`; otherwise senders announced after the first page are never scanned. Because
+announcements are unauthenticated, anyone can place codes ahead of a real sender, and
+each registration persists metadata for a code anyone could have announced.
 
 ## Conversions and wrapped assets
 

@@ -39,7 +39,7 @@ Recovery preserves signed candidates and nonce/input claims across ambiguous
 broadcasts and reorg observations. Confirmation counts do not prove finality or
 cross-zone destination settlement.
 
-This is an alpha SDK; pin the exact version (`quai-sdk = "=0.1.0-alpha.2"`)
+This is an alpha SDK; pin the exact version (`quai-sdk = "=0.1.0-alpha.3"`)
 because later alphas may break the API. The repository contains compatibility vectors,
 platform CI, extracted-package consumer tests and qualified node evidence;
 the complete reference mapping, deliberate Rust differences and remaining

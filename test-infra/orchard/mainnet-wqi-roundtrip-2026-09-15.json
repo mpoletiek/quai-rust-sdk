@@ -1,0 +1,72 @@
+{
+  "network": "mainnet",
+  "chainId": 9,
+  "endpoint": "https://rpc.quai.network/cyprus1",
+  "date": "2026-09-15",
+  "context": "First funded WQI round trip after prime block 2,237,000 (crossed 2026-09-15 16:46:58 CDT, zone height 10,116,842).",
+  "wqi": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+  "beneficiary": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+  "stages": [
+    {
+      "operation": "wrap",
+      "reservation": "qi.sqlite id 2",
+      "hash": "0x00e500a4937bd1dc70d981f76ecafc31a0d6be4f9316df40fa7c120b02a58930",
+      "block": 10116943,
+      "input": {"hash": "0x00f300ef56b142809d3ce2fb37062c5601fe0c8cb01c2497337bab89fa56415f", "index": 0, "qits": 10000, "origin": "Pelagus payment-channel receive"},
+      "wrappedQits": 1000,
+      "changeQits": 8931,
+      "feeQits": 69,
+      "feeMode": "estimated, V056ShaAnchored",
+      "destinationExecution": "0x0077004c2f4035db3478bd1822700bc432a85d59f24718954cdcf5e268c436e2",
+      "destinationOutcome": "Succeeded",
+      "unclaimedQitsAfter": 1000,
+      "durableSignedBytesMatchMinedTransaction": true
+    },
+    {
+      "operation": "wqi-claim",
+      "reservation": "account-0 id 6",
+      "hash": "0x00480074f626e67476ab77029cdc8e9c71f8e6f5df1ce71252227e0c3dc96fa0",
+      "block": 10116952,
+      "nonce": 16,
+      "gasUsed": 67792,
+      "feeBaseUnits": "2088007808812175744",
+      "tokenAtomsAfter": "1000000000000000000",
+      "unclaimedQitsAfter": 0,
+      "durableSignedBytesMatchMinedTransaction": true
+    },
+    {
+      "operation": "wqi-unwrap",
+      "reservation": "account-0 id 7",
+      "hash": "0x005f005c6ee8c7ebfcc3b22beb7a63152004a9246e6c7186e96e961ffacfd20b",
+      "block": 10116966,
+      "nonce": 17,
+      "gasUsed": 71773,
+      "feeBaseUnits": "2286841860970777357",
+      "recipient": "0x009113f2698D1AEc37a14BD79e9d4aba465F9f9A",
+      "tokenAtomsAfter": "0",
+      "destinationExecution": "0x005500ca9e8ec352d83453a994d25b0f0764a0e04d8aa1ad08d975371d92f90f",
+      "destinationExecutionBlock": 10116973,
+      "redeemedOutput": {"index": 0, "denomination": 6, "qits": 1000, "lock": 10116983},
+      "lockBlocks": 10,
+      "durableSignedBytesMatchMinedTransaction": true
+    },
+    {
+      "operation": "redemption-spend",
+      "reservation": "qi-redemption.sqlite id 1",
+      "hash": "0x00cb009f28743c3efc78b5bed9ef6682031e927367659f2b3b6c40c6e3607d64",
+      "block": 10117005,
+      "input": {"hash": "0x005500ca9e8ec352d83453a994d25b0f0764a0e04d8aa1ad08d975371d92f90f", "index": 0, "qits": 1000},
+      "paymentQits": 500,
+      "paymentRecipient": "original wallet payment code",
+      "changeQits": 465,
+      "feeQits": 35,
+      "matchedCurrentOutputs": 8,
+      "durableSignedBytesMatchMinedTransaction": true
+    }
+  ],
+  "findings": [
+    "The redeemed Qi output was locked for exactly 10 blocks and spent 22 blocks after its destination execution.",
+    "Harness fix: qi-extended stages did not load Pelagus payment-channel receive keys, so the 10 Qi Pelagus output failed with an identity mismatch before any reservation.",
+    "Harness fix: mainnet payment amounts of 250 Qits need three outputs but payments use one recipient address; redemption-spend now pays 500 Qits and payment-return 100 Qits."
+  ]
+}

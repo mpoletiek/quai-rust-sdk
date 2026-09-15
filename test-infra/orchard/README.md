@@ -302,12 +302,13 @@ Run only after every lock height has passed. Each funded stage is one-use.
    be trimmed as they unlock.
 2. `qi-extended self-transfer prepare|broadcast|observe` (0.1 Qi).
 3. `qi-extended payment-send prepare|broadcast|observe` (0.5 Qi to the peer code),
-   `payment-return scan`, `payment-return prepare|broadcast|observe` (0.25 Qi),
+   `payment-return scan`, `payment-return prepare|broadcast|observe` (0.1 Qi),
    then `payment-send scan`.
 4. `qi-extended wrap prepare|broadcast|observe|credit` (1 Qi, estimated fee),
    `prepare|broadcast|observe wqi-claim`, `prepare|broadcast|observe|credit wqi-unwrap`,
-   then `qi-extended redemption-spend prepare|broadcast|observe` (0.25 Qi) once the
-   10-block post-fork unwrap lock expires.
+   then `qi-extended redemption-spend prepare|broadcast|observe` (0.5 Qi) once the
+   10-block post-fork unwrap lock expires. Payment amounts must be a single Qi
+   denomination because each payment uses one recipient address.
 5. `qi-extended convert-qi-to-quai prepare|broadcast|observe|credit` (1 Qi, 2000
    basis points, estimated fee). Account B's credit is locked for two weeks.
 6. `qi-extended aggregate prepare|broadcast|observe`; first-Qi block placement is

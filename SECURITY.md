@@ -1,6 +1,6 @@
 # Development security status
 
-This workspace is not production-qualified. The `0.1.0-alpha.1` packages are published on crates.io as an alpha; publication is not a production-safety claim.
+This workspace is not production-qualified. The `0.1` alpha packages are published on crates.io as an alpha; publication is not a production-safety claim.
 It contains wallet keys, encrypted seed/full-wallet backups, transaction signing,
 legacy keystore import/export and account/Qi submission APIs. Public fixtures are reproducible and must never hold
 real funds. Mainnet testing in this development session is read-only.

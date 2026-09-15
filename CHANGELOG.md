@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-alpha.2
+
+Documentation-only release; no API or behavior changes from `0.1.0-alpha.1`.
+
+- Crate READMEs no longer describe the packages as unpublished, and install
+  instructions use the crates.io release with an exact alpha pin.
+- Releases are now published by the tag-triggered `release` GitHub Actions
+  workflow using crates.io Trusted Publishing.
+
 ## 0.1.0-alpha.1 — 2026-09-14
 
 Initial modular Quai/Qi SDK alpha, published to crates.io from commit `bf315ee`

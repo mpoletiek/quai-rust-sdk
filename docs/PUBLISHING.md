@@ -1,8 +1,8 @@
 # Publishing the Rust SDK
 
 Rust's public package registry is **crates.io**. This workspace contains twelve
-versioned crates, including the facade `quai-sdk`. The current version is
-`0.1.0-alpha.1`; the workspace policy permits only `crates-io`. Metadata in the
+versioned crates, including the facade `quai-sdk`, sharing the root
+`workspace.package.version`; the workspace policy permits only `crates-io`. Metadata in the
 repository does not by itself authorize an upload.
 
 ## Release record
@@ -48,23 +48,58 @@ Private security reports can go to
 [the repository's private reporting form](https://github.com/mpoletiek/quai-rust-sdk/security/advisories/new).
 The [security policy](../SECURITY.md) describes the current limits.
 
-## Authorized registry upload
+## Tagged release workflow
 
-Actual publication requires separate authorization and an authenticated registry
-account. Do not put a registry token in the repository or a command transcript.
-Use Cargo's credential provider or a separately configured trusted-publishing
-workflow. No automatic publish-on-push or publish-on-tag action is installed.
+Releases are published by [`.github/workflows/release.yml`](../.github/workflows/release.yml)
+when a `v*` tag is pushed. It authenticates with crates.io
+[Trusted Publishing](https://crates.io/docs/trusted-publishing): GitHub issues an
+OIDC token, `rust-lang/crates-io-auth-action` exchanges it for a 30-minute
+registry token, and the token is revoked when the job ends. No registry token is
+stored in the repository or its secrets.
 
-The account must have a verified email address; crates.io rejects uploads from
-an unverified account with HTTP 400. Scope API tokens to `publish-update` (and
-`publish-new` only when adding a crate), restrict them to the `quai-*` pattern,
-give them a short expiry and revoke them after the release.
+To release:
 
-After authorization, bump `version` in the root `Cargo.toml` (the workspace
-dependency entries must match), rerun verification at that exact revision and run
-`cargo publish --workspace --dry-run --locked`, which verifies every archive against
-its new sibling versions. Upload in dependency order (including local test
-dependencies):
+1. Bump `version` under `[workspace.package]` in the root `Cargo.toml`, and the
+   matching `version` on every internal dependency (the `[workspace.dependencies]`
+   entries and the explicit path dependencies in `crates/quai-wallet/Cargo.toml`).
+   Refresh `Cargo.lock`, `fuzz/Cargo.lock` and `test-infra/orchard/Cargo.lock`.
+2. Add a `## <version>` section to `CHANGELOG.md` and update the exact install pins
+   in `README.md`, `SDK_DOCUMENTATION.md` and `crates/quai-sdk/README.md`.
+3. Merge to `main` and wait for the `sdk` CI workflow to pass on that commit.
+4. Tag that commit and push the tag:
+   `git tag -a v<version> -m "<version>" && git push origin v<version>`.
+
+The `verify` job refuses a tag that differs from the workspace version, lacks a
+changelog section or points at a commit not on `main`. It then runs the all-feature
+tests and `cargo publish --workspace --dry-run --locked`, which builds every archive
+against its new sibling versions. Only then does the `publish` job, which runs in
+the `release` GitHub environment and alone holds `id-token: write`, upload the
+crates in order. It skips versions already on crates.io, so rerunning a failed
+workflow resumes a partial release. Pushing a tag is therefore the authorization to
+publish; the `release` environment only accepts `v*` tags.
+
+One-time setup, already completed for the existing crates:
+
+- A GitHub environment named `release` whose deployment policy allows only `v*` tags.
+  Adding yourself as a required reviewer makes each release wait for approval.
+- On crates.io, each crate's Settings → Trusted Publishing lists GitHub owner
+  `mpoletiek`, repository `quai-rust-sdk`, workflow `release.yml` and environment
+  `release`. A crate added to the workspace must first be published once with an
+  API token, then configured the same way and added to the workflow's crate list.
+
+## Manual registry upload
+
+Manual upload is the fallback when the workflow is unavailable, and is required
+for the first version of a new crate. Do not put a registry token in the
+repository or a command transcript. The account must have a verified email
+address; crates.io rejects uploads from an unverified account with HTTP 400.
+Scope API tokens to `publish-update` (and `publish-new` only when adding a crate),
+restrict them to the `quai-*` pattern, give them a short expiry and revoke them
+after the release.
+
+Bump the version as above, rerun verification at that exact revision and run
+`cargo publish --workspace --dry-run --locked`. Upload in dependency order
+(including local test dependencies):
 
 1. `quai-primitives`
 2. `quai-crypto`
@@ -83,8 +118,8 @@ dependencies):
 returning, so a sequential loop over this list is sufficient. crates.io limits new
 crate names to a short burst (five during the first release) followed by one
 every ten minutes, returning HTTP 429 with a retry time; the first release took
-about eighty minutes. New versions of existing crates have a separate, looser
-limit. Before retrying after a failure, check
+about eighty minutes. New versions of existing crates allow a burst of thirty and
+then one per minute, so a twelve-crate update is not normally limited. Before retrying after a failure, check
 `https://crates.io/api/v1/crates/<crate>/<version>` and skip versions that already
 exist. A partial upload cannot be rolled back by reusing a version; follow Cargo's
 publication and yanking rules. Finally verify clean registry consumers and hosted

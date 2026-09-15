@@ -1713,7 +1713,7 @@ dependencies = [
 
 [[package]]
 name = "quai-abi"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 dependencies = [
  "quai-primitives",
  "ruint",
@@ -1726,7 +1726,7 @@ dependencies = [
 
 [[package]]
 name = "quai-consensus"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 dependencies = [
  "prost",
  "quai-crypto",
@@ -1738,7 +1738,7 @@ dependencies = [
 
 [[package]]
 name = "quai-crypto"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 dependencies = [
  "getrandom 0.2.17",
  "getrandom 0.4.3",
@@ -1755,7 +1755,7 @@ dependencies = [
 
 [[package]]
 name = "quai-keystore"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 dependencies = [
  "aes",
  "ctr",
@@ -1774,7 +1774,7 @@ dependencies = [
 
 [[package]]
 name = "quai-payments"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 dependencies = [
  "bip32",
  "bs58",
@@ -1788,7 +1788,7 @@ dependencies = [
 
 [[package]]
 name = "quai-primitives"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 dependencies = [
  "base64 0.22.1",
  "bs58",
@@ -1800,7 +1800,7 @@ dependencies = [
 
 [[package]]
 name = "quai-provider"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 dependencies = [
  "futures-util",
  "quai-consensus",
@@ -1813,7 +1813,7 @@ dependencies = [
 
 [[package]]
 name = "quai-rpc"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 dependencies = [
  "quai-primitives",
  "ruint",
@@ -1825,7 +1825,7 @@ dependencies = [
 
 [[package]]
 name = "quai-sdk"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 dependencies = [
  "quai-abi",
  "quai-consensus",
@@ -1855,7 +1855,7 @@ dependencies = [
 
 [[package]]
 name = "quai-wallet"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 dependencies = [
  "argon2",
  "bip32",

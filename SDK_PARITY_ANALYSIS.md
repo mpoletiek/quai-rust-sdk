@@ -7,7 +7,7 @@ with explicit differences, **not identical JavaScript API/behavior compatibility
 or production qualification**. No known working reference operation is left as an
 unexplained omission in the reviewed inventory.
 
-The SDK is an experimental `0.1.0-alpha.1` release candidate. It includes Qi
+The SDK is an experimental `0.1` alpha release. It includes Qi
 current-state discovery, fixed denominations, both conversion directions,
 WQI/WQUAI workflows, HD/payment-code derivation, contract operations, native and
 browser transaction custody and recovery. Read the

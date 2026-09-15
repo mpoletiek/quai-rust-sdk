@@ -1,0 +1,78 @@
+name: release
+# Publishes all workspace crates to crates.io when a version tag is pushed.
+# Authentication uses crates.io Trusted Publishing (OIDC); no registry token is
+# stored in the repository. Each crate's Trusted Publishing configuration must
+# name this workflow file and the `release` environment.
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+concurrency:
+  group: release
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: rustup toolchain install 1.97.1 --profile minimal
+      - name: Check the tag matches the workspace version, changelog and main
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["workspace"]["package"]["version"])')
+          if [ "$TAG" != "v$version" ]; then
+            echo "::error::tag $TAG does not match workspace version $version"; exit 1
+          fi
+          if ! grep -q "^## $version" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## $version' section"; exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::tagged commit is not on main"; exit 1
+          fi
+      - run: cargo test --workspace --all-features --locked
+      - run: cargo publish --workspace --dry-run --locked
+      - run: git diff --exit-code
+  publish:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install 1.97.1 --profile minimal
+      - uses: rust-lang/crates-io-auth-action@c6f97d42243bad5fab37ca0427f495c86d5b1a18 # v1.0.5
+        id: auth
+      - name: Publish crates in dependency order
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          ua="quai-rust-sdk release workflow (https://github.com/${GITHUB_REPOSITORY})"
+          for crate in quai-primitives quai-crypto quai-rpc quai-abi quai-consensus quai-payments \
+                       quai-provider quai-signer quai-wallet quai-keystore quai-browser quai-sdk; do
+            for attempt in 1 2 3 4 5; do
+              code=$(curl -s -A "$ua" -o /dev/null -w '%{http_code}' "https://crates.io/api/v1/crates/$crate/$version" || true)
+              if [ "$code" = 200 ]; then echo "$crate $version already published; skipping"; break; fi
+              # The dry run in `verify` already built every archive.
+              status=0
+              cargo publish -p "$crate" --locked --no-verify > "$RUNNER_TEMP/publish.log" 2>&1 || status=$?
+              cat "$RUNNER_TEMP/publish.log"
+              if [ "$status" = 0 ]; then break; fi
+              if grep -qE '429|Too Many Requests' "$RUNNER_TEMP/publish.log" && [ "$attempt" -lt 5 ]; then
+                echo "rate limited; retrying $crate in 70 seconds"; sleep 70; continue
+              fi
+              echo "::error::failed to publish $crate $version"; exit 1
+            done
+          done

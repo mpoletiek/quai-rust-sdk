@@ -1,7 +1,7 @@
 # Architecture and current trust boundaries
 
 The workspace implements parts of the [audited full plan](../QUAI_RUST_SDK_PLAN.md).
-All crates are published on crates.io as `0.1.0-alpha.1`. Implemented behavior and remaining acceptance
+All crates are published on crates.io as `0.1` alphas. Implemented behavior and remaining acceptance
 requirements are listed in [status](../IMPLEMENTATION_STATUS.md) and
 [wallet gaps](WALLET_GAPS.md); this document does not imply a stable API.
 
@@ -98,7 +98,7 @@ Exact fixtures, deterministic loopback tests, real read/subscription tests and
 full-cost backup tests cover implemented boundaries. They do not replace funded
 acceptance, reorg/crash/fault testing, fuzzing, performance measurement, real
 browser/macOS/Windows execution or independent protocol/security review.
-All crate publication flags remain disabled while these gates are open.
+The crates are published as alphas while these gates remain open.
 
 ### Injected wallet context changes
 

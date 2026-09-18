@@ -107,12 +107,13 @@ async fn worker_account_observation_rejects_a_changed_checkpoint() {
         .unwrap()
         .address;
     let checkpoint = source.tip(scope()).await.unwrap().checkpoint;
+    // A reorg across the reads is stale, not malformed: observe again.
     assert_eq!(
         source
             .observe(scope(), &found, checkpoint)
             .await
             .unwrap_err(),
-        DiscoveryError::InvalidObservation
+        DiscoveryError::ObservationChanged
     );
 }
 

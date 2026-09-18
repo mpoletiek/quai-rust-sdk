@@ -1,6 +1,8 @@
 //! Portable numbered account observations and bounded current Qi outpoint discovery.
 mod qi;
 mod qi_addresses;
+// For `crate::qi`, which exists only on native SQLite builds.
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub(crate) use qi::wallet_class;
 pub use qi::{
     CurrentQiAddress, CurrentQiDiscovery, CurrentQiOutput, DEFAULT_QI_GAP, ObservedQiBalance,

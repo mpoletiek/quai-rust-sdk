@@ -626,6 +626,7 @@ async fn replacement_quotes_change_only_price_and_use_confirmed_nonce_admission(
             replacement_limits.fees.max_gas = 500_000;
             replacement_limits.fees.max_total_fee = U256::from(2_000_000);
         }
+        m.state().calls.clear();
         let replacement = quote_account_replacement(
             &p,
             scope(),
@@ -635,6 +636,16 @@ async fn replacement_quotes_change_only_price_and_use_confirmed_nonce_admission(
         )
         .await
         .unwrap();
+        // A conversion replacement checks the parent's gas limit against the
+        // same origin-cost budget the original used, which reads the quote;
+        // the raw estimator omits those costs.
+        assert_eq!(
+            m.state()
+                .calls
+                .iter()
+                .any(|(method, _)| method == "quai_quaiToQi"),
+            conversion_mode
+        );
         let mut expected = parent.transaction().clone();
         expected.gas_price = U256::from(3);
         assert_eq!(replacement.transaction(), &expected);

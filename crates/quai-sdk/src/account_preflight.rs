@@ -30,6 +30,46 @@ pub struct FeePolicy {
     pub gas_margin_bps: u16,
 }
 
+impl FeePolicy {
+    /// Whether the policy can bound anything: a nonzero gas cap and a margin of
+    /// at most 100%.
+    pub(crate) fn is_usable(&self) -> bool {
+        self.max_gas != 0 && self.gas_margin_bps <= 10_000
+    }
+    /// The estimate plus the margin, rounded up. None when it is zero or does
+    /// not fit a gas limit.
+    pub(crate) fn margin_gas(&self, estimate: u64) -> Option<u64> {
+        let gas =
+            (u128::from(estimate) * (10_000 + u128::from(self.gas_margin_bps))).div_ceil(10_000);
+        u64::try_from(gas).ok().filter(|gas| *gas != 0)
+    }
+    /// Gas limit, maximum fee and maximum debit a quote may authorize, or None
+    /// when the policy's gas or fee cap refuses it. Every native and portable
+    /// quote goes through here, so a new cap applies to all of them; the
+    /// balance check stays with the caller, which owns the read.
+    pub(crate) fn bound(&self, estimate: u64, gas_price: U256, value: U256) -> Option<FeeBound> {
+        let gas = self
+            .margin_gas(estimate)
+            .filter(|gas| *gas <= self.max_gas)?;
+        let fee = gas_price
+            .checked_mul(U256::from(gas))
+            .filter(|fee| *fee <= self.max_total_fee)?;
+        Some(FeeBound {
+            gas,
+            fee,
+            debit: fee.checked_add(value)?,
+        })
+    }
+}
+
+/// What a [`FeePolicy`] allows one quote to authorize.
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct FeeBound {
+    pub(crate) gas: u64,
+    pub(crate) fee: U256,
+    pub(crate) debit: U256,
+}
+
 /// Explicit access-list behavior for ordinary calls and deployment preparation.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub enum AccountAccessListPolicy {
@@ -264,8 +304,8 @@ pub(crate) async fn quote_operation<T: Transport>(
     {
         return Err(E::Invalid);
     }
-    if policy.max_gas == 0 || policy.gas_margin_bps > 10_000 {
-        return Err(E::FeeLimit);
+    if !policy.is_usable() {
+        return Err(E::Invalid);
     }
     let conversion = matches!(&intent, AccountOperationIntent::Conversion(_));
     if conversion && intent.zone() != scope.zone {
@@ -366,20 +406,10 @@ pub(crate) async fn quote_operation<T: Transport>(
         populate_access(provider, access, &mut request, &mut transaction, block).await?;
         provider.estimate_gas(&request, block).await?
     };
-    let gas =
-        (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);
-    if gas == 0 || gas > u128::from(policy.max_gas) {
-        return Err(E::FeeLimit);
-    }
-    transaction.gas_limit = u64::try_from(gas).map_err(|_| E::FeeLimit)?;
-    let fee = transaction
-        .gas_price
-        .checked_mul(U256::from(transaction.gas_limit))
+    let FeeBound { gas, fee, debit } = policy
+        .bound(estimate, transaction.gas_price, transaction.value)
         .ok_or(E::FeeLimit)?;
-    if fee > policy.max_total_fee {
-        return Err(E::FeeLimit);
-    }
-    let debit = fee.checked_add(transaction.value).ok_or(E::FeeLimit)?;
+    transaction.gas_limit = gas;
     if debit > provider.balance(sender, block).await? {
         return Err(E::InsufficientBalance);
     }
@@ -451,4 +481,48 @@ pub(crate) async fn populate_access<T: Transport>(
         .map_err(|_| AccountPreflightError::Invalid)?;
     request.access_list = generated.access_list;
     Ok(())
+}
+
+#[cfg(test)]
+mod fee_bound_tests {
+    use super::*;
+
+    #[test]
+    fn bound_matches_the_plain_arithmetic_at_every_edge() {
+        // Independent restatement of the rule every quote path now shares.
+        let oracle = |p: FeePolicy, estimate: u64, price: U256, value: U256| {
+            let gas =
+                (u128::from(estimate) * (10_000 + u128::from(p.gas_margin_bps))).div_ceil(10_000);
+            if gas == 0 || gas > u128::from(p.max_gas) {
+                return None;
+            }
+            let fee = price.checked_mul(U256::from(gas as u64))?;
+            if fee > p.max_total_fee {
+                return None;
+            }
+            Some((gas as u64, fee, fee.checked_add(value)?))
+        };
+        for max_gas in [1u64, 21_000, 30_000, u64::MAX] {
+            for bps in [0u16, 1, 2_000, 10_000] {
+                for max_total in [U256::ZERO, U256::from(21_000u64 * 3), U256::MAX] {
+                    let policy = FeePolicy {
+                        max_gas,
+                        max_gas_price: U256::MAX,
+                        max_total_fee: max_total,
+                        gas_margin_bps: bps,
+                    };
+                    for estimate in [0u64, 1, 21_000, 25_000, u64::MAX] {
+                        for price in [U256::ZERO, U256::from(3), U256::MAX] {
+                            for value in [U256::ZERO, U256::MAX] {
+                                let got = policy
+                                    .bound(estimate, price, value)
+                                    .map(|b| (b.gas, b.fee, b.debit));
+                                assert_eq!(got, oracle(policy, estimate, price, value));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

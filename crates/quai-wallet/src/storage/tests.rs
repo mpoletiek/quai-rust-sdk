@@ -704,16 +704,18 @@ fn allocation_burns_skipped_cancelled_and_exposed_ranges_across_restart() {
     let first = store
         .allocate_address(&account, false, 10000, || false)
         .unwrap();
+    // The cancelled attempt's burn stays consumed; the successful one gives
+    // back everything past its address.
     assert_eq!(first.burned.start, 10000);
-    assert_eq!(first.burned.end, 20000);
     let KeyOrigin::Bip44 { index, .. } = first.address.origin() else {
         panic!("HD allocation")
     };
     assert!((10000..20000).contains(&index));
+    assert_eq!(first.burned.end, index + 1);
     let second = store
         .allocate_address(&account, false, 10000, || false)
         .unwrap();
-    assert_eq!(second.burned.start, 20000);
+    assert_eq!(second.burned.start, index + 1);
     assert_ne!(first.address.address(), second.address.address());
     let change = store
         .allocate_address(&account, true, 10000, || false)
@@ -762,14 +764,49 @@ fn allocation_competes_across_processes_without_index_collisions() {
     let store = db.open();
     let addresses = store.addresses().unwrap();
     assert_eq!(addresses.len(), 3);
-    let ranges: BTreeSet<_> = addresses
+    let indexes: BTreeSet<_> = addresses
         .iter()
         .map(|address| match address.origin() {
-            KeyOrigin::Bip44 { index, .. } => index / 10000,
+            KeyOrigin::Bip44 { index, .. } => index,
             _ => panic!("HD allocation"),
         })
         .collect();
-    assert_eq!(ranges, [0, 1, 2].into_iter().collect());
+    assert_eq!(indexes.len(), 3, "no two processes issued the same index");
+}
+
+#[test]
+fn consecutive_allocations_do_not_skip_matching_addresses() {
+    // A large bound used to burn its whole range, skipping ~bound/512 matching
+    // addresses between allocations: at 100,000, about 190, far past a default
+    // gap of 50, so a mnemonic-only restore stopped before the second address.
+    let db = Database::new();
+    let mut store = db.open();
+    let account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let index = |allocated: &AllocatedAddress| match allocated.address.origin() {
+        KeyOrigin::Bip44 { index, .. } => index,
+        _ => panic!("HD allocation"),
+    };
+    let first = store
+        .allocate_address(&account, false, 100_000, || false)
+        .unwrap();
+    let second = store
+        .allocate_address(&account, false, 100_000, || false)
+        .unwrap();
+    let next = account
+        .search(
+            false,
+            crate::Search {
+                zone: scope().zone,
+                start_index: index(&first) + 1,
+                max_attempts: 100_000,
+            },
+            || false,
+        )
+        .unwrap();
+    assert_eq!(index(&second), next.address.index, "the very next match");
 }
 fn ready_scan<F: std::future::Future>(future: F) -> F::Output {
     let mut context = std::task::Context::from_waker(std::task::Waker::noop());

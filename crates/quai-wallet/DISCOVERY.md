@@ -90,8 +90,10 @@ separate cursors, bound to the same account xpub; another xpub cannot replace an
 already bound coin/account namespace.
 
 `next_derivation_index` exposes durable burned-range bounds for recovery planning.
-The entire reserved range is consumed, including skipped indexes, unused trailing
-indexes, cancellations and process death before address exposure. A returned
+Cancellation, failure or process death before address exposure leaves the entire
+reserved range consumed. A successful allocation gives back the range past its
+address unless another allocation ran meanwhile, so consecutive allocations do
+not skip matching addresses a gap-limited restore would need. A returned
 `AllocatedAddress` includes both its exact origin and the burned interval. Bounds
 are 1 through 100,000 attempts; exhausting a range returns an error and still burns
 it. There is no cursor rewind/reuse API. Imported and discovery metadata is

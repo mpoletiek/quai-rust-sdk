@@ -22,6 +22,9 @@ const MAX_CHUNK: u32 = 512;
 /// its last match, so its chunks can be far wider than a single search's.
 #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
 const WINDOW_CHUNK_PER_THREAD: usize = 64;
+/// Candidates derived together, sharing one field inversion. Small, because a
+/// single-address search discards up to this many minus one past its match.
+const SCAN_BATCH: u32 = 32;
 /// Candidates between yields when grinding sequentially: about 20 ms.
 const SEQUENTIAL_SLICE: u32 = 512;
 /// Window chunks between yields when grinding in parallel.
@@ -525,10 +528,29 @@ impl ScanBranch {
     /// `K_i = point(I_L) + K_par`. `I_R` is the child chain code, which a leaf
     /// never uses, so it is not returned; the hash still computes it and the
     /// guard still erases it.
-    fn child_public_key(&self, index: u32) -> Result<PublicKey, WalletError> {
-        if index >= HARDENED {
-            return Err(WalletError::HardenedPublicChild);
-        }
+    /// [`Self::child_public_key`] for `count` consecutive indexes from `start`,
+    /// in order, normalized together. Each slot equals the single call's result.
+    fn child_public_keys(&self, start: u32, count: u32) -> Vec<Result<PublicKey, WalletError>> {
+        let mut tweaks = Vec::with_capacity(count as usize);
+        let slots: Vec<Result<usize, WalletError>> = (0..count)
+            .map(|offset| {
+                let index = start
+                    .checked_add(offset)
+                    .filter(|index| *index < HARDENED)
+                    .ok_or(WalletError::HardenedPublicChild)?;
+                tweaks.push(self.tweak(index)?);
+                Ok(tweaks.len() - 1)
+            })
+            .collect();
+        let points = self.public_key.add_tweaks(&tweaks);
+        slots
+            .into_iter()
+            .map(|slot| slot.and_then(|at| points[at].map_err(|_| WalletError::Derivation)))
+            .collect()
+    }
+
+    /// The CKDpub tweak `I_L` for a child, as a validated scalar.
+    fn tweak(&self, index: u32) -> Result<SecretKey, WalletError> {
         let mut data = [0u8; 37];
         data[..33].copy_from_slice(&self.compressed);
         data[33..].copy_from_slice(&index.to_be_bytes());
@@ -538,9 +560,15 @@ impl ScanBranch {
         // BIP32 says to skip an index whose tweak is zero or >= n. `bip32`
         // returns an error instead, noting the probability is below 1 in 2^127;
         // match that exactly rather than diverging on a case neither will meet.
-        let scalar = SecretKey::from_bytes(&tweak).map_err(|_| WalletError::Derivation)?;
+        SecretKey::from_bytes(&tweak).map_err(|_| WalletError::Derivation)
+    }
+
+    fn child_public_key(&self, index: u32) -> Result<PublicKey, WalletError> {
+        if index >= HARDENED {
+            return Err(WalletError::HardenedPublicChild);
+        }
         self.public_key
-            .add_tweak(&scalar)
+            .add_tweak(&self.tweak(index)?)
             .map_err(|_| WalletError::Derivation)
     }
 }
@@ -788,6 +816,12 @@ impl AccountPublic {
             next_index: Some(search.start_index),
             stop: WindowStop::Exhausted,
         };
+        // Candidates are derived in batches that share one field inversion,
+        // then consumed one at a time: the cancellation check still precedes
+        // each candidate, and an error surfaces at its own index, so attempts
+        // and next_index are unchanged. At most BATCH - 1 derivations past the
+        // last match are discarded.
+        let mut batch = Vec::new().into_iter();
         while window.attempts < search.max_attempts {
             let Some(index) = window.next_index else {
                 break;
@@ -796,7 +830,13 @@ impl AccountPublic {
                 window.stop = WindowStop::Cancelled;
                 return Ok(window);
             }
-            let candidate = branch.child_public_key(index)?;
+            if batch.len() == 0 {
+                let width = SCAN_BATCH
+                    .min(search.max_attempts - window.attempts)
+                    .min(HARDENED - index);
+                batch = branch.child_public_keys(index, width).into_iter();
+            }
+            let candidate = batch.next().expect("a batch covers the next index")?;
             window.attempts += 1;
             window.next_index = index.checked_add(1).filter(|next| *next < HARDENED);
             match self.address_from_key(candidate, change, index) {

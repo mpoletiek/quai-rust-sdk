@@ -281,7 +281,8 @@ where
 
 /// Read all persisted Qi addresses, including imported/channel/change addresses,
 /// then atomically replace their current coin view while preserving reservations.
-/// Header samples must agree, but this is still a trusted latest-state observation,
+/// The snapshot is labelled with the latest block seen before the reads, which
+/// must still be canonical after them. This is still a trusted latest-state observation,
 /// not an atomic RPC snapshot, historical recovery, or spendability proof.
 /// Node-side validation remains authoritative if an output is spent or trimmed later.
 pub async fn refresh_qi<T: Transport>(
@@ -359,17 +360,29 @@ pub async fn refresh_qi<T: Transport>(
     if cancelled() {
         return Err(QiError::Cancelled);
     }
-    let after = tip(provider, scope.zone).await?;
-    if before != after {
+    // The snapshot is labelled with the block observed before the reads, and
+    // that block must still be canonical afterwards. Requiring the tip itself
+    // not to move made a refresh that spans a block boundary fail: with ~5 s
+    // blocks, a large wallet rarely finished, and each failed spend attempt
+    // retried from scratch. Outputs created after `before` may appear under
+    // its label; spending one that a later reorg removes fails at the node,
+    // and the claim stays recoverable, so nothing is lost.
+    let height = u64::try_from(before.height).map_err(|_| QiError::StaleSnapshot)?;
+    let after = provider
+        .header_at(scope.zone, height)
+        .await?
+        .as_ref()
+        .map(crate::network::checkpoint);
+    if after != Some(before) {
         return Err(QiError::StaleSnapshot);
     }
     store.replace_snapshot(&Snapshot {
         scope,
         generation,
-        checkpoint: Some(after),
+        checkpoint: Some(before),
         coins,
     })?;
-    Ok(after)
+    Ok(before)
 }
 
 async fn tip<T: Transport>(provider: &Provider<T>, zone: Zone) -> Result<Checkpoint, QiError> {

@@ -2615,3 +2615,58 @@ async fn a_pool_lent_to_prepare_loses_only_the_change_a_prepared_spend_uses() {
         "the unused tail stays"
     );
 }
+
+#[tokio::test]
+async fn refresh_survives_a_new_block_but_not_a_replaced_start() {
+    // Requiring the tip not to move made any refresh spanning a block boundary
+    // fail. Now only the block the snapshot is labelled with must stay canonical.
+    use quai_sdk::qi_discovery::refresh_qi;
+    #[derive(Clone)]
+    struct Advancing {
+        inner: Mock,
+        latest_reads: Arc<std::sync::atomic::AtomicUsize>,
+        replace_start: bool,
+    }
+    impl Transport for Advancing {
+        async fn request(
+            &self,
+            e: &Endpoint,
+            method: &str,
+            params: Value,
+        ) -> Result<Value, RpcError> {
+            let advanced = || json!({"woHeader":{"hash":format!("0x{}","77".repeat(32)),"number":"0x11","location":"0x0000","parentHash":CHECKPOINT,"primeTerminusNumber":"0x10"},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"});
+            if method == "quai_getHeaderByNumber" && params[0] == "latest" {
+                let n = self.latest_reads.fetch_add(1, Ordering::SeqCst);
+                if n > 0 {
+                    return Ok(advanced());
+                }
+            }
+            if method == "quai_getHeaderByNumber" && params[0] == "0x10" && self.replace_start {
+                let mut header = self.inner.request(e, method, params).await?;
+                header["woHeader"]["hash"] = json!(format!("0x{}", "66".repeat(32)));
+                return Ok(header);
+            }
+            self.inner.request(e, method, params).await
+        }
+    }
+    for replace_start in [false, true] {
+        let mut env = setup();
+        let provider = Provider::new(
+            Advancing {
+                inner: env.mock.clone(),
+                latest_reads: Arc::default(),
+                replace_start,
+            },
+            Routing::direct("http://127.0.0.1:9200/exact", Zone::Cyprus1.into()).unwrap(),
+            env.store.scope().chain_id,
+        );
+        let result = refresh_qi(&provider, &mut env.store, 100, || false).await;
+        if replace_start {
+            assert!(matches!(result, Err(QiError::StaleSnapshot)));
+        } else {
+            let checkpoint = result.unwrap();
+            assert_eq!(checkpoint.height, U256::from(16), "labelled with the start");
+            assert_eq!(env.store.snapshot().unwrap().checkpoint, Some(checkpoint));
+        }
+    }
+}

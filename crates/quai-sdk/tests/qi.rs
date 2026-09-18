@@ -2257,7 +2257,9 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     let caller = "0x0006506bDE7140b85DED58a40D7444F84cde4821"
         .parse()
         .unwrap();
+    use quai_sdk::payment_channels::{ChannelRegistration, MailboxDiscovery, MailboxRegistration};
     let options = PaymentScanOptions::default().with_gap_limit(Some(2));
+    let page = |start| MailboxDiscovery::new(start, 2).with_options(options.clone());
     assert!(
         discover_mailbox_channels(
             &env.provider,
@@ -2265,31 +2267,62 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
             &receiver,
             &mailbox,
             caller,
-            0,
-            0,
-            &options,
+            &MailboxDiscovery::new(0, 0),
             || false
         )
         .await
         .is_err()
     );
-    // Two slots: the sender and the self-announcement; the other peer is deferred.
+    // Report-only by default: the funded sender is reported with its value,
+    // and nothing is persisted, since announcements are unauthenticated.
+    let stored = env.store.addresses().unwrap().len();
     let report = discover_mailbox_channels(
         &env.provider,
         &mut env.store,
         &receiver,
         &mailbox,
         caller,
-        0,
-        2,
-        &options,
+        &page(0),
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(report.scanned.len(), 1);
+    assert_eq!(
+        report.scanned[0].registration,
+        ChannelRegistration::Unregistered
+    );
+    // The fixture funds one output of denomination index 7.
+    assert_eq!(
+        report.scanned[0].found,
+        U256::from(quai_sdk::consensus::Denomination::new(7).unwrap().value())
+    );
+    assert!(
+        env.store
+            .payment_channel(&receiver, sender.public_code())
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(env.store.addresses().unwrap().len(), stored);
+    // Two slots: the sender and the self-announcement; the other peer is deferred.
+    let register = |start| page(start).with_registration(MailboxRegistration::RegisterFunded);
+    let report = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        &register(0),
         || false,
     )
     .await
     .unwrap();
     assert_eq!(report.scanned.len(), 1);
     assert_eq!(report.scanned[0].sender, *sender.public_code());
-    assert!(report.scanned[0].newly_registered && report.scanned[0].registered);
+    assert_eq!(
+        report.scanned[0].registration,
+        ChannelRegistration::Registered
+    );
     assert_eq!(report.scanned[0].report.indexes[0], found.index);
     assert_eq!(report.deferred, vec![other.public_code().clone()]);
     assert_eq!(report.next_start, Some(2));
@@ -2314,18 +2347,15 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
         &receiver,
         &mailbox,
         caller,
-        0,
-        2,
-        &options,
+        &register(0),
         || false,
     )
     .await
     .unwrap();
-    assert!(!again.scanned[0].newly_registered);
+    assert_eq!(again.scanned[0].registration, ChannelRegistration::Existing);
     assert_eq!(again.next_start, Some(2));
-    // The next page reaches the deferred announcement instead of rescanning the
-    // first. That sender has no funds, so its probe persists nothing: spam
-    // announcements cannot grow the stored addresses every refresh reads.
+    // The next page reaches the deferred announcement. That sender has no
+    // funds, so even under RegisterFunded its probe persists nothing.
     let stored = env.store.addresses().unwrap().len();
     let next = discover_mailbox_channels(
         &env.provider,
@@ -2333,16 +2363,18 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
         &receiver,
         &mailbox,
         caller,
-        again.next_start.unwrap(),
-        2,
-        &options,
+        &register(again.next_start.unwrap()),
         || false,
     )
     .await
     .unwrap();
     assert_eq!(next.scanned.len(), 1);
     assert_eq!(next.scanned[0].sender, *other.public_code());
-    assert!(!next.scanned[0].newly_registered && !next.scanned[0].registered);
+    assert_eq!(
+        next.scanned[0].registration,
+        ChannelRegistration::Unregistered
+    );
+    assert_eq!(next.scanned[0].found, U256::ZERO);
     assert!(
         env.store
             .payment_channel(&receiver, other.public_code())

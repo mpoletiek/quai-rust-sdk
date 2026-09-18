@@ -1,11 +1,11 @@
 //! Portable numbered account observations and bounded current Qi outpoint discovery.
 mod qi;
 mod qi_addresses;
+pub(crate) use qi::wallet_class;
 pub use qi::{
     CurrentQiAddress, CurrentQiDiscovery, CurrentQiOutput, DEFAULT_QI_GAP, ObservedQiBalance,
     QiDiscoveryError, QiDiscoveryOptions, discover_qi, discover_qi_with_use_checker,
 };
-pub(crate) use qi::wallet_class;
 pub use qi_addresses::{refresh_qi_address_book, refresh_qi_address_book_with_use_checker};
 use quai_primitives::QuaiAddress;
 use quai_provider::{BlockTag, Provider, ZoneHeader};

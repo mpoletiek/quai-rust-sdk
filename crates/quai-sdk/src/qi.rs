@@ -97,6 +97,10 @@ pub enum QiError {
     /// The endpoint is on a different chain or genesis than the store's scope.
     #[error("endpoint is on another network")]
     NetworkMismatch,
+    /// The payment-code mailbox returned something that is not an
+    /// announcement list.
+    #[error("payment mailbox result could not be read")]
+    MailboxUnreadable,
     /// Qi message signature generation failed without exposing backend diagnostics.
     #[error("Qi message signing failed")]
     MessageSigning,
@@ -169,6 +173,7 @@ impl QiError {
             // A caller's history service or the node failed to answer.
             Self::UseCheckFailed | Self::IncompleteObservation => ErrorClass::Transient,
             Self::MessageSigning
+            | Self::MailboxUnreadable
             | Self::Selection(_)
             | Self::Transaction(_)
             | Self::IdentityMismatch

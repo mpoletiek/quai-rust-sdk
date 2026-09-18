@@ -9,12 +9,7 @@ use serde_json::{Value, json};
 /// the intended "I know this is weak" case, so it lowers the floor explicitly
 /// rather than the suite disabling the bound globally.
 fn fixture_limits() -> KdfLimits {
-    KdfLimits {
-        min_scrypt_work: 0,
-        min_pbkdf2_rounds: 0,
-        min_salt_bytes: 0,
-        ..KdfLimits::default()
-    }
+    KdfLimits::default().without_strength_floors()
 }
 
 fn fixtures() -> Vec<Value> {
@@ -155,10 +150,7 @@ fn resource_and_format_rejections_happen_before_kdf() {
     assert!(matches!(
         store.decrypt(
             Password::Text("PUBLIC password"),
-            KdfLimits {
-                max_memory_bytes: 1,
-                ..Default::default()
-            }
+            KdfLimits::default().with_max_memory_bytes(1)
         ),
         Err(KeystoreError::Limit)
     ));
@@ -216,18 +208,12 @@ fn scrypt_budget_covers_downstream_parallel_feature_unification() {
     // Sequential B+V+T = 2688 bytes; four parallel V/T workspaces need 9216.
     // These parameters are far below the production work floor by design, so the
     // floor is lowered here to isolate the memory ceiling under test.
-    let limits = KdfLimits {
-        max_memory_bytes: 3000,
-        ..fixture_limits()
-    };
+    let limits = fixture_limits().with_max_memory_bytes(3000);
     assert!(matches!(
         Keystore::from_json(&serde_json::to_vec(&raw).unwrap(), limits),
         Err(KeystoreError::Limit)
     ));
-    let limits = KdfLimits {
-        max_memory_bytes: 9216,
-        ..fixture_limits()
-    };
+    let limits = fixture_limits().with_max_memory_bytes(9216);
     assert!(Keystore::from_json(&serde_json::to_vec(&raw).unwrap(), limits).is_ok());
 }
 
@@ -276,19 +262,13 @@ fn weak_key_derivation_is_rejected_by_default_and_overridable_explicitly() {
     short_salt["Crypto"]["kdfparams"]["salt"] = json!("11");
     let parsed = Keystore::from_json(
         &serde_json::to_vec(&short_salt).unwrap(),
-        KdfLimits {
-            min_salt_bytes: 16,
-            ..fixture_limits()
-        },
+        fixture_limits().with_min_salt_bytes(16),
     )
     .unwrap();
     assert!(matches!(
         parsed.decrypt(
             Password::Text("PUBLIC password"),
-            KdfLimits {
-                min_salt_bytes: 16,
-                ..fixture_limits()
-            }
+            fixture_limits().with_min_salt_bytes(16)
         ),
         Err(KeystoreError::WeakParameters)
     ));
@@ -305,4 +285,49 @@ fn weak_key_derivation_is_rejected_by_default_and_overridable_explicitly() {
             .is_ok(),
         "the default floor must not reject this crate's own exports"
     );
+}
+
+#[test]
+fn kdf_limits_is_configured_through_builders_and_defaults_stay_protective() {
+    // This test lives in an integration test, i.e. a separate crate, so it is
+    // held to exactly what an external consumer can do. KdfLimits is
+    // #[non_exhaustive]: struct-literal construction is unavailable here, which
+    // is what makes a future field addition non-breaking. Adding the strength
+    // floors to this type was itself a breaking change; marking it prevents a
+    // repeat.
+    let defaults = KdfLimits::default();
+    assert_eq!(defaults.min_scrypt_work, 1 << 20);
+    assert_eq!(defaults.min_pbkdf2_rounds, 100_000);
+    assert_eq!(defaults.min_salt_bytes, 16);
+
+    // Builders compose and leave every other bound at its default.
+    let relaxed = KdfLimits::default().with_min_scrypt_work(0);
+    assert_eq!(relaxed.min_scrypt_work, 0);
+    assert_eq!(relaxed.max_memory_bytes, defaults.max_memory_bytes);
+    assert_eq!(relaxed.min_salt_bytes, defaults.min_salt_bytes);
+
+    // The named escape hatch drops exactly the three floors and nothing else.
+    let floorless = KdfLimits::default().without_strength_floors();
+    assert_eq!(
+        (
+            floorless.min_scrypt_work,
+            floorless.min_pbkdf2_rounds,
+            floorless.min_salt_bytes
+        ),
+        (0, 0, 0)
+    );
+    assert_eq!(floorless.max_memory_bytes, defaults.max_memory_bytes);
+    assert_eq!(floorless.max_scrypt_work, defaults.max_scrypt_work);
+    assert_eq!(floorless.max_pbkdf2_rounds, defaults.max_pbkdf2_rounds);
+
+    // A caller who relaxes one unrelated ceiling still inherits the floors, so
+    // tuning a resource bound cannot accidentally disable the strength policy.
+    let tuned = KdfLimits::default().with_max_memory_bytes(64 * 1024 * 1024);
+    assert_eq!(tuned.min_scrypt_work, defaults.min_scrypt_work);
+    let mut weak = fixtures()[0]["json"].clone();
+    weak["Crypto"]["kdfparams"]["n"] = json!(2);
+    assert!(matches!(
+        Keystore::from_json(&serde_json::to_vec(&weak).unwrap(), tuned),
+        Err(KeystoreError::WeakParameters)
+    ));
 }

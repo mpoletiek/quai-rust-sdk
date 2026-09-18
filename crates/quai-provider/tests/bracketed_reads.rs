@@ -176,3 +176,139 @@ async fn a_transport_without_batching_falls_back_to_a_sequential_guard() {
     assert_eq!(calls.load(SeqCst), 2);
     assert_eq!(chain.load(SeqCst), 1);
 }
+
+// ---------------------------------------------------------------------------
+// Adaptive outpoint paging.
+// ---------------------------------------------------------------------------
+
+use quai_primitives::QiAddress;
+use std::sync::Mutex;
+
+/// Batching transport that rejects any page larger than `limit` with
+/// ResponseTooLarge, recording the page sizes it was asked for.
+#[derive(Clone)]
+struct Paged {
+    limit: usize,
+    /// Payload calls per batch, in order, excluding the two chain guards.
+    pages: Arc<Mutex<Vec<usize>>>,
+    /// Fail every page with this instead, to prove other errors are not retried.
+    always: Option<RpcError>,
+}
+
+impl Transport for Paged {
+    async fn request(&self, _: &Endpoint, _: &str, _: Value) -> Result<Value, RpcError> {
+        panic!("a batching transport must not fall back to sequential requests")
+    }
+    async fn request_batch(
+        &self,
+        _: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<BatchResult> {
+        let payload = requests.len() - 2;
+        self.pages.lock().unwrap().push(payload);
+        if let Some(error) = self.always.clone() {
+            return Some(Err(error));
+        }
+        if payload > self.limit {
+            // The batch was sent; the response exceeded the cap.
+            return Some(Err(RpcError::ResponseTooLarge));
+        }
+        let mut responses = vec![Ok(json!(format!("{CHAIN:#x}")))];
+        responses.extend((0..payload).map(|_| Ok(json!([]))));
+        responses.push(Ok(json!(format!("{CHAIN:#x}"))));
+        Some(Ok(responses))
+    }
+}
+
+fn qi_addresses(count: usize) -> Vec<QiAddress> {
+    (0..count)
+        .map(|i| {
+            let mut bytes = [0u8; 20];
+            bytes[0] = Zone::Cyprus1.byte();
+            bytes[1] = 0x80;
+            bytes[18..20].copy_from_slice(&(i as u16).to_be_bytes());
+            QiAddress::try_from(bytes).expect("valid Cyprus-1 Qi address")
+        })
+        .collect()
+}
+
+#[tokio::test]
+async fn an_oversize_page_halves_and_the_working_size_is_remembered() {
+    // The response cap cannot be predicted: AddressOutpoint carries uninterpreted
+    // node extensions, so the node decides the per-row size. Adapt downward
+    // rather than fixing a conservative constant.
+    let pages = Arc::new(Mutex::new(Vec::new()));
+    let transport = Paged {
+        limit: 30,
+        pages: pages.clone(),
+        always: None,
+    };
+    let provider = Provider::new(
+        transport,
+        Routing::direct(URL, Zone::Cyprus1.into()).unwrap(),
+        U256::from(CHAIN),
+    );
+    let addresses = qi_addresses(140);
+    let result = provider.outpoints_many(&addresses).await.unwrap();
+    assert_eq!(result.len(), 140);
+
+    let observed = pages.lock().unwrap().clone();
+    // Probes down from the full headroom, then stays at the working size: the
+    // cost is paid once per call, not once per page.
+    assert_eq!(observed[0], 126, "starts at the transport headroom");
+    assert_eq!(observed[1], 63, "halves on ResponseTooLarge");
+    assert_eq!(observed[2], 31, "halves again");
+    assert_eq!(observed[3], 15, "first page that fits");
+    assert!(
+        observed[4..].iter().all(|n| *n <= 15),
+        "the working size is remembered: {observed:?}"
+    );
+    // Every address is still queried exactly once despite the retries.
+    assert_eq!(observed[3..].iter().sum::<usize>(), 140);
+}
+
+#[tokio::test]
+async fn a_single_address_over_the_cap_is_a_real_error_and_does_not_loop() {
+    let pages = Arc::new(Mutex::new(Vec::new()));
+    let provider = Provider::new(
+        Paged {
+            limit: 0,
+            pages: pages.clone(),
+            always: None,
+        },
+        Routing::direct(URL, Zone::Cyprus1.into()).unwrap(),
+        U256::from(CHAIN),
+    );
+    let result = provider.outpoints_many(&qi_addresses(4)).await;
+    assert!(
+        matches!(result, Err(ProviderError::Rpc(RpcError::ResponseTooLarge))),
+        "expected the error to surface, got {result:?}"
+    );
+    // Halving terminates at one address rather than spinning.
+    let observed = pages.lock().unwrap().clone();
+    assert_eq!(*observed.last().unwrap(), 1);
+    assert!(observed.len() <= 10, "bounded probing: {observed:?}");
+}
+
+#[tokio::test]
+async fn any_error_other_than_an_oversize_response_is_not_retried() {
+    // Replaying a read is only safe because the failure is deterministic and
+    // specific. A timeout says nothing about page size and must propagate.
+    let pages = Arc::new(Mutex::new(Vec::new()));
+    let provider = Provider::new(
+        Paged {
+            limit: usize::MAX,
+            pages: pages.clone(),
+            always: Some(RpcError::Timeout),
+        },
+        Routing::direct(URL, Zone::Cyprus1.into()).unwrap(),
+        U256::from(CHAIN),
+    );
+    let result = provider.outpoints_many(&qi_addresses(140)).await;
+    assert!(matches!(result, Err(ProviderError::Rpc(RpcError::Timeout))));
+    assert_eq!(
+        pages.lock().unwrap().len(),
+        1,
+        "a non-size error must not trigger a second attempt"
+    );
+}

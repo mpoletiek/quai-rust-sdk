@@ -79,7 +79,15 @@ impl Password<'_> {
     }
 }
 /// Fixed hostile-input KDF limits; all checked before deriving or allocating work memory.
+///
+/// Construct with [`KdfLimits::default`] and adjust through the `with_*` methods.
+/// The type is `#[non_exhaustive]` deliberately: the floors below were added
+/// after the first alpha, and adding a public field to a struct that consumers
+/// construct by literal is a breaking change. Marking it now means later policy
+/// knobs are additive, and it forces callers onto a path where a new bound is
+/// inherited from `default()` rather than silently skipped.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct KdfLimits {
     /// Maximum scrypt V/B/T memory even with parallel feature unification; default 256 MiB.
     pub max_memory_bytes: u64,
@@ -113,6 +121,56 @@ impl Default for KdfLimits {
             min_pbkdf2_rounds: 100_000,
             min_salt_bytes: 16,
         }
+    }
+}
+impl KdfLimits {
+    /// Set the maximum scrypt working memory in bytes.
+    #[must_use]
+    pub fn with_max_memory_bytes(mut self, bytes: u64) -> Self {
+        self.max_memory_bytes = bytes;
+        self
+    }
+    /// Set the maximum scrypt `N*r*p` work.
+    #[must_use]
+    pub fn with_max_scrypt_work(mut self, work: u64) -> Self {
+        self.max_scrypt_work = work;
+        self
+    }
+    /// Set the maximum PBKDF2 round count.
+    #[must_use]
+    pub fn with_max_pbkdf2_rounds(mut self, rounds: u32) -> Self {
+        self.max_pbkdf2_rounds = rounds;
+        self
+    }
+    /// Set the minimum scrypt `N*r*p` work. Zero accepts any work factor.
+    #[must_use]
+    pub fn with_min_scrypt_work(mut self, work: u64) -> Self {
+        self.min_scrypt_work = work;
+        self
+    }
+    /// Set the minimum PBKDF2 round count. Zero accepts any count.
+    #[must_use]
+    pub fn with_min_pbkdf2_rounds(mut self, rounds: u32) -> Self {
+        self.min_pbkdf2_rounds = rounds;
+        self
+    }
+    /// Set the minimum salt length in bytes. Zero accepts any salt.
+    #[must_use]
+    pub fn with_min_salt_bytes(mut self, bytes: usize) -> Self {
+        self.min_salt_bytes = bytes;
+        self
+    }
+    /// Remove the password-strength floors, keeping every resource ceiling.
+    ///
+    /// The floors defend against an attacker-authored document. Removing them is
+    /// the right call when the parameters are the caller's own, or the salt is
+    /// fixed by a surrounding protocol, or the input is not a human-chosen
+    /// password. It is the wrong call for importing a document someone sent you.
+    #[must_use]
+    pub fn without_strength_floors(self) -> Self {
+        self.with_min_scrypt_work(0)
+            .with_min_pbkdf2_rounds(0)
+            .with_min_salt_bytes(0)
     }
 }
 #[derive(Clone, Copy)]
@@ -636,12 +694,10 @@ mod tests {
     /// the intended "I know this is weak" case, so it lowers the floor explicitly
     /// rather than the suite disabling the bound globally.
     fn fixture_limits() -> KdfLimits {
-        KdfLimits {
-            min_scrypt_work: 0,
-            min_pbkdf2_rounds: 0,
-            min_salt_bytes: 0,
-            ..KdfLimits::default()
-        }
+        // Uses the same builder an external caller must use. A struct literal
+        // would compile here, inside the defining crate, and would quietly stop
+        // exercising the path every consumer is actually held to.
+        KdfLimits::default().without_strength_floors()
     }
 
     #[test]

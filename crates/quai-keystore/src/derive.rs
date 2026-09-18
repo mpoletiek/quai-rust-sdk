@@ -55,12 +55,7 @@ impl Default for DeriveLimits {
             // nothing, since there is no untrusted document to defend against.
             //
             // A caller deriving a key *from a password* should set the floors.
-            kdf: KdfLimits {
-                min_scrypt_work: 0,
-                min_pbkdf2_rounds: 0,
-                min_salt_bytes: 0,
-                ..KdfLimits::default()
-            },
+            kdf: KdfLimits::default().without_strength_floors(),
             max_output_bytes: 64,
             max_pbkdf2_work: 1 << 24,
         }

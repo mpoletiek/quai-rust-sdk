@@ -2,9 +2,17 @@
 use crate::{AddressOutpoint, BlockTag, Provider, ProviderError, quantity, types};
 use futures_util::{StreamExt, stream};
 use quai_primitives::{Address, Hash32, QiAddress, QuaiAddress, Zone};
+use quai_rpc::RpcError;
 use quai_rpc::{Transport, U256};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
+
+/// Starting addresses per batched outpoint page.
+///
+/// The transport accepts 128 calls per batch and each page adds two chain-guard
+/// calls, so this is the full usable headroom. It is a starting point rather
+/// than a fixed size: see `outpoints_many` for the downward adaptation.
+const MAX_OUTPOINT_PAGE: usize = 126;
 
 /// Exact created/deleted outpoints reported over a block-hash range, inclusive.
 /// The connected node must retain spent/trimmed history; this is not a proof.
@@ -186,6 +194,53 @@ impl<T: Transport> Provider<T> {
             Err(error) => Err(error),
         }
     }
+    /// Fetch one page of address outpoint sets, with the chain check bracketing
+    /// the payload calls so both guards are answered on the same connection.
+    ///
+    /// Transports without batching fall back to bounded concurrent single reads,
+    /// each of which carries its own guard.
+    async fn outpoints_page(
+        &self,
+        zone: Zone,
+        page: &[QiAddress],
+    ) -> Result<Vec<(QiAddress, Vec<AddressOutpoint>)>, ProviderError> {
+        let mut requests = vec![("quai_chainId", json!([]))];
+        requests.extend(
+            page.iter()
+                .map(|address| ("quai_getOutpointsByAddress", json!([address.to_string()]))),
+        );
+        requests.push(("quai_chainId", json!([])));
+        if let Some(batch) = self
+            .transport
+            .request_batch(self.routing.endpoint(zone.into())?, requests)
+            .await
+        {
+            let mut responses = batch?;
+            if responses.len() != page.len() + 2 {
+                return Err(ProviderError::InvalidResult("batch response count"));
+            }
+            for observed in [responses.pop().expect("checked count"), responses.remove(0)] {
+                self.check_chain_id(observed?)?;
+            }
+            return page
+                .iter()
+                .copied()
+                .zip(responses)
+                .map(|(address, response)| Ok((address, types::parse_outpoints(response?)?)))
+                .collect();
+        }
+        let mut pending = stream::iter(page.iter().copied().map(|address| async move {
+            self.outpoints(address)
+                .await
+                .map(|outputs| (address, outputs))
+        }))
+        .buffered(4);
+        let mut outputs = Vec::new();
+        while let Some(response) = pending.next().await {
+            outputs.push(response?);
+        }
+        Ok(outputs)
+    }
     /// Bounded group of latest-only address queries. Each response is a separate
     /// observation; this convenience method never claims an atomic snapshot.
     /// Uses explicit HTTP batches where supported, with chain checks in each batch.
@@ -203,6 +258,7 @@ impl<T: Transport> Provider<T> {
         }
         let mut result = BTreeMap::new();
         let mut count = 0usize;
+        let mut page_size = MAX_OUTPOINT_PAGE;
         let zones: BTreeSet<_> = addresses.iter().map(|a| a.zone()).collect();
         for zone in zones {
             let scoped: Vec<_> = addresses
@@ -210,53 +266,35 @@ impl<T: Transport> Provider<T> {
                 .copied()
                 .filter(|a| a.zone() == zone)
                 .collect();
-            // 32 rather than the transport's 126-call headroom. The binding limit
-            // is the response cap (2 MiB by default), not the request: an oversize
-            // batch response fails the whole page and does not fall back, because
-            // the batch was sent. At 32 addresses each may return ~64 KiB of
-            // outpoints; at 126 that budget falls to ~16 KiB, which a busy Qi
-            // address can exceed. Raising this needs outpoint-count data first.
-            for page in scoped.chunks(32) {
-                let mut requests = vec![("quai_chainId", json!([]))];
-                requests.extend(
-                    page.iter().map(|address| {
-                        ("quai_getOutpointsByAddress", json!([address.to_string()]))
-                    }),
-                );
-                requests.push(("quai_chainId", json!([])));
-                let outputs = if let Some(batch) = self
-                    .transport
-                    .request_batch(self.routing.endpoint(zone.into())?, requests)
-                    .await
-                {
-                    let mut responses = batch?;
-                    if responses.len() != page.len() + 2 {
-                        return Err(ProviderError::InvalidResult("batch response count"));
+            // Page size adapts downward on an oversize response rather than being
+            // fixed conservatively. The binding limit is the response cap (2 MiB
+            // by default), not the request, and it cannot be predicted: an
+            // AddressOutpoint carries uninterpreted node extensions, so the node
+            // decides the per-row size. A page that is too large fails the whole
+            // page and cannot fall back, because the batch was already sent.
+            //
+            // Start at the transport's full headroom and halve on the specific
+            // ResponseTooLarge error, which the transport reports distinctly, so
+            // no other failure is ever retried. These are reads, so replaying one
+            // is idempotent; this is not a pattern that would be safe for
+            // submission. The working size is remembered across pages and zones,
+            // so a wallet with dense outpoint sets probes once per call rather
+            // than once per page.
+            let mut offset = 0usize;
+            while offset < scoped.len() {
+                let page = &scoped[offset..scoped.len().min(offset + page_size)];
+                let outputs = match self.outpoints_page(zone, page).await {
+                    Ok(outputs) => outputs,
+                    Err(ProviderError::Rpc(RpcError::ResponseTooLarge)) if page.len() > 1 => {
+                        // Retry the same addresses in smaller pages. A single
+                        // address that still exceeds the cap is a real error and
+                        // propagates below rather than looping.
+                        page_size = page.len() / 2;
+                        continue;
                     }
-                    for observed in [responses.pop().expect("checked count"), responses.remove(0)] {
-                        self.check_chain_id(observed?)?;
-                    }
-                    page.iter()
-                        .copied()
-                        .zip(responses)
-                        .map(|(address, response)| {
-                            Ok((address, types::parse_outpoints(response?)?))
-                        })
-                        .collect::<Result<Vec<_>, ProviderError>>()?
-                } else {
-                    let mut pending =
-                        stream::iter(page.iter().copied().map(|address| async move {
-                            self.outpoints(address)
-                                .await
-                                .map(|outputs| (address, outputs))
-                        }))
-                        .buffered(4);
-                    let mut outputs = Vec::new();
-                    while let Some(response) = pending.next().await {
-                        outputs.push(response?);
-                    }
-                    outputs
+                    Err(error) => return Err(error),
                 };
+                offset += page.len();
                 for (address, outputs) in outputs {
                     count = count
                         .checked_add(outputs.len())

@@ -635,9 +635,9 @@ impl SqliteStore {
             }
             require_address(&tx, &self.key, coin.address.address())?;
             let expiry = coin.expires_at.map(|v| v.to_be_bytes::<32>());
-            tx.execute(
-                "INSERT INTO coins VALUES(?1,?2,?3,?4,?5,?6,?7,?8)",
-                params![
+            // Cached: this runs once per coin, and a refresh replaces them all.
+            tx.prepare_cached("INSERT INTO coins VALUES(?1,?2,?3,?4,?5,?6,?7,?8)")?
+                .execute(params![
                     &self.key[..],
                     &hash[..],
                     coin.outpoint.index,
@@ -646,8 +646,7 @@ impl SqliteStore {
                     coin.denomination.index(),
                     &coin.unlock_height.to_be_bytes::<32>()[..],
                     expiry.as_ref().map(|v| &v[..])
-                ],
-            )?;
+                ])?;
         }
         tx.execute(
             "UPDATE scopes SET generation=?2,block_hash=?3,height=?4 WHERE scope=?1",
@@ -1156,11 +1155,10 @@ fn insert_address(
     }
     let origin = address.origin.encode();
     let old: Option<(Vec<u8>, Vec<u8>)> = connection
-        .query_row(
-            "SELECT public_key,origin FROM addresses WHERE scope=?1 AND address=?2",
-            params![key, &address.address.bytes()[..]],
-            |r| Ok((r.get(0)?, r.get(1)?)),
-        )
+        .prepare_cached("SELECT public_key,origin FROM addresses WHERE scope=?1 AND address=?2")?
+        .query_row(params![key, &address.address.bytes()[..]], |r| {
+            Ok((r.get(0)?, r.get(1)?))
+        })
         .optional()?;
     if let Some((old_key, old_origin)) = old {
         if old_key != address.public_key || old_origin != origin {
@@ -1322,11 +1320,9 @@ fn clear_snapshot(connection: &Connection, key: &[u8], next: i64) -> Result<()> 
     Ok(())
 }
 fn require_address(connection: &Connection, key: &[u8], address: Address) -> Result<()> {
-    let exists: bool = connection.query_row(
-        "SELECT EXISTS(SELECT 1 FROM addresses WHERE scope=?1 AND address=?2)",
-        params![key, &address.bytes()[..]],
-        |r| r.get(0),
-    )?;
+    let exists: bool = connection
+        .prepare_cached("SELECT EXISTS(SELECT 1 FROM addresses WHERE scope=?1 AND address=?2)")?
+        .query_row(params![key, &address.bytes()[..]], |r| r.get(0))?;
     if exists {
         Ok(())
     } else {

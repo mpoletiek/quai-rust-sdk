@@ -2010,6 +2010,7 @@ dependencies = [
 name = "quai-sdk"
 version = "0.1.0-alpha.3"
 dependencies = [
+ "futures-util",
  "quai-abi",
  "quai-consensus",
  "quai-primitives",

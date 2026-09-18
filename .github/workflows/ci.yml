@@ -86,6 +86,14 @@ jobs:
       - run: rustup toolchain install 1.97.1 --profile minimal --component clippy --target wasm32-unknown-unknown
       - run: cargo install wasm-bindgen-cli --version 0.2.128 --locked
       - run: cargo fetch --locked
+      - name: Vendored browser fixtures match their sources
+        # The browser crate carries copies so its package is self-contained.
+        # A copy that drifts only fails here, since native CI never builds it.
+        run: |
+          for source in crates/quai-provider/tests/support/account_replacement.rs \
+                        crates/quai-keystore/tests/fixtures/keystores.json; do
+            cmp "$source" "crates/quai-browser/tests/fixtures/shared/$source"
+          done
       - run: cargo check -p quai-sdk --no-default-features --features browser,wallet,abi,payments,keystore,backup --target wasm32-unknown-unknown --locked
       - run: cargo clippy -p quai-browser --target wasm32-unknown-unknown --all-targets --locked -- -D warnings
       - name: Configure installed browser and driver

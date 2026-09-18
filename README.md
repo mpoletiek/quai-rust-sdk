@@ -78,6 +78,12 @@ the Keccak hash of the derived point, so a usable address cannot be chosen --
 it is ground for, at roughly one candidate in 512. A default restore performs
 about 51,200 derivations where a standard BIP44 gap scan performs 40.
 
+Scans grind in slices of about 20 ms and yield to the executor between them,
+so a scan does not stall other tasks on its thread. With the `rayon` feature, a
+scan can opt in with `with_grinding(Grinding::Parallel)` on its options: the
+same addresses, found about 4x faster on six cores, using the whole rayon pool
+while it runs.
+
 ### Read a node
 
 The read-only example defaults to Orchard, expected chain ID `15000`, and Cyprus-1
@@ -143,6 +149,7 @@ The facade crate is named **`quai-sdk`**. Its default features are `http` and `w
 | `keystore` | Legacy v3 JSON keystore import and native export |
 | `backup` | Portable authenticated full-wallet capture/restore; includes `wallet,payments` |
 | `browser` | Wasm Fetch and injected-wallet adapters |
+| `rayon` | Opt-in parallel address grinding for scans (native only); includes `wallet` |
 
 For a browser build, disable native defaults and select the capabilities you need:
 

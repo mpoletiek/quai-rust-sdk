@@ -695,3 +695,37 @@ async fn portable_qi_rejects_outpoints_from_another_zone() {
         Err(QiDiscoveryError::InvalidOutputs)
     ));
 }
+
+#[cfg(feature = "rayon")]
+#[tokio::test]
+async fn parallel_grinding_reports_exactly_what_sequential_grinding_does() {
+    use quai_sdk::discovery::{QiDiscoveryOptions, discover_qi};
+    use quai_sdk::wallet::Grinding;
+    let account = HdWallet::from_seed(&[7; 32], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let mut reports = vec![];
+    for grinding in [Grinding::Sequential, Grinding::Parallel] {
+        let mock = Mock::default();
+        let options = QiDiscoveryOptions::default()
+            .with_gap_limit(Some(7))
+            .with_grinding(grinding);
+        let report = discover_qi(&provider(mock.clone()), scope(), &account, &options, || {
+            false
+        })
+        .await
+        .unwrap();
+        reports.push((
+            report
+                .addresses
+                .iter()
+                .map(|a| a.derived.clone())
+                .collect::<Vec<_>>(),
+            report.next_index,
+            report.stopped,
+            queried_outpoint_addresses(&mock),
+        ));
+    }
+    assert_eq!(reports[0], reports[1]);
+}

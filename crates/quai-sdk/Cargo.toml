@@ -29,6 +29,9 @@ abi = ["dep:quai-abi", "dep:quai-consensus"]
 browser = ["dep:quai-browser"]
 payments = ["dep:quai-payments", "quai-wallet?/payments"]
 keystore = ["dep:quai-keystore"]
+# Parallel address grinding for scans that opt in with `Grinding::Parallel`.
+# Native only; see quai-wallet's feature of the same name.
+rayon = ["wallet", "quai-wallet/rayon"]
 
 [dependencies]
 quai-primitives.workspace = true

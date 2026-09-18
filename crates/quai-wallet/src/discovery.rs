@@ -1,5 +1,5 @@
 //! Bounded, history-aware watch-only discovery; observations are not chain proofs.
-use crate::{AccountPublic, CandidateCoin, CoinType, DerivedAddress, Search, WindowStop};
+use crate::{AccountPublic, CandidateCoin, CoinType, DerivedAddress, Grinding, Search, WindowStop};
 use quai_consensus::OutPoint;
 use quai_consensus::U256;
 use quai_primitives::{Address, Hash32, Zone};
@@ -247,8 +247,16 @@ pub struct DiscoveryRequest {
     pub max_addresses: usize,
     /// Maximum total returned current UTXOs, 1 through 100,000.
     pub max_coins: usize,
+    /// How candidate addresses are derived. `Grinding::Parallel`, available
+    /// with the `rayon` feature, uses the whole rayon pool.
+    pub grinding: Grinding,
 }
 impl DiscoveryRequest {
+    /// Replace `grinding`.
+    pub const fn with_grinding(mut self, grinding: Grinding) -> Self {
+        self.grinding = grinding;
+        self
+    }
     /// Scan both explicit ranges in full, with no gap stop, no history requirement, and the same address and coin limits as the Qi scan options. The ranges bound the cost; set a gap with `with_gap_limit`.
     pub const fn new(scope: NetworkScope, receive: IndexRange, change: IndexRange) -> Self {
         Self {
@@ -259,6 +267,7 @@ impl DiscoveryRequest {
             require_history: false,
             max_addresses: 10_000,
             max_coins: 100_000,
+            grinding: Grinding::Sequential,
         }
     }
     /// Replace `scope`.
@@ -566,7 +575,7 @@ pub async fn discover<S: ObservationSource>(
             // for what an aborted window discloses.
             let start = coverage.next_index;
             let window = account
-                .search_window(
+                .search_window_async(
                     coverage.change,
                     Search {
                         zone: request.scope.zone,
@@ -574,8 +583,10 @@ pub async fn discover<S: ObservationSource>(
                         max_attempts: coverage.requested.end - start,
                     },
                     gap.window(request.max_addresses - report.addresses.len()),
+                    request.grinding,
                     &mut cancelled,
                 )
+                .await
                 .map_err(|_| DiscoveryError::Derivation)?;
             let derived_to = window.next_index.unwrap_or(1 << 31);
             if window.addresses.is_empty() {
@@ -727,7 +738,7 @@ fn check_observation(
 }
 
 #[cfg(test)]
-mod tests;
+pub(crate) mod tests;
 
 #[cfg(test)]
 mod gap_counter_tests {

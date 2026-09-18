@@ -111,3 +111,98 @@ fn single_search_keeps_its_error_contract() {
             if attempts == first && next == first
     ));
 }
+
+/// Minimal executor: the yielding search wakes itself, so polling in a loop
+/// completes it, and counting polls shows that it did yield.
+fn block_on<F: std::future::Future>(future: F) -> (F::Output, usize) {
+    let mut context = std::task::Context::from_waker(std::task::Waker::noop());
+    let mut future = std::pin::pin!(future);
+    let mut polls = 0;
+    loop {
+        polls += 1;
+        if let std::task::Poll::Ready(value) = future.as_mut().poll(&mut context) {
+            return (value, polls);
+        }
+    }
+}
+
+#[test]
+fn the_yielding_search_equals_one_call_and_yields_between_slices() {
+    use quai_wallet::Grinding;
+    let account = account();
+    for (start, max_attempts, count) in [(0u32, 20_000u32, 4usize), (10, 3_000, 64), (777, 1, 1)] {
+        let once = account
+            .search_window(false, search(start, max_attempts), count, || false)
+            .unwrap();
+        let (sliced, polls) = block_on(account.search_window_async(
+            false,
+            search(start, max_attempts),
+            count,
+            Grinding::Sequential,
+            || false,
+        ));
+        assert_eq!(sliced.unwrap(), once, "start {start}");
+        if once.attempts > 512 {
+            assert!(polls > 1, "a long window must yield");
+        }
+    }
+    // Cancellation lands on the same candidate, across a slice boundary.
+    let cancel_after = |limit: u32| {
+        let mut calls = 0;
+        move || {
+            calls += 1;
+            calls > limit
+        }
+    };
+    let once = account
+        .search_window(false, search(0, 20_000), 64, cancel_after(1_500))
+        .unwrap();
+    let (sliced, _) = block_on(account.search_window_async(
+        false,
+        search(0, 20_000),
+        64,
+        Grinding::Sequential,
+        cancel_after(1_500),
+    ));
+    assert_eq!(sliced.unwrap(), once);
+    assert_eq!(once.stop, WindowStop::Cancelled);
+}
+
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+#[test]
+fn the_parallel_window_equals_the_sequential_window() {
+    use quai_wallet::Grinding;
+    let account = account();
+    for change in [false, true] {
+        for (start, max_attempts, count) in [
+            (0u32, 60_000u32, 50usize),
+            (5, 3_000, 64),
+            (2_047, 60_000, 7),
+        ] {
+            let sequential = account
+                .search_window(change, search(start, max_attempts), count, || false)
+                .unwrap();
+            let parallel = account
+                .search_window_parallel(change, search(start, max_attempts), count, || false)
+                .unwrap();
+            assert_eq!(parallel, sequential, "start {start}");
+            let (sliced, _) = block_on(account.search_window_async(
+                change,
+                search(start, max_attempts),
+                count,
+                Grinding::Parallel,
+                || false,
+            ));
+            assert_eq!(sliced.unwrap(), sequential);
+        }
+    }
+    let top = (1u32 << 31) - 5;
+    assert_eq!(
+        account
+            .search_window_parallel(false, search(top, 1_000), 64, || false)
+            .unwrap(),
+        account
+            .search_window(false, search(top, 1_000), 64, || false)
+            .unwrap()
+    );
+}

@@ -809,12 +809,7 @@ fn consecutive_allocations_do_not_skip_matching_addresses() {
     assert_eq!(index(&second), next.address.index, "the very next match");
 }
 fn ready_scan<F: std::future::Future>(future: F) -> F::Output {
-    let mut context = std::task::Context::from_waker(std::task::Waker::noop());
-    let mut future = std::pin::pin!(future);
-    match future.as_mut().poll(&mut context) {
-        std::task::Poll::Ready(value) => value,
-        _ => panic!("immediate fixture source"),
-    }
+    crate::discovery::tests::ready(future)
 }
 struct StorageSource;
 impl crate::discovery::ObservationSource for StorageSource {
@@ -896,6 +891,7 @@ fn discovery_commit_couples_metadata_checkpoint_and_cas_and_reorg_preserves_clai
                 require_history: false,
                 max_addresses: 10,
                 max_coins: 10,
+                grinding: crate::Grinding::Sequential,
             };
             ready_scan(discover(&StorageSource, &account, &request, || false)).unwrap()
         })

@@ -6,13 +6,18 @@ use std::{
     sync::OnceLock,
     task::{Context, Poll, Waker},
 };
+/// Drive a future whose sources are immediately ready. Scans still return
+/// `Pending` while yielding between grinding slices, but they wake themselves,
+/// so polling again makes progress; a bounded loop catches a real stall.
 pub(crate) fn ready<F: Future>(future: F) -> F::Output {
     let mut context = Context::from_waker(Waker::noop());
     let mut future = std::pin::pin!(future);
-    match future.as_mut().poll(&mut context) {
-        Poll::Ready(value) => value,
-        Poll::Pending => panic!("test source should be immediately ready"),
+    for _ in 0..1_000_000 {
+        if let Poll::Ready(value) = future.as_mut().poll(&mut context) {
+            return value;
+        }
     }
+    panic!("test source should be ready apart from grinding yields")
 }
 fn scope() -> NetworkScope {
     NetworkScope {
@@ -166,6 +171,7 @@ fn request() -> DiscoveryRequest {
         require_history: false,
         max_addresses: 100,
         max_coins: 100,
+        grinding: crate::Grinding::Sequential,
     }
 }
 #[test]

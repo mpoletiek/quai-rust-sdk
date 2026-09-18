@@ -18,6 +18,28 @@ const MIN_CHUNK: u32 = 32;
 /// Upper bound on wasted derivation past a match within one chunk.
 #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
 const MAX_CHUNK: u32 = 512;
+/// Candidates per thread in one window chunk. A window overshoots only after
+/// its last match, so its chunks can be far wider than a single search's.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+const WINDOW_CHUNK_PER_THREAD: usize = 64;
+/// Candidates between yields when grinding sequentially: about 20 ms.
+const SEQUENTIAL_SLICE: u32 = 512;
+/// Window chunks between yields when grinding in parallel.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+const PARALLEL_SLICE_CHUNKS: u32 = 4;
+
+/// How a scan derives candidate addresses.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[non_exhaustive]
+pub enum Grinding {
+    /// One candidate at a time on the calling thread. No threads are spawned.
+    #[default]
+    Sequential,
+    /// Chunks of candidates across the rayon pool, with results identical to
+    /// the sequential search. Uses every pool thread while it runs.
+    #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+    Parallel,
+}
 
 /// Public BIP32 derivation metadata. Sharing chain information reduces wallet privacy.
 /// A four-byte fingerprint is a routing hint, not proof of key ownership.
@@ -790,6 +812,170 @@ impl AccountPublic {
             }
         }
         Ok(window)
+    }
+}
+
+impl AccountPublic {
+    /// [`Self::search_window`] ground in short slices, returning control to
+    /// the executor between them.
+    ///
+    /// A window grinds for about a second on one core, which stalls an async
+    /// executor thread for as long; on a current-thread runtime or a browser
+    /// that freezes everything else. The search is resumable at `next_index`,
+    /// so the result, cancellation points included, is exactly the one-call
+    /// result. No runtime is assumed: yielding wakes the task and returns
+    /// `Pending` once.
+    pub async fn search_window_async(
+        &self,
+        change: bool,
+        search: Search,
+        count: usize,
+        grinding: Grinding,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<SearchWindow, WalletError> {
+        if count == 0 || search.max_attempts == 0 || search.max_attempts > 10_000_000 {
+            return Err(WalletError::InvalidSearchLimit);
+        }
+        let mut window = SearchWindow {
+            addresses: Vec::with_capacity(count.min(64)),
+            attempts: 0,
+            next_index: Some(search.start_index),
+            stop: WindowStop::Exhausted,
+        };
+        loop {
+            let Some(start_index) = window.next_index else {
+                return Ok(window);
+            };
+            let remaining = search.max_attempts - window.attempts;
+            let wanted = count - window.addresses.len();
+            let part = match grinding {
+                Grinding::Sequential => self.search_window(
+                    change,
+                    Search {
+                        zone: search.zone,
+                        start_index,
+                        max_attempts: remaining.min(SEQUENTIAL_SLICE),
+                    },
+                    wanted,
+                    &mut cancelled,
+                )?,
+                #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+                Grinding::Parallel => self.search_window_parallel(
+                    change,
+                    Search {
+                        zone: search.zone,
+                        start_index,
+                        max_attempts: remaining
+                            .min(window_chunk().saturating_mul(PARALLEL_SLICE_CHUNKS)),
+                    },
+                    wanted,
+                    &mut cancelled,
+                )?,
+            };
+            window.addresses.extend(part.addresses);
+            window.attempts += part.attempts;
+            window.next_index = part.next_index;
+            if part.stop != WindowStop::Exhausted || window.attempts == search.max_attempts {
+                window.stop = part.stop;
+                return Ok(window);
+            }
+            YieldOnce(false).await;
+        }
+    }
+
+    /// [`Self::search_window`] across the rayon pool, with an identical result.
+    ///
+    /// Each chunk is derived in parallel and then consumed strictly in index
+    /// order, so the addresses, `attempts`, `next_index` and the first hard
+    /// error are exactly the sequential search's; derivation past the last
+    /// match of a window is discarded. Cancellation is checked once per chunk,
+    /// and on cancellation `next_index` is the chunk's first unexamined index.
+    #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+    pub fn search_window_parallel(
+        &self,
+        change: bool,
+        search: Search,
+        count: usize,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<SearchWindow, WalletError> {
+        use rayon::prelude::*;
+
+        child(search.start_index, false)?;
+        if count == 0 || search.max_attempts == 0 || search.max_attempts > 10_000_000 {
+            return Err(WalletError::InvalidSearchLimit);
+        }
+        let branch = ScanBranch::new(&self.key.derive_child(u32::from(change), false)?)?;
+        let mut window = SearchWindow {
+            addresses: Vec::with_capacity(count.min(64)),
+            attempts: 0,
+            next_index: Some(search.start_index),
+            stop: WindowStop::Exhausted,
+        };
+        while window.attempts < search.max_attempts {
+            let Some(base) = window.next_index else {
+                break;
+            };
+            if cancelled() {
+                window.stop = WindowStop::Cancelled;
+                return Ok(window);
+            }
+            let width = window_chunk()
+                .min(search.max_attempts - window.attempts)
+                .min(HARDENED - base);
+            let derived: Vec<_> = (0..width)
+                .into_par_iter()
+                .map(|offset| {
+                    let index = base + offset;
+                    match branch
+                        .child_public_key(index)
+                        .and_then(|point| self.address_from_key(point, change, index))
+                    {
+                        Ok(address) if address.zone == search.zone => Ok(Some(address)),
+                        Ok(_) | Err(WalletError::InvalidDerivedAddress) => Ok(None),
+                        Err(error) => Err(error),
+                    }
+                })
+                .collect();
+            for (offset, result) in (0..width).zip(derived) {
+                let index = base + offset;
+                window.attempts += 1;
+                window.next_index = index.checked_add(1).filter(|next| *next < HARDENED);
+                if let Some(address) = result? {
+                    window.addresses.push(address);
+                    if window.addresses.len() == count {
+                        window.stop = WindowStop::Filled;
+                        return Ok(window);
+                    }
+                }
+            }
+        }
+        Ok(window)
+    }
+}
+
+/// Candidates in one parallel window chunk.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+fn window_chunk() -> u32 {
+    u32::try_from(rayon::current_num_threads().saturating_mul(WINDOW_CHUNK_PER_THREAD))
+        .unwrap_or(u32::MAX)
+        .clamp(MIN_CHUNK, 4096)
+}
+
+/// Ready on its second poll, having woken its task on the first.
+struct YieldOnce(bool);
+impl std::future::Future for YieldOnce {
+    type Output = ();
+    fn poll(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<()> {
+        if self.0 {
+            std::task::Poll::Ready(())
+        } else {
+            self.0 = true;
+            cx.waker().wake_by_ref();
+            std::task::Poll::Pending
+        }
     }
 }
 

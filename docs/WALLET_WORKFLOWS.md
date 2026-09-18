@@ -597,8 +597,9 @@ the lock wait). Writers fence each other through the scope generation: when
 sync invalidates a snapshot while a send is preparing, the send fails with an
 error whose `class()` is `Stale` instead of reserving from stale state. Session
 futures are `Send`, so either task can run on a multi-threaded runtime.
-Address grinding in discovery is synchronous CPU work inside the scan futures;
-run large scans where blocking a thread is acceptable, such as a blocking-task
+Discovery grinds addresses in slices of about 20 ms and yields between them,
+so a scan shares its executor thread; with the `rayon` feature,
+`Grinding::Parallel` on the scan options spreads each slice across the rayon
 pool.
 
 **Sync order for each new head.**

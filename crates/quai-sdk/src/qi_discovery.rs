@@ -7,7 +7,7 @@ use quai_provider::{MAX_OUTPOINT_ADDRESSES, Provider};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{Checkpoint, GapCounter, IndexRange, NetworkScope, ScanStop};
 use quai_wallet::storage::{PublicAddress, Snapshot, SqliteStore};
-use quai_wallet::{AccountPublic, CandidateCoin, CoinType, Search, WindowStop};
+use quai_wallet::{AccountPublic, CandidateCoin, CoinType, Grinding, Search, WindowStop};
 use std::collections::BTreeSet;
 use std::future::Future;
 
@@ -71,8 +71,16 @@ pub struct QiScanOptions {
     pub gap_limit: Option<u32>,
     /// Global matching-address query limit, at most 100,000.
     pub max_addresses: usize,
+    /// How candidate addresses are derived. `Grinding::Parallel`, available
+    /// with the `rayon` feature, uses the whole rayon pool.
+    pub grinding: Grinding,
 }
 impl QiScanOptions {
+    /// Replace `grinding`.
+    pub const fn with_grinding(mut self, grinding: Grinding) -> Self {
+        self.grinding = grinding;
+        self
+    }
     /// Replace `receive`.
     pub const fn with_receive(mut self, receive: IndexRange) -> Self {
         self.receive = receive;
@@ -107,6 +115,7 @@ impl Default for QiScanOptions {
             },
             gap_limit: Some(DEFAULT_QI_GAP),
             max_addresses: 10_000,
+            grinding: Grinding::Sequential,
         }
     }
 }
@@ -204,16 +213,19 @@ where
             // than a policy change. An aborted window is covered at
             // `GapCounter::guaranteed_remaining`.
             let start = report.next_index[branch];
-            let window = account.search_window(
-                branch == 1,
-                Search {
-                    zone: scope.zone,
-                    start_index: start,
-                    max_attempts: range.end - start,
-                },
-                gap.window(options.max_addresses - report.addresses.len()),
-                &mut cancelled,
-            )?;
+            let window = account
+                .search_window_async(
+                    branch == 1,
+                    Search {
+                        zone: scope.zone,
+                        start_index: start,
+                        max_attempts: range.end - start,
+                    },
+                    gap.window(options.max_addresses - report.addresses.len()),
+                    options.grinding,
+                    &mut cancelled,
+                )
+                .await?;
             if window.stop == WindowStop::Cancelled || cancelled() {
                 // Nothing in this window was observed, so the resume point is
                 // where the uncancelled scan would continue.

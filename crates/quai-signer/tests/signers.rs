@@ -190,3 +190,55 @@ fn qi_messages_match_published_wallet_and_bind_full_public_key() {
         Err(SignerError::InvalidAddress)
     ));
 }
+
+#[test]
+fn a_qi_message_that_is_an_unsigned_spend_is_refused() {
+    // Message and single-input spend signatures are both BIP340 over Keccak of
+    // the raw bytes, so signing a transaction's unsigned bytes "as a message"
+    // would authorize that transaction.
+    use quai_consensus::{Denomination, OutPoint, QiInput, QiOutput, QiTransaction};
+    use quai_primitives::{Hash32, Ledger, Zone};
+    use quai_signer::sign_qi_message;
+    let qi_key = |seed: u8| {
+        (1u32..)
+            .find_map(|n| {
+                let mut b = [seed; 32];
+                b[28..].copy_from_slice(&n.to_be_bytes());
+                let key = SecretKey::from_bytes(&b).ok()?;
+                let address = key.public_key().address();
+                (address.ledger() == Ledger::Qi && address.zone() == Ok(Zone::Cyprus1))
+                    .then_some(key)
+            })
+            .unwrap()
+    };
+    let (owner, recipient) = (qi_key(7), qi_key(9));
+    let mut hash = [0x11; 32];
+    hash[0] = Zone::Cyprus1.byte();
+    hash[2] = Zone::Cyprus1.byte();
+    let spend = QiTransaction {
+        chain_id: U256::from(9000),
+        inputs: vec![QiInput {
+            previous_output: OutPoint {
+                transaction_hash: Hash32::from_bytes(hash),
+                index: 0,
+            },
+            public_key: owner.public_key(),
+        }],
+        outputs: vec![QiOutput {
+            address: recipient.public_key().address(),
+            denomination: Denomination::new(10).unwrap(),
+        }],
+        data: vec![],
+    };
+    let unsigned = spend.unsigned_bytes().unwrap();
+    // Guard the premise: the transaction really is signable with this key.
+    assert!(spend.sign_single(&owner).is_ok());
+    assert!(matches!(
+        sign_qi_message(&owner, &unsigned),
+        Err(SignerError::QiTransactionMessage)
+    ));
+    // Ordinary messages, including empty and protobuf-looking ones, still sign.
+    for message in [&b""[..], b"hello", b"z", &unsigned[1..]] {
+        assert!(sign_qi_message(&owner, message).is_ok(), "{message:?}");
+    }
+}

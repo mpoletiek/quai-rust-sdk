@@ -76,6 +76,9 @@ pub enum SignerError {
     /// Message signature creation failed.
     #[error("message signing failed")]
     MessageSigning,
+    /// The Qi message would also be a valid Qi transaction signature.
+    #[error("refusing to sign a Qi transaction as a message")]
+    QiTransactionMessage,
     /// This signer has not implemented the distinct Qi message format.
     #[error("Qi message signing is unsupported by this signer")]
     QiMessageUnsupported,
@@ -238,8 +241,19 @@ impl Signer for WatchOnlySigner {
 /// Sign the published Qi wallet message format: BIP340 over Keccak(raw bytes).
 /// No prefix, length, network or application domain is inserted. Callers own the
 /// exact message semantics. Fresh auxiliary entropy is required on each call.
+///
+/// Every Qi spend signs BIP340 over Keccak of its unsigned protobuf, so without
+/// a domain prefix a message whose bytes are an unsigned transaction yields a
+/// valid spend signature: a requester could present a transfer of the signer's
+/// output as a "message". The format is fixed by the published wallets, so the
+/// prefix cannot be added. Instead, any message that decodes as a transaction
+/// with inputs, which every Qi spend has, is refused with
+/// [`SignerError::QiTransactionMessage`].
 pub fn sign_qi_message(key: &SecretKey, message: &[u8]) -> Result<SchnorrSignature, SignerError> {
     QiAddress::try_from(key.public_key().address()).map_err(|_| SignerError::InvalidAddress)?;
+    if quai_consensus::decode_proto_transaction(message).is_ok_and(|tx| tx.tx_ins.is_some()) {
+        return Err(SignerError::QiTransactionMessage);
+    }
     key.sign_schnorr(&keccak256(message))
         .map_err(|_| SignerError::MessageSigning)
 }

@@ -356,7 +356,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             for metadata in store.addresses()? {
                 let quai_sdk::wallet::storage::KeyOrigin::Bip44{change,index,..}=metadata.origin() else {return Err("unexpected imported Qi key".into())};
                 let empty=IndexRange{start:0,end:0};let exact=IndexRange{start:index,end:index+1};
-                reports.push(discover(&source,&account,&DiscoveryRequest{scope:scope(),receive:if change{empty}else{exact},change:if change{exact}else{empty},gap_limit:None,require_history:false,max_addresses:1,max_coins:100},||false).await?);
+                reports.push(discover(&source,&account,&DiscoveryRequest::new(scope(),if change{empty}else{exact},if change{exact}else{empty}).with_gap_limit(None).with_require_history(false).with_max_addresses(1).with_max_coins(100),||false).await?);
             }
             let count=reports.len();store.commit_discovery(generation,&reports)?;
             let recipient = HdWallet::from_seed(&[8; 32], CoinType::Qi)?.account_public(0)?;

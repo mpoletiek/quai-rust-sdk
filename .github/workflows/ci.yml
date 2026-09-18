@@ -90,10 +90,8 @@ jobs:
         # The browser crate carries copies so its package is self-contained.
         # A copy that drifts only fails here, since native CI never builds it.
         run: |
-          for source in crates/quai-provider/tests/support/account_replacement.rs \
-                        crates/quai-keystore/tests/fixtures/keystores.json; do
-            cmp "$source" "crates/quai-browser/tests/fixtures/shared/$source"
-          done
+          cd crates/quai-browser/tests/fixtures/shared
+          find . -type f | while read -r copy; do cmp "$copy" "$GITHUB_WORKSPACE/$copy"; done
       - run: cargo check -p quai-sdk --no-default-features --features browser,wallet,abi,payments,keystore,backup --target wasm32-unknown-unknown --locked
       - run: cargo clippy -p quai-browser --target wasm32-unknown-unknown --all-targets --locked -- -D warnings
       - name: Configure installed browser and driver
@@ -190,20 +188,24 @@ jobs:
       # The restore-keys prefix lets a run start from the most recent cache and
       # save a superset under a new key, so coverage accumulates.
       #
-      # save-if restricts writes to the default branch: a corpus is input data
-      # rather than executable build output, but a branch that could write cache
-      # entries a later trusted run restores is a pattern worth denying by default
-      # in a repository whose CI can reach the publish path.
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      # Only default-branch runs save: a corpus is input data rather than
+      # executable build output, but a branch that could write cache entries a
+      # later trusted run restores is a pattern worth denying in a repository
+      # whose CI can reach the publish path. Restore and save are separate steps
+      # because actions/cache has no input that conditions its save.
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: fuzz/workdir
           key: fuzz-corpus-${{ hashFiles('fuzz/Cargo.lock') }}-${{ github.run_id }}
           restore-keys: |
             fuzz-corpus-${{ hashFiles('fuzz/Cargo.lock') }}-
             fuzz-corpus-
-          save-always: false
-          save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: python3 fuzz/run-smoke.py --seconds 30
+      - if: github.ref == 'refs/heads/main'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: fuzz/workdir
+          key: fuzz-corpus-${{ hashFiles('fuzz/Cargo.lock') }}-${{ github.run_id }}
       # run-smoke.py already fails on any crash/timeout/oom/leak artifact, from
       # this run or an earlier one. Upload whatever it found so a failure can be
       # reproduced from the exact input rather than from the log alone.

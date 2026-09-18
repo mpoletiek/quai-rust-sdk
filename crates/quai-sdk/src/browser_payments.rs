@@ -14,6 +14,7 @@ use quai_wallet::payment_allocation::{
 /// Errors never release a committed range. Inspect the retained caller ID after
 /// a cancelled write before resuming; revision conflicts are not automatically retried.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum BrowserPaymentError {
     /// IndexedDB I/O, revision conflict or ambiguous cancellation.
     #[error(transparent)]

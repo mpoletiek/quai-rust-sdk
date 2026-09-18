@@ -58,6 +58,7 @@ pub struct CoinSelection {
 }
 /// Invalid snapshot, insufficient spendable value, or bounded planning failure.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum SelectionError {
     /// Invalid target, limits, or fee budget.
     #[error("invalid selection request")]

@@ -8,6 +8,7 @@ pub const MAX_FETCH_BYTES: usize = 1_048_576;
 pub const MAX_FETCH_HEADERS: usize = 16_384;
 /// Redacted resource errors; arbitrary URLs, credentials and remote bodies are omitted.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
+#[non_exhaustive]
 pub enum FetchError {
     /// Invalid URL, method, header, configuration or encoded data.
     #[error("invalid resource request or data")]

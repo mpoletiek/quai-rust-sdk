@@ -24,6 +24,7 @@ pub use crate::account_preflight::{AccountIntent, AccountObservationPolicy, FeeP
 
 /// Errors never automatically release or replace signed reservations.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum AccountError {
     /// A network observation or simulation failed.
     #[error(transparent)]

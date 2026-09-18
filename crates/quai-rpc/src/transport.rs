@@ -31,6 +31,7 @@ impl std::error::Error for RemoteError {}
 
 /// Bounded transport/protocol failures; no raw URL or response body is displayed.
 #[derive(Clone, Debug, Error)]
+#[non_exhaustive]
 pub enum RpcError {
     /// A transport configured for fail-fast concurrency is at its active-operation limit.
     #[error("RPC transport concurrency limit reached")]

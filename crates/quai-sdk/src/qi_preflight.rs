@@ -159,6 +159,7 @@ pub enum QiFeeMode {
 }
 /// Validation failures never sign, reserve inputs or send transactions.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum QiPreflightError {
     /// Invalid source identity, metadata, address capacity or policy.
     #[error("invalid Qi preflight")]

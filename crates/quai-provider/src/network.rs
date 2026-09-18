@@ -6,6 +6,7 @@ use serde_json::{Value, json};
 use std::collections::BTreeMap;
 /// Invalid or conflicting network metadata. Names are labels, never trusted identities.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
+#[non_exhaustive]
 pub enum NetworkError {
     /// Empty/control-bearing name or invalid exact chain quantity/object.
     #[error("invalid network metadata")]

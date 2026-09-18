@@ -33,6 +33,7 @@ impl WalletSendIdentity {
 }
 /// Whether the adapter failed before dispatch or after submission could occur.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum WalletSendError {
     /// No wallet transaction request was dispatched.
     #[error("wallet transaction preflight failed: {0}")]

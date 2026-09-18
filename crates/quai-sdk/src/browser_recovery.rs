@@ -16,6 +16,7 @@ use quai_wallet::metadata::StorageError;
 
 /// Browser custody, canonical read and explicit-send errors. No automatic retry.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum BrowserRecoveryError {
     /// Account journal validation failed.
     #[error(transparent)]

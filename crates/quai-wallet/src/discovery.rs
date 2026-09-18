@@ -82,6 +82,7 @@ impl AddressObservation {
 }
 /// Source or data failures contain no secret material or arbitrary remote text.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum DiscoveryError {
     /// Invalid range, bound or zero genesis identity.
     #[error("invalid discovery bounds or identity")]

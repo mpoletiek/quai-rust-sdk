@@ -89,6 +89,7 @@ impl QiChangePool {
 
 /// Planning failures do not release signed claims or retry submission.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum QiError {
     /// Qi message signature generation failed without exposing backend diagnostics.
     #[error("Qi message signing failed")]

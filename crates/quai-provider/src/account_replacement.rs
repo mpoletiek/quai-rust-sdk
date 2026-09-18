@@ -10,6 +10,7 @@ use quai_rpc::Transport;
 /// Classification used by the pinned quais.js account response waiter. This is
 /// descriptive, never authorization to adopt a transaction or release a claim.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub enum ReplacementReason {
     /// Same recipient, value and data; gas/access-list changes are not compared.
     Repriced,

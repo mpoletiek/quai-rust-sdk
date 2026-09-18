@@ -74,6 +74,7 @@ impl CodeWaitConfig {
 }
 /// Waiting errors do not undo deployments, change bindings or authorize transactions.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum CodeWaitError {
     /// Invalid limits or zero expected genesis; no I/O occurs.
     #[error("invalid contract code wait configuration")]

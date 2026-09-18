@@ -3,6 +3,7 @@ use std::{fmt, str::FromStr};
 
 /// Errors in bounded canonical Solidity ABI operations.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
+#[non_exhaustive]
 pub enum AbiError {
     /// Type expression, JSON interface or signature is malformed.
     #[error("invalid ABI type or interface")]

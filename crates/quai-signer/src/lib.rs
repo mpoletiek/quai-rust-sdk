@@ -59,6 +59,7 @@ impl DomainPolicy {
 
 /// Signing failures contain no key, payload or backend diagnostic strings.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum SignerError {
     /// The configured chain must be nonzero and equal the transaction chain.
     #[error("signer chain ID mismatch or invalid chain ID")]

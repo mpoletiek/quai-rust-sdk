@@ -6,6 +6,7 @@ use quai_rpc::Transport;
 use quai_wallet::discovery::NetworkScope;
 /// Invalid signed identity, failed RPC or changing canonical observations.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum FamilyObservationError {
     /// Bounded provider read failed.
     #[error(transparent)]

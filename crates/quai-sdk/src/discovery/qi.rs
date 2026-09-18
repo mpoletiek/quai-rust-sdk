@@ -91,6 +91,7 @@ pub struct ObservedQiBalance {
 }
 /// Portable Qi discovery errors preserve bounded provider/derivation diagnostics.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum QiDiscoveryError {
     /// Invalid coin, scope or explicit resource bounds.
     #[error("invalid Qi discovery request")]

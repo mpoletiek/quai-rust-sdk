@@ -14,6 +14,7 @@ use quai_wallet::account_custody::{ReservationId, ReservationState};
 
 /// Errors retain custody and never retry a send or select a different nonce.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum BrowserTransactionError {
     /// Browser custody or revision conflict.
     #[error(transparent)]

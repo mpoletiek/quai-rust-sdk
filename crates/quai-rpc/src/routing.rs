@@ -77,6 +77,7 @@ pub struct Routing {
 
 /// Invalid routing configuration, without echoing credential-bearing input.
 #[derive(Clone, Debug, PartialEq, Eq, Error)]
+#[non_exhaustive]
 pub enum RouteError {
     /// Endpoint syntax, scheme, user information or fragment is invalid.
     #[error("invalid endpoint; expected HTTP(S) or WS(S) without user information or fragment")]

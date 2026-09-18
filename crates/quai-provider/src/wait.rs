@@ -17,6 +17,7 @@ pub struct WaitConfig {
 
 /// Native confirmation-wait failures never imply a transaction was rejected or cancelled.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum WaitError {
     /// No RPC was made because configuration cannot produce a bounded poll loop.
     #[error("invalid confirmation wait limits")]

@@ -3,6 +3,7 @@ use thiserror::Error;
 
 /// Errors converting human decimal input to exact integer units.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum AmountError {
     /// Syntax is ASCII decimal only, with no whitespace, plus sign or exponent.
     #[error("invalid decimal amount syntax")]

@@ -25,6 +25,7 @@ pub const MAX_TRANSACTION_MESSAGES: usize = 16384;
 
 /// Transaction validation errors do not echo transaction data or secret material.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum TransactionError {
     /// Input exceeds this SDK's allocation policy.
     #[error("transaction exceeds size limit")]

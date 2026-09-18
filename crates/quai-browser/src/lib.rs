@@ -72,6 +72,7 @@ impl BrowserConfig {
 
 /// Sanitized browser failures. No provider strings, payloads, keys or URLs are retained.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum BrowserError {
     /// IndexedDB open/transaction/schema/quota failure; no remote text is retained.
     #[error("browser snapshot storage failed")]

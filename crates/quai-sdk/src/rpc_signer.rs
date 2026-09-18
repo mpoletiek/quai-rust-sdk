@@ -20,6 +20,7 @@ pub const MAX_SIGNER_ACCOUNTS: usize = 1024;
 
 /// Sanitized validation or transport cause; payloads and passwords are not displayed.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum RpcSignerFailure {
     /// Invalid configuration, transaction, size or domain policy.
     #[error("invalid remote signing request")]

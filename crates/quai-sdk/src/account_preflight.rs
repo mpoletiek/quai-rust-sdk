@@ -90,6 +90,7 @@ pub enum AccountNonce {
 }
 /// Preparation errors never mutate a wallet or trigger submission.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum AccountPreflightError {
     /// Node read or simulation failed.
     #[error(transparent)]

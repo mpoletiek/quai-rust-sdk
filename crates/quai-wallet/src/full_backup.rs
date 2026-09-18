@@ -40,6 +40,7 @@ const MAX_ORIGINS: usize = 16;
 
 /// Full-backup failures never echo secret origins or decrypted bytes.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum WalletBackupError {
     /// Invalid input, bound, password or internally inconsistent public state.
     #[error("invalid wallet backup input")]

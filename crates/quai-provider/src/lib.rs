@@ -89,6 +89,7 @@ impl BlockTag {
 
 /// Provider failures without raw endpoint URLs or remote response bodies.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum ProviderError {
     /// Requested canonical replay predates retained anchors or source history.
     #[error("canonical replay history unavailable; restore an older checkpoint explicitly")]

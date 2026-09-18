@@ -47,6 +47,7 @@ use thiserror::Error;
 
 /// Wallet errors never echo phrases, passphrases, seeds or extended private keys.
 #[derive(Clone, Debug, PartialEq, Eq, Error)]
+#[non_exhaustive]
 pub enum WalletError {
     /// Invalid word count, word, language or checksum.
     #[error("invalid mnemonic")]

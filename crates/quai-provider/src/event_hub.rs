@@ -56,6 +56,7 @@ pub enum EventPoll<E> {
 }
 /// Local configuration/lifecycle failures never hide dropped or partially delivered events.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum EventHubError {
     /// Limits are zero or exceed the supported item-count bounds.
     #[error("invalid event hub limits")]

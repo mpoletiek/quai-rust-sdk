@@ -41,6 +41,7 @@ impl Drop for Timer {
 }
 /// Wait failure never cancels a transaction or authorizes releasing its claims.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum BrowserReceiptWaitError {
     /// Invalid limits are rejected before timers and provider I/O.
     #[error("invalid browser transaction wait limits")]

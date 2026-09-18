@@ -7,6 +7,7 @@ type Result<T> = std::result::Result<T, StorageError>;
 
 /// Storage failures contain no SQL parameters or arbitrary database messages.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum StorageError {
     /// SQLite I/O, locking, constraint or corruption failure; transaction rolled back.
     #[error("wallet database operation failed")]

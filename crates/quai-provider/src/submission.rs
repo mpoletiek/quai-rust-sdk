@@ -18,6 +18,7 @@ pub struct BroadcastResult {
 
 /// Submission errors distinguish preflight failures from ambiguous send outcomes.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum BroadcastError {
     /// No submit request was made; configuration/chain validation failed.
     #[error("transaction preflight failed: {0}")]

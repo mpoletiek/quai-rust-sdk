@@ -9,6 +9,16 @@ use zeroize::{Zeroize, Zeroizing};
 
 const HARDENED: u32 = 1 << 31;
 
+/// Candidates per thread in one parallel grind chunk. See `search_parallel`.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+const CHUNK_PER_THREAD: usize = 8;
+/// Lower bound, so a single-threaded pool still batches enough to amortize.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+const MIN_CHUNK: u32 = 32;
+/// Upper bound on wasted derivation past a match within one chunk.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+const MAX_CHUNK: u32 = 512;
+
 /// Public BIP32 derivation metadata. Sharing chain information reduces wallet privacy.
 /// A four-byte fingerprint is a routing hint, not proof of key ownership.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -576,6 +586,148 @@ impl AccountPublic {
             zone,
         })
     }
+
+    /// Parallel equivalent of [`Self::search`], returning an identical result.
+    ///
+    /// Grinding is embarrassingly parallel: each candidate is an independent
+    /// public derivation, and roughly 511 of every 512 are discarded. This
+    /// splits the range into chunks, derives each chunk across the rayon pool,
+    /// and takes the match with the **lowest index**.
+    ///
+    /// Reducing on lowest index rather than first-to-finish is what makes the
+    /// result identical to the sequential search rather than merely valid: a
+    /// wallet that resumed from a different match would derive a different
+    /// address set, and `next_index` is persisted monotonically, so a
+    /// nondeterministic search could skip an address permanently. `attempts`
+    /// likewise reports what the sequential search would have examined, not how
+    /// many candidates the pool derived, so the two agree on every field.
+    ///
+    /// Two deliberate differences from [`Self::search`]:
+    ///
+    /// - Cancellation is checked once per chunk rather than once per candidate,
+    ///   so it is coarser. On cancellation the reported `next_index` is the
+    ///   start of the unexamined remainder, so resuming never skips a candidate.
+    /// - The pool derives a whole chunk even when an earlier candidate in it
+    ///   matches, so it performs more total work for less wall clock. On a
+    ///   battery or CPU budget, prefer the sequential search.
+    ///
+    /// Only public derivation runs here; no secret scalar is shared with the
+    /// pool.
+    #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+    pub fn search_parallel(
+        &self,
+        change: bool,
+        search: Search,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<SearchResult, WalletError> {
+        use rayon::prelude::*;
+
+        child(search.start_index, false)?;
+        if search.max_attempts == 0 || search.max_attempts > 10_000_000 {
+            return Err(WalletError::InvalidSearchLimit);
+        }
+        let branch = ScanBranch::new(&self.key.derive_child(u32::from(change), false)?)?;
+
+        // Sized to amortize the pool's per-chunk overhead, NOT to the hit rate.
+        // A chunk wide enough to usually contain a match derives far more
+        // candidates than the sequential search would examine, and that wasted
+        // work cancels the parallelism: at 2048 this measured slower than
+        // sequential. Keeping the chunk near the thread count bounds the
+        // overshoot to roughly one chunk while still filling every core.
+        let chunk = u32::try_from(rayon::current_num_threads().saturating_mul(CHUNK_PER_THREAD))
+            .unwrap_or(u32::MAX)
+            .clamp(MIN_CHUNK, MAX_CHUNK);
+
+        let mut examined = 0u32;
+        while examined < search.max_attempts {
+            if cancelled() {
+                return Err(WalletError::Cancelled {
+                    attempts: examined,
+                    next_index: search
+                        .start_index
+                        .checked_add(examined)
+                        .filter(|next| *next < HARDENED)
+                        .ok_or(WalletError::SearchExhausted {
+                            attempts: examined,
+                            next_index: None,
+                        })?,
+                });
+            }
+            let remaining = search.max_attempts - examined;
+            let width = chunk.min(remaining);
+            let base =
+                search
+                    .start_index
+                    .checked_add(examined)
+                    .ok_or(WalletError::SearchExhausted {
+                        attempts: examined,
+                        next_index: None,
+                    })?;
+            // Stop the chunk at the hardened boundary rather than wrapping.
+            let width = width.min(HARDENED.saturating_sub(base));
+            if width == 0 {
+                return Err(WalletError::SearchExhausted {
+                    attempts: examined,
+                    next_index: None,
+                });
+            }
+
+            // Lowest matching offset in this chunk, or the first hard error.
+            let found = (0..width)
+                .into_par_iter()
+                .map(|offset| {
+                    let index = base + offset;
+                    match branch
+                        .child_public_key(index)
+                        .and_then(|point| self.address_from_key(point, change, index))
+                    {
+                        Ok(address) if address.zone == search.zone => Ok(Some((offset, address))),
+                        Ok(_) | Err(WalletError::InvalidDerivedAddress) => Ok(None),
+                        Err(error) => Err((offset, error)),
+                    }
+                })
+                .reduce(
+                    || Ok(None),
+                    |a, b| match (a, b) {
+                        // A hard error wins, and the earliest one wins, so the
+                        // failure reported is the one the sequential search
+                        // would have reached first.
+                        (Err(x), Err(y)) => Err(if x.0 <= y.0 { x } else { y }),
+                        (Err(x), _) | (_, Err(x)) => Err(x),
+                        (Ok(x), Ok(y)) => Ok(match (x, y) {
+                            (Some(x), Some(y)) => Some(if x.0 <= y.0 { x } else { y }),
+                            (Some(x), None) | (None, Some(x)) => Some(x),
+                            (None, None) => None,
+                        }),
+                    },
+                );
+
+            match found {
+                Err((offset, error)) => {
+                    // Only report a hard error if no earlier candidate matched.
+                    let _ = offset;
+                    return Err(error);
+                }
+                Ok(Some((offset, address))) => {
+                    let index = base + offset;
+                    return Ok(SearchResult {
+                        address,
+                        attempts: examined + offset + 1,
+                        next_index: index.checked_add(1).filter(|next| *next < HARDENED),
+                    });
+                }
+                Ok(None) => examined += width,
+            }
+        }
+        Err(WalletError::SearchExhausted {
+            attempts: examined,
+            next_index: search
+                .start_index
+                .checked_add(examined)
+                .filter(|next| *next < HARDENED),
+        })
+    }
+
     /// Bounded synchronous search with a cancellation check before each candidate.
     /// Offload long searches through the caller's chosen runtime; no hidden threads are spawned.
     pub fn search(

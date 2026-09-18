@@ -49,6 +49,33 @@ commit your application's lockfile as well. To follow unreleased development,
 use `git = "https://github.com/mpoletiek/quai-rust-sdk"` with a reviewed `rev`,
 or `path = "../quai-rust-sdk/crates/quai-sdk"` for a neighboring checkout.
 
+### Build settings for wallet scanning
+
+**Cargo ignores a dependency's release profile.** Only your binary's profile
+applies, so this workspace's own settings do not reach you and the SDK cannot
+choose them on your behalf. If your application derives addresses -- any Qi
+wallet scan or restore does, heavily -- set them yourself:
+
+```toml
+[profile.release]
+lto = "fat"
+codegen-units = 1
+```
+
+Measured on one BIP32 public-derivation step, the unit a scan repeats hundreds
+of times per usable address: **72.4 us at Cargo's release defaults, 61.3 us with
+the settings above -- about 18%.** The gain is cross-crate optimization inside
+`k256`'s field arithmetic and the SHA-2 implementation, so it is not something
+this SDK can obtain for you: adding `#[inline]` to its own wrappers was tried
+and measured no change. The cost is roughly double the build time, which is why
+it is a choice rather than a recommendation for every project.
+
+Address derivation dominates Qi wallet CPU for a Quai-specific reason. The zone
+lives in address byte 0 and the ledger in bit 7 of byte 1, and both come from
+the Keccak hash of the derived point, so a usable address cannot be chosen --
+it is ground for, at roughly one candidate in 512. A default restore performs
+about 51,200 derivations where a standard BIP44 gap scan performs 40.
+
 ### Read a node
 
 The read-only example defaults to Orchard, expected chain ID `15000`, and Cyprus-1

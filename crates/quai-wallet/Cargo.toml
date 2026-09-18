@@ -15,6 +15,11 @@ categories = ["cryptography"]
 
 [features]
 default = []
+# Parallel address grinding. Native only: the portable scanner targets wasm32,
+# where rayon has no thread pool. Opt-in because the sequential search documents
+# that no hidden threads are spawned, and an application that manages its own
+# pool or runs on a constrained device should keep that guarantee.
+rayon = ["dep:rayon"]
 sqlite = ["dep:rusqlite", "backup"]
 backup = ["payments", "dep:serde", "dep:serde_json"]
 payments = ["dep:quai-payments"]
@@ -42,6 +47,7 @@ getrandom = "0.4.3"
 getrandom = { version = "0.4.3", features = ["wasm_js"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+rayon = { version = "1.11", optional = true }
 rusqlite = { version = "0.40.2", features = ["bundled"], optional = true }
 
 [dev-dependencies]

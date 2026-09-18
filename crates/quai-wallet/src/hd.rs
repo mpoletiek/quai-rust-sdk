@@ -607,8 +607,8 @@ impl AccountPublic {
     /// - Cancellation is checked once per chunk rather than once per candidate,
     ///   so it is coarser. On cancellation the reported `next_index` is the
     ///   start of the unexamined remainder, so resuming never skips a candidate.
-    /// - The pool derives a whole chunk even when an earlier candidate in it
-    ///   matches, so it performs more total work for less wall clock. On a
+    /// - The pool may derive past a match within its chunk, so it performs
+    ///   more total work for less wall clock. On a
     ///   battery or CPU budget, prefer the sequential search.
     ///
     /// Only public derivation runs here; no secret scalar is shared with the
@@ -672,43 +672,23 @@ impl AccountPublic {
                 });
             }
 
-            // Lowest matching offset in this chunk, or the first hard error.
-            let found = (0..width)
-                .into_par_iter()
-                .map(|offset| {
-                    let index = base + offset;
-                    match branch
-                        .child_public_key(index)
-                        .and_then(|point| self.address_from_key(point, change, index))
-                    {
-                        Ok(address) if address.zone == search.zone => Ok(Some((offset, address))),
-                        Ok(_) | Err(WalletError::InvalidDerivedAddress) => Ok(None),
-                        Err(error) => Err((offset, error)),
-                    }
-                })
-                .reduce(
-                    || Ok(None),
-                    |a, b| match (a, b) {
-                        // A hard error wins, and the earliest one wins, so the
-                        // failure reported is the one the sequential search
-                        // would have reached first.
-                        (Err(x), Err(y)) => Err(if x.0 <= y.0 { x } else { y }),
-                        (Err(x), _) | (_, Err(x)) => Err(x),
-                        (Ok(x), Ok(y)) => Ok(match (x, y) {
-                            (Some(x), Some(y)) => Some(if x.0 <= y.0 { x } else { y }),
-                            (Some(x), None) | (None, Some(x)) => Some(x),
-                            (None, None) => None,
-                        }),
-                    },
-                );
-
-            match found {
-                Err((offset, error)) => {
-                    // Only report a hard error if no earlier candidate matched.
-                    let _ = offset;
-                    return Err(error);
+            // The first match or hard error in index order, exactly what the
+            // sequential search would reach first. `find_map_first` resolves
+            // by position, not by which thread finishes first.
+            let first = (0..width).into_par_iter().find_map_first(|offset| {
+                let index = base + offset;
+                match branch
+                    .child_public_key(index)
+                    .and_then(|point| self.address_from_key(point, change, index))
+                {
+                    Ok(address) if address.zone == search.zone => Some((offset, Ok(address))),
+                    Ok(_) | Err(WalletError::InvalidDerivedAddress) => None,
+                    Err(error) => Some((offset, Err(error))),
                 }
-                Ok(Some((offset, address))) => {
+            });
+            match first {
+                Some((_, Err(error))) => return Err(error),
+                Some((offset, Ok(address))) => {
                     let index = base + offset;
                     return Ok(SearchResult {
                         address,
@@ -716,7 +696,7 @@ impl AccountPublic {
                         next_index: index.checked_add(1).filter(|next| *next < HARDENED),
                     });
                 }
-                Ok(None) => examined += width,
+                None => examined += width,
             }
         }
         Err(WalletError::SearchExhausted {
@@ -815,6 +795,7 @@ impl AccountPublic {
 
 /// Matching addresses from one [`AccountPublic::search_window`] call.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct SearchWindow {
     /// Matches in derivation-index order.
     pub addresses: Vec<DerivedAddress>,
@@ -827,8 +808,11 @@ pub struct SearchWindow {
 }
 
 /// Why a [`SearchWindow`] ended.
+///
+/// Exhaustive on purpose: `Cancelled` means the window's addresses must be
+/// discarded, and a new stop reason should fail to compile, not fall into a
+/// wildcard arm.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[non_exhaustive]
 pub enum WindowStop {
     /// The requested number of addresses was found.
     Filled,

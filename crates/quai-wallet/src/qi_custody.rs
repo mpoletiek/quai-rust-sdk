@@ -46,6 +46,7 @@ pub struct QiOperation {
 }
 /// Counts from a successful monotonic custody merge; observations are invalidated.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct QiMergeReport {
     /// Newly retained public address records.
     pub addresses_added: usize,

@@ -443,3 +443,69 @@ fn a_short_batch_response_is_rejected() {
         Err(DiscoveryError::InvalidObservation)
     ));
 }
+
+#[test]
+fn cancellation_inside_a_window_never_advances_past_an_unrecorded_address() {
+    // A deep scan makes the receive branch one window spanning its range, so
+    // every cancelled() call can be placed exactly: one before the tip, one at
+    // the loop top, one per derived candidate, one before the read, then one
+    // after each record.
+    let account = account(CoinType::Qi);
+    let request = DiscoveryRequest {
+        gap_limit: None,
+        ..request()
+    };
+    let receive = &matches()[0];
+    let end = request.receive.end;
+
+    // Cancelled while deriving, after three addresses were already found: they
+    // were never observed, so nothing is recorded and the cursor stays put.
+    let during = 2 + receive[2].index + 1 + 2;
+    let source = Recording {
+        inner: Source::new(HistoryCapability::CurrentStateOnly),
+        windows: Default::default(),
+    };
+    let mut calls = 0;
+    let report = ready(discover(&source, &account, &request, || {
+        calls += 1;
+        calls > during
+    }))
+    .unwrap();
+    assert!(
+        source.windows.into_inner().unwrap().is_empty(),
+        "nothing read"
+    );
+    assert!(report.addresses.is_empty());
+    assert_eq!(report.coverage[0].next_index, request.receive.start);
+    assert!(report.coverage[0].skipped.is_empty());
+    assert_eq!(report.coverage[0].stop, ScanStop::Cancelled);
+
+    // Cancelled after the fourth record of a read window: the cursor is just
+    // past the last recorded address and coverage is exactly what was seen.
+    let before_records = 2 + end + 1;
+    let mut calls = 0;
+    let report = ready(discover(
+        &Source::new(HistoryCapability::CurrentStateOnly),
+        &account,
+        &request,
+        || {
+            calls += 1;
+            calls > before_records + 3
+        },
+    ))
+    .unwrap();
+    let coverage = &report.coverage[0];
+    assert_eq!(report.addresses.len(), 4);
+    assert_eq!(coverage.stop, ScanStop::Cancelled);
+    assert_eq!(coverage.next_index, receive[3].index + 1);
+    let mut examined: BTreeSet<u32> = report.addresses.iter().map(|a| a.derived.index).collect();
+    for range in &coverage.skipped {
+        for index in range.start..range.end {
+            assert!(examined.insert(index), "skipped overlaps observed");
+        }
+    }
+    assert_eq!(
+        examined,
+        (coverage.requested.start..coverage.next_index).collect()
+    );
+}

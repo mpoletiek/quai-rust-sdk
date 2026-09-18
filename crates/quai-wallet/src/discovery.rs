@@ -129,8 +129,10 @@ pub trait ObservationSource {
     ///
     /// [`discover`] calls this with a window the gap rule guarantees it will
     /// examine whatever the answers, so a source may read them together without
-    /// disclosing any address a one-at-a-time scan would not have. The default
-    /// observes them one at a time through [`Self::observe`].
+    /// disclosing any address a completed one-at-a-time scan would not have.
+    /// The default observes them one at a time through [`Self::observe`], and
+    /// calls it for every address before awaiting any: a source whose `observe`
+    /// sends a request before its future is polled should override this.
     #[cfg(not(target_arch = "wasm32"))]
     fn observe_many(
         &self,
@@ -140,7 +142,8 @@ pub trait ObservationSource {
     ) -> impl Future<Output = Result<Vec<AddressObservation>, DiscoveryError>> + Send {
         // Futures are created up front so the returned future holds only them,
         // not `&self`, and is Send without requiring the source to be Sync.
-        // They are lazy, so they still run one at a time, in order.
+        // They run one at a time, in order, provided `observe` does its work
+        // when polled rather than when called, as an `async fn` does.
         let pending: Vec<_> = addresses
             .iter()
             .map(|address| self.observe(scope, address, checkpoint))
@@ -301,10 +304,13 @@ impl GapCounter {
     /// what the node reports for any of them. `None` means unbounded, which is
     /// what an explicit deep scan with no gap limit requests.
     ///
-    /// A batch of at most this size therefore queries only addresses the
-    /// sequential scan would also have queried: no speculation, no extra
-    /// disclosure to the node, and no observation that could contaminate a
-    /// cross-address budget.
+    /// A batch of at most this size therefore queries only addresses a
+    /// sequential scan that runs to completion would also query: nothing past
+    /// the gap stop is disclosed. Results are consumed in order, so no
+    /// observation past a failing address enters a cross-address budget. A
+    /// scan aborted partway through a window (an error, a budget, or
+    /// cancellation after the read) has still disclosed the rest of that
+    /// window, at most `MAX_SCAN_WINDOW - 1` addresses a retry would query too.
     pub const fn guaranteed_remaining(&self) -> Option<u32> {
         match self.limit {
             // saturating_sub is defensive; observe stops the branch on equality.
@@ -327,6 +333,7 @@ impl GapCounter {
 
 /// Exact examined interval and compact, lossless skipped raw-index intervals.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct BranchCoverage {
     /// Change branch when true, receive otherwise.
     pub change: bool,
@@ -361,6 +368,7 @@ pub enum CanonicalStatus {
 }
 /// Bounded discovery outcome. There is intentionally no `complete recovery` flag.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct DiscoveryReport {
     /// Exact scanned network scope.
     pub scope: NetworkScope,
@@ -485,9 +493,9 @@ pub async fn discover<S: ObservationSource>(
             }
             // Derive a window the branch is guaranteed to examine and observe
             // it together. The gap counter cannot stop the branch inside its
-            // own guarantee whatever the source answers, so the set observed
-            // is exactly the one-at-a-time scan's: nothing speculative is
-            // disclosed and no extra observation enters the coin budget.
+            // own guarantee whatever the source answers, so nothing past the
+            // gap stop is disclosed. See `GapCounter::guaranteed_remaining`
+            // for what an aborted window discloses.
             let start = coverage.next_index;
             let window = account
                 .search_window(

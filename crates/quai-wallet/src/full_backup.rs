@@ -236,6 +236,7 @@ impl fmt::Debug for WalletBackup {
 }
 /// Required work after restore; no inclusion observation is promoted to finality.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct RestoreReport {
     /// Restored scopes and new invalidated snapshot generations.
     pub invalidated_scopes: Vec<(NetworkScope, u64)>,

@@ -49,6 +49,7 @@ pub struct AccountOperationBook {
 }
 /// Result of a conservative authenticated backup union; no claim is released.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct AccountMergeReport {
     /// Newly retained IDs; existing IDs are never removed or reassigned.
     pub operations_added: usize,

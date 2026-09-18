@@ -30,6 +30,8 @@ url = "2.5"
 thiserror = "2.0"
 reqwest = { version = "0.12.28", default-features = false, features = ["json", "rustls-tls"] }
 tokio = { version = "1", features = ["time", "sync"] }
+# Benchmark harness only; a dev-dependency, so published crates are unaffected.
+criterion = { version = "0.8.2", default-features = false, features = ["cargo_bench_support"] }
 
 [profile.release]
 # Cargo ignores a dependency's profile, so this governs this workspace's own

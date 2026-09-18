@@ -38,7 +38,12 @@ getrandom = { version = "0.4", features = ["wasm_js"] }
 getrandom_02 = { package = "getrandom", version = "0.2.17", features = ["js"] }
 
 [dev-dependencies]
+criterion.workspace = true
 serde_json.workspace = true
+
+[[bench]]
+name = "crypto"
+harness = false
 
 [lints]
 workspace = true

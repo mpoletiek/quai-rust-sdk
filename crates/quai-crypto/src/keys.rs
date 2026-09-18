@@ -1,5 +1,9 @@
 use core::fmt;
-use k256::elliptic_curve::{bigint::U256, ops::Reduce, sec1::ToEncodedPoint};
+use k256::elliptic_curve::{
+    bigint::U256,
+    ops::{MulByGenerator, Reduce},
+    sec1::ToEncodedPoint,
+};
 use quai_primitives::Address;
 use zeroize::{ZeroizeOnDrop, Zeroizing};
 
@@ -185,7 +189,10 @@ impl PublicKey {
     /// Uses the backend's curve operations and rejects the identity result.
     pub fn add_tweak(&self, tweak: &SecretKey) -> Result<Self, CryptoError> {
         let scalar = tweak.guarded_scalar();
-        let point = self.0.to_projective() + k256::ProjectivePoint::GENERATOR * *scalar;
+        // `mul_by_generator` consults k256's precomputed generator table; the
+        // generic `GENERATOR * scalar` runs a full 256-bit ladder and ignores it.
+        // Same group element either way, and the table selects are constant-time.
+        let point = self.0.to_projective() + k256::ProjectivePoint::mul_by_generator(&scalar);
         k256::PublicKey::from_affine(point.to_affine())
             .map(Self)
             .map_err(|_| CryptoError::InvalidPublicKey)

@@ -29,3 +29,6 @@ __pycache__/
 .vscode/
 .agents/
 .codex/
+
+# Criterion baselines and reports are local measurement state, not source.
+/target/criterion/

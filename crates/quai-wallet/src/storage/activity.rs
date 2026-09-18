@@ -12,7 +12,8 @@ use std::collections::BTreeSet;
 /// Where an outgoing operation stands, from the wallet's own records.
 ///
 /// Exhaustive on purpose: a new status should fail to compile in a wallet's
-/// display and retry logic rather than fall into a wildcard arm.
+/// display and retry logic rather than fall into a wildcard arm. `Included`
+/// may gain fields, so match it as `Included { block, .. }`.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ActivityStatus {
     /// Reserved and unsigned: inputs or a nonce are held while preparing.
@@ -23,8 +24,12 @@ pub enum ActivityStatus {
     Signed,
     /// Submitted; inclusion not observed yet, or a reorg removed it.
     Pending,
-    /// Observed included at this block. A caller observation, not finality.
-    Included(Checkpoint),
+    /// Observed included. A caller observation, not finality.
+    #[non_exhaustive]
+    Included {
+        /// Block the caller observed the transaction in.
+        block: Checkpoint,
+    },
 }
 
 /// Which Qi operation an entry is.
@@ -46,6 +51,7 @@ pub enum ActivityDetail {
     /// No signed payload yet.
     Unsigned,
     /// An account transaction.
+    #[non_exhaustive]
     Account {
         /// Sending account.
         from: QuaiAddress,
@@ -59,12 +65,17 @@ pub enum ActivityDetail {
         max_fee: U256,
     },
     /// A Qi operation.
+    #[non_exhaustive]
     Qi {
         /// Operation type.
         kind: QiActivityKind,
-        /// Total of outputs to addresses this store does not hold, in Qits.
+        /// Total of every output that is not change, in Qits. Conversion and
+        /// wrapping outputs count here even when the destination is this
+        /// wallet's own account, since they leave the Qi ledger.
         sent: U256,
-        /// Total of outputs back to addresses this store holds, in Qits.
+        /// Total of outputs to this store's Qi BIP44 addresses, in Qits.
+        /// Imported and payment-channel addresses count as sent: holding one
+        /// does not make an output to it change.
         change: U256,
         /// Number of outputs.
         outputs: usize,
@@ -98,7 +109,20 @@ impl SqliteStore {
         limit: u16,
     ) -> Result<Vec<ActivityEntry>> {
         let reservations = self.reservations(after, limit)?;
-        let owned: BTreeSet<Address> = self.addresses()?.iter().map(|a| a.address()).collect();
+        let change: BTreeSet<Address> = self
+            .addresses()?
+            .iter()
+            .filter(|a| {
+                matches!(
+                    a.origin(),
+                    KeyOrigin::Bip44 {
+                        coin: CoinType::Qi,
+                        ..
+                    }
+                )
+            })
+            .map(|a| a.address())
+            .collect();
         reservations
             .into_iter()
             .map(|reservation| {
@@ -106,7 +130,9 @@ impl SqliteStore {
                     (ReservationState::Reserved, _) => ActivityStatus::Preparing,
                     (ReservationState::Released, _) => ActivityStatus::Cancelled,
                     (ReservationState::Signed, _) => ActivityStatus::Signed,
-                    (ReservationState::Confirmed, Some(block)) => ActivityStatus::Included(block),
+                    (ReservationState::Confirmed, Some(block)) => {
+                        ActivityStatus::Included { block }
+                    }
                     (ReservationState::Submitted | ReservationState::Confirmed, _) => {
                         ActivityStatus::Pending
                     }
@@ -114,7 +140,7 @@ impl SqliteStore {
                 let (detail, replacements) = match self.signed_payload(reservation.id)? {
                     None => (ActivityDetail::Unsigned, 0),
                     Some(payload) => (
-                        decode_detail(&payload, &owned)?,
+                        decode_detail(&payload, &change)?,
                         self.replacement_candidates(reservation.id)?.len(),
                     ),
                 };
@@ -133,42 +159,44 @@ impl SqliteStore {
 /// Decode a validated signed payload. Account payloads start with the
 /// transaction-type field of an account transaction; anything else here is a
 /// Qi operation, which the store has already validated as one.
-fn decode_detail(payload: &[u8], owned: &BTreeSet<Address>) -> Result<ActivityDetail> {
+fn decode_detail(payload: &[u8], change: &BTreeSet<Address>) -> Result<ActivityDetail> {
+    decode_known(payload, change).ok_or(StorageError::Invalid)
+}
+
+fn decode_known(payload: &[u8], change: &BTreeSet<Address>) -> Option<ActivityDetail> {
     if let Ok(signed) = SignedQuaiTransaction::decode(payload) {
         let tx = signed.transaction();
-        return Ok(ActivityDetail::Account {
+        return Some(ActivityDetail::Account {
             from: signed.from(),
             to: tx.to,
             value: tx.value,
             nonce: tx.nonce,
-            max_fee: tx
-                .gas_price
-                .checked_mul(U256::from(tx.gas_limit))
-                .ok_or(StorageError::Invalid)?,
+            max_fee: tx.gas_price.checked_mul(U256::from(tx.gas_limit))?,
         });
     }
-    let signed =
-        quai_consensus::SignedQiOperation::decode(payload).map_err(|_| StorageError::Invalid)?;
+    let signed = quai_consensus::SignedQiOperation::decode(payload).ok()?;
     let kind = match &signed {
         quai_consensus::SignedQiOperation::Transfer(_) => QiActivityKind::Transfer,
         quai_consensus::SignedQiOperation::Conversion(_) => QiActivityKind::Conversion,
         quai_consensus::SignedQiOperation::Wrapping(_) => QiActivityKind::Wrapping,
     };
     let outputs = &signed.transaction().outputs;
-    let (mut sent, mut change) = (U256::ZERO, U256::ZERO);
+    let (mut sent, mut returned) = (U256::ZERO, U256::ZERO);
     for output in outputs {
         let value = U256::from(output.denomination.value());
-        let total = if owned.contains(&output.address) {
-            &mut change
+        // Change addresses are Qi-ledger, so a conversion's Quai-ledger output
+        // and a wrapping deposit are always sent.
+        let total = if change.contains(&output.address) {
+            &mut returned
         } else {
             &mut sent
         };
-        *total = total.checked_add(value).ok_or(StorageError::Invalid)?;
+        *total = total.checked_add(value)?;
     }
-    Ok(ActivityDetail::Qi {
+    Some(ActivityDetail::Qi {
         kind,
         sent,
-        change,
+        change: returned,
         outputs: outputs.len(),
     })
 }

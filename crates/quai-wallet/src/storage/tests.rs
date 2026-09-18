@@ -1723,6 +1723,28 @@ fn activity_lists_outgoing_operations_with_status_and_decoded_amounts() {
     let key = signing_key(0);
     let mut stranger = *metadata()[0].address().bytes();
     stranger[19] ^= 1;
+    // A watched key the store holds without HD ancestry is not change.
+    let other = HdWallet::from_seed(&[1; 16], CoinType::Qi).unwrap();
+    let found = other
+        .account_public(0)
+        .unwrap()
+        .search(
+            false,
+            Search {
+                zone: scope().zone,
+                start_index: 0,
+                max_attempts: 10_000,
+            },
+            || false,
+        )
+        .unwrap();
+    let watched_key = other
+        .derive_key(0, false, found.address.index)
+        .unwrap()
+        .secret_key()
+        .unwrap()
+        .public_key();
+    let watched = PublicAddress::imported(&watched_key).unwrap();
     let qi = quai_consensus::QiTransaction {
         chain_id: scope().chain_id,
         inputs: coins()
@@ -1741,6 +1763,10 @@ fn activity_lists_outgoing_operations_with_status_and_decoded_amounts() {
                 address: change_address.address(),
                 denomination: Denomination::new(0).unwrap(),
             },
+            quai_consensus::QiOutput {
+                address: watched.address(),
+                denomination: Denomination::new(2).unwrap(),
+            },
         ],
         data: vec![],
     }
@@ -1757,12 +1783,15 @@ fn activity_lists_outgoing_operations_with_status_and_decoded_amounts() {
     store.commit_signed_qi(id(3), &qi).unwrap();
     let generation = store.snapshot().unwrap().generation;
     store
-        .import_metadata(generation, &[change_address])
+        .import_metadata(generation, &[change_address, watched])
         .unwrap();
 
     let activity = store.activity(None, 10).unwrap();
     assert_eq!(activity.len(), 3);
-    assert_eq!(activity[0].status, ActivityStatus::Included(block(9)));
+    assert_eq!(
+        activity[0].status,
+        ActivityStatus::Included { block: block(9) }
+    );
     assert_eq!(activity[0].transaction, Some(transfer.hash().unwrap()));
     assert!(matches!(
         activity[0].detail,
@@ -1775,9 +1804,11 @@ fn activity_lists_outgoing_operations_with_status_and_decoded_amounts() {
         activity[2].detail,
         ActivityDetail::Qi {
             kind: QiActivityKind::Transfer,
-            sent: U256::from(Denomination::new(1).unwrap().value()),
+            sent: U256::from(
+                Denomination::new(1).unwrap().value() + Denomination::new(2).unwrap().value()
+            ),
             change: U256::from(Denomination::new(0).unwrap().value()),
-            outputs: 2,
+            outputs: 3,
         }
     );
     // Paging continues after the last returned ID.

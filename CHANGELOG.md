@@ -2,19 +2,30 @@
 
 ## Unreleased
 
-Hardening and speed from a full-workspace review.
+Hardening and speed from a full-workspace review, and the SDK pieces a desktop
+wallet needs first.
 
 Security:
 
-- `sign_qi_message` refuses a message that decodes as a Qi transaction with
-  inputs (`SignerError::QiTransactionMessage`). Qi messages and single-input
-  spends are both BIP340 over Keccak of the raw bytes, so signing such a
-  "message" produced a valid signature for that spend.
+- `sign_qi_message` refuses bytes that parse as a transaction with inputs
+  under any encoding, oversized and non-canonical ones included
+  (`SignerError::QiTransactionMessage`). Qi messages and single-input spends
+  are both BIP340 over Keccak of the raw bytes, so signing such a "message"
+  produced a valid signature for that spend. **Every earlier release signs
+  them; do not sign third-party bytes as a Qi message with 0.1.0-alpha.1
+  through alpha.3.**
+- Mailbox discovery probes a new announced sender over five addresses before
+  registering it, and persists nothing for an unfunded one, so unauthenticated
+  announcements can no longer grow the store without bound. Past 4,096
+  announcements, discovery no longer fails permanently.
 - Legacy `SqliteStore::allocate_address` gives back the unexamined part of its
-  burned range on success. A large `max_attempts` used to skip about
-  `max_attempts / 512` matching addresses per allocation (about 190 at
-  100,000), so a gap-limited restore stopped before later addresses. Addresses
-  already allocated that way are still found by an explicit deep scan.
+  burned range on success, guarded by the scope generation. A large
+  `max_attempts` used to skip about `max_attempts / 512` matching addresses per
+  allocation, so a gap-limited restore stopped before later addresses.
+- A failed Qi prepare leaves a change pool lent by `&mut` whole, so failures no
+  longer push later change beyond a restore's gap.
+- JSON-RPC responses that are not valid UTF-8 are rejected (found by fuzzing).
+- Zone headers with an all-zero hash are rejected.
 - `discover_qi` rejects outpoints whose hash is from another zone.
 - Secret-handling fixes in mnemonic, keystore and fetch credential paths.
 
@@ -22,18 +33,29 @@ Breaking:
 
 - Every public error enum is `#[non_exhaustive]`; match with a wildcard arm.
   Outcome enums that gate a commit or signing decision (`ScanStop`,
-  `WindowStop`, `CanonicalStatus`, candidate statuses) stay exhaustive; see
-  `docs/architecture.md`.
-- The nine `*Config` structs (`HttpConfig`, `WsConfig`, `FetchConfig`,
+  `WindowStop`, `CanonicalStatus`, `ActivityStatus`, candidate statuses) and
+  spend-limit policies (`FeePolicy`, `QiPolicy`, `ReplacementPolicy`,
+  `SelectionRequest`) stay exhaustive; see `docs/architecture.md`.
+- The `*Config` structs (`HttpConfig`, `WsConfig`, `FetchConfig`,
   `EventHubConfig`, `WaitConfig`, `CodeWaitConfig`, `BrowserConfig`,
   `BrowserSocketConfig`, `BrowserWaitConfig`), `KdfLimits`, `DeriveLimits`,
-  `QiDiscoveryOptions` and `QiScanOptions` are `#[non_exhaustive]`. Build them
-  with `Default::default()` or `new` and the `with_*` methods. The three wait
-  configs have no default by design, so `new` takes every limit.
-- Scan and restore reports (`DiscoveryReport`, `BranchCoverage`,
-  `QiScanReport`, `CurrentQiDiscovery`, `ObservedQiBalance`,
-  `PaymentScanReport`, `MailboxDiscoveryReport`, `RestoreReport`,
-  `AccountMergeReport`, `QiMergeReport`) are `#[non_exhaustive]`.
+  `HeadFollowPolicy`, and the scan options and requests (`QiDiscoveryOptions`,
+  `QiScanOptions`, `PaymentScanOptions`, `DiscoveryRequest`, `EtxScanRequest`,
+  `AccountReplacementScanRequest`) are `#[non_exhaustive]`. Build them with
+  `Default::default()` or `new` and the `with_*` methods.
+- Reports and updates are `#[non_exhaustive]`: `DiscoveryReport`,
+  `BranchCoverage`, `QiScanReport`, `CurrentQiDiscovery`, `ObservedQiBalance`,
+  `PaymentScanReport`, `MailboxDiscoveryReport`, `MailboxChannelScan` (which
+  gains `registered`), `RestoreReport`, `AccountMergeReport`, `QiMergeReport`,
+  `HeadUpdate`, `SettlementUpdate`, `FamilyUpdate`, `WalletReplayUpdate`,
+  `PersistedWalletReplayUpdate`, `DeploymentUpdate`, `AccountOperation`,
+  `QiOperation`, `ReorgInvalidation`, `HeadReplayState`, `HeadReplayCommit`,
+  `SearchWindow` and `RpcSignerError`.
+- A failed network check returns a new `NetworkMismatch` variant of
+  `AccountError`, `AccountPreflightError`, `QiError` and `DiscoveryError`
+  instead of `IdentityMismatch`, `ObservationChanged` or `InvalidObservation`.
+- A malformed `FeePolicy` (zero `max_gas`, margin over 100%) is
+  `InvalidOperation` / `Invalid` on every path; some paths said `FeeLimit`.
 - Internal `quai-*` dependencies are exact (`=`) requirements. A caret
   requirement on a pre-release also matches later pre-releases, so pinning
   `quai-sdk` exactly did not pin its siblings. Users of 0.1.0-alpha.1 through
@@ -43,33 +65,51 @@ Breaking:
 
 Added:
 
+- `ErrorClass` (`Transient`, `Stale`, `NetworkMismatch`, `Ambiguous`,
+  `Invalid`, `Cancelled`, `Storage`) and `class()` on the errors background
+  sync meets, so a sync loop can decide to retry, re-observe, stop or
+  reconcile.
+- `SqliteStore::activity`: outgoing operations with status and decoded
+  amounts, from the store's own records.
 - `DynTransport`, so one `Provider<DynTransport>` type can hold any native
   transport chosen at runtime.
-- `Provider::account_states`, the balance and nonce of up to
-  `MAX_ACCOUNT_STATES` accounts in batched, chain-guarded pages.
-- `AccountPublic::search_window`, several consecutive usable addresses with
-  the branch derived once.
+- `Provider::account_states`, `Provider::headers` and
+  `Provider::headers_on_network` for batched, chain-guarded reads.
+- `AccountPublic::search_window`, `search_window_async` (yields between
+  slices) and, with the `rayon` feature, `search_window_parallel`;
+  `Grinding::Parallel` on scan options uses it (about 4x faster on six cores,
+  identical results). `quai-sdk` gains a `rayon` feature.
+- `PublicKey::add_tweaks`, several tweaks with one shared field inversion.
 - `ObservationSource::observe_many` for batched sources. Its default calls
   `observe` per address, so existing sources compile unchanged.
-- Opt-in `rayon` feature on `quai-wallet` for parallel address grinding.
+- `ReservationId` and `ReservationState` at the `quai_wallet` root.
+- Fuzz targets for WebSocket dispatch and the provider's response parsers.
 
 Changed:
 
-- `AccountSession` and `QiSession` futures are `Send`, so they can run on a
-  multi-threaded runtime.
-- `scan_qi`, `discover_qi` and the generic `discover` read addresses in
-  gap-bounded windows. A completed scan queries exactly what a one-at-a-time
-  scan would, so nothing past the gap stop is disclosed. An aborted scan may
-  already have read the rest of its window, at most 63 addresses a retry would
-  read anyway. `scan_payment_channel` still reads one address at a time.
-- `refresh_qi` and `include_known_qi_addresses` read addresses through
-  `outpoints_many`, up to 1,024 per call, instead of in pages of eight and one
-  at a time respectively.
-- Reads carry their chain guard in the same batch as the call. Network
-  identity checks compare the chain ID locally, saving a round trip each.
-  Batching is supported on HTTP and WebSocket.
-- Faster address derivation and signing: k256 generator tables and a
-  scan-specific derivation path.
+- Change pools lent to `prepare`, `prepare_sweep` and `prepare_special` by
+  `&mut` lose only the addresses a prepared transaction uses; passing by value
+  behaves as before.
+- `refresh_qi` labels its snapshot with the block seen before its reads and
+  requires only that block to stay canonical, so a refresh can span a block.
+- `AccountSession` and `QiSession` futures are `Send`.
+- Scans grind in slices and yield between them instead of blocking an
+  executor thread for about a second per window.
+- `scan_qi`, `discover_qi`, the generic `discover` and `scan_payment_channel`
+  read addresses in gap-bounded windows. A completed scan queries exactly what
+  a one-at-a-time scan would; an aborted one may already have read the rest of
+  its window, at most 63 addresses a retry would read anyway.
+- Scan use-checks run up to four at a time, in order.
+- `HeadTracker::poll` batches its reads: one round trip when idle, three per
+  new page, instead of five plus one per block.
+- Network identity checks and header reads that nothing separates travel in
+  one round trip; identity checks compare the chain ID locally.
+- `refresh_qi` and `include_known_qi_addresses` read up to 1,024 addresses per
+  `outpoints_many` call.
+- Replacement conversions check the parent's gas limit against the same
+  origin-cost budget the original preparation used.
+- Faster address derivation (generator tables, a scan-specific derivation
+  path, batched normalization) and cached SQLite statements.
 
 ## 0.1.0-alpha.3
 

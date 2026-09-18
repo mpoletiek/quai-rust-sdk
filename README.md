@@ -45,7 +45,9 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 Pre-release versions are only selected when requested explicitly. The `=` pin
 keeps a later alpha, which may break the API, from being picked up automatically;
-commit your application's lockfile as well. To follow unreleased development,
+commit your application's lockfile as well. Through `0.1.0-alpha.3`
+the facade required its sibling `quai-*` crates with caret requirements, so on
+those versions pin every `quai-*` crate you depend on as well. To follow unreleased development,
 use `git = "https://github.com/mpoletiek/quai-rust-sdk"` with a reviewed `rev`,
 or `path = "../quai-rust-sdk/crates/quai-sdk"` for a neighboring checkout.
 

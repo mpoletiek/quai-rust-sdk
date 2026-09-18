@@ -448,7 +448,10 @@ native database and real Chromium worker regressions cover integration.
 `signer::Signer::sign_qi_message` uses the published Qi wallet's BIP340-over-Keccak
 format, returning a 64-byte `SchnorrSignature`. Pass raw bytes, or UTF-8 with
 `text.as_bytes()`. No personal-message prefix, chain ID or application domain is
-added. `signer::verify_qi_message` requires both the expected Qi address and its
+added, so a Qi spend's signing preimage is itself a valid message: bytes that
+parse as a transaction with inputs are refused with
+`SignerError::QiTransactionMessage`. Never sign bytes a third party chose
+without showing the user what they are. `signer::verify_qi_message` requires both the expected Qi address and its
 full public key; signatures have no recovery byte and x-only public keys cannot
 identify the address's Y parity.
 

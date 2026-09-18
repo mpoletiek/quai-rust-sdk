@@ -56,6 +56,19 @@ cancelling an already running source request requires that source's cooperation.
 An initial cancellation returns an error before requesting a tip; later cancellation
 returns a partial report with no canonical check. Source errors fail closed.
 
+Addresses are derived and read in windows. A window holds at most the number of
+addresses the gap rule guarantees the branch will examine whatever the answers
+(`GapCounter::guaranteed_remaining`), capped by the address budget and
+`MAX_SCAN_WINDOW` (64). The source receives each window through
+`ObservationSource::observe_many`, whose default calls `observe` per address;
+results are consumed in derivation order and a response of the wrong length is
+rejected. A scan that completes therefore queries exactly the addresses a
+one-at-a-time scan would, and nothing past the gap stop. A scan aborted partway
+through a window, by an error, a budget or cancellation after the read, has
+still disclosed the rest of that window: at most 63 addresses that a retry
+would query anyway. The Qi scanners `scan_qi` and `discover_qi` follow the same
+rule through `outpoints_many`.
+
 After scanning, the source is asked for the canonical block at the same height.
 A changed/missing block marks the report inconsistent. A matching block is still
 only the source's view, not a consensus proof or finality guarantee.
@@ -217,8 +230,9 @@ write lock and commits only the examined range plus the returned address metadat
 `allocate_payment_address_compact` provides the same contract for registered BIP47
 channels. No address is exposed before commit; cancellation before commit rolls
 back that unexposed allocation. Returned allocations and all preexisting burned
-ranges remain consumed. The original range-before-search APIs retain their legacy
-behavior. Native SDK change pools and payment intents use compact allocation.
+ranges remain consumed. The original range-before-search APIs reserve their
+whole range before searching, and give back the part past the returned address
+unless the store changed meanwhile. Native SDK change pools and payment intents use compact allocation.
 
 A Qi refund can have a creating ETX hash with the Quai ledger bit. The creating
 hash must be nonzero and in the correct destination zone, but its ledger bit does

@@ -24,7 +24,9 @@ for compatibility evidence and open qualification gates.
 
 `Signer::sign_qi_message` explicitly selects the pinned Qi wallet format: a
 64-byte BIP340 signature over Keccak of the supplied bytes, with fresh auxiliary
-entropy. It requires a Qi key and inserts no prefix or chain/application domain.
+entropy. It requires a Qi key and inserts no prefix or chain/application domain. Bytes that parse as a
+transaction with inputs are refused with `SignerError::QiTransactionMessage`,
+because a Qi message signature over them would also authorize that spend.
 UTF-8 callers pass `text.as_bytes()`; hex-looking text is still text unless the
 application decodes it first. `sign_message` retains its personal-message ECDSA
 behavior. Watch-only signers reject both formats.

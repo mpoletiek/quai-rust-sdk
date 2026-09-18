@@ -27,6 +27,10 @@ pub mod qi_keys;
 mod selection;
 #[cfg(feature = "backup")]
 mod state;
+/// Application-chosen identity of one durable operation, shared by the native
+/// store and both custody books.
+#[cfg(feature = "backup")]
+pub use state::{ReservationId, ReservationState};
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod storage;
 pub use selection::{

@@ -577,6 +577,47 @@ They are observations, not chain proofs. Wallet backups exclude ancestry caches;
 restore tombstones any existing destination cursor so a stale writer cannot
 reinsert it. No replay path broadcasts transactions or releases signed claims.
 
+## Running a desktop wallet: transports, connections and sync order
+
+**Transports.** Send requests over `HttpTransport`: it pools connections,
+bounds every request with a deadline and batches chain-guarded reads. A
+`WsTransport` serves one endpoint and a disconnect is terminal, so use it for
+push, through one `WsHeadFollower` per active zone. The follower reconnects
+within its `max_connect_attempts` and polls after a quiet interval. Supervise
+it with backoff and fall back to polling a `HeadTracker` over HTTP.
+`DynTransport` lets one `Provider<DynTransport>` type hold whichever transport
+is configured. To switch endpoints, build a new provider and swap an
+`Arc<Provider<_>>`: sessions borrow a provider, so an operation in flight
+finishes on the endpoint it started on.
+
+**Store connections.** `AccountSession` and `QiSession` hold `&mut SqliteStore`
+across network awaits, so give background sync and each user-initiated send
+their own `SqliteStore` handle on the same file (`open_with_busy_timeout` sets
+the lock wait). Writers fence each other through the scope generation: when
+sync invalidates a snapshot while a send is preparing, the send fails with an
+error whose `class()` is `Stale` instead of reserving from stale state. Session
+futures are `Send`, so either task can run on a multi-threaded runtime.
+Address grinding in discovery is synchronous CPU work inside the scan futures;
+run large scans where blocking a thread is acceptable, such as a blocking-task
+pool.
+
+**Sync order for each new head.**
+
+1. `recovery::reconcile_persisted_head_replay` records the head and applies
+   any reorg in one transaction: inclusions revert to Submitted and the coin
+   snapshot is invalidated.
+2. `qi_discovery::refresh_qi` rebuilds the coin snapshot when step 1 reports
+   `refresh_required`, or on a timer. It is labelled with the block observed
+   before its reads, which must still be canonical after them.
+3. Observe pending operations: `observe_nonce` and `observe_candidates` for
+   accounts, `observe_candidates` for Qi.
+4. Occasionally, `discover_mailbox_channels` page by page.
+
+Each step's errors carry an `ErrorClass`: retry `Transient` with backoff,
+observe again on `Stale`, stop and alert on `NetworkMismatch`, never resubmit
+on `Ambiguous` (reconcile by transaction hash), and surface `Invalid` and
+`Storage`.
+
 ## Signing and submitting through an injected browser wallet
 
 `InjectedProvider::sign_quai_transaction` validates a fully populated account

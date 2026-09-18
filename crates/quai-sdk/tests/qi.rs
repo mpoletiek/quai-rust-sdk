@@ -470,14 +470,17 @@ async fn wrong_genesis_wallet_and_noncanonical_checkpoint_are_rejected() {
 async fn concurrent_snapshot_invalidation_cannot_reserve_stale_selection() {
     let mut env = setup();
     let change = pool(&mut env, 0);
+    // Background sync on its own connection invalidates the snapshot while
+    // this session awaits a fee quote: the session must not reserve, and the
+    // error must tell a sync loop to observe again rather than give up.
     *env.mock.invalidate.lock().unwrap() = Some((env.path.clone(), env.store.scope()));
-    assert!(matches!(
-        QiSession::new(&env.provider, &env.wallet, &mut env.store)
-            .unwrap()
-            .prepare(id(9), intent(), policy(), change)
-            .await,
-        Err(QiError::Storage(_))
-    ));
+    let error = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+        .unwrap()
+        .prepare(id(9), intent(), policy(), change)
+        .await
+        .unwrap_err();
+    assert!(matches!(error, QiError::Storage(_)));
+    assert_eq!(error.class(), quai_sdk::ErrorClass::Stale);
     assert!(env.store.reservation(id(9)).unwrap().is_none());
 }
 

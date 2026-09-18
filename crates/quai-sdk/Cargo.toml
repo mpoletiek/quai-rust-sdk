@@ -47,6 +47,7 @@ quai-payments = { workspace = true, optional = true }
 quai-keystore = { workspace = true, optional = true }
 thiserror.workspace = true
 serde_json.workspace = true
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 serde_json.workspace = true

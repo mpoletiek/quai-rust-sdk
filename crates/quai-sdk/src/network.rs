@@ -47,3 +47,38 @@ pub(crate) async fn headers_on_network<T: Transport>(
         .headers_on_network(zone, scope.genesis, blocks)
         .await
 }
+
+/// Use-checker calls in flight at once during a scan.
+///
+/// A checker usually asks a history service, so awaiting one address at a time
+/// made a restore wait on 100 sequential calls for an empty wallet's two gaps.
+/// Kept small: the callback's owner bounds its own I/O.
+pub(crate) const USE_CHECK_CONCURRENCY: usize = 4;
+
+/// Each row's use hint, in input order: the checker's answer for a row that
+/// needs one, `false` otherwise. At most [`USE_CHECK_CONCURRENCY`] calls run at
+/// once. Consume in order and stop at the first error, so the error reported
+/// is the first one in order; dropping the stream cancels calls in flight.
+pub(crate) fn use_hints<'a, E, F, Fut>(
+    scope: NetworkScope,
+    rows: Vec<(quai_primitives::QiAddress, bool)>,
+    check_use: &'a mut F,
+) -> impl futures_util::Stream<Item = Result<bool, E>> + 'a
+where
+    E: 'a,
+    F: FnMut(NetworkScope, quai_primitives::QiAddress) -> Fut,
+    Fut: std::future::Future<Output = Result<bool, E>> + 'a,
+{
+    use futures_util::StreamExt;
+    futures_util::stream::iter(rows)
+        .map(move |(address, needed)| {
+            let pending = needed.then(|| check_use(scope, address));
+            async move {
+                match pending {
+                    Some(check) => check.await,
+                    None => Ok(false),
+                }
+            }
+        })
+        .buffered(USE_CHECK_CONCURRENCY)
+}

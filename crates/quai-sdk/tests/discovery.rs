@@ -729,3 +729,49 @@ async fn parallel_grinding_reports_exactly_what_sequential_grinding_does() {
     }
     assert_eq!(reports[0], reports[1]);
 }
+
+#[tokio::test]
+async fn use_checks_run_a_few_at_a_time_and_keep_the_sequential_result() {
+    use quai_sdk::discovery::{QiDiscoveryOptions, discover_qi_with_use_checker};
+    use std::sync::atomic::AtomicUsize;
+    let account = HdWallet::from_seed(&[7; 32], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let options = QiDiscoveryOptions::default().with_gap_limit(Some(8));
+    let mock = Mock::default();
+    let active = Arc::new(AtomicUsize::new(0));
+    let peak = Arc::new(AtomicUsize::new(0));
+    let calls = Arc::new(Mutex::new(vec![]));
+    let report = discover_qi_with_use_checker(
+        &provider(mock),
+        scope(),
+        &account,
+        &options,
+        || false,
+        |_, address| {
+            let (active, peak, calls) = (active.clone(), peak.clone(), calls.clone());
+            async move {
+                calls.lock().unwrap().push(address.to_string());
+                let now = active.fetch_add(1, Ordering::SeqCst) + 1;
+                peak.fetch_max(now, Ordering::SeqCst);
+                tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+                active.fetch_sub(1, Ordering::SeqCst);
+                Ok(false)
+            }
+        },
+    )
+    .await
+    .unwrap();
+    let peak = peak.load(Ordering::SeqCst);
+    assert!((2..=4).contains(&peak), "peak in flight {peak}");
+    // Every empty address was checked once, in derivation order, and nothing
+    // else: the same calls a one-at-a-time scan makes.
+    let reported: Vec<_> = report
+        .addresses
+        .iter()
+        .map(|a| a.derived.address.to_string())
+        .collect();
+    assert_eq!(*calls.lock().unwrap(), reported);
+    assert_eq!(reported.len(), 16);
+}

@@ -248,26 +248,51 @@ where
                 .collect::<Result<Vec<_>, _>>()?;
             let observed = provider.outpoints_many(&addresses).await?;
 
-            // Consume strictly in derivation-index order. The map is keyed by
+            // Validate strictly in derivation-index order. The map is keyed by
             // address, so iterating it would apply the gap rule in address-byte
-            // order and could stop the branch at the wrong point.
-            let mut stop = false;
+            // order and could stop the branch at the wrong point. The first
+            // failure is reported after every address before it is recorded.
+            let mut rows = Vec::with_capacity(derived.len());
+            let mut failure = None;
             for found in &derived {
-                let metadata = PublicAddress::derive(account, branch == 1, found.index)?;
-                let address = QiAddress::try_from(metadata.address())
-                    .map_err(|_| QiError::IdentityMismatch)?;
-                // A missing row is a failure, never an empty result: defaulting
-                // it would count an unread address toward the gap and could stop
-                // the scan early, which loses funds on a restore.
-                let outputs = observed
-                    .get(&address)
-                    .ok_or(QiError::IncompleteObservation)?;
-                let used = !outputs.is_empty() || check_use(scope, address).await?;
-                let reached_gap_limit = gap.observe(used);
+                let row = PublicAddress::derive(account, branch == 1, found.index)
+                    .map_err(QiError::from)
+                    .and_then(|metadata| {
+                        let address = QiAddress::try_from(metadata.address())
+                            .map_err(|_| QiError::IdentityMismatch)?;
+                        // A missing row is a failure, never an empty result:
+                        // defaulting it would count an unread address toward
+                        // the gap and could stop a restore early.
+                        let empty = observed
+                            .get(&address)
+                            .ok_or(QiError::IncompleteObservation)?
+                            .is_empty();
+                        Ok((found.index, metadata, address, empty))
+                    });
+                match row {
+                    Ok(row) => rows.push(row),
+                    Err(error) => {
+                        failure = Some(error);
+                        break;
+                    }
+                }
+            }
+            let needed = rows
+                .iter()
+                .map(|(_, _, address, empty)| (*address, *empty))
+                .collect();
+            let mut hints =
+                std::pin::pin!(crate::network::use_hints(scope, needed, &mut check_use));
+            let mut stop = false;
+            for (index, metadata, _, empty) in rows {
+                let use_hint = futures_util::StreamExt::next(&mut hints)
+                    .await
+                    .ok_or(QiError::IncompleteObservation)??;
+                let reached_gap_limit = gap.observe(!empty || use_hint);
                 // Advance only after the observation is recorded, so a failure
                 // or cancellation never leaves the cursor past an unread
                 // address. The stored cursor is monotonic and cannot be rewound.
-                report.next_index[branch] = found.index + 1;
+                report.next_index[branch] = index + 1;
                 report.addresses.push(metadata);
                 if reached_gap_limit {
                     report.stopped[branch] = ScanStop::GapLimit;
@@ -281,6 +306,9 @@ where
             }
             if stop {
                 break;
+            }
+            if let Some(error) = failure {
+                return Err(error);
             }
             if window.stop == WindowStop::Exhausted {
                 report.next_index[branch] = range.end;

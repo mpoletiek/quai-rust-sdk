@@ -75,35 +75,44 @@ where
         observed.extend(provider.outpoints_many(page).await?);
     }
 
+    // Validate every row in book order first, stopping at the first failure,
+    // then run use hints for empty rows a few at a time, consumed in order. A
+    // failure is reported after the rows before it, as a sequential walk would.
     let mut seen = BTreeSet::new();
-    let mut staged = Vec::new();
+    let mut rows = Vec::with_capacity(addresses.len());
+    let mut failure = None;
     for address in addresses {
+        match checked_outputs(observed.remove(&address), &mut seen, max_outpoints) {
+            Ok(empty) => rows.push((address, empty)),
+            Err(error) => {
+                failure = Some(error);
+                break;
+            }
+        }
+    }
+    let mut hints = std::pin::pin!(crate::network::use_hints(
+        scope,
+        rows.clone(),
+        &mut check_use
+    ));
+    let mut staged = Vec::with_capacity(rows.len());
+    for (address, empty) in rows {
         if cancelled() {
             return Err(QiDiscoveryError::Cancelled);
         }
-        // A missing row is a failure, never an empty result: defaulting it would
-        // silently record an address as unused.
-        let outputs = observed
-            .remove(&address)
-            .ok_or(QiDiscoveryError::IncompleteObservation)?;
-        if seen.len().saturating_add(outputs.len()) > max_outpoints {
-            return Err(QiDiscoveryError::OutputLimit);
+        let hint = futures_util::StreamExt::next(&mut hints)
+            .await
+            .ok_or(QiDiscoveryError::IncompleteObservation)??;
+        staged.push(QiUsageObservation {
+            address,
+            used: !empty || hint,
+        });
+    }
+    if let Some(error) = failure {
+        if cancelled() {
+            return Err(QiDiscoveryError::Cancelled);
         }
-        for output in &outputs {
-            Denomination::new(output.denomination).map_err(|_| QiDiscoveryError::InvalidOutputs)?;
-            if !seen.insert(OutPoint {
-                transaction_hash: output.outpoint.tx_hash,
-                index: output.outpoint.index,
-            }) {
-                return Err(QiDiscoveryError::InvalidOutputs);
-            }
-        }
-        let used = if outputs.is_empty() {
-            check_use(scope, address).await?
-        } else {
-            true
-        };
-        staged.push(QiUsageObservation { address, used });
+        return Err(error);
     }
     if cancelled() {
         return Err(QiDiscoveryError::Cancelled);
@@ -127,4 +136,28 @@ where
     book.record_observations(scope, checkpoint, &staged)
         .map_err(|_| QiDiscoveryError::ObservationChanged)?;
     Ok(checkpoint)
+}
+
+/// Validate one address's batched outputs and report whether it is empty. A
+/// missing row is a failure, never an empty result: defaulting it would
+/// silently record an address as unused.
+fn checked_outputs(
+    outputs: Option<Vec<quai_provider::AddressOutpoint>>,
+    seen: &mut BTreeSet<OutPoint>,
+    max_outpoints: usize,
+) -> Result<bool, QiDiscoveryError> {
+    let outputs = outputs.ok_or(QiDiscoveryError::IncompleteObservation)?;
+    if seen.len().saturating_add(outputs.len()) > max_outpoints {
+        return Err(QiDiscoveryError::OutputLimit);
+    }
+    for output in &outputs {
+        Denomination::new(output.denomination).map_err(|_| QiDiscoveryError::InvalidOutputs)?;
+        if !seen.insert(OutPoint {
+            transaction_hash: output.outpoint.tx_hash,
+            index: output.outpoint.index,
+        }) {
+            return Err(QiDiscoveryError::InvalidOutputs);
+        }
+    }
+    Ok(outputs.is_empty())
 }

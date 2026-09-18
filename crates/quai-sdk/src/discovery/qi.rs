@@ -210,6 +210,43 @@ impl CurrentQiDiscovery {
         Ok(balance)
     }
 }
+/// Validate one address's batched outputs into the report's form.
+///
+/// A missing row is a failure, never an empty result: counting an unread
+/// address toward the gap could stop a restore early. Outpoints enter `seen`,
+/// which bounds the report's total and rejects duplicates across addresses.
+fn current_outputs(
+    raw: Option<Vec<quai_provider::AddressOutpoint>>,
+    seen: &mut BTreeSet<OutPoint>,
+    scope: NetworkScope,
+    options: &QiDiscoveryOptions,
+) -> Result<Vec<CurrentQiOutput>, QiDiscoveryError> {
+    let raw = raw.ok_or(QiDiscoveryError::IncompleteObservation)?;
+    if raw.len() > options.max_outpoints - seen.len() {
+        return Err(QiDiscoveryError::OutputLimit);
+    }
+    let mut outputs = Vec::with_capacity(raw.len());
+    for output in raw {
+        let outpoint = OutPoint {
+            transaction_hash: output.outpoint.tx_hash,
+            index: output.outpoint.index,
+        };
+        // An outpoint from another zone, or the zero hash, could never be spent
+        // here and would fail every later selection.
+        let hash = outpoint.transaction_hash.bytes();
+        if hash[2] != scope.zone.byte() || *hash == [0; 32] || !seen.insert(outpoint) {
+            return Err(QiDiscoveryError::InvalidOutputs);
+        }
+        outputs.push(CurrentQiOutput {
+            outpoint,
+            denomination: Denomination::new(output.denomination)
+                .map_err(|_| QiDiscoveryError::InvalidOutputs)?,
+            unlock_height: output.lock,
+        });
+    }
+    Ok(outputs)
+}
+
 /// The network check and header reads in one round trip.
 pub(super) async fn network_headers<T: Transport, const N: usize>(
     provider: &Provider<T>,
@@ -339,37 +376,34 @@ where
                 })
                 .collect::<Result<Vec<_>, _>>()?;
             let mut observed = provider.outpoints_many(&addresses).await?;
-            // Consume in derivation-index order, never by iterating the
-            // address-keyed map, and advance only after recording each address.
+            // Validate rows in derivation-index order, never by iterating the
+            // address-keyed map, stopping at the first failure: it is reported
+            // only after every address before it is recorded, as a
+            // one-at-a-time scan would.
+            let mut rows = Vec::with_capacity(window.addresses.len());
+            let mut failure = None;
             for (derived, address) in window.addresses.into_iter().zip(addresses) {
-                // A missing row is a failure, never an empty result: counting
-                // an unread address toward the gap could stop a restore early.
-                let raw = observed
-                    .remove(&address)
-                    .ok_or(QiDiscoveryError::IncompleteObservation)?;
-                if raw.len() > options.max_outpoints - seen.len() {
-                    return Err(QiDiscoveryError::OutputLimit);
-                }
-                let mut outputs = Vec::with_capacity(raw.len());
-                for output in raw {
-                    let outpoint = OutPoint {
-                        transaction_hash: output.outpoint.tx_hash,
-                        index: output.outpoint.index,
-                    };
-                    // An outpoint from another zone, or the zero hash, could never
-                    // be spent here and would fail every later selection.
-                    let hash = outpoint.transaction_hash.bytes();
-                    if hash[2] != scope.zone.byte() || *hash == [0; 32] || !seen.insert(outpoint) {
-                        return Err(QiDiscoveryError::InvalidOutputs);
+                match current_outputs(observed.remove(&address), &mut seen, scope, options) {
+                    Ok(outputs) => rows.push((derived, address, outputs)),
+                    Err(error) => {
+                        failure = Some(error);
+                        break;
                     }
-                    outputs.push(CurrentQiOutput {
-                        outpoint,
-                        denomination: Denomination::new(output.denomination)
-                            .map_err(|_| QiDiscoveryError::InvalidOutputs)?,
-                        unlock_height: output.lock,
-                    });
                 }
-                let use_hint = outputs.is_empty() && check_use(scope, address).await?;
+            }
+            // Use hints for empty rows run a few at a time and are consumed in
+            // order, so the first error in order is the one reported. The
+            // cursor advances only after each address is recorded.
+            let needed = rows
+                .iter()
+                .map(|(_, address, outputs)| (*address, outputs.is_empty()))
+                .collect();
+            let mut hints =
+                std::pin::pin!(crate::network::use_hints(scope, needed, &mut check_use));
+            for (derived, _, outputs) in rows {
+                let use_hint = futures_util::StreamExt::next(&mut hints)
+                    .await
+                    .ok_or(QiDiscoveryError::IncompleteObservation)??;
                 let reached_gap_limit = gap.observe(!outputs.is_empty() || use_hint);
                 report.next_index[branch] = derived.index + 1;
                 report.addresses.push(CurrentQiAddress {
@@ -385,6 +419,9 @@ where
                     report.stopped[branch..].fill(ScanStop::Cancelled);
                     return Ok(report);
                 }
+            }
+            if let Some(error) = failure {
+                return Err(error);
             }
             if window.stop == WindowStop::Exhausted {
                 report.next_index[branch] = range.end;

@@ -961,6 +961,9 @@ async fn account_states_batch_by_page_guard_each_end_and_fall_back_in_order() {
         })
         .collect();
     let expected: Vec<(U256, u64)> = (1..=70u64).map(|n| (U256::from(n * 10), n)).collect();
+    let pairs = |states: Vec<quai_provider::AccountState>| -> Vec<(U256, u64)> {
+        states.into_iter().map(|s| (s.balance, s.nonce)).collect()
+    };
     for batching in [true, false] {
         let transport = States {
             batching,
@@ -973,7 +976,7 @@ async fn account_states_batch_by_page_guard_each_end_and_fall_back_in_order() {
         );
         let block = BlockTag::Number(U256::from(100));
         assert_eq!(
-            provider.account_states(&accounts, block).await.unwrap(),
+            pairs(provider.account_states(&accounts, block).await.unwrap()),
             expected
         );
         if batching {

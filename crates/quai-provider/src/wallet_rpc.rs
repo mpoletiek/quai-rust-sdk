@@ -26,6 +26,20 @@ const _: () = assert!(MAX_OUTPOINT_PAGE + 2 <= quai_rpc::MAX_BATCH_CALLS);
 /// internally, so a caller needs no page size of its own.
 pub const MAX_OUTPOINT_ADDRESSES: usize = 1024;
 
+/// Most accounts one [`Provider::account_states`] call accepts.
+pub const MAX_ACCOUNT_STATES: usize = 1024;
+
+/// One account's balance and nonce at the block an
+/// [`Provider::account_states`] call was pinned to.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
+pub struct AccountState {
+    /// Balance in base units.
+    pub balance: U256,
+    /// Transaction count.
+    pub nonce: u64,
+}
+
 /// Accounts per batched balance-and-nonce page: two calls each, plus the two
 /// chain guards, within the transport's batch limit.
 const ACCOUNT_STATE_PAGE: usize = (quai_rpc::MAX_BATCH_CALLS - 2) / 2;
@@ -227,27 +241,18 @@ impl<T: Transport> Provider<T> {
             Ok(endpoint) => endpoint,
             Err(error) => return Some(Err(error.into())),
         };
-        let mut requests = vec![("quai_chainId", json!([]))];
-        requests.extend(
-            page.iter()
-                .map(|address| ("quai_getOutpointsByAddress", json!([address.to_string()]))),
-        );
-        requests.push(("quai_chainId", json!([])));
-        let batch = self.transport.request_batch(endpoint, requests).await?;
-        Some((|| {
-            let mut responses = batch?;
-            if responses.len() != page.len() + 2 {
-                return Err(ProviderError::InvalidResult("batch response count"));
-            }
-            for observed in [responses.pop().expect("checked count"), responses.remove(0)] {
-                self.check_chain_id(observed?)?;
-            }
+        let calls = page
+            .iter()
+            .map(|address| ("quai_getOutpointsByAddress", json!([address.to_string()])))
+            .collect();
+        let batch = self.guarded_batch(endpoint, calls).await?;
+        Some(batch.and_then(|responses| {
             page.iter()
                 .copied()
                 .zip(responses)
                 .map(|(address, response)| Ok((address, types::parse_outpoints(response?)?)))
                 .collect()
-        })())
+        }))
     }
 
     /// Read a page one address at a time, bounded in flight. Each read carries
@@ -357,8 +362,8 @@ impl<T: Transport> Provider<T> {
         &self,
         accounts: &[QuaiAddress],
         block: BlockTag,
-    ) -> Result<Vec<(U256, u64)>, ProviderError> {
-        if accounts.is_empty() || accounts.len() > 1024 {
+    ) -> Result<Vec<AccountState>, ProviderError> {
+        if accounts.is_empty() || accounts.len() > MAX_ACCOUNT_STATES {
             return Err(ProviderError::InvalidRequest("account query bound"));
         }
         let selector = block.rpc_value()?;
@@ -374,19 +379,18 @@ impl<T: Transport> Provider<T> {
             let (page, tail) = rest.split_at(run);
             rest = tail;
             let endpoint = self.routing.endpoint(zone.into())?;
-            let mut requests = vec![("quai_chainId", json!([]))];
+            let mut calls = Vec::with_capacity(page.len() * 2);
             for account in page {
                 let params = json!([account.to_string(), selector]);
-                requests.push(("quai_getBalance", params.clone()));
-                requests.push(("quai_getTransactionCount", params));
+                calls.push(("quai_getBalance", params.clone()));
+                calls.push(("quai_getTransactionCount", params));
             }
-            requests.push(("quai_chainId", json!([])));
-            let Some(batch) = self.transport.request_batch(endpoint, requests).await else {
+            let Some(batch) = self.guarded_batch(endpoint, calls).await else {
                 let mut pending = stream::iter(page.iter().copied().map(|account| async move {
-                    Ok::<_, ProviderError>((
-                        self.balance(account, block).await?,
-                        self.transaction_count(account, block).await?,
-                    ))
+                    Ok::<_, ProviderError>(AccountState {
+                        balance: self.balance(account, block).await?,
+                        nonce: self.transaction_count(account, block).await?,
+                    })
                 }))
                 .buffered(4);
                 while let Some(state) = pending.next().await {
@@ -394,17 +398,12 @@ impl<T: Transport> Provider<T> {
                 }
                 continue;
             };
-            let mut responses = batch?;
-            if responses.len() != page.len() * 2 + 2 {
-                return Err(ProviderError::InvalidResult("batch response count"));
-            }
-            // Both guards must pass before any payload is used.
-            for observed in [responses.pop().expect("checked count"), responses.remove(0)] {
-                self.check_chain_id(observed?)?;
-            }
-            let mut responses = responses.into_iter();
+            let mut responses = batch?.into_iter();
             while let (Some(balance), Some(nonce)) = (responses.next(), responses.next()) {
-                states.push((quantity(balance?)?, types::uint64(nonce?)?));
+                states.push(AccountState {
+                    balance: quantity(balance?)?,
+                    nonce: types::uint64(nonce?)?,
+                });
             }
         }
         Ok(states)

@@ -1,6 +1,8 @@
 //! Typed provider with explicit routing, validated reads and signed transaction submission.
 use quai_primitives::{Hash32, QiAddress, QuaiAddress, Shard, Zone};
-use quai_rpc::{QuantityError, RouteError, Routing, RpcError, Transport, U256, parse_quantity};
+use quai_rpc::{
+    Endpoint, QuantityError, RouteError, Routing, RpcError, Transport, U256, parse_quantity,
+};
 use serde_json::{Value, json};
 use thiserror::Error;
 
@@ -50,7 +52,7 @@ mod qi_special_fee;
 pub use qi_special_fee::{QiFeeProfile, QiFeeQuote, qi_special_gas};
 mod wallet_rpc;
 pub use logs::{LogFilter, LogRange, TopicMatch};
-pub use wallet_rpc::{MAX_OUTPOINT_ADDRESSES, OutpointDeltas};
+pub use wallet_rpc::{AccountState, MAX_ACCOUNT_STATES, MAX_OUTPOINT_ADDRESSES, OutpointDeltas};
 mod response_json;
 mod submission;
 mod types;
@@ -207,27 +209,43 @@ impl<T: Transport> Provider<T> {
         params: Value,
     ) -> Result<Value, ProviderError> {
         let endpoint = self.routing.endpoint(shard)?;
-        let bracketed = vec![
-            ("quai_chainId", json!([])),
-            (method, params.clone()),
-            ("quai_chainId", json!([])),
-        ];
-        if let Some(batch) = self.transport.request_batch(endpoint, bracketed).await {
-            let mut responses = batch?;
-            if responses.len() != 3 {
-                return Err(ProviderError::InvalidResult("batch response count"));
-            }
-            let trailing = responses.pop().expect("checked count");
-            let payload = responses.pop().expect("checked count");
-            let leading = responses.pop().expect("checked count");
-            // Both guards must pass before the payload is returned, so a chain
-            // mismatch is never reported as a successful read.
-            self.check_chain_id(leading?)?;
-            self.check_chain_id(trailing?)?;
-            return Ok(payload?);
+        if let Some(batch) = self
+            .guarded_batch(endpoint, vec![(method, params.clone())])
+            .await
+        {
+            return Ok(batch?.pop().expect("checked count")?);
         }
         self.chain_id(shard).await?;
         Ok(self.transport.request(endpoint, method, params).await?)
+    }
+
+    /// Send `calls` in one batch bracketed by a chain-ID guard at each end.
+    ///
+    /// `None` means the transport does not batch and sent nothing. Both guards
+    /// must pass before any payload is returned, so a chain mismatch is never
+    /// reported as a successful read. Results keep the order of `calls`.
+    async fn guarded_batch(
+        &self,
+        endpoint: &Endpoint,
+        calls: Vec<(&str, Value)>,
+    ) -> Option<Result<Vec<Result<Value, RpcError>>, ProviderError>> {
+        let count = calls.len();
+        let mut requests = Vec::with_capacity(count + 2);
+        requests.push(("quai_chainId", json!([])));
+        requests.extend(calls);
+        requests.push(("quai_chainId", json!([])));
+        let batch = self.transport.request_batch(endpoint, requests).await?;
+        Some((|| {
+            let mut responses = batch?;
+            if responses.len() != count + 2 {
+                return Err(ProviderError::InvalidResult("batch response count"));
+            }
+            let trailing = responses.pop().expect("checked count");
+            let leading = responses.remove(0);
+            self.check_chain_id(leading?)?;
+            self.check_chain_id(trailing?)?;
+            Ok(responses)
+        })())
     }
 
     /// Read the latest block number for this shard, without narrowing to a machine integer.

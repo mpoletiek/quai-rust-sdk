@@ -155,6 +155,7 @@ pub enum QiError {
 
 impl QiError {
     /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    /// Matched exhaustively so a new variant must choose a class.
     pub fn class(&self) -> quai_primitives::ErrorClass {
         use quai_primitives::ErrorClass;
         match self {
@@ -162,11 +163,19 @@ impl QiError {
             Self::Provider(error) => error.class(),
             Self::Storage(error) => error.class(),
             Self::Broadcast(error) => error.class(),
+            Self::Wallet(error) => crate::discovery::wallet_class(error),
             Self::MissingSnapshot | Self::StaleSnapshot => ErrorClass::Stale,
             Self::Cancelled => ErrorClass::Cancelled,
             // A caller's history service or the node failed to answer.
             Self::UseCheckFailed | Self::IncompleteObservation => ErrorClass::Transient,
-            _ => ErrorClass::Invalid,
+            Self::MessageSigning
+            | Self::Selection(_)
+            | Self::Transaction(_)
+            | Self::IdentityMismatch
+            | Self::InvalidPolicy
+            | Self::InsufficientDestinations
+            | Self::InsufficientChange
+            | Self::MissingSignedPayload => ErrorClass::Invalid,
         }
     }
 }

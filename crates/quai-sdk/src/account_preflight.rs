@@ -154,13 +154,14 @@ pub enum AccountPreflightError {
 
 impl AccountPreflightError {
     /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    /// Matched exhaustively so a new variant must choose a class.
     pub fn class(&self) -> quai_primitives::ErrorClass {
         use quai_primitives::ErrorClass;
         match self {
             Self::NetworkMismatch => ErrorClass::NetworkMismatch,
             Self::Provider(error) => error.class(),
             Self::ObservationChanged => ErrorClass::Stale,
-            _ => ErrorClass::Invalid,
+            Self::Invalid | Self::FeeLimit | Self::InsufficientBalance => ErrorClass::Invalid,
         }
     }
 }

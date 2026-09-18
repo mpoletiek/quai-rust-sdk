@@ -70,6 +70,7 @@ pub enum AccountError {
 
 impl AccountError {
     /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    /// Matched exhaustively so a new variant must choose a class.
     pub fn class(&self) -> quai_primitives::ErrorClass {
         use quai_primitives::ErrorClass;
         match self {
@@ -80,7 +81,15 @@ impl AccountError {
             Self::ObservationChanged => ErrorClass::Stale,
             #[cfg(feature = "abi")]
             Self::Contract(crate::contracts::ContractError::Provider(error)) => error.class(),
-            _ => ErrorClass::Invalid,
+            #[cfg(feature = "abi")]
+            Self::Contract(_) => ErrorClass::Invalid,
+            Self::Signer(_)
+            | Self::IdentityMismatch
+            | Self::InvalidOperation
+            | Self::FeeLimit
+            | Self::InsufficientBalance
+            | Self::PayloadMismatch
+            | Self::MissingSignedPayload => ErrorClass::Invalid,
         }
     }
 }

@@ -5,6 +5,7 @@ pub use qi::{
     CurrentQiAddress, CurrentQiDiscovery, CurrentQiOutput, DEFAULT_QI_GAP, ObservedQiBalance,
     QiDiscoveryError, QiDiscoveryOptions, discover_qi, discover_qi_with_use_checker,
 };
+pub(crate) use qi::wallet_class;
 pub use qi_addresses::{refresh_qi_address_book, refresh_qi_address_book_with_use_checker};
 use quai_primitives::QuaiAddress;
 use quai_provider::{BlockTag, Provider, ZoneHeader};
@@ -87,8 +88,10 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         let accounts = addresses
             .iter()
             .map(|address| {
+                // Qi is refused: the node's outpoint query is latest-only, not
+                // pinned to the checkpoint this source must answer at.
                 if address.coin != CoinType::Quai {
-                    return Err(DiscoveryError::SourceUnavailable);
+                    return Err(DiscoveryError::InvalidRequest);
                 }
                 QuaiAddress::try_from(address.address)
                     .ok()
@@ -102,9 +105,11 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         let [before] = self
             .network_headers(scope, &[pinned(checkpoint.height)?])
             .await?;
-        let before = before.ok_or(DiscoveryError::SourceUnavailable)?;
+        // The pinned block changed before or during the reads: a reorg, which
+        // re-observing resolves, not malformed data.
+        let before = before.ok_or(DiscoveryError::ObservationChanged)?;
         if crate::network::checkpoint(&before) != checkpoint {
-            return Err(DiscoveryError::InvalidObservation);
+            return Err(DiscoveryError::ObservationChanged);
         }
         let states = self
             .provider
@@ -119,7 +124,7 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
             .await?
             .is_none_or(|v| v.checkpoint != checkpoint)
         {
-            return Err(DiscoveryError::InvalidObservation);
+            return Err(DiscoveryError::ObservationChanged);
         }
         if states.len() != addresses.len() {
             return Err(DiscoveryError::InvalidObservation);
@@ -188,11 +193,17 @@ fn pinned(height: U256) -> Result<BlockTag, DiscoveryError> {
     Ok(BlockTag::Number(height))
 }
 
-/// A provider failure as a discovery error. A chain mismatch is reported as
-/// such rather than as an outage, so a sync loop stops instead of retrying.
+/// A provider failure as a discovery error that keeps its class, so a sync
+/// loop retries only what can succeed on retry: a wrong chain stops it, a
+/// moved head re-observes, and a malformed answer or bad route is not retried
+/// as if it were an outage.
 fn source_error(error: quai_provider::ProviderError) -> DiscoveryError {
-    match error {
-        quai_provider::ProviderError::ChainMismatch { .. } => DiscoveryError::NetworkMismatch,
-        _ => DiscoveryError::SourceUnavailable,
+    use quai_primitives::ErrorClass;
+    match (error.class(), &error) {
+        (ErrorClass::NetworkMismatch, _) => DiscoveryError::NetworkMismatch,
+        (ErrorClass::Stale, _) => DiscoveryError::ObservationChanged,
+        (ErrorClass::Transient, _) => DiscoveryError::SourceUnavailable,
+        (_, quai_provider::ProviderError::Route(_)) => DiscoveryError::InvalidRequest,
+        _ => DiscoveryError::InvalidObservation,
     }
 }

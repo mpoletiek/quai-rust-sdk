@@ -56,6 +56,23 @@ pub struct RpcSignerError {
     pub source: RpcSignerFailure,
 }
 impl RpcSignerError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`]. Once
+    /// the request may have been dispatched, the outcome is ambiguous whatever
+    /// the cause: never resubmit, reconcile instead.
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        if self.dispatched {
+            return ErrorClass::Ambiguous;
+        }
+        match &self.source {
+            RpcSignerFailure::Provider(error) => error.class(),
+            RpcSignerFailure::Rpc(error) => error.class(),
+            RpcSignerFailure::NetworkMismatch => ErrorClass::NetworkMismatch,
+            _ => ErrorClass::Invalid,
+        }
+    }
+}
+impl RpcSignerError {
     fn before(source: RpcSignerFailure) -> Self {
         Self {
             dispatched: false,

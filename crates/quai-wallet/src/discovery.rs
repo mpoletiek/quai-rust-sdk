@@ -106,6 +106,9 @@ pub enum DiscoveryError {
     /// The source is on a different chain or genesis than the requested scope.
     #[error("wallet observation source is on another network")]
     NetworkMismatch,
+    /// The observed block stopped being canonical during the observation.
+    #[error("wallet observation changed during the read")]
+    ObservationChanged,
 }
 impl DiscoveryError {
     /// How to react to this failure; see [`quai_primitives::ErrorClass`].
@@ -114,6 +117,7 @@ impl DiscoveryError {
         match self {
             Self::SourceUnavailable => ErrorClass::Transient,
             Self::NetworkMismatch => ErrorClass::NetworkMismatch,
+            Self::ObservationChanged => ErrorClass::Stale,
             Self::Cancelled => ErrorClass::Cancelled,
             Self::InvalidRequest
             | Self::HistoryUnavailable

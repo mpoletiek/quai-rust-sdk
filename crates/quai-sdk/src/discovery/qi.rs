@@ -144,7 +144,7 @@ pub enum QiDiscoveryError {
     Cancelled,
     /// Reported chain/genesis differs from the requested identity.
     #[error("Qi discovery network identity mismatch")]
-    IdentityMismatch,
+    NetworkMismatch,
     /// Total output budget exceeded, including across different addresses.
     #[error("Qi discovery output limit exceeded")]
     OutputLimit,
@@ -169,16 +169,26 @@ pub enum QiDiscoveryError {
 }
 impl QiDiscoveryError {
     /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    /// Matched exhaustively so a new variant must choose a class.
     pub fn class(&self) -> quai_primitives::ErrorClass {
         use quai_primitives::ErrorClass;
         match self {
-            Self::IdentityMismatch => ErrorClass::NetworkMismatch,
+            Self::NetworkMismatch => ErrorClass::NetworkMismatch,
             Self::Provider(error) => error.class(),
             Self::ObservationChanged => ErrorClass::Stale,
             Self::Cancelled => ErrorClass::Cancelled,
             Self::UseCheckFailed | Self::IncompleteObservation => ErrorClass::Transient,
-            _ => ErrorClass::Invalid,
+            Self::Wallet(error) => wallet_class(error),
+            Self::InvalidRequest | Self::OutputLimit | Self::InvalidOutputs => ErrorClass::Invalid,
         }
+    }
+}
+
+/// A derivation error's class: cancellation, or an invalid request.
+pub(crate) fn wallet_class(error: &WalletError) -> quai_primitives::ErrorClass {
+    match error {
+        WalletError::Cancelled { .. } => quai_primitives::ErrorClass::Cancelled,
+        _ => quai_primitives::ErrorClass::Invalid,
     }
 }
 impl CurrentQiDiscovery {
@@ -255,7 +265,7 @@ pub(super) async fn network_headers<T: Transport, const N: usize>(
 ) -> Result<[Option<quai_provider::ZoneHeader>; N], QiDiscoveryError> {
     crate::network::headers_on_network(provider, scope, scope.zone, blocks)
         .await?
-        .ok_or(QiDiscoveryError::IdentityMismatch)?
+        .ok_or(QiDiscoveryError::NetworkMismatch)?
         .try_into()
         .map_err(|_| QiDiscoveryError::ObservationChanged)
 }

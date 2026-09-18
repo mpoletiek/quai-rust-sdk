@@ -134,7 +134,7 @@ async fn reorg_during_account_reads_and_latest_only_qi_fail_explicitly() {
             .observe(scope(), &address(CoinType::Quai), checkpoint)
             .await
             .unwrap_err(),
-        DiscoveryError::InvalidObservation
+        DiscoveryError::ObservationChanged
     );
     mock.calls.lock().unwrap().clear();
     assert_eq!(
@@ -142,7 +142,7 @@ async fn reorg_during_account_reads_and_latest_only_qi_fail_explicitly() {
             .observe(scope(), &address(CoinType::Qi), checkpoint)
             .await
             .unwrap_err(),
-        DiscoveryError::SourceUnavailable
+        DiscoveryError::InvalidRequest
     );
     assert!(mock.calls.lock().unwrap().is_empty());
 }

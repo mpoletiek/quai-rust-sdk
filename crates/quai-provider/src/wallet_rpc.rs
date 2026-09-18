@@ -210,6 +210,12 @@ impl<T: Transport> Provider<T> {
                 .copied()
                 .filter(|a| a.zone() == zone)
                 .collect();
+            // 32 rather than the transport's 126-call headroom. The binding limit
+            // is the response cap (2 MiB by default), not the request: an oversize
+            // batch response fails the whole page and does not fall back, because
+            // the batch was sent. At 32 addresses each may return ~64 KiB of
+            // outpoints; at 126 that budget falls to ~16 KiB, which a busy Qi
+            // address can exceed. Raising this needs outpoint-count data first.
             for page in scoped.chunks(32) {
                 let mut requests = vec![("quai_chainId", json!([]))];
                 requests.extend(
@@ -228,13 +234,7 @@ impl<T: Transport> Provider<T> {
                         return Err(ProviderError::InvalidResult("batch response count"));
                     }
                     for observed in [responses.pop().expect("checked count"), responses.remove(0)] {
-                        let actual = quantity(observed?)?;
-                        if actual != self.expected_chain_id {
-                            return Err(ProviderError::ChainMismatch {
-                                expected: self.expected_chain_id,
-                                actual,
-                            });
-                        }
+                        self.check_chain_id(observed?)?;
                     }
                     page.iter()
                         .copied()

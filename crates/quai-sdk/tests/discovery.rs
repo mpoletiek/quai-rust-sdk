@@ -499,3 +499,41 @@ async fn known_spent_address_hint_prevents_early_gap_stop_without_creating_coins
         U256::ZERO
     );
 }
+
+#[tokio::test]
+async fn one_observation_establishes_identity_once_and_keeps_the_reorg_bracket() {
+    // `observe` used to call `identity` three times: once directly and once
+    // inside each bracketing canonical read. Each of those re-read
+    // `quai_getHeaderByNumber ["0x0"]`, the height-zero header, which is
+    // immutable for the life of the chain.
+    let mock = Mock::default();
+    let provider = provider(mock.clone());
+    let source = AccountRpcSource::new(&provider);
+    let checkpoint = source.tip(scope()).await.unwrap().checkpoint;
+    mock.calls.lock().unwrap().clear();
+
+    source
+        .observe(scope(), &address(CoinType::Quai), checkpoint)
+        .await
+        .unwrap();
+
+    let calls = mock.calls.lock().unwrap().clone();
+    let genesis = calls
+        .iter()
+        .filter(|(m, p)| m == "quai_getHeaderByNumber" && p[0] == "0x0")
+        .count();
+    let pinned = calls
+        .iter()
+        .filter(|(m, p)| m == "quai_getHeaderByNumber" && p[0] != "0x0")
+        .count();
+    let chain = calls.iter().filter(|(m, _)| m == "quai_chainId").count();
+
+    // Identity is established once per observation, not once per inner read.
+    assert_eq!(genesis, 1, "genesis is immutable; read it once: {calls:?}");
+    // The reorg bracket is the property that matters and is unchanged: the
+    // pinned height is read before and after the balance and nonce reads.
+    assert_eq!(pinned, 2, "the before/after bracket must remain: {calls:?}");
+    // Every read still carries its own chain guard, so dropping the repeated
+    // identity reads does not drop a chain check.
+    assert!(chain >= 4, "each read stays chain-guarded: {calls:?}");
+}

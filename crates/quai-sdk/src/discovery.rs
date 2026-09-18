@@ -90,9 +90,21 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         if account.zone() != scope.zone {
             return Err(DiscoveryError::InvalidObservation);
         }
+        // Establish chain and genesis identity once for this observation.
+        //
+        // This previously ran three times per observed address: once here and
+        // once inside each bracketing `canonical` call, each re-reading
+        // `genesis_hash`, which is the height-zero header and immutable for the
+        // life of the chain. The reorg bracket below is the property that
+        // matters and is unchanged; only the repeated identity reads are gone.
+        //
+        // Every provider read now carries its own chain-ID guard in the same
+        // request, so a mid-observation backend swap is still caught per call,
+        // and a swap to a different chain would also fail the header checks
+        // below, which compare the exact hash at the pinned height.
         self.identity(scope).await?;
         let before = self
-            .canonical(scope, checkpoint.height)
+            .canonical_at(scope, checkpoint.height)
             .await?
             .ok_or(DiscoveryError::SourceUnavailable)?;
         if before.checkpoint != checkpoint {
@@ -109,8 +121,11 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
             .transaction_count(account, block)
             .await
             .map_err(|_| DiscoveryError::SourceUnavailable)?;
+        // Closing half of the reorg bracket: the pinned height must still carry
+        // the same hash after the balance and nonce reads, or they may describe
+        // a block that is no longer canonical.
         if self
-            .canonical(scope, checkpoint.height)
+            .canonical_at(scope, checkpoint.height)
             .await?
             .is_none_or(|v| v.checkpoint != checkpoint)
         {
@@ -126,12 +141,28 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
             coins: vec![],
         })
     }
+    /// Check identity, then read the canonical checkpoint at a height.
+    ///
+    /// This is the trait entry point, used by callers that have not already
+    /// established identity for the surrounding operation.
     async fn canonical(
         &self,
         scope: NetworkScope,
         height: U256,
     ) -> Result<Option<ScopedCheckpoint>, DiscoveryError> {
         self.identity(scope).await?;
+        self.canonical_at(scope, height).await
+    }
+}
+impl<T: Transport + SourceConcurrency> AccountRpcSource<'_, T> {
+    /// Read the canonical checkpoint at a height, assuming identity is already
+    /// established for this observation. Callers that have not checked identity
+    /// must use `canonical`.
+    async fn canonical_at(
+        &self,
+        scope: NetworkScope,
+        height: U256,
+    ) -> Result<Option<ScopedCheckpoint>, DiscoveryError> {
         if height == U256::ZERO {
             return Err(DiscoveryError::InvalidRequest);
         }

@@ -168,17 +168,65 @@ impl<T: Transport> Provider<T> {
         Ok(actual)
     }
 
+    /// The expected chain ID this provider was constructed with.
+    pub fn expected_chain_id(&self) -> U256 {
+        self.expected_chain_id
+    }
+
+    /// Check an observed chain ID against the expected one.
+    fn check_chain_id(&self, observed: Value) -> Result<(), ProviderError> {
+        let actual = quantity(observed)?;
+        if actual != self.expected_chain_id {
+            return Err(ProviderError::ChainMismatch {
+                expected: self.expected_chain_id,
+                actual,
+            });
+        }
+        Ok(())
+    }
+
+    /// Read with the chain check bracketing the call.
+    ///
+    /// Where the transport supports batching, the guard and the payload travel as
+    /// `[quai_chainId, method, quai_chainId]` in one request instead of two
+    /// sequential round trips. That halves the round trips on every read and
+    /// strengthens the check rather than weakening it: both guards and the call
+    /// are answered on one connection at one instant, so a load balancer cannot
+    /// swap backends between the guard and the call it guards, which the
+    /// sequential form allowed. It remains a configuration check, not
+    /// authentication: a malicious endpoint can still answer both guards
+    /// truthfully and lie in the payload.
+    ///
+    /// Transports without batching return `None`, having sent nothing, and fall
+    /// back to the sequential form.
     async fn read(
         &self,
         shard: Shard,
         method: &str,
         params: Value,
     ) -> Result<Value, ProviderError> {
+        let endpoint = self.routing.endpoint(shard)?;
+        let bracketed = vec![
+            ("quai_chainId", json!([])),
+            (method, params.clone()),
+            ("quai_chainId", json!([])),
+        ];
+        if let Some(batch) = self.transport.request_batch(endpoint, bracketed).await {
+            let mut responses = batch?;
+            if responses.len() != 3 {
+                return Err(ProviderError::InvalidResult("batch response count"));
+            }
+            let trailing = responses.pop().expect("checked count");
+            let payload = responses.pop().expect("checked count");
+            let leading = responses.pop().expect("checked count");
+            // Both guards must pass before the payload is returned, so a chain
+            // mismatch is never reported as a successful read.
+            self.check_chain_id(leading?)?;
+            self.check_chain_id(trailing?)?;
+            return Ok(payload?);
+        }
         self.chain_id(shard).await?;
-        Ok(self
-            .transport
-            .request(self.routing.endpoint(shard)?, method, params)
-            .await?)
+        Ok(self.transport.request(endpoint, method, params).await?)
     }
 
     /// Read the latest block number for this shard, without narrowing to a machine integer.

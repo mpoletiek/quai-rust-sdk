@@ -28,16 +28,26 @@ requirements are listed in [status](../IMPLEMENTATION_STATUS.md) and
 
 ## API evolution
 
-Policy and diagnostic types are `#[non_exhaustive]`: errors, classifications,
-and resource `*Config` structs. The chain keeps changing and so do the limits
-worth exposing, so these grow without a breaking release. Protocol-fixed wire
-types stay exhaustive, because a new variant there is a protocol change callers
-must handle explicitly.
+Three categories, so the chain and the SDK can grow without a breaking release
+where that is safe, and cannot where it is not:
+
+- **Non-exhaustive:** error enums, resource `*Config` structs, scan options, and
+  reports. Errors and limits keep growing as the chain does, and a new report
+  field is harmless to a reader.
+- **Exhaustive, deliberately:** outcome enums that gate a decision to commit,
+  release, sign or broadcast, such as `ScanStop`, `WindowStop`,
+  `CanonicalStatus` and the candidate statuses. A new variant must fail to
+  compile rather than fall into a wildcard arm in a wallet.
+- **Exhaustive:** protocol-fixed wire types, and structs a caller builds as input
+  to a trait it implements, such as `AddressObservation`.
 
 A non-exhaustive struct cannot be built with a struct literal or
-`..Default::default()` outside its crate. So every such struct ships a
+`..Default::default()` outside its crate. So every one a caller builds ships a
 `with_*` method for each field, plus `Default` or a `new` that takes the
 required fields.
+
+The public traits `Transport` and `ObservationSource` are unsealed, so a method
+added to either must have a default.
 
 ## Protocol values
 

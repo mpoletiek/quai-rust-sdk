@@ -49,6 +49,15 @@ fn classes_separate_retry_reobserve_stop_and_reconcile() {
         DiscoveryError::SourceUnavailable.class(),
         ErrorClass::Transient
     );
+    // A reorg mid-read is re-observed, not abandoned.
+    assert_eq!(
+        DiscoveryError::ObservationChanged.class(),
+        ErrorClass::Stale
+    );
+    assert_eq!(
+        DiscoveryError::InvalidObservation.class(),
+        ErrorClass::Invalid
+    );
 }
 
 #[tokio::test]

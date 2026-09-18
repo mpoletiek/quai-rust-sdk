@@ -14,6 +14,11 @@ pub use quantity::{QuantityError, U256, parse_quantity};
 pub use routing::{Endpoint, RouteError, Routing, parse_use_pathing};
 pub use transport::{BatchResult, MAX_BATCH_CALLS, RemoteError, RpcError, Transport};
 
+#[cfg(not(target_arch = "wasm32"))]
+mod dyn_transport;
+#[cfg(not(target_arch = "wasm32"))]
+pub use dyn_transport::DynTransport;
+
 #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
 mod http;
 #[cfg(all(feature = "http", not(target_arch = "wasm32")))]

@@ -97,6 +97,8 @@ pub use quai_primitives::{Address, Ledger, QiAddress, QuaiAddress, Region, Shard
 pub use quai_provider as provider;
 pub use quai_provider::{BlockTag, Provider, ProviderError};
 pub use quai_rpc as rpc;
+#[cfg(not(target_arch = "wasm32"))]
+pub use quai_rpc::DynTransport;
 pub use quai_rpc::{Endpoint, Routing, U256, parse_quantity, parse_use_pathing};
 #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
 pub use quai_rpc::{HttpConfig, HttpTransport};

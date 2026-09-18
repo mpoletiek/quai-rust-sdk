@@ -14,6 +14,14 @@ use std::collections::{BTreeMap, BTreeSet};
 /// than a fixed size: see `outpoints_many` for the downward adaptation.
 const MAX_OUTPOINT_PAGE: usize = 126;
 
+/// Each page adds a leading and trailing `quai_chainId` guard, so the page plus
+/// its guards must fit the transport's batch limit. Asserted at compile time
+/// because the limit lives in another crate: without this, lowering it there
+/// would break `outpoints_many` on its first page with `InvalidConfig`, which is
+/// neither retried nor falls back.
+#[cfg(feature = "http")]
+const _: () = assert!(MAX_OUTPOINT_PAGE + 2 <= quai_rpc::MAX_BATCH_CALLS);
+
 /// Exact created/deleted outpoints reported over a block-hash range, inclusive.
 /// The connected node must retain spent/trimmed history; this is not a proof.
 #[derive(Clone, Debug)]
@@ -194,27 +202,31 @@ impl<T: Transport> Provider<T> {
             Err(error) => Err(error),
         }
     }
-    /// Fetch one page of address outpoint sets, with the chain check bracketing
-    /// the payload calls so both guards are answered on the same connection.
+    /// Attempt one batched page, with the chain check bracketing the payload
+    /// calls so both guards are answered on the same connection.
     ///
-    /// Transports without batching fall back to bounded concurrent single reads,
-    /// each of which carries its own guard.
-    async fn outpoints_page(
+    /// `None` means the transport does not batch and **nothing was sent**, which
+    /// is what makes the caller's fallback safe. Only this path may be retried
+    /// with a smaller page, because only here does page size influence the
+    /// response size.
+    #[allow(clippy::type_complexity)]
+    async fn outpoints_batch(
         &self,
         zone: Zone,
         page: &[QiAddress],
-    ) -> Result<Vec<(QiAddress, Vec<AddressOutpoint>)>, ProviderError> {
+    ) -> Option<Result<Vec<(QiAddress, Vec<AddressOutpoint>)>, ProviderError>> {
+        let endpoint = match self.routing.endpoint(zone.into()) {
+            Ok(endpoint) => endpoint,
+            Err(error) => return Some(Err(error.into())),
+        };
         let mut requests = vec![("quai_chainId", json!([]))];
         requests.extend(
             page.iter()
                 .map(|address| ("quai_getOutpointsByAddress", json!([address.to_string()]))),
         );
         requests.push(("quai_chainId", json!([])));
-        if let Some(batch) = self
-            .transport
-            .request_batch(self.routing.endpoint(zone.into())?, requests)
-            .await
-        {
+        let batch = self.transport.request_batch(endpoint, requests).await?;
+        Some((|| {
             let mut responses = batch?;
             if responses.len() != page.len() + 2 {
                 return Err(ProviderError::InvalidResult("batch response count"));
@@ -222,13 +234,24 @@ impl<T: Transport> Provider<T> {
             for observed in [responses.pop().expect("checked count"), responses.remove(0)] {
                 self.check_chain_id(observed?)?;
             }
-            return page
-                .iter()
+            page.iter()
                 .copied()
                 .zip(responses)
                 .map(|(address, response)| Ok((address, types::parse_outpoints(response?)?)))
-                .collect();
-        }
+                .collect()
+        })())
+    }
+
+    /// Read a page one address at a time, bounded in flight. Each read carries
+    /// its own chain guard.
+    ///
+    /// Page size has no influence on any individual response here, so an
+    /// oversize response on this path means one address's own set exceeds the
+    /// cap. Reducing the page cannot fix that, and the caller must not try.
+    async fn outpoints_singles(
+        &self,
+        page: &[QiAddress],
+    ) -> Result<Vec<(QiAddress, Vec<AddressOutpoint>)>, ProviderError> {
         let mut pending = stream::iter(page.iter().copied().map(|address| async move {
             self.outpoints(address)
                 .await
@@ -241,6 +264,7 @@ impl<T: Transport> Provider<T> {
         }
         Ok(outputs)
     }
+
     /// Bounded group of latest-only address queries. Each response is a separate
     /// observation; this convenience method never claims an atomic snapshot.
     /// Uses explicit HTTP batches where supported, with chain checks in each batch.
@@ -283,16 +307,22 @@ impl<T: Transport> Provider<T> {
             let mut offset = 0usize;
             while offset < scoped.len() {
                 let page = &scoped[offset..scoped.len().min(offset + page_size)];
-                let outputs = match self.outpoints_page(zone, page).await {
-                    Ok(outputs) => outputs,
-                    Err(ProviderError::Rpc(RpcError::ResponseTooLarge)) if page.len() > 1 => {
+                let outputs = match self.outpoints_batch(zone, page).await {
+                    Some(Ok(outputs)) => outputs,
+                    Some(Err(ProviderError::Rpc(RpcError::ResponseTooLarge))) if page.len() > 1 => {
                         // Retry the same addresses in smaller pages. A single
                         // address that still exceeds the cap is a real error and
                         // propagates below rather than looping.
                         page_size = page.len() / 2;
                         continue;
                     }
-                    Err(error) => return Err(error),
+                    Some(Err(error)) => return Err(error),
+                    // The transport does not batch and sent nothing. Halving is
+                    // provably futile here, so it is not attempted: an oversize
+                    // response means one address exceeds the cap on its own, and
+                    // retrying smaller pages would re-read every prefix address
+                    // at every level before surfacing the same error.
+                    None => self.outpoints_singles(page).await?,
                 };
                 offset += page.len();
                 for (address, outputs) in outputs {

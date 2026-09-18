@@ -42,7 +42,7 @@ fuzz_target!(|data:&[u8]| {
  }
  if data.len()>=8 {
   use quai_keystore::derive::{DeriveParams,DeriveLimits,Pbkdf2Hash,derive_key};
-  let limits=DeriveLimits{max_output_bytes:128,max_pbkdf2_work:4096,..DeriveLimits::default()};
+  let limits=DeriveLimits::default().with_max_output_bytes(128).with_max_pbkdf2_work(4096);
   let params=DeriveParams::Scrypt{log_n:data[0],r:u32::from(data[1]),p:u32::from(data[2])};let _=params.validate(usize::from(data[3]),limits);
   if data[0]==0 {let params=DeriveParams::Pbkdf2{rounds:u32::from(data[1])+1,hash:if data[2]&1==0{Pbkdf2Hash::Sha256}else{Pbkdf2Hash::Sha512}};if let Ok(key)=derive_key(&data[4..data.len().min(64)],&data[..4],params,usize::from(data[3])+1,limits){assert_eq!(key.as_bytes().len(),usize::from(data[3])+1);}}
  }

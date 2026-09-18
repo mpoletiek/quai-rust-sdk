@@ -17,7 +17,7 @@ pub use transport::{BatchResult, RemoteError, RpcError, Transport};
 #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
 mod http;
 #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
-pub use http::{HttpConfig, HttpTransport};
+pub use http::{HttpConfig, HttpTransport, MAX_BATCH_CALLS};
 
 #[cfg(all(feature = "ws", not(target_arch = "wasm32")))]
 mod websocket;

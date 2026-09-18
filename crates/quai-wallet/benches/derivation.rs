@@ -2,13 +2,21 @@
 //!
 //! This is the SDK's dominant CPU cost. A Qi wallet discovery at the default
 //! gap limit matches roughly 100 addresses across both branches, and each match
-//! costs a run of derivations rather than one: zone lives in address byte 0 and
-//! the ledger flag in bit 7 of byte 1, and only 9 of 256 byte-0 values name a
-//! valid zone, so a usable address appears once per 256 * 2 = 512 candidates.
+//! costs a run of derivations rather than one.
 //!
-//! `search` is therefore reported with `Throughput::Elements(max_attempts)` so
-//! the headline number is candidates per second, which stays comparable even
-//! though the number of matches per run varies with the seed.
+//! The 1-in-512 hit rate comes from `AccountPublic::search` requiring a
+//! *specific* zone: one byte-0 value in 256, and the ledger flag in bit 7 of
+//! byte 1, so 256 * 2. It does NOT come from "9 of 256 byte-0 values are valid
+//! zones" -- that ratio gives 9/512, about 1 in 57, which is the rate at which
+//! `derive_address` succeeds for *any* zone. Those are different quantities and
+//! conflating them is how a cost model ends up wrong.
+//!
+//! Note what the atomic unit actually is. `derive_address` performs **two**
+//! CKDpub steps, because it re-derives the change-level node on every call
+//! (`hd.rs`), while `search` hoists that node out of its loop and pays **one**
+//! per candidate. Use `derivation/ckdpub_step` as the per-candidate unit;
+//! `derive_address` is roughly 1.9x it and is not the right multiplier for a
+//! scan cost model.
 //!
 //! All seeds and mnemonics here are deterministic public fixtures. Never fund
 //! any address these produce.
@@ -18,7 +26,8 @@ use quai_consensus::{Denomination, OutPoint};
 use quai_crypto::U256;
 use quai_primitives::{Hash32, QiAddress, Zone};
 use quai_wallet::{
-    AccountPublic, CandidateCoin, CoinType, HdWallet, Search, SelectionRequest, select_fewest,
+    AccountPublic, CandidateCoin, CoinType, ExtendedPublicKey, HdWallet, Search, SelectionRequest,
+    select_fewest,
 };
 use std::hint::black_box;
 
@@ -96,9 +105,11 @@ fn derivation(c: &mut Criterion) {
     let account = account();
     let mut group = c.benchmark_group("derivation");
 
-    // The atomic unit: one CKDpub step plus keccak plus the zone/ledger check.
-    // Most calls return InvalidDerivedAddress, which is the expected case -- the
-    // address is only usable when byte 0 names a zone and the ledger bit agrees.
+    // Two CKDpub steps plus keccak and the zone/ledger check: it re-derives the
+    // change-level node every call. This is the cost of a one-off address
+    // lookup, NOT the per-candidate cost inside a scan -- see `ckdpub_step`.
+    // Most calls return InvalidDerivedAddress, which is expected: the address is
+    // usable only when byte 0 names a zone and the ledger bit agrees.
     group.throughput(Throughput::Elements(1));
     group.bench_function("derive_address", |b| {
         let mut index = 0u32;
@@ -107,20 +118,46 @@ fn derivation(c: &mut Criterion) {
             let _ = black_box(account.derive_address(false, black_box(index)));
         });
     });
+    // The genuine per-candidate unit, matching what `search` pays per attempt:
+    // a single CKDpub step from an already-derived branch node. Multiply this by
+    // the measured attempt count to model a scan, rather than using
+    // `derive_address`, which does twice the curve work.
+    // Rebuild the branch node through the public xpub API, which is exactly what
+    // `search` hoists out of its loop.
+    let branch = ExtendedPublicKey::import(&account.export())
+        .expect("account xpub round-trips")
+        .derive_child(0, false)
+        .expect("receive branch derives");
+    group.bench_function("ckdpub_step", |b| {
+        let mut index = 0u32;
+        b.iter(|| {
+            index = index.wrapping_add(1) & 0x7fff_ffff;
+            branch
+                .derive_child(black_box(index), false)
+                .expect("derives")
+        });
+    });
     group.finish();
 
     // Time to find the next usable address from a moving start index, which is
     // the shape of a gap scan.
     //
+    // Attempts are Geometric(1/512), so this latency is close to exponential and
+    // strongly right-skewed: its mean is roughly 1.35x its median. A cost model
+    // must use the mean, which is what criterion reports. Sampled widely enough
+    // that the confidence interval is narrow enough to regress against; at a
+    // small sample size the interval spans tens of percent and the benchmark
+    // cannot detect a real change.
+    //
     // Deliberately NOT reported as throughput against `max_attempts`: `search`
     // returns on the first match, so `max_attempts` is a cap rather than work
     // performed. Dividing by it would report a number that changes with the cap
     // while the measured work stayed identical. Per-candidate cost belongs to
-    // `derivation/derive_address` above; this benchmark owns the end-to-end
-    // latency a caller actually waits on, and the expected ratio between them is
-    // the 1-in-512 hit rate.
+    // `derivation/ckdpub_step` above; this benchmark owns the end-to-end latency
+    // a caller actually waits on, and the expected ratio between them is the
+    // 1-in-512 hit rate.
     let mut group = c.benchmark_group("address_search");
-    group.sample_size(20);
+    group.sample_size(100);
     let mut start_index = 0u32;
     group.bench_function("next_usable_cyprus1", |b| {
         b.iter(|| {

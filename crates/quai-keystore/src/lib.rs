@@ -18,7 +18,11 @@ pub mod derive;
 mod json;
 
 /// Sanitized failures never include passwords, keys or mnemonic metadata.
+///
+/// Non-exhaustive: `WeakParameters` was added after the first alpha and broke
+/// downstream exhaustive matches. Marking it makes later variants additive.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
+#[non_exhaustive]
 pub enum KeystoreError {
     /// Unsupported or ambiguous document/cipher/KDF/extension.
     #[error("invalid or unsupported legacy keystore")]
@@ -160,7 +164,23 @@ impl KdfLimits {
         self.min_salt_bytes = bytes;
         self
     }
+    /// Restore the default password-strength floors, keeping other settings.
+    ///
+    /// The counterpart to [`Self::without_strength_floors`], for a caller that
+    /// derives from a human-chosen password and wants the document policy.
+    #[must_use]
+    pub fn with_strength_floors(self) -> Self {
+        let defaults = Self::default();
+        self.with_min_scrypt_work(defaults.min_scrypt_work)
+            .with_min_pbkdf2_rounds(defaults.min_pbkdf2_rounds)
+            .with_min_salt_bytes(defaults.min_salt_bytes)
+    }
     /// Remove the password-strength floors, keeping every resource ceiling.
+    ///
+    /// This tracks floors added in later releases: a floor introduced after this
+    /// call site was written is also removed by it. That is the intent for a
+    /// caller whose parameters are its own, and the reason a document importer
+    /// should never use it.
     ///
     /// The floors defend against an attacker-authored document. Removing them is
     /// the right call when the parameters are the caller's own, or the salt is
@@ -184,6 +204,14 @@ impl Kdf {
         if limits.max_memory_bytes > 1024 * 1024 * 1024
             || limits.max_scrypt_work > 1 << 28
             || limits.max_pbkdf2_rounds > 10_000_000
+        {
+            return Err(KeystoreError::Limit);
+        }
+        // A floor above its own ceiling admits nothing. Report it as a policy
+        // error rather than letting every document fail as WeakParameters with
+        // no indication that the limits themselves are unsatisfiable.
+        if limits.min_scrypt_work > limits.max_scrypt_work
+            || limits.min_pbkdf2_rounds > limits.max_pbkdf2_rounds
         {
             return Err(KeystoreError::Limit);
         }
@@ -646,7 +674,12 @@ fn seal(
     let Kdf::Scrypt { log_n, r, p } = kdf else {
         return Err(KeystoreError::Format);
     };
-    let derived = kdf.derive(password, &random[..32], limits)?;
+    // Export parameters are this crate's own constants, not an attacker-authored
+    // document, so only the resource ceilings apply. Coupling export to the
+    // strength floor at runtime would let a future floor increase break the
+    // crate's own exports for every user; the relationship is asserted by a
+    // test instead, which fails at build time rather than in the field.
+    let derived = kdf.derive(password, &random[..32], limits.without_strength_floors())?;
     let mut ciphertext = Zeroizing::new(*key.export_bytes().as_bytes());
     ctr::Ctr128BE::<aes::Aes128>::new_from_slices(&derived[..16], &random[32..48])
         .map_err(|_| KeystoreError::Format)?

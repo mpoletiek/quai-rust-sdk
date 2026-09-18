@@ -253,17 +253,16 @@ async fn an_oversize_page_halves_and_the_working_size_is_remembered() {
     assert_eq!(result.len(), 140);
 
     let observed = pages.lock().unwrap().clone();
-    // Probes down from the full headroom, then stays at the working size: the
-    // cost is paid once per call, not once per page.
-    assert_eq!(observed[0], 126, "starts at the transport headroom");
-    assert_eq!(observed[1], 63, "halves on ResponseTooLarge");
-    assert_eq!(observed[2], 31, "halves again");
-    assert_eq!(observed[3], 15, "first page that fits");
-    assert!(
-        observed[4..].iter().all(|n| *n <= 15),
-        "the working size is remembered: {observed:?}"
+    // The exact sequence, not a bound. Asserting only "every later page is <= 15"
+    // plus a sum would also pass an implementation that kept decaying to 1 and
+    // issued 121 pages instead of 13 -- the precise opposite of "remembered".
+    // 140 addresses at a working size of 15 is nine pages, the last of size 5.
+    assert_eq!(
+        observed,
+        vec![126, 63, 31, 15, 15, 15, 15, 15, 15, 15, 15, 15, 5],
+        "expected three probes then a stable working size"
     );
-    // Every address is still queried exactly once despite the retries.
+    // Every address is queried exactly once despite the retries.
     assert_eq!(observed[3..].iter().sum::<usize>(), 140);
 }
 
@@ -310,5 +309,54 @@ async fn any_error_other_than_an_oversize_response_is_not_retried() {
         pages.lock().unwrap().len(),
         1,
         "a non-size error must not trigger a second attempt"
+    );
+}
+
+/// Non-batching transport whose per-address responses are always oversize.
+///
+/// `request_batch` is not implemented, so the default returns None having sent
+/// nothing and the provider falls back to single reads.
+#[derive(Clone, Default)]
+struct OversizeSingles {
+    reads: Arc<AtomicUsize>,
+}
+
+impl Transport for OversizeSingles {
+    async fn request(&self, _: &Endpoint, method: &str, _: Value) -> Result<Value, RpcError> {
+        if method == "quai_chainId" {
+            return Ok(json!(format!("{CHAIN:#x}")));
+        }
+        self.reads.fetch_add(1, SeqCst);
+        Err(RpcError::ResponseTooLarge)
+    }
+}
+
+#[tokio::test]
+async fn the_page_is_not_halved_when_the_transport_does_not_batch() {
+    // Page size cannot influence any individual response on the fallback path,
+    // because each address is its own request. An oversize response there means
+    // one address's own set exceeds the cap, so halving is provably futile: it
+    // would re-read every prefix address at every level and surface the same
+    // error. Without this rule the change would be strictly worse than the fixed
+    // page it replaced -- roughly 750 reads instead of at most 126.
+    let transport = OversizeSingles::default();
+    let reads = transport.reads.clone();
+    let provider = Provider::new(
+        transport,
+        Routing::direct(URL, Zone::Cyprus1.into()).unwrap(),
+        U256::from(CHAIN),
+    );
+    let result = provider.outpoints_many(&qi_addresses(140)).await;
+    assert!(
+        matches!(result, Err(ProviderError::Rpc(RpcError::ResponseTooLarge))),
+        "expected the error to surface, got {result:?}"
+    );
+    // `buffered(4)` has up to four reads in flight when the first error returns,
+    // so the bound is the concurrency window, not the page and not a halving
+    // chain over it.
+    assert!(
+        reads.load(SeqCst) <= 4,
+        "the fallback must not retry: {} reads",
+        reads.load(SeqCst)
     );
 }

@@ -31,7 +31,12 @@ pub enum DeriveParams {
     },
 }
 /// Resource policy, including the output-length multiplier for PBKDF2 work.
+///
+/// Construct with [`DeriveLimits::default`] and adjust through the `with_*`
+/// methods. Non-exhaustive for the same reason as [`KdfLimits`]: it is a policy
+/// type whose knobs are expected to grow, and it embeds one that already did.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct DeriveLimits {
     /// Existing bounded KDF memory/parameter policy.
     pub kdf: KdfLimits,
@@ -61,8 +66,33 @@ impl Default for DeriveLimits {
         }
     }
 }
+impl DeriveLimits {
+    /// Replace the embedded KDF resource policy.
+    ///
+    /// Pass [`KdfLimits::with_strength_floors`] when the input really is a
+    /// human-chosen password; the default here omits the floors because this is
+    /// a general-purpose primitive.
+    #[must_use]
+    pub fn with_kdf(mut self, kdf: KdfLimits) -> Self {
+        self.kdf = kdf;
+        self
+    }
+    /// Set the maximum derived output length in bytes.
+    #[must_use]
+    pub fn with_max_output_bytes(mut self, bytes: usize) -> Self {
+        self.max_output_bytes = bytes;
+        self
+    }
+    /// Set the maximum PBKDF2 rounds times output blocks.
+    #[must_use]
+    pub fn with_max_pbkdf2_work(mut self, work: u64) -> Self {
+        self.max_pbkdf2_work = work;
+        self
+    }
+}
 /// Fixed diagnostics never retain the password, salt or derived key.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
+#[non_exhaustive]
 pub enum DeriveError {
     /// Invalid algorithm parameters or zero output length.
     #[error("invalid key derivation parameters")]
@@ -73,6 +103,13 @@ pub enum DeriveError {
     /// Caller declined the started/completed lifecycle checkpoint.
     #[error("key derivation cancelled at checkpoint")]
     Cancelled,
+    /// Parameters or salt are below the floors this policy requires.
+    ///
+    /// Distinct from [`DeriveError::Invalid`], which reports malformed
+    /// parameters. Collapsing the two pointed callers at their `DeriveParams`
+    /// when the actual cause was the policy they passed.
+    #[error("key derivation is weaker than the accepted minimum")]
+    WeakParameters,
 }
 /// Coarse lifecycle progress, suitable for a caller-owned worker notification.
 /// RustCrypto's inner KDF loop does not expose progress or interruption hooks.
@@ -134,12 +171,10 @@ impl DeriveParams {
         {
             return Err(DeriveError::Limit);
         }
-        self.kdf().validate(limits.kdf).map_err(|e| {
-            if e == KeystoreError::Limit {
-                DeriveError::Limit
-            } else {
-                DeriveError::Invalid
-            }
+        self.kdf().validate(limits.kdf).map_err(|e| match e {
+            KeystoreError::Limit => DeriveError::Limit,
+            KeystoreError::WeakParameters => DeriveError::WeakParameters,
+            _ => DeriveError::Invalid,
         })?;
         if let Self::Pbkdf2 { rounds, hash } = self {
             let width = if hash == Pbkdf2Hash::Sha512 { 64 } else { 32 };
@@ -177,6 +212,14 @@ pub fn derive_key_with_progress(
 ) -> Result<DerivedKey, DeriveError> {
     if password.len() > 1024 || salt.len() > 1024 {
         return Err(DeriveError::Limit);
+    }
+    // The salt floor lives in `Kdf::derive`, which this module deliberately does
+    // not use: it calls the RustCrypto entry points directly. `DeriveParams::validate`
+    // has no salt to inspect, so without this check a caller who enabled the
+    // floors still had the salt bound silently ignored, while the work and round
+    // floors were enforced. Checked before any expensive work.
+    if salt.len() < limits.kdf.min_salt_bytes {
+        return Err(DeriveError::WeakParameters);
     }
     params.validate(length, limits)?;
     if !progress(DeriveProgress::Started) {

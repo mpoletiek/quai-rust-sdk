@@ -331,3 +331,81 @@ fn kdf_limits_is_configured_through_builders_and_defaults_stay_protective() {
         Err(KeystoreError::WeakParameters)
     ));
 }
+
+#[test]
+fn the_salt_floor_is_enforced_on_the_standalone_derivation_path() {
+    // Regression. min_salt_bytes is checked inside Kdf::derive, which the
+    // standalone derive module deliberately does not use -- it calls the
+    // RustCrypto entry points directly -- and DeriveParams::validate has no salt
+    // to inspect. So a caller who enabled the floors got the work and round
+    // floors enforced and the salt bound silently ignored: a fail-open, and one
+    // that hit the caller who followed the documented advice rather than the one
+    // who ignored it.
+    use quai_keystore::derive::{DeriveError, DeriveLimits, DeriveParams, Pbkdf2Hash, derive_key};
+
+    let password = b"PUBLIC password";
+    let strict = DeriveLimits::default().with_kdf(KdfLimits::default().with_strength_floors());
+    let params = DeriveParams::Pbkdf2 {
+        rounds: 200_000,
+        hash: Pbkdf2Hash::Sha256,
+    };
+
+    assert_eq!(
+        derive_key(password, b"\x01", params, 32, strict).unwrap_err(),
+        DeriveError::WeakParameters,
+        "a one-byte salt must be rejected when the floors are enabled"
+    );
+    // At the boundary and above it, the same derivation succeeds.
+    assert!(derive_key(password, &[7u8; 16], params, 32, strict).is_ok());
+
+    // The floor is reported as a floor, not as malformed parameters, so the
+    // caller is pointed at the policy rather than at its DeriveParams.
+    let weak_rounds = DeriveParams::Pbkdf2 {
+        rounds: 10,
+        hash: Pbkdf2Hash::Sha256,
+    };
+    assert_eq!(
+        derive_key(password, &[7u8; 16], weak_rounds, 32, strict).unwrap_err(),
+        DeriveError::WeakParameters
+    );
+
+    // The default remains floorless: this is a general-purpose primitive whose
+    // parameters come from the caller and whose salt may be protocol-fixed.
+    assert!(derive_key(password, b"\x01", weak_rounds, 32, DeriveLimits::default()).is_ok());
+}
+
+#[test]
+fn this_crates_own_export_clears_the_default_strength_floor() {
+    // `seal` validates against ceilings only, because its parameters are this
+    // crate's own constants rather than an attacker-authored document. That
+    // decoupling is deliberate: coupling export to the floor at runtime would
+    // let a future floor increase break exports for every user. The policy
+    // relationship is asserted here instead, so it fails at build time.
+    //
+    // Export uses log_n 17, r 8, p 1 = 2^20 work with a 32-byte salt, which is
+    // exactly the default floor. If either side moves, this test says so.
+    let key = quai_crypto::SecretKey::from_bytes(&[9u8; 32]).unwrap();
+    let exported = quai_keystore::encrypt(&key, Password::Text("PUBLIC export")).unwrap();
+    let document: Value = serde_json::from_str(exported.as_json()).unwrap();
+    let params = &document["Crypto"]["kdfparams"];
+    let work = params["n"].as_u64().unwrap()
+        * params["r"].as_u64().unwrap()
+        * params["p"].as_u64().unwrap();
+    let defaults = KdfLimits::default();
+    assert!(
+        work >= defaults.min_scrypt_work,
+        "export work {work} is below the default floor {}",
+        defaults.min_scrypt_work
+    );
+    assert!(
+        decode(params["salt"].as_str().unwrap()).len() >= defaults.min_salt_bytes,
+        "export salt is below the default floor"
+    );
+    // And the default policy round-trips this crate's own output.
+    assert!(
+        Keystore::from_json(exported.as_json().as_bytes(), KdfLimits::default())
+            .unwrap()
+            .decrypt(Password::Text("PUBLIC export"), KdfLimits::default())
+            .is_ok()
+    );
+}

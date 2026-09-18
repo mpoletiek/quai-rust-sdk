@@ -510,3 +510,106 @@ async fn live_chain_and_subscription_handshake() {
     subscription.unsubscribe().await.unwrap();
     client.shutdown().await.unwrap();
 }
+
+#[tokio::test]
+async fn a_notification_racing_its_own_unsubscribe_does_not_tear_down_the_session() {
+    // go-quai is a geth derivative: notifications are written by the notifier
+    // and RPC replies by the request handler, with no ordering guarantee
+    // between them. A notification handed to the writer before the unsubscribe
+    // was processed can therefore arrive after its acknowledgement. That is a
+    // normal race, and it must not fail every other subscription and every
+    // in-flight request sharing the connection.
+    let (endpoint, task) = server(|mut socket| async move {
+        let first = recv(&mut socket).await;
+        assert_eq!(first["method"], "quai_subscribe");
+        respond(&mut socket, &first["id"], json!("0xdoomed")).await;
+        let second = recv(&mut socket).await;
+        assert_eq!(second["method"], "quai_subscribe");
+        respond(&mut socket, &second["id"], json!("0xkeeper")).await;
+
+        let unsubscribe = recv(&mut socket).await;
+        assert_eq!(unsubscribe["method"], "quai_unsubscribe");
+        assert_eq!(unsubscribe["params"], json!(["0xdoomed"]));
+        respond(&mut socket, &unsubscribe["id"], json!(true)).await;
+
+        // The trailing notification, delivered after its own acknowledgement.
+        notify(
+            &mut socket,
+            "0xdoomed",
+            json!({"woHeader":{"number":"0x11"}}),
+        )
+        .await;
+
+        // The surviving subscription must still receive, and ordinary requests
+        // must still be answered, which is only possible if the session lived.
+        notify(
+            &mut socket,
+            "0xkeeper",
+            json!({"woHeader":{"number":"0x12"}}),
+        )
+        .await;
+        let read = recv(&mut socket).await;
+        respond(&mut socket, &read["id"], json!("0x9")).await;
+        close_seen(&mut socket).await;
+    })
+    .await;
+
+    let client = WsTransport::connect(endpoint.clone(), WsConfig::default())
+        .await
+        .unwrap();
+    let doomed = client
+        .subscribe(WsSubscriptionKind::NewHeads)
+        .await
+        .unwrap();
+    let mut keeper = client
+        .subscribe(WsSubscriptionKind::NewHeads)
+        .await
+        .unwrap();
+    doomed.unsubscribe().await.unwrap();
+
+    // The unrelated subscription still delivers.
+    assert_eq!(
+        keeper.recv().await.unwrap().unwrap()["woHeader"]["number"],
+        "0x12"
+    );
+    // And the multiplexed connection still serves ordinary requests.
+    assert_eq!(
+        client
+            .request(&endpoint, "quai_chainId", json!([]))
+            .await
+            .unwrap(),
+        "0x9"
+    );
+    client.shutdown().await.unwrap();
+    task.await.unwrap();
+}
+
+#[tokio::test]
+async fn a_notification_for_a_never_known_subscription_still_fails_the_session() {
+    // Distinct from the race above: an ID this session never registered is a
+    // protocol violation by the node, and the strict posture is retained.
+    let (endpoint, task) = server(|mut socket| async move {
+        let subscribe = recv(&mut socket).await;
+        respond(&mut socket, &subscribe["id"], json!("0xreal")).await;
+        notify(
+            &mut socket,
+            "0xnever",
+            json!({"woHeader":{"number":"0x13"}}),
+        )
+        .await;
+        let _ = socket.next().await;
+    })
+    .await;
+    let client = WsTransport::connect(endpoint.clone(), WsConfig::default())
+        .await
+        .unwrap();
+    let mut subscription = client
+        .subscribe(WsSubscriptionKind::NewHeads)
+        .await
+        .unwrap();
+    assert!(
+        subscription.recv().await.is_err(),
+        "an unknown subscription ID must still terminate the session"
+    );
+    task.abort();
+}

@@ -25,6 +25,9 @@ serde.workspace = true
 serde_json = { workspace = true, features = ["float_roundtrip", "raw_value"] }
 url.workspace = true
 thiserror.workspace = true
+# Credential-bearing header values are built and stored under a guard so a
+# dropped or cloned request does not leave plaintext on the heap.
+zeroize = "1.8"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 reqwest = { workspace = true, optional = true }

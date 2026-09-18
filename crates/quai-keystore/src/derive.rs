@@ -43,7 +43,24 @@ pub struct DeriveLimits {
 impl Default for DeriveLimits {
     fn default() -> Self {
         Self {
-            kdf: KdfLimits::default(),
+            // Ceilings apply; the password-strength floors deliberately do not.
+            //
+            // Those floors exist to stop an attacker-authored keystore document
+            // declaring a trivial work factor and turning an import flow into an
+            // offline password oracle. This is a general-purpose KDF primitive:
+            // its parameters come from the caller, its salt may be fixed by the
+            // surrounding protocol, and it is not necessarily deriving from a
+            // human-chosen password at all. Imposing a password floor here would
+            // reject legitimate non-password derivations while protecting
+            // nothing, since there is no untrusted document to defend against.
+            //
+            // A caller deriving a key *from a password* should set the floors.
+            kdf: KdfLimits {
+                min_scrypt_work: 0,
+                min_pbkdf2_rounds: 0,
+                min_salt_bytes: 0,
+                ..KdfLimits::default()
+            },
             max_output_bytes: 64,
             max_pbkdf2_work: 1 << 24,
         }

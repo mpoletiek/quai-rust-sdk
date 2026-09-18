@@ -1,6 +1,22 @@
 //! Public fixture interchange, bounded hostile inputs and legacy metadata tampering.
 use quai_keystore::{KdfLimits, Keystore, KeystoreError, Password};
 use serde_json::{Value, json};
+
+/// Limits that accept the reference fixtures' deliberately cheap KDF parameters.
+///
+/// The pinned JavaScript vectors use `n=16, r=1, p=1` so the suite runs fast.
+/// Production defaults reject that as `WeakParameters`; importing a fixture is
+/// the intended "I know this is weak" case, so it lowers the floor explicitly
+/// rather than the suite disabling the bound globally.
+fn fixture_limits() -> KdfLimits {
+    KdfLimits {
+        min_scrypt_work: 0,
+        min_pbkdf2_rounds: 0,
+        min_salt_bytes: 0,
+        ..KdfLimits::default()
+    }
+}
+
 fn fixtures() -> Vec<Value> {
     serde_json::from_str::<Value>(include_str!("fixtures/keystores.json")).unwrap()["vectors"]
         .as_array()
@@ -15,7 +31,7 @@ fn decode(s: &str) -> Vec<u8> {
         .collect()
 }
 fn parsed(v: &Value) -> Result<Keystore, KeystoreError> {
-    Keystore::from_json(&serde_json::to_vec(v).unwrap(), KdfLimits::default())
+    Keystore::from_json(&serde_json::to_vec(v).unwrap(), fixture_limits())
 }
 #[test]
 fn all_pinned_js_key_kdfs_password_forms_and_mnemonic_languages_match() {
@@ -29,7 +45,7 @@ fn all_pinned_js_key_kdfs_password_forms_and_mnemonic_languages_match() {
         } else {
             Password::Bytes(raw.as_ref().unwrap())
         };
-        let account = store.decrypt(password, KdfLimits::default()).unwrap();
+        let account = store.decrypt(password, fixture_limits()).unwrap();
         assert_eq!(account.address().to_string(), v["expected"]["address"]);
         assert_eq!(
             account.secret_key().export_bytes().as_ref(),
@@ -55,7 +71,7 @@ fn wrong_password_ciphertext_iv_address_and_unmaced_mnemonic_tampering_fail() {
     assert_eq!(
         parsed(raw)
             .unwrap()
-            .decrypt(Password::Text("wrong"), KdfLimits::default())
+            .decrypt(Password::Text("wrong"), fixture_limits())
             .unwrap_err(),
         KeystoreError::Authentication
     );
@@ -81,7 +97,7 @@ fn wrong_password_ciphertext_iv_address_and_unmaced_mnemonic_tampering_fail() {
         assert_eq!(
             parsed(&modified)
                 .unwrap()
-                .decrypt(Password::Text("PUBLIC password"), KdfLimits::default())
+                .decrypt(Password::Text("PUBLIC password"), fixture_limits())
                 .unwrap_err(),
             KeystoreError::Authentication
         );
@@ -101,7 +117,7 @@ fn wrong_password_ciphertext_iv_address_and_unmaced_mnemonic_tampering_fail() {
         assert_eq!(
             parsed(&modified)
                 .unwrap()
-                .decrypt(Password::Text("PUBLIC mnemonic"), KdfLimits::default())
+                .decrypt(Password::Text("PUBLIC mnemonic"), fixture_limits())
                 .unwrap_err(),
             KeystoreError::Authentication
         );
@@ -124,7 +140,7 @@ fn resource_and_format_rejections_happen_before_kdf() {
         *modified.pointer_mut(pointer).unwrap() = value;
         assert!(parsed(&modified).is_err());
     }
-    assert!(Keystore::from_json(&vec![b' '; 65_537], KdfLimits::default()).is_err());
+    assert!(Keystore::from_json(&vec![b' '; 65_537], fixture_limits()).is_err());
     let mut modified = raw.clone();
     modified["x-ethers"] = json!({});
     assert!(parsed(&modified).is_err());
@@ -133,7 +149,7 @@ fn resource_and_format_rejections_happen_before_kdf() {
         text.replacen("\"Crypto\":", "\"crypto\":{},\"Crypto\":", 1),
         text.replacen("\"iv\":", "\"IV\":\"00\",\"iv\":", 1),
     ] {
-        assert!(Keystore::from_json(doc.as_bytes(), KdfLimits::default()).is_err());
+        assert!(Keystore::from_json(doc.as_bytes(), fixture_limits()).is_err());
     }
     let store = parsed(&raw).unwrap();
     assert!(matches!(
@@ -147,7 +163,7 @@ fn resource_and_format_rejections_happen_before_kdf() {
         Err(KeystoreError::Limit)
     ));
     assert!(matches!(
-        store.decrypt(Password::Bytes(&[0; 1025]), KdfLimits::default()),
+        store.decrypt(Password::Bytes(&[0; 1025]), fixture_limits()),
         Err(KeystoreError::Limit)
     ));
 }
@@ -173,9 +189,9 @@ fn native_export_uses_fresh_entropy_fixed_scrypt_and_roundtrips() {
     assert_eq!(a["Crypto"]["kdfparams"]["n"], 131072);
     assert_eq!(a["Crypto"]["kdfparams"]["r"], 8);
     assert_eq!(a["Crypto"]["kdfparams"]["p"], 1);
-    let restored = Keystore::from_json(first.as_json().as_bytes(), KdfLimits::default())
+    let restored = Keystore::from_json(first.as_json().as_bytes(), fixture_limits())
         .unwrap()
-        .decrypt(Password::Text("PUBLIC new export"), KdfLimits::default())
+        .decrypt(Password::Text("PUBLIC new export"), fixture_limits())
         .unwrap();
     assert_eq!(restored.address(), key.public_key().address());
     assert!(!format!("{first:?}").contains("PUBLIC"));
@@ -198,9 +214,11 @@ fn scrypt_budget_covers_downstream_parallel_feature_unification() {
     raw["Crypto"]["kdfparams"]["r"] = json!(1);
     raw["Crypto"]["kdfparams"]["p"] = json!(4);
     // Sequential B+V+T = 2688 bytes; four parallel V/T workspaces need 9216.
+    // These parameters are far below the production work floor by design, so the
+    // floor is lowered here to isolate the memory ceiling under test.
     let limits = KdfLimits {
         max_memory_bytes: 3000,
-        ..Default::default()
+        ..fixture_limits()
     };
     assert!(matches!(
         Keystore::from_json(&serde_json::to_vec(&raw).unwrap(), limits),
@@ -208,7 +226,7 @@ fn scrypt_budget_covers_downstream_parallel_feature_unification() {
     ));
     let limits = KdfLimits {
         max_memory_bytes: 9216,
-        ..Default::default()
+        ..fixture_limits()
     };
     assert!(Keystore::from_json(&serde_json::to_vec(&raw).unwrap(), limits).is_ok());
 }
@@ -218,12 +236,73 @@ fn hostile_json_aliases_depth_numeric_tokens_and_trailing_data_fail_closed() {
     let raw = fixtures()[0]["json"].clone();
     let text = serde_json::to_string(&raw).unwrap();
     let escaped_alias = text.replacen("\"Crypto\":", r#""Cr\u0079pto":{},"Crypto":"#, 1);
-    assert!(Keystore::from_json(escaped_alias.as_bytes(), KdfLimits::default()).is_err());
+    assert!(Keystore::from_json(escaped_alias.as_bytes(), fixture_limits()).is_err());
     for replacement in ["3.0", "3e0", "-3", "\"3\""] {
         let changed = text.replace("\"version\":3", &format!("\"version\":{replacement}"));
-        assert!(Keystore::from_json(changed.as_bytes(), KdfLimits::default()).is_err());
+        assert!(Keystore::from_json(changed.as_bytes(), fixture_limits()).is_err());
     }
-    assert!(Keystore::from_json(format!("{text} {{}}").as_bytes(), KdfLimits::default()).is_err());
+    assert!(Keystore::from_json(format!("{text} {{}}").as_bytes(), fixture_limits()).is_err());
     let nested = format!("{{\"id\":{}0{}}}", "[".repeat(17), "]".repeat(17));
-    assert!(Keystore::from_json(nested.as_bytes(), KdfLimits::default()).is_err());
+    assert!(Keystore::from_json(nested.as_bytes(), fixture_limits()).is_err());
+}
+
+#[test]
+fn weak_key_derivation_is_rejected_by_default_and_overridable_explicitly() {
+    // A hostile "recovery" document can declare a trivial work factor. It
+    // decrypts correctly, which is exactly the problem: it turns an import flow
+    // into an offline oracle against the password the user just typed, at
+    // roughly one hash per guess, and a short salt makes precomputation across
+    // victims viable. Ceilings alone never catch this.
+    let mut raw = fixtures()[0]["json"].clone();
+    raw["Crypto"]["kdfparams"]["n"] = json!(2);
+    raw["Crypto"]["kdfparams"]["r"] = json!(1);
+    raw["Crypto"]["kdfparams"]["p"] = json!(1);
+    let document = serde_json::to_vec(&raw).unwrap();
+
+    assert!(
+        matches!(
+            Keystore::from_json(&document, KdfLimits::default()),
+            Err(KeystoreError::WeakParameters)
+        ),
+        "the default policy must reject a trivial work factor"
+    );
+
+    // Distinct from Limit, so a caller can accept a weak document deliberately
+    // rather than by disabling the bound in both directions.
+    assert!(Keystore::from_json(&document, fixture_limits()).is_ok());
+
+    // A one-byte salt is likewise rejected at derivation, where it is used.
+    let mut short_salt = fixtures()[0]["json"].clone();
+    short_salt["Crypto"]["kdfparams"]["salt"] = json!("11");
+    let parsed = Keystore::from_json(
+        &serde_json::to_vec(&short_salt).unwrap(),
+        KdfLimits {
+            min_salt_bytes: 16,
+            ..fixture_limits()
+        },
+    )
+    .unwrap();
+    assert!(matches!(
+        parsed.decrypt(
+            Password::Text("PUBLIC password"),
+            KdfLimits {
+                min_salt_bytes: 16,
+                ..fixture_limits()
+            }
+        ),
+        Err(KeystoreError::WeakParameters)
+    ));
+
+    // Production exports clear the floor: log_n 17, r 8, p 1 is exactly 2^20
+    // work with a 32-byte salt, so the default policy round-trips its own output.
+    let key = quai_crypto::SecretKey::from_bytes(&[7u8; 32]).unwrap();
+    let exported = quai_keystore::encrypt(&key, Password::Text("PUBLIC export")).unwrap();
+    let reimported =
+        Keystore::from_json(exported.as_json().as_bytes(), KdfLimits::default()).unwrap();
+    assert!(
+        reimported
+            .decrypt(Password::Text("PUBLIC export"), KdfLimits::default())
+            .is_ok(),
+        "the default floor must not reject this crate's own exports"
+    );
 }

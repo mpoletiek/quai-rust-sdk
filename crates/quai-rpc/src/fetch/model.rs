@@ -1,6 +1,7 @@
 use serde_json::Value;
 use std::{collections::BTreeMap, fmt};
 use url::Url;
+use zeroize::{Zeroize, Zeroizing};
 /// Maximum request or response body accepted by resource models.
 pub const MAX_FETCH_BYTES: usize = 1_048_576;
 /// Maximum aggregate header name/value bytes.
@@ -41,9 +42,26 @@ fn token(s: &str) -> bool {
         && s.bytes()
             .all(|b| b.is_ascii_alphanumeric() || b"!#$%&'*+-.^_`|~".contains(&b))
 }
+/// Header names whose values carry a credential and are wiped on drop.
+///
+/// Stored lowercase, which is how `set` normalizes every name.
+const SENSITIVE_HEADERS: [&str; 3] = ["authorization", "proxy-authorization", "cookie"];
+
 /// Case-insensitive, bounded HTTP headers. Diagnostics redact names and values.
+///
+/// Values for [`SENSITIVE_HEADERS`] are zeroized on drop, so the copies created
+/// by cloning a request (once per retry attempt) do not outlive their owner.
 #[derive(Clone, Default, PartialEq, Eq)]
 pub struct FetchHeaders(BTreeMap<String, String>);
+impl Drop for FetchHeaders {
+    fn drop(&mut self) {
+        for name in SENSITIVE_HEADERS {
+            if let Some(value) = self.0.get_mut(name) {
+                value.zeroize();
+            }
+        }
+    }
+}
 impl fmt::Debug for FetchHeaders {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("FetchHeaders")
@@ -242,10 +260,21 @@ impl FetchRequest {
         if username.contains(':') || username.len() > 4096 || password.len() > 4096 {
             return Err(FetchError::Invalid);
         }
-        let encoded = quai_primitives::encode_base64(format!("{username}:{password}").as_bytes())
-            .map_err(|_| FetchError::Limit)?;
-        self.headers
-            .set("authorization", &format!("Basic {encoded}"))
+        // Build the value through guards rather than `format!` temporaries.
+        // A plain `format!` leaves the credential, and its trivially reversible
+        // Base64, in heap buffers that are never wiped; `FetchRequest` is Clone
+        // and the retry path clones it once per attempt, so each unguarded
+        // temporary is multiplied across a request's lifetime.
+        let mut joined = Zeroizing::new(Vec::with_capacity(username.len() + 1 + password.len()));
+        joined.extend_from_slice(username.as_bytes());
+        joined.push(b':');
+        joined.extend_from_slice(password.as_bytes());
+        let encoded =
+            Zeroizing::new(quai_primitives::encode_base64(&joined).map_err(|_| FetchError::Limit)?);
+        let mut value = Zeroizing::new(String::with_capacity(6 + encoded.len()));
+        value.push_str("Basic ");
+        value.push_str(&encoded);
+        self.headers.set("authorization", &value)
     }
     /// Validate execution policy, including authentication and browser-compatible
     /// GET/HEAD body rules. Resource requests cannot override transport framing.

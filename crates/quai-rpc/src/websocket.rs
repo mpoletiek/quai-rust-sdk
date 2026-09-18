@@ -4,7 +4,7 @@ use quai_primitives::{Address, Hash32};
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{
-    collections::HashMap,
+    collections::{HashMap, VecDeque},
     fmt,
     io::Write,
     sync::{
@@ -516,6 +516,12 @@ async fn run(
 ) {
     let mut pending: HashMap<u64, Pending> = HashMap::new();
     let mut subscriptions: HashMap<String, Registration> = HashMap::new();
+    // Subscription IDs this session has just unsubscribed. The node hands a
+    // notification to its writer before it processes the unsubscribe, so a
+    // notification for a cancelled subscription can legitimately arrive after
+    // its own acknowledgement. Bounded and FIFO: it only has to cover frames
+    // already in flight, never a growing history.
+    let mut recently_unsubscribed: VecDeque<String> = VecDeque::new();
     let notification_bytes = Arc::new(Semaphore::new(config.max_notification_bytes));
     let mut cleanup = tokio::time::interval(Duration::from_millis(10).min(config.request_timeout));
     cleanup.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
@@ -563,7 +569,7 @@ async fn run(
                     },
                     _=>break RpcError::InvalidResponse("unexpected WebSocket frame"),
                 };
-                if let Err(error)=dispatch(bytes,&mut pending,&mut subscriptions,next_id.load(Ordering::Relaxed),&notification_bytes) {break error}
+                if let Err(error)=dispatch(bytes,&mut pending,&mut subscriptions,&mut recently_unsubscribed,next_id.load(Ordering::Relaxed),&notification_bytes) {break error}
             },
         }
     };
@@ -617,10 +623,15 @@ struct Notification {
 struct NotificationFrame {
     params: Notification,
 }
+/// Maximum subscription IDs remembered after unsubscribing, enough to cover
+/// notifications already in flight when the acknowledgement was processed.
+const MAX_RECENTLY_UNSUBSCRIBED: usize = 64;
+
 fn dispatch(
     bytes: &[u8],
     pending: &mut HashMap<u64, Pending>,
     subscriptions: &mut HashMap<String, Registration>,
+    recently_unsubscribed: &mut VecDeque<String>,
     next_id: u64,
     notification_bytes: &Arc<Semaphore>,
 ) -> Result<(), RpcError> {
@@ -673,6 +684,10 @@ fn dispatch(
                 let _ = subscription
                     .terminal
                     .send(Some(RpcError::SubscriptionClosed));
+                if recently_unsubscribed.len() == MAX_RECENTLY_UNSUBSCRIBED {
+                    recently_unsubscribed.pop_front();
+                }
+                recently_unsubscribed.push_back(id);
             }
             let _ = request.reply.send(result);
             Ok(())
@@ -688,9 +703,16 @@ fn dispatch(
             let notification: NotificationFrame = serde_json::from_slice(bytes)
                 .map_err(|_| RpcError::InvalidResponse("malformed subscription notification"))?;
             let notification = notification.params;
-            let subscription = subscriptions
-                .get(&notification.subscription)
-                .ok_or(RpcError::InvalidResponse("unknown subscription ID"))?;
+            let Some(subscription) = subscriptions.get(&notification.subscription) else {
+                // A notification that raced its own unsubscribe acknowledgement
+                // is expected, not a protocol violation, and must not fail the
+                // whole multiplexed session: doing so would cancel every other
+                // subscription and every in-flight request on this connection.
+                if recently_unsubscribed.contains(&notification.subscription) {
+                    return Ok(());
+                }
+                return Err(RpcError::InvalidResponse("unknown subscription ID"));
+            };
             let permit = match notification_bytes
                 .clone()
                 .try_acquire_many_owned(bytes.len() as u32)

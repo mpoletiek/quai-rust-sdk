@@ -6,6 +6,15 @@ use zeroize::{Zeroize, Zeroizing};
 /// All ten BIP39 languages supported by the pinned JavaScript reference.
 pub use bip39::Language;
 
+/// Upper bound reserved for a normalized phrase or passphrase guard.
+///
+/// Inputs are already rejected above 4096 bytes. NFKD plus case folding can
+/// expand a character, and Chinese re-spacing inserts a separator per
+/// ideograph, so guards reserve a multiple of the input up to this ceiling.
+/// Over-reserving costs one bounded allocation; under-reserving would let the
+/// buffer grow and free unwiped copies of the secret.
+const MAX_NORMALIZED_BYTES: usize = 16 * 1024;
+
 /// Explicitly exported secret text. Diagnostics redact the text; Drop zeroizes it.
 pub struct SecretString(pub(crate) Zeroizing<String>);
 impl SecretString {
@@ -93,18 +102,25 @@ impl Mnemonic {
         if phrase.len() > 4096 {
             return Err(WalletError::InvalidMnemonic);
         }
-        let normalized = Zeroizing::new(
-            phrase
-                .nfkd()
-                .flat_map(char::to_lowercase)
-                .collect::<String>(),
-        );
+        // Allocate the final bounded guard before copying any secret. Zeroizing
+        // erases only the buffer it owns at drop, so growing a String from zero
+        // capacity frees each earlier allocation unwiped, leaving a trail of
+        // progressively longer prefixes of the phrase on the heap. NFKD plus
+        // case folding can expand a character, so reserve against that bound.
+        let mut normalized = Zeroizing::new(String::with_capacity(
+            phrase.len().saturating_mul(4).min(MAX_NORMALIZED_BYTES),
+        ));
+        normalized.extend(phrase.nfkd().flat_map(char::to_lowercase));
         // Published Chinese wordlists also accept unseparated ideographs.
         let normalized = if matches!(
             language,
             Language::SimplifiedChinese | Language::TraditionalChinese
         ) {
-            let mut spaced = Zeroizing::new(String::new());
+            // Re-spacing can at most double the length by inserting one
+            // separator per character; reserve once rather than growing.
+            let mut spaced = Zeroizing::new(String::with_capacity(
+                normalized.len().saturating_mul(2).min(MAX_NORMALIZED_BYTES),
+            ));
             for c in normalized.chars().filter(|c| !c.is_whitespace()) {
                 if !spaced.is_empty() {
                     spaced.push(' ');
@@ -140,8 +156,12 @@ impl Mnemonic {
     }
 
     /// Export the canonical phrase, using ideographic spaces for Japanese.
+    ///
+    /// This is the path a wallet UI calls to display the phrase, so it is the
+    /// one whose intermediate copies matter most: the guard is sized to the
+    /// bounded maximum before any word is copied, rather than grown.
     pub fn phrase(&self) -> SecretString {
-        let mut phrase = Zeroizing::new(String::new());
+        let mut phrase = Zeroizing::new(String::with_capacity(MAX_NORMALIZED_BYTES));
         let separator = if self.language() == Language::Japanese {
             "\u{3000}"
         } else {
@@ -159,7 +179,12 @@ impl Mnemonic {
     /// Derive the BIP39 seed with a caller-supplied passphrase and NFKD normalization.
     /// Every passphrase selects an identity; there is no "wrong password" checksum.
     pub fn to_seed(&self, passphrase: &str) -> Seed {
-        let normalized = Zeroizing::new(passphrase.nfkd().collect::<String>());
+        // Same reasoning as `parse`: size the guard before copying the secret,
+        // so normalization does not scatter unwiped prefixes of the passphrase.
+        let mut normalized = Zeroizing::new(String::with_capacity(
+            passphrase.len().saturating_mul(4).min(MAX_NORMALIZED_BYTES),
+        ));
+        normalized.extend(passphrase.nfkd());
         Seed(Zeroizing::new(self.0.to_seed_normalized(&normalized)))
     }
 }
@@ -188,5 +213,32 @@ mod generation_tests {
             assert_eq!(format!("{phrase:?}"), "SecretString([REDACTED])");
         }
         assert!(Mnemonic::generate(Language::English, 13).is_err());
+    }
+
+    #[test]
+    fn secret_text_guards_are_sized_before_any_secret_is_copied() {
+        // Zeroizing erases only the buffer it owns at drop. A String grown from
+        // zero capacity frees each earlier allocation unwiped, leaving a trail
+        // of progressively longer prefixes of the secret on the heap. Every
+        // guard that touches phrase or passphrase text must therefore reserve
+        // its bound up front. This mirrors the keystore's equivalent check.
+        let phrase = Mnemonic::generate(Language::English, 24).unwrap();
+
+        // The export path a wallet UI calls to display the phrase.
+        let exported = phrase.phrase();
+        assert!(
+            exported.0.capacity() >= MAX_NORMALIZED_BYTES,
+            "phrase() grew its guard: capacity {}",
+            exported.0.capacity()
+        );
+        assert!(!exported.expose().is_empty());
+
+        // Parsing normalizes the caller's text into a guard of its own.
+        let reparsed = Mnemonic::parse(Language::English, exported.expose()).unwrap();
+        assert_eq!(reparsed.phrase().expose(), exported.expose());
+
+        // A passphrase is normalized on the seed path; NFKD can expand it.
+        let seed = reparsed.to_seed("\u{fdfa}");
+        assert_eq!(seed.0.len(), 64);
     }
 }

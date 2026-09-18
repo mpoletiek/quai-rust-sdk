@@ -27,10 +27,10 @@ payments = ["dep:quai-payments"]
 [dependencies]
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
-quai-payments = { path = "../quai-payments", version = "0.1.0-alpha.3", optional = true }
+quai-payments = { path = "../quai-payments", version = "=0.1.0-alpha.3", optional = true }
 quai-primitives.workspace = true
 quai-consensus.workspace = true
-quai-crypto = { path = "../quai-crypto", version = "0.1.0-alpha.3" }
+quai-crypto = { path = "../quai-crypto", version = "=0.1.0-alpha.3" }
 bip32 = { version = "0.5.3", default-features = false, features = ["secp256k1", "std"] }
 bip39 = { version = "2.2.2", features = ["all-languages", "zeroize"] }
 zeroize = "1.8"

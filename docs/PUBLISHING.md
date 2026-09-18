@@ -63,6 +63,9 @@ To release:
 1. Bump `version` under `[workspace.package]` in the root `Cargo.toml`, and the
    matching `version` on every internal dependency (the `[workspace.dependencies]`
    entries and the explicit path dependencies in `crates/quai-wallet/Cargo.toml`).
+   Internal requirements are exact (`"=<version>"`): a caret requirement on a
+   pre-release matches later pre-releases, so a consumer pinning `quai-sdk`
+   exactly would still resolve newer, possibly breaking sibling crates.
    Refresh `Cargo.lock`, `fuzz/Cargo.lock` and `test-infra/orchard/Cargo.lock`.
 2. Add a `## <version>` section to `CHANGELOG.md` and update the exact install pins
    in `README.md`, `SDK_DOCUMENTATION.md` and `crates/quai-sdk/README.md`.

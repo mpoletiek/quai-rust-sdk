@@ -165,14 +165,83 @@ fn preflight(mut bytes: &[u8], kind: WireKind, budget: &mut usize) -> Result<(),
 pub fn decode_proto_transaction(bytes: &[u8]) -> Result<proto::Transaction, TransactionError> {
     decode(bytes)
 }
-/// Whether `bytes` parse as a transaction with inputs under any encoding.
+/// Whether `bytes` could be read as a transaction with inputs.
 ///
-/// Deliberately lenient: no size bound, canonical-form check or unknown-field
-/// rejection. It exists so a signer can refuse such bytes as a message, where a
-/// strict decoder's rejection of an oversized or non-canonical encoding must
-/// not read as "not a transaction". It is not a validity check.
+/// Deliberately lenient, so a signer can refuse such bytes as a message: no
+/// size bound, canonical-form check or unknown-field rejection, and a field
+/// with an unexpected wire type is skipped as unknown, as protobuf-go does. Any
+/// top-level length-delimited field 15 (`tx_ins`) counts, whatever it holds,
+/// which can only refuse more. The walk allocates nothing, so hostile input
+/// costs time linear in its length and no memory. Bytes that are not a
+/// well-formed protobuf message at all are not a transaction. It is not a
+/// validity check.
 pub fn has_transaction_inputs(bytes: &[u8]) -> bool {
-    <proto::Transaction as prost::Message>::decode(bytes).is_ok_and(|tx| tx.tx_ins.is_some())
+    fn varint(bytes: &[u8]) -> Option<(u64, usize)> {
+        let mut value = 0u64;
+        for (i, byte) in bytes.iter().take(10).enumerate() {
+            value |= u64::from(byte & 0x7f) << (7 * i);
+            if byte & 0x80 == 0 {
+                return Some((value, i + 1));
+            }
+        }
+        None
+    }
+    let mut rest = bytes;
+    // Open groups; only fields outside every group are top level. A depth
+    // count rather than a stack, so nesting allocates nothing; not matching
+    // group-end field numbers can only refuse more.
+    let mut depth = 0u64;
+    let mut inputs = false;
+    while !rest.is_empty() {
+        let Some((key, used)) = varint(rest) else {
+            return false;
+        };
+        rest = &rest[used..];
+        let field = key >> 3;
+        if field == 0 {
+            return false;
+        }
+        let skip = match key & 7 {
+            0 => match varint(rest) {
+                Some((_, used)) => used,
+                None => return false,
+            },
+            1 => 8,
+            2 => {
+                let Some((length, used)) = varint(rest) else {
+                    return false;
+                };
+                let Some(total) = usize::try_from(length)
+                    .ok()
+                    .and_then(|length| length.checked_add(used))
+                else {
+                    return false;
+                };
+                if field == 15 && depth == 0 {
+                    inputs = true;
+                }
+                total
+            }
+            3 => {
+                depth += 1;
+                0
+            }
+            4 => {
+                let Some(outer) = depth.checked_sub(1) else {
+                    return false;
+                };
+                depth = outer;
+                0
+            }
+            5 => 4,
+            _ => return false,
+        };
+        if rest.len() < skip {
+            return false;
+        }
+        rest = &rest[skip..];
+    }
+    inputs && depth == 0
 }
 /// Encode a raw protobuf object within the byte/message policy. This does not
 /// establish a valid transaction or authorize submission.

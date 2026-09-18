@@ -257,6 +257,15 @@ fn a_qi_message_that_is_an_unsigned_spend_is_refused() {
             Err(SignerError::QiTransactionMessage)
         ));
     }
+    // protobuf-go skips a known field sent with the wrong wire type as
+    // unknown and still reads the inputs; so must the refusal. Field 7
+    // (chain_id) is length-delimited in the schema; here it is a varint.
+    let mut mistyped = unsigned.clone();
+    mistyped.extend_from_slice(&[7 << 3, 1]);
+    assert!(matches!(
+        sign_qi_message(&owner, &mistyped),
+        Err(SignerError::QiTransactionMessage)
+    ));
     // Ordinary messages, including empty and protobuf-looking ones, still sign.
     for message in [&b""[..], b"hello", b"z", &unsigned[1..]] {
         assert!(sign_qi_message(&owner, message).is_ok(), "{message:?}");

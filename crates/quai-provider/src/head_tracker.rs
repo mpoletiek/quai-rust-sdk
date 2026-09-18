@@ -1,7 +1,8 @@
 //! Bounded canonical head replay. Notifications are hints; numbered reads establish updates.
-use crate::{BlockReference, Provider, ProviderError, ZoneHeader};
+use crate::{BlockReference, BlockTag, Provider, ProviderError, ZoneHeader, types};
 use quai_primitives::{Hash32, Zone};
-use quai_rpc::Transport;
+use quai_rpc::{Transport, U256};
+use serde_json::Value;
 use std::collections::{BTreeSet, VecDeque};
 mod state;
 pub use state::MAX_HEAD_STATE_BYTES;
@@ -76,12 +77,28 @@ impl HeadTracker {
         &mut self,
         provider: &Provider<T>,
     ) -> Result<HeadUpdate, ProviderError> {
-        if provider.genesis_hash(self.zone).await? != self.genesis {
+        // Genesis, the tip and the newest anchor are independent reads, so
+        // they travel as one guarded batch. The newest anchor matching is the
+        // common case; older anchors are only read on a reorg. Reads are
+        // address-free, so batching discloses nothing new.
+        let newest = self.checkpoint();
+        let first = provider
+            .header_values(
+                self.zone,
+                &[
+                    BlockTag::Number(U256::ZERO),
+                    BlockTag::Latest,
+                    BlockTag::Number(U256::from(newest.number)),
+                ],
+            )
+            .await?;
+        let [genesis, tip, newest_header]: [Value; 3] = first
+            .try_into()
+            .map_err(|_| ProviderError::InvalidResult("header batch count"))?;
+        if types::genesis_hash(genesis)? != self.genesis {
             return Err(ProviderError::InvalidResult("head replay genesis mismatch"));
         }
-        let tip = provider
-            .latest_header(self.zone)
-            .await?
+        let tip = Provider::<T>::parse_zone_header(tip, self.zone, BlockTag::Latest)?
             .ok_or(ProviderError::ReplayHistoryUnavailable)?;
         let mut common = None;
         for (index, anchor) in self.anchors.iter().enumerate().rev() {
@@ -90,6 +107,14 @@ impl HeadTracker {
             }
             let actual_hash = if anchor.number == 0 {
                 self.genesis
+            } else if *anchor == newest {
+                Provider::<T>::parse_zone_header(
+                    newest_header.clone(),
+                    self.zone,
+                    BlockTag::Number(U256::from(anchor.number)),
+                )?
+                .ok_or(ProviderError::ReplayHistoryUnavailable)?
+                .hash
             } else {
                 provider
                     .header_at(self.zone, anchor.number)
@@ -116,11 +141,20 @@ impl HeadTracker {
             .take(common + 1)
             .map(|a| a.hash)
             .collect();
-        for previous_number in base.number..end {
-            let number = previous_number + 1;
-            let header = provider
-                .header_at(self.zone, number)
-                .await?
+        let numbers: Vec<_> = (base.number + 1..=end)
+            .map(|number| BlockTag::Number(U256::from(number)))
+            .collect();
+        let values = if numbers.is_empty() {
+            Vec::new()
+        } else {
+            provider.header_values(self.zone, &numbers).await?
+        };
+        if values.len() != numbers.len() {
+            return Err(ProviderError::InvalidResult("header batch count"));
+        }
+        // Validate in order, so the first broken link is the error reported.
+        for (value, block) in values.into_iter().zip(numbers) {
+            let header = Provider::<T>::parse_zone_header(value, self.zone, block)?
                 .ok_or(ProviderError::ReplayHistoryUnavailable)?;
             if header.parent_hash != previous.hash
                 || header.hash == Hash32::ZERO
@@ -129,26 +163,40 @@ impl HeadTracker {
                 return Err(ProviderError::ObservationChanged);
             }
             previous = BlockReference {
-                number,
+                number: header.number,
                 hash: header.hash,
             };
             added.push(header);
         }
-        // Check both ends after the page. A forward extension is harmless; a
-        // replaced anchor/page is not committed. These remain trusted-node reads.
-        for anchor in [base, previous] {
-            if anchor.number == 0 {
-                if provider.genesis_hash(self.zone).await? != anchor.hash {
+        // Check both ends after the page, in a later read than the page itself.
+        // A forward extension is harmless; a replaced anchor/page is not
+        // committed. With nothing added, the base was read in the same batch as
+        // the tip and nothing new would be committed, so the check is skipped.
+        if !added.is_empty() {
+            let ends = [base, previous];
+            let values = provider
+                .header_values(
+                    self.zone,
+                    &ends.map(|anchor| BlockTag::Number(U256::from(anchor.number))),
+                )
+                .await?;
+            if values.len() != ends.len() {
+                return Err(ProviderError::InvalidResult("header batch count"));
+            }
+            for (anchor, value) in ends.into_iter().zip(values) {
+                let hash = if anchor.number == 0 {
+                    Some(types::genesis_hash(value)?)
+                } else {
+                    Provider::<T>::parse_zone_header(
+                        value,
+                        self.zone,
+                        BlockTag::Number(U256::from(anchor.number)),
+                    )?
+                    .map(|h| h.hash)
+                };
+                if hash != Some(anchor.hash) {
                     return Err(ProviderError::ObservationChanged);
                 }
-                continue;
-            }
-            if provider
-                .header_at(self.zone, anchor.number)
-                .await?
-                .is_none_or(|h| h.hash != anchor.hash)
-            {
-                return Err(ProviderError::ObservationChanged);
             }
         }
         let removed = self

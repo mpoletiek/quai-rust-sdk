@@ -322,3 +322,74 @@ fn cursor_maximum_ancestry_is_bounded_before_allocation_and_checks_height_overfl
     overflow.extend_from_slice(hash(1).bytes());
     assert!(HeadTracker::from_state(&overflow, Zone::Cyprus1, hash(0)).is_err());
 }
+
+/// The same chain behind a batching transport, counting round trips.
+#[derive(Clone)]
+struct Batching {
+    inner: Mock,
+    batches: Arc<Mutex<Vec<usize>>>,
+}
+impl Transport for Batching {
+    async fn request(&self, _: &Endpoint, method: &str, _: Value) -> Result<Value, RpcError> {
+        panic!("every read should batch, including guarded single reads: {method}")
+    }
+    async fn request_batch(
+        &self,
+        e: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<quai_rpc::BatchResult> {
+        self.batches.lock().unwrap().push(requests.len());
+        let mut out = vec![];
+        for (method, params) in requests {
+            out.push(self.inner.request(e, method, params).await);
+        }
+        Some(Ok(out))
+    }
+}
+
+#[tokio::test]
+async fn polls_cost_one_round_trip_idle_and_three_per_page() {
+    // Before batching: 5 sequential reads per idle poll and 5 + k per k new
+    // blocks, so an hour of missed ~5 s blocks took ~735 round trips.
+    let mock = Mock {
+        chain: Arc::new(Mutex::new((0..=300).map(hash).collect())),
+        missing: Default::default(),
+    };
+    let batches = Arc::new(Mutex::new(vec![]));
+    let provider = Provider::new(
+        Batching {
+            inner: mock.clone(),
+            batches: batches.clone(),
+        },
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        U256::from(9),
+    );
+    let start = BlockReference {
+        number: 100,
+        hash: hash(100),
+    };
+    let mut tracker = HeadTracker::new(Zone::Cyprus1, hash(0), start, 512, 256).unwrap();
+    // 200 missed blocks in one page: identity batch, two header pages (126 +
+    // 74), then the end checks.
+    let page = tracker.poll(&provider).await.unwrap();
+    assert_eq!(page.added.len(), 200);
+    assert!(page.caught_up);
+    assert_eq!(batches.lock().unwrap().len(), 4);
+    // Idle: one batch.
+    batches.lock().unwrap().clear();
+    assert!(tracker.poll(&provider).await.unwrap().added.is_empty());
+    assert_eq!(batches.lock().unwrap().len(), 1);
+    // One new block: identity, the header, the end checks.
+    mock.chain.lock().unwrap().push(hash(301));
+    batches.lock().unwrap().clear();
+    assert_eq!(tracker.poll(&provider).await.unwrap().added.len(), 1);
+    assert_eq!(batches.lock().unwrap().len(), 3);
+    // A reorg still replays correctly through the batched path.
+    for n in 250..=301 {
+        mock.chain.lock().unwrap()[n] = hash(n as u64 + 1_000);
+    }
+    let update = tracker.poll(&provider).await.unwrap();
+    assert_eq!(update.removed.len(), 52);
+    assert_eq!(update.added.len(), 52);
+    assert_eq!(update.checkpoint.hash, hash(1_301));
+}

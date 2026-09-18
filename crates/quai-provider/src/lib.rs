@@ -309,6 +309,47 @@ impl<T: Transport> Provider<T> {
         let value = self
             .read(zone.into(), "quai_getHeaderByNumber", json!([selector]))
             .await?;
+        Self::parse_zone_header(value, zone, block)
+    }
+
+    /// Several headers from one zone, in order, as raw responses: guarded
+    /// batches of up to `MAX_BATCH_CALLS - 2` where the transport batches,
+    /// otherwise one guarded read each. Parse each with `parse_zone_header`, or
+    /// `types::genesis_hash` for height zero.
+    pub(crate) async fn header_values(
+        &self,
+        zone: Zone,
+        blocks: &[BlockTag],
+    ) -> Result<Vec<Value>, ProviderError> {
+        let endpoint = self.routing.endpoint(zone.into())?;
+        let mut values = Vec::with_capacity(blocks.len());
+        for page in blocks.chunks(quai_rpc::MAX_BATCH_CALLS - 2) {
+            let calls = page
+                .iter()
+                .map(|block| Ok(("quai_getHeaderByNumber", json!([block.rpc_value()?]))))
+                .collect::<Result<Vec<_>, ProviderError>>()?;
+            match self.guarded_batch(endpoint, calls.clone()).await {
+                Some(batch) => {
+                    for value in batch? {
+                        values.push(value?);
+                    }
+                }
+                None => {
+                    for (method, params) in calls {
+                        values.push(self.read(zone.into(), method, params).await?);
+                    }
+                }
+            }
+        }
+        Ok(values)
+    }
+
+    /// Validate a header response's location and, for a numbered read, height.
+    pub(crate) fn parse_zone_header(
+        value: Value,
+        zone: Zone,
+        block: BlockTag,
+    ) -> Result<Option<ZoneHeader>, ProviderError> {
         if value.is_null() {
             return Ok(None);
         }

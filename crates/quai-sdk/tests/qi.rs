@@ -2568,3 +2568,50 @@ async fn refresh_reads_every_stored_address_in_one_batch_per_page() {
         .unwrap();
     assert_eq!(*batches.lock().unwrap(), [stored]);
 }
+
+#[tokio::test]
+async fn a_pool_lent_to_prepare_loses_only_the_change_a_prepared_spend_uses() {
+    // A pool given by value was dropped on every error, burning addresses that
+    // never reached a signed payload; enough failures pushed later change past
+    // a gap-limited restore.
+    let mut env = setup();
+    let mut change = pool(&mut env, 4);
+    let allocated: Vec<_> = change.addresses().to_vec();
+    refresh(&mut env);
+    *env.mock.fees.lock().unwrap() = [6].into();
+    let failed = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+        .unwrap()
+        .prepare(id(7), intent(), policy(), &mut change)
+        .await;
+    assert!(matches!(
+        failed,
+        Err(QiError::Selection(SelectionError::FeeBudgetExceeded))
+    ));
+    assert_eq!(
+        change.addresses(),
+        &allocated[..],
+        "a failure takes nothing"
+    );
+
+    *env.mock.fees.lock().unwrap() = [1, 2, 2].into();
+    let mut constraints = policy();
+    constraints.initial_fee = U256::ZERO;
+    let prepared = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+        .unwrap()
+        .prepare(id(8), intent(), constraints, &mut change)
+        .await
+        .unwrap();
+    let used = prepared.transaction().outputs.len() - prepared.recipient_outputs();
+    assert!(used > 0 && used < allocated.len());
+    for (output, address) in prepared.transaction().outputs[prepared.recipient_outputs()..]
+        .iter()
+        .zip(&allocated)
+    {
+        assert_eq!(output.address, address.address());
+    }
+    assert_eq!(
+        change.addresses(),
+        &allocated[used..],
+        "the unused tail stays"
+    );
+}

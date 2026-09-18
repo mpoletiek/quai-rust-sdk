@@ -17,6 +17,7 @@ use quai_wallet::storage::{
 };
 use quai_wallet::{AccountPublic, CoinType, HdWallet, WalletError};
 use quai_wallet::{SelectionError, SelectionRequest, select_fewest};
+use std::borrow::BorrowMut;
 use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
 mod special;
@@ -30,7 +31,9 @@ pub use crate::qi_preflight::{QiIntent, QiPolicy};
 /// There is deliberately no constructor from addresses, clone or deserialization.
 /// This pool belongs to its exact opened storage handle; another/reopened handle
 /// rejects it even when all public state is identical.
-/// Dropped, failed and unused allocations remain burned. Allocate this before
+/// A prepare given the pool by `&mut` takes only the addresses it used, so a
+/// failed prepare leaves the pool reusable; a dropped pool's unused addresses
+/// remain burned. Allocate this before
 /// refreshing discovery: adding metadata invalidates the old wallet snapshot.
 #[derive(Debug)]
 pub struct QiChangePool {
@@ -279,17 +282,22 @@ impl<'a, T: Transport> QiSession<'a, T> {
             .ok_or(QiError::StaleSnapshot)
     }
     /// Estimate the exact payload in a bounded monotonic fee loop, freeze it and
-    /// atomically claim final inputs. Consume the change pool even on error.
-    /// All network reads precede claims; no signing or submission occurs here.
+    /// atomically claim final inputs. Pass the pool as `&mut` to keep it: only
+    /// the change addresses the prepared transaction uses are taken, and only
+    /// once its inputs are claimed, so a failed prepare leaves the pool whole.
+    /// Its addresses may already have appeared in a fee estimate sent to the
+    /// node, but never in a signed payload. Passed by value, the pool is
+    /// dropped as before. All network reads precede claims; no signing or
+    /// submission occurs here.
     /// Fees/state can change later; estimates do not guarantee node acceptance.
     pub async fn prepare(
         &mut self,
         id: ReservationId,
         intent: QiIntent,
         policy: QiPolicy,
-        change: QiChangePool,
+        mut change: impl BorrowMut<QiChangePool>,
     ) -> Result<PreparedQiTransaction, QiError> {
-        self.prepare_transfer(id, intent, policy, change, false)
+        self.prepare_transfer(id, intent, policy, change.borrow_mut(), false)
             .await
     }
     /// Prepare a Qi transfer to another single destination zone. Origin fees
@@ -300,7 +308,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
         id: ReservationId,
         intent: QiIntent,
         policy: QiPolicy,
-        change: QiChangePool,
+        mut change: impl BorrowMut<QiChangePool>,
     ) -> Result<PreparedQiTransaction, QiError> {
         if intent.destinations.first().is_none_or(|first| {
             first.zone() == self.store.scope().zone
@@ -311,7 +319,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
         }) {
             return Err(QiError::IdentityMismatch);
         }
-        self.prepare_transfer(id, intent, policy, change, true)
+        self.prepare_transfer(id, intent, policy, change.borrow_mut(), true)
             .await
     }
     async fn prepare_transfer(
@@ -319,7 +327,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
         id: ReservationId,
         intent: QiIntent,
         policy: QiPolicy,
-        change: QiChangePool,
+        change: &mut QiChangePool,
         cross_zone: bool,
     ) -> Result<PreparedQiTransaction, QiError> {
         if !(1..=1024).contains(&policy.max_inputs)
@@ -461,6 +469,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
             let outpoints: Vec<_> = selection.inputs.iter().map(|coin| coin.outpoint).collect();
             self.store
                 .reserve_qi(id, snapshot.generation, final_height, &outpoints)?;
+            change.addresses.drain(..selection.change_outputs.len());
             return Ok(PreparedQiTransaction {
                 instance: self.store.instance(),
                 id,

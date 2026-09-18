@@ -498,7 +498,7 @@ impl<T: Transport> Provider<T> {
             });
         }
         if self.genesis_hash(reference.zone).await? != reference.genesis {
-            return Err(invalid_result("conversion genesis mismatch"));
+            return Err(ProviderError::GenesisMismatch);
         }
         let mut result = ConversionObservation {
             origin: ConversionOriginObservation::Unavailable,

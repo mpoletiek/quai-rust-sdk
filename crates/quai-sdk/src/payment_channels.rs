@@ -266,7 +266,8 @@ pub async fn continue_payment_channel<T: Transport>(
 ///
 /// A sender pays its first receive address first, so a real channel with
 /// unspent payments shows them within a few addresses. A probe costs about
-/// 5 x 512 BIP47 candidates instead of the full gap's 25,600.
+/// 5 x 512 BIP47 candidates instead of the full gap's 25,600, and reads at
+/// most twice this many addresses however the sender funds them.
 #[cfg(feature = "abi")]
 pub const MAILBOX_PROBE_GAP: u32 = 5;
 
@@ -429,12 +430,19 @@ pub async fn discover_mailbox_channels<T: Transport>(
     if !crate::network::on_network(provider, scope, scope.zone).await? {
         return Err(QiError::NetworkMismatch);
     }
-    let probe = PaymentScanOptions {
-        gap_limit: request
-            .options
-            .gap_limit
-            .map(|gap| gap.min(MAILBOX_PROBE_GAP)),
-        ..request.options.clone()
+    // Bound the probe's size as well as its gap: a sender knows the shared
+    // secret, so it can fund every few addresses and keep the gap open. With
+    // no gap limit the caller asked for full scans, so the probe is one.
+    let probe = match request.options.gap_limit {
+        Some(gap) => PaymentScanOptions {
+            gap_limit: Some(gap.min(MAILBOX_PROBE_GAP)),
+            max_addresses: request
+                .options
+                .max_addresses
+                .min(2 * MAILBOX_PROBE_GAP as usize),
+            ..request.options.clone()
+        },
+        None => request.options.clone(),
     };
     let end = request.start.saturating_add(request.max_channels);
     let mut senders = announced.senders.into_iter().skip(request.start);
@@ -497,8 +505,8 @@ async fn scan_announced<T: Transport>(
         return Err(QiError::Cancelled);
     }
     let scope = store.scope();
-    let registration = if store.payment_channel(owner, &sender)?.is_some() {
-        ChannelRegistration::Existing
+    let (registration, probed) = if store.payment_channel(owner, &sender)?.is_some() {
+        (ChannelRegistration::Existing, None)
     } else {
         let (probed, found) =
             scan_channel(provider, scope, owner, &sender, probe, cancelled).await?;
@@ -526,12 +534,20 @@ async fn scan_announced<T: Transport>(
                 });
             }
             Err(error) => return Err(error.into()),
-            Ok(_) => {}
+            // Registering cleared the coin snapshot, so it needs rebuilding
+            // even if the scan below fails.
+            Ok(_) => *imported = true,
         }
-        ChannelRegistration::Registered
+        // A probe as wide as the full scan already is the full scan.
+        let full = probe.gap_limit == request.options.gap_limit
+            && probe.max_addresses == request.options.max_addresses;
+        let reuse = full.then_some((probed, found));
+        (ChannelRegistration::Registered, reuse)
     };
-    let (scan, found) =
-        scan_channel(provider, scope, owner, &sender, &request.options, cancelled).await?;
+    let (scan, found) = match probed {
+        Some(done) => done,
+        None => scan_channel(provider, scope, owner, &sender, &request.options, cancelled).await?,
+    };
     if cancelled() {
         return Err(QiError::Cancelled);
     }

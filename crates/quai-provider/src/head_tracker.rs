@@ -98,7 +98,7 @@ impl HeadTracker {
             .next()
             .ok_or(ProviderError::InvalidResult("header batch count"))??;
         if types::genesis_hash(genesis)? != self.genesis {
-            return Err(ProviderError::InvalidResult("head replay genesis mismatch"));
+            return Err(ProviderError::GenesisMismatch);
         }
         let [tip, newest_header]: [Value; 2] = first
             .collect::<Result<Vec<_>, _>>()?

@@ -32,9 +32,7 @@ impl ContractCodeTarget {
             other => other?,
         };
         if observation.genesis != self.genesis {
-            return Err(ProviderError::InvalidResult(
-                "contract code genesis mismatch",
-            ));
+            return Err(ProviderError::GenesisMismatch);
         }
         if observation.code.bytes.bytes().is_empty() {
             return Ok(None);

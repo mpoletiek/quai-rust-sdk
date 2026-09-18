@@ -122,6 +122,10 @@ pub enum ProviderError {
         /// Identity reported by the endpoint.
         actual: U256,
     },
+    /// The endpoint's genesis is not the one the caller trusts: a different
+    /// network with the same chain ID.
+    #[error("network genesis mismatch")]
+    GenesisMismatch,
     /// A canonical block anchor or parent link changed during a multi-request observation.
     #[error("canonical observation changed during the request")]
     ObservationChanged,
@@ -136,7 +140,7 @@ impl ProviderError {
         use quai_primitives::ErrorClass;
         match self {
             Self::Rpc(error) => error.class(),
-            Self::ChainMismatch { .. } => ErrorClass::NetworkMismatch,
+            Self::ChainMismatch { .. } | Self::GenesisMismatch => ErrorClass::NetworkMismatch,
             Self::ObservationChanged => ErrorClass::Stale,
             Self::ReplayHistoryUnavailable
             | Self::InvalidRequest(_)

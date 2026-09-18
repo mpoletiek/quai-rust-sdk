@@ -120,7 +120,7 @@ impl<T: Transport> Provider<T> {
             });
         }
         if self.genesis_hash(zone).await? != reference.genesis {
-            return Err(ProviderError::InvalidResult("deployment genesis mismatch"));
+            return Err(ProviderError::GenesisMismatch);
         }
         let Some(receipt) = self.receipt(zone, reference.hash).await? else {
             return Ok(DeploymentObservation::NoReceipt {

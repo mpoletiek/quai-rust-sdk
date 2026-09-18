@@ -114,7 +114,7 @@ async fn pruned_history_deep_reorg_and_foreign_genesis_leave_cursor_unchanged() 
     mock.chain.lock().unwrap()[0] = hash(900);
     assert!(matches!(
         tracker.poll(&provider).await,
-        Err(ProviderError::InvalidResult(_))
+        Err(ProviderError::GenesisMismatch)
     ));
     assert_eq!(tracker.checkpoint(), before);
 }
@@ -462,7 +462,7 @@ async fn a_wrong_genesis_decides_before_a_later_header_error() {
         let mut tracker = HeadTracker::new(Zone::Cyprus1, hash(99), start, 8, 8).unwrap();
         assert!(matches!(
             tracker.poll(&provider).await,
-            Err(ProviderError::InvalidResult("head replay genesis mismatch"))
+            Err(ProviderError::GenesisMismatch)
         ));
     }
 }

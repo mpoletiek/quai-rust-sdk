@@ -20,6 +20,7 @@ pub const MAX_SIGNER_ACCOUNTS: usize = 1024;
 
 /// Sanitized validation or transport cause; payloads and passwords are not displayed.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum RpcSignerFailure {
     /// Invalid configuration, transaction, size or domain policy.
     #[error("invalid remote signing request")]
@@ -44,6 +45,7 @@ pub enum RpcSignerFailure {
 /// on rejection or timeout. Dropping a future cannot return this phase to callers.
 #[derive(Debug, thiserror::Error)]
 #[error("remote signer request failed (dispatched: {dispatched}): {source}")]
+#[non_exhaustive]
 pub struct RpcSignerError {
     /// True once the state-changing RPC may have been dispatched.
     pub dispatched: bool,
@@ -52,6 +54,23 @@ pub struct RpcSignerError {
     /// Sanitized cause.
     #[source]
     pub source: RpcSignerFailure,
+}
+impl RpcSignerError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`]. Once
+    /// the request may have been dispatched, the outcome is ambiguous whatever
+    /// the cause: never resubmit, reconcile instead.
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        if self.dispatched {
+            return ErrorClass::Ambiguous;
+        }
+        match &self.source {
+            RpcSignerFailure::Provider(error) => error.class(),
+            RpcSignerFailure::Rpc(error) => error.class(),
+            RpcSignerFailure::NetworkMismatch => ErrorClass::NetworkMismatch,
+            _ => ErrorClass::Invalid,
+        }
+    }
 }
 impl RpcSignerError {
     fn before(source: RpcSignerFailure) -> Self {
@@ -465,9 +484,7 @@ impl RemoteSendAcknowledgement {
     ) -> Result<Option<RemoteSendObservation>, RpcSignerFailure> {
         let scope = self.identity.scope;
         let check = async || {
-            if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-                || provider.genesis_hash(scope.zone).await? != scope.genesis
-            {
+            if !crate::network::on_network(provider, scope, scope.zone).await? {
                 return Err(RpcSignerFailure::NetworkMismatch);
             }
             Ok(())

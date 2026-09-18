@@ -1,6 +1,8 @@
 //! Typed provider with explicit routing, validated reads and signed transaction submission.
 use quai_primitives::{Hash32, QiAddress, QuaiAddress, Shard, Zone};
-use quai_rpc::{QuantityError, RouteError, Routing, RpcError, Transport, U256, parse_quantity};
+use quai_rpc::{
+    Endpoint, QuantityError, RouteError, Routing, RpcError, Transport, U256, parse_quantity,
+};
 use serde_json::{Value, json};
 use thiserror::Error;
 
@@ -50,7 +52,7 @@ mod qi_special_fee;
 pub use qi_special_fee::{QiFeeProfile, QiFeeQuote, qi_special_gas};
 mod wallet_rpc;
 pub use logs::{LogFilter, LogRange, TopicMatch};
-pub use wallet_rpc::OutpointDeltas;
+pub use wallet_rpc::{AccountState, MAX_ACCOUNT_STATES, MAX_OUTPOINT_ADDRESSES, OutpointDeltas};
 mod response_json;
 mod submission;
 mod types;
@@ -89,6 +91,7 @@ impl BlockTag {
 
 /// Provider failures without raw endpoint URLs or remote response bodies.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum ProviderError {
     /// Requested canonical replay predates retained anchors or source history.
     #[error("canonical replay history unavailable; restore an older checkpoint explicitly")]
@@ -119,12 +122,35 @@ pub enum ProviderError {
         /// Identity reported by the endpoint.
         actual: U256,
     },
+    /// The endpoint's genesis is not the one the caller trusts: a different
+    /// network with the same chain ID.
+    #[error("network genesis mismatch")]
+    GenesisMismatch,
     /// A canonical block anchor or parent link changed during a multi-request observation.
     #[error("canonical observation changed during the request")]
     ObservationChanged,
     /// A method result does not match its expected shape.
     #[error("invalid RPC result: {0}")]
     InvalidResult(&'static str),
+}
+
+impl ProviderError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::Rpc(error) => error.class(),
+            Self::ChainMismatch { .. } | Self::GenesisMismatch => ErrorClass::NetworkMismatch,
+            Self::ObservationChanged => ErrorClass::Stale,
+            Self::ReplayHistoryUnavailable
+            | Self::InvalidRequest(_)
+            | Self::ConversionFeeEstimationUnavailable
+            | Self::BlockNumberOutOfRange
+            | Self::Route(_)
+            | Self::Quantity(_)
+            | Self::InvalidResult(_) => ErrorClass::Invalid,
+        }
+    }
 }
 
 /// A provider with a fixed routing table and an explicitly expected chain ID.
@@ -168,17 +194,81 @@ impl<T: Transport> Provider<T> {
         Ok(actual)
     }
 
+    /// The expected chain ID this provider was constructed with.
+    pub fn expected_chain_id(&self) -> U256 {
+        self.expected_chain_id
+    }
+
+    /// Check an observed chain ID against the expected one.
+    fn check_chain_id(&self, observed: Value) -> Result<(), ProviderError> {
+        let actual = quantity(observed)?;
+        if actual != self.expected_chain_id {
+            return Err(ProviderError::ChainMismatch {
+                expected: self.expected_chain_id,
+                actual,
+            });
+        }
+        Ok(())
+    }
+
+    /// Read with the chain check bracketing the call.
+    ///
+    /// Where the transport supports batching, the guard and the payload travel as
+    /// `[quai_chainId, method, quai_chainId]` in one request instead of two
+    /// sequential round trips. That halves the round trips on every read and
+    /// strengthens the check rather than weakening it: both guards and the call
+    /// are answered on one connection at one instant, so a load balancer cannot
+    /// swap backends between the guard and the call it guards, which the
+    /// sequential form allowed. It remains a configuration check, not
+    /// authentication: a malicious endpoint can still answer both guards
+    /// truthfully and lie in the payload.
+    ///
+    /// Transports without batching return `None`, having sent nothing, and fall
+    /// back to the sequential form.
     async fn read(
         &self,
         shard: Shard,
         method: &str,
         params: Value,
     ) -> Result<Value, ProviderError> {
+        let endpoint = self.routing.endpoint(shard)?;
+        if let Some(batch) = self
+            .guarded_batch(endpoint, vec![(method, params.clone())])
+            .await
+        {
+            return Ok(batch?.pop().expect("checked count")?);
+        }
         self.chain_id(shard).await?;
-        Ok(self
-            .transport
-            .request(self.routing.endpoint(shard)?, method, params)
-            .await?)
+        Ok(self.transport.request(endpoint, method, params).await?)
+    }
+
+    /// Send `calls` in one batch bracketed by a chain-ID guard at each end.
+    ///
+    /// `None` means the transport does not batch and sent nothing. Both guards
+    /// must pass before any payload is returned, so a chain mismatch is never
+    /// reported as a successful read. Results keep the order of `calls`.
+    async fn guarded_batch(
+        &self,
+        endpoint: &Endpoint,
+        calls: Vec<(&str, Value)>,
+    ) -> Option<Result<Vec<Result<Value, RpcError>>, ProviderError>> {
+        let count = calls.len();
+        let mut requests = Vec::with_capacity(count + 2);
+        requests.push(("quai_chainId", json!([])));
+        requests.extend(calls);
+        requests.push(("quai_chainId", json!([])));
+        let batch = self.transport.request_batch(endpoint, requests).await?;
+        Some((|| {
+            let mut responses = batch?;
+            if responses.len() != count + 2 {
+                return Err(ProviderError::InvalidResult("batch response count"));
+            }
+            let trailing = responses.pop().expect("checked count");
+            let leading = responses.remove(0);
+            self.check_chain_id(leading?)?;
+            self.check_chain_id(trailing?)?;
+            Ok(responses)
+        })())
     }
 
     /// Read the latest block number for this shard, without narrowing to a machine integer.
@@ -223,6 +313,119 @@ impl<T: Transport> Provider<T> {
         let value = self
             .read(zone.into(), "quai_getHeaderByNumber", json!([selector]))
             .await?;
+        Self::parse_zone_header(value, zone, block)
+    }
+
+    /// Several zone headers in one round trip where the transport batches, in
+    /// order, each validated as [`Self::header_at`] and [`Self::latest_header`]
+    /// validate theirs. `None` means the node reported no header.
+    pub async fn headers(
+        &self,
+        zone: Zone,
+        blocks: &[BlockTag],
+    ) -> Result<Vec<Option<ZoneHeader>>, ProviderError> {
+        let values = self.header_values(zone, blocks).await.into_iter();
+        Self::parse_zone_headers(values, zone, blocks)
+    }
+
+    /// [`Self::headers`], read together with the network's genesis. `None` when
+    /// the genesis is not `genesis`: that is checked before any header is
+    /// parsed and before any header's RPC error is returned, so a wrong network
+    /// is reported as such rather than as a bad or missing header. Chain ID is
+    /// guarded on every read, as always.
+    pub async fn headers_on_network(
+        &self,
+        zone: Zone,
+        genesis: Hash32,
+        blocks: &[BlockTag],
+    ) -> Result<Option<Vec<Option<ZoneHeader>>>, ProviderError> {
+        let mut selectors = Vec::with_capacity(blocks.len() + 1);
+        selectors.push(BlockTag::Number(U256::ZERO));
+        selectors.extend_from_slice(blocks);
+        let mut values = self.header_values(zone, &selectors).await.into_iter();
+        let observed = values
+            .next()
+            .ok_or(ProviderError::InvalidResult("header batch count"))??;
+        if types::genesis_hash(observed)? != genesis {
+            return Ok(None);
+        }
+        Self::parse_zone_headers(values, zone, blocks).map(Some)
+    }
+
+    /// Parse raw header responses in order, each for the matching block.
+    fn parse_zone_headers(
+        values: impl Iterator<Item = Result<Value, ProviderError>>,
+        zone: Zone,
+        blocks: &[BlockTag],
+    ) -> Result<Vec<Option<ZoneHeader>>, ProviderError> {
+        let headers = values
+            .zip(blocks)
+            .map(|(value, block)| Self::parse_zone_header(value?, zone, *block))
+            .collect::<Result<Vec<_>, _>>()?;
+        if headers.len() != blocks.len() {
+            return Err(ProviderError::InvalidResult("header batch count"));
+        }
+        Ok(headers)
+    }
+
+    /// Several headers from one zone, in order, as raw responses: guarded
+    /// batches of up to `MAX_BATCH_CALLS - 2` where the transport batches,
+    /// otherwise one guarded read each. Parse each with `parse_zone_header`, or
+    /// `types::genesis_hash` for height zero.
+    ///
+    /// Reading stops at the first error, which is the last entry, so a caller
+    /// can check an earlier response, such as the genesis, before a later
+    /// failure decides the outcome.
+    pub(crate) async fn header_values(
+        &self,
+        zone: Zone,
+        blocks: &[BlockTag],
+    ) -> Vec<Result<Value, ProviderError>> {
+        let mut values = Vec::with_capacity(blocks.len());
+        if let Err(error) = self.read_header_values(zone, blocks, &mut values).await {
+            values.push(Err(error));
+        }
+        values
+    }
+
+    async fn read_header_values(
+        &self,
+        zone: Zone,
+        blocks: &[BlockTag],
+        values: &mut Vec<Result<Value, ProviderError>>,
+    ) -> Result<(), ProviderError> {
+        let endpoint = self.routing.endpoint(zone.into())?;
+        for page in blocks.chunks(quai_rpc::MAX_BATCH_CALLS - 2) {
+            let calls = page
+                .iter()
+                .map(|block| Ok(("quai_getHeaderByNumber", json!([block.rpc_value()?]))))
+                .collect::<Result<Vec<_>, ProviderError>>()?;
+            match self.guarded_batch(endpoint, calls).await {
+                Some(batch) => {
+                    for value in batch? {
+                        values.push(Ok(value?));
+                    }
+                }
+                // Nothing was sent, so read each block alone.
+                None => {
+                    for block in page {
+                        let params = json!([block.rpc_value()?]);
+                        values.push(Ok(self
+                            .read(zone.into(), "quai_getHeaderByNumber", params)
+                            .await?));
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Validate a header response's location and, for a numbered read, height.
+    pub(crate) fn parse_zone_header(
+        value: Value,
+        zone: Zone,
+        block: BlockTag,
+    ) -> Result<Option<ZoneHeader>, ProviderError> {
         if value.is_null() {
             return Ok(None);
         }
@@ -475,3 +678,38 @@ fn quantity(value: Value) -> Result<U256, ProviderError> {
 mod head_follower;
 #[cfg(all(feature = "ws", not(target_arch = "wasm32")))]
 pub use head_follower::{HeadFollowPolicy, WsHeadFollower};
+
+/// Internal response parsers exposed for fuzzing only.
+///
+/// Not public API: the `fuzzing` feature is off by default, these items are
+/// hidden from documentation, and their signatures may change without notice.
+#[cfg(feature = "fuzzing")]
+#[doc(hidden)]
+pub mod fuzz_internals {
+    use crate::{AddressOutpoint, BlockReference, MinedBlock, ProviderError};
+    use quai_primitives::{Hash32, QuaiAddress, Zone};
+    use serde_json::{Map, Value};
+
+    /// Parse a `quai_getOutpointsByAddress` result.
+    pub fn parse_outpoints(value: Value) -> Result<Vec<AddressOutpoint>, ProviderError> {
+        crate::types::parse_outpoints(value)
+    }
+
+    /// Validate a block response for a zone and selector.
+    pub fn block_fields(
+        value: Value,
+        zone: Zone,
+        selector: MinedBlock,
+    ) -> Result<(BlockReference, Hash32, Map<String, Value>), ProviderError> {
+        crate::blocks::block_fields(value, zone, selector)
+    }
+
+    /// Parse a `txpool_content` result for one zone.
+    pub fn pool_entries(
+        value: Value,
+        zone: Zone,
+        max_entries: usize,
+    ) -> Result<Vec<(bool, QuaiAddress, u64, Value)>, ProviderError> {
+        crate::account_rpc::pool_entries(value, zone, max_entries)
+    }
+}

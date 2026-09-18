@@ -132,4 +132,68 @@ for row in load('compatibility/fixtures/fixed-completion.json')['vectors']:
  import re
  match=re.fullmatch(r'(u?)fixed(\d+)x(\d+)',row['format']);width=int(match[2]);decimals=int(match[3]);mask=(1<<width)-1
  put('fixed',bytes([((width//8-1)<<1)|int(not match[1]),decimals])+(int(row['sourceA'])&mask).to_bytes(width//8,'big')+(int(row['sourceB'])&mask).to_bytes(width//8,'big'))
+# JSON-RPC envelopes. The target reads three leading control bytes as the
+# expected id, the batch window start and the batch count, so every seed carries
+# that prefix ahead of the envelope body.
+def envelope(expected_id, first, count, body):
+ put('rpc_envelope', bytes([expected_id & 0xff, first & 0xff, count & 0xff]) + body.encode())
+for _id in [0, 1, 7, 255]:
+ envelope(_id, _id, 1, json.dumps({"jsonrpc":"2.0","id":_id,"result":"0x9"},separators=(',',':')))
+ envelope(_id, _id, 1, json.dumps({"jsonrpc":"2.0","id":_id,"error":{"code":-32000,"message":"public fixture"}},separators=(',',':')))
+# Correlation hazards the decoder must reject: wrong id, both slots, null error,
+# duplicate ids in a batch, a row outside the issued window, and a short array.
+envelope(1, 0, 1, json.dumps({"jsonrpc":"2.0","id":2,"result":"0x9"},separators=(',',':')))
+envelope(1, 0, 1, json.dumps({"jsonrpc":"2.0","id":1,"result":"0x9","error":{"code":-1,"message":"x"}},separators=(',',':')))
+envelope(1, 0, 1, json.dumps({"jsonrpc":"2.0","id":1,"result":"0x9","error":None},separators=(',',':')))
+envelope(1, 0, 1, json.dumps({"jsonrpc":"1.0","id":1,"result":"0x9"},separators=(',',':')))
+batch = lambda ids: json.dumps([{"jsonrpc":"2.0","id":i,"result":"0x9"} for i in ids],separators=(',',':'))
+envelope(0, 0, 3, batch([0,1,2]))
+envelope(0, 0, 3, batch([2,0,1]))
+envelope(0, 0, 3, batch([0,1,1]))
+envelope(0, 0, 3, batch([0,1,9]))
+envelope(0, 0, 3, batch([0,1]))
+# Regressions found by fuzz-smoke: invalid UTF-8 inside an unknown field, which
+# serde skips without validating, so the body decoded although it is not JSON.
+import base64
+for crash in ['AQABeyJqc29ucnBjIjoiMi4wIiwiaWQiOjEsInJlc3VsdCI6IjV4OSIsImVScm9yIjp7ImNvZGUiOi0xLCJtZSpzc56YZSI6IngifX0=',
+              'AQABeyJqc29ucnBjIjoiMi4wIiwiaWQiOjEsInJlc3VsdCI6IjB4KSIsImVScm9yIjp7ImNvZGUiOi0xLCJtZXNz2mdlIjoieCJ9fQ==']:
+ put('rpc_envelope', base64.b64decode(crash))
+# Real captured node results, wrapped as single responses.
+for name in ['orchard.json','lan-mainnet.json']:
+ for row in load('crates/quai-provider/tests/fixtures/'+name)['records']:
+  for field in ['transaction','receipt']:
+   if row.get(field) is not None:
+    envelope(1, 0, 1, json.dumps({"jsonrpc":"2.0","id":1,"result":row[field]},separators=(',',':')))
+
+# WebSocket dispatch: a layout byte selecting the synthetic session, then frames
+# separated by 0xff. Replies, a subscription acknowledgement, an unsubscribe
+# acknowledgement, live and recently-unsubscribed notifications, and replies to
+# unissued or already-answered IDs.
+ws_frames = [json.dumps(v, separators=(',',':')).encode() for v in [
+ {"jsonrpc":"2.0","id":1,"result":"0x1"},
+ {"jsonrpc":"2.0","id":2,"result":True},
+ {"jsonrpc":"2.0","id":3,"error":{"code":-32000,"message":"public fixture"}},
+ {"jsonrpc":"2.0","method":"quai_subscription","params":{"subscription":"0x1","result":{"number":"0x1"}}},
+ {"jsonrpc":"2.0","method":"quai_subscription","params":{"subscription":"0x2","result":{}}},
+ {"jsonrpc":"2.0","id":9,"result":"0x1"},
+ {"jsonrpc":"2.0","id":1,"result":"0x1"},
+]]
+# Regression: invalid UTF-8 inside an unknown field of a reply frame.
+put('ws_dispatch', b'\x01{"jsonrpc":"2.0","id":1,"x":"\xc5"}')
+for layout in [0x00, 0x13, 0x37, 0x5a, 0x7f, 0xf3, 0xff]:
+ put('ws_dispatch', bytes([layout]) + b'\xff'.join(ws_frames))
+ for frame in ws_frames:
+  put('ws_dispatch', bytes([layout]) + frame)
+# Provider responses: selector byte, then JSON. Headers, blocks by number,
+# outpoint lists (including a duplicate) and pool content.
+header = {"woHeader":{"hash":"0x"+"11"*32,"parentHash":"0x"+"10"*32,"number":"0x64","primeTerminusNumber":"0x32","location":"0x0000"},"gasLimit":"0x100000","stateLimit":"0x100000"}
+outpoint = {"txHash":"0x00000080"+"00"*28,"index":"0x0","denomination":"0x2","lock":"0x0"}
+for which, value in [
+ (0, header), (0, {"woHeader":{"hash":"0x"+"00"*32}}),
+ (1 + 4, dict(header, hash="0x"+"11"*32, number="0x5")), (1, header), (1 + 8, header),
+ (2, [outpoint]), (2, [outpoint, outpoint]), (2, []),
+ (3, {"pending":{},"queued":{}}), (3, {"pending":{"0x0000000000000000000000000000000000000001":{"0x0":{}}}}),
+]:
+ put('provider_responses', bytes([which]) + json.dumps(value, separators=(',',':')).encode())
+
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

@@ -40,6 +40,7 @@ pub struct EtxCorrelation {
 }
 /// Explicit inclusive scan bounds. There is no implicit genesis-to-latest lookup.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct EtxScanRequest {
     /// Destination zone to read.
     pub zone: Zone,
@@ -53,6 +54,58 @@ pub struct EtxScanRequest {
     pub max_total_transactions: usize,
     /// Optional prior page anchor. It must immediately precede `from`.
     pub preceding_block: Option<BlockReference>,
+}
+impl EtxScanRequest {
+    /// A page with no preceding anchor; set one with `with_preceding_block`.
+    pub const fn new(
+        zone: Zone,
+        from: u64,
+        to: u64,
+        max_transactions_per_block: usize,
+        max_total_transactions: usize,
+    ) -> Self {
+        Self {
+            zone,
+            from,
+            to,
+            max_transactions_per_block,
+            max_total_transactions,
+            preceding_block: None,
+        }
+    }
+    /// Replace `zone`.
+    pub const fn with_zone(mut self, zone: Zone) -> Self {
+        self.zone = zone;
+        self
+    }
+    /// Replace `from`.
+    pub const fn with_from(mut self, from: u64) -> Self {
+        self.from = from;
+        self
+    }
+    /// Replace `to`.
+    pub const fn with_to(mut self, to: u64) -> Self {
+        self.to = to;
+        self
+    }
+    /// Replace `max_transactions_per_block`.
+    pub const fn with_max_transactions_per_block(
+        mut self,
+        max_transactions_per_block: usize,
+    ) -> Self {
+        self.max_transactions_per_block = max_transactions_per_block;
+        self
+    }
+    /// Replace `max_total_transactions`.
+    pub const fn with_max_total_transactions(mut self, max_total_transactions: usize) -> Self {
+        self.max_total_transactions = max_total_transactions;
+        self
+    }
+    /// Replace `preceding_block`.
+    pub const fn with_preceding_block(mut self, preceding_block: Option<BlockReference>) -> Self {
+        self.preceding_block = preceding_block;
+        self
+    }
 }
 /// Completeness of this requested range only; neither variant proves complete wallet history.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -445,7 +498,7 @@ impl<T: Transport> Provider<T> {
             });
         }
         if self.genesis_hash(reference.zone).await? != reference.genesis {
-            return Err(invalid_result("conversion genesis mismatch"));
+            return Err(ProviderError::GenesisMismatch);
         }
         let mut result = ConversionObservation {
             origin: ConversionOriginObservation::Unavailable,

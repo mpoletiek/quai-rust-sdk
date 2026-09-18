@@ -63,6 +63,9 @@ To release:
 1. Bump `version` under `[workspace.package]` in the root `Cargo.toml`, and the
    matching `version` on every internal dependency (the `[workspace.dependencies]`
    entries and the explicit path dependencies in `crates/quai-wallet/Cargo.toml`).
+   Internal requirements are exact (`"=<version>"`): a caret requirement on a
+   pre-release matches later pre-releases, so a consumer pinning `quai-sdk`
+   exactly would still resolve newer, possibly breaking sibling crates.
    Refresh `Cargo.lock`, `fuzz/Cargo.lock` and `test-infra/orchard/Cargo.lock`.
 2. Add a `## <version>` section to `CHANGELOG.md` and update the exact install pins
    in `README.md`, `SDK_DOCUMENTATION.md` and `crates/quai-sdk/README.md`.
@@ -71,18 +74,22 @@ To release:
    `git tag -a v<version> -m "<version>" && git push origin v<version>`.
 
 The `verify` job refuses a tag that differs from the workspace version, lacks a
-changelog section or points at a commit not on `main`. It then runs the all-feature
+changelog section, points at a commit not on `main`, or points at a commit
+without a successful `sdk` run from a push to `main`. It then runs the all-feature
 tests and `cargo publish --workspace --dry-run --locked`, which builds every archive
 against its new sibling versions. Only then does the `publish` job, which runs in
 the `release` GitHub environment and alone holds `id-token: write`, upload the
 crates in order. It skips versions already on crates.io, so rerunning a failed
-workflow resumes a partial release. Pushing a tag is therefore the authorization to
-publish; the `release` environment only accepts `v*` tags.
+workflow resumes a partial release. The `release` environment only accepts `v*`
+tags, and with a required reviewer each release also waits for approval.
 
 One-time setup, already completed for the existing crates:
 
 - A GitHub environment named `release` whose deployment policy allows only `v*` tags.
-  Adding yourself as a required reviewer makes each release wait for approval.
+  Not yet done: add a required reviewer so each release waits for a person to
+  approve it. A sole maintainer must leave "Prevent self-review" off to be able
+  to approve their own release. Turn off "Allow administrators to bypass", or
+  the reviewer is advisory for an admin.
 - On crates.io, each crate's Settings → Trusted Publishing lists GitHub owner
   `mpoletiek`, repository `quai-rust-sdk`, workflow `release.yml` and environment
   `release`. A crate added to the workspace must first be published once with an

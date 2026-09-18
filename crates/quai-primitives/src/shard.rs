@@ -19,6 +19,7 @@ pub struct ShardMetadata {
 
 /// An invalid shard identifier. No unknown zone is silently mapped to a default.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub enum ShardError {
     /// The byte is not among the nine published zone encodings.
     UnknownZone(u8),

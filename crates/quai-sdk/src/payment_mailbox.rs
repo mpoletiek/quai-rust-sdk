@@ -21,7 +21,14 @@ use serde_json::Value;
 pub const PELAGUS_MAILBOX_ADDRESS: &str = "0x004C82298b3ED69a949008d7037918B13A4260c5";
 
 /// Maximum announcements accepted from one read; larger results fail explicitly.
-pub const MAX_MAILBOX_NOTIFICATIONS: usize = 4096;
+///
+/// Announcements cost only a zero-value transaction, so a low bound let anyone
+/// disable a receiver's discovery for good by announcing past it. This one sits
+/// above what the default 2 MiB response limit can carry, so the response
+/// limit binds first: each ABI-encoded code string takes about 192 bytes, 384
+/// as hex, so about 5,400 fit. Discovery pages through the list,
+/// so its length costs parsing, not scanning.
+pub const MAX_MAILBOX_NOTIFICATIONS: usize = 32_768;
 
 const MAILBOX_ABI: &str = r#"[
 {"type":"function","name":"notify","stateMutability":"nonpayable","inputs":[{"name":"senderPaymentCode","type":"string"},{"name":"receiverPaymentCode","type":"string"}],"outputs":[]},
@@ -104,10 +111,11 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
             return Err(ContractError::InvalidResult);
         }
         let mut out = MailboxNotifications::default();
+        let mut seen = std::collections::HashSet::new();
         for entry in entries {
             let text = entry.as_str().ok_or(ContractError::InvalidResult)?;
             match PaymentCode::from_base58(text) {
-                Ok(code) if out.senders.contains(&code) => out.duplicates += 1,
+                Ok(code) if !seen.insert(code.to_base58()) => out.duplicates += 1,
                 Ok(code) => out.senders.push(code),
                 Err(_) => out.invalid.push(text.to_owned()),
             }

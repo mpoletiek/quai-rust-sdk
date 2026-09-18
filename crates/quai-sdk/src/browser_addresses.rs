@@ -11,6 +11,7 @@ use quai_wallet::{AccountPublic, Search, WalletError};
 /// Allocation errors do not undo committed ranges. After cancellation or a failed
 /// write, inspect the caller-supplied allocation ID before deciding how to resume.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum BrowserAddressError {
     /// Browser storage failure or revision conflict, including ambiguous cancellation.
     #[error(transparent)]

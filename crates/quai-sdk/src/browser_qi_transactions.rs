@@ -20,6 +20,7 @@ use quai_wallet::{AccountPublic, CoinType};
 
 /// Allocation/preparation failures retain burned ranges and signed custody.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum BrowserQiTransactionError {
     /// Browser input custody failed or another writer changed the revision.
     #[error(transparent)]

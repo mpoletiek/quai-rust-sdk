@@ -40,6 +40,7 @@ const MAX_ORIGINS: usize = 16;
 
 /// Full-backup failures never echo secret origins or decrypted bytes.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum WalletBackupError {
     /// Invalid input, bound, password or internally inconsistent public state.
     #[error("invalid wallet backup input")]
@@ -235,6 +236,7 @@ impl fmt::Debug for WalletBackup {
 }
 /// Required work after restore; no inclusion observation is promoted to finality.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct RestoreReport {
     /// Restored scopes and new invalidated snapshot generations.
     pub invalidated_scopes: Vec<(NetworkScope, u64)>,

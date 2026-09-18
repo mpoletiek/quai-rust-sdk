@@ -264,3 +264,66 @@ fn batch_discount_matches_the_pinned_cubic_formula_and_mainnet_observations() {
     // Cubing extreme values overflows instead of wrapping.
     assert_eq!(bps(U256::from(1u8) << 201, U256::from(1u8) << 200), None);
 }
+
+#[test]
+fn the_raw_signing_api_enforces_the_conversion_envelope_not_only_the_typed_builder() {
+    // A Qi destination in the sender's own zone is a Quai-to-Qi conversion
+    // request, not an ordinary transfer. The envelope was previously enforced
+    // only in QuaiToQiTransaction::new, which made it opt-in: this crate is
+    // published standalone, so a direct integrator could sign a same-zone Qi
+    // destination carrying arbitrary data, value and slippage.
+    let vector = vectors()
+        .into_iter()
+        .find(|vector| vector["kind"] == "quai")
+        .unwrap();
+    let original =
+        QuaiTransaction::decode_unsigned(&bytes(vector["unsigned"].as_str().unwrap())).unwrap();
+    let key = SecretKey::from_bytes(
+        &bytes(vector["publicTestSecret"].as_str().unwrap())
+            .try_into()
+            .unwrap(),
+    )
+    .unwrap();
+
+    // The well-formed conversion still signs, through the raw API.
+    assert!(original.sign(&key).is_ok());
+
+    // Empty calldata: the node reads slippage as two big-endian bytes, so this
+    // is not an ordinary transfer that happens to target a Qi address.
+    let mut bare = original.clone();
+    bare.data = vec![];
+    assert!(
+        bare.sign(&key).is_err(),
+        "a bare same-zone Qi destination must not sign as an ordinary transfer"
+    );
+
+    // Below the node's conversion minimum.
+    let mut small = original.clone();
+    small.value -= U256::from(1);
+    assert!(small.sign(&key).is_err());
+
+    // Out-of-range slippage is the sharp edge: the node clamps it silently, so
+    // accepting it would authorize one slippage and submit another.
+    for slippage in [0u16, 29, 9001, u16::MAX] {
+        let mut tx = original.clone();
+        tx.data = slippage.to_be_bytes().to_vec();
+        assert!(
+            tx.sign(&key).is_err(),
+            "slippage {slippage} is outside 30..=9000 and must not sign"
+        );
+    }
+    for slippage in [30u16, 9000] {
+        let mut tx = original.clone();
+        tx.data = slippage.to_be_bytes().to_vec();
+        assert!(tx.sign(&key).is_ok(), "slippage {slippage} is in range");
+    }
+
+    // The pre-existing cross-zone rejection is unchanged.
+    let mut cross = original.clone();
+    cross.to = Some(
+        "0x0188223344556677889900112233445566778899"
+            .parse()
+            .unwrap(),
+    );
+    assert!(cross.sign(&key).is_err());
+}

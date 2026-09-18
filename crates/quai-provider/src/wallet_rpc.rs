@@ -2,9 +2,47 @@
 use crate::{AddressOutpoint, BlockTag, Provider, ProviderError, quantity, types};
 use futures_util::{StreamExt, stream};
 use quai_primitives::{Address, Hash32, QiAddress, QuaiAddress, Zone};
+use quai_rpc::RpcError;
 use quai_rpc::{Transport, U256};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
+
+/// Starting addresses per batched outpoint page.
+///
+/// The transport accepts 128 calls per batch and each page adds two chain-guard
+/// calls, so this is the full usable headroom. It is a starting point rather
+/// than a fixed size: see `outpoints_many` for the downward adaptation.
+const MAX_OUTPOINT_PAGE: usize = 126;
+
+/// Each page adds a leading and trailing `quai_chainId` guard, so the page plus
+/// its guards must fit the transport's batch limit. Asserted at compile time
+/// because the limit lives in another crate: without this, lowering it there
+/// would break `outpoints_many` on its first page with `InvalidConfig`, which is
+/// neither retried nor falls back.
+#[cfg(feature = "http")]
+const _: () = assert!(MAX_OUTPOINT_PAGE + 2 <= quai_rpc::MAX_BATCH_CALLS);
+
+/// Most addresses one [`Provider::outpoints_many`] call accepts. It pages them
+/// internally, so a caller needs no page size of its own.
+pub const MAX_OUTPOINT_ADDRESSES: usize = 1024;
+
+/// Most accounts one [`Provider::account_states`] call accepts.
+pub const MAX_ACCOUNT_STATES: usize = 1024;
+
+/// One account's balance and nonce at the block an
+/// [`Provider::account_states`] call was pinned to.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
+pub struct AccountState {
+    /// Balance in base units.
+    pub balance: U256,
+    /// Transaction count.
+    pub nonce: u64,
+}
+
+/// Accounts per batched balance-and-nonce page: two calls each, plus the two
+/// chain guards, within the transport's batch limit.
+const ACCOUNT_STATE_PAGE: usize = (quai_rpc::MAX_BATCH_CALLS - 2) / 2;
 
 /// Exact created/deleted outpoints reported over a block-hash range, inclusive.
 /// The connected node must retain spent/trimmed history; this is not a proof.
@@ -186,6 +224,60 @@ impl<T: Transport> Provider<T> {
             Err(error) => Err(error),
         }
     }
+    /// Attempt one batched page, with the chain check bracketing the payload
+    /// calls so both guards are answered on the same connection.
+    ///
+    /// `None` means the transport does not batch and **nothing was sent**, which
+    /// is what makes the caller's fallback safe. Only this path may be retried
+    /// with a smaller page, because only here does page size influence the
+    /// response size.
+    #[allow(clippy::type_complexity)]
+    async fn outpoints_batch(
+        &self,
+        zone: Zone,
+        page: &[QiAddress],
+    ) -> Option<Result<Vec<(QiAddress, Vec<AddressOutpoint>)>, ProviderError>> {
+        let endpoint = match self.routing.endpoint(zone.into()) {
+            Ok(endpoint) => endpoint,
+            Err(error) => return Some(Err(error.into())),
+        };
+        let calls = page
+            .iter()
+            .map(|address| ("quai_getOutpointsByAddress", json!([address.to_string()])))
+            .collect();
+        let batch = self.guarded_batch(endpoint, calls).await?;
+        Some(batch.and_then(|responses| {
+            page.iter()
+                .copied()
+                .zip(responses)
+                .map(|(address, response)| Ok((address, types::parse_outpoints(response?)?)))
+                .collect()
+        }))
+    }
+
+    /// Read a page one address at a time, bounded in flight. Each read carries
+    /// its own chain guard.
+    ///
+    /// Page size has no influence on any individual response here, so an
+    /// oversize response on this path means one address's own set exceeds the
+    /// cap. Reducing the page cannot fix that, and the caller must not try.
+    async fn outpoints_singles(
+        &self,
+        page: &[QiAddress],
+    ) -> Result<Vec<(QiAddress, Vec<AddressOutpoint>)>, ProviderError> {
+        let mut pending = stream::iter(page.iter().copied().map(|address| async move {
+            self.outpoints(address)
+                .await
+                .map(|outputs| (address, outputs))
+        }))
+        .buffered(4);
+        let mut outputs = Vec::new();
+        while let Some(response) = pending.next().await {
+            outputs.push(response?);
+        }
+        Ok(outputs)
+    }
+
     /// Bounded group of latest-only address queries. Each response is a separate
     /// observation; this convenience method never claims an atomic snapshot.
     /// Uses explicit HTTP batches where supported, with chain checks in each batch.
@@ -194,7 +286,7 @@ impl<T: Transport> Provider<T> {
         &self,
         addresses: &[QiAddress],
     ) -> Result<BTreeMap<QiAddress, Vec<AddressOutpoint>>, ProviderError> {
-        if addresses.is_empty() || addresses.len() > 1024 {
+        if addresses.is_empty() || addresses.len() > MAX_OUTPOINT_ADDRESSES {
             return Err(ProviderError::InvalidRequest("address query bound"));
         }
         let unique: BTreeSet<_> = addresses.iter().copied().collect();
@@ -203,6 +295,7 @@ impl<T: Transport> Provider<T> {
         }
         let mut result = BTreeMap::new();
         let mut count = 0usize;
+        let mut page_size = MAX_OUTPOINT_PAGE;
         let zones: BTreeSet<_> = addresses.iter().map(|a| a.zone()).collect();
         for zone in zones {
             let scoped: Vec<_> = addresses
@@ -210,53 +303,41 @@ impl<T: Transport> Provider<T> {
                 .copied()
                 .filter(|a| a.zone() == zone)
                 .collect();
-            for page in scoped.chunks(32) {
-                let mut requests = vec![("quai_chainId", json!([]))];
-                requests.extend(
-                    page.iter().map(|address| {
-                        ("quai_getOutpointsByAddress", json!([address.to_string()]))
-                    }),
-                );
-                requests.push(("quai_chainId", json!([])));
-                let outputs = if let Some(batch) = self
-                    .transport
-                    .request_batch(self.routing.endpoint(zone.into())?, requests)
-                    .await
-                {
-                    let mut responses = batch?;
-                    if responses.len() != page.len() + 2 {
-                        return Err(ProviderError::InvalidResult("batch response count"));
+            // Page size adapts downward on an oversize response rather than being
+            // fixed conservatively. The binding limit is the response cap (2 MiB
+            // by default), not the request, and it cannot be predicted: an
+            // AddressOutpoint carries uninterpreted node extensions, so the node
+            // decides the per-row size. A page that is too large fails the whole
+            // page and cannot fall back, because the batch was already sent.
+            //
+            // Start at the transport's full headroom and halve on the specific
+            // ResponseTooLarge error, which the transport reports distinctly, so
+            // no other failure is ever retried. These are reads, so replaying one
+            // is idempotent; this is not a pattern that would be safe for
+            // submission. The working size is remembered across pages and zones,
+            // so a wallet with dense outpoint sets probes once per call rather
+            // than once per page.
+            let mut offset = 0usize;
+            while offset < scoped.len() {
+                let page = &scoped[offset..scoped.len().min(offset + page_size)];
+                let outputs = match self.outpoints_batch(zone, page).await {
+                    Some(Ok(outputs)) => outputs,
+                    Some(Err(ProviderError::Rpc(RpcError::ResponseTooLarge))) if page.len() > 1 => {
+                        // Retry the same addresses in smaller pages. A single
+                        // address that still exceeds the cap is a real error and
+                        // propagates below rather than looping.
+                        page_size = page.len() / 2;
+                        continue;
                     }
-                    for observed in [responses.pop().expect("checked count"), responses.remove(0)] {
-                        let actual = quantity(observed?)?;
-                        if actual != self.expected_chain_id {
-                            return Err(ProviderError::ChainMismatch {
-                                expected: self.expected_chain_id,
-                                actual,
-                            });
-                        }
-                    }
-                    page.iter()
-                        .copied()
-                        .zip(responses)
-                        .map(|(address, response)| {
-                            Ok((address, types::parse_outpoints(response?)?))
-                        })
-                        .collect::<Result<Vec<_>, ProviderError>>()?
-                } else {
-                    let mut pending =
-                        stream::iter(page.iter().copied().map(|address| async move {
-                            self.outpoints(address)
-                                .await
-                                .map(|outputs| (address, outputs))
-                        }))
-                        .buffered(4);
-                    let mut outputs = Vec::new();
-                    while let Some(response) = pending.next().await {
-                        outputs.push(response?);
-                    }
-                    outputs
+                    Some(Err(error)) => return Err(error),
+                    // The transport does not batch and sent nothing. Halving is
+                    // provably futile here, so it is not attempted: an oversize
+                    // response means one address exceeds the cap on its own, and
+                    // retrying smaller pages would re-read every prefix address
+                    // at every level before surfacing the same error.
+                    None => self.outpoints_singles(page).await?,
                 };
+                offset += page.len();
                 for (address, outputs) in outputs {
                     count = count
                         .checked_add(outputs.len())
@@ -269,6 +350,63 @@ impl<T: Transport> Provider<T> {
             }
         }
         Ok(result)
+    }
+    /// Balance and nonce for several accounts at one block, in input order.
+    ///
+    /// Uses explicit batches with a chain guard at each end where the transport
+    /// supports them, one per zone run of up to 63 accounts. Otherwise each
+    /// account is read through the guarded single-call path, at most four in
+    /// flight. No failed batch is replayed. Pin `block` to a number and bracket
+    /// the call with a canonical-header check to get a consistent view.
+    pub async fn account_states(
+        &self,
+        accounts: &[QuaiAddress],
+        block: BlockTag,
+    ) -> Result<Vec<AccountState>, ProviderError> {
+        if accounts.is_empty() || accounts.len() > MAX_ACCOUNT_STATES {
+            return Err(ProviderError::InvalidRequest("account query bound"));
+        }
+        let selector = block.rpc_value()?;
+        let mut states = Vec::with_capacity(accounts.len());
+        let mut rest = accounts;
+        while let Some(first) = rest.first() {
+            let zone = first.zone();
+            let run = rest
+                .iter()
+                .take(ACCOUNT_STATE_PAGE)
+                .take_while(|account| account.zone() == zone)
+                .count();
+            let (page, tail) = rest.split_at(run);
+            rest = tail;
+            let endpoint = self.routing.endpoint(zone.into())?;
+            let mut calls = Vec::with_capacity(page.len() * 2);
+            for account in page {
+                let params = json!([account.to_string(), selector]);
+                calls.push(("quai_getBalance", params.clone()));
+                calls.push(("quai_getTransactionCount", params));
+            }
+            let Some(batch) = self.guarded_batch(endpoint, calls).await else {
+                let mut pending = stream::iter(page.iter().copied().map(|account| async move {
+                    Ok::<_, ProviderError>(AccountState {
+                        balance: self.balance(account, block).await?,
+                        nonce: self.transaction_count(account, block).await?,
+                    })
+                }))
+                .buffered(4);
+                while let Some(state) = pending.next().await {
+                    states.push(state?);
+                }
+                continue;
+            };
+            let mut responses = batch?.into_iter();
+            while let (Some(balance), Some(nonce)) = (responses.next(), responses.next()) {
+                states.push(AccountState {
+                    balance: quantity(balance?)?,
+                    nonce: types::uint64(nonce?)?,
+                });
+            }
+        }
+        Ok(states)
     }
     /// Read node-indexed deltas for explicit inclusive block hashes. Callers must
     /// verify canonicality, continuity, range limits and retained history. The

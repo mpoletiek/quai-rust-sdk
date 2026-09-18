@@ -439,7 +439,7 @@ async fn wrong_genesis_wallet_and_noncanonical_checkpoint_are_rejected() {
             .unwrap()
             .prepare(id(6), intent(), policy(), change)
             .await,
-        Err(QiError::IdentityMismatch)
+        Err(QiError::NetworkMismatch)
     ));
     assert_eq!(count_calls(&env.mock, "quai_estimateFeeForQi"), 0);
     env.mock.mode.store(0, Ordering::SeqCst);
@@ -470,14 +470,17 @@ async fn wrong_genesis_wallet_and_noncanonical_checkpoint_are_rejected() {
 async fn concurrent_snapshot_invalidation_cannot_reserve_stale_selection() {
     let mut env = setup();
     let change = pool(&mut env, 0);
+    // Background sync on its own connection invalidates the snapshot while
+    // this session awaits a fee quote: the session must not reserve, and the
+    // error must tell a sync loop to observe again rather than give up.
     *env.mock.invalidate.lock().unwrap() = Some((env.path.clone(), env.store.scope()));
-    assert!(matches!(
-        QiSession::new(&env.provider, &env.wallet, &mut env.store)
-            .unwrap()
-            .prepare(id(9), intent(), policy(), change)
-            .await,
-        Err(QiError::Storage(_))
-    ));
+    let error = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+        .unwrap()
+        .prepare(id(9), intent(), policy(), change)
+        .await
+        .unwrap_err();
+    assert!(matches!(error, QiError::Storage(_)));
+    assert_eq!(error.class(), quai_sdk::ErrorClass::Stale);
     assert!(env.store.reservation(id(9)).unwrap().is_none());
 }
 
@@ -589,7 +592,7 @@ async fn cancellation_at_send_retains_claims_and_preflight_mismatch_never_submit
             .unwrap()
             .broadcast(id(14))
             .await,
-        Err(QiError::IdentityMismatch)
+        Err(QiError::NetworkMismatch)
     ));
     assert_eq!(count_calls(&env.mock, "quai_sendRawTransaction"), 0);
     assert_eq!(
@@ -931,6 +934,7 @@ async fn specialized_operations_keep_exact_bytes_and_claims_across_restart() {
                 ),
                 change_head: false,
                 head_rechecked: Arc::new(std::sync::atomic::AtomicBool::new(false)),
+                reorg_inclusion: false,
             },
             Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
             env.store.scope().chain_id,
@@ -967,18 +971,17 @@ async fn current_gap_scan_and_refresh_queries_stored_addresses_and_preserves_cla
     let funded = stored.last().unwrap().address().to_string();
     env.mock.outpoints.lock().unwrap().insert(funded,json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x2","lock":"0x20"}]));
     let account = env.wallet.account_public(0).unwrap();
-    let options = QiScanOptions {
-        receive: IndexRange {
+    let options = QiScanOptions::default()
+        .with_receive(IndexRange {
             start: 0,
             end: 100_000,
-        },
-        change: IndexRange {
+        })
+        .with_change(IndexRange {
             start: 0,
             end: 100_000,
-        },
-        gap_limit: Some(2),
-        max_addresses: 20,
-    };
+        })
+        .with_gap_limit(Some(2))
+        .with_max_addresses(20);
     let report = scan_and_refresh_qi(&env.provider, &mut env.store, &account, &options, || false)
         .await
         .unwrap();
@@ -1096,10 +1099,7 @@ async fn payment_scan_imports_matching_receive_children_and_is_idempotent() {
         found.public_key
     );
     env.mock.outpoints.lock().unwrap().insert(found.address.to_string(),json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x6","lock":"0x0"}]));
-    let options = PaymentScanOptions {
-        gap_limit: Some(2),
-        ..Default::default()
-    };
+    let options = PaymentScanOptions::default().with_gap_limit(Some(2));
     let first = scan_payment_channel(
         &env.provider,
         &mut env.store,
@@ -1477,14 +1477,8 @@ async fn wrapping_observation_is_saved_before_return_and_survives_reopen() {
         .unwrap();
     let signed = session.sign_special(&prepared).unwrap();
     let hash = signed.hash().unwrap();
-    let request = quai_sdk::provider::EtxScanRequest {
-        zone: Zone::Cyprus1,
-        from: 16,
-        to: 16,
-        max_transactions_per_block: 16,
-        max_total_transactions: 32,
-        preceding_block: None,
-    };
+    let request = quai_sdk::provider::EtxScanRequest::new(Zone::Cyprus1, 16, 16, 16, 32)
+        .with_preceding_block(None);
     let observed = track_settlement(
         &env.provider,
         &mut env.store,
@@ -1853,6 +1847,7 @@ async fn recovery_rejects_a_quai_receipt_for_signed_qi_before_recording_inclusio
                 ),
                 change_head: false,
                 head_rechecked: Arc::new(AtomicBool::new(false)),
+                reorg_inclusion: false,
             },
             Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
             env.store.scope().chain_id,
@@ -1885,15 +1880,14 @@ async fn native_use_hints_extend_gap_and_failed_checker_preserves_storage() {
     use quai_sdk::wallet::discovery::{IndexRange, ScanStop};
     let mut env = setup();
     let account = env.wallet.account_public(0).unwrap();
-    let options = QiScanOptions {
-        receive: IndexRange {
+    let options = QiScanOptions::default()
+        .with_receive(IndexRange {
             start: 0,
             end: 100_000,
-        },
-        change: IndexRange { start: 0, end: 0 },
-        gap_limit: Some(1),
-        max_addresses: 4,
-    };
+        })
+        .with_change(IndexRange { start: 0, end: 0 })
+        .with_gap_limit(Some(1))
+        .with_max_addresses(4);
     let before = env.store.snapshot().unwrap();
     let before_addresses = env.store.addresses().unwrap();
     let error = scan_and_refresh_qi_with_use_checker(
@@ -2117,10 +2111,7 @@ async fn payment_discovery_continues_past_an_empty_gap_after_reopen() {
             None,
         )
         .unwrap();
-    let options = PaymentScanOptions {
-        gap_limit: Some(1),
-        ..Default::default()
-    };
+    let options = PaymentScanOptions::default().with_gap_limit(Some(1));
     let first = scan_payment_channel(
         &env.provider,
         &mut env.store,
@@ -2171,14 +2162,12 @@ async fn payment_discovery_continues_past_an_empty_gap_after_reopen() {
         Some(0)
     );
     // A full rescan remains possible, without replacing the explicit range by a cursor.
-    let deep = PaymentScanOptions {
-        range: quai_sdk::wallet::discovery::IndexRange {
+    let deep = PaymentScanOptions::default()
+        .with_range(quai_sdk::wallet::discovery::IndexRange {
             start: 0,
             end: next.next_index,
-        },
-        gap_limit: None,
-        ..Default::default()
-    };
+        })
+        .with_gap_limit(None);
     let all = scan_payment_channel(
         &env.provider,
         &mut env.store,
@@ -2268,10 +2257,9 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     let caller = "0x0006506bDE7140b85DED58a40D7444F84cde4821"
         .parse()
         .unwrap();
-    let options = PaymentScanOptions {
-        gap_limit: Some(2),
-        ..Default::default()
-    };
+    use quai_sdk::payment_channels::{ChannelRegistration, MailboxDiscovery, MailboxRegistration};
+    let options = PaymentScanOptions::default().with_gap_limit(Some(2));
+    let page = |start| MailboxDiscovery::new(start, 2).with_options(options.clone());
     assert!(
         discover_mailbox_channels(
             &env.provider,
@@ -2279,31 +2267,62 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
             &receiver,
             &mailbox,
             caller,
-            0,
-            0,
-            &options,
+            &MailboxDiscovery::new(0, 0),
             || false
         )
         .await
         .is_err()
     );
-    // Two slots: the sender and the self-announcement; the other peer is deferred.
+    // Report-only by default: the funded sender is reported with its value,
+    // and nothing is persisted, since announcements are unauthenticated.
+    let stored = env.store.addresses().unwrap().len();
     let report = discover_mailbox_channels(
         &env.provider,
         &mut env.store,
         &receiver,
         &mailbox,
         caller,
-        0,
-        2,
-        &options,
+        &page(0),
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(report.scanned.len(), 1);
+    assert_eq!(
+        report.scanned[0].registration,
+        ChannelRegistration::Unregistered
+    );
+    // The fixture funds one output of denomination index 7.
+    assert_eq!(
+        report.scanned[0].found,
+        U256::from(quai_sdk::consensus::Denomination::new(7).unwrap().value())
+    );
+    assert!(
+        env.store
+            .payment_channel(&receiver, sender.public_code())
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(env.store.addresses().unwrap().len(), stored);
+    // Two slots: the sender and the self-announcement; the other peer is deferred.
+    let register = |start| page(start).with_registration(MailboxRegistration::RegisterFunded);
+    let report = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        &register(0),
         || false,
     )
     .await
     .unwrap();
     assert_eq!(report.scanned.len(), 1);
     assert_eq!(report.scanned[0].sender, *sender.public_code());
-    assert!(report.scanned[0].newly_registered);
+    assert_eq!(
+        report.scanned[0].registration,
+        ChannelRegistration::Registered
+    );
     assert_eq!(report.scanned[0].report.indexes[0], found.index);
     assert_eq!(report.deferred, vec![other.public_code().clone()]);
     assert_eq!(report.next_start, Some(2));
@@ -2328,32 +2347,431 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
         &receiver,
         &mailbox,
         caller,
-        0,
-        2,
-        &options,
+        &register(0),
         || false,
     )
     .await
     .unwrap();
-    assert!(!again.scanned[0].newly_registered);
+    assert_eq!(again.scanned[0].registration, ChannelRegistration::Existing);
     assert_eq!(again.next_start, Some(2));
-    // The next page reaches the deferred announcement instead of rescanning the first.
+    // The next page reaches the deferred announcement. That sender has no
+    // funds, so even under RegisterFunded its probe persists nothing.
+    let stored = env.store.addresses().unwrap().len();
     let next = discover_mailbox_channels(
         &env.provider,
         &mut env.store,
         &receiver,
         &mailbox,
         caller,
-        again.next_start.unwrap(),
-        2,
-        &options,
+        &register(again.next_start.unwrap()),
         || false,
     )
     .await
     .unwrap();
     assert_eq!(next.scanned.len(), 1);
     assert_eq!(next.scanned[0].sender, *other.public_code());
-    assert!(next.scanned[0].newly_registered);
+    assert_eq!(
+        next.scanned[0].registration,
+        ChannelRegistration::Unregistered
+    );
+    assert_eq!(next.scanned[0].found, U256::ZERO);
+    assert!(
+        env.store
+            .payment_channel(&receiver, other.public_code())
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(env.store.addresses().unwrap().len(), stored);
     assert!(next.deferred.is_empty());
     assert_eq!(next.next_start, None);
+}
+
+#[tokio::test]
+async fn a_windowed_scan_queries_exactly_the_addresses_it_reports() {
+    // The property that separates a gap-bounded safe window from a speculative
+    // one. The window is bounded by the gap counter's guarantee, so every
+    // address it reads is one the sequential scan would also have read, and
+    // therefore every queried address must appear in the report.
+    //
+    // A speculative window fails this: it queries past the point the gap rule
+    // stopped, disclosing unissued addresses to the node and reading
+    // observations the sequential scan never made. Asserting set equality
+    // rather than a subset makes this a privacy regression test as well as a
+    // correctness one.
+    use quai_sdk::qi_discovery::{QiScanOptions, scan_qi};
+    use quai_sdk::wallet::discovery::{IndexRange, ScanStop};
+
+    for gap_limit in [1u32, 2, 3, 7, 50] {
+        let env = setup();
+        let account = env.wallet.account_public(0).unwrap();
+        let options = QiScanOptions::default()
+            .with_receive(IndexRange {
+                start: 0,
+                end: 100_000,
+            })
+            .with_change(IndexRange {
+                start: 0,
+                end: 100_000,
+            })
+            .with_gap_limit(Some(gap_limit))
+            .with_max_addresses(10_000);
+        env.mock.calls.lock().unwrap().clear();
+        let report = scan_qi(&env.provider, env.store.scope(), &account, &options, || {
+            false
+        })
+        .await
+        .unwrap();
+        assert_eq!(report.stopped, [ScanStop::GapLimit; 2]);
+
+        // Every address the node was asked about.
+        let queried: std::collections::BTreeSet<String> = env
+            .mock
+            .calls
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|(method, _)| method == "quai_getOutpointsByAddress")
+            .map(|(_, params)| params[0].as_str().unwrap().to_ascii_lowercase())
+            .collect();
+        // Every address the scan reported.
+        let reported: std::collections::BTreeSet<String> = report
+            .addresses
+            .iter()
+            .map(|a| a.address().to_string().to_ascii_lowercase())
+            .collect();
+
+        assert_eq!(
+            queried, reported,
+            "gap {gap_limit}: the window read addresses it did not report"
+        );
+        // An empty wallet stops after exactly gap_limit consecutive unused
+        // addresses on each branch, windowing or not.
+        assert_eq!(
+            reported.len(),
+            (gap_limit as usize) * 2,
+            "gap {gap_limit}: wrong number of addresses examined"
+        );
+    }
+}
+
+#[tokio::test]
+async fn a_funded_address_resets_the_gap_across_a_window_boundary() {
+    // The gap counter must reset mid-window exactly as it does mid-loop, and
+    // the scan must continue past the funded address rather than stopping at
+    // the window edge.
+    use quai_sdk::qi_discovery::{QiScanOptions, scan_qi};
+    use quai_sdk::wallet::Search;
+    use quai_sdk::wallet::discovery::{IndexRange, ScanStop};
+    use quai_sdk::wallet::metadata::{KeyOrigin, PublicAddress};
+
+    let env = setup();
+    let account = env.wallet.account_public(0).unwrap();
+
+    // Fund the third usable receive address. With a gap limit of 3 the window is
+    // also 3 wide, so the reset lands on the last address of the first window --
+    // the boundary case. Funding any position at or beyond the limit would be a
+    // test error rather than a window test: the sequential scan stops before
+    // reaching it too.
+    let mut index = 0u32;
+    let mut funded_position = 0usize;
+    let mut funded = String::new();
+    for position in 0..3 {
+        let found = account
+            .search(
+                false,
+                Search {
+                    zone: env.store.scope().zone,
+                    start_index: index,
+                    max_attempts: 100_000,
+                },
+                || false,
+            )
+            .unwrap();
+        index = found.next_index.unwrap();
+        if position == 2 {
+            let metadata = PublicAddress::derive(&account, false, found.address.index).unwrap();
+            funded = metadata.address().to_string();
+            funded_position = position;
+        }
+    }
+    assert_eq!(funded_position, 2);
+    env.mock.outpoints.lock().unwrap().insert(funded.clone(), json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x2","lock":"0x0"}]));
+
+    let options = QiScanOptions::default()
+        .with_receive(IndexRange {
+            start: 0,
+            end: 100_000,
+        })
+        .with_change(IndexRange {
+            start: 0,
+            end: 100_000,
+        })
+        .with_gap_limit(Some(3))
+        .with_max_addresses(10_000);
+    env.mock.calls.lock().unwrap().clear();
+    let report = scan_qi(&env.provider, env.store.scope(), &account, &options, || {
+        false
+    })
+    .await
+    .unwrap();
+    assert_eq!(report.stopped, [ScanStop::GapLimit; 2]);
+
+    let receive: Vec<String> = report
+        .addresses
+        .iter()
+        .filter(|a| matches!(a.origin(), KeyOrigin::Bip44 { change: false, .. }))
+        .map(|a| a.address().to_string())
+        .collect();
+    // Two unused, the funded one at position 2 resetting the counter, then three
+    // more unused reaching the limit: six examined rather than stopping at three.
+    assert_eq!(
+        receive.len(),
+        6,
+        "the funded address must reset the gap across the window edge: {receive:?}"
+    );
+    assert_eq!(receive[2], funded);
+
+    // And still nothing speculative was read.
+    let queried: std::collections::BTreeSet<String> = env
+        .mock
+        .calls
+        .lock()
+        .unwrap()
+        .iter()
+        .filter(|(method, _)| method == "quai_getOutpointsByAddress")
+        .map(|(_, params)| params[0].as_str().unwrap().to_ascii_lowercase())
+        .collect();
+    let reported: std::collections::BTreeSet<String> = report
+        .addresses
+        .iter()
+        .map(|a| a.address().to_string().to_ascii_lowercase())
+        .collect();
+    assert_eq!(queried, reported);
+}
+
+#[tokio::test]
+async fn refresh_reads_every_stored_address_in_one_batch_per_page() {
+    // `outpoints_many` pages and adapts its own batch size. `refresh_qi` used
+    // to feed it eight addresses at a time, which split a small wallet into
+    // many batches and restarted the adaptation on every one.
+    use quai_sdk::qi_discovery::refresh_qi;
+    use quai_sdk::rpc::BatchResult;
+    #[derive(Clone)]
+    struct Batching(Mock, Arc<Mutex<Vec<usize>>>);
+    impl Transport for Batching {
+        async fn request(&self, e: &Endpoint, m: &str, p: Value) -> Result<Value, RpcError> {
+            self.0.request(e, m, p).await
+        }
+        async fn request_batch(
+            &self,
+            endpoint: &Endpoint,
+            requests: Vec<(&str, Value)>,
+        ) -> Option<BatchResult> {
+            let outpoints = requests
+                .iter()
+                .filter(|(m, _)| *m == "quai_getOutpointsByAddress")
+                .count();
+            if outpoints > 0 {
+                self.1.lock().unwrap().push(outpoints);
+            }
+            let mut responses = vec![];
+            for (method, params) in requests {
+                responses.push(self.0.request(endpoint, method, params).await);
+            }
+            Some(Ok(responses))
+        }
+    }
+    let mut env = setup();
+    let _change = pool(&mut env, 16);
+    let stored = env.store.addresses().unwrap().len();
+    assert!(stored > 8, "enough addresses to have needed several pages");
+    let batches = Arc::new(Mutex::new(vec![]));
+    let provider = Provider::new(
+        Batching(env.mock.clone(), batches.clone()),
+        Routing::direct("http://127.0.0.1:9200/exact", Zone::Cyprus1.into()).unwrap(),
+        env.store.scope().chain_id,
+    );
+    refresh_qi(&provider, &mut env.store, 100, || false)
+        .await
+        .unwrap();
+    assert_eq!(*batches.lock().unwrap(), [stored]);
+}
+
+#[tokio::test]
+async fn a_pool_lent_to_prepare_loses_only_the_change_a_prepared_spend_uses() {
+    // A pool given by value was dropped on every error, burning addresses that
+    // never reached a signed payload; enough failures pushed later change past
+    // a gap-limited restore.
+    let mut env = setup();
+    let mut change = pool(&mut env, 4);
+    let allocated: Vec<_> = change.addresses().to_vec();
+    refresh(&mut env);
+    *env.mock.fees.lock().unwrap() = [6].into();
+    let failed = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+        .unwrap()
+        .prepare(id(7), intent(), policy(), &mut change)
+        .await;
+    assert!(matches!(
+        failed,
+        Err(QiError::Selection(SelectionError::FeeBudgetExceeded))
+    ));
+    assert_eq!(
+        change.addresses(),
+        &allocated[..],
+        "a failure takes nothing"
+    );
+
+    *env.mock.fees.lock().unwrap() = [1, 2, 2].into();
+    let mut constraints = policy();
+    constraints.initial_fee = U256::ZERO;
+    let prepared = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+        .unwrap()
+        .prepare(id(8), intent(), constraints, &mut change)
+        .await
+        .unwrap();
+    let used = prepared.transaction().outputs.len() - prepared.recipient_outputs();
+    assert!(used > 0 && used < allocated.len());
+    for (output, address) in prepared.transaction().outputs[prepared.recipient_outputs()..]
+        .iter()
+        .zip(&allocated)
+    {
+        assert_eq!(output.address, address.address());
+    }
+    assert_eq!(
+        change.addresses(),
+        &allocated[used..],
+        "the unused tail stays"
+    );
+}
+
+#[tokio::test]
+async fn refresh_retries_a_moving_tip_and_never_labels_across_blocks() {
+    // Every output read must come from the chain through the label, so the tip
+    // may not move across the reads. A new block retries them; a tip that
+    // keeps moving fails without writing.
+    use quai_sdk::qi_discovery::refresh_qi;
+    #[derive(Clone)]
+    struct Advancing {
+        inner: Mock,
+        latest_reads: Arc<std::sync::atomic::AtomicUsize>,
+        always: bool,
+    }
+    impl Transport for Advancing {
+        async fn request(
+            &self,
+            e: &Endpoint,
+            method: &str,
+            params: Value,
+        ) -> Result<Value, RpcError> {
+            if method == "quai_getHeaderByNumber" && params[0] == "latest" {
+                let n = self.latest_reads.fetch_add(1, Ordering::SeqCst) as u64;
+                let height = if self.always { 16 + n } else { 16 + n.min(1) };
+                if height > 16 {
+                    return Ok(
+                        json!({"woHeader":{"hash":format!("0x{:064x}", 0x7700 + height),"number":format!("{height:#x}"),"location":"0x0000","parentHash":CHECKPOINT,"primeTerminusNumber":"0x10"},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"}),
+                    );
+                }
+            }
+            self.inner.request(e, method, params).await
+        }
+    }
+    for always in [false, true] {
+        let mut env = setup();
+        let before = env.store.snapshot().unwrap();
+        let provider = Provider::new(
+            Advancing {
+                inner: env.mock.clone(),
+                latest_reads: Arc::default(),
+                always,
+            },
+            Routing::direct("http://127.0.0.1:9200/exact", Zone::Cyprus1.into()).unwrap(),
+            env.store.scope().chain_id,
+        );
+        let result = refresh_qi(&provider, &mut env.store, 100, || false).await;
+        if always {
+            assert!(matches!(result, Err(QiError::StaleSnapshot)));
+            assert_eq!(env.store.snapshot().unwrap().checkpoint, before.checkpoint);
+        } else {
+            let checkpoint = result.unwrap();
+            assert_eq!(
+                checkpoint.height,
+                U256::from(17),
+                "labelled with the stable tip"
+            );
+            assert_eq!(env.store.snapshot().unwrap().checkpoint, Some(checkpoint));
+        }
+    }
+}
+
+#[tokio::test]
+async fn payment_channel_windows_query_exactly_the_reported_addresses() {
+    // The payment scanner now reads gap-bounded windows like the HD scanners;
+    // set equality between queried and reported addresses is the privacy check.
+    use quai_sdk::payment_channels::{PaymentScanOptions, scan_payment_channel};
+    use quai_sdk::payments::{PaymentChannel, PaymentDirection, PaymentSearch, PrivatePaymentCode};
+    let owner = PrivatePaymentCode::from_seed(&[1; 32], 0).unwrap();
+    let peer = PrivatePaymentCode::from_seed(&[2; 32], 0)
+        .unwrap()
+        .public_code()
+        .clone();
+    for gap_limit in [1u32, 3] {
+        let mut env = setup();
+        env.store
+            .import_payment_channel(&owner, &PaymentChannel::new(&owner, peer.clone()), None)
+            .unwrap();
+        env.mock.calls.lock().unwrap().clear();
+        let report = scan_payment_channel(
+            &env.provider,
+            &mut env.store,
+            &owner,
+            &peer,
+            &PaymentScanOptions::default().with_gap_limit(Some(gap_limit)),
+            || false,
+        )
+        .await
+        .unwrap();
+        assert_eq!(report.indexes.len(), gap_limit as usize);
+        let reported: std::collections::BTreeSet<String> = report
+            .indexes
+            .iter()
+            .map(|&index| {
+                owner
+                    .search(
+                        &peer,
+                        PaymentDirection::Receive,
+                        PaymentSearch {
+                            zone: Zone::Cyprus1,
+                            start_index: index,
+                            max_attempts: 1,
+                        },
+                        || false,
+                    )
+                    .unwrap()
+                    .address
+                    .to_string()
+                    .to_ascii_lowercase()
+            })
+            .collect();
+        // The refresh after the scan re-reads every stored address, so the
+        // property is: all scanned addresses were read, and nothing outside
+        // the stored set (which now includes them) ever was.
+        let queried: std::collections::BTreeSet<String> = env
+            .mock
+            .calls
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|(method, _)| method == "quai_getOutpointsByAddress")
+            .map(|(_, params)| params[0].as_str().unwrap().to_ascii_lowercase())
+            .collect();
+        let stored: std::collections::BTreeSet<String> = env
+            .store
+            .addresses()
+            .unwrap()
+            .iter()
+            .map(|a| a.address().to_string().to_ascii_lowercase())
+            .collect();
+        assert!(reported.is_subset(&queried));
+        assert!(queried.is_subset(&stored), "read an address past the gap");
+    }
 }

@@ -949,7 +949,6 @@ checksum = "6e634e2e0ebac1ee034020da1ca582e17ffe4e0f5e985823721e168928136dcb"
 dependencies = [
  "crc32fast",
  "miniz_oxide",
- "zlib-rs",
 ]
 
 [[package]]
@@ -1882,7 +1881,7 @@ dependencies = [
 
 [[package]]
 name = "quai-abi"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "quai-primitives",
  "ruint",
@@ -1895,7 +1894,7 @@ dependencies = [
 
 [[package]]
 name = "quai-consensus"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "prost",
  "quai-crypto",
@@ -1907,7 +1906,7 @@ dependencies = [
 
 [[package]]
 name = "quai-crypto"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "getrandom 0.2.17",
  "getrandom 0.4.3",
@@ -1935,7 +1934,7 @@ dependencies = [
 
 [[package]]
 name = "quai-payments"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "bip32",
  "bs58",
@@ -1949,7 +1948,7 @@ dependencies = [
 
 [[package]]
 name = "quai-primitives"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "base64 0.22.1",
  "bs58",
@@ -1961,7 +1960,7 @@ dependencies = [
 
 [[package]]
 name = "quai-provider"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "futures-util",
  "quai-consensus",
@@ -1975,7 +1974,7 @@ dependencies = [
 
 [[package]]
 name = "quai-rpc"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "flate2",
  "futures-util",
@@ -1988,12 +1987,14 @@ dependencies = [
  "tokio",
  "tokio-tungstenite",
  "url",
+ "zeroize",
 ]
 
 [[package]]
 name = "quai-sdk"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
+ "futures-util",
  "quai-abi",
  "quai-consensus",
  "quai-crypto",
@@ -2009,7 +2010,7 @@ dependencies = [
 
 [[package]]
 name = "quai-signer"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "quai-abi",
  "quai-consensus",
@@ -2021,7 +2022,7 @@ dependencies = [
 
 [[package]]
 name = "quai-wallet"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
  "argon2",
  "bip32",
@@ -3556,12 +3557,6 @@ dependencies = [
  "quote",
  "syn 3.0.5",
 ]
-
-[[package]]
-name = "zlib-rs"
-version = "0.6.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34b31d188d9d685a4f9c7b46d6e36631b07058d2cfe190267adce54dc230bf12"
 
 [[package]]
 name = "zmij"

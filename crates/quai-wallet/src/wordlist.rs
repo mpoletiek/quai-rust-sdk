@@ -17,6 +17,7 @@ pub const MAX_PHRASE_BYTES: usize = 4096;
 
 /// Wordlist validation failures never include supplied phrase contents.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
+#[non_exhaustive]
 pub enum WordlistError {
     /// Input, expansion or output exceeds the fixed resource policy.
     #[error("wordlist resource limit exceeded")]

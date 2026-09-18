@@ -9,6 +9,7 @@ use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::NetworkScope;
 /// Static identity/operation mismatch or provider observation failure.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum SettlementObservationError {
     /// Invalid scope, signed origin, operation kind or exact intent.
     #[error("invalid signed settlement observation")]

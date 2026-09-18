@@ -15,6 +15,7 @@ pub enum Ledger {
 
 /// Failure to parse an address or validate its ledger and zone.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub enum AddressError {
     /// Address strings must contain exactly 40 hex digits after an optional `0x`.
     InvalidLength,

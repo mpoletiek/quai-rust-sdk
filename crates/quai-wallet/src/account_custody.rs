@@ -21,6 +21,7 @@ const MAGIC: &[u8; 8] = b"QACCTBK1";
 
 /// Immutable inspection of an allocated nonce and its candidate family.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct AccountOperation {
     /// Caller-generated ID, never reused for a different operation.
     pub id: ReservationId,
@@ -49,6 +50,7 @@ pub struct AccountOperationBook {
 }
 /// Result of a conservative authenticated backup union; no claim is released.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct AccountMergeReport {
     /// Newly retained IDs; existing IDs are never removed or reassigned.
     pub operations_added: usize,

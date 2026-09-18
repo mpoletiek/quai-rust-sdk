@@ -5,6 +5,7 @@ use thiserror::Error;
 /// Limits count queued items, not their heap byte sizes. Feed bounded transport
 /// payloads or application-owned event values and account for their sizes separately.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct EventHubConfig {
     /// Maximum live registrations, including one-shot listeners with an unread event.
     pub max_listeners: usize,
@@ -12,6 +13,23 @@ pub struct EventHubConfig {
     pub capacity_per_listener: usize,
     /// Maximum events queued across all listeners.
     pub max_queued_items: usize,
+}
+impl EventHubConfig {
+    /// Replace `max_listeners`.
+    pub const fn with_max_listeners(mut self, max_listeners: usize) -> Self {
+        self.max_listeners = max_listeners;
+        self
+    }
+    /// Replace `capacity_per_listener`.
+    pub const fn with_capacity_per_listener(mut self, capacity_per_listener: usize) -> Self {
+        self.capacity_per_listener = capacity_per_listener;
+        self
+    }
+    /// Replace `max_queued_items`.
+    pub const fn with_max_queued_items(mut self, max_queued_items: usize) -> Self {
+        self.max_queued_items = max_queued_items;
+        self
+    }
 }
 impl Default for EventHubConfig {
     fn default() -> Self {
@@ -56,6 +74,7 @@ pub enum EventPoll<E> {
 }
 /// Local configuration/lifecycle failures never hide dropped or partially delivered events.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum EventHubError {
     /// Limits are zero or exceed the supported item-count bounds.
     #[error("invalid event hub limits")]

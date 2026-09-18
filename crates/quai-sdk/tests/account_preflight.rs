@@ -159,6 +159,8 @@ impl Transport for Mock {
                         return Ok(json!(match s.mode {
                             9 => "0x0",
                             10 => "0xffffffffffffffff",
+                            // Grown estimate still inside the parent's 23,102 limit.
+                            12 => "0x5a3c",
                             _ => "0x5209",
                         }));
                     }
@@ -626,6 +628,7 @@ async fn replacement_quotes_change_only_price_and_use_confirmed_nonce_admission(
             replacement_limits.fees.max_gas = 500_000;
             replacement_limits.fees.max_total_fee = U256::from(2_000_000);
         }
+        m.state().calls.clear();
         let replacement = quote_account_replacement(
             &p,
             scope(),
@@ -635,6 +638,16 @@ async fn replacement_quotes_change_only_price_and_use_confirmed_nonce_admission(
         )
         .await
         .unwrap();
+        // A conversion replacement checks the parent's gas limit against the
+        // same origin-cost budget the original used, which reads the quote;
+        // the raw estimator omits those costs.
+        assert_eq!(
+            m.state()
+                .calls
+                .iter()
+                .any(|(method, _)| method == "quai_quaiToQi"),
+            conversion_mode
+        );
         let mut expected = parent.transaction().clone();
         expected.gas_price = U256::from(3);
         assert_eq!(replacement.transaction(), &expected);
@@ -1132,4 +1145,39 @@ async fn actual_fetch_preflight_and_indexeddb_signing_preserve_the_estimated_non
             .payload,
         Some(signed.signed_bytes().unwrap())
     );
+}
+
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn a_replacement_is_allowed_while_the_estimate_still_fits_the_parent_limit() {
+    // The parent's limit already includes the preparation margin. Applying the
+    // margin again refused any replacement once the estimate grew, leaving the
+    // nonce stuck behind an underpriced parent.
+    use quai_sdk::account_replacement::quote_account_replacement;
+    let m = Mock::default();
+    let p = m.provider();
+    let quote = quote_account(
+        &p,
+        scope(),
+        sender(),
+        intent(),
+        AccountNonce::Exact(8),
+        AccountObservationPolicy::Pending,
+        fee(),
+    )
+    .await
+    .unwrap();
+    let parent = quote.transaction().sign(&key()).unwrap();
+    assert_eq!(parent.transaction().gas_limit, 23_102);
+    m.state().mode = 12;
+    let replacement = quote_account_replacement(
+        &p,
+        scope(),
+        &parent,
+        AccountObservationPolicy::Pending,
+        replacement_policy(),
+    )
+    .await
+    .unwrap();
+    assert_eq!(replacement.transaction().gas_limit, 23_102);
 }

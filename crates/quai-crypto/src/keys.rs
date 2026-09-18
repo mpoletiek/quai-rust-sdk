@@ -1,5 +1,9 @@
 use core::fmt;
-use k256::elliptic_curve::{bigint::U256, ops::Reduce, sec1::ToEncodedPoint};
+use k256::elliptic_curve::{
+    bigint::U256,
+    ops::{MulByGenerator, Reduce},
+    sec1::ToEncodedPoint,
+};
 use quai_primitives::Address;
 use zeroize::{ZeroizeOnDrop, Zeroizing};
 
@@ -185,10 +189,67 @@ impl PublicKey {
     /// Uses the backend's curve operations and rejects the identity result.
     pub fn add_tweak(&self, tweak: &SecretKey) -> Result<Self, CryptoError> {
         let scalar = tweak.guarded_scalar();
-        let point = self.0.to_projective() + k256::ProjectivePoint::GENERATOR * *scalar;
+        // `mul_by_generator` consults k256's precomputed generator table; the
+        // generic `GENERATOR * scalar` runs a full 256-bit ladder and ignores it.
+        // Same group element either way, and the table selects are constant-time.
+        let point = self.0.to_projective() + k256::ProjectivePoint::mul_by_generator(&scalar);
         k256::PublicKey::from_affine(point.to_affine())
             .map(Self)
             .map_err(|_| CryptoError::InvalidPublicKey)
+    }
+
+    /// [`Self::add_tweak`] for several tweaks, in order, sharing one field
+    /// inversion.
+    ///
+    /// Each result is exactly what `add_tweak` returns for its tweak, an
+    /// identity point included. Converting a projective point to affine costs a
+    /// field inversion, about a fifth of a tweak's cost; normalizing the batch
+    /// together costs one inversion plus a few multiplications per point.
+    /// Everything inverted is a public point, so batching reveals nothing.
+    pub fn add_tweaks(&self, tweaks: &[SecretKey]) -> Vec<Result<Self, CryptoError>> {
+        use k256::elliptic_curve::{group::Group, point::BatchNormalize};
+        // An empty batch makes the generic batch inversion report failure,
+        // which batch_normalize unwraps into a panic.
+        if tweaks.is_empty() {
+            return Vec::new();
+        }
+        let base = self.0.to_projective();
+        let points: Vec<_> = tweaks
+            .iter()
+            .map(|tweak| base + k256::ProjectivePoint::mul_by_generator(&*tweak.guarded_scalar()))
+            .collect();
+        // k256 0.13.4's batch_normalize substitutes a dummy denominator only
+        // when z compares equal to zero, but an identity reached by addition
+        // can hold an unreduced zero z, and the batch inversion then panics.
+        // `is_identity` normalizes first, so identities are swapped for the
+        // generator here and rejected in their own slots below. These points
+        // are public, so branching on them reveals nothing.
+        let identity: Vec<bool> = points.iter().map(|p| bool::from(p.is_identity())).collect();
+        let safe: Vec<_> = points
+            .iter()
+            .zip(&identity)
+            .map(|(point, &identity)| {
+                if identity {
+                    k256::ProjectivePoint::GENERATOR
+                } else {
+                    *point
+                }
+            })
+            .collect();
+        <k256::ProjectivePoint as BatchNormalize<[k256::ProjectivePoint]>>::batch_normalize(
+            safe.as_slice(),
+        )
+        .into_iter()
+        .zip(identity)
+        .map(|(point, identity)| {
+            if identity {
+                return Err(CryptoError::InvalidPublicKey);
+            }
+            k256::PublicKey::from_affine(point)
+                .map(Self)
+                .map_err(|_| CryptoError::InvalidPublicKey)
+        })
+        .collect()
     }
 
     /// Return canonical compressed SEC1 bytes.
@@ -253,5 +314,32 @@ mod tests {
             count += 1;
         }
         assert_eq!(count, 8);
+    }
+}
+
+#[cfg(test)]
+mod add_tweaks_tests {
+    use super::*;
+
+    #[test]
+    fn batched_tweaks_equal_single_tweaks_including_the_identity() {
+        let secret = SecretKey::from_bytes(&[7; 32]).unwrap();
+        let base = secret.public_key();
+        let mut tweaks: Vec<SecretKey> = (1u8..=40)
+            .map(|n| SecretKey::from_bytes(&[n; 32]).unwrap())
+            .collect();
+        // base + (-secret)·G is the identity, which both paths must reject.
+        let negated = -*secret.guarded_scalar();
+        tweaks.insert(
+            17,
+            SecretKey::from_bytes(&negated.to_bytes().into()).unwrap(),
+        );
+        let batched = base.add_tweaks(&tweaks);
+        assert_eq!(batched.len(), tweaks.len());
+        for (tweak, batched) in tweaks.iter().zip(batched) {
+            assert_eq!(batched, base.add_tweak(tweak));
+        }
+        assert!(base.add_tweaks(&tweaks)[17].is_err());
+        assert!(base.add_tweaks(&[]).is_empty());
     }
 }

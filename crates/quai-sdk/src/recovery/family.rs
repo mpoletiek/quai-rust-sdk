@@ -8,6 +8,7 @@ use serde_json::json;
 pub use crate::candidate_observation::CandidateObservation;
 /// A bounded family view saved atomically before returning. No private keys are needed.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct FamilyUpdate {
     /// Revision in root candidate cache slot 65535.
     pub revision: u64,

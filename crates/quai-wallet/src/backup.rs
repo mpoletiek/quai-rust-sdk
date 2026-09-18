@@ -14,6 +14,7 @@ const MAX_PASSWORD_LENGTH: usize = 1024;
 
 /// Backup errors do not reveal input secrets or distinguish corruption from a wrong password.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum BackupError {
     /// Input seed length or account index is invalid.
     #[error("invalid seed backup input")]

@@ -454,3 +454,106 @@ async fn multi_address_refresh_rejects_duplicates_budgets_and_partial_failure_wi
     ));
     assert_eq!(statuses(&b), old);
 }
+
+/// Batching transport that records how many payload calls each batch carried.
+#[derive(Clone, Default)]
+struct BatchingMock {
+    batches: State<Vec<usize>>,
+    singles: State<usize>,
+}
+impl quai_sdk::rpc::Transport for BatchingMock {
+    async fn request(&self, _: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
+        *self.singles.write() += 1;
+        Ok(match method {
+            "quai_chainId" => json!("0x9"),
+            "quai_getHeaderByNumber" if params[0] == "0x0" => {
+                json!({"woHeader":{"hash":hash(1).to_string(),"number":"0x0","location":"0x","parentHash":Hash32::ZERO.to_string()}})
+            }
+            "quai_getHeaderByNumber" => {
+                json!({"woHeader":{"hash":hash(10).to_string(),"number":"0xa","location":"0x0000","parentHash":hash(9).to_string(),"primeTerminusNumber":"0x2"},"gasLimit":"0x10000","stateLimit":"0x10000"})
+            }
+            "quai_getOutpointsByAddress" => json!([]),
+            other => panic!("unexpected method {other}"),
+        })
+    }
+    async fn request_batch(
+        &self,
+        _: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<quai_sdk::rpc::BatchResult> {
+        let payload = requests.len() - 2;
+        // Record only the multi-address reads, not the single bracketed reads
+        // that `Provider::read` issues for headers and chain identity.
+        if requests
+            .iter()
+            .filter(|(m, _)| *m == "quai_getOutpointsByAddress")
+            .count()
+            > 0
+        {
+            self.batches.write().push(payload);
+        }
+        let mut responses = vec![Ok(json!("0x9"))];
+        for (method, params) in requests.iter().skip(1).take(payload) {
+            responses.push(Ok(match *method {
+                "quai_chainId" => json!("0x9"),
+                "quai_getOutpointsByAddress" => json!([]),
+                "quai_getHeaderByNumber" if params[0] == "0x0" => {
+                    json!({"woHeader":{"hash":hash(1).to_string(),"number":"0x0","location":"0x","parentHash":Hash32::ZERO.to_string()}})
+                }
+                "quai_getHeaderByNumber" => {
+                    json!({"woHeader":{"hash":hash(10).to_string(),"number":"0xa","location":"0x0000","parentHash":hash(9).to_string(),"primeTerminusNumber":"0x2"},"gasLimit":"0x10000","stateLimit":"0x10000"})
+                }
+                other => panic!("unexpected batched method {other}"),
+            }));
+        }
+        responses.push(Ok(json!("0x9")));
+        Some(Ok(responses))
+    }
+}
+
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test(async))]
+async fn an_address_book_refresh_reads_every_address_in_one_batch() {
+    // The book is a known, fixed set with no gap rule, so every address is read
+    // regardless. Previously that was one sequential round trip per address;
+    // now it is one batch. This is the property, so it is asserted directly.
+    let mut b = QiAddressBook::new(scope()).unwrap();
+    let wallet = HdWallet::from_seed(&[11; 32], CoinType::Qi).unwrap();
+    let account = wallet.account_public(0).unwrap();
+    let mut expected = 0usize;
+    let mut index = 0u32;
+    for _ in 0..12 {
+        let found = account
+            .search(
+                false,
+                Search {
+                    zone: Zone::Cyprus1,
+                    start_index: index,
+                    max_attempts: 100_000,
+                },
+                || false,
+            )
+            .unwrap();
+        b.import_hd(&account, false, found.address.index).unwrap();
+        index = found.next_index.unwrap();
+        expected += 1;
+    }
+    assert_eq!(expected, 12);
+
+    let mock = BatchingMock::default();
+    let provider = Provider::new(
+        mock.clone(),
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        scope().chain_id,
+    );
+    refresh_qi_address_book(&provider, &mut b, 1_000, || false)
+        .await
+        .unwrap();
+
+    let batches = mock.batches.write().clone();
+    assert_eq!(
+        batches,
+        vec![12],
+        "all twelve addresses must be read in one batch, got {batches:?}"
+    );
+}

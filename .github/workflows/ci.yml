@@ -86,6 +86,12 @@ jobs:
       - run: rustup toolchain install 1.97.1 --profile minimal --component clippy --target wasm32-unknown-unknown
       - run: cargo install wasm-bindgen-cli --version 0.2.128 --locked
       - run: cargo fetch --locked
+      - name: Vendored browser fixtures match their sources
+        # The browser crate carries copies so its package is self-contained.
+        # A copy that drifts only fails here, since native CI never builds it.
+        run: |
+          cd crates/quai-browser/tests/fixtures/shared
+          find . -type f | while read -r copy; do cmp "$copy" "$GITHUB_WORKSPACE/$copy"; done
       - run: cargo check -p quai-sdk --no-default-features --features browser,wallet,abi,payments,keystore,backup --target wasm32-unknown-unknown --locked
       - run: cargo clippy -p quai-browser --target wasm32-unknown-unknown --all-targets --locked -- -D warnings
       - name: Configure installed browser and driver
@@ -176,7 +182,39 @@ jobs:
       - run: cargo +nightly-2026-09-11 fuzz build --fuzz-dir fuzz --no-cfg-fuzzing --codegen-units 16
         env:
           CARGO_NET_OFFLINE: true
+      # Carry the working corpus between runs. Without this every input libFuzzer
+      # discovers is discarded at job end, so each run re-explores the same
+      # trajectory from the committed seeds and finds nothing new after the first.
+      # The restore-keys prefix lets a run start from the most recent cache and
+      # save a superset under a new key, so coverage accumulates.
+      #
+      # Only default-branch runs save: a corpus is input data rather than
+      # executable build output, but a branch that could write cache entries a
+      # later trusted run restores is a pattern worth denying in a repository
+      # whose CI can reach the publish path. Restore and save are separate steps
+      # because actions/cache has no input that conditions its save.
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: fuzz/workdir
+          key: fuzz-corpus-${{ hashFiles('fuzz/Cargo.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            fuzz-corpus-${{ hashFiles('fuzz/Cargo.lock') }}-
+            fuzz-corpus-
       - run: python3 fuzz/run-smoke.py --seconds 30
+      - if: github.ref == 'refs/heads/main'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: fuzz/workdir
+          key: fuzz-corpus-${{ hashFiles('fuzz/Cargo.lock') }}-${{ github.run_id }}
+      # run-smoke.py already fails on any crash/timeout/oom/leak artifact, from
+      # this run or an earlier one. Upload whatever it found so a failure can be
+      # reproduced from the exact input rather than from the log alone.
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: fuzz-artifacts
+          path: fuzz/artifacts
+          if-no-files-found: ignore
   dependency-advisories:
     runs-on: ubuntu-24.04
     timeout-minutes: 20

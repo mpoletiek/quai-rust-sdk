@@ -1,10 +1,14 @@
 //! Portable current-outpoint discovery; never advertises a historical or atomic snapshot.
 use quai_consensus::{Denomination, OutPoint};
 use quai_primitives::QiAddress;
-use quai_provider::{Provider, ProviderError};
+use quai_provider::{BlockTag, Provider, ProviderError};
 use quai_rpc::{Transport, U256};
-use quai_wallet::discovery::{CanonicalStatus, Checkpoint, IndexRange, NetworkScope, ScanStop};
-use quai_wallet::{AccountPublic, CoinType, DerivedAddress, Search, WalletError};
+use quai_wallet::discovery::{
+    CanonicalStatus, Checkpoint, GapCounter, IndexRange, NetworkScope, ScanStop,
+};
+use quai_wallet::{
+    AccountPublic, CoinType, DerivedAddress, Grinding, Search, WalletError, WindowStop,
+};
 use std::collections::BTreeSet;
 use std::future::Future;
 
@@ -12,6 +16,7 @@ use std::future::Future;
 pub const DEFAULT_QI_GAP: u32 = 50;
 /// Public current-outpoint scan bounds, usable on native or wasm32.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiDiscoveryOptions {
     /// Receive raw BIP32 interval, including skipped zones/ledgers.
     pub receive: IndexRange,
@@ -23,6 +28,41 @@ pub struct QiDiscoveryOptions {
     pub max_addresses: usize,
     /// Maximum total outputs retained across all addresses, 1..=100,000.
     pub max_outpoints: usize,
+    /// How candidate addresses are derived. `Grinding::Parallel`, available
+    /// with the `rayon` feature, uses the whole rayon pool.
+    pub grinding: Grinding,
+}
+impl QiDiscoveryOptions {
+    /// Replace `grinding`.
+    pub const fn with_grinding(mut self, grinding: Grinding) -> Self {
+        self.grinding = grinding;
+        self
+    }
+    /// Replace `receive`.
+    pub const fn with_receive(mut self, receive: IndexRange) -> Self {
+        self.receive = receive;
+        self
+    }
+    /// Replace `change`.
+    pub const fn with_change(mut self, change: IndexRange) -> Self {
+        self.change = change;
+        self
+    }
+    /// Replace `gap_limit`.
+    pub const fn with_gap_limit(mut self, gap_limit: Option<u32>) -> Self {
+        self.gap_limit = gap_limit;
+        self
+    }
+    /// Replace `max_addresses`.
+    pub const fn with_max_addresses(mut self, max_addresses: usize) -> Self {
+        self.max_addresses = max_addresses;
+        self
+    }
+    /// Replace `max_outpoints`.
+    pub const fn with_max_outpoints(mut self, max_outpoints: usize) -> Self {
+        self.max_outpoints = max_outpoints;
+        self
+    }
 }
 impl Default for QiDiscoveryOptions {
     fn default() -> Self {
@@ -38,6 +78,7 @@ impl Default for QiDiscoveryOptions {
             gap_limit: Some(DEFAULT_QI_GAP),
             max_addresses: 10_000,
             max_outpoints: 100_000,
+            grinding: Grinding::Sequential,
         }
     }
 }
@@ -64,6 +105,7 @@ pub struct CurrentQiAddress {
 }
 /// Bounded current-state discovery, without private keys or a storage backend.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct CurrentQiDiscovery {
     /// Explicit expected network identity.
     pub scope: NetworkScope,
@@ -81,6 +123,7 @@ pub struct CurrentQiDiscovery {
 }
 /// Exact observed amounts; unlocked outputs may still be claimed, spent or trimmed.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct ObservedQiBalance {
     /// Sum over only this report's bounded address coverage.
     pub total: U256,
@@ -91,6 +134,7 @@ pub struct ObservedQiBalance {
 }
 /// Portable Qi discovery errors preserve bounded provider/derivation diagnostics.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum QiDiscoveryError {
     /// Invalid coin, scope or explicit resource bounds.
     #[error("invalid Qi discovery request")]
@@ -100,7 +144,7 @@ pub enum QiDiscoveryError {
     Cancelled,
     /// Reported chain/genesis differs from the requested identity.
     #[error("Qi discovery network identity mismatch")]
-    IdentityMismatch,
+    NetworkMismatch,
     /// Total output budget exceeded, including across different addresses.
     #[error("Qi discovery output limit exceeded")]
     OutputLimit,
@@ -113,12 +157,39 @@ pub enum QiDiscoveryError {
     /// An optional caller-owned address-use query failed.
     #[error("Qi address-use check failed")]
     UseCheckFailed,
+    /// A batched read omitted an address it was asked for.
+    #[error("Qi discovery observation omitted an address")]
+    IncompleteObservation,
     /// Provider observation failed.
     #[error(transparent)]
     Provider(#[from] ProviderError),
     /// Exact derivation failed.
     #[error(transparent)]
     Wallet(#[from] WalletError),
+}
+impl QiDiscoveryError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    /// Matched exhaustively so a new variant must choose a class.
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::NetworkMismatch => ErrorClass::NetworkMismatch,
+            Self::Provider(error) => error.class(),
+            Self::ObservationChanged => ErrorClass::Stale,
+            Self::Cancelled => ErrorClass::Cancelled,
+            Self::UseCheckFailed | Self::IncompleteObservation => ErrorClass::Transient,
+            Self::Wallet(error) => wallet_class(error),
+            Self::InvalidRequest | Self::OutputLimit | Self::InvalidOutputs => ErrorClass::Invalid,
+        }
+    }
+}
+
+/// A derivation error's class: cancellation, or an invalid request.
+pub(crate) fn wallet_class(error: &WalletError) -> quai_primitives::ErrorClass {
+    match error {
+        WalletError::Cancelled { .. } => quai_primitives::ErrorClass::Cancelled,
+        _ => quai_primitives::ErrorClass::Invalid,
+    }
 }
 impl CurrentQiDiscovery {
     /// Sum exact denominations only after the scan's final head check succeeded.
@@ -149,29 +220,54 @@ impl CurrentQiDiscovery {
         Ok(balance)
     }
 }
-async fn identity<T: Transport>(
-    provider: &Provider<T>,
+/// Validate one address's batched outputs into the report's form.
+///
+/// A missing row is a failure, never an empty result: counting an unread
+/// address toward the gap could stop a restore early. Outpoints enter `seen`,
+/// which bounds the report's total and rejects duplicates across addresses.
+fn current_outputs(
+    raw: Option<Vec<quai_provider::AddressOutpoint>>,
+    seen: &mut BTreeSet<OutPoint>,
     scope: NetworkScope,
-) -> Result<(), QiDiscoveryError> {
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
-        return Err(QiDiscoveryError::IdentityMismatch);
+    options: &QiDiscoveryOptions,
+) -> Result<Vec<CurrentQiOutput>, QiDiscoveryError> {
+    let raw = raw.ok_or(QiDiscoveryError::IncompleteObservation)?;
+    if raw.len() > options.max_outpoints - seen.len() {
+        return Err(QiDiscoveryError::OutputLimit);
     }
-    Ok(())
+    let mut outputs = Vec::with_capacity(raw.len());
+    for output in raw {
+        let outpoint = OutPoint {
+            transaction_hash: output.outpoint.tx_hash,
+            index: output.outpoint.index,
+        };
+        // An outpoint from another zone, or the zero hash, could never be spent
+        // here and would fail every later selection.
+        let hash = outpoint.transaction_hash.bytes();
+        if hash[2] != scope.zone.byte() || *hash == [0; 32] || !seen.insert(outpoint) {
+            return Err(QiDiscoveryError::InvalidOutputs);
+        }
+        outputs.push(CurrentQiOutput {
+            outpoint,
+            denomination: Denomination::new(output.denomination)
+                .map_err(|_| QiDiscoveryError::InvalidOutputs)?,
+            unlock_height: output.lock,
+        });
+    }
+    Ok(outputs)
 }
-async fn head<T: Transport>(
+
+/// The network check and header reads in one round trip.
+pub(super) async fn network_headers<T: Transport, const N: usize>(
     provider: &Provider<T>,
     scope: NetworkScope,
-) -> Result<Checkpoint, QiDiscoveryError> {
-    let header = provider
-        .latest_header(scope.zone)
+    blocks: &[BlockTag; N],
+) -> Result<[Option<quai_provider::ZoneHeader>; N], QiDiscoveryError> {
+    crate::network::headers_on_network(provider, scope, scope.zone, blocks)
         .await?
-        .ok_or(QiDiscoveryError::ObservationChanged)?;
-    Ok(Checkpoint {
-        hash: header.hash,
-        height: U256::from(header.number),
-    })
+        .ok_or(QiDiscoveryError::NetworkMismatch)?
+        .try_into()
+        .map_err(|_| QiDiscoveryError::ObservationChanged)
 }
 /// Scan current Qi receive/change outpoints with a matching-address gap (50 by default).
 /// No indexer, signer or SQLite handle is required. Retain known addresses and use
@@ -226,8 +322,11 @@ where
     if cancelled() {
         return Err(QiDiscoveryError::Cancelled);
     }
-    identity(provider, scope).await?;
-    let checkpoint = head(provider, scope).await?;
+    let [latest] = network_headers(provider, scope, &[BlockTag::Latest]).await?;
+    let checkpoint = latest
+        .as_ref()
+        .map(crate::network::checkpoint)
+        .ok_or(QiDiscoveryError::ObservationChanged)?;
     let mut report = CurrentQiDiscovery {
         scope,
         checkpoint,
@@ -238,7 +337,7 @@ where
     };
     let mut seen = BTreeSet::new();
     'branches: for (branch, range) in [options.receive, options.change].iter().enumerate() {
-        let mut gap = 0;
+        let mut gap = GapCounter::new(options.gap_limit);
         while report.next_index[branch] < range.end {
             if cancelled() {
                 report.stopped[branch..].fill(ScanStop::Cancelled);
@@ -248,87 +347,94 @@ where
                 report.stopped[branch..].fill(ScanStop::AddressLimit);
                 break 'branches;
             }
+            // Read a window the gap rule guarantees this branch examines, so
+            // nothing past the gap stop is disclosed. See
+            // `GapCounter::guaranteed_remaining`, including for aborted windows.
             let start = report.next_index[branch];
-            let found = match account.search(
-                branch == 1,
-                Search {
-                    zone: scope.zone,
-                    start_index: start,
-                    max_attempts: range.end - start,
-                },
-                &mut cancelled,
-            ) {
-                Ok(found) => found,
-                Err(WalletError::SearchExhausted { .. }) => {
-                    report.next_index[branch] = range.end;
-                    break;
+            let window = account
+                .search_window_async(
+                    branch == 1,
+                    Search {
+                        zone: scope.zone,
+                        start_index: start,
+                        max_attempts: range.end - start,
+                    },
+                    gap.window(options.max_addresses - report.addresses.len()),
+                    options.grinding,
+                    &mut cancelled,
+                )
+                .await?;
+            if window.stop == WindowStop::Cancelled || cancelled() {
+                // Nothing in this window was observed; resume past any
+                // mismatches only when no address was found before them.
+                if window.addresses.is_empty() {
+                    report.next_index[branch] = window.next_index.unwrap_or(range.end);
                 }
-                Err(WalletError::Cancelled { next_index, .. }) => {
-                    report.next_index[branch] = next_index;
-                    report.stopped[branch..].fill(ScanStop::Cancelled);
-                    return Ok(report);
-                }
-                Err(error) => return Err(error.into()),
-            };
-            if cancelled() {
-                report.next_index[branch] = found.address.index;
                 report.stopped[branch..].fill(ScanStop::Cancelled);
                 return Ok(report);
             }
-            let raw = provider
-                .outpoints(
-                    found
-                        .address
-                        .address
-                        .try_into()
-                        .map_err(|_| QiDiscoveryError::InvalidRequest)?,
-                )
-                .await?;
-            if raw.len() > options.max_outpoints - seen.len() {
-                return Err(QiDiscoveryError::OutputLimit);
+            if window.addresses.is_empty() {
+                report.next_index[branch] = range.end;
+                break;
             }
-            let mut outputs = Vec::with_capacity(raw.len());
-            for output in raw {
-                let outpoint = OutPoint {
-                    transaction_hash: output.outpoint.tx_hash,
-                    index: output.outpoint.index,
-                };
-                if !seen.insert(outpoint) {
-                    return Err(QiDiscoveryError::InvalidOutputs);
+            let addresses = window
+                .addresses
+                .iter()
+                .map(|derived| {
+                    QiAddress::try_from(derived.address)
+                        .map_err(|_| QiDiscoveryError::InvalidRequest)
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            let mut observed = provider.outpoints_many(&addresses).await?;
+            // Validate rows in derivation-index order, never by iterating the
+            // address-keyed map, stopping at the first failure: it is reported
+            // only after every address before it is recorded, as a
+            // one-at-a-time scan would.
+            let mut rows = Vec::with_capacity(window.addresses.len());
+            let mut failure = None;
+            for (derived, address) in window.addresses.into_iter().zip(addresses) {
+                match current_outputs(observed.remove(&address), &mut seen, scope, options) {
+                    Ok(outputs) => rows.push((derived, address, outputs)),
+                    Err(error) => {
+                        failure = Some(error);
+                        break;
+                    }
                 }
-                outputs.push(CurrentQiOutput {
-                    outpoint,
-                    denomination: Denomination::new(output.denomination)
-                        .map_err(|_| QiDiscoveryError::InvalidOutputs)?,
-                    unlock_height: output.lock,
-                });
             }
-            let use_hint = if outputs.is_empty() {
-                check_use(
-                    scope,
-                    found
-                        .address
-                        .address
-                        .try_into()
-                        .map_err(|_| QiDiscoveryError::InvalidRequest)?,
-                )
-                .await?
-            } else {
-                false
-            };
-            gap = if outputs.is_empty() && !use_hint {
-                gap + 1
-            } else {
-                0
-            };
-            report.next_index[branch] = found.next_index.unwrap_or(1 << 31);
-            report.addresses.push(CurrentQiAddress {
-                derived: found.address,
-                outputs,
-                use_hint,
-            });
-            if options.gap_limit.is_some_and(|limit| gap >= limit) {
-                report.stopped[branch] = ScanStop::GapLimit;
+            // Use hints for empty rows run a few at a time and are consumed in
+            // order, so the first error in order is the one reported. The
+            // cursor advances only after each address is recorded.
+            let needed = rows
+                .iter()
+                .map(|(_, address, outputs)| (*address, outputs.is_empty()))
+                .collect();
+            let mut hints =
+                std::pin::pin!(crate::network::use_hints(scope, needed, &mut check_use));
+            for (derived, _, outputs) in rows {
+                let use_hint = futures_util::StreamExt::next(&mut hints)
+                    .await
+                    .ok_or(QiDiscoveryError::IncompleteObservation)??;
+                let reached_gap_limit = gap.observe(!outputs.is_empty() || use_hint);
+                report.next_index[branch] = derived.index + 1;
+                report.addresses.push(CurrentQiAddress {
+                    derived,
+                    outputs,
+                    use_hint,
+                });
+                if reached_gap_limit {
+                    report.stopped[branch] = ScanStop::GapLimit;
+                    continue 'branches;
+                }
+                if cancelled() {
+                    report.stopped[branch..].fill(ScanStop::Cancelled);
+                    return Ok(report);
+                }
+            }
+            if let Some(error) = failure {
+                return Err(error);
+            }
+            if window.stop == WindowStop::Exhausted {
+                report.next_index[branch] = range.end;
                 break;
             }
         }
@@ -340,11 +446,16 @@ where
             .for_each(|s| *s = ScanStop::Cancelled);
         return Ok(report);
     }
-    identity(provider, scope).await?;
-    let after = head(provider, scope).await?;
-    let height =
-        u64::try_from(checkpoint.height).map_err(|_| QiDiscoveryError::ObservationChanged)?;
-    let canonical = provider.header_at(scope.zone, height).await?;
+    let [latest, canonical] = network_headers(
+        provider,
+        scope,
+        &[BlockTag::Latest, BlockTag::Number(checkpoint.height)],
+    )
+    .await?;
+    let after = latest
+        .as_ref()
+        .map(crate::network::checkpoint)
+        .ok_or(QiDiscoveryError::ObservationChanged)?;
     report.canonical =
         if checkpoint == after && canonical.is_some_and(|h| h.hash == checkpoint.hash) {
             CanonicalStatus::Matches

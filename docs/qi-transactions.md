@@ -14,7 +14,7 @@ The supported operation is an ordinary same-zone Qi payment with empty transacti
 1. Open `SqliteStore` with the explicit `NetworkScope`. Obtain the local Qi wallet's `AccountPublic` for its change account.
 2. Call `QiChangePool::allocate`. It reserves raw derivation ranges, derives same-zone Qi addresses on the change branch and persists their public metadata **before returning addresses**. The opaque pool cannot be cloned, imported or reconstructed. Preparation requires its persisted address metadata and account derivation cursor in the receiving store; matching only the network scope is insufficient. Every reserved range remains consumed after failure, cancellation, process death or an unused pool.
 3. Refresh the wallet's qualified discovery snapshot **after allocation**. Adding change metadata invalidates the previous checkpoint. A complete discovery commit must cover existing metadata, including the new addresses. `snapshot()` returning no checkpoint is not spendable. A manually constructed `Snapshot` remains a caller/source claim, not a proof.
-4. Create `QiSession::new(&provider, &wallet, &mut store)`. Call `prepare(id, intent, policy, change_pool)`. It consumes the pool, checks chain/genesis, observes canonical identity at the stored checkpoint, enforces a caller-selected maximum checkpoint age and selects eligible inputs. It estimates the exact inputs, public keys, destination addresses, denominations and zero locks in a bounded monotonic fee loop. It checks checkpoint identity and candidate-height spend eligibility again after estimation, then atomically reserves the final inputs against the snapshot generation.
+4. Create `QiSession::new(&provider, &wallet, &mut store)`. Call `prepare(id, intent, policy, &mut change_pool)`. Lent by `&mut`, the pool loses only the change addresses the prepared transaction uses, and only once its inputs are claimed; a failed prepare leaves it whole for a retry. Passed by value, it is dropped and its unused addresses stay burned. Each burned change address that never receives funds counts toward a restore's gap, so reuse the pool rather than allocating a fresh one per attempt. Preparation checks chain/genesis, observes canonical identity at the stored checkpoint, enforces a caller-selected maximum checkpoint age and selects eligible inputs. It estimates the exact inputs, public keys, destination addresses, denominations and zero locks in a bounded monotonic fee loop. It checks checkpoint identity and candidate-height spend eligibility again after estimation, then atomically reserves the final inputs against the snapshot generation.
 5. Review `PreparedQiTransaction::transaction()`, `fee()`, `recipient_outputs()` and `signing_digest()`. Recipient outputs appear first; change follows. No mutation API is exposed. Dropping a prepared transaction keeps its unsigned reservation until explicit `release_unsigned(id)`.
 6. Call `sign(&prepared)`. It derives and verifies each local input key in transaction order, checks the durable claims, signs the frozen payload and commits verified canonical bytes before returning a signature. Secret key guards are dropped on every success/error path. There is no network access while signing.
 7. Explicitly call `broadcast(id)`. It loads and validates the saved bytes, verifies local ownership and chain/genesis again, then records `Submitted` before awaiting submission. It sends once. A timeout, cancellation, malformed acknowledgement or other ambiguous result retains bytes and claims. A subsequent explicit call rebroadcasts those same bytes; it does not select replacement inputs or generate a replacement signature.
@@ -23,7 +23,8 @@ The call structure is:
 
 ```rust,ignore
 let account = wallet.account_public(0)?;
-let change = QiChangePool::allocate(&mut store, &account, 16, 2_000, || false)?;
+// Size the pool to what a spend needs: one address per change denomination.
+let mut change = QiChangePool::allocate(&mut store, &account, 8, 2_000, || false)?;
 
 // Refresh qualified discovery over all store.addresses() here.
 // Do not label latest-only RPC outpoints as a pinned checkpoint snapshot.
@@ -42,7 +43,8 @@ let intent = QiIntent {
     destinations: fresh_recipient_addresses,
 };
 let mut session = QiSession::new(&provider, &wallet, &mut store)?;
-let prepared = session.prepare(unique_reservation_id, intent, policy, change).await?;
+let prepared = session.prepare(unique_reservation_id, intent, policy, &mut change).await?;
+// `change` keeps any unused addresses for the next spend.
 // Present exact prepared.transaction() and prepared.fee() for authorization.
 let signed = session.sign(&prepared)?; // canonical bytes are already durable
 let result = session.broadcast(prepared.reservation_id()).await?;
@@ -54,7 +56,9 @@ let result = session.broadcast(prepared.reservation_id()).await?;
 
 A Qi output has one denomination and needs a distinct address. `QiIntent::destinations` is an ordered capacity list: the exact amount is decomposed, largest denomination first, and the required prefix is used. Any extra destination addresses are unused. All supplied destinations must be distinct and same-zone; the final transaction also rejects input/output address reuse. Splitting an amount does not duplicate its value across the addresses.
 
-Change capacity must cover every attempted fee round, including the initial fee. Lower fees may need more change outputs than the final fee. Plan capacity conservatively with the pure selector when useful, allocate it durably, then refresh discovery. An insufficient pool or destination list fails before claiming inputs. The pool remains consumed, including its unused addresses; allocation or preparation never silently retries with a new pool. A failed allocation may have persisted part of its requested capacity, so inspect storage and refresh before retrying.
+Change capacity must cover every attempted fee round, including the initial fee. Lower fees may need more change outputs than the final fee. Plan capacity conservatively with the pure selector when useful, allocate it durably, then refresh discovery. An insufficient pool or destination list fails before claiming inputs. A pool lent by `&mut` is left whole by that failure; one passed by value is consumed with its unused addresses. Allocation or preparation never silently retries with a new pool.
+
+Restoring from the mnemonic alone reads current outputs, so spent change looks unused to it and counts toward the gap. After a history of spends, scan the change branch with an explicit range and `gap_limit: None` covering at least the highest change index ever allocated (`SqliteStore::next_derivation_index` on the original store), or supply a use checker backed by transaction history. A failed allocation may have persisted part of its requested capacity, so inspect storage and refresh before retrying.
 
 The explicit limits are 1–1024 inputs, 1–1024 total outputs and 1–32 fee rounds. These preserve the local aggregation bound rather than exposing the selector's larger independent limit. Change allocation accepts at most 1024 addresses, 1–100,000 attempts each and at most 100,000 total raw attempts. Zero change capacity is supported for exact spends. A fee is accepted only when the quote for the final payload is covered; fees never decrease during convergence. The exposed planned fee can therefore exceed the last estimate, but cannot exceed `max_fee`. This calculation relies on the source-reported input denominations. A lying or incorrect source can understate input values and thereby understate the actual on-chain fee: neither a canonical-header observation nor a signature cryptographically enforces this planned fee cap. Qualify and trust the UTXO source before authorizing a payment.
 

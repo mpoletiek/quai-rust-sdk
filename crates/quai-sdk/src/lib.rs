@@ -53,6 +53,8 @@ pub mod contracts;
 pub mod deployments;
 #[cfg(feature = "wallet")]
 pub mod discovery;
+#[cfg(feature = "wallet")]
+mod network;
 #[cfg(all(feature = "sqlite", feature = "payments", not(target_arch = "wasm32")))]
 pub mod payment_channels;
 /// Pelagus-compatible payment-channel mailbox announcements.
@@ -93,10 +95,14 @@ pub use quai_keystore as keystore;
 #[cfg(feature = "payments")]
 pub use quai_payments as payments;
 pub use quai_primitives as primitives;
-pub use quai_primitives::{Address, Ledger, QiAddress, QuaiAddress, Region, Shard, Zone};
+pub use quai_primitives::{
+    Address, ErrorClass, Ledger, QiAddress, QuaiAddress, Region, Shard, Zone,
+};
 pub use quai_provider as provider;
 pub use quai_provider::{BlockTag, Provider, ProviderError};
 pub use quai_rpc as rpc;
+#[cfg(not(target_arch = "wasm32"))]
+pub use quai_rpc::DynTransport;
 pub use quai_rpc::{Endpoint, Routing, U256, parse_quantity, parse_use_pathing};
 #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
 pub use quai_rpc::{HttpConfig, HttpTransport};

@@ -82,11 +82,7 @@ impl Transport for Mock {
     }
 }
 fn config() -> WaitConfig {
-    WaitConfig {
-        confirmations: 2,
-        timeout: Duration::from_secs(1),
-        poll_interval: Duration::from_millis(1),
-    }
+    WaitConfig::new(2, Duration::from_secs(1), Duration::from_millis(1))
 }
 fn receipt(block_hash: u8) -> Value {
     let fixture: Value = serde_json::from_str(include_str!("fixtures/lan-mainnet.json")).unwrap();
@@ -178,22 +174,10 @@ async fn disappearing_receipt_between_canonical_check_and_return_is_repolled() {
 async fn invalid_limits_are_rejected_before_io() {
     let mock = Mock::default();
     for config in [
-        WaitConfig {
-            confirmations: 0,
-            ..config()
-        },
-        WaitConfig {
-            timeout: Duration::ZERO,
-            ..config()
-        },
-        WaitConfig {
-            poll_interval: Duration::ZERO,
-            ..config()
-        },
-        WaitConfig {
-            poll_interval: Duration::from_secs(2),
-            ..config()
-        },
+        config().with_confirmations(0),
+        config().with_timeout(Duration::ZERO),
+        config().with_poll_interval(Duration::ZERO),
+        config().with_poll_interval(Duration::from_secs(2)),
     ] {
         assert!(matches!(
             mock.provider()
@@ -216,10 +200,7 @@ async fn total_deadline_cancels_even_a_stalled_transport_future() {
         .wait_for_receipt(
             Zone::Cyprus1,
             TX.parse().unwrap(),
-            WaitConfig {
-                timeout: Duration::from_millis(15),
-                ..config()
-            },
+            config().with_timeout(Duration::from_millis(15)),
         )
         .await;
     assert!(matches!(result, Err(WaitError::Timeout { .. })));

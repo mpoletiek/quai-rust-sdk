@@ -838,14 +838,8 @@ async fn settlement_reconstructs_durable_candidate_and_invalidates_stale_cache_o
     let hash = signed.hash().unwrap();
     // A direct Cyprus-1 provider cannot attest Cyprus-2. Failed observation is
     // persisted as an invalidation, never as completed or dropped settlement.
-    let request = quai_sdk::provider::EtxScanRequest {
-        zone: Zone::Cyprus2,
-        from: 1,
-        to: 2,
-        max_transactions_per_block: 16,
-        max_total_transactions: 32,
-        preceding_block: None,
-    };
+    let request = quai_sdk::provider::EtxScanRequest::new(Zone::Cyprus2, 1, 2, 16, 32)
+        .with_preceding_block(None);
     assert!(
         track_settlement(
             &provider,
@@ -931,6 +925,7 @@ async fn recovery_binds_account_receipt_and_rechecks_confirmation_head_before_wr
             receipt: result,
             change_head: mode == 3,
             head_rechecked: Arc::new(AtomicBool::new(false)),
+            reorg_inclusion: false,
         };
         let observed = Provider::new(
             transport.clone(),
@@ -956,6 +951,7 @@ async fn recovery_binds_account_receipt_and_rechecks_confirmation_head_before_wr
             receipt: original,
             change_head: false,
             head_rechecked: Arc::new(AtomicBool::new(false)),
+            reorg_inclusion: false,
         },
         Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
         store.scope().chain_id,
@@ -1025,6 +1021,7 @@ async fn family_recovery_persists_replacement_winner_and_rejects_concurrent_cand
         receipt: result.clone(),
         change_head: false,
         head_rechecked: Arc::new(AtomicBool::new(false)),
+        reorg_inclusion: false,
     };
     let observed = Provider::new(
         base.clone(),
@@ -1519,4 +1516,93 @@ async fn conversion_budget_rejects_low_caps_and_missing_quotes_before_reservatio
                 .any(|(m, _)| m == "quai_sendRawTransaction")
         );
     }
+}
+
+#[tokio::test]
+async fn a_reorganized_inclusion_is_invalidated_and_never_releases_the_signed_claim() {
+    // The durable-custody rule the SDK documents: an inclusion is an observation,
+    // not a finality proof, and losing one must never release a signed claim.
+    // Releasing it would free the nonce and inputs of a payment that may still be
+    // in a mempool somewhere, which is how a wallet double-spends itself.
+    use quai_sdk::recovery::{OperationObservation, reconcile_operation};
+    use recovery_support::{RecoveryMock, receipt};
+    use std::sync::atomic::AtomicBool;
+
+    let (_directory, mock, provider, signer, mut store) = setup();
+    let id = ReservationId([95; 16]);
+    let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
+    let prepared = session.prepare(id, intent(), policy()).await.unwrap();
+    let signed = session.sign(&prepared).unwrap();
+    let result = receipt(
+        signed.hash().unwrap().to_string(),
+        0,
+        Some(signed.from().address().to_string()),
+        signed.transaction().to.map(|a| a.to_string()),
+    );
+
+    let settled = RecoveryMock {
+        base: mock.clone(),
+        receipt: result.clone(),
+        change_head: false,
+        head_rechecked: Arc::new(AtomicBool::new(false)),
+        reorg_inclusion: false,
+    };
+    let observed = Provider::new(
+        settled.clone(),
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        store.scope().chain_id,
+    );
+    // First reconcile records a canonical inclusion.
+    assert!(matches!(
+        reconcile_operation(&observed, &mut store, id)
+            .await
+            .unwrap(),
+        OperationObservation::Included { .. }
+    ));
+    let recorded = store.reservation(id).unwrap().unwrap();
+    assert!(recorded.inclusion.is_some());
+
+    // Reconciling again against the same view is idempotent: a retry must not
+    // change durable state or report a spurious reorganization.
+    assert!(matches!(
+        reconcile_operation(&observed, &mut store, id)
+            .await
+            .unwrap(),
+        OperationObservation::Included { .. }
+    ));
+    assert_eq!(
+        store.reservation(id).unwrap().unwrap().inclusion,
+        recorded.inclusion
+    );
+
+    // The inclusion height now carries a different block, and the receipt is gone.
+    let reorged = Provider::new(
+        RecoveryMock {
+            base: mock.clone(),
+            receipt: json!({}),
+            change_head: false,
+            head_rechecked: Arc::new(AtomicBool::new(false)),
+            reorg_inclusion: true,
+        },
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        store.scope().chain_id,
+    );
+    assert!(matches!(
+        reconcile_operation(&reorged, &mut store, id).await.unwrap(),
+        OperationObservation::Reorganized
+    ));
+
+    let after = store.reservation(id).unwrap().unwrap();
+    // The stale inclusion is cleared, so nothing later reads it as canonical.
+    assert!(
+        after.inclusion.is_none(),
+        "a stale inclusion must be cleared"
+    );
+    // But the claim itself survives: the payment may still be live elsewhere.
+    assert_eq!(after.state, ReservationState::Submitted);
+    assert!(
+        store.signed_payload(id).unwrap().is_some(),
+        "the signed payload must be retained for rescan or rebroadcast"
+    );
+    assert_eq!(after.transaction, Some(signed.hash().unwrap()));
 }

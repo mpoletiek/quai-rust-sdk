@@ -325,11 +325,9 @@ mod lifecycle {
         let counts = hooks.counts.clone();
         let client = FetchClient::with_hooks(
             backend,
-            FetchConfig {
-                max_attempts: 4,
-                max_redirects: 1,
-                ..FetchConfig::default()
-            },
+            FetchConfig::default()
+                .with_max_attempts(4)
+                .with_max_redirects(1),
             hooks,
         )
         .unwrap();
@@ -346,14 +344,8 @@ mod lifecycle {
         assert_eq!(state.lock().unwrap().requests.len(), 3);
         // POST never replays by default, even if max_attempts permits retries.
         let (backend, state) = mock(vec![Ok(response(429, &[]))]);
-        let client = FetchClient::new(
-            backend,
-            FetchConfig {
-                max_attempts: 3,
-                ..FetchConfig::default()
-            },
-        )
-        .unwrap();
+        let client =
+            FetchClient::new(backend, FetchConfig::default().with_max_attempts(3)).unwrap();
         let mut r = r.clone();
         r.set_text("PUBLIC").unwrap();
         assert_eq!(
@@ -370,11 +362,9 @@ mod lifecycle {
         let (backend, state) = mock(vec![Err(FetchError::Transport)]);
         let client = FetchClient::new(
             backend,
-            FetchConfig {
-                max_attempts: 3,
-                retry_non_idempotent: true,
-                ..FetchConfig::default()
-            },
+            FetchConfig::default()
+                .with_max_attempts(3)
+                .with_retry_non_idempotent(true),
         )
         .unwrap();
         assert!(matches!(
@@ -386,12 +376,10 @@ mod lifecycle {
         let (backend, state) = mock(vec![Ok(response(429, &[("retry-after", "1")]))]);
         let client = FetchClient::new(
             backend,
-            FetchConfig {
-                timeout_ms: 50,
-                retry_delay_ms: 0,
-                max_attempts: 2,
-                ..FetchConfig::default()
-            },
+            FetchConfig::default()
+                .with_timeout_ms(50)
+                .with_retry_delay_ms(0)
+                .with_max_attempts(2),
         )
         .unwrap();
         r.clear_body();
@@ -408,11 +396,9 @@ mod lifecycle {
         state.lock().unwrap().stall = true;
         let client = FetchClient::new(
             backend,
-            FetchConfig {
-                timeout_ms: 30,
-                retry_delay_ms: 0,
-                ..FetchConfig::default()
-            },
+            FetchConfig::default()
+                .with_timeout_ms(30)
+                .with_retry_delay_ms(0),
         )
         .unwrap();
         let req = FetchRequest::new("https://example.invalid/").unwrap();
@@ -493,10 +479,7 @@ mod lifecycle {
         let (backend, state) = mock(vec![Ok(response(200, &[])), Ok(response(200, &[]))]);
         let client = FetchClient::with_hooks(
             backend,
-            FetchConfig {
-                max_attempts: 2,
-                ..FetchConfig::default()
-            },
+            FetchConfig::default().with_max_attempts(2),
             GatewayHook,
         )
         .unwrap();
@@ -534,14 +517,8 @@ mod lifecycle {
         );
         assert_eq!(state.lock().unwrap().requests.len(), 2);
         let (backend, _) = mock(vec![]);
-        let tiny = FetchClient::new(
-            backend,
-            FetchConfig {
-                max_response_bytes: 1,
-                ..FetchConfig::default()
-            },
-        )
-        .unwrap();
+        let tiny =
+            FetchClient::new(backend, FetchConfig::default().with_max_response_bytes(1)).unwrap();
         assert!(matches!(
             tiny.send(
                 &FetchRequest::new("data:,abc").unwrap(),
@@ -563,11 +540,9 @@ mod lifecycle {
         let (backend, state) = mock(vec![]);
         let client = FetchClient::with_hooks(
             backend,
-            FetchConfig {
-                timeout_ms: 30,
-                retry_delay_ms: 0,
-                ..FetchConfig::default()
-            },
+            FetchConfig::default()
+                .with_timeout_ms(30)
+                .with_retry_delay_ms(0),
             StalledHook,
         )
         .unwrap();
@@ -600,11 +575,9 @@ async fn browser_streamed_http_echo_errors_gzip_bounds_and_opaque_redirects() {
         .expect("run through the owned browser fixture harness");
     let client = FetchClient::new(
         quai_sdk::browser::BrowserResourceFetch,
-        FetchConfig {
-            timeout_ms: 1000,
-            max_response_bytes: 1024,
-            ..FetchConfig::default()
-        },
+        FetchConfig::default()
+            .with_timeout_ms(1000)
+            .with_max_response_bytes(1024),
     )
     .unwrap();
     let mut req = FetchRequest::new(&format!("{base}/resource/echo")).unwrap();
@@ -654,11 +627,9 @@ async fn browser_streamed_http_echo_errors_gzip_bounds_and_opaque_redirects() {
     req.set_url(&format!("{base}/resource/slow")).unwrap();
     let client = FetchClient::new(
         quai_sdk::browser::BrowserResourceFetch,
-        FetchConfig {
-            timeout_ms: 30,
-            retry_delay_ms: 0,
-            ..FetchConfig::default()
-        },
+        FetchConfig::default()
+            .with_timeout_ms(30)
+            .with_retry_delay_ms(0),
     )
     .unwrap();
     assert!(matches!(

@@ -114,7 +114,7 @@ async fn pruned_history_deep_reorg_and_foreign_genesis_leave_cursor_unchanged() 
     mock.chain.lock().unwrap()[0] = hash(900);
     assert!(matches!(
         tracker.poll(&provider).await,
-        Err(ProviderError::InvalidResult(_))
+        Err(ProviderError::GenesisMismatch)
     ));
     assert_eq!(tracker.checkpoint(), before);
 }
@@ -128,11 +128,7 @@ mod websocket {
     use std::time::Duration;
     use tokio_tungstenite::{accept_async, tungstenite::Message};
     fn policy() -> HeadFollowPolicy {
-        HeadFollowPolicy {
-            max_connect_attempts: 2,
-            retry_delay: Duration::from_millis(5),
-            idle_poll_interval: Duration::from_millis(10),
-        }
+        HeadFollowPolicy::new(2, Duration::from_millis(5), Duration::from_millis(10))
     }
     #[tokio::test]
     async fn reconnect_replays_missed_blocks_and_quiet_polling_catches_lost_notifications() {
@@ -325,4 +321,148 @@ fn cursor_maximum_ancestry_is_bounded_before_allocation_and_checks_height_overfl
     overflow.extend_from_slice(&0u64.to_be_bytes());
     overflow.extend_from_slice(hash(1).bytes());
     assert!(HeadTracker::from_state(&overflow, Zone::Cyprus1, hash(0)).is_err());
+}
+
+/// The same chain behind a batching transport, counting round trips.
+#[derive(Clone)]
+struct Batching {
+    inner: Mock,
+    batches: Arc<Mutex<Vec<usize>>>,
+}
+impl Transport for Batching {
+    async fn request(&self, _: &Endpoint, method: &str, _: Value) -> Result<Value, RpcError> {
+        panic!("every read should batch, including guarded single reads: {method}")
+    }
+    async fn request_batch(
+        &self,
+        e: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<quai_rpc::BatchResult> {
+        self.batches.lock().unwrap().push(requests.len());
+        let mut out = vec![];
+        for (method, params) in requests {
+            out.push(self.inner.request(e, method, params).await);
+        }
+        Some(Ok(out))
+    }
+}
+
+#[tokio::test]
+async fn polls_cost_one_round_trip_idle_and_three_per_page() {
+    // Before batching: 5 sequential reads per idle poll and 5 + k per k new
+    // blocks, so an hour of missed ~5 s blocks took ~735 round trips.
+    let mock = Mock {
+        chain: Arc::new(Mutex::new((0..=300).map(hash).collect())),
+        missing: Default::default(),
+    };
+    let batches = Arc::new(Mutex::new(vec![]));
+    let provider = Provider::new(
+        Batching {
+            inner: mock.clone(),
+            batches: batches.clone(),
+        },
+        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+        U256::from(9),
+    );
+    let start = BlockReference {
+        number: 100,
+        hash: hash(100),
+    };
+    let mut tracker = HeadTracker::new(Zone::Cyprus1, hash(0), start, 512, 256).unwrap();
+    // 200 missed blocks in one page: identity batch, two header pages (126 +
+    // 74), then the end checks.
+    let page = tracker.poll(&provider).await.unwrap();
+    assert_eq!(page.added.len(), 200);
+    assert!(page.caught_up);
+    assert_eq!(batches.lock().unwrap().len(), 4);
+    // Idle: one batch.
+    batches.lock().unwrap().clear();
+    assert!(tracker.poll(&provider).await.unwrap().added.is_empty());
+    assert_eq!(batches.lock().unwrap().len(), 1);
+    // One new block: identity, the header, the end checks.
+    mock.chain.lock().unwrap().push(hash(301));
+    batches.lock().unwrap().clear();
+    assert_eq!(tracker.poll(&provider).await.unwrap().added.len(), 1);
+    assert_eq!(batches.lock().unwrap().len(), 3);
+    // A reorg still replays correctly through the batched path.
+    for n in 250..=301 {
+        mock.chain.lock().unwrap()[n] = hash(n as u64 + 1_000);
+    }
+    let update = tracker.poll(&provider).await.unwrap();
+    assert_eq!(update.removed.len(), 52);
+    assert_eq!(update.added.len(), 52);
+    assert_eq!(update.checkpoint.hash, hash(1_301));
+}
+
+#[test]
+fn a_zero_header_hash_is_rejected() {
+    use quai_provider::ZoneHeader;
+    let parent = hash(1);
+    let header = |own: Hash32| json!({"woHeader":{"hash":own.to_string(),"parentHash":parent.to_string(),"number":"0x2","primeTerminusNumber":"0x1","location":"0x0000"},"gasLimit":"0x1","stateLimit":"0x1"});
+    assert!(ZoneHeader::try_from(header(hash(2))).is_ok());
+    assert!(ZoneHeader::try_from(header(Hash32::ZERO)).is_err());
+}
+
+/// The mock chain, failing every header read above height zero.
+#[derive(Clone)]
+struct FailsAboveGenesis {
+    inner: Mock,
+    batch: bool,
+}
+impl Transport for FailsAboveGenesis {
+    async fn request(&self, e: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
+        if method == "quai_getHeaderByNumber" && params[0] != "0x0" {
+            return Err(RpcError::Timeout);
+        }
+        self.inner.request(e, method, params).await
+    }
+    async fn request_batch(
+        &self,
+        e: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<quai_rpc::BatchResult> {
+        if !self.batch {
+            return None;
+        }
+        let mut out = vec![];
+        for (method, params) in requests {
+            out.push(self.request(e, method, params).await);
+        }
+        Some(Ok(out))
+    }
+}
+
+#[tokio::test]
+async fn a_wrong_genesis_decides_before_a_later_header_error() {
+    use quai_provider::BlockTag;
+    for batch in [true, false] {
+        let (mock, _, _) = setup(8);
+        let provider = Provider::new(
+            FailsAboveGenesis { inner: mock, batch },
+            Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+            U256::from(9),
+        );
+        let blocks = [BlockTag::Latest, BlockTag::Number(U256::from(3))];
+        assert!(matches!(
+            provider
+                .headers_on_network(Zone::Cyprus1, hash(0), &blocks)
+                .await,
+            Err(ProviderError::Rpc(RpcError::Timeout))
+        ));
+        assert!(matches!(
+            provider
+                .headers_on_network(Zone::Cyprus1, hash(99), &blocks)
+                .await,
+            Ok(None)
+        ));
+        let start = BlockReference {
+            number: 3,
+            hash: hash(3),
+        };
+        let mut tracker = HeadTracker::new(Zone::Cyprus1, hash(99), start, 8, 8).unwrap();
+        assert!(matches!(
+            tracker.poll(&provider).await,
+            Err(ProviderError::GenesisMismatch)
+        ));
+    }
 }

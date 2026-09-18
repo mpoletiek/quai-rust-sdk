@@ -45,6 +45,7 @@ pub const MAX_SCHEMA_BYTES: usize = 65_536;
 
 /// Errors never include a message's potentially sensitive value contents.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[non_exhaustive]
 pub enum TypedDataError {
     /// Input exceeds a fixed resource policy.
     #[error("typed data exceeds resource limits")]

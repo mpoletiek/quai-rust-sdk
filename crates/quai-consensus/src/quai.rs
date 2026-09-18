@@ -176,8 +176,32 @@ impl QuaiTransaction {
             QuaiAddress::try_from(public.address()).map_err(|_| TransactionError::InvalidScope)?;
         if let Some(to) = self.to {
             let zone = to.zone().map_err(|_| TransactionError::InvalidScope)?;
-            if zone != from.zone() && to.ledger() == Ledger::Qi {
-                return Err(TransactionError::InvalidScope);
+            if to.ledger() == Ledger::Qi {
+                // A Qi destination is a Quai-to-Qi conversion request, not an
+                // ordinary transfer. Cross-zone is rejected outright; a same-zone
+                // one must satisfy the conversion envelope here, at signing,
+                // rather than only in the typed builder.
+                //
+                // Enforcing it only in `QuaiToQiTransaction::new` left it opt-in:
+                // this crate is published standalone, so a direct integrator
+                // could sign a same-zone Qi destination with arbitrary data,
+                // value and slippage. Out-of-range slippage is the sharp edge --
+                // the node silently clamps it, so the user would authorize one
+                // slippage and get another, which is exactly the substitution
+                // this codec refuses to make elsewhere.
+                //
+                // Every SDK path already routes through the typed builder and so
+                // already satisfies this; the check closes the raw-API gap.
+                if zone != from.zone() {
+                    return Err(TransactionError::InvalidScope);
+                }
+                if self.value < U256::from(crate::MIN_QUAI_CONVERSION_VALUE) || self.data.len() != 2
+                {
+                    return Err(TransactionError::InvalidField(
+                        "Quai conversion value or data",
+                    ));
+                }
+                crate::ConversionSlippage::new(u16::from_be_bytes([self.data[0], self.data[1]]))?;
             }
         }
         Ok(SignedQuaiTransaction {

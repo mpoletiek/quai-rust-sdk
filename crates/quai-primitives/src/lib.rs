@@ -15,6 +15,8 @@ pub mod numeric;
 pub const QUAIS_SYMBOL: &str = "\u{039e}";
 pub use fixed::{FixedError, FixedFormat, FixedPoint, Rounding};
 mod encoding;
+mod error_class;
+pub use error_class::ErrorClass;
 mod text;
 pub use encoding::{
     EncodingError, MAX_BASE58_BYTES, MAX_ENCODING_BYTES, concat_bytes, data_slice, decode_base58,

@@ -271,6 +271,11 @@ impl TryFrom<Value> for ZoneHeader {
         let mut o = object(value)?;
         let mut work = object(take(&mut o, "woHeader")?)?;
         let hash = hash_field(&mut work, "hash")?;
+        // No real header hashes to zero; accepting one would let a node pass
+        // a placeholder where callers compare identities.
+        if hash == Hash32::ZERO {
+            return Err(invalid("zero zone header hash"));
+        }
         let parent_hash = hash_field(&mut work, "parentHash")?;
         let number = uint64(take(&mut work, "number")?)?;
         let prime_terminus_number = uint64(take(&mut work, "primeTerminusNumber")?)?;

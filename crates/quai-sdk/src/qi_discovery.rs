@@ -2,12 +2,12 @@
 //! These latest-only node observations are not historical or atomic snapshots.
 use crate::qi::QiError;
 use quai_consensus::{Denomination, OutPoint};
-use quai_primitives::{QiAddress, Zone};
-use quai_provider::Provider;
+use quai_primitives::QiAddress;
+use quai_provider::{BlockTag, MAX_OUTPOINT_ADDRESSES, Provider};
 use quai_rpc::{Transport, U256};
-use quai_wallet::discovery::{Checkpoint, IndexRange, NetworkScope, ScanStop};
+use quai_wallet::discovery::{Checkpoint, GapCounter, IndexRange, NetworkScope, ScanStop};
 use quai_wallet::storage::{PublicAddress, Snapshot, SqliteStore};
-use quai_wallet::{AccountPublic, CandidateCoin, CoinType, Search, WalletError};
+use quai_wallet::{AccountPublic, CandidateCoin, CoinType, Grinding, Search, WindowStop};
 use std::collections::BTreeSet;
 use std::future::Future;
 
@@ -61,6 +61,7 @@ pub fn qi_balance(store: &mut SqliteStore, candidate_height: U256) -> Result<QiB
 
 /// Bounded receive/change scan options. `None` gap performs an explicit deep scan.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiScanOptions {
     /// Receive raw BIP32 child interval, including zone/ledger skips.
     pub receive: IndexRange,
@@ -70,6 +71,36 @@ pub struct QiScanOptions {
     pub gap_limit: Option<u32>,
     /// Global matching-address query limit, at most 100,000.
     pub max_addresses: usize,
+    /// How candidate addresses are derived. `Grinding::Parallel`, available
+    /// with the `rayon` feature, uses the whole rayon pool.
+    pub grinding: Grinding,
+}
+impl QiScanOptions {
+    /// Replace `grinding`.
+    pub const fn with_grinding(mut self, grinding: Grinding) -> Self {
+        self.grinding = grinding;
+        self
+    }
+    /// Replace `receive`.
+    pub const fn with_receive(mut self, receive: IndexRange) -> Self {
+        self.receive = receive;
+        self
+    }
+    /// Replace `change`.
+    pub const fn with_change(mut self, change: IndexRange) -> Self {
+        self.change = change;
+        self
+    }
+    /// Replace `gap_limit`.
+    pub const fn with_gap_limit(mut self, gap_limit: Option<u32>) -> Self {
+        self.gap_limit = gap_limit;
+        self
+    }
+    /// Replace `max_addresses`.
+    pub const fn with_max_addresses(mut self, max_addresses: usize) -> Self {
+        self.max_addresses = max_addresses;
+        self
+    }
 }
 impl Default for QiScanOptions {
     fn default() -> Self {
@@ -84,11 +115,13 @@ impl Default for QiScanOptions {
             },
             gap_limit: Some(DEFAULT_QI_GAP),
             max_addresses: 10_000,
+            grinding: Grinding::Sequential,
         }
     }
 }
 /// Coverage of a current-state scan. Empty addresses may have fully spent history.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiScanReport {
     /// Derived public receive/change metadata, including the observed gap.
     pub addresses: Vec<PublicAddress>,
@@ -102,10 +135,8 @@ async fn identity<T: Transport>(
     provider: &Provider<T>,
     scope: NetworkScope,
 ) -> Result<(), QiError> {
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
-        return Err(QiError::IdentityMismatch);
+    if !crate::network::on_network(provider, scope, scope.zone).await? {
+        return Err(QiError::NetworkMismatch);
     }
     Ok(())
 }
@@ -163,7 +194,7 @@ where
         stopped: [ScanStop::RangeEnd; 2],
     };
     for (branch, range) in [options.receive, options.change].iter().enumerate() {
-        let mut gap = 0;
+        let mut gap = GapCounter::new(options.gap_limit);
         while report.next_index[branch] < range.end {
             if cancelled() {
                 report.stopped[branch..].fill(ScanStop::Cancelled);
@@ -173,41 +204,114 @@ where
                 report.stopped[branch..].fill(ScanStop::AddressLimit);
                 return Ok(report);
             }
+            // Derive a window of addresses the branch is guaranteed to examine,
+            // then read them together. The bound is the gap counter's own rule
+            // read forwards: the branch cannot stop within `guaranteed_remaining`
+            // further addresses whatever the node answers, so none of these is
+            // speculative. A completed scan queries exactly the sequential
+            // scan's set, which is what makes this a batching change rather
+            // than a policy change. An aborted window is covered at
+            // `GapCounter::guaranteed_remaining`.
             let start = report.next_index[branch];
-            let found = match account.search(
-                branch == 1,
-                Search {
-                    zone: scope.zone,
-                    start_index: start,
-                    max_attempts: range.end - start,
-                },
-                &mut cancelled,
-            ) {
-                Ok(found) => found,
-                Err(WalletError::SearchExhausted { .. }) => {
-                    report.next_index[branch] = range.end;
+            let window = account
+                .search_window_async(
+                    branch == 1,
+                    Search {
+                        zone: scope.zone,
+                        start_index: start,
+                        max_attempts: range.end - start,
+                    },
+                    gap.window(options.max_addresses - report.addresses.len()),
+                    options.grinding,
+                    &mut cancelled,
+                )
+                .await?;
+            if window.stop == WindowStop::Cancelled || cancelled() {
+                // Nothing in this window was observed, so the resume point is
+                // where the uncancelled scan would continue.
+                if window.addresses.is_empty() {
+                    report.next_index[branch] = window.next_index.unwrap_or(range.end);
+                }
+                report.stopped[branch..].fill(ScanStop::Cancelled);
+                return Ok(report);
+            }
+            if window.addresses.is_empty() {
+                report.next_index[branch] = range.end;
+                break;
+            }
+            let derived = window.addresses;
+            let addresses = derived
+                .iter()
+                .map(|found| {
+                    QiAddress::try_from(found.address).map_err(|_| QiError::IdentityMismatch)
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            let observed = provider.outpoints_many(&addresses).await?;
+
+            // Validate strictly in derivation-index order. The map is keyed by
+            // address, so iterating it would apply the gap rule in address-byte
+            // order and could stop the branch at the wrong point. The first
+            // failure is reported after every address before it is recorded.
+            let mut rows = Vec::with_capacity(derived.len());
+            let mut failure = None;
+            for found in &derived {
+                let row = PublicAddress::derive(account, branch == 1, found.index)
+                    .map_err(QiError::from)
+                    .and_then(|metadata| {
+                        let address = QiAddress::try_from(metadata.address())
+                            .map_err(|_| QiError::IdentityMismatch)?;
+                        // A missing row is a failure, never an empty result:
+                        // defaulting it would count an unread address toward
+                        // the gap and could stop a restore early.
+                        let empty = observed
+                            .get(&address)
+                            .ok_or(QiError::IncompleteObservation)?
+                            .is_empty();
+                        Ok((found.index, metadata, address, empty))
+                    });
+                match row {
+                    Ok(row) => rows.push(row),
+                    Err(error) => {
+                        failure = Some(error);
+                        break;
+                    }
+                }
+            }
+            let needed = rows
+                .iter()
+                .map(|(_, _, address, empty)| (*address, *empty))
+                .collect();
+            let mut hints =
+                std::pin::pin!(crate::network::use_hints(scope, needed, &mut check_use));
+            let mut stop = false;
+            for (index, metadata, _, empty) in rows {
+                let use_hint = futures_util::StreamExt::next(&mut hints)
+                    .await
+                    .ok_or(QiError::IncompleteObservation)??;
+                let reached_gap_limit = gap.observe(!empty || use_hint);
+                // Advance only after the observation is recorded, so a failure
+                // or cancellation never leaves the cursor past an unread
+                // address. The stored cursor is monotonic and cannot be rewound.
+                report.next_index[branch] = index + 1;
+                report.addresses.push(metadata);
+                if reached_gap_limit {
+                    report.stopped[branch] = ScanStop::GapLimit;
+                    stop = true;
                     break;
                 }
-                Err(WalletError::Cancelled { next_index, .. }) => {
-                    report.next_index[branch] = next_index;
+                if cancelled() {
                     report.stopped[branch..].fill(ScanStop::Cancelled);
                     return Ok(report);
                 }
-                Err(error) => return Err(error.into()),
-            };
-            let metadata = PublicAddress::derive(account, branch == 1, found.address.index)?;
-            let address =
-                QiAddress::try_from(metadata.address()).map_err(|_| QiError::IdentityMismatch)?;
-            let outputs = provider.outpoints(address).await?;
-            gap = if outputs.is_empty() && !check_use(scope, address).await? {
-                gap + 1
-            } else {
-                0
-            };
-            report.next_index[branch] = found.next_index.unwrap_or(1 << 31);
-            report.addresses.push(metadata);
-            if options.gap_limit.is_some_and(|limit| gap >= limit) {
-                report.stopped[branch] = ScanStop::GapLimit;
+            }
+            if stop {
+                break;
+            }
+            if let Some(error) = failure {
+                return Err(error);
+            }
+            if window.stop == WindowStop::Exhausted {
+                report.next_index[branch] = range.end;
                 break;
             }
         }
@@ -217,7 +321,9 @@ where
 
 /// Read all persisted Qi addresses, including imported/channel/change addresses,
 /// then atomically replace their current coin view while preserving reservations.
-/// Header samples must agree, but this is still a trusted latest-state observation,
+/// The snapshot is labelled with the latest block seen before the reads and
+/// written only if the latest block is unchanged after them; after three
+/// attempts on a moving tip it fails with `QiError::StaleSnapshot`. This is still a trusted latest-state observation,
 /// not an atomic RPC snapshot, historical recovery, or spendability proof.
 /// Node-side validation remains authoritative if an output is spent or trimmed later.
 pub async fn refresh_qi<T: Transport>(
@@ -229,28 +335,62 @@ pub async fn refresh_qi<T: Transport>(
     if !(1..=100_000).contains(&max_addresses) {
         return Err(QiError::InvalidPolicy);
     }
+    // The tip must not move across the reads: then every output read is on
+    // the chain through the label, and a later reorg of any block it came from
+    // is caught by the label's canonicality check before a spend. Labelling
+    // with an earlier block let an output from an orphaned block be selected,
+    // leaving the spend's other inputs claimed. Reads are batched, so a
+    // refresh usually fits inside one block; a new block retries the reads.
+    for _ in 0..REFRESH_ATTEMPTS - 1 {
+        if let Some(checkpoint) =
+            refresh_once(provider, store, max_addresses, &mut cancelled).await?
+        {
+            return Ok(checkpoint);
+        }
+    }
+    refresh_once(provider, store, max_addresses, &mut cancelled)
+        .await?
+        .ok_or(QiError::StaleSnapshot)
+}
+
+/// Refresh attempts before a moving tip is reported as `StaleSnapshot`.
+const REFRESH_ATTEMPTS: usize = 3;
+
+/// One refresh. `None` means a new block arrived during the reads and nothing
+/// was written.
+async fn refresh_once<T: Transport>(
+    provider: &Provider<T>,
+    store: &mut SqliteStore,
+    max_addresses: usize,
+    cancelled: &mut impl FnMut() -> bool,
+) -> Result<Option<Checkpoint>, QiError> {
     let scope = store.scope();
     if cancelled() {
         return Err(QiError::Cancelled);
     }
-    identity(provider, scope).await?;
     let snapshot = store.snapshot()?;
     let mut generation = snapshot.generation;
+    // The network check, the tip and the stored checkpoint's canonical header
+    // are independent, address-free reads, so they travel together.
+    let mut blocks = vec![BlockTag::Latest];
     if let Some(old) = snapshot.checkpoint {
-        let height = u64::try_from(old.height).map_err(|_| QiError::StaleSnapshot)?;
-        let canonical = provider
-            .header_at(scope.zone, height)
-            .await?
-            .map(|h| Checkpoint {
-                hash: h.hash,
-                height: U256::from(h.number),
-            });
+        u64::try_from(old.height).map_err(|_| QiError::StaleSnapshot)?;
+        blocks.push(BlockTag::Number(old.height));
+    }
+    let headers = crate::network::headers_on_network(provider, scope, scope.zone, &blocks)
+        .await?
+        .ok_or(QiError::NetworkMismatch)?;
+    if let Some(old) = snapshot.checkpoint {
+        let canonical = headers[1].as_ref().map(crate::network::checkpoint);
         if canonical != Some(old) {
             store.reconcile_checkpoint(generation, canonical)?;
             generation = store.snapshot()?.generation;
         }
     }
-    let before = tip(provider, scope.zone).await?;
+    let before = headers[0]
+        .as_ref()
+        .map(crate::network::checkpoint)
+        .ok_or(QiError::StaleSnapshot)?;
     let addresses = store.addresses()?;
     if addresses.len() > max_addresses {
         return Err(QiError::InvalidPolicy);
@@ -261,13 +401,20 @@ pub async fn refresh_qi<T: Transport>(
         .into_iter()
         .filter_map(|metadata| QiAddress::try_from(metadata.address()).ok())
         .collect();
-    // Small bounded pages avoid serial network latency consuming an entire block.
-    // The same before/after head guard still rejects a moving current-state view.
-    for page in addresses.chunks(8) {
+    // `outpoints_many` pages and adapts its own batch size, so each call gets
+    // its full argument bound; paging smaller here would restart that
+    // adaptation on every page. Cancellation is checked between calls.
+    for page in addresses.chunks(MAX_OUTPOINT_ADDRESSES) {
         if cancelled() {
             return Err(QiError::Cancelled);
         }
-        for (address, outputs) in provider.outpoints_many(page).await? {
+        let mut observed = provider.outpoints_many(page).await?;
+        for &address in page {
+            // A missing row is a failure, never an empty result: it would
+            // replace the address's coins with none.
+            let outputs = observed
+                .remove(&address)
+                .ok_or(QiError::IncompleteObservation)?;
             for output in outputs {
                 let outpoint = OutPoint {
                     transaction_hash: output.outpoint.tx_hash,
@@ -290,28 +437,23 @@ pub async fn refresh_qi<T: Transport>(
     if cancelled() {
         return Err(QiError::Cancelled);
     }
-    let after = tip(provider, scope.zone).await?;
-    if before != after {
-        return Err(QiError::StaleSnapshot);
+    let after = provider
+        .headers(scope.zone, &[BlockTag::Latest])
+        .await?
+        .pop()
+        .flatten()
+        .as_ref()
+        .map(crate::network::checkpoint);
+    if after != Some(before) {
+        return Ok(None);
     }
     store.replace_snapshot(&Snapshot {
         scope,
         generation,
-        checkpoint: Some(after),
+        checkpoint: Some(before),
         coins,
     })?;
-    Ok(after)
-}
-
-async fn tip<T: Transport>(provider: &Provider<T>, zone: Zone) -> Result<Checkpoint, QiError> {
-    let header = provider
-        .latest_header(zone)
-        .await?
-        .ok_or(QiError::StaleSnapshot)?;
-    Ok(Checkpoint {
-        hash: header.hash,
-        height: U256::from(header.number),
-    })
+    Ok(Some(before))
 }
 
 /// Gap-scan a Qi account, persist discovered metadata, then refresh all known

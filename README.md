@@ -8,7 +8,7 @@ and browser adapters.
 [![crates.io](https://img.shields.io/crates/v/quai-sdk.svg)](https://crates.io/crates/quai-sdk)
 [![docs.rs](https://img.shields.io/docsrs/quai-sdk)](https://docs.rs/quai-sdk)
 
-**Alpha release:** `0.1.0-alpha.3` is published on
+**Alpha release:** `0.1.0-alpha.4` is published on
 [crates.io](https://crates.io/crates/quai-sdk), with breaking changes expected. The pinned
 quais.js declaration review is complete, with explicit Rust differences. This
 alpha is not production-qualified for real-fund custody. The public repository is
@@ -39,15 +39,50 @@ For an application outside this workspace, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.3", features = ["sqlite", "abi"] }
+quai-sdk = { version = "=0.1.0-alpha.4", features = ["sqlite", "abi"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
 Pre-release versions are only selected when requested explicitly. The `=` pin
 keeps a later alpha, which may break the API, from being picked up automatically;
-commit your application's lockfile as well. To follow unreleased development,
+commit your application's lockfile as well. Through `0.1.0-alpha.3`
+the facade required its sibling `quai-*` crates with caret requirements, so on
+those versions pin every `quai-*` crate you depend on as well. To follow unreleased development,
 use `git = "https://github.com/mpoletiek/quai-rust-sdk"` with a reviewed `rev`,
 or `path = "../quai-rust-sdk/crates/quai-sdk"` for a neighboring checkout.
+
+### Build settings for wallet scanning
+
+**Cargo ignores a dependency's release profile.** Only your binary's profile
+applies, so this workspace's own settings do not reach you and the SDK cannot
+choose them on your behalf. If your application derives addresses -- any Qi
+wallet scan or restore does, heavily -- set them yourself:
+
+```toml
+[profile.release]
+lto = "fat"
+codegen-units = 1
+```
+
+Measured on one BIP32 public-derivation step, the unit a scan repeats hundreds
+of times per usable address: **72.4 us at Cargo's release defaults, 61.3 us with
+the settings above -- about 18%.** The gain is cross-crate optimization inside
+`k256`'s field arithmetic and the SHA-2 implementation, so it is not something
+this SDK can obtain for you: adding `#[inline]` to its own wrappers was tried
+and measured no change. The cost is roughly double the build time, which is why
+it is a choice rather than a recommendation for every project.
+
+Address derivation dominates Qi wallet CPU for a Quai-specific reason. The zone
+lives in address byte 0 and the ledger in bit 7 of byte 1, and both come from
+the Keccak hash of the derived point, so a usable address cannot be chosen --
+it is ground for, at roughly one candidate in 512. A default restore performs
+about 51,200 derivations where a standard BIP44 gap scan performs 40.
+
+Scans grind in slices of about 20 ms and yield to the executor between them,
+so a scan does not stall other tasks on its thread. With the `rayon` feature, a
+scan can opt in with `with_grinding(Grinding::Parallel)` on its options: the
+same addresses, found about 4x faster on six cores, using the whole rayon pool
+while it runs.
 
 ### Read a node
 
@@ -114,6 +149,7 @@ The facade crate is named **`quai-sdk`**. Its default features are `http` and `w
 | `keystore` | Legacy v3 JSON keystore import and native export |
 | `backup` | Portable authenticated full-wallet capture/restore; includes `wallet,payments` |
 | `browser` | Wasm Fetch and injected-wallet adapters |
+| `rayon` | Opt-in parallel address grinding for scans (native only); includes `wallet` |
 
 For a browser build, disable native defaults and select the capabilities you need:
 

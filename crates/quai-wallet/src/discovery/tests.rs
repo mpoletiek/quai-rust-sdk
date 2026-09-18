@@ -6,13 +6,18 @@ use std::{
     sync::OnceLock,
     task::{Context, Poll, Waker},
 };
+/// Drive a future whose sources are immediately ready. Scans still return
+/// `Pending` while yielding between grinding slices, but they wake themselves,
+/// so polling again makes progress; a bounded loop catches a real stall.
 pub(crate) fn ready<F: Future>(future: F) -> F::Output {
     let mut context = Context::from_waker(Waker::noop());
     let mut future = std::pin::pin!(future);
-    match future.as_mut().poll(&mut context) {
-        Poll::Ready(value) => value,
-        Poll::Pending => panic!("test source should be immediately ready"),
+    for _ in 0..1_000_000 {
+        if let Poll::Ready(value) = future.as_mut().poll(&mut context) {
+            return value;
+        }
     }
+    panic!("test source should be ready apart from grinding yields")
 }
 fn scope() -> NetworkScope {
     NetworkScope {
@@ -166,6 +171,7 @@ fn request() -> DiscoveryRequest {
         require_history: false,
         max_addresses: 100,
         max_coins: 100,
+        grinding: crate::Grinding::Sequential,
     }
 }
 #[test]
@@ -317,4 +323,195 @@ fn watch_only_quai_both_branches_and_spendability_flags() {
     assert!(classify_coin(&coin, U256::from(10), false).spendable);
     assert!(classify_coin(&coin, U256::from(20), false).expired);
     assert!(!classify_coin(&coin, U256::from(10), true).spendable);
+}
+
+/// Records each `observe_many` window, delegating every address to `Source`.
+struct Recording {
+    inner: Source,
+    windows: std::sync::Mutex<Vec<Vec<DerivedAddress>>>,
+}
+impl ObservationSource for Recording {
+    fn history_capability(&self, scope: NetworkScope, coin: CoinType) -> HistoryCapability {
+        self.inner.history_capability(scope, coin)
+    }
+    async fn tip(&self, scope: NetworkScope) -> Result<ScopedCheckpoint, DiscoveryError> {
+        self.inner.tip(scope).await
+    }
+    async fn observe(
+        &self,
+        _: NetworkScope,
+        _: &DerivedAddress,
+        _: Checkpoint,
+    ) -> Result<AddressObservation, DiscoveryError> {
+        panic!("the scanner reads through observe_many")
+    }
+    async fn observe_many(
+        &self,
+        scope: NetworkScope,
+        addresses: &[DerivedAddress],
+        checkpoint: Checkpoint,
+    ) -> Result<Vec<AddressObservation>, DiscoveryError> {
+        self.windows.lock().unwrap().push(addresses.to_vec());
+        let mut observed = vec![];
+        for address in addresses {
+            observed.push(self.inner.observe(scope, address, checkpoint).await?);
+        }
+        Ok(observed)
+    }
+    async fn canonical(
+        &self,
+        scope: NetworkScope,
+        height: U256,
+    ) -> Result<Option<ScopedCheckpoint>, DiscoveryError> {
+        self.inner.canonical(scope, height).await
+    }
+}
+
+#[test]
+fn windows_observe_exactly_the_reported_addresses_and_batch_deep_scans() {
+    let account = account(CoinType::Qi);
+    for (history, gap_limit) in [
+        (HistoryCapability::CurrentStateOnly, Some(1)),
+        (HistoryCapability::CurrentStateOnly, Some(2)),
+        (HistoryCapability::HistoricalEverUsed, Some(2)),
+        (HistoryCapability::HistoricalEverUsed, None),
+    ] {
+        let source = Recording {
+            inner: Source::new(history),
+            windows: Default::default(),
+        };
+        let request = DiscoveryRequest {
+            gap_limit,
+            ..request()
+        };
+        let report = ready(discover(&source, &account, &request, || false)).unwrap();
+        let windows = source.windows.into_inner().unwrap();
+        let observed: Vec<_> = windows.iter().flatten().cloned().collect();
+        let reported: Vec<_> = report.addresses.iter().map(|a| a.derived.clone()).collect();
+        // Same addresses in the same order: nothing read past the gap stop.
+        assert_eq!(observed, reported, "{history:?} gap {gap_limit:?}");
+        if gap_limit.is_none() {
+            // A deep scan is unbounded by the gap, so each branch is one window.
+            assert_eq!(windows.len(), 2);
+            assert!(windows.iter().all(|w| w.len() == 8));
+        }
+    }
+}
+
+#[test]
+fn a_short_batch_response_is_rejected() {
+    struct Short(Source);
+    impl ObservationSource for Short {
+        fn history_capability(&self, scope: NetworkScope, coin: CoinType) -> HistoryCapability {
+            self.0.history_capability(scope, coin)
+        }
+        async fn tip(&self, scope: NetworkScope) -> Result<ScopedCheckpoint, DiscoveryError> {
+            self.0.tip(scope).await
+        }
+        async fn observe(
+            &self,
+            scope: NetworkScope,
+            address: &DerivedAddress,
+            checkpoint: Checkpoint,
+        ) -> Result<AddressObservation, DiscoveryError> {
+            self.0.observe(scope, address, checkpoint).await
+        }
+        async fn observe_many(
+            &self,
+            scope: NetworkScope,
+            addresses: &[DerivedAddress],
+            checkpoint: Checkpoint,
+        ) -> Result<Vec<AddressObservation>, DiscoveryError> {
+            // Drops the last address: counting it as unused could stop a
+            // restore early, so the scanner must refuse the whole response.
+            let mut observed = vec![];
+            for address in &addresses[..addresses.len() - 1] {
+                observed.push(self.0.observe(scope, address, checkpoint).await?);
+            }
+            Ok(observed)
+        }
+        async fn canonical(
+            &self,
+            scope: NetworkScope,
+            height: U256,
+        ) -> Result<Option<ScopedCheckpoint>, DiscoveryError> {
+            self.0.canonical(scope, height).await
+        }
+    }
+    let source = Short(Source::new(HistoryCapability::CurrentStateOnly));
+    assert!(matches!(
+        ready(discover(
+            &source,
+            &account(CoinType::Qi),
+            &request(),
+            || false
+        )),
+        Err(DiscoveryError::InvalidObservation)
+    ));
+}
+
+#[test]
+fn cancellation_inside_a_window_never_advances_past_an_unrecorded_address() {
+    // A deep scan makes the receive branch one window spanning its range, so
+    // every cancelled() call can be placed exactly: one before the tip, one at
+    // the loop top, one per derived candidate, one before the read, then one
+    // after each record.
+    let account = account(CoinType::Qi);
+    let request = DiscoveryRequest {
+        gap_limit: None,
+        ..request()
+    };
+    let receive = &matches()[0];
+    let end = request.receive.end;
+
+    // Cancelled while deriving, after three addresses were already found: they
+    // were never observed, so nothing is recorded and the cursor stays put.
+    let during = 2 + receive[2].index + 1 + 2;
+    let source = Recording {
+        inner: Source::new(HistoryCapability::CurrentStateOnly),
+        windows: Default::default(),
+    };
+    let mut calls = 0;
+    let report = ready(discover(&source, &account, &request, || {
+        calls += 1;
+        calls > during
+    }))
+    .unwrap();
+    assert!(
+        source.windows.into_inner().unwrap().is_empty(),
+        "nothing read"
+    );
+    assert!(report.addresses.is_empty());
+    assert_eq!(report.coverage[0].next_index, request.receive.start);
+    assert!(report.coverage[0].skipped.is_empty());
+    assert_eq!(report.coverage[0].stop, ScanStop::Cancelled);
+
+    // Cancelled after the fourth record of a read window: the cursor is just
+    // past the last recorded address and coverage is exactly what was seen.
+    let before_records = 2 + end + 1;
+    let mut calls = 0;
+    let report = ready(discover(
+        &Source::new(HistoryCapability::CurrentStateOnly),
+        &account,
+        &request,
+        || {
+            calls += 1;
+            calls > before_records + 3
+        },
+    ))
+    .unwrap();
+    let coverage = &report.coverage[0];
+    assert_eq!(report.addresses.len(), 4);
+    assert_eq!(coverage.stop, ScanStop::Cancelled);
+    assert_eq!(coverage.next_index, receive[3].index + 1);
+    let mut examined: BTreeSet<u32> = report.addresses.iter().map(|a| a.derived.index).collect();
+    for range in &coverage.skipped {
+        for index in range.start..range.end {
+            assert!(examined.insert(index), "skipped overlaps observed");
+        }
+    }
+    assert_eq!(
+        examined,
+        (coverage.requested.start..coverage.next_index).collect()
+    );
 }

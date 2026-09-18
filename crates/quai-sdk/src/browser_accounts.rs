@@ -13,6 +13,7 @@ use quai_wallet::metadata::StorageError;
 
 /// Failures never authorize releasing a signed nonce or retrying a network send.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum BrowserAccountError {
     /// Storage error, including a revision conflict or ambiguous cancelled write.
     #[error(transparent)]

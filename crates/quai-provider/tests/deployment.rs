@@ -250,11 +250,7 @@ async fn bounded_wait_returns_failed_execution_and_times_out_without_releasing_i
     use quai_provider::{DeploymentWaitError, WaitConfig};
     use std::time::Duration;
     let reference = DeploymentReference::from_signed(genesis(), &signed(), None).unwrap();
-    let config = WaitConfig {
-        confirmations: 1,
-        timeout: Duration::from_secs(1),
-        poll_interval: Duration::from_millis(1),
-    };
+    let config = WaitConfig::new(1, Duration::from_secs(1), Duration::from_millis(1));
     let mock = Mock::new();
     assert!(matches!(
         provider(&mock)
@@ -283,18 +279,12 @@ async fn bounded_wait_returns_failed_execution_and_times_out_without_releasing_i
     let mock = Mock::new();
     mock.0.lock().unwrap().receipt = Value::Null;
     assert!(
-        matches!(provider(&mock).wait_for_deployment(&reference,WaitConfig{timeout:Duration::from_millis(20),..config}).await,Err(DeploymentWaitError::Timeout{transaction_hash,last_observed:None}) if transaction_hash==reference.transaction_hash())
+        matches!(provider(&mock).wait_for_deployment(&reference,config.with_timeout(Duration::from_millis(20))).await,Err(DeploymentWaitError::Timeout{transaction_hash,last_observed:None}) if transaction_hash==reference.transaction_hash())
     );
     let mock = Mock::new();
     assert!(matches!(
         provider(&mock)
-            .wait_for_deployment(
-                &reference,
-                WaitConfig {
-                    confirmations: 0,
-                    ..config
-                }
-            )
+            .wait_for_deployment(&reference, config.with_confirmations(0))
             .await,
         Err(DeploymentWaitError::InvalidConfig)
     ));

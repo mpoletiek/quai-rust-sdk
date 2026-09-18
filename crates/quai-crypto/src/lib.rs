@@ -41,6 +41,7 @@ pub fn recover_message_signer(
 
 /// Errors never include secret input or backend diagnostic strings.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub enum CryptoError {
     /// A scalar encoding is outside the secp256k1 group order.
     InvalidScalar,

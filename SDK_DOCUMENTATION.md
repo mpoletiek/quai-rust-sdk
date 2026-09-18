@@ -1,7 +1,7 @@
 # Quai Rust SDK documentation
 
 This is the integration guide for the SDK in this repository, version
-`0.1.0-alpha.3`. It covers the public crate layers, native and browser workflows,
+`0.1.0-alpha.4`. It covers the public crate layers, native and browser workflows,
 recovery formats, limits, examples and verification. Exact Rust signatures and
 field documentation are hosted on [docs.rs](https://docs.rs/quai-sdk) or can be
 generated from the same checkout with `cargo doc`.
@@ -49,13 +49,15 @@ For another Rust project, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.3", features = ["sqlite", "abi", "payments", "backup"] }
+quai-sdk = { version = "=0.1.0-alpha.4", features = ["sqlite", "abi", "payments", "backup"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
 Pre-release versions are only selected when requested explicitly. The `=` pin
 keeps a later, possibly breaking alpha from being picked up automatically; commit
-the application's lockfile for reproducible builds. To follow unreleased
+the application's lockfile for reproducible builds. Through `0.1.0-alpha.3`
+the facade required its sibling `quai-*` crates with caret requirements, so on
+those versions pin every `quai-*` crate you depend on as well. To follow unreleased
 development, use `git = "https://github.com/mpoletiek/quai-rust-sdk"` with a
 reviewed `rev`, or `path = "../quai-rust-sdk/crates/quai-sdk"` for a local checkout.
 The individual crates (`quai-primitives`, `quai-provider`, `quai-wallet` and so on)
@@ -390,7 +392,8 @@ Separate types represent ordinary Qi, Qi conversion and Qi wrapping; arbitrary
 special data cannot be smuggled through the ordinary transfer signer.
 
 Local signer methods also support Quai personal messages, explicit Qi message
-signing and EIP-712. A message signature does not authorize unrelated transaction
+signing and EIP-712. Qi message signing refuses bytes that parse as a
+transaction with inputs, whose signature would also authorize that spend. A message signature does not authorize unrelated transaction
 fields. Typed-data chain policy is explicit. Secrets use guarded wrappers with
 redacted diagnostics and zeroization of owned buffers. Caller copies and every
 compiler/dependency temporary cannot be guaranteed erased.

@@ -106,6 +106,9 @@ impl<T: Transport, S: Signer> AccountSession<'_, T, S> {
             crate::account_preflight::AccountPreflightError::ObservationChanged => {
                 AccountError::ObservationChanged
             }
+            crate::account_preflight::AccountPreflightError::NetworkMismatch => {
+                AccountError::NetworkMismatch
+            }
             crate::account_preflight::AccountPreflightError::Invalid => {
                 AccountError::InvalidOperation
             }

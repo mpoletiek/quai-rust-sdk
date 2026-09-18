@@ -448,7 +448,10 @@ native database and real Chromium worker regressions cover integration.
 `signer::Signer::sign_qi_message` uses the published Qi wallet's BIP340-over-Keccak
 format, returning a 64-byte `SchnorrSignature`. Pass raw bytes, or UTF-8 with
 `text.as_bytes()`. No personal-message prefix, chain ID or application domain is
-added. `signer::verify_qi_message` requires both the expected Qi address and its
+added, so a Qi spend's signing preimage is itself a valid message: bytes that
+parse as a transaction with inputs are refused with
+`SignerError::QiTransactionMessage`. Never sign bytes a third party chose
+without showing the user what they are. `signer::verify_qi_message` requires both the expected Qi address and its
 full public key; signatures have no recovery byte and x-only public keys cannot
 identify the address's Y parity.
 
@@ -573,6 +576,71 @@ heights and distinct nonzero hashes. Restored cursors still recheck the node.
 They are observations, not chain proofs. Wallet backups exclude ancestry caches;
 restore tombstones any existing destination cursor so a stale writer cannot
 reinsert it. No replay path broadcasts transactions or releases signed claims.
+
+## Running a desktop wallet: transports, connections and sync order
+
+**Transports.** Send requests over `HttpTransport`: it pools connections,
+bounds every request with a deadline and batches chain-guarded reads. A
+`WsTransport` serves one endpoint and a disconnect is terminal, so use it for
+push, through one `WsHeadFollower` per active zone. The follower reconnects
+within its `max_connect_attempts` and polls after a quiet interval. Supervise
+it with backoff and fall back to polling a `HeadTracker` over HTTP.
+`DynTransport` lets one `Provider<DynTransport>` type hold whichever transport
+is configured. To switch endpoints, build a new provider and swap an
+`Arc<Provider<_>>`: sessions borrow a provider, so an operation in flight
+finishes on the endpoint it started on.
+
+**Store connections.** `AccountSession` and `QiSession` hold `&mut SqliteStore`
+across network awaits, so give background sync and each user-initiated send
+their own `SqliteStore` handle on the same file (`open_with_busy_timeout` sets
+the lock wait). Writers fence each other through the scope generation: when
+sync invalidates a snapshot while a send is preparing, the send fails with an
+error whose `class()` is `Stale` instead of reserving from stale state. Session
+futures are `Send`, so either task can run on a multi-threaded runtime.
+Discovery grinds addresses in slices of about 20 ms and yields between them,
+so other ready tasks run between slices; with the `rayon` feature,
+`Grinding::Parallel` on the scan options spreads each slice across the rayon
+pool. The yield is not enough everywhere, though. A tokio current-thread
+runtime polls I/O and timers only occasionally while tasks keep waking, and a
+browser runs the resumed scan as a microtask, so the page neither renders nor
+handles input until the scan finishes. Run scans on a multi-thread runtime with
+at least two workers, on a dedicated thread, or in a Web Worker.
+
+**Sync order for each new head.**
+
+1. `recovery::reconcile_persisted_head_replay` records the head and applies
+   any reorg in one transaction: inclusions revert to Submitted and the coin
+   snapshot is invalidated.
+2. `qi_discovery::refresh_qi` rebuilds the coin snapshot when step 1 reports
+   `refresh_required`, or on a timer. It is labelled with the tip observed
+   before its reads and written only if the tip has not moved by the end of
+   them; after three attempts on a moving tip it fails with `StaleSnapshot`
+   (class `Stale`).
+3. Observe pending operations: `observe_nonce` and `observe_candidates` for
+   accounts, `observe_candidates` for Qi.
+4. Occasionally, `discover_mailbox_channels` page by page.
+
+Each step's errors carry an `ErrorClass`: retry `Transient` with backoff,
+observe again on `Stale`, stop and alert on `NetworkMismatch`, never resubmit
+on `Ambiguous` (reconcile by transaction hash), and surface `Invalid` and
+`Storage`.
+
+## Listing outgoing activity
+
+`SqliteStore::activity(after, limit)` lists the wallet's outgoing operations
+from its own durable records, paged by `ReservationId`. Each entry's status is
+`Preparing`, `Cancelled`, `Signed`, `Pending` or `Included { block, .. }`;
+inclusion is an observation, not finality. Signed entries are decoded: an
+account transaction's recipient, value, nonce and maximum fee, or a Qi
+operation's kind with the value sent and the value returned as change. Only
+outputs to the wallet's own Qi BIP44 addresses are change. Outputs to imported
+or payment-channel addresses, and every conversion or wrapping output, count as
+sent. Nothing is read from the network.
+
+Incoming history is not in this list. Quai has no by-address transaction
+query, and past Qi receipts need the node's outpoint history
+(`Provider::outpoint_deltas`) or an indexer. The coin snapshot shows current
+holdings, not what was received.
 
 ## Signing and submitting through an injected browser wallet
 

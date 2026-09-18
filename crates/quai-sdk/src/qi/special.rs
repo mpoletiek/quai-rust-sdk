@@ -85,7 +85,7 @@ impl<T: Transport> QiSession<'_, T> {
         intent: QiSpecialIntent,
         explicit_fee: U256,
         policy: QiPolicy,
-        change: QiChangePool,
+        mut change: impl BorrowMut<QiChangePool>,
     ) -> Result<PreparedQiOperation, QiError> {
         self.prepare_special_inner(
             id,
@@ -93,7 +93,7 @@ impl<T: Transport> QiSession<'_, T> {
             intent,
             FeeMode::Explicit(explicit_fee),
             policy,
-            change,
+            change.borrow_mut(),
         )
         .await
     }
@@ -106,7 +106,7 @@ impl<T: Transport> QiSession<'_, T> {
         intent: QiSpecialIntent,
         profile: QiFeeProfile,
         policy: QiPolicy,
-        change: QiChangePool,
+        mut change: impl BorrowMut<QiChangePool>,
     ) -> Result<PreparedQiOperation, QiError> {
         self.prepare_special_inner(
             id,
@@ -114,7 +114,7 @@ impl<T: Transport> QiSession<'_, T> {
             intent,
             FeeMode::Estimated(profile),
             policy,
-            change,
+            change.borrow_mut(),
         )
         .await
     }
@@ -125,7 +125,7 @@ impl<T: Transport> QiSession<'_, T> {
         intent: QiSpecialIntent,
         mode: FeeMode,
         policy: QiPolicy,
-        change: QiChangePool,
+        change: &mut QiChangePool,
     ) -> Result<PreparedQiOperation, QiError> {
         let (mut fee, rounds) = match mode {
             FeeMode::Explicit(fee) => (fee, 1),
@@ -265,6 +265,7 @@ impl<T: Transport> QiSession<'_, T> {
                     .map(|coin| coin.outpoint)
                     .collect::<Vec<_>>(),
             )?;
+            change.addresses.drain(..selection.change_outputs.len());
             return Ok(PreparedQiOperation {
                 instance: self.store.instance(),
                 scope,

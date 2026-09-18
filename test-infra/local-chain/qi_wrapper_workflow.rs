@@ -445,14 +445,13 @@ pub(super) async fn workflow(
                     id,
                     hash,
                     kind,
-                    quai_sdk::provider::EtxScanRequest {
-                        zone: Zone::Cyprus1,
-                        from: u64::try_from(block.height)?,
-                        to: head.number,
-                        max_transactions_per_block: 1024,
-                        max_total_transactions: 16384,
-                        preceding_block: None,
-                    },
+                    quai_sdk::provider::EtxScanRequest::new(
+                        Zone::Cyprus1,
+                        u64::try_from(block.height)?,
+                        head.number,
+                        1024,
+                        16384,
+                    ),
                     100,
                 )
                 .await?;

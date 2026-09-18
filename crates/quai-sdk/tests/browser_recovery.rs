@@ -262,14 +262,8 @@ struct SettlementCase {
 }
 fn settlement_cases() -> Vec<SettlementCase> {
     use quai_sdk::settlement_observation::SettlementKind;
-    let request = quai_sdk::provider::EtxScanRequest {
-        zone: Zone::Cyprus1,
-        from: 16,
-        to: 16,
-        max_transactions_per_block: 16,
-        max_total_transactions: 32,
-        preceding_block: None,
-    };
+    let request = quai_sdk::provider::EtxScanRequest::new(Zone::Cyprus1, 16, 16, 16, 32)
+        .with_preceding_block(None);
     let mut cases = vec![];
     for row in qi_vectors() {
         let bytes = get_bytes(row["signed"].as_str().unwrap()).unwrap();

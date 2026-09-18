@@ -9,6 +9,41 @@ use zeroize::{Zeroize, Zeroizing};
 
 const HARDENED: u32 = 1 << 31;
 
+/// Candidates per thread in one parallel grind chunk. See `search_parallel`.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+const CHUNK_PER_THREAD: usize = 8;
+/// Lower bound, so a single-threaded pool still batches enough to amortize.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+const MIN_CHUNK: u32 = 32;
+/// Upper bound on wasted derivation past a match within one chunk.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+const MAX_CHUNK: u32 = 512;
+/// Candidates per thread in one window chunk. A window overshoots only after
+/// its last match, so its chunks can be far wider than a single search's.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+const WINDOW_CHUNK_PER_THREAD: usize = 64;
+/// Candidates derived together, sharing one field inversion. Small, because a
+/// single-address search discards up to this many minus one past its match.
+const SCAN_BATCH: u32 = 32;
+/// Candidates between yields when grinding sequentially: about 20 ms.
+const SEQUENTIAL_SLICE: u32 = 512;
+/// Window chunks between yields when grinding in parallel.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+const PARALLEL_SLICE_CHUNKS: u32 = 4;
+
+/// How a scan derives candidate addresses.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[non_exhaustive]
+pub enum Grinding {
+    /// One candidate at a time on the calling thread. No threads are spawned.
+    #[default]
+    Sequential,
+    /// Chunks of candidates across the rayon pool, with results identical to
+    /// the sequential search. Uses every pool thread while it runs.
+    #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+    Parallel,
+}
+
 /// Public BIP32 derivation metadata. Sharing chain information reduces wallet privacy.
 /// A four-byte fingerprint is a routing hint, not proof of key ownership.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -444,6 +479,100 @@ impl HdWallet {
     }
 }
 
+/// A branch node prepared for repeated nonhardened child derivation.
+///
+/// This exists because address grinding is the SDK's dominant CPU cost. Quai
+/// encodes the zone in address byte 0 and the ledger in bit 7 of byte 1, and
+/// both come from the Keccak hash of the derived point, so a usable address
+/// cannot be chosen -- it is ground for, at roughly one in 256 * 2 candidates.
+/// A scan therefore performs hundreds of times more derivation than a standard
+/// BIP44 gap scan, which is what makes per-candidate work worth removing.
+///
+/// Against `bip32::ExtendedPublicKey::derive_child` this drops three costs the
+/// grind does not need:
+///
+/// 1. `bip32` multiplies with k256's generic `Mul` (`public_key.rs`, unchanged
+///    on its current main branch), which never consults the precomputed
+///    generator table. `PublicKey::add_tweak` uses `mul_by_generator`, which
+///    does. That is the dominant term.
+/// 2. `derive_child` computes a RIPEMD160(SHA256(..)) parent fingerprint for the
+///    child's metadata. A scan reads the point and nothing else.
+/// 3. The caller then went through `to_bytes` and `from_sec1_bytes`, compressing
+///    a point only to decompress it again: a modular square root per candidate.
+///
+/// The output is bit-identical to `bip32`, including its zero/overflow
+/// rejection, which `tests/hd_ckdpub.rs` asserts differentially. `bip32` remains
+/// the only path for extended-key import, export and serialization; this is used
+/// solely where a scan needs a child point.
+struct ScanBranch {
+    public_key: PublicKey,
+    /// Parent chain code. Sensitive: it permits deriving every sibling.
+    chain_code: Zeroizing<[u8; 32]>,
+    /// Cached compressed parent, the constant 33-byte HMAC prefix.
+    compressed: [u8; 33],
+}
+
+impl ScanBranch {
+    fn new(node: &ExtendedPublicKey) -> Result<Self, WalletError> {
+        let public_key = node.public_key()?;
+        Ok(Self {
+            public_key,
+            chain_code: Zeroizing::new(node.0.attrs().chain_code),
+            compressed: public_key.to_compressed(),
+        })
+    }
+
+    /// One CKDpub step, returning only the child point.
+    ///
+    /// `I = HMAC-SHA512(c_par, ser_P(K_par) || ser32(i))`, child point
+    /// `K_i = point(I_L) + K_par`. `I_R` is the child chain code, which a leaf
+    /// never uses, so it is not returned; the hash still computes it and the
+    /// guard still erases it.
+    /// [`Self::child_public_key`] for `count` consecutive indexes from `start`,
+    /// in order, normalized together. Each slot equals the single call's result.
+    fn child_public_keys(&self, start: u32, count: u32) -> Vec<Result<PublicKey, WalletError>> {
+        let mut tweaks = Vec::with_capacity(count as usize);
+        let slots: Vec<Result<usize, WalletError>> = (0..count)
+            .map(|offset| {
+                let index = start
+                    .checked_add(offset)
+                    .filter(|index| *index < HARDENED)
+                    .ok_or(WalletError::HardenedPublicChild)?;
+                tweaks.push(self.tweak(index)?);
+                Ok(tweaks.len() - 1)
+            })
+            .collect();
+        let points = self.public_key.add_tweaks(&tweaks);
+        slots
+            .into_iter()
+            .map(|slot| slot.and_then(|at| points[at].map_err(|_| WalletError::Derivation)))
+            .collect()
+    }
+
+    /// The CKDpub tweak `I_L` for a child, as a validated scalar.
+    fn tweak(&self, index: u32) -> Result<SecretKey, WalletError> {
+        let mut data = [0u8; 37];
+        data[..33].copy_from_slice(&self.compressed);
+        data[33..].copy_from_slice(&index.to_be_bytes());
+        let hash = Zeroizing::new(quai_crypto::hmac_sha512(&*self.chain_code, &data));
+        let mut tweak = Zeroizing::new([0u8; 32]);
+        tweak.copy_from_slice(&hash[..32]);
+        // BIP32 says to skip an index whose tweak is zero or >= n. `bip32`
+        // returns an error instead, noting the probability is below 1 in 2^127;
+        // match that exactly rather than diverging on a case neither will meet.
+        SecretKey::from_bytes(&tweak).map_err(|_| WalletError::Derivation)
+    }
+
+    fn child_public_key(&self, index: u32) -> Result<PublicKey, WalletError> {
+        if index >= HARDENED {
+            return Err(WalletError::HardenedPublicChild);
+        }
+        self.public_key
+            .add_tweak(&self.tweak(index)?)
+            .map_err(|_| WalletError::Derivation)
+    }
+}
+
 /// An account xpub and explicit origin metadata, suitable for watch-only use.
 #[derive(Clone, Debug)]
 pub struct AccountPublic {
@@ -476,19 +605,20 @@ impl AccountPublic {
     }
     /// Derive and validate one exact index's zone and ledger.
     pub fn derive_address(&self, change: bool, index: u32) -> Result<DerivedAddress, WalletError> {
-        let node = self
-            .key
-            .derive_child(u32::from(change), false)?
-            .derive_child(index, false)?;
-        self.address_info(node, change, index)
+        let branch = ScanBranch::new(&self.key.derive_child(u32::from(change), false)?)?;
+        self.address_from_key(branch.child_public_key(index)?, change, index)
     }
-    fn address_info(
+    /// Validate one derived point's zone and ledger.
+    ///
+    /// Takes a point already in hand, so the grind path never compresses a point
+    /// only to decompress it again, which costs a modular square root per
+    /// candidate.
+    fn address_from_key(
         &self,
-        node: ExtendedPublicKey,
+        public: PublicKey,
         change: bool,
         index: u32,
     ) -> Result<DerivedAddress, WalletError> {
-        let public = node.public_key()?;
         let address = public.address();
         let zone = address
             .zone()
@@ -506,55 +636,422 @@ impl AccountPublic {
             zone,
         })
     }
+
+    /// Parallel equivalent of [`Self::search`], returning an identical result.
+    ///
+    /// Grinding is embarrassingly parallel: each candidate is an independent
+    /// public derivation, and roughly 511 of every 512 are discarded. This
+    /// splits the range into chunks, derives each chunk across the rayon pool,
+    /// and takes the match with the **lowest index**.
+    ///
+    /// Reducing on lowest index rather than first-to-finish is what makes the
+    /// result identical to the sequential search rather than merely valid: a
+    /// wallet that resumed from a different match would derive a different
+    /// address set, and `next_index` is persisted monotonically, so a
+    /// nondeterministic search could skip an address permanently. `attempts`
+    /// likewise reports what the sequential search would have examined, not how
+    /// many candidates the pool derived, so the two agree on every field.
+    ///
+    /// Two deliberate differences from [`Self::search`]:
+    ///
+    /// - Cancellation is checked once per chunk rather than once per candidate,
+    ///   so it is coarser. On cancellation the reported `next_index` is the
+    ///   start of the unexamined remainder, so resuming never skips a candidate.
+    /// - The pool may derive past a match within its chunk, so it performs
+    ///   more total work for less wall clock. On a
+    ///   battery or CPU budget, prefer the sequential search.
+    ///
+    /// Only public derivation runs here; no secret scalar is shared with the
+    /// pool.
+    #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+    pub fn search_parallel(
+        &self,
+        change: bool,
+        search: Search,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<SearchResult, WalletError> {
+        use rayon::prelude::*;
+
+        child(search.start_index, false)?;
+        if search.max_attempts == 0 || search.max_attempts > 10_000_000 {
+            return Err(WalletError::InvalidSearchLimit);
+        }
+        let branch = ScanBranch::new(&self.key.derive_child(u32::from(change), false)?)?;
+
+        // Sized to amortize the pool's per-chunk overhead, NOT to the hit rate.
+        // A chunk wide enough to usually contain a match derives far more
+        // candidates than the sequential search would examine, and that wasted
+        // work cancels the parallelism: at 2048 this measured slower than
+        // sequential. Keeping the chunk near the thread count bounds the
+        // overshoot to roughly one chunk while still filling every core.
+        let chunk = u32::try_from(rayon::current_num_threads().saturating_mul(CHUNK_PER_THREAD))
+            .unwrap_or(u32::MAX)
+            .clamp(MIN_CHUNK, MAX_CHUNK);
+
+        let mut examined = 0u32;
+        while examined < search.max_attempts {
+            if cancelled() {
+                return Err(WalletError::Cancelled {
+                    attempts: examined,
+                    next_index: search
+                        .start_index
+                        .checked_add(examined)
+                        .filter(|next| *next < HARDENED)
+                        .ok_or(WalletError::SearchExhausted {
+                            attempts: examined,
+                            next_index: None,
+                        })?,
+                });
+            }
+            let remaining = search.max_attempts - examined;
+            let width = chunk.min(remaining);
+            let base =
+                search
+                    .start_index
+                    .checked_add(examined)
+                    .ok_or(WalletError::SearchExhausted {
+                        attempts: examined,
+                        next_index: None,
+                    })?;
+            // Stop the chunk at the hardened boundary rather than wrapping.
+            let width = width.min(HARDENED.saturating_sub(base));
+            if width == 0 {
+                return Err(WalletError::SearchExhausted {
+                    attempts: examined,
+                    next_index: None,
+                });
+            }
+
+            // The first match or hard error in index order, exactly what the
+            // sequential search would reach first. `find_map_first` resolves
+            // by position, not by which thread finishes first.
+            let first = (0..width).into_par_iter().find_map_first(|offset| {
+                let index = base + offset;
+                match branch
+                    .child_public_key(index)
+                    .and_then(|point| self.address_from_key(point, change, index))
+                {
+                    Ok(address) if address.zone == search.zone => Some((offset, Ok(address))),
+                    Ok(_) | Err(WalletError::InvalidDerivedAddress) => None,
+                    Err(error) => Some((offset, Err(error))),
+                }
+            });
+            match first {
+                Some((_, Err(error))) => return Err(error),
+                Some((offset, Ok(address))) => {
+                    let index = base + offset;
+                    return Ok(SearchResult {
+                        address,
+                        attempts: examined + offset + 1,
+                        next_index: index.checked_add(1).filter(|next| *next < HARDENED),
+                    });
+                }
+                None => examined += width,
+            }
+        }
+        Err(WalletError::SearchExhausted {
+            attempts: examined,
+            next_index: search
+                .start_index
+                .checked_add(examined)
+                .filter(|next| *next < HARDENED),
+        })
+    }
+
     /// Bounded synchronous search with a cancellation check before each candidate.
     /// Offload long searches through the caller's chosen runtime; no hidden threads are spawned.
     pub fn search(
         &self,
         change: bool,
         search: Search,
-        mut cancelled: impl FnMut() -> bool,
+        cancelled: impl FnMut() -> bool,
     ) -> Result<SearchResult, WalletError> {
+        let mut window = self.search_window(change, search, 1, cancelled)?;
+        match (window.stop, window.addresses.pop()) {
+            (WindowStop::Filled, Some(address)) => Ok(SearchResult {
+                address,
+                attempts: window.attempts,
+                next_index: window.next_index,
+            }),
+            (WindowStop::Cancelled, _) => Err(WalletError::Cancelled {
+                attempts: window.attempts,
+                next_index: window.next_index.ok_or(WalletError::InvalidSearchLimit)?,
+            }),
+            _ => Err(WalletError::SearchExhausted {
+                attempts: window.attempts,
+                next_index: window.next_index,
+            }),
+        }
+    }
+
+    /// Up to `count` consecutive matching addresses, deriving the branch once.
+    ///
+    /// Scanners read a window of addresses per round trip. Calling
+    /// [`Self::search`] once per address re-derived the branch node through
+    /// `bip32` each time; this derives it once for the whole window. Candidates
+    /// are examined in the same order with the same cancellation check before
+    /// each one, so the addresses are exactly what `count` successive searches
+    /// would return. `max_attempts` bounds the candidates across the window.
+    ///
+    /// Running out of candidates or being cancelled is a [`WindowStop`], not an
+    /// error, because the addresses already found remain valid.
+    pub fn search_window(
+        &self,
+        change: bool,
+        search: Search,
+        count: usize,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<SearchWindow, WalletError> {
         child(search.start_index, false)?;
-        if search.max_attempts == 0 || search.max_attempts > 10_000_000 {
+        if count == 0 || search.max_attempts == 0 || search.max_attempts > 10_000_000 {
             return Err(WalletError::InvalidSearchLimit);
         }
-        let node = self.key.derive_child(u32::from(change), false)?;
-        let mut index = search.start_index;
-        for attempt in 0..search.max_attempts {
+        // Hoisted once per window; the per-candidate step avoids the generic
+        // scalar multiply, the unused parent fingerprint and the compress
+        // round trip that `ExtendedPublicKey::derive_child` performs.
+        let branch = ScanBranch::new(&self.key.derive_child(u32::from(change), false)?)?;
+        let mut window = SearchWindow {
+            addresses: Vec::with_capacity(count.min(64)),
+            attempts: 0,
+            next_index: Some(search.start_index),
+            stop: WindowStop::Exhausted,
+        };
+        // Candidates are derived in batches that share one field inversion,
+        // then consumed one at a time: the cancellation check still precedes
+        // each candidate, and an error surfaces at its own index, so attempts
+        // and next_index are unchanged. At most BATCH - 1 derivations past the
+        // last match are discarded.
+        let mut batch = Vec::new().into_iter();
+        while window.attempts < search.max_attempts {
+            let Some(index) = window.next_index else {
+                break;
+            };
             if cancelled() {
-                return Err(WalletError::Cancelled {
-                    attempts: attempt,
-                    next_index: index,
-                });
+                window.stop = WindowStop::Cancelled;
+                return Ok(window);
             }
-            let candidate = node.derive_child(index, false)?;
-            let next_index = index.checked_add(1).filter(|next| *next < HARDENED);
-            match self.address_info(candidate, change, index) {
+            if batch.len() == 0 {
+                let width = SCAN_BATCH
+                    .min(search.max_attempts - window.attempts)
+                    .min(HARDENED - index);
+                batch = branch.child_public_keys(index, width).into_iter();
+            }
+            let candidate = batch.next().expect("a batch covers the next index")?;
+            window.attempts += 1;
+            window.next_index = index.checked_add(1).filter(|next| *next < HARDENED);
+            match self.address_from_key(candidate, change, index) {
                 Ok(address) if address.zone == search.zone => {
-                    return Ok(SearchResult {
-                        address,
-                        attempts: attempt + 1,
-                        next_index,
-                    });
+                    window.addresses.push(address);
+                    if window.addresses.len() == count {
+                        window.stop = WindowStop::Filled;
+                        return Ok(window);
+                    }
                 }
                 Ok(_) | Err(WalletError::InvalidDerivedAddress) => {}
                 Err(error) => return Err(error),
             }
-            match next_index {
-                Some(next) => index = next,
-                None => {
-                    return Err(WalletError::SearchExhausted {
-                        attempts: attempt + 1,
-                        next_index: None,
-                    });
+        }
+        Ok(window)
+    }
+}
+
+impl AccountPublic {
+    /// [`Self::search_window`] ground in short slices, returning control to
+    /// the executor between them.
+    ///
+    /// A window grinds for about a second on one core, which would stall an
+    /// async executor thread for as long. The search is resumable at
+    /// `next_index`, so the result, cancellation points included, is exactly
+    /// the one-call result. No runtime is assumed: yielding wakes the task and
+    /// returns `Pending` once.
+    ///
+    /// That lets other ready tasks run, but it does not free a tokio
+    /// current-thread runtime, which polls I/O and timers only occasionally
+    /// while tasks keep waking, or a browser, where the woken future resumes as
+    /// a microtask before the page can render. There, run the scan on a
+    /// multi-thread runtime with at least two workers, a dedicated thread or a
+    /// Web Worker.
+    pub async fn search_window_async(
+        &self,
+        change: bool,
+        search: Search,
+        count: usize,
+        grinding: Grinding,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<SearchWindow, WalletError> {
+        if count == 0 || search.max_attempts == 0 || search.max_attempts > 10_000_000 {
+            return Err(WalletError::InvalidSearchLimit);
+        }
+        let mut window = SearchWindow {
+            addresses: Vec::with_capacity(count.min(64)),
+            attempts: 0,
+            next_index: Some(search.start_index),
+            stop: WindowStop::Exhausted,
+        };
+        loop {
+            let Some(start_index) = window.next_index else {
+                return Ok(window);
+            };
+            let remaining = search.max_attempts - window.attempts;
+            let wanted = count - window.addresses.len();
+            let part = match grinding {
+                Grinding::Sequential => self.search_window(
+                    change,
+                    Search {
+                        zone: search.zone,
+                        start_index,
+                        max_attempts: remaining.min(SEQUENTIAL_SLICE),
+                    },
+                    wanted,
+                    &mut cancelled,
+                )?,
+                #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+                Grinding::Parallel => self.search_window_parallel(
+                    change,
+                    Search {
+                        zone: search.zone,
+                        start_index,
+                        max_attempts: remaining
+                            .min(window_chunk().saturating_mul(PARALLEL_SLICE_CHUNKS)),
+                    },
+                    wanted,
+                    &mut cancelled,
+                )?,
+            };
+            window.addresses.extend(part.addresses);
+            window.attempts += part.attempts;
+            window.next_index = part.next_index;
+            if part.stop != WindowStop::Exhausted || window.attempts == search.max_attempts {
+                window.stop = part.stop;
+                return Ok(window);
+            }
+            YieldOnce(false).await;
+        }
+    }
+
+    /// [`Self::search_window`] across the rayon pool, with an identical result.
+    ///
+    /// Each chunk is derived in parallel and then consumed strictly in index
+    /// order, so the addresses, `attempts`, `next_index` and the first hard
+    /// error are exactly the sequential search's; derivation past the last
+    /// match of a window is discarded. Cancellation is checked once per chunk,
+    /// and on cancellation `next_index` is the chunk's first unexamined index.
+    #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+    pub fn search_window_parallel(
+        &self,
+        change: bool,
+        search: Search,
+        count: usize,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<SearchWindow, WalletError> {
+        use rayon::prelude::*;
+
+        child(search.start_index, false)?;
+        if count == 0 || search.max_attempts == 0 || search.max_attempts > 10_000_000 {
+            return Err(WalletError::InvalidSearchLimit);
+        }
+        let branch = ScanBranch::new(&self.key.derive_child(u32::from(change), false)?)?;
+        let mut window = SearchWindow {
+            addresses: Vec::with_capacity(count.min(64)),
+            attempts: 0,
+            next_index: Some(search.start_index),
+            stop: WindowStop::Exhausted,
+        };
+        while window.attempts < search.max_attempts {
+            let Some(base) = window.next_index else {
+                break;
+            };
+            if cancelled() {
+                window.stop = WindowStop::Cancelled;
+                return Ok(window);
+            }
+            let width = window_chunk()
+                .min(search.max_attempts - window.attempts)
+                .min(HARDENED - base);
+            let derived: Vec<_> = (0..width)
+                .into_par_iter()
+                .map(|offset| {
+                    let index = base + offset;
+                    match branch
+                        .child_public_key(index)
+                        .and_then(|point| self.address_from_key(point, change, index))
+                    {
+                        Ok(address) if address.zone == search.zone => Ok(Some(address)),
+                        Ok(_) | Err(WalletError::InvalidDerivedAddress) => Ok(None),
+                        Err(error) => Err(error),
+                    }
+                })
+                .collect();
+            for (offset, result) in (0..width).zip(derived) {
+                let index = base + offset;
+                window.attempts += 1;
+                window.next_index = index.checked_add(1).filter(|next| *next < HARDENED);
+                if let Some(address) = result? {
+                    window.addresses.push(address);
+                    if window.addresses.len() == count {
+                        window.stop = WindowStop::Filled;
+                        return Ok(window);
+                    }
                 }
             }
         }
-        Err(WalletError::SearchExhausted {
-            attempts: search.max_attempts,
-            next_index: Some(index),
-        })
+        Ok(window)
     }
+}
+
+/// Candidates in one parallel window chunk.
+#[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+fn window_chunk() -> u32 {
+    u32::try_from(rayon::current_num_threads().saturating_mul(WINDOW_CHUNK_PER_THREAD))
+        .unwrap_or(u32::MAX)
+        .clamp(MIN_CHUNK, 4096)
+}
+
+/// Ready on its second poll, having woken its task on the first.
+struct YieldOnce(bool);
+impl std::future::Future for YieldOnce {
+    type Output = ();
+    fn poll(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<()> {
+        if self.0 {
+            std::task::Poll::Ready(())
+        } else {
+            self.0 = true;
+            cx.waker().wake_by_ref();
+            std::task::Poll::Pending
+        }
+    }
+}
+
+/// Matching addresses from one [`AccountPublic::search_window`] call.
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct SearchWindow {
+    /// Matches in derivation-index order.
+    pub addresses: Vec<DerivedAddress>,
+    /// Candidates examined, including matches.
+    pub attempts: u32,
+    /// First unexamined candidate, or None past the last nonhardened index.
+    pub next_index: Option<u32>,
+    /// Why the window ended.
+    pub stop: WindowStop,
+}
+
+/// Why a [`SearchWindow`] ended.
+///
+/// Exhaustive on purpose: `Cancelled` means the window's addresses must be
+/// discarded, and a new stop reason should fail to compile, not fall into a
+/// wildcard arm.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum WindowStop {
+    /// The requested number of addresses was found.
+    Filled,
+    /// `max_attempts` or the nonhardened index space ran out first.
+    Exhausted,
+    /// Cancellation was observed before examining `next_index`.
+    Cancelled,
 }
 
 /// Explicit search range; returned continuation metadata supports caller-owned checkpoints.

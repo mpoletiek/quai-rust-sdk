@@ -15,6 +15,7 @@ pub use crate::settlement_observation::SettlementKind;
 /// Current observations saved before this result is returned. A later reorg or
 /// source change can invalidate them; claims and signed bytes remain untouched.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct SettlementUpdate {
     /// Compare-and-exchange cache revision after persistence.
     pub revision: u64,

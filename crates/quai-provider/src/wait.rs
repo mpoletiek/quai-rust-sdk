@@ -6,6 +6,7 @@ use thiserror::Error;
 
 /// Explicit limits for native confirmation polling. No retry/submission is performed.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct WaitConfig {
     /// Positive block confirmation count, including the receipt's own block.
     pub confirmations: u64,
@@ -14,9 +15,35 @@ pub struct WaitConfig {
     /// Positive delay between incomplete observations, no longer than timeout.
     pub poll_interval: Duration,
 }
+impl WaitConfig {
+    /// Every limit is required: there is deliberately no default.
+    pub const fn new(confirmations: u64, timeout: Duration, poll_interval: Duration) -> Self {
+        Self {
+            confirmations,
+            timeout,
+            poll_interval,
+        }
+    }
+    /// Replace `confirmations`.
+    pub const fn with_confirmations(mut self, confirmations: u64) -> Self {
+        self.confirmations = confirmations;
+        self
+    }
+    /// Replace `timeout`.
+    pub const fn with_timeout(mut self, timeout: Duration) -> Self {
+        self.timeout = timeout;
+        self
+    }
+    /// Replace `poll_interval`.
+    pub const fn with_poll_interval(mut self, poll_interval: Duration) -> Self {
+        self.poll_interval = poll_interval;
+        self
+    }
+}
 
 /// Native confirmation-wait failures never imply a transaction was rejected or cancelled.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum WaitError {
     /// No RPC was made because configuration cannot produce a bounded poll loop.
     #[error("invalid confirmation wait limits")]

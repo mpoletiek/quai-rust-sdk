@@ -26,6 +26,34 @@ requirements are listed in [status](../IMPLEMENTATION_STATUS.md) and
   qualification in progress. Native feature checks do not prove browser support.
 - `quai-sdk`: facade and native account orchestration, without duplicating codecs.
 
+## API evolution
+
+Four categories, so the chain and the SDK can grow without a breaking release
+where that is safe, and cannot where it is not:
+
+- **Non-exhaustive:** error enums, resource `*Config` and follow policies, scan
+  options and requests, and reports and updates. Errors and limits keep growing
+  as the chain does, and a new report field is harmless to a reader.
+- **Exhaustive, deliberately:** outcome enums that gate a decision to commit,
+  release, sign or broadcast, such as `ScanStop`, `WindowStop`,
+  `CanonicalStatus`, `ActivityStatus`, `ChannelRegistration`, `ErrorClass` and
+  the candidate statuses. A new variant must fail to
+  compile rather than fall into a wildcard arm in a wallet.
+- **Exhaustive, deliberately:** caller-authorized spend limits, such as
+  `FeePolicy`, `QiPolicy`, `ReplacementPolicy` and `SelectionRequest`. They have
+  no safe default, so a new limit must fail to compile at every caller rather
+  than take one silently.
+- **Exhaustive:** protocol-fixed wire types, and structs a caller builds as input
+  to a trait it implements, such as `AddressObservation`.
+
+A non-exhaustive struct cannot be built with a struct literal or
+`..Default::default()` outside its crate. So every one a caller builds ships a
+`with_*` method for each field, plus `Default` or a `new` that takes the
+required fields.
+
+The public traits `Transport` and `ObservationSource` are unsealed, so a method
+added to either must have a default.
+
 ## Protocol values
 
 Raw `Address` accepts any 20 bytes with validated checksum syntax. Typed

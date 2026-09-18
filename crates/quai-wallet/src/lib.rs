@@ -27,6 +27,10 @@ pub mod qi_keys;
 mod selection;
 #[cfg(feature = "backup")]
 mod state;
+/// Application-chosen identity of one durable operation, shared by the native
+/// store and both custody books.
+#[cfg(feature = "backup")]
+pub use state::{ReservationId, ReservationState};
 #[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
 pub mod storage;
 pub use selection::{
@@ -40,13 +44,14 @@ pub use backup::{BackupError, BackupKdf, EncryptedSeedBackup, SeedBackup};
 
 pub use hd::{
     AccountPublic, CoinType, DerivedAddress, ExtendedKeyMetadata, ExtendedPrivateKey,
-    ExtendedPublicKey, HdWallet, Search, SearchResult,
+    ExtendedPublicKey, Grinding, HdWallet, Search, SearchResult, SearchWindow, WindowStop,
 };
 pub use mnemonic::{Language, Mnemonic, MnemonicEntropy, SecretString, Seed};
 use thiserror::Error;
 
 /// Wallet errors never echo phrases, passphrases, seeds or extended private keys.
 #[derive(Clone, Debug, PartialEq, Eq, Error)]
+#[non_exhaustive]
 pub enum WalletError {
     /// Invalid word count, word, language or checksum.
     #[error("invalid mnemonic")]

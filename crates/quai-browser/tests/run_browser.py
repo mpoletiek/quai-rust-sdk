@@ -107,9 +107,10 @@ class Fixture(http.server.BaseHTTPRequestHandler):
         if self.path == '/qi-hints' and method == 'quai_getOutpointsByAddress' and len(params) == 1:
             return []
         if self.path == '/qi' and method == 'quai_getOutpointsByAddress' and len(params) == 1:
-            count = getattr(self.server, 'qi_reads', 0)
-            self.server.qi_reads = count + 1
-            return [] if count else [{'txHash':'0x00000080'+'00'*28,'index':'0x0','denomination':'0x2','lock':'0x65'}]
+            # Fund the test account's first receive address by address, not by
+            # arrival order: windowed scans read several addresses concurrently.
+            funded = params[0].lower() == '0x00d8136b2d7ccc56803c2d787a1830016a8cfd90'
+            return [{'txHash':'0x00000080'+'00'*28,'index':'0x0','denomination':'0x2','lock':'0x65'}] if funded else []
         if method == 'quai_getHeaderByNumber' and params in [['0x0'], ['latest'], ['0x64']]:
             if params == ['0x0']:
                 return {'woHeader':{'hash':genesis,'number':'0x0','location':'0x','parentHash':'0x'+'00'*32}}

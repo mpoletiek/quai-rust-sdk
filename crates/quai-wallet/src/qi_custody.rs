@@ -25,6 +25,7 @@ pub struct QiInputClaim {
 }
 /// Immutable inspection of one operation. Metadata does not grant key ownership.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct QiOperation {
     /// Caller-generated unique operation ID; never reuse after release.
     pub id: ReservationId,
@@ -46,6 +47,7 @@ pub struct QiOperation {
 }
 /// Counts from a successful monotonic custody merge; observations are invalidated.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct QiMergeReport {
     /// Newly retained public address records.
     pub addresses_added: usize,

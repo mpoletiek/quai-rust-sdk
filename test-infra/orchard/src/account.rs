@@ -443,14 +443,14 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                         contract: quai_sdk::wrappers::WQI_ADDRESS.parse()?,
                         etx_index: 0,
                     },
-                    quai_sdk::provider::EtxScanRequest {
-                        zone: scope.zone,
+                    quai_sdk::provider::EtxScanRequest::new(
+                        scope.zone,
                         from,
-                        to: head.number.min(from + 31),
-                        max_transactions_per_block: 4096,
-                        max_total_transactions: 65536,
-                        preceding_block: None,
-                    },
+                        head.number.min(from + 31),
+                        4096,
+                        65536,
+                    )
+                    .with_preceding_block(None),
                     100,
                 )
                 .await?;
@@ -514,14 +514,8 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
             let (observation, credit) = provider
                 .observe_conversion_qi_credit(
                     &reference,
-                    quai_sdk::provider::EtxScanRequest {
-                        zone: Zone::Cyprus1,
-                        from,
-                        to,
-                        max_transactions_per_block: 4096,
-                        max_total_transactions: 65_536,
-                        preceding_block: preceding,
-                    },
+                    quai_sdk::provider::EtxScanRequest::new(Zone::Cyprus1, from, to, 4096, 65_536)
+                        .with_preceding_block(preceding),
                     4096,
                 )
                 .await?;
@@ -566,12 +560,11 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 .wait_for_receipt(
                     Zone::Cyprus1,
                     hash,
-                    WaitConfig {
-                        confirmations: 2,
-                        // Mainnet inclusion exceeded 90 s on 2026-09-14.
-                        timeout: Duration::from_secs(if net().mainnet() { 300 } else { 90 }),
-                        poll_interval: Duration::from_secs(2),
-                    },
+                    WaitConfig::new(
+                        2, // Mainnet inclusion exceeded 90 s on 2026-09-14.
+                        Duration::from_secs(if net().mainnet() { 300 } else { 90 }),
+                        Duration::from_secs(2),
+                    ),
                 )
                 .await?;
             println!(

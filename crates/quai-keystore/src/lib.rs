@@ -18,7 +18,11 @@ pub mod derive;
 mod json;
 
 /// Sanitized failures never include passwords, keys or mnemonic metadata.
+///
+/// Non-exhaustive: `WeakParameters` is new in 0.1.0-alpha.4, and marking the
+/// enum makes later variants additive.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
+#[non_exhaustive]
 pub enum KeystoreError {
     /// Unsupported or ambiguous document/cipher/KDF/extension.
     #[error("invalid or unsupported legacy keystore")]
@@ -32,6 +36,13 @@ pub enum KeystoreError {
     /// OS or Web Crypto entropy failed.
     #[error("secure randomness unavailable")]
     Randomness,
+    /// The document's KDF parameters are below the accepted work or salt floor.
+    ///
+    /// Distinct from [`KeystoreError::Limit`], which reports a ceiling, so a
+    /// caller can deliberately accept a weak document by lowering the floor
+    /// rather than by disabling the bound in both directions.
+    #[error("legacy keystore key derivation is weaker than the accepted minimum")]
+    WeakParameters,
 }
 /// Explicit text normalization versus exact password bytes, matching quais.js.
 pub enum Password<'a> {
@@ -72,7 +83,15 @@ impl Password<'_> {
     }
 }
 /// Fixed hostile-input KDF limits; all checked before deriving or allocating work memory.
+///
+/// Construct with [`KdfLimits::default`] and adjust through the `with_*` methods.
+/// The type is `#[non_exhaustive]` deliberately: the floors below were added
+/// after the first alpha, and adding a public field to a struct that consumers
+/// construct by literal is a breaking change. Marking it now means later policy
+/// knobs are additive, and it forces callers onto a path where a new bound is
+/// inherited from `default()` rather than silently skipped.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct KdfLimits {
     /// Maximum scrypt V/B/T memory even with parallel feature unification; default 256 MiB.
     pub max_memory_bytes: u64,
@@ -80,6 +99,21 @@ pub struct KdfLimits {
     pub max_scrypt_work: u64,
     /// Maximum PBKDF2 rounds; default 2,000,000.
     pub max_pbkdf2_rounds: u32,
+    /// Minimum N*r*p work units; default 2^20.
+    ///
+    /// Ceilings alone bound only what the document can cost *us*. A floor bounds
+    /// what it costs an attacker: nothing stops a hostile file declaring
+    /// `n=2, r=1, p=1`, which decrypts correctly and turns an import flow into
+    /// an offline oracle against the password the user just typed, at roughly
+    /// one hash per guess. Set to zero to accept any work factor deliberately.
+    pub min_scrypt_work: u64,
+    /// Minimum PBKDF2 rounds; default 100,000. Zero accepts any count.
+    pub min_pbkdf2_rounds: u32,
+    /// Minimum salt length in bytes; default 16.
+    ///
+    /// A short salt makes precomputation across victims viable; the format
+    /// otherwise permits a single byte.
+    pub min_salt_bytes: usize,
 }
 impl Default for KdfLimits {
     fn default() -> Self {
@@ -87,7 +121,76 @@ impl Default for KdfLimits {
             max_memory_bytes: 256 * 1024 * 1024,
             max_scrypt_work: 1 << 24,
             max_pbkdf2_rounds: 2_000_000,
+            min_scrypt_work: 1 << 20,
+            min_pbkdf2_rounds: 100_000,
+            min_salt_bytes: 16,
         }
+    }
+}
+impl KdfLimits {
+    /// Set the maximum scrypt working memory in bytes.
+    #[must_use]
+    pub fn with_max_memory_bytes(mut self, bytes: u64) -> Self {
+        self.max_memory_bytes = bytes;
+        self
+    }
+    /// Set the maximum scrypt `N*r*p` work.
+    #[must_use]
+    pub fn with_max_scrypt_work(mut self, work: u64) -> Self {
+        self.max_scrypt_work = work;
+        self
+    }
+    /// Set the maximum PBKDF2 round count.
+    #[must_use]
+    pub fn with_max_pbkdf2_rounds(mut self, rounds: u32) -> Self {
+        self.max_pbkdf2_rounds = rounds;
+        self
+    }
+    /// Set the minimum scrypt `N*r*p` work. Zero accepts any work factor.
+    #[must_use]
+    pub fn with_min_scrypt_work(mut self, work: u64) -> Self {
+        self.min_scrypt_work = work;
+        self
+    }
+    /// Set the minimum PBKDF2 round count. Zero accepts any count.
+    #[must_use]
+    pub fn with_min_pbkdf2_rounds(mut self, rounds: u32) -> Self {
+        self.min_pbkdf2_rounds = rounds;
+        self
+    }
+    /// Set the minimum salt length in bytes. Zero accepts any salt.
+    #[must_use]
+    pub fn with_min_salt_bytes(mut self, bytes: usize) -> Self {
+        self.min_salt_bytes = bytes;
+        self
+    }
+    /// Restore the default password-strength floors, keeping other settings.
+    ///
+    /// The counterpart to [`Self::without_strength_floors`], for a caller that
+    /// derives from a human-chosen password and wants the document policy.
+    #[must_use]
+    pub fn with_strength_floors(self) -> Self {
+        let defaults = Self::default();
+        self.with_min_scrypt_work(defaults.min_scrypt_work)
+            .with_min_pbkdf2_rounds(defaults.min_pbkdf2_rounds)
+            .with_min_salt_bytes(defaults.min_salt_bytes)
+    }
+    /// Remove the password-strength floors, keeping every resource ceiling.
+    ///
+    /// This tracks floors added in later releases: a floor introduced after this
+    /// call site was written is also removed by it. That is the intent for a
+    /// caller whose parameters are its own, and the reason a document importer
+    /// should never use it.
+    ///
+    /// The floors defend against an attacker-authored document. Removing them is
+    /// the right call when the parameters are the caller's own, or the salt is
+    /// fixed by a surrounding protocol, or the input is not a human-chosen
+    /// password. It is the wrong call for importing a document someone sent you.
+    #[must_use]
+    pub fn without_strength_floors(self) -> Self {
+        self.with_min_scrypt_work(0)
+            .with_min_pbkdf2_rounds(0)
+            .with_min_salt_bytes(0)
     }
 }
 #[derive(Clone, Copy)]
@@ -101,6 +204,14 @@ impl Kdf {
         if limits.max_memory_bytes > 1024 * 1024 * 1024
             || limits.max_scrypt_work > 1 << 28
             || limits.max_pbkdf2_rounds > 10_000_000
+        {
+            return Err(KeystoreError::Limit);
+        }
+        // A floor above its own ceiling admits nothing. Report it as a policy
+        // error rather than letting every document fail as WeakParameters with
+        // no indication that the limits themselves are unsatisfiable.
+        if limits.min_scrypt_work > limits.max_scrypt_work
+            || limits.min_pbkdf2_rounds > limits.max_pbkdf2_rounds
         {
             return Err(KeystoreError::Limit);
         }
@@ -122,11 +233,17 @@ impl Kdf {
                 if memory > limits.max_memory_bytes || work > limits.max_scrypt_work {
                     return Err(KeystoreError::Limit);
                 }
+                if work < limits.min_scrypt_work {
+                    return Err(KeystoreError::WeakParameters);
+                }
                 scrypt::Params::new(log_n, r, p).map_err(|_| KeystoreError::Format)?;
             }
             Self::Pbkdf2 { rounds, .. } => {
                 if rounds == 0 || rounds > limits.max_pbkdf2_rounds {
                     return Err(KeystoreError::Limit);
+                }
+                if rounds < limits.min_pbkdf2_rounds {
+                    return Err(KeystoreError::WeakParameters);
                 }
             }
         }
@@ -139,6 +256,11 @@ impl Kdf {
         limits: KdfLimits,
     ) -> Result<Zeroizing<[u8; 64]>, KeystoreError> {
         self.validate(limits)?;
+        // Checked here rather than at parse time so the floor applies wherever a
+        // derivation actually happens, including the mnemonic section.
+        if salt.len() < limits.min_salt_bytes {
+            return Err(KeystoreError::WeakParameters);
+        }
         let mut key = Zeroizing::new([0; 64]);
         match self {
             Self::Scrypt { log_n, r, p } => scrypt::scrypt(
@@ -518,6 +640,7 @@ fn encrypt_randomized(
             p: 1,
         },
         &random,
+        KdfLimits::default(),
     )
 }
 fn hex(bytes: &[u8]) -> String {
@@ -537,17 +660,26 @@ fn locale(language: Language) -> &'static str {
         Language::Portuguese => "pt",
     }
 }
+/// `limits` governs the derivation this export performs. Production callers pass
+/// the defaults; the deterministic JavaScript-parity tests lower the floor so
+/// they can reproduce the reference's deliberately cheap fixture parameters.
 fn seal(
     key: &SecretKey,
     password: &[u8],
     mnemonic: Option<(&[u8], Language, &str)>,
     kdf: Kdf,
     random: &[u8; 80],
+    limits: KdfLimits,
 ) -> Result<EncryptedKeystore, KeystoreError> {
     let Kdf::Scrypt { log_n, r, p } = kdf else {
         return Err(KeystoreError::Format);
     };
-    let derived = kdf.derive(password, &random[..32], KdfLimits::default())?;
+    // Export parameters are this crate's own constants, not an attacker-authored
+    // document, so only the resource ceilings apply. Coupling export to the
+    // strength floor at runtime would let a future floor increase break the
+    // crate's own exports for every user; the relationship is asserted by a
+    // test instead, which fails at build time rather than in the field.
+    let derived = kdf.derive(password, &random[..32], limits.without_strength_floors())?;
     let mut ciphertext = Zeroizing::new(*key.export_bytes().as_bytes());
     ctr::Ctr128BE::<aes::Aes128>::new_from_slices(&derived[..16], &random[32..48])
         .map_err(|_| KeystoreError::Format)?
@@ -587,6 +719,20 @@ fn seal(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Limits that accept the reference fixtures' deliberately cheap KDF parameters.
+    ///
+    /// The pinned JavaScript vectors use `n=16, r=1, p=1` so the suite runs fast.
+    /// Production defaults reject that as `WeakParameters`; importing a fixture is
+    /// the intended "I know this is weak" case, so it lowers the floor explicitly
+    /// rather than the suite disabling the bound globally.
+    fn fixture_limits() -> KdfLimits {
+        // Uses the same builder an external caller must use. A struct literal
+        // would compile here, inside the defining crate, and would quietly stop
+        // exercising the path every consumer is actually held to.
+        KdfLimits::default().without_strength_floors()
+    }
+
     #[test]
     fn normalized_password_growth_is_bounded_before_secret_reallocation() {
         // U+FDFA expands to a 33-byte Arabic phrase under NFKC.
@@ -624,6 +770,7 @@ mod tests {
                 p: 1,
             },
             &random,
+            fixture_limits(),
         )
         .unwrap();
         assert_eq!(
@@ -652,6 +799,7 @@ mod tests {
                     p: 1,
                 },
                 &random,
+                fixture_limits(),
             )
             .unwrap();
             let result: Value = serde_json::from_str(encrypted.as_json()).unwrap();
@@ -659,9 +807,9 @@ mod tests {
             for field in ["mnemonicCiphertext", "mnemonicCounter", "path", "locale"] {
                 assert_eq!(result["x-quais"][field], row["json"]["x-quais"][field]);
             }
-            Keystore::from_json(encrypted.as_json().as_bytes(), KdfLimits::default())
+            Keystore::from_json(encrypted.as_json().as_bytes(), fixture_limits())
                 .unwrap()
-                .decrypt(Password::Text("PUBLIC mnemonic"), KdfLimits::default())
+                .decrypt(Password::Text("PUBLIC mnemonic"), fixture_limits())
                 .unwrap();
         }
     }

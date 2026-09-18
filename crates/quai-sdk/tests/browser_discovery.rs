@@ -52,18 +52,18 @@ async fn worker_discovers_numbered_account_state_without_native_runtime_or_signe
         )
         .unwrap()
         .address;
-    let mut request = DiscoveryRequest {
-        scope: scope(),
-        receive: IndexRange {
+    let mut request = DiscoveryRequest::new(
+        scope(),
+        IndexRange {
             start: found.index,
             end: found.index + 1,
         },
-        change: IndexRange { start: 0, end: 0 },
-        gap_limit: Some(50),
-        require_history: false,
-        max_addresses: 1,
-        max_coins: 1,
-    };
+        IndexRange { start: 0, end: 0 },
+    )
+    .with_gap_limit(Some(50))
+    .with_require_history(false)
+    .with_max_addresses(1)
+    .with_max_coins(1);
     let report = discover(&source, &account, &request, || false)
         .await
         .unwrap();
@@ -107,12 +107,13 @@ async fn worker_account_observation_rejects_a_changed_checkpoint() {
         .unwrap()
         .address;
     let checkpoint = source.tip(scope()).await.unwrap().checkpoint;
+    // A reorg across the reads is stale, not malformed: observe again.
     assert_eq!(
         source
             .observe(scope(), &found, checkpoint)
             .await
             .unwrap_err(),
-        DiscoveryError::InvalidObservation
+        DiscoveryError::ObservationChanged
     );
 }
 
@@ -129,12 +130,10 @@ async fn worker_qi_gap_scan_returns_fixed_denominations_and_reported_locks() {
         &provider,
         scope(),
         &account,
-        &QiDiscoveryOptions {
-            gap_limit: Some(2),
-            max_addresses: 16,
-            max_outpoints: 8,
-            ..Default::default()
-        },
+        &QiDiscoveryOptions::default()
+            .with_gap_limit(Some(2))
+            .with_max_addresses(16)
+            .with_max_outpoints(8),
         || false,
     )
     .await
@@ -172,12 +171,10 @@ async fn worker_qi_use_hint_accepts_thread_local_async_state() {
         &provider("/qi-hints"),
         scope(),
         &account,
-        &QiDiscoveryOptions {
-            gap_limit: Some(1),
-            max_addresses: 4,
-            max_outpoints: 1,
-            ..Default::default()
-        },
+        &QiDiscoveryOptions::default()
+            .with_gap_limit(Some(1))
+            .with_max_addresses(4)
+            .with_max_outpoints(1),
         || false,
         move |actual_scope, _| {
             let calls = callback_calls.clone();

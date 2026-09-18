@@ -41,6 +41,11 @@ pub(super) fn replacement(reason: ReplacementReason) -> SignedQuaiTransaction {
                     .unwrap(),
             )
         }
+        // ReplacementReason is non-exhaustive, so this arm is required. It
+        // panics rather than defaulting: a new classification needs a fixture
+        // that actually exercises it, and silently building a repriced
+        // transaction instead would let it go untested.
+        other => panic!("no replacement fixture for {other:?}"),
     }
     tx.sign(&key()).unwrap()
 }

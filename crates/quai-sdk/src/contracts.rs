@@ -15,6 +15,7 @@ use thiserror::Error;
 
 /// Contract operations fail before submission; sending belongs to a wallet workflow.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum ContractError {
     /// The selected raw-data path has no declared receive/fallback entry point.
     #[error("contract ABI has no applicable receive or fallback entry point")]

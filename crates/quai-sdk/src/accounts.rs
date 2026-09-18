@@ -8,9 +8,11 @@ pub use access::AccountAccessListPolicy;
 use quai_consensus::{QuaiTransaction, SignedQuaiTransaction};
 use quai_primitives::{Hash32, QuaiAddress};
 use quai_provider::{
-    AccessListItem, BlockTag, BroadcastError, BroadcastResult, CallRequest, Provider,
-    ProviderError, RpcData,
+    AccessListItem, BlockTag, BroadcastError, BroadcastResult, CallRequest, Provider, ProviderError,
 };
+// Only `prepare_deployment` builds an init-code call request.
+#[cfg(feature = "abi")]
+use quai_provider::RpcData;
 use quai_rpc::{Transport, U256};
 use quai_signer::{Signer, SignerError};
 use quai_wallet::storage::{
@@ -22,7 +24,11 @@ pub use crate::account_preflight::{AccountIntent, AccountObservationPolicy, FeeP
 
 /// Errors never automatically release or replace signed reservations.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum AccountError {
+    /// The endpoint is on a different chain or genesis than the store's scope.
+    #[error("endpoint is on another network")]
+    NetworkMismatch,
     /// A network observation or simulation failed.
     #[error(transparent)]
     Provider(#[from] ProviderError),
@@ -60,6 +66,32 @@ pub enum AccountError {
     #[cfg(feature = "abi")]
     #[error(transparent)]
     Contract(#[from] crate::contracts::ContractError),
+}
+
+impl AccountError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    /// Matched exhaustively so a new variant must choose a class.
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::NetworkMismatch => ErrorClass::NetworkMismatch,
+            Self::Provider(error) => error.class(),
+            Self::Storage(error) => error.class(),
+            Self::Broadcast(error) => error.class(),
+            Self::ObservationChanged => ErrorClass::Stale,
+            #[cfg(feature = "abi")]
+            Self::Contract(crate::contracts::ContractError::Provider(error)) => error.class(),
+            #[cfg(feature = "abi")]
+            Self::Contract(_) => ErrorClass::Invalid,
+            Self::Signer(_)
+            | Self::IdentityMismatch
+            | Self::InvalidOperation
+            | Self::FeeLimit
+            | Self::InsufficientBalance
+            | Self::PayloadMismatch
+            | Self::MissingSignedPayload => ErrorClass::Invalid,
+        }
+    }
 }
 
 /// Exact frozen payload associated with a durable unsigned nonce reservation.
@@ -134,10 +166,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
     ) -> Result<PreparedAccountTransaction, AccountError> {
         let sender = QuaiAddress::try_from(self.signer.address())
             .map_err(|_| AccountError::IdentityMismatch)?;
-        if destination.zone() != sender.zone()
-            || policy.max_gas == 0
-            || policy.gas_margin_bps > 10_000
-        {
+        if destination.zone() != sender.zone() || !policy.is_usable() {
             return Err(AccountError::InvalidOperation);
         }
         let mut transaction = QuaiTransaction {
@@ -191,7 +220,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         })
     }
     async fn quote_conversion(
-        &self,
+        &mut self,
         sender: QuaiAddress,
         transaction: &QuaiTransaction,
         policy: FeePolicy,
@@ -203,27 +232,13 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
             .provider
             .estimate_quai_conversion_gas_budget(sender, &typed, block)
             .await?;
-        let gas =
-            (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);
-        if gas == 0 || gas > u128::from(policy.max_gas) {
-            return Err(AccountError::FeeLimit);
-        }
-        let gas = gas as u64;
-        let fee = transaction
-            .gas_price
-            .checked_mul(U256::from(gas))
+        let bound = policy
+            .bound(estimate, transaction.gas_price, transaction.value)
             .ok_or(AccountError::FeeLimit)?;
-        if fee > policy.max_total_fee {
-            return Err(AccountError::FeeLimit);
-        }
-        if fee
-            .checked_add(transaction.value)
-            .ok_or(AccountError::FeeLimit)?
-            > self.provider.balance(sender, block).await?
-        {
+        if bound.debit > self.provider.balance(sender, block).await? {
             return Err(AccountError::InsufficientBalance);
         }
-        Ok((gas, fee))
+        Ok((bound.gas, bound.fee))
     }
     /// Bind handles without network access. The sender must already be registered
     /// in storage through validated public-key metadata.
@@ -252,7 +267,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         self.observation_policy = policy;
         self
     }
-    async fn observation(&self) -> Result<(BlockTag, Option<Hash32>), AccountError> {
+    async fn observation(&mut self) -> Result<(BlockTag, Option<Hash32>), AccountError> {
         match self.observation_policy {
             AccountObservationPolicy::Pending => Ok((BlockTag::Pending, None)),
             AccountObservationPolicy::PinnedLatest => {
@@ -269,7 +284,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         }
     }
     async fn verify_observation(
-        &self,
+        &mut self,
         observation: (BlockTag, Option<Hash32>),
     ) -> Result<(), AccountError> {
         if let Some(hash) = observation.1 {
@@ -285,12 +300,10 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         Ok(())
     }
 
-    async fn verify_network(&self) -> Result<(), AccountError> {
+    async fn verify_network(&mut self) -> Result<(), AccountError> {
         let scope = self.store.scope();
-        if self.provider.chain_id(scope.zone.into()).await? != scope.chain_id
-            || self.provider.genesis_hash(scope.zone).await? != scope.genesis
-        {
-            return Err(AccountError::IdentityMismatch);
+        if !crate::network::on_network(self.provider, scope, scope.zone).await? {
+            return Err(AccountError::NetworkMismatch);
         }
         Ok(())
     }
@@ -326,8 +339,8 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         deployment: crate::contracts::PreparedDeployment,
         policy: FeePolicy,
     ) -> Result<PreparedAccountTransaction, AccountError> {
-        if policy.max_gas == 0 || policy.gas_margin_bps > 10_000 {
-            return Err(AccountError::FeeLimit);
+        if !policy.is_usable() {
+            return Err(AccountError::InvalidOperation);
         }
         let sender = QuaiAddress::try_from(self.signer.address())
             .map_err(|_| AccountError::IdentityMismatch)?;
@@ -384,20 +397,8 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         self.populate_access(&mut request, &mut transaction, observation.0)
             .await?;
         let estimate = self.provider.estimate_gas(&request, observation.0).await?;
-        let gas =
-            (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);
-        if gas == 0 || gas > u128::from(policy.max_gas) {
-            return Err(AccountError::FeeLimit);
-        }
-        let gas = u64::try_from(gas).map_err(|_| AccountError::FeeLimit)?;
-        let fee = gas_price
-            .checked_mul(U256::from(gas))
-            .ok_or(AccountError::FeeLimit)?;
-        if fee > policy.max_total_fee {
-            return Err(AccountError::FeeLimit);
-        }
-        let debit = fee
-            .checked_add(transaction.value)
+        let crate::account_preflight::FeeBound { gas, fee, debit } = policy
+            .bound(estimate, gas_price, transaction.value)
             .ok_or(AccountError::FeeLimit)?;
         if debit > self.provider.balance(sender, observation.0).await? {
             return Err(AccountError::InsufficientBalance);
@@ -476,8 +477,8 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         if (intent.to.zone() != sender.zone()) != cross_zone {
             return Err(AccountError::IdentityMismatch);
         }
-        if policy.max_gas == 0 || policy.gas_margin_bps > 10_000 {
-            return Err(AccountError::FeeLimit);
+        if !policy.is_usable() {
+            return Err(AccountError::InvalidOperation);
         }
         // Validate shape before cloning the call/access payload or making requests.
         let mut transaction = QuaiTransaction {
@@ -576,30 +577,17 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
     }
 
     async fn quote_fee(
-        &self,
+        &mut self,
         request: &CallRequest,
         policy: FeePolicy,
         block: BlockTag,
     ) -> Result<(u64, U256), AccountError> {
         let estimate = self.provider.estimate_gas(request, block).await?;
-        let gas =
-            (u128::from(estimate) * (10_000 + u128::from(policy.gas_margin_bps))).div_ceil(10_000);
-        if gas == 0 || gas > u128::from(policy.max_gas) {
-            return Err(AccountError::FeeLimit);
-        }
-        let gas = u64::try_from(gas).map_err(|_| AccountError::FeeLimit)?;
-        let fee = request
-            .gas_price
-            .ok_or(AccountError::InvalidOperation)?
-            .checked_mul(U256::from(gas))
+        let gas_price = request.gas_price.ok_or(AccountError::InvalidOperation)?;
+        let crate::account_preflight::FeeBound { gas, fee, debit } = policy
+            .bound(estimate, gas_price, request.value.unwrap_or(U256::ZERO))
             .ok_or(AccountError::FeeLimit)?;
-        if fee > policy.max_total_fee {
-            return Err(AccountError::FeeLimit);
-        }
-        let maximum_debit = fee
-            .checked_add(request.value.unwrap_or(U256::ZERO))
-            .ok_or(AccountError::FeeLimit)?;
-        if maximum_debit > self.provider.balance(request.from, block).await? {
+        if debit > self.provider.balance(request.from, block).await? {
             return Err(AccountError::InsufficientBalance);
         }
         Ok((gas, fee))

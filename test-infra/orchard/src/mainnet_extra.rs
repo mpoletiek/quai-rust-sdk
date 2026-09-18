@@ -115,11 +115,7 @@ impl Ctx {
             .wait_for_receipt(
                 Zone::Cyprus1,
                 hash,
-                WaitConfig {
-                    confirmations: 2,
-                    timeout: Duration::from_secs(300),
-                    poll_interval: Duration::from_secs(3),
-                },
+                WaitConfig::new(2, Duration::from_secs(300), Duration::from_secs(3)),
             )
             .await?;
         if observed.receipt.outcome != ReceiptOutcome::Succeeded {
@@ -497,11 +493,7 @@ pub async fn run(op: &str) -> Result<(), Box<dyn Error>> {
                     &original,
                     ctx.scope.genesis,
                     start.saturating_sub(4).max(1),
-                    WaitConfig {
-                        confirmations: 2,
-                        timeout: Duration::from_secs(300),
-                        poll_interval: Duration::from_secs(3),
-                    },
+                    WaitConfig::new(2, Duration::from_secs(300), Duration::from_secs(3)),
                 )
                 .await?;
             let family = AccountSession::new(&ctx.provider, &signer, &mut store)?
@@ -612,11 +604,7 @@ pub async fn run(op: &str) -> Result<(), Box<dyn Error>> {
                         genesis: ctx.scope.genesis,
                         expected_runtime: Some(Hash32::from_bytes(runtime)),
                     },
-                    quai_sdk::provider::CodeWaitConfig {
-                        timeout_ms: 120_000,
-                        poll_interval_ms: 3_000,
-                        max_polls: 60,
-                    },
+                    quai_sdk::provider::CodeWaitConfig::new(120_000, 3_000, 60),
                 )
                 .await?;
             let call = ctx
@@ -656,13 +644,13 @@ pub async fn run(op: &str) -> Result<(), Box<dyn Error>> {
             let observation = AccountSession::new(&ctx.provider, &signer, &mut store)?
                 .observe_nonce(
                     id,
-                    quai_sdk::provider::AccountReplacementScanRequest {
-                        from_block: from,
-                        to_block: head.min(from + 255),
-                        max_transactions_per_block: 4096,
-                        max_total_transactions: 65_536,
-                        preceding_block: None,
-                    },
+                    quai_sdk::provider::AccountReplacementScanRequest::new(
+                        from,
+                        head.min(from + 255),
+                        4096,
+                        65_536,
+                    )
+                    .with_preceding_block(None),
                 )
                 .await?;
             let summary = match &observation.outcome {

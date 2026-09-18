@@ -5,6 +5,7 @@ pub const MAX_HEAD_REPLAY_BYTES: usize = 163_887;
 pub(super) const HEAD_SCHEMA: &str = "CREATE TABLE head_replay(scope BLOB PRIMARY KEY,revision INTEGER NOT NULL CHECK(revision>0),payload BLOB CHECK(payload IS NULL OR length(payload) BETWEEN 1 AND 163887),FOREIGN KEY(scope) REFERENCES scopes(scope)) STRICT;";
 /// Public ancestry bytes with a monotonic revision; tombstones prevent stale reinsertion.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct HeadReplayState {
     /// Revision for compare-and-exchange, including cleared state.
     pub revision: u64,
@@ -13,6 +14,7 @@ pub struct HeadReplayState {
 }
 /// Result of atomically persisting a replay cursor and any required rollback.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct HeadReplayCommit {
     /// New durable cursor revision.
     pub revision: u64,

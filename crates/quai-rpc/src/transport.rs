@@ -31,6 +31,7 @@ impl std::error::Error for RemoteError {}
 
 /// Bounded transport/protocol failures; no raw URL or response body is displayed.
 #[derive(Clone, Debug, Error)]
+#[non_exhaustive]
 pub enum RpcError {
     /// A transport configured for fail-fast concurrency is at its active-operation limit.
     #[error("RPC transport concurrency limit reached")]
@@ -71,6 +72,29 @@ pub enum RpcError {
     /// Invalid transport settings or endpoint scheme.
     #[error("invalid HTTP transport configuration")]
     InvalidConfig,
+}
+
+impl RpcError {
+    /// How to react to this failure on a read. A submission's outcome after
+    /// a transport failure is ambiguous instead; `BroadcastError` reports that.
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::AtCapacity | Self::Disconnected | Self::Timeout | Self::Transport => {
+                ErrorClass::Transient
+            }
+            Self::HttpStatus(429 | 500..=599) | Self::SubscriptionClosed => ErrorClass::Transient,
+            // Notifications were missed, so what was observed is incomplete.
+            Self::SubscriptionLagged => ErrorClass::Stale,
+            Self::HttpStatus(_)
+            | Self::RequestTooLarge
+            | Self::ResponseTooLarge
+            | Self::InvalidResponse(_)
+            | Self::Remote(_)
+            | Self::RequestIdExhausted
+            | Self::InvalidConfig => ErrorClass::Invalid,
+        }
+    }
 }
 
 /// A transport independent of routing and key material.
@@ -120,6 +144,13 @@ pub trait Transport {
     ) -> Result<Value, RpcError>;
 }
 
+/// Maximum calls accepted in one batch, for every transport that supports one.
+///
+/// Lives here rather than beside a transport so it is available without any
+/// feature, and so a caller sizing its own pages can assert against it instead
+/// of duplicating the number. `quai-provider` does exactly that.
+pub const MAX_BATCH_CALLS: usize = 128;
+
 /// Entire batch transport/envelope result, containing ordered per-request results.
 pub type BatchResult = Result<Vec<Result<Value, RpcError>>, RpcError>;
 
@@ -144,8 +175,13 @@ pub(crate) fn decode_response(bytes: &[u8], expected_id: u64) -> Result<Value, R
         #[serde(default, deserialize_with = "slot")]
         error: ResultSlot,
     }
-    let envelope: Envelope = serde_json::from_slice(bytes)
-        .map_err(|_| RpcError::InvalidResponse("malformed envelope"))?;
+    // Validate UTF-8 up front: serde skips an ignored field's contents without
+    // checking them, so invalid bytes inside an unknown field would otherwise
+    // decode although the body is not JSON text.
+    let text =
+        std::str::from_utf8(bytes).map_err(|_| RpcError::InvalidResponse("malformed envelope"))?;
+    let envelope: Envelope =
+        serde_json::from_str(text).map_err(|_| RpcError::InvalidResponse("malformed envelope"))?;
     if envelope.jsonrpc != "2.0" {
         return Err(RpcError::InvalidResponse("wrong protocol version"));
     }

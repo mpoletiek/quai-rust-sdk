@@ -4,7 +4,8 @@ use quai_wallet::{SweepMode, select_sweep};
 
 impl<T: Transport> QiSession<'_, T> {
     /// Sweep or threshold-aggregate eligible coins into fresh owned outputs with exact fee
-    /// convergence. Allocate the output pool, then refresh before calling.
+    /// convergence. Allocate the output pool, then refresh before calling. As
+    /// with `prepare`, a pool passed by `&mut` loses only the addresses used.
     /// `Aggregate` increases denominations and requires first-Qi block placement
     /// on the pinned node; this SDK cannot reserve that position with miners.
     /// AggregateThreshold applies its input threshold and may leave larger coins
@@ -14,8 +15,9 @@ impl<T: Transport> QiSession<'_, T> {
         id: ReservationId,
         mode: SweepMode,
         policy: QiPolicy,
-        outputs: QiChangePool,
+        mut outputs: impl BorrowMut<QiChangePool>,
     ) -> Result<PreparedQiTransaction, QiError> {
+        let outputs = outputs.borrow_mut();
         if !(1..=1024).contains(&policy.max_inputs)
             || !(1..=1024).contains(&policy.max_outputs)
             || !(1..=32).contains(&policy.max_fee_rounds)
@@ -128,6 +130,7 @@ impl<T: Transport> QiSession<'_, T> {
                     .map(|coin| coin.outpoint)
                     .collect::<Vec<_>>(),
             )?;
+            outputs.addresses.drain(..selection.spend_outputs.len());
             let recipient_outputs = transaction.outputs.len();
             return Ok(PreparedQiTransaction {
                 instance: self.store.instance(),

@@ -246,11 +246,9 @@ async fn notification_overflow_is_explicit_and_terminates_session_without_silent
             close_seen(&mut socket).await;
         })
         .await;
-        let config = WsConfig {
-            subscription_capacity: 1,
-            max_notification_bytes: if byte_budget { 1 } else { 1024 },
-            ..WsConfig::default()
-        };
+        let config = WsConfig::default()
+            .with_subscription_capacity(1)
+            .with_max_notification_bytes(if byte_budget { 1 } else { 1024 });
         let client = WsTransport::connect(endpoint, config).await.unwrap();
         let mut sub = client
             .subscribe(WsSubscriptionKind::NewHeads)
@@ -277,15 +275,9 @@ async fn cancelled_rpc_releases_capacity_and_late_reply_cannot_match_next_reques
         close_seen(&mut socket).await;
     })
     .await;
-    let client = WsTransport::connect(
-        endpoint.clone(),
-        WsConfig {
-            max_in_flight: 1,
-            ..WsConfig::default()
-        },
-    )
-    .await
-    .unwrap();
+    let client = WsTransport::connect(endpoint.clone(), WsConfig::default().with_max_in_flight(1))
+        .await
+        .unwrap();
     let worker = client.clone();
     let target = endpoint.clone();
     let abandoned =
@@ -313,11 +305,9 @@ async fn overall_deadline_includes_permit_wait_and_does_not_replay() {
     .await;
     let client = WsTransport::connect(
         endpoint.clone(),
-        WsConfig {
-            request_timeout: Duration::from_millis(40),
-            max_in_flight: 1,
-            ..WsConfig::default()
-        },
+        WsConfig::default()
+            .with_request_timeout(Duration::from_millis(40))
+            .with_max_in_flight(1),
     )
     .await
     .unwrap();
@@ -342,11 +332,9 @@ async fn oversize_inbound_and_outbound_messages_are_rejected() {
     .await;
     let client = WsTransport::connect(
         endpoint.clone(),
-        WsConfig {
-            max_message_bytes: 256,
-            max_frame_bytes: 256,
-            ..WsConfig::default()
-        },
+        WsConfig::default()
+            .with_max_message_bytes(256)
+            .with_max_frame_bytes(256),
     )
     .await
     .unwrap();
@@ -509,4 +497,203 @@ async fn live_chain_and_subscription_handshake() {
     assert!(notification.get("woHeader").is_some());
     subscription.unsubscribe().await.unwrap();
     client.shutdown().await.unwrap();
+}
+
+#[tokio::test]
+async fn a_notification_racing_its_own_unsubscribe_does_not_tear_down_the_session() {
+    // go-quai is a geth derivative: notifications are written by the notifier
+    // and RPC replies by the request handler, with no ordering guarantee
+    // between them. A notification handed to the writer before the unsubscribe
+    // was processed can therefore arrive after its acknowledgement. That is a
+    // normal race, and it must not fail every other subscription and every
+    // in-flight request sharing the connection.
+    let (endpoint, task) = server(|mut socket| async move {
+        let first = recv(&mut socket).await;
+        assert_eq!(first["method"], "quai_subscribe");
+        respond(&mut socket, &first["id"], json!("0xdoomed")).await;
+        let second = recv(&mut socket).await;
+        assert_eq!(second["method"], "quai_subscribe");
+        respond(&mut socket, &second["id"], json!("0xkeeper")).await;
+
+        let unsubscribe = recv(&mut socket).await;
+        assert_eq!(unsubscribe["method"], "quai_unsubscribe");
+        assert_eq!(unsubscribe["params"], json!(["0xdoomed"]));
+        respond(&mut socket, &unsubscribe["id"], json!(true)).await;
+
+        // The trailing notification, delivered after its own acknowledgement.
+        notify(
+            &mut socket,
+            "0xdoomed",
+            json!({"woHeader":{"number":"0x11"}}),
+        )
+        .await;
+
+        // The surviving subscription must still receive, and ordinary requests
+        // must still be answered, which is only possible if the session lived.
+        notify(
+            &mut socket,
+            "0xkeeper",
+            json!({"woHeader":{"number":"0x12"}}),
+        )
+        .await;
+        let read = recv(&mut socket).await;
+        respond(&mut socket, &read["id"], json!("0x9")).await;
+        close_seen(&mut socket).await;
+    })
+    .await;
+
+    let client = WsTransport::connect(endpoint.clone(), WsConfig::default())
+        .await
+        .unwrap();
+    let doomed = client
+        .subscribe(WsSubscriptionKind::NewHeads)
+        .await
+        .unwrap();
+    let mut keeper = client
+        .subscribe(WsSubscriptionKind::NewHeads)
+        .await
+        .unwrap();
+    doomed.unsubscribe().await.unwrap();
+
+    // The unrelated subscription still delivers.
+    assert_eq!(
+        keeper.recv().await.unwrap().unwrap()["woHeader"]["number"],
+        "0x12"
+    );
+    // And the multiplexed connection still serves ordinary requests.
+    assert_eq!(
+        client
+            .request(&endpoint, "quai_chainId", json!([]))
+            .await
+            .unwrap(),
+        "0x9"
+    );
+    client.shutdown().await.unwrap();
+    task.await.unwrap();
+}
+
+#[tokio::test]
+async fn a_notification_for_a_never_known_subscription_still_fails_the_session() {
+    // Distinct from the race above: an ID this session never registered is a
+    // protocol violation by the node, and the strict posture is retained.
+    let (endpoint, task) = server(|mut socket| async move {
+        let subscribe = recv(&mut socket).await;
+        respond(&mut socket, &subscribe["id"], json!("0xreal")).await;
+        notify(
+            &mut socket,
+            "0xnever",
+            json!({"woHeader":{"number":"0x13"}}),
+        )
+        .await;
+        let _ = socket.next().await;
+    })
+    .await;
+    let client = WsTransport::connect(endpoint.clone(), WsConfig::default())
+        .await
+        .unwrap();
+    let mut subscription = client
+        .subscribe(WsSubscriptionKind::NewHeads)
+        .await
+        .unwrap();
+    assert!(
+        subscription.recv().await.is_err(),
+        "an unknown subscription ID must still terminate the session"
+    );
+    task.abort();
+}
+
+#[tokio::test]
+async fn a_batch_multiplexes_over_one_session_and_keeps_request_order() {
+    // WS batching is not JSON-RPC array framing: the session is already
+    // pipelined, so issuing a group concurrently collapses the same round trips
+    // without teaching the dispatch path to correlate many IDs from one frame.
+    // The properties that matter are that results keep their request positions
+    // even when the server replies out of order, and that a per-call remote
+    // error stays attached to its own position.
+    let (endpoint, task) = server(|mut socket| async move {
+        // Collect the whole group before replying, which is only possible if
+        // the calls were genuinely in flight together rather than sequential.
+        let mut seen = Vec::new();
+        for _ in 0..4 {
+            seen.push(recv(&mut socket).await);
+        }
+        assert_eq!(seen.len(), 4);
+        // Reply in reverse, and fail exactly one call.
+        for request in seen.iter().rev() {
+            let index = request["params"][0].as_u64().unwrap();
+            if index == 2 {
+                let id = &request["id"];
+                socket
+                    .send(Message::Text(
+                        json!({"jsonrpc":"2.0","id":id,"error":{"code":-32000,"message":"public fixture"}})
+                            .to_string()
+                            .into(),
+                    ))
+                    .await
+                    .unwrap();
+            } else {
+                respond(&mut socket, &request["id"], json!(format!("0x{index}"))).await;
+            }
+        }
+        close_seen(&mut socket).await;
+    })
+    .await;
+
+    let client = WsTransport::connect(endpoint.clone(), WsConfig::default())
+        .await
+        .unwrap();
+    let requests: Vec<(&str, Value)> = (0..4).map(|i| ("quai_chainId", json!([i]))).collect();
+    let results = client
+        .request_batch(&endpoint, requests)
+        .await
+        .expect("the WebSocket transport supports batching")
+        .expect("the group itself succeeded");
+
+    assert_eq!(results.len(), 4);
+    // Order follows the request positions, not the reply order.
+    assert_eq!(results[0].as_ref().unwrap(), &json!("0x0"));
+    assert_eq!(results[1].as_ref().unwrap(), &json!("0x1"));
+    assert_eq!(results[3].as_ref().unwrap(), &json!("0x3"));
+    // The failing call keeps its own position and does not poison the rest.
+    assert!(
+        matches!(results[2], Err(RpcError::Remote(_))),
+        "expected a per-call remote error, got {:?}",
+        results[2]
+    );
+
+    client.shutdown().await.unwrap();
+    task.await.unwrap();
+}
+
+#[tokio::test]
+async fn a_batch_refuses_subscription_methods_and_an_oversize_group_without_sending() {
+    let (endpoint, task) = server(|mut socket| async move {
+        // Nothing must be sent for either rejection.
+        let _ = socket.next().await;
+    })
+    .await;
+    let client = WsTransport::connect(endpoint.clone(), WsConfig::default())
+        .await
+        .unwrap();
+
+    // Subscriptions carry registration state and cannot ride in a plain group.
+    assert!(matches!(
+        client
+            .request_batch(&endpoint, vec![("quai_subscribe", json!(["newHeads"]))])
+            .await,
+        Some(Err(RpcError::InvalidConfig))
+    ));
+    // Empty and oversize groups are refused rather than partially issued.
+    assert!(matches!(
+        client.request_batch(&endpoint, vec![]).await,
+        Some(Err(RpcError::InvalidConfig))
+    ));
+    let oversize: Vec<(&str, Value)> = (0..129).map(|_| ("quai_chainId", json!([]))).collect();
+    assert!(matches!(
+        client.request_batch(&endpoint, oversize).await,
+        Some(Err(RpcError::InvalidConfig))
+    ));
+
+    client.shutdown().await.unwrap();
+    task.abort();
 }

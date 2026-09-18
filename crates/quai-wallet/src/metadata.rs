@@ -7,6 +7,7 @@ type Result<T> = std::result::Result<T, StorageError>;
 
 /// Storage failures contain no SQL parameters or arbitrary database messages.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum StorageError {
     /// SQLite I/O, locking, constraint or corruption failure; transaction rolled back.
     #[error("wallet database operation failed")]
@@ -35,6 +36,25 @@ pub enum StorageError {
     /// Generation or account nonce cannot increment without overflow.
     #[error("wallet storage counter exhausted")]
     Overflow,
+}
+
+impl StorageError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::Database | Self::Schema => ErrorClass::Storage,
+            Self::StaleSnapshot => ErrorClass::Stale,
+            Self::Cancelled => ErrorClass::Cancelled,
+            // Conflict covers both a claim race and a mismatched account xpub;
+            // the latter never succeeds on retry, so neither is retried blindly.
+            Self::Conflict
+            | Self::Invalid
+            | Self::DerivationExhausted
+            | Self::Transition
+            | Self::Overflow => ErrorClass::Invalid,
+        }
+    }
 }
 /// Public origin; BIP44 ancestry is derived from a caller-trusted account xpub.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

@@ -118,8 +118,10 @@ pub async fn quote_account_replacement<T: Transport>(
     }
     let estimate = if transaction.to.is_some_and(|a| a.ledger() == Ledger::Qi) {
         let typed = QuaiToQiTransaction::new(transaction.clone()).map_err(|_| E::Invalid)?;
+        // The same origin-cost budget the original preparation used; the raw
+        // estimator omits those costs and so checks the fixed limit too weakly.
         provider
-            .estimate_quai_conversion_gas(sender, &typed, block)
+            .estimate_quai_conversion_gas_budget(sender, &typed, block)
             .await?
     } else {
         let request = CallRequest {
@@ -145,9 +147,13 @@ pub async fn quote_account_replacement<T: Transport>(
         };
         provider.estimate_gas(&request, block).await?
     };
-    let gas =
-        (u128::from(estimate) * (10_000 + u128::from(policy.fees.gas_margin_bps))).div_ceil(10_000);
-    if gas == 0 || gas > u128::from(transaction.gas_limit) {
+    // A replacement keeps the parent's gas limit, which already carries the
+    // margin applied at preparation. Applying the margin again would refuse a
+    // replacement whenever the estimate grew at all, for a conversion as soon
+    // as the exchange rate added an output, and leave the nonce stuck behind an
+    // underpriced parent. The limit only has to cover what the transaction
+    // needs now.
+    if estimate > transaction.gas_limit {
         return Err(E::FeeLimit);
     }
     if fee.checked_add(transaction.value).ok_or(E::FeeLimit)?

@@ -9,6 +9,7 @@ pub const MAX_ENCODING_BYTES: usize = 1_048_576;
 pub const MAX_BASE58_BYTES: usize = 4096;
 /// Invalid encoding, width or arithmetic input; errors never retain input content.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum EncodingError {
     /// Input violates the canonical encoding or strict UTF-8 requirements.
     #[error("invalid byte encoding")]

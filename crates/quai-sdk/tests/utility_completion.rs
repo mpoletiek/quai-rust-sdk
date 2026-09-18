@@ -171,10 +171,7 @@ fn standalone_kdf_vectors_cover_multiple_output_blocks_and_both_hashes() {
             &salt,
             params(row),
             row["length"].as_u64().unwrap() as usize,
-            DeriveLimits {
-                max_output_bytes: 128,
-                ..DeriveLimits::default()
-            },
+            DeriveLimits::default().with_max_output_bytes(128),
             |p| {
                 progress.push(p);
                 true
@@ -216,11 +213,9 @@ fn standalone_kdf_preflight_accounts_for_output_work_and_checkpoints() {
         rounds: 100,
         hash: Pbkdf2Hash::Sha256,
     };
-    let limits = DeriveLimits {
-        max_output_bytes: 128,
-        max_pbkdf2_work: 299,
-        ..DeriveLimits::default()
-    };
+    let limits = DeriveLimits::default()
+        .with_max_output_bytes(128)
+        .with_max_pbkdf2_work(299);
     let mut called = 0;
     assert!(matches!(
         derive_key_with_progress(b"PUBLIC", b"SALT", params, 96, limits, |_| {

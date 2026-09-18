@@ -1,12 +1,16 @@
 //! Refresh an explicitly populated public Qi usage view without touching custody.
 use super::QiDiscoveryError;
+use super::qi::network_headers;
 use quai_consensus::{Denomination, OutPoint};
 use quai_primitives::QiAddress;
-use quai_provider::Provider;
+use quai_provider::{BlockTag, MAX_OUTPOINT_ADDRESSES, Provider};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{Checkpoint, NetworkScope};
 use quai_wallet::qi_addresses::{QiAddressBook, QiUsageObservation};
-use std::{collections::BTreeSet, future::Future};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    future::Future,
+};
 
 /// Refresh every registered HD/imported/channel receive address in one scoped
 /// usage book. Head/genesis are checked before and after latest-only reads. The
@@ -47,52 +51,79 @@ where
         return Err(QiDiscoveryError::Cancelled);
     }
     let scope = book.scope();
-    identity(provider, scope).await?;
-    let head = provider
-        .latest_header(scope.zone)
-        .await?
-        .ok_or(QiDiscoveryError::ObservationChanged)?;
-    let checkpoint = Checkpoint {
-        hash: head.hash,
-        height: U256::from(head.number),
-    };
-    let mut seen = BTreeSet::new();
-    let mut staged = Vec::new();
-    for record in book.addresses() {
+    let [head] = network_headers(provider, scope, &[BlockTag::Latest]).await?;
+    let head = head.ok_or(QiDiscoveryError::ObservationChanged)?;
+    let checkpoint = crate::network::checkpoint(&head);
+    // The book is a known, fixed set: every address is queried and there is no
+    // gap rule that could stop early, so the reads can be batched without
+    // changing which addresses are observed. `records` is keyed by address, so
+    // the set is unique by construction and `outpoints_many`'s duplicate
+    // rejection cannot fire. Accounting below still walks the book in order, so
+    // `seen`, `max_outpoints` and `check_use` behave exactly as before.
+    let addresses = book
+        .addresses()
+        .map(|record| {
+            QiAddress::try_from(record.public().address())
+                .map_err(|_| QiDiscoveryError::InvalidRequest)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let mut observed = BTreeMap::new();
+    for page in addresses.chunks(MAX_OUTPOINT_ADDRESSES) {
         if cancelled() {
             return Err(QiDiscoveryError::Cancelled);
         }
-        let address = QiAddress::try_from(record.public().address())
-            .map_err(|_| QiDiscoveryError::InvalidRequest)?;
-        let outputs = provider.outpoints(address).await?;
-        if seen.len().saturating_add(outputs.len()) > max_outpoints {
-            return Err(QiDiscoveryError::OutputLimit);
-        }
-        for output in &outputs {
-            Denomination::new(output.denomination).map_err(|_| QiDiscoveryError::InvalidOutputs)?;
-            if !seen.insert(OutPoint {
-                transaction_hash: output.outpoint.tx_hash,
-                index: output.outpoint.index,
-            }) {
-                return Err(QiDiscoveryError::InvalidOutputs);
+        observed.extend(provider.outpoints_many(page).await?);
+    }
+
+    // Validate every row in book order first, stopping at the first failure,
+    // then run use hints for empty rows a few at a time, consumed in order. A
+    // failure is reported after the rows before it, as a sequential walk would.
+    let mut seen = BTreeSet::new();
+    let mut rows = Vec::with_capacity(addresses.len());
+    let mut failure = None;
+    for address in addresses {
+        match checked_outputs(observed.remove(&address), &mut seen, max_outpoints) {
+            Ok(empty) => rows.push((address, empty)),
+            Err(error) => {
+                failure = Some(error);
+                break;
             }
         }
-        let used = if outputs.is_empty() {
-            check_use(scope, address).await?
-        } else {
-            true
-        };
-        staged.push(QiUsageObservation { address, used });
+    }
+    let mut hints = std::pin::pin!(crate::network::use_hints(
+        scope,
+        rows.clone(),
+        &mut check_use
+    ));
+    let mut staged = Vec::with_capacity(rows.len());
+    for (address, empty) in rows {
+        if cancelled() {
+            return Err(QiDiscoveryError::Cancelled);
+        }
+        let hint = futures_util::StreamExt::next(&mut hints)
+            .await
+            .ok_or(QiDiscoveryError::IncompleteObservation)??;
+        staged.push(QiUsageObservation {
+            address,
+            used: !empty || hint,
+        });
+    }
+    if let Some(error) = failure {
+        if cancelled() {
+            return Err(QiDiscoveryError::Cancelled);
+        }
+        return Err(error);
     }
     if cancelled() {
         return Err(QiDiscoveryError::Cancelled);
     }
-    identity(provider, scope).await?;
-    let after = provider
-        .latest_header(scope.zone)
-        .await?
-        .ok_or(QiDiscoveryError::ObservationChanged)?;
-    let canonical = provider.header_at(scope.zone, head.number).await?;
+    let [after, canonical] = network_headers(
+        provider,
+        scope,
+        &[BlockTag::Latest, BlockTag::Number(U256::from(head.number))],
+    )
+    .await?;
+    let after = after.ok_or(QiDiscoveryError::ObservationChanged)?;
     if head.hash != after.hash
         || head.number != after.number
         || canonical.is_none_or(|h| h.hash != head.hash)
@@ -106,14 +137,27 @@ where
         .map_err(|_| QiDiscoveryError::ObservationChanged)?;
     Ok(checkpoint)
 }
-async fn identity<T: Transport>(
-    provider: &Provider<T>,
-    scope: NetworkScope,
-) -> Result<(), QiDiscoveryError> {
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
-        return Err(QiDiscoveryError::IdentityMismatch);
+
+/// Validate one address's batched outputs and report whether it is empty. A
+/// missing row is a failure, never an empty result: defaulting it would
+/// silently record an address as unused.
+fn checked_outputs(
+    outputs: Option<Vec<quai_provider::AddressOutpoint>>,
+    seen: &mut BTreeSet<OutPoint>,
+    max_outpoints: usize,
+) -> Result<bool, QiDiscoveryError> {
+    let outputs = outputs.ok_or(QiDiscoveryError::IncompleteObservation)?;
+    if seen.len().saturating_add(outputs.len()) > max_outpoints {
+        return Err(QiDiscoveryError::OutputLimit);
     }
-    Ok(())
+    for output in &outputs {
+        Denomination::new(output.denomination).map_err(|_| QiDiscoveryError::InvalidOutputs)?;
+        if !seen.insert(OutPoint {
+            transaction_hash: output.outpoint.tx_hash,
+            index: output.outpoint.index,
+        }) {
+            return Err(QiDiscoveryError::InvalidOutputs);
+        }
+    }
+    Ok(outputs.is_empty())
 }

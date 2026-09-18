@@ -15,7 +15,10 @@ members = ["."]
 [dependencies]
 quai-sdk = { path = "../crates/quai-sdk", default-features = false, features = ["abi"] }
 libfuzzer-sys = "=0.4.13"
-quai-provider = { path = "../crates/quai-provider", default-features = false }
+quai-provider = { path = "../crates/quai-provider", default-features = false, features = ["fuzzing"] }
+# `fuzzing` exposes the JSON-RPC envelope decoders and WebSocket dispatch;
+# `http` supplies decode_batch and `ws` the dispatcher.
+quai-rpc = { path = "../crates/quai-rpc", features = ["fuzzing", "http", "ws"] }
 quai-consensus = { path = "../crates/quai-consensus" }
 quai-abi = { path = "../crates/quai-abi" }
 quai-primitives = { path = "../crates/quai-primitives" }
@@ -63,6 +66,27 @@ bench = false
 [[bin]]
 name = "head_state"
 path = "fuzz_targets/head_state.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "rpc_envelope"
+path = "fuzz_targets/rpc_envelope.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "ws_dispatch"
+path = "fuzz_targets/ws_dispatch.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "provider_responses"
+path = "fuzz_targets/provider_responses.rs"
 test = false
 doc = false
 bench = false

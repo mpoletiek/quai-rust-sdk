@@ -632,12 +632,10 @@ mod browser {
             &provider,
             scope,
             &account,
-            &QiDiscoveryOptions {
-                gap_limit: Some(2),
-                max_addresses: 16,
-                max_outpoints: 8,
-                ..Default::default()
-            },
+            &QiDiscoveryOptions::default()
+                .with_gap_limit(Some(2))
+                .with_max_addresses(16)
+                .with_max_outpoints(8),
             || false,
         )
         .await
@@ -1238,6 +1236,139 @@ mod backup_tests {
         assert!(live.merge_backup(&capture(&source)).is_err());
         assert_eq!(live.export_state().unwrap(), before);
         assert_eq!(source.operation(id(1)).unwrap().replacements.len(), 17);
+    }
+
+    /// Seeded, deterministic, dependency-free pseudo-random source.
+    struct Lcg(u64);
+    impl Lcg {
+        fn below(&mut self, n: u64) -> u64 {
+            self.0 = self
+                .0
+                .wrapping_mul(6_364_136_223_846_793_005)
+                .wrapping_add(1_442_695_040_888_963_407);
+            (self.0 >> 33) % n
+        }
+    }
+
+    /// Random activity on one side. Qi signatures are randomized and a Qi
+    /// hash covers the signature, so each side keeps the roots it signed.
+    fn diverge(
+        book: &mut QiOperationBook,
+        roots: &mut BTreeMap<u128, SignedQiOperation>,
+        side: u128,
+        rng: &mut Lcg,
+    ) {
+        let mut offsets = BTreeMap::new();
+        for step in 0..rng.below(10) as u128 {
+            let known: Vec<u128> = offsets.keys().chain(roots.keys()).copied().collect();
+            match rng.below(6) {
+                0 | 1 => {
+                    let n = side + step;
+                    let offset = (side / 10 + step * 10) as u16;
+                    let (coins, owners) = source(&tx(0, offset));
+                    if book
+                        .reserve(id(n), checkpoint(), U256::from(10), &coins, &owners)
+                        .is_ok()
+                    {
+                        offsets.insert(n, offset);
+                    }
+                }
+                2 if !offsets.is_empty() => {
+                    let reserved: Vec<_> = offsets.keys().copied().collect();
+                    let n = reserved[rng.below(reserved.len() as u64) as usize];
+                    let signed = sign(&tx(0, offsets[&n]), &keys(&vectors()[0]));
+                    if book.commit_signed(id(n), &signed).is_ok() {
+                        roots.insert(n, signed);
+                    }
+                }
+                3 if !roots.is_empty() => {
+                    let rooted: Vec<_> = roots.keys().copied().collect();
+                    let n = rooted[rng.below(rooted.len() as u64) as usize];
+                    let root = &roots[&n];
+                    let denomination = 1 + (side / 1_000 % 2) as u8;
+                    let _ = book.commit_replacement(
+                        id(n),
+                        root.hash().unwrap(),
+                        &lower(root, 0, denomination),
+                    );
+                }
+                4 if !known.is_empty() => {
+                    let n = known[rng.below(known.len() as u64) as usize];
+                    let _ = book.mark_submitted(id(n));
+                }
+                5 if !known.is_empty() => {
+                    let n = known[rng.below(known.len() as u64) as usize];
+                    let _ = book.release_unsigned(id(n));
+                    if let Some(root) = roots.get(&n) {
+                        let _ = book.observe_inclusion(id(n), root.hash().unwrap(), block());
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    #[cfg_attr(not(target_arch = "wasm32"), test)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+    fn qi_merge_keeps_every_claim_and_candidate_and_is_idempotent() {
+        let mut rng = Lcg(0x5851_f42d_4c95_7f2d);
+        let (mut submitted, mut replaced, mut claims) = (0, 0, 0);
+        for round in 0..25 {
+            let mut base = book();
+            let mut base_roots = BTreeMap::new();
+            for n in 0..rng.below(3) as u128 {
+                base_roots.insert(n + 1, signed(&mut base, n + 1, 0, (n * 10) as u16));
+            }
+            let (mut a, mut b) = (base.clone(), base.clone());
+            let (mut roots_a, mut roots_b) = (base_roots.clone(), base_roots);
+            diverge(&mut a, &mut roots_a, 1_000, &mut rng);
+            diverge(&mut b, &mut roots_b, 3_000, &mut rng);
+
+            let mut ab = a.clone();
+            ab.merge_backup(&capture(&b)).unwrap();
+            // Claims are never released by a merge.
+            let union: std::collections::BTreeSet<_> = a
+                .claimed_outpoints()
+                .union(&b.claimed_outpoints())
+                .copied()
+                .collect();
+            assert!(union.is_subset(&ab.claimed_outpoints()), "round {round}");
+            for (side, other) in [(&a, &b), (&b, &a)] {
+                for op in side.operations() {
+                    let m = ab.operation(op.id).expect("no operation is dropped");
+                    assert!(m.inclusion.is_none(), "inclusions are re-observed");
+                    let transaction = op
+                        .transaction
+                        .or(other.operation(op.id).and_then(|o| o.transaction));
+                    assert_eq!(m.transaction, transaction, "round {round}");
+                    for edge in &op.replacements {
+                        assert!(m.replacements.contains(edge), "round {round}: edge dropped");
+                    }
+                    if matches!(
+                        op.state,
+                        ReservationState::Submitted | ReservationState::Confirmed
+                    ) {
+                        assert_eq!(m.state, ReservationState::Submitted, "round {round}");
+                    }
+                }
+            }
+            let mut again = ab.clone();
+            again.merge_backup(&capture(&b)).unwrap();
+            assert_eq!(
+                again.export_state().unwrap(),
+                ab.export_state().unwrap(),
+                "round {round}"
+            );
+            for op in ab.operations() {
+                submitted += usize::from(op.state == ReservationState::Submitted);
+                replaced += op.replacements.len();
+            }
+            claims += ab.claimed_outpoints().len();
+        }
+        assert!(
+            submitted > 0 && replaced > 0 && claims > 0,
+            "{submitted} {replaced} {claims}"
+        );
     }
 }
 

@@ -18,12 +18,20 @@ default = ["http", "wallet"]
 http = ["quai-rpc/http", "quai-provider/http"]
 wallet = ["dep:quai-wallet", "dep:quai-crypto", "dep:quai-consensus", "dep:quai-signer"]
 ws = ["quai-rpc/ws", "quai-provider/ws"]
-sqlite = ["wallet", "quai-wallet/sqlite"]
+# `quai-wallet/sqlite` implies its `backup` and `payments`, so quai-payments is
+# compiled either way. Depending on the facade's own `backup` (which implies
+# `payments`) keeps this feature graph monotone with the wallet's: without it the
+# crate is linked but `quai_sdk::payments` and `payment_channels` stay cfg'd out,
+# so a `sqlite` consumer pays for the dependency and cannot reach it.
+sqlite = ["backup", "quai-wallet/sqlite"]
 backup = ["wallet", "quai-wallet/backup", "payments"]
 abi = ["dep:quai-abi", "dep:quai-consensus"]
 browser = ["dep:quai-browser"]
 payments = ["dep:quai-payments", "quai-wallet?/payments"]
 keystore = ["dep:quai-keystore"]
+# Parallel address grinding for scans that opt in with `Grinding::Parallel`.
+# Native only; see quai-wallet's feature of the same name.
+rayon = ["wallet", "quai-wallet/rayon"]
 
 [dependencies]
 quai-primitives.workspace = true
@@ -39,6 +47,7 @@ quai-payments = { workspace = true, optional = true }
 quai-keystore = { workspace = true, optional = true }
 thiserror.workspace = true
 serde_json.workspace = true
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 serde_json.workspace = true

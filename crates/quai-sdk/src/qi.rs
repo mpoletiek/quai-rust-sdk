@@ -17,6 +17,7 @@ use quai_wallet::storage::{
 };
 use quai_wallet::{AccountPublic, CoinType, HdWallet, WalletError};
 use quai_wallet::{SelectionError, SelectionRequest, select_fewest};
+use std::borrow::BorrowMut;
 use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
 mod special;
@@ -30,7 +31,9 @@ pub use crate::qi_preflight::{QiIntent, QiPolicy};
 /// There is deliberately no constructor from addresses, clone or deserialization.
 /// This pool belongs to its exact opened storage handle; another/reopened handle
 /// rejects it even when all public state is identical.
-/// Dropped, failed and unused allocations remain burned. Allocate this before
+/// A prepare given the pool by `&mut` takes only the addresses it used, so a
+/// failed prepare leaves the pool reusable; a dropped pool's unused addresses
+/// remain burned. Allocate this before
 /// refreshing discovery: adding metadata invalidates the old wallet snapshot.
 #[derive(Debug)]
 pub struct QiChangePool {
@@ -89,13 +92,27 @@ impl QiChangePool {
 
 /// Planning failures do not release signed claims or retry submission.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum QiError {
+    /// The endpoint is on a different chain or genesis than the store's scope.
+    #[error("endpoint is on another network")]
+    NetworkMismatch,
+    /// The payment-code mailbox returned something that is not an
+    /// announcement list.
+    #[error("payment mailbox result could not be read")]
+    MailboxUnreadable,
     /// Qi message signature generation failed without exposing backend diagnostics.
     #[error("Qi message signing failed")]
     MessageSigning,
     /// An optional caller-owned address-use query failed; no remote text is kept.
     #[error("Qi address-use check failed")]
     UseCheckFailed,
+    /// A grouped read omitted an address that was requested.
+    ///
+    /// Never treated as an empty result: an unread address counted toward the
+    /// gap rule could stop a scan early and lose funds on a restore.
+    #[error("grouped Qi observation omitted a requested address")]
+    IncompleteObservation,
     /// A checked provider observation failed.
     #[error(transparent)]
     Provider(#[from] ProviderError),
@@ -138,6 +155,34 @@ pub enum QiError {
     /// No valid signed Qi payload is stored for this reservation.
     #[error("no recoverable signed Qi transaction")]
     MissingSignedPayload,
+}
+
+impl QiError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    /// Matched exhaustively so a new variant must choose a class.
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::NetworkMismatch => ErrorClass::NetworkMismatch,
+            Self::Provider(error) => error.class(),
+            Self::Storage(error) => error.class(),
+            Self::Broadcast(error) => error.class(),
+            Self::Wallet(error) => crate::discovery::wallet_class(error),
+            Self::MissingSnapshot | Self::StaleSnapshot => ErrorClass::Stale,
+            Self::Cancelled => ErrorClass::Cancelled,
+            // A caller's history service or the node failed to answer.
+            Self::UseCheckFailed | Self::IncompleteObservation => ErrorClass::Transient,
+            Self::MessageSigning
+            | Self::MailboxUnreadable
+            | Self::Selection(_)
+            | Self::Transaction(_)
+            | Self::IdentityMismatch
+            | Self::InvalidPolicy
+            | Self::InsufficientDestinations
+            | Self::InsufficientChange
+            | Self::MissingSignedPayload => ErrorClass::Invalid,
+        }
+    }
 }
 
 /// Immutable reviewed transaction associated with a durable unsigned input claim.
@@ -216,12 +261,10 @@ impl<'a, T: Transport> QiSession<'a, T> {
             store,
         }
     }
-    async fn verify_network(&self) -> Result<(), QiError> {
+    async fn verify_network(&mut self) -> Result<(), QiError> {
         let scope = self.store.scope();
-        if self.provider.chain_id(scope.zone.into()).await? != scope.chain_id
-            || self.provider.genesis_hash(scope.zone).await? != scope.genesis
-        {
-            return Err(QiError::IdentityMismatch);
+        if !crate::network::on_network(self.provider, scope, scope.zone).await? {
+            return Err(QiError::NetworkMismatch);
         }
         Ok(())
     }
@@ -244,26 +287,26 @@ impl<'a, T: Transport> QiSession<'a, T> {
         max_age: u64,
     ) -> Result<U256, QiError> {
         let zone = self.store.scope().zone;
-        let canonical = self
+        u64::try_from(checkpoint.height).map_err(|_| QiError::StaleSnapshot)?;
+        // Independent, address-free reads, taken together.
+        let [canonical, tip]: [_; 2] = self
             .provider
-            .header_at(
+            .headers(
                 zone,
-                u64::try_from(checkpoint.height).map_err(|_| QiError::StaleSnapshot)?,
+                &[
+                    quai_provider::BlockTag::Number(checkpoint.height),
+                    quai_provider::BlockTag::Latest,
+                ],
             )
             .await?
-            .map(|header| Checkpoint {
-                hash: header.hash,
-                height: U256::from(header.number),
-            });
+            .try_into()
+            .map_err(|_| QiError::StaleSnapshot)?;
+        let canonical = canonical.as_ref().map(crate::network::checkpoint);
         if canonical != Some(checkpoint) {
             self.store.reconcile_checkpoint(generation, canonical)?;
             return Err(QiError::StaleSnapshot);
         }
-        let tip = self
-            .provider
-            .latest_header(zone)
-            .await?
-            .ok_or(QiError::StaleSnapshot)?;
+        let tip = tip.ok_or(QiError::StaleSnapshot)?;
         let height = U256::from(tip.number);
         let age = height
             .checked_sub(checkpoint.height)
@@ -276,17 +319,22 @@ impl<'a, T: Transport> QiSession<'a, T> {
             .ok_or(QiError::StaleSnapshot)
     }
     /// Estimate the exact payload in a bounded monotonic fee loop, freeze it and
-    /// atomically claim final inputs. Consume the change pool even on error.
-    /// All network reads precede claims; no signing or submission occurs here.
+    /// atomically claim final inputs. Pass the pool as `&mut` to keep it: only
+    /// the change addresses the prepared transaction uses are taken, and only
+    /// once its inputs are claimed, so a failed prepare leaves the pool whole.
+    /// Its addresses may already have appeared in a fee estimate sent to the
+    /// node, but never in a signed payload. Passed by value, the pool is
+    /// dropped as before. All network reads precede claims; no signing or
+    /// submission occurs here.
     /// Fees/state can change later; estimates do not guarantee node acceptance.
     pub async fn prepare(
         &mut self,
         id: ReservationId,
         intent: QiIntent,
         policy: QiPolicy,
-        change: QiChangePool,
+        mut change: impl BorrowMut<QiChangePool>,
     ) -> Result<PreparedQiTransaction, QiError> {
-        self.prepare_transfer(id, intent, policy, change, false)
+        self.prepare_transfer(id, intent, policy, change.borrow_mut(), false)
             .await
     }
     /// Prepare a Qi transfer to another single destination zone. Origin fees
@@ -297,7 +345,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
         id: ReservationId,
         intent: QiIntent,
         policy: QiPolicy,
-        change: QiChangePool,
+        mut change: impl BorrowMut<QiChangePool>,
     ) -> Result<PreparedQiTransaction, QiError> {
         if intent.destinations.first().is_none_or(|first| {
             first.zone() == self.store.scope().zone
@@ -308,7 +356,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
         }) {
             return Err(QiError::IdentityMismatch);
         }
-        self.prepare_transfer(id, intent, policy, change, true)
+        self.prepare_transfer(id, intent, policy, change.borrow_mut(), true)
             .await
     }
     async fn prepare_transfer(
@@ -316,7 +364,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
         id: ReservationId,
         intent: QiIntent,
         policy: QiPolicy,
-        change: QiChangePool,
+        change: &mut QiChangePool,
         cross_zone: bool,
     ) -> Result<PreparedQiTransaction, QiError> {
         if !(1..=1024).contains(&policy.max_inputs)
@@ -458,6 +506,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
             let outpoints: Vec<_> = selection.inputs.iter().map(|coin| coin.outpoint).collect();
             self.store
                 .reserve_qi(id, snapshot.generation, final_height, &outpoints)?;
+            change.addresses.drain(..selection.change_outputs.len());
             return Ok(PreparedQiTransaction {
                 instance: self.store.instance(),
                 id,

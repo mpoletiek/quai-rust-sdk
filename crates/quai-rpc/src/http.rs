@@ -12,6 +12,7 @@ use tokio::sync::Semaphore;
 
 /// Limits applied to every HTTP request.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct HttpConfig {
     /// Entire request deadline, including concurrency-queue time.
     pub timeout: Duration,
@@ -21,6 +22,28 @@ pub struct HttpConfig {
     pub max_response_bytes: usize,
     /// Maximum simultaneous network requests per cloned transport group.
     pub max_in_flight: usize,
+}
+impl HttpConfig {
+    /// Replace `timeout`.
+    pub const fn with_timeout(mut self, timeout: Duration) -> Self {
+        self.timeout = timeout;
+        self
+    }
+    /// Replace `connect_timeout`.
+    pub const fn with_connect_timeout(mut self, connect_timeout: Duration) -> Self {
+        self.connect_timeout = connect_timeout;
+        self
+    }
+    /// Replace `max_response_bytes`.
+    pub const fn with_max_response_bytes(mut self, max_response_bytes: usize) -> Self {
+        self.max_response_bytes = max_response_bytes;
+        self
+    }
+    /// Replace `max_in_flight`.
+    pub const fn with_max_in_flight(mut self, max_in_flight: usize) -> Self {
+        self.max_in_flight = max_in_flight;
+        self
+    }
 }
 impl Default for HttpConfig {
     fn default() -> Self {
@@ -179,7 +202,7 @@ impl HttpTransport {
     ) -> crate::BatchResult {
         if !matches!(endpoint.scheme(), "http" | "https")
             || requests.is_empty()
-            || requests.len() > 128
+            || requests.len() > crate::MAX_BATCH_CALLS
             || requests.iter().any(|(method, params)| {
                 method.is_empty() || !(params.is_array() || params.is_object())
             })
@@ -218,7 +241,7 @@ impl HttpTransport {
     }
 }
 
-fn decode_batch(bytes: &[u8], first: u64, count: usize) -> crate::BatchResult {
+pub(crate) fn decode_batch(bytes: &[u8], first: u64, count: usize) -> crate::BatchResult {
     let rows: Vec<Box<serde_json::value::RawValue>> =
         serde_json::from_slice(bytes).map_err(|_| RpcError::InvalidResponse("batch array"))?;
     if rows.len() != count {
@@ -273,5 +296,19 @@ mod batch_tests {
         ] {
             assert!(decode_batch(value.as_bytes(), 7, 2).is_err());
         }
+    }
+    #[test]
+    fn a_single_response_with_invalid_utf8_in_an_unknown_field_is_rejected() {
+        // Found by fuzz-smoke: serde skips an ignored field without validating
+        // it, so this decoded although it is not JSON text.
+        let body = b"{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"5x9\",\"eRror\":{\"me*ss\x9e\x98e\":\"x\"}}";
+        assert!(matches!(
+            crate::transport::decode_response(body, 1),
+            Err(RpcError::InvalidResponse(_))
+        ));
+        assert!(
+            crate::transport::decode_response(br#"{"jsonrpc":"2.0","id":1,"result":"5x9"}"#, 1)
+                .is_ok()
+        );
     }
 }

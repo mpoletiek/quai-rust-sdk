@@ -16,6 +16,7 @@ use quai_wallet::{AccountPublic, CandidateCoin, CoinType};
 use std::collections::{BTreeMap, BTreeSet};
 /// Errors and cancellation never authorize dropping signed claims or retrying a send.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum BrowserQiError {
     /// Failed or conflicting storage write; cancelled writes may have committed.
     #[error(transparent)]

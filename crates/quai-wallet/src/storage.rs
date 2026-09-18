@@ -31,6 +31,8 @@ impl From<rusqlite::Error> for StorageError {
     }
 }
 type Result<T> = std::result::Result<T, StorageError>;
+mod activity;
+pub use activity::{ActivityDetail, ActivityEntry, ActivityStatus, QiActivityKind};
 mod backup_state;
 mod observations;
 pub use observations::ObservationCache;
@@ -61,7 +63,8 @@ pub struct Snapshot {
 pub struct AllocatedAddress {
     /// Public address and immutable exact derivation origin.
     pub address: PublicAddress,
-    /// Entire raw range consumed, including skipped and unexamined trailing indexes.
+    /// Raw range consumed, including skipped indexes, and the unexamined tail
+    /// when a concurrent write prevented giving it back.
     pub burned: crate::discovery::IndexRange,
     /// Snapshot generation after metadata invalidation.
     pub generation: u64,
@@ -242,9 +245,10 @@ impl SqliteStore {
         }
     }
     /// Atomically burn a bounded raw child range, then derive and persist a fresh
-    /// address before returning it. Every reserved/skipped/unused index in that range
-    /// remains consumed after cancellation, failure, process death or restart.
-    /// `max_attempts` must be 1..=100,000; smaller batches reduce unused burned space.
+    /// address before returning it. The search runs without holding the write
+    /// lock. Every index in that range stays consumed after cancellation,
+    /// failure, process death or restart. On success, the range past the
+    /// returned address is released again unless the store changed meanwhile. `max_attempts` must be 1..=100,000.
     pub fn allocate_address(
         &mut self,
         account: &AccountPublic,
@@ -362,7 +366,7 @@ impl SqliteStore {
                 })
         };
         let found = if compact { Some(derive()?) } else { None };
-        let end = found
+        let mut end = found
             .as_ref()
             .map_or(limit, |found| found.address.index + 1);
         tx.execute("INSERT INTO derivation_cursors VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(scope,coin,account,change_branch) DO UPDATE SET next_index=excluded.next_index",params![&self.key[..],coin,account_index,change,xpub,end])?;
@@ -371,11 +375,29 @@ impl SqliteStore {
         let (tx, found) = match found {
             Some(found) => (tx, found),
             None => {
+                let reserved_generation = checkpoint_read(&tx, &self.key)?.0;
                 tx.commit()?;
                 let found = derive()?;
                 let tx = self
                     .connection
                     .transaction_with_behavior(TransactionBehavior::Immediate)?;
+                // Give back the unexamined tail of the burn when the store is
+                // unchanged since the reservation. The cursor value alone
+                // cannot show that: imports, discovery and backup merges raise
+                // it with max(), so one that records an address inside the
+                // tail leaves it equal to `limit`, and rewinding would issue
+                // that address again. Every writer bumps the scope generation,
+                // so an unchanged generation does prove nothing was recorded.
+                // Keeping a full burn would skip about max_attempts / 512
+                // matching addresses, enough past a few thousand attempts to
+                // put the next address beyond a default restore gap.
+                if tx.execute(
+                    "UPDATE derivation_cursors SET next_index=?1 WHERE scope=?2 AND coin=?3 AND account=?4 AND change_branch=?5 AND next_index=?6 AND (SELECT generation FROM scopes WHERE scope=?2)=?7",
+                    params![found.address.index + 1, &self.key[..], coin, account_index, change, limit, reserved_generation],
+                )? == 1
+                {
+                    end = found.address.index + 1;
+                }
                 (tx, found)
             }
         };
@@ -615,9 +637,9 @@ impl SqliteStore {
             }
             require_address(&tx, &self.key, coin.address.address())?;
             let expiry = coin.expires_at.map(|v| v.to_be_bytes::<32>());
-            tx.execute(
-                "INSERT INTO coins VALUES(?1,?2,?3,?4,?5,?6,?7,?8)",
-                params![
+            // Cached: this runs once per coin, and a refresh replaces them all.
+            tx.prepare_cached("INSERT INTO coins VALUES(?1,?2,?3,?4,?5,?6,?7,?8)")?
+                .execute(params![
                     &self.key[..],
                     &hash[..],
                     coin.outpoint.index,
@@ -626,8 +648,7 @@ impl SqliteStore {
                     coin.denomination.index(),
                     &coin.unlock_height.to_be_bytes::<32>()[..],
                     expiry.as_ref().map(|v| &v[..])
-                ],
-            )?;
+                ])?;
         }
         tx.execute(
             "UPDATE scopes SET generation=?2,block_hash=?3,height=?4 WHERE scope=?1",
@@ -1136,11 +1157,10 @@ fn insert_address(
     }
     let origin = address.origin.encode();
     let old: Option<(Vec<u8>, Vec<u8>)> = connection
-        .query_row(
-            "SELECT public_key,origin FROM addresses WHERE scope=?1 AND address=?2",
-            params![key, &address.address.bytes()[..]],
-            |r| Ok((r.get(0)?, r.get(1)?)),
-        )
+        .prepare_cached("SELECT public_key,origin FROM addresses WHERE scope=?1 AND address=?2")?
+        .query_row(params![key, &address.address.bytes()[..]], |r| {
+            Ok((r.get(0)?, r.get(1)?))
+        })
         .optional()?;
     if let Some((old_key, old_origin)) = old {
         if old_key != address.public_key || old_origin != origin {
@@ -1302,11 +1322,9 @@ fn clear_snapshot(connection: &Connection, key: &[u8], next: i64) -> Result<()> 
     Ok(())
 }
 fn require_address(connection: &Connection, key: &[u8], address: Address) -> Result<()> {
-    let exists: bool = connection.query_row(
-        "SELECT EXISTS(SELECT 1 FROM addresses WHERE scope=?1 AND address=?2)",
-        params![key, &address.bytes()[..]],
-        |r| r.get(0),
-    )?;
+    let exists: bool = connection
+        .prepare_cached("SELECT EXISTS(SELECT 1 FROM addresses WHERE scope=?1 AND address=?2)")?
+        .query_row(params![key, &address.bytes()[..]], |r| r.get(0))?;
     if exists {
         Ok(())
     } else {

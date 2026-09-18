@@ -108,6 +108,7 @@ pub enum Rounding {
 }
 /// Fixed-point validation and arithmetic errors never retain input strings.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
+#[non_exhaustive]
 pub enum FixedError {
     /// Unsupported format, bit width or decimal scale.
     #[error("invalid fixed-point format")]

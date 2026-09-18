@@ -9,6 +9,7 @@ use serde_json::json;
 /// Current deployment observation saved before return. The observation cache
 /// is reconstructible and excluded from backups; signed candidates are retained.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct DeploymentUpdate {
     /// Atomic public cache revision.
     pub revision: u64,

@@ -120,7 +120,7 @@ impl<T: Transport> Provider<T> {
             });
         }
         if self.genesis_hash(zone).await? != reference.genesis {
-            return Err(ProviderError::InvalidResult("deployment genesis mismatch"));
+            return Err(ProviderError::GenesisMismatch);
         }
         let Some(receipt) = self.receipt(zone, reference.hash).await? else {
             return Ok(DeploymentObservation::NoReceipt {
@@ -205,6 +205,7 @@ impl<T: Transport> Provider<T> {
 /// Native bounded deployment-wait failures never cancel an already signed operation.
 #[cfg(all(feature = "polling", not(target_arch = "wasm32")))]
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum DeploymentWaitError {
     /// Invalid timeout, polling interval or confirmation depth; no I/O occurred.
     #[error("invalid deployment wait limits")]

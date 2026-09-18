@@ -17,6 +17,10 @@ categories = ["cryptography"]
 default = ["http"]
 http = ["dep:reqwest", "dep:tokio", "dep:flate2"]
 ws = ["dep:tokio-tungstenite", "dep:futures-util", "dep:tokio", "tokio/rt", "tokio/macros"]
+# Exposes the JSON-RPC envelope decoders to the fuzz harness. Off by default and
+# hidden from documentation: it is a test seam, not public API, and enabling it
+# does not change any behavior that a normal build performs.
+fuzzing = []
 
 [dependencies]
 quai-primitives.workspace = true
@@ -25,10 +29,18 @@ serde.workspace = true
 serde_json = { workspace = true, features = ["float_roundtrip", "raw_value"] }
 url.workspace = true
 thiserror.workspace = true
+# Credential-bearing header values are built and stored under a guard so a
+# dropped or cloned request does not leave plaintext on the heap.
+zeroize = "1.8"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 reqwest = { workspace = true, optional = true }
-flate2 = { version = "=1.1.10", optional = true }
+# Caret, not `=`. An exact requirement in a published library is inherited by
+# every consumer and cannot be overridden, so `=1.1.10` makes resolution fail
+# outright for anyone whose graph also needs a later 1.1.x. What we actually want
+# frozen is the decompression backend, so pin the feature instead of the version:
+# `rust_backend` keeps this on miniz_oxide and keeps zlib-rs out of the graph.
+flate2 = { version = "1.1.10", default-features = false, features = ["rust_backend"], optional = true }
 tokio = { workspace = true, optional = true }
 tokio-tungstenite = { version = "0.30.0", default-features = false, features = ["connect", "rustls-tls-webpki-roots"], optional = true }
 futures-util = { version = "0.3", default-features = false, features = ["sink", "std"], optional = true }

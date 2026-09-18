@@ -15,6 +15,7 @@ use quai_wallet::metadata::{PublicAddress, StorageError};
 
 /// Errors never trigger an automatic retry. Failed restore transactions commit no updates.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum BrowserBackupError {
     /// Atomic storage transaction failed or conflicted.
     #[error(transparent)]

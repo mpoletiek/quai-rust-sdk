@@ -122,9 +122,13 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
                     &owner,
                     &mailbox,
                     ctx.addresses[0],
-                    0,
-                    8,
-                    &PaymentScanOptions::default(),
+                    // The qualification sender is known to be real, so funded
+                    // announcements are registered.
+                    &quai_sdk::payment_channels::MailboxDiscovery::new(0, 8)
+                        .with_options(PaymentScanOptions::default())
+                        .with_registration(
+                            quai_sdk::payment_channels::MailboxRegistration::RegisterFunded,
+                        ),
                     || false,
                 )
                 .await
@@ -146,7 +150,7 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
                 quai_sdk::qi_discovery::qi_balance(&mut store, checkpoint.height + U256::from(1))?;
             println!(
                 "{}",
-                json!({"stage":"sdk-mailbox-discovery","scanned":report.scanned.iter().map(|c|json!({"sender":c.sender.to_base58(),"newlyRegistered":c.newly_registered,"indexes":c.report.indexes.len(),"firstIndexes":c.report.indexes.iter().take(3).collect::<Vec<_>>(),"stop":format!("{:?}",c.report.stopped)})).collect::<Vec<_>>(),
+                json!({"stage":"sdk-mailbox-discovery","scanned":report.scanned.iter().map(|c|json!({"sender":c.sender.to_base58(),"registration":format!("{:?}",c.registration),"foundQits":c.found.to_string(),"indexes":c.report.indexes.len(),"firstIndexes":c.report.indexes.iter().take(3).collect::<Vec<_>>(),"stop":format!("{:?}",c.report.stopped)})).collect::<Vec<_>>(),
                     "deferred":report.deferred.len(),"invalid":report.invalid,"duplicates":report.duplicates,
                     "walletBalance":{"total":balance.total.to_string(),"spendable":balance.spendable.to_string(),"locked":balance.locked.to_string()}})
             );
@@ -293,11 +297,11 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
                         .wait_for_receipt(
                             scope.zone,
                             hash,
-                            quai_sdk::provider::WaitConfig {
-                                confirmations: 2,
-                                timeout: std::time::Duration::from_secs(300),
-                                poll_interval: std::time::Duration::from_secs(3),
-                            },
+                            quai_sdk::provider::WaitConfig::new(
+                                2,
+                                std::time::Duration::from_secs(300),
+                                std::time::Duration::from_secs(3),
+                            ),
                         )
                         .await?;
                     let mined = provider

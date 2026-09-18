@@ -18,6 +18,7 @@ pub struct BroadcastResult {
 
 /// Submission errors distinguish preflight failures from ambiguous send outcomes.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum BroadcastError {
     /// No submit request was made; configuration/chain validation failed.
     #[error("transaction preflight failed: {0}")]
@@ -48,6 +49,19 @@ pub enum BroadcastError {
         /// Well-formed but conflicting remote ID, or None for malformed response bytes.
         reported_hash: Option<Hash32>,
     },
+}
+
+impl BroadcastError {
+    /// How to react; any failure after a submit was attempted is ambiguous.
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        match self {
+            Self::Preflight(error) => error.class(),
+            Self::Encoding(_) => quai_primitives::ErrorClass::Invalid,
+            Self::Ambiguous { .. } | Self::InvalidAcknowledgement { .. } => {
+                quai_primitives::ErrorClass::Ambiguous
+            }
+        }
+    }
 }
 impl BroadcastError {
     /// True for errors after calling the submit transport. Conservative for remote errors too.

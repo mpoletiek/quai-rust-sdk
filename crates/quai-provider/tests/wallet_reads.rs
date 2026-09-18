@@ -891,3 +891,117 @@ async fn pool_counts_pending_wire_and_advertised_regions_have_explicit_routes() 
     );
     mock.drained();
 }
+
+#[tokio::test]
+async fn account_states_batch_by_page_guard_each_end_and_fall_back_in_order() {
+    use quai_primitives::QuaiAddress;
+    use quai_rpc::BatchResult;
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering::SeqCst};
+    #[derive(Clone, Default)]
+    struct States {
+        batching: bool,
+        switch_trailing: Arc<AtomicBool>,
+        batches: Arc<Mutex<Vec<usize>>>,
+        singles: Arc<AtomicUsize>,
+    }
+    fn answer(method: &str, params: &Value) -> Value {
+        // Balance and nonce are the account's last byte, so order is checkable.
+        let byte = params[0]
+            .as_str()
+            .map_or(0, |a| u64::from_str_radix(&a[40..], 16).unwrap());
+        match method {
+            "quai_chainId" => json!("0x9"),
+            "quai_getBalance" => json!(format!("{:#x}", byte * 10)),
+            "quai_getTransactionCount" => json!(format!("{byte:#x}")),
+            _ => panic!("unexpected {method}"),
+        }
+    }
+    impl Transport for States {
+        async fn request(
+            &self,
+            _: &Endpoint,
+            method: &str,
+            params: Value,
+        ) -> Result<Value, RpcError> {
+            self.singles.fetch_add(1, SeqCst);
+            assert!(params.get(1).is_none_or(|b| b == "0x64"), "pinned block");
+            Ok(answer(method, &params))
+        }
+        async fn request_batch(
+            &self,
+            _: &Endpoint,
+            requests: Vec<(&str, Value)>,
+        ) -> Option<BatchResult> {
+            if !self.batching {
+                return None;
+            }
+            assert!(requests.len() <= quai_rpc::MAX_BATCH_CALLS);
+            assert_eq!(requests.first().unwrap().0, "quai_chainId");
+            assert_eq!(requests.last().unwrap().0, "quai_chainId");
+            self.batches.lock().unwrap().push(requests.len());
+            let last = requests.len() - 1;
+            Some(Ok(requests
+                .iter()
+                .enumerate()
+                .map(|(n, (method, params))| {
+                    Ok(if n == last && self.switch_trailing.load(SeqCst) {
+                        json!("0x1")
+                    } else {
+                        answer(method, params)
+                    })
+                })
+                .collect()))
+        }
+    }
+    let accounts: Vec<QuaiAddress> = (1..=70u64)
+        .map(|n| {
+            format!("0x00000000000000000000000000000000000000{n:02x}")
+                .parse()
+                .unwrap()
+        })
+        .collect();
+    let expected: Vec<(U256, u64)> = (1..=70u64).map(|n| (U256::from(n * 10), n)).collect();
+    let pairs = |states: Vec<quai_provider::AccountState>| -> Vec<(U256, u64)> {
+        states.into_iter().map(|s| (s.balance, s.nonce)).collect()
+    };
+    for batching in [true, false] {
+        let transport = States {
+            batching,
+            ..Default::default()
+        };
+        let provider = Provider::new(
+            transport.clone(),
+            Routing::direct(URL, Zone::Cyprus1.into()).unwrap(),
+            U256::from(9),
+        );
+        let block = BlockTag::Number(U256::from(100));
+        assert_eq!(
+            pairs(provider.account_states(&accounts, block).await.unwrap()),
+            expected
+        );
+        if batching {
+            // 70 accounts: a full 63-account page (128 calls), then 7 (16 calls).
+            assert_eq!(*transport.batches.lock().unwrap(), [128, 16]);
+            assert_eq!(transport.singles.load(SeqCst), 0);
+            // A trailing guard mismatch rejects the page instead of returning it.
+            transport.switch_trailing.store(true, SeqCst);
+            assert!(matches!(
+                provider.account_states(&accounts[..1], block).await,
+                Err(quai_provider::ProviderError::ChainMismatch { .. })
+            ));
+        } else {
+            // Balance and nonce, each with its own guard.
+            assert_eq!(transport.singles.load(SeqCst), 70 * 4);
+        }
+    }
+    assert!(matches!(
+        Provider::new(
+            States::default(),
+            Routing::direct(URL, Zone::Cyprus1.into()).unwrap(),
+            U256::from(9)
+        )
+        .account_states(&[], BlockTag::Latest)
+        .await,
+        Err(quai_provider::ProviderError::InvalidRequest(_))
+    ));
+}

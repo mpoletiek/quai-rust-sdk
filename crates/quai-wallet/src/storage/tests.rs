@@ -704,16 +704,18 @@ fn allocation_burns_skipped_cancelled_and_exposed_ranges_across_restart() {
     let first = store
         .allocate_address(&account, false, 10000, || false)
         .unwrap();
+    // The cancelled attempt's burn stays consumed; the successful one gives
+    // back everything past its address.
     assert_eq!(first.burned.start, 10000);
-    assert_eq!(first.burned.end, 20000);
     let KeyOrigin::Bip44 { index, .. } = first.address.origin() else {
         panic!("HD allocation")
     };
     assert!((10000..20000).contains(&index));
+    assert_eq!(first.burned.end, index + 1);
     let second = store
         .allocate_address(&account, false, 10000, || false)
         .unwrap();
-    assert_eq!(second.burned.start, 20000);
+    assert_eq!(second.burned.start, index + 1);
     assert_ne!(first.address.address(), second.address.address());
     let change = store
         .allocate_address(&account, true, 10000, || false)
@@ -762,22 +764,52 @@ fn allocation_competes_across_processes_without_index_collisions() {
     let store = db.open();
     let addresses = store.addresses().unwrap();
     assert_eq!(addresses.len(), 3);
-    let ranges: BTreeSet<_> = addresses
+    let indexes: BTreeSet<_> = addresses
         .iter()
         .map(|address| match address.origin() {
-            KeyOrigin::Bip44 { index, .. } => index / 10000,
+            KeyOrigin::Bip44 { index, .. } => index,
             _ => panic!("HD allocation"),
         })
         .collect();
-    assert_eq!(ranges, [0, 1, 2].into_iter().collect());
+    assert_eq!(indexes.len(), 3, "no two processes issued the same index");
+}
+
+#[test]
+fn consecutive_allocations_do_not_skip_matching_addresses() {
+    // A large bound used to burn its whole range, skipping ~bound/512 matching
+    // addresses between allocations: at 100,000, about 190, far past a default
+    // gap of 50, so a mnemonic-only restore stopped before the second address.
+    let db = Database::new();
+    let mut store = db.open();
+    let account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let index = |allocated: &AllocatedAddress| match allocated.address.origin() {
+        KeyOrigin::Bip44 { index, .. } => index,
+        _ => panic!("HD allocation"),
+    };
+    let first = store
+        .allocate_address(&account, false, 100_000, || false)
+        .unwrap();
+    let second = store
+        .allocate_address(&account, false, 100_000, || false)
+        .unwrap();
+    let next = account
+        .search(
+            false,
+            crate::Search {
+                zone: scope().zone,
+                start_index: index(&first) + 1,
+                max_attempts: 100_000,
+            },
+            || false,
+        )
+        .unwrap();
+    assert_eq!(index(&second), next.address.index, "the very next match");
 }
 fn ready_scan<F: std::future::Future>(future: F) -> F::Output {
-    let mut context = std::task::Context::from_waker(std::task::Waker::noop());
-    let mut future = std::pin::pin!(future);
-    match future.as_mut().poll(&mut context) {
-        std::task::Poll::Ready(value) => value,
-        _ => panic!("immediate fixture source"),
-    }
+    crate::discovery::tests::ready(future)
 }
 struct StorageSource;
 impl crate::discovery::ObservationSource for StorageSource {
@@ -859,6 +891,7 @@ fn discovery_commit_couples_metadata_checkpoint_and_cas_and_reorg_preserves_clai
                 require_history: false,
                 max_addresses: 10,
                 max_coins: 10,
+                grinding: crate::Grinding::Sequential,
             };
             ready_scan(discover(&StorageSource, &account, &request, || false)).unwrap()
         })
@@ -1545,4 +1578,239 @@ fn compact_hd_allocations_commit_only_examined_children_and_preserve_old_floors(
     assert_eq!(next.burned.start, first.burned.end);
     assert_ne!(next.address, first.address);
     assert_eq!(store.addresses().unwrap().len(), 3);
+}
+
+/// Two connections to one store, plus a hook that runs `during` while the
+/// first connection's legacy allocation is searching outside the write lock.
+fn allocate_with_concurrent_write(
+    during: impl FnOnce(&mut SqliteStore),
+) -> (Database, AllocatedAddress, SqliteStore, AccountPublic) {
+    let db = Database::new();
+    let mut store = db.open();
+    let mut other = Some((db.open(), during));
+    let account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    // The first check runs before the reservation; the second is the search's
+    // first candidate, after the reservation committed and the lock dropped.
+    let mut calls = 0;
+    let allocated = store
+        .allocate_address(&account, false, 100_000, || {
+            calls += 1;
+            if calls == 2
+                && let Some((mut other, during)) = other.take()
+            {
+                during(&mut other);
+            }
+            false
+        })
+        .unwrap();
+    (db, allocated, store, account)
+}
+
+#[test]
+fn giveback_never_rewinds_below_an_address_recorded_meanwhile() {
+    // Discovery on another connection records the next matching address,
+    // inside this allocation's reserved tail. That raises the cursor with
+    // max(), leaving it equal to the reserved limit, so a cursor-only check
+    // rewound past it and the next allocation issued the same address.
+    let account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let search = |start| {
+        account
+            .search(
+                false,
+                crate::Search {
+                    zone: scope().zone,
+                    start_index: start,
+                    max_attempts: 100_000,
+                },
+                || false,
+            )
+            .unwrap()
+            .address
+            .index
+    };
+    let second = search(search(0) + 1);
+    let recorded = PublicAddress::derive(&account, false, second).unwrap();
+    let copy = recorded.clone();
+    let (_db, first, mut store, account) = allocate_with_concurrent_write(move |other| {
+        let generation = other.snapshot().unwrap().generation;
+        other.import_metadata(generation, &[copy]).unwrap();
+    });
+    assert_eq!(
+        first.burned.end,
+        first.burned.start + 100_000,
+        "full burn kept"
+    );
+    let next = store
+        .allocate_address_compact(&account, false, 100_000, || false)
+        .unwrap();
+    assert_ne!(next.address.address(), recorded.address());
+}
+
+#[test]
+fn giveback_keeps_the_full_burn_after_a_concurrent_allocation() {
+    let (_db, first, mut store, account) = allocate_with_concurrent_write(|other| {
+        let account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+            .unwrap()
+            .account_public(0)
+            .unwrap();
+        other
+            .allocate_address_compact(&account, false, 100_000, || false)
+            .unwrap();
+    });
+    assert_eq!(
+        first.burned.end,
+        first.burned.start + 100_000,
+        "full burn kept"
+    );
+    let issued: BTreeSet<_> = store
+        .addresses()
+        .unwrap()
+        .iter()
+        .map(|a| a.address())
+        .collect();
+    assert_eq!(issued.len(), 2);
+    let next = store
+        .allocate_address_compact(&account, false, 100_000, || false)
+        .unwrap();
+    assert!(!issued.contains(&next.address.address()));
+}
+
+#[test]
+fn activity_lists_outgoing_operations_with_status_and_decoded_amounts() {
+    use crate::storage::{ActivityDetail, ActivityStatus, QiActivityKind};
+    let db = Database::new();
+    let mut store = db.open();
+    let generation = populate(&mut store);
+    // Account: reserved, signed, submitted, then observed included.
+    let account = QuaiAddress::try_from(metadata()[1].address()).unwrap();
+    let nonce = store.reserve_nonce(id(1), account, 5).unwrap();
+    let transfer = account_transaction(nonce).sign(&signing_key(1)).unwrap();
+    store.commit_signed_quai(id(1), &transfer).unwrap();
+    store.mark_submitted(id(1)).unwrap();
+    store
+        .observe_inclusion(id(1), transfer.hash().unwrap(), block(9))
+        .unwrap();
+    // Account: reserved, then released unsigned.
+    store.reserve_nonce(id(2), account, 0).unwrap();
+    store.release_unsigned(id(2)).unwrap();
+    // Qi: one output to someone else, one back to a second address this
+    // wallet holds (outputs may not reuse an input's address).
+    let qi_account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let KeyOrigin::Bip44 { index: first, .. } = metadata()[0].origin() else {
+        panic!("HD test metadata")
+    };
+    let second = qi_account
+        .search(
+            false,
+            Search {
+                zone: scope().zone,
+                start_index: first + 1,
+                max_attempts: 10_000,
+            },
+            || false,
+        )
+        .unwrap();
+    let change_address = PublicAddress::derive(&qi_account, false, second.address.index).unwrap();
+    let key = signing_key(0);
+    let mut stranger = *metadata()[0].address().bytes();
+    stranger[19] ^= 1;
+    // A watched key the store holds without HD ancestry is not change.
+    let other = HdWallet::from_seed(&[1; 16], CoinType::Qi).unwrap();
+    let found = other
+        .account_public(0)
+        .unwrap()
+        .search(
+            false,
+            Search {
+                zone: scope().zone,
+                start_index: 0,
+                max_attempts: 10_000,
+            },
+            || false,
+        )
+        .unwrap();
+    let watched_key = other
+        .derive_key(0, false, found.address.index)
+        .unwrap()
+        .secret_key()
+        .unwrap()
+        .public_key();
+    let watched = PublicAddress::imported(&watched_key).unwrap();
+    let qi = quai_consensus::QiTransaction {
+        chain_id: scope().chain_id,
+        inputs: coins()
+            .iter()
+            .map(|coin| quai_consensus::QiInput {
+                previous_output: coin.outpoint,
+                public_key: key.public_key(),
+            })
+            .collect(),
+        outputs: vec![
+            quai_consensus::QiOutput {
+                address: Address::from_bytes(stranger),
+                denomination: Denomination::new(1).unwrap(),
+            },
+            quai_consensus::QiOutput {
+                address: change_address.address(),
+                denomination: Denomination::new(0).unwrap(),
+            },
+            quai_consensus::QiOutput {
+                address: watched.address(),
+                denomination: Denomination::new(2).unwrap(),
+            },
+        ],
+        data: vec![],
+    }
+    .sign_local(&vec![&key; coins().len()])
+    .unwrap();
+    store
+        .reserve_qi(
+            id(3),
+            generation,
+            U256::from(6),
+            &coins().iter().map(|c| c.outpoint).collect::<Vec<_>>(),
+        )
+        .unwrap();
+    store.commit_signed_qi(id(3), &qi).unwrap();
+    let generation = store.snapshot().unwrap().generation;
+    store
+        .import_metadata(generation, &[change_address, watched])
+        .unwrap();
+
+    let activity = store.activity(None, 10).unwrap();
+    assert_eq!(activity.len(), 3);
+    assert_eq!(
+        activity[0].status,
+        ActivityStatus::Included { block: block(9) }
+    );
+    assert_eq!(activity[0].transaction, Some(transfer.hash().unwrap()));
+    assert!(matches!(
+        activity[0].detail,
+        ActivityDetail::Account { nonce: n, .. } if n == nonce
+    ));
+    assert_eq!(activity[1].status, ActivityStatus::Cancelled);
+    assert_eq!(activity[1].detail, ActivityDetail::Unsigned);
+    assert_eq!(activity[2].status, ActivityStatus::Signed);
+    assert_eq!(
+        activity[2].detail,
+        ActivityDetail::Qi {
+            kind: QiActivityKind::Transfer,
+            sent: U256::from(
+                Denomination::new(1).unwrap().value() + Denomination::new(2).unwrap().value()
+            ),
+            change: U256::from(Denomination::new(0).unwrap().value()),
+            outputs: 3,
+        }
+    );
+    // Paging continues after the last returned ID.
+    assert_eq!(store.activity(Some(id(2)), 10).unwrap().len(), 1);
 }

@@ -1,10 +1,10 @@
-use crate::{Endpoint, RpcError, Transport, transport::decode_response};
+use crate::{Endpoint, MAX_BATCH_CALLS, RpcError, Transport, transport::decode_response};
 use futures_util::{SinkExt, StreamExt};
 use quai_primitives::{Address, Hash32};
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{
-    collections::HashMap,
+    collections::{HashMap, VecDeque},
     fmt,
     io::Write,
     sync::{
@@ -28,6 +28,7 @@ type Socket = WebSocketStream<MaybeTlsStream<TcpStream>>;
 
 /// Resource and deadline limits for a single explicit native WebSocket connection.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct WsConfig {
     /// DNS, TCP, TLS and upgrade handshake deadline.
     pub connect_timeout: Duration,
@@ -45,6 +46,48 @@ pub struct WsConfig {
     pub subscription_capacity: usize,
     /// Aggregate queued notification budget measured in encoded message bytes.
     pub max_notification_bytes: usize,
+}
+impl WsConfig {
+    /// Replace `connect_timeout`.
+    pub const fn with_connect_timeout(mut self, connect_timeout: Duration) -> Self {
+        self.connect_timeout = connect_timeout;
+        self
+    }
+    /// Replace `request_timeout`.
+    pub const fn with_request_timeout(mut self, request_timeout: Duration) -> Self {
+        self.request_timeout = request_timeout;
+        self
+    }
+    /// Replace `max_message_bytes`.
+    pub const fn with_max_message_bytes(mut self, max_message_bytes: usize) -> Self {
+        self.max_message_bytes = max_message_bytes;
+        self
+    }
+    /// Replace `max_frame_bytes`.
+    pub const fn with_max_frame_bytes(mut self, max_frame_bytes: usize) -> Self {
+        self.max_frame_bytes = max_frame_bytes;
+        self
+    }
+    /// Replace `max_in_flight`.
+    pub const fn with_max_in_flight(mut self, max_in_flight: usize) -> Self {
+        self.max_in_flight = max_in_flight;
+        self
+    }
+    /// Replace `max_subscriptions`.
+    pub const fn with_max_subscriptions(mut self, max_subscriptions: usize) -> Self {
+        self.max_subscriptions = max_subscriptions;
+        self
+    }
+    /// Replace `subscription_capacity`.
+    pub const fn with_subscription_capacity(mut self, subscription_capacity: usize) -> Self {
+        self.subscription_capacity = subscription_capacity;
+        self
+    }
+    /// Replace `max_notification_bytes`.
+    pub const fn with_max_notification_bytes(mut self, max_notification_bytes: usize) -> Self {
+        self.max_notification_bytes = max_notification_bytes;
+        self
+    }
 }
 impl Default for WsConfig {
     fn default() -> Self {
@@ -504,6 +547,45 @@ impl Transport for WsTransport {
         }
         self.request_inner(method, params, None, None).await
     }
+
+    /// Issue a group of calls concurrently over the multiplexed session.
+    ///
+    /// This is not JSON-RPC array framing. The session is already pipelined:
+    /// requests are correlated by ID and several may be in flight at once, so
+    /// issuing a group concurrently collapses the same round trips that array
+    /// framing would, without touching the dispatch path that performs the
+    /// correlation and the duplicate/foreign/unknown-ID rejection. Array framing
+    /// would require the actor to accept a response frame carrying many IDs,
+    /// which is the one place a correlation mistake becomes a response-confusion
+    /// bug, so it is deliberately not introduced for a latency win the existing
+    /// path already provides.
+    ///
+    /// Concurrency is bounded by the session's in-flight permit count, so a
+    /// group larger than that budget proceeds in waves rather than unbounded.
+    /// Results keep their request positions. One deadline covers the whole
+    /// group, matching the HTTP batch. A failure part-way through leaves
+    /// acceptance of the already-sent calls unknown, exactly as the trait says.
+    async fn request_batch(
+        &self,
+        endpoint: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<crate::BatchResult> {
+        if endpoint != &self.inner.endpoint
+            || requests.is_empty()
+            || requests.len() > MAX_BATCH_CALLS
+            || requests.iter().any(|(method, params)| {
+                matches!(*method, "quai_subscribe" | "quai_unsubscribe")
+                    || !(params.is_array() || params.is_object())
+            })
+        {
+            return Some(Err(RpcError::InvalidConfig));
+        }
+        let deadline = Instant::now() + self.inner.config.request_timeout;
+        let pending = requests
+            .into_iter()
+            .map(|(method, params)| self.request_at(method, params, None, None, deadline));
+        Some(Ok(futures_util::future::join_all(pending).await))
+    }
 }
 
 async fn run(
@@ -516,6 +598,12 @@ async fn run(
 ) {
     let mut pending: HashMap<u64, Pending> = HashMap::new();
     let mut subscriptions: HashMap<String, Registration> = HashMap::new();
+    // Subscription IDs this session has just unsubscribed. The node hands a
+    // notification to its writer before it processes the unsubscribe, so a
+    // notification for a cancelled subscription can legitimately arrive after
+    // its own acknowledgement. Bounded and FIFO: it only has to cover frames
+    // already in flight, never a growing history.
+    let mut recently_unsubscribed: VecDeque<String> = VecDeque::new();
     let notification_bytes = Arc::new(Semaphore::new(config.max_notification_bytes));
     let mut cleanup = tokio::time::interval(Duration::from_millis(10).min(config.request_timeout));
     cleanup.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
@@ -563,7 +651,7 @@ async fn run(
                     },
                     _=>break RpcError::InvalidResponse("unexpected WebSocket frame"),
                 };
-                if let Err(error)=dispatch(bytes,&mut pending,&mut subscriptions,next_id.load(Ordering::Relaxed),&notification_bytes) {break error}
+                if let Err(error)=dispatch(bytes,&mut pending,&mut subscriptions,&mut recently_unsubscribed,next_id.load(Ordering::Relaxed),&notification_bytes) {break error}
             },
         }
     };
@@ -617,13 +705,24 @@ struct Notification {
 struct NotificationFrame {
     params: Notification,
 }
+/// Maximum subscription IDs remembered after unsubscribing, enough to cover
+/// notifications already in flight when the acknowledgement was processed.
+const MAX_RECENTLY_UNSUBSCRIBED: usize = 64;
+
 fn dispatch(
     bytes: &[u8],
     pending: &mut HashMap<u64, Pending>,
     subscriptions: &mut HashMap<String, Registration>,
+    recently_unsubscribed: &mut VecDeque<String>,
     next_id: u64,
     notification_bytes: &Arc<Semaphore>,
 ) -> Result<(), RpcError> {
+    // Binary frames reach here as raw bytes. serde skips an ignored field's
+    // contents without validating UTF-8, so without this check a frame that is
+    // not JSON text was routed by its ID, then failed decoding as that
+    // request's reply. Found by the ws_dispatch fuzz target.
+    std::str::from_utf8(bytes)
+        .map_err(|_| RpcError::InvalidResponse("malformed WebSocket envelope"))?;
     let envelope: WireEnvelope = serde_json::from_slice(bytes)
         .map_err(|_| RpcError::InvalidResponse("malformed WebSocket envelope"))?;
     if envelope.jsonrpc != "2.0" {
@@ -673,6 +772,10 @@ fn dispatch(
                 let _ = subscription
                     .terminal
                     .send(Some(RpcError::SubscriptionClosed));
+                if recently_unsubscribed.len() == MAX_RECENTLY_UNSUBSCRIBED {
+                    recently_unsubscribed.pop_front();
+                }
+                recently_unsubscribed.push_back(id);
             }
             let _ = request.reply.send(result);
             Ok(())
@@ -688,9 +791,16 @@ fn dispatch(
             let notification: NotificationFrame = serde_json::from_slice(bytes)
                 .map_err(|_| RpcError::InvalidResponse("malformed subscription notification"))?;
             let notification = notification.params;
-            let subscription = subscriptions
-                .get(&notification.subscription)
-                .ok_or(RpcError::InvalidResponse("unknown subscription ID"))?;
+            let Some(subscription) = subscriptions.get(&notification.subscription) else {
+                // A notification that raced its own unsubscribe acknowledgement
+                // is expected, not a protocol violation, and must not fail the
+                // whole multiplexed session: doing so would cancel every other
+                // subscription and every in-flight request on this connection.
+                if recently_unsubscribed.contains(&notification.subscription) {
+                    return Ok(());
+                }
+                return Err(RpcError::InvalidResponse("unknown subscription ID"));
+            };
             let permit = match notification_bytes
                 .clone()
                 .try_acquire_many_owned(bytes.len() as u32)
@@ -720,6 +830,83 @@ fn dispatch(
         _ => Err(RpcError::InvalidResponse("unexpected WebSocket envelope")),
     }
 }
+/// Feed frames through `dispatch` against a synthetic session: requests
+/// `1..next_id` outstanding, request 1 optionally subscribing, request 2
+/// optionally unsubscribing from "0x1", subscription "0x1" optionally live and
+/// "0x2" optionally recently unsubscribed, as `layout` selects. Asserts that a
+/// reply only ever reaches the request whose ID the frame carries, and that
+/// nothing unissued is ever pending.
+#[cfg(feature = "fuzzing")]
+pub(crate) fn fuzz_dispatch(layout: u8, frames: &[&[u8]]) {
+    let permits = Arc::new(Semaphore::new(1 << 16));
+    let permit = || {
+        permits
+            .clone()
+            .try_acquire_owned()
+            .expect("fixture permits")
+    };
+    let mut subscription_queues = Vec::new();
+    let mut registration = || {
+        let (sender, queue) = mpsc::channel(2);
+        let (terminal, watched) = watch::channel(None);
+        subscription_queues.push((queue, watched));
+        Registration {
+            sender,
+            terminal,
+            _permit: permit(),
+        }
+    };
+    let next_id = 1 + u64::from(layout % 8);
+    let mut pending = HashMap::new();
+    let mut replies = HashMap::new();
+    for id in 1..next_id {
+        let (reply, receiver) = oneshot::channel();
+        pending.insert(
+            id,
+            Pending {
+                reply,
+                registration: (layout & 0x10 != 0 && id == 1).then(&mut registration),
+                unsubscribe: (layout & 0x20 != 0 && id == 2).then(|| "0x1".to_owned()),
+                _permit: permit(),
+                deadline: Instant::now(),
+            },
+        );
+        replies.insert(id, receiver);
+    }
+    let mut subscriptions = HashMap::new();
+    if layout & 0x40 != 0 {
+        subscriptions.insert("0x1".to_owned(), registration());
+    }
+    let mut recently_unsubscribed = VecDeque::new();
+    if layout & 0x80 != 0 {
+        recently_unsubscribed.push_back("0x2".to_owned());
+    }
+    let notification_bytes = Arc::new(Semaphore::new(4096));
+    for frame in frames {
+        let result = dispatch(
+            frame,
+            &mut pending,
+            &mut subscriptions,
+            &mut recently_unsubscribed,
+            next_id,
+            &notification_bytes,
+        );
+        let frame_id = serde_json::from_slice::<Value>(frame)
+            .ok()
+            .and_then(|value| value.get("id").and_then(Value::as_u64));
+        for (id, receiver) in &mut replies {
+            if receiver.try_recv().is_ok() {
+                assert_eq!(Some(*id), frame_id, "a reply reached another request");
+            }
+        }
+        assert!(pending.keys().all(|id| *id != 0 && *id < next_id));
+        if result.is_err() {
+            // A real session closes here.
+            break;
+        }
+    }
+}
+
 fn subscription_id(value: &Value) -> Result<&str, RpcError> {
     value
         .as_str()
@@ -773,4 +960,28 @@ fn encode_request(id: u64, method: &str, params: Value, max: usize) -> Result<St
     )
     .map_err(|_| RpcError::RequestTooLarge)?;
     String::from_utf8(writer.bytes).map_err(|_| RpcError::InvalidConfig)
+}
+
+#[cfg(all(test, feature = "fuzzing"))]
+mod fuzz_harness_tests {
+    #[test]
+    fn the_dispatch_harness_routes_representative_sessions_without_panicking() {
+        let frames: [&[u8]; 8] = [
+            br#"{"jsonrpc":"2.0","id":1,"result":"0x1"}"#,
+            br#"{"jsonrpc":"2.0","id":2,"result":true}"#,
+            br#"{"jsonrpc":"2.0","id":3,"error":{"code":-32000,"message":"x"}}"#,
+            br#"{"jsonrpc":"2.0","method":"quai_subscription","params":{"subscription":"0x1","result":{}}}"#,
+            br#"{"jsonrpc":"2.0","method":"quai_subscription","params":{"subscription":"0x2","result":{}}}"#,
+            br#"{"jsonrpc":"2.0","id":9,"result":"0x1"}"#,
+            br#"{"jsonrpc":"2.0","id":1,"result":"0x1"}"#,
+            b"not json",
+        ];
+        // Invalid UTF-8 inside an unknown field: rejected before routing.
+        super::fuzz_dispatch(0x01, &[b"{\"jsonrpc\":\"2.0\",\"id\":1,\"x\":\"\xc5\"}"]);
+        for layout in 0..=u8::MAX {
+            for start in 0..frames.len() {
+                super::fuzz_dispatch(layout, &frames[start..]);
+            }
+        }
+    }
 }

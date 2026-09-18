@@ -61,11 +61,7 @@ fn follower(tracker: HeadTracker) -> Result<WsHeadFollower<HttpTransport>, Box<d
         tracker,
         Endpoint::parse("wss://rpc.quai.network/cyprus1")?,
         WsConfig::default(),
-        HeadFollowPolicy {
-            max_connect_attempts: 8,
-            retry_delay: Duration::from_secs(5),
-            idle_poll_interval: Duration::from_secs(30),
-        },
+        HeadFollowPolicy::new(8, Duration::from_secs(5), Duration::from_secs(30)),
     )?)
 }
 

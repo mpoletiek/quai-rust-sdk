@@ -403,11 +403,11 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                     .wait_for_receipt(
                         scope.zone,
                         hash,
-                        WaitConfig {
-                            confirmations: 2,
-                            timeout: std::time::Duration::from_secs(if mainnet { 300 } else { 55 }),
-                            poll_interval: std::time::Duration::from_secs(2),
-                        },
+                        WaitConfig::new(
+                            2,
+                            std::time::Duration::from_secs(if mainnet { 300 } else { 55 }),
+                            std::time::Duration::from_secs(2),
+                        ),
                     )
                     .await?;
                 let mut receipt = observed.receipt.to_rpc_json()?;
@@ -498,14 +498,14 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                 id,
                 hash,
                 quai_sdk::settlement::SettlementKind::Conversion,
-                quai_sdk::provider::EtxScanRequest {
-                    zone: scope.zone,
+                quai_sdk::provider::EtxScanRequest::new(
+                    scope.zone,
                     from,
-                    to: head.number.min(from + 31),
-                    max_transactions_per_block: 4096,
-                    max_total_transactions: 65536,
-                    preceding_block: None,
-                },
+                    head.number.min(from + 31),
+                    4096,
+                    65536,
+                )
+                .with_preceding_block(None),
                 100,
             )
             .await?;
@@ -531,14 +531,14 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                 id,
                 hash,
                 quai_sdk::settlement::SettlementKind::QiWrapping,
-                quai_sdk::provider::EtxScanRequest {
-                    zone: scope.zone,
+                quai_sdk::provider::EtxScanRequest::new(
+                    scope.zone,
                     from,
-                    to: head.number.min(from + 31),
-                    max_transactions_per_block: 4096,
-                    max_total_transactions: 65536,
-                    preceding_block: None,
-                },
+                    head.number.min(from + 31),
+                    4096,
+                    65536,
+                )
+                .with_preceding_block(None),
                 100,
             )
             .await?;

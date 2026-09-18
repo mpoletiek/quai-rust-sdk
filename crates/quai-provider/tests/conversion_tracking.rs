@@ -232,14 +232,7 @@ fn provider(mock: &Mock) -> Provider<Mock> {
     )
 }
 fn request() -> EtxScanRequest {
-    EtxScanRequest {
-        zone: Zone::Cyprus1,
-        from: 16,
-        to: 16,
-        max_transactions_per_block: 16,
-        max_total_transactions: 32,
-        preceding_block: None,
-    }
+    EtxScanRequest::new(Zone::Cyprus1, 16, 16, 16, 32).with_preceding_block(None)
 }
 #[tokio::test]
 async fn captured_block_and_final_hashes_correlate_conversion_and_refund_without_maturity_claims() {
@@ -891,7 +884,8 @@ async fn redemption_credit_tracks_lock_boundary_absence_and_reorg_without_guessi
         .lock()
         .unwrap()
         .headers
-        .insert(8, Hash32::ZERO.to_string());
+        // A different block now occupies height 8.
+        .insert(8, Hash32::from_bytes([9; 32]).to_string());
     let (observed, credit) = provider(&mock)
         .observe_external_qi_credit(&reference, request(), 16)
         .await
@@ -1060,14 +1054,7 @@ async fn cross_zone_qi_credit_keeps_original_output_identity_and_converts_denomi
         U256::from(1337),
     );
     let (_, credit) = provider
-        .observe_external_qi_credit(
-            &reference,
-            EtxScanRequest {
-                zone: Zone::Cyprus2,
-                ..request()
-            },
-            16,
-        )
+        .observe_external_qi_credit(&reference, request().with_zone(Zone::Cyprus2), 16)
         .await
         .unwrap();
     let credit = credit.unwrap();

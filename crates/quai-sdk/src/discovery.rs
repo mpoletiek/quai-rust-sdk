@@ -1,13 +1,16 @@
 //! Portable numbered account observations and bounded current Qi outpoint discovery.
 mod qi;
 mod qi_addresses;
+// For `crate::qi`, which exists only on native SQLite builds.
+#[cfg(all(feature = "sqlite", not(target_arch = "wasm32")))]
+pub(crate) use qi::wallet_class;
 pub use qi::{
     CurrentQiAddress, CurrentQiDiscovery, CurrentQiOutput, DEFAULT_QI_GAP, ObservedQiBalance,
     QiDiscoveryError, QiDiscoveryOptions, discover_qi, discover_qi_with_use_checker,
 };
 pub use qi_addresses::{refresh_qi_address_book, refresh_qi_address_book_with_use_checker};
 use quai_primitives::QuaiAddress;
-use quai_provider::{BlockTag, Provider};
+use quai_provider::{BlockTag, Provider, ZoneHeader};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{
     AddressObservation, Checkpoint, DiscoveryError, HistoryCapability, NetworkScope,
@@ -37,23 +40,20 @@ impl<'a, T: Transport> AccountRpcSource<'a, T> {
     pub fn new(provider: &'a Provider<T>) -> Self {
         Self { provider }
     }
-    async fn identity(&self, scope: NetworkScope) -> Result<(), DiscoveryError> {
-        if self
-            .provider
-            .chain_id(scope.zone.into())
+    /// The network check and pinned header reads in one round trip, where
+    /// the transport batches. Genesis is immutable, so it is checked once per
+    /// call; every read still carries its own chain-ID guard.
+    async fn network_headers<const N: usize>(
+        &self,
+        scope: NetworkScope,
+        blocks: &[BlockTag; N],
+    ) -> Result<[Option<ZoneHeader>; N], DiscoveryError> {
+        crate::network::headers_on_network(self.provider, scope, scope.zone, blocks)
             .await
-            .map_err(|_| DiscoveryError::SourceUnavailable)?
-            != scope.chain_id
-            || self
-                .provider
-                .genesis_hash(scope.zone)
-                .await
-                .map_err(|_| DiscoveryError::SourceUnavailable)?
-                != scope.genesis
-        {
-            return Err(DiscoveryError::InvalidObservation);
-        }
-        Ok(())
+            .map_err(source_error)?
+            .ok_or(DiscoveryError::NetworkMismatch)?
+            .try_into()
+            .map_err(|_| DiscoveryError::InvalidObservation)
     }
 }
 impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_, T> {
@@ -61,19 +61,11 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         HistoryCapability::CurrentStateOnly
     }
     async fn tip(&self, scope: NetworkScope) -> Result<ScopedCheckpoint, DiscoveryError> {
-        self.identity(scope).await?;
-        let header = self
-            .provider
-            .latest_header(scope.zone)
-            .await
-            .map_err(|_| DiscoveryError::SourceUnavailable)?
-            .ok_or(DiscoveryError::SourceUnavailable)?;
+        let [header] = self.network_headers(scope, &[BlockTag::Latest]).await?;
+        let header = header.ok_or(DiscoveryError::SourceUnavailable)?;
         Ok(ScopedCheckpoint {
             scope,
-            checkpoint: Checkpoint {
-                hash: header.hash,
-                height: U256::from(header.number),
-            },
+            checkpoint: crate::network::checkpoint(&header),
         })
     }
     async fn observe(
@@ -82,56 +74,102 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         address: &DerivedAddress,
         checkpoint: Checkpoint,
     ) -> Result<AddressObservation, DiscoveryError> {
-        if address.coin != CoinType::Quai {
-            return Err(DiscoveryError::SourceUnavailable);
-        }
-        let account = QuaiAddress::try_from(address.address)
-            .map_err(|_| DiscoveryError::InvalidObservation)?;
-        if account.zone() != scope.zone {
-            return Err(DiscoveryError::InvalidObservation);
-        }
-        self.identity(scope).await?;
-        let before = self
-            .canonical(scope, checkpoint.height)
+        self.observe_many(scope, std::slice::from_ref(address), checkpoint)
             .await?
-            .ok_or(DiscoveryError::SourceUnavailable)?;
-        if before.checkpoint != checkpoint {
-            return Err(DiscoveryError::InvalidObservation);
+            .pop()
+            .ok_or(DiscoveryError::InvalidObservation)
+    }
+    /// One identity check and one reorg bracket for the whole window, with the
+    /// balance and nonce reads batched between them.
+    async fn observe_many(
+        &self,
+        scope: NetworkScope,
+        addresses: &[DerivedAddress],
+        checkpoint: Checkpoint,
+    ) -> Result<Vec<AddressObservation>, DiscoveryError> {
+        let accounts = addresses
+            .iter()
+            .map(|address| {
+                // Qi is refused: the node's outpoint query is latest-only, not
+                // pinned to the checkpoint this source must answer at.
+                if address.coin != CoinType::Quai {
+                    return Err(DiscoveryError::InvalidRequest);
+                }
+                QuaiAddress::try_from(address.address)
+                    .ok()
+                    .filter(|account| account.zone() == scope.zone)
+                    .ok_or(DiscoveryError::InvalidObservation)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        // Genesis is immutable, so identity is established once per window;
+        // every provider read still carries its own chain-ID guard, so a
+        // mid-window backend swap is caught per call.
+        let [before] = self
+            .network_headers(scope, &[pinned(checkpoint.height)?])
+            .await?;
+        // The pinned block changed before or during the reads: a reorg, which
+        // re-observing resolves, not malformed data.
+        let before = before.ok_or(DiscoveryError::ObservationChanged)?;
+        if crate::network::checkpoint(&before) != checkpoint {
+            return Err(DiscoveryError::ObservationChanged);
         }
-        let block = BlockTag::Number(checkpoint.height);
-        let balance = self
+        let states = self
             .provider
-            .balance(account, block)
+            .account_states(&accounts, BlockTag::Number(checkpoint.height))
             .await
-            .map_err(|_| DiscoveryError::SourceUnavailable)?;
-        let nonce = self
-            .provider
-            .transaction_count(account, block)
-            .await
-            .map_err(|_| DiscoveryError::SourceUnavailable)?;
+            .map_err(source_error)?;
+        // Closing half of the reorg bracket: the pinned height must still carry
+        // the same hash after the reads, or they may describe a block that is
+        // no longer canonical.
         if self
-            .canonical(scope, checkpoint.height)
+            .canonical_at(scope, checkpoint.height)
             .await?
             .is_none_or(|v| v.checkpoint != checkpoint)
         {
+            return Err(DiscoveryError::ObservationChanged);
+        }
+        if states.len() != addresses.len() {
             return Err(DiscoveryError::InvalidObservation);
         }
-        Ok(AddressObservation {
-            scope,
-            checkpoint,
-            address: address.address,
-            ever_used: None,
-            account_balance: Some(balance),
-            account_nonce: Some(nonce),
-            coins: vec![],
-        })
+        Ok(addresses
+            .iter()
+            .zip(states)
+            .map(|(address, state)| AddressObservation {
+                scope,
+                checkpoint,
+                address: address.address,
+                ever_used: None,
+                account_balance: Some(state.balance),
+                account_nonce: Some(state.nonce),
+                coins: vec![],
+            })
+            .collect())
     }
+    /// Check identity, then read the canonical checkpoint at a height.
+    ///
+    /// This is the trait entry point, used by callers that have not already
+    /// established identity for the surrounding operation.
     async fn canonical(
         &self,
         scope: NetworkScope,
         height: U256,
     ) -> Result<Option<ScopedCheckpoint>, DiscoveryError> {
-        self.identity(scope).await?;
+        let [header] = self.network_headers(scope, &[pinned(height)?]).await?;
+        Ok(header.map(|header| ScopedCheckpoint {
+            scope,
+            checkpoint: crate::network::checkpoint(&header),
+        }))
+    }
+}
+impl<T: Transport> AccountRpcSource<'_, T> {
+    /// Read the canonical checkpoint at a height, assuming identity is already
+    /// established for this observation. Callers that have not checked identity
+    /// must use `canonical`.
+    async fn canonical_at(
+        &self,
+        scope: NetworkScope,
+        height: U256,
+    ) -> Result<Option<ScopedCheckpoint>, DiscoveryError> {
         if height == U256::ZERO {
             return Err(DiscoveryError::InvalidRequest);
         }
@@ -140,13 +178,34 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
             .provider
             .header_at(scope.zone, height)
             .await
-            .map_err(|_| DiscoveryError::SourceUnavailable)?;
+            .map_err(source_error)?;
         Ok(header.map(|header| ScopedCheckpoint {
             scope,
-            checkpoint: Checkpoint {
-                hash: header.hash,
-                height: U256::from(header.number),
-            },
+            checkpoint: crate::network::checkpoint(&header),
         }))
+    }
+}
+
+/// A pinned height as a selector. Height zero is genesis, never a scan
+/// checkpoint, and heights past `u64` cannot be block numbers.
+fn pinned(height: U256) -> Result<BlockTag, DiscoveryError> {
+    if height == U256::ZERO || u64::try_from(height).is_err() {
+        return Err(DiscoveryError::InvalidRequest);
+    }
+    Ok(BlockTag::Number(height))
+}
+
+/// A provider failure as a discovery error that keeps its class, so a sync
+/// loop retries only what can succeed on retry: a wrong chain stops it, a
+/// moved head re-observes, and a malformed answer or bad route is not retried
+/// as if it were an outage.
+fn source_error(error: quai_provider::ProviderError) -> DiscoveryError {
+    use quai_primitives::ErrorClass;
+    match (error.class(), &error) {
+        (ErrorClass::NetworkMismatch, _) => DiscoveryError::NetworkMismatch,
+        (ErrorClass::Stale, _) => DiscoveryError::ObservationChanged,
+        (ErrorClass::Transient, _) => DiscoveryError::SourceUnavailable,
+        (_, quai_provider::ProviderError::Route(_)) => DiscoveryError::InvalidRequest,
+        _ => DiscoveryError::InvalidObservation,
     }
 }

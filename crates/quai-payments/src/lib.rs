@@ -14,6 +14,7 @@ pub use code::{
 
 /// Payment errors omit secret inputs and backend diagnostics.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[non_exhaustive]
 pub enum PaymentError {
     /// Seed must contain 16 through 64 bytes.
     #[error("invalid payment seed length")]

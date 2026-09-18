@@ -15,11 +15,8 @@ fn endpoint(path: &str) -> Endpoint {
 }
 #[wasm_bindgen_test(async)]
 async fn worker_fetch_and_timer_require_no_window_or_tokio() {
-    let transport = BrowserFetchTransport::new(BrowserConfig {
-        request_timeout_ms: 100,
-        ..Default::default()
-    })
-    .unwrap();
+    let transport =
+        BrowserFetchTransport::new(BrowserConfig::default().with_request_timeout_ms(100)).unwrap();
     assert_eq!(
         transport
             .request(
@@ -149,20 +146,17 @@ fn worker_legacy_keystore_decryption_checks_mnemonic_ownership() {
         .iter()
         .find(|v| v["name"] == "mnemonic-en")
         .unwrap();
-    let parsed = Keystore::from_json(
-        &serde_json::to_vec(&vector["json"]).unwrap(),
-        KdfLimits::default(),
-    )
-    .unwrap();
+    // A public vector at test-cost KDF parameters, below the default floors.
+    let limits = KdfLimits::default().without_strength_floors();
+    let parsed =
+        Keystore::from_json(&serde_json::to_vec(&vector["json"]).unwrap(), limits).unwrap();
     let account = parsed
-        .decrypt(Password::Text("PUBLIC mnemonic"), KdfLimits::default())
+        .decrypt(Password::Text("PUBLIC mnemonic"), limits)
         .unwrap();
     assert_eq!(account.address().to_string(), vector["expected"]["address"]);
     assert!(account.mnemonic().is_some());
     assert_eq!(
-        parsed
-            .decrypt(Password::Text("wrong"), KdfLimits::default())
-            .unwrap_err(),
+        parsed.decrypt(Password::Text("wrong"), limits).unwrap_err(),
         KeystoreError::Authentication
     );
 }

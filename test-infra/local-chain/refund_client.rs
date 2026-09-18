@@ -57,14 +57,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let (observation, credit) = provider
                 .observe_conversion_qi_credit(
                     &reference,
-                    quai_sdk::provider::EtxScanRequest {
-                        zone: scope.zone,
-                        from: 8,
-                        to: head.number.min(39),
-                        max_transactions_per_block: 4096,
-                        max_total_transactions: 65536,
-                        preceding_block: None,
-                    },
+                    quai_sdk::provider::EtxScanRequest::new(
+                        scope.zone,
+                        8,
+                        head.number.min(39),
+                        4096,
+                        65536,
+                    ),
                     64,
                 )
                 .await?;

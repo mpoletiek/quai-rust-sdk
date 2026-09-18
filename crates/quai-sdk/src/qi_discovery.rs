@@ -334,6 +334,35 @@ pub async fn refresh_qi<T: Transport>(
     if !(1..=100_000).contains(&max_addresses) {
         return Err(QiError::InvalidPolicy);
     }
+    // The tip must not move across the reads: then every output read is on
+    // the chain through the label, and a later reorg of any block it came from
+    // is caught by the label's canonicality check before a spend. Labelling
+    // with an earlier block let an output from an orphaned block be selected,
+    // leaving the spend's other inputs claimed. Reads are batched, so a
+    // refresh usually fits inside one block; a new block retries the reads.
+    for _ in 0..REFRESH_ATTEMPTS - 1 {
+        if let Some(checkpoint) =
+            refresh_once(provider, store, max_addresses, &mut cancelled).await?
+        {
+            return Ok(checkpoint);
+        }
+    }
+    refresh_once(provider, store, max_addresses, &mut cancelled)
+        .await?
+        .ok_or(QiError::StaleSnapshot)
+}
+
+/// Refresh attempts before a moving tip is reported as `StaleSnapshot`.
+const REFRESH_ATTEMPTS: usize = 3;
+
+/// One refresh. `None` means a new block arrived during the reads and nothing
+/// was written.
+async fn refresh_once<T: Transport>(
+    provider: &Provider<T>,
+    store: &mut SqliteStore,
+    max_addresses: usize,
+    cancelled: &mut impl FnMut() -> bool,
+) -> Result<Option<Checkpoint>, QiError> {
     let scope = store.scope();
     if cancelled() {
         return Err(QiError::Cancelled);
@@ -350,10 +379,6 @@ pub async fn refresh_qi<T: Transport>(
     let headers = crate::network::headers_on_network(provider, scope, scope.zone, &blocks)
         .await?
         .ok_or(QiError::NetworkMismatch)?;
-    let before = headers[0]
-        .as_ref()
-        .map(crate::network::checkpoint)
-        .ok_or(QiError::StaleSnapshot)?;
     if let Some(old) = snapshot.checkpoint {
         let canonical = headers[1].as_ref().map(crate::network::checkpoint);
         if canonical != Some(old) {
@@ -361,6 +386,10 @@ pub async fn refresh_qi<T: Transport>(
             generation = store.snapshot()?.generation;
         }
     }
+    let before = headers[0]
+        .as_ref()
+        .map(crate::network::checkpoint)
+        .ok_or(QiError::StaleSnapshot)?;
     let addresses = store.addresses()?;
     if addresses.len() > max_addresses {
         return Err(QiError::InvalidPolicy);
@@ -407,21 +436,15 @@ pub async fn refresh_qi<T: Transport>(
     if cancelled() {
         return Err(QiError::Cancelled);
     }
-    // The snapshot is labelled with the block observed before the reads, and
-    // that block must still be canonical afterwards. Requiring the tip itself
-    // not to move made a refresh that spans a block boundary fail: with ~5 s
-    // blocks, a large wallet rarely finished, and each failed spend attempt
-    // retried from scratch. Outputs created after `before` may appear under
-    // its label; spending one that a later reorg removes fails at the node,
-    // and the claim stays recoverable, so nothing is lost.
-    let height = u64::try_from(before.height).map_err(|_| QiError::StaleSnapshot)?;
     let after = provider
-        .header_at(scope.zone, height)
+        .headers(scope.zone, &[BlockTag::Latest])
         .await?
+        .pop()
+        .flatten()
         .as_ref()
         .map(crate::network::checkpoint);
     if after != Some(before) {
-        return Err(QiError::StaleSnapshot);
+        return Ok(None);
     }
     store.replace_snapshot(&Snapshot {
         scope,
@@ -429,7 +452,7 @@ pub async fn refresh_qi<T: Transport>(
         checkpoint: Some(before),
         coins,
     })?;
-    Ok(before)
+    Ok(Some(before))
 }
 
 /// Gap-scan a Qi account, persist discovered metadata, then refresh all known

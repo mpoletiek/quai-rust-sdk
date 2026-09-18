@@ -2613,15 +2613,16 @@ async fn a_pool_lent_to_prepare_loses_only_the_change_a_prepared_spend_uses() {
 }
 
 #[tokio::test]
-async fn refresh_survives_a_new_block_but_not_a_replaced_start() {
-    // Requiring the tip not to move made any refresh spanning a block boundary
-    // fail. Now only the block the snapshot is labelled with must stay canonical.
+async fn refresh_retries_a_moving_tip_and_never_labels_across_blocks() {
+    // Every output read must come from the chain through the label, so the tip
+    // may not move across the reads. A new block retries them; a tip that
+    // keeps moving fails without writing.
     use quai_sdk::qi_discovery::refresh_qi;
     #[derive(Clone)]
     struct Advancing {
         inner: Mock,
         latest_reads: Arc<std::sync::atomic::AtomicUsize>,
-        replace_start: bool,
+        always: bool,
     }
     impl Transport for Advancing {
         async fn request(
@@ -2630,38 +2631,41 @@ async fn refresh_survives_a_new_block_but_not_a_replaced_start() {
             method: &str,
             params: Value,
         ) -> Result<Value, RpcError> {
-            let advanced = || json!({"woHeader":{"hash":format!("0x{}","77".repeat(32)),"number":"0x11","location":"0x0000","parentHash":CHECKPOINT,"primeTerminusNumber":"0x10"},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"});
             if method == "quai_getHeaderByNumber" && params[0] == "latest" {
-                let n = self.latest_reads.fetch_add(1, Ordering::SeqCst);
-                if n > 0 {
-                    return Ok(advanced());
+                let n = self.latest_reads.fetch_add(1, Ordering::SeqCst) as u64;
+                let height = if self.always { 16 + n } else { 16 + n.min(1) };
+                if height > 16 {
+                    return Ok(
+                        json!({"woHeader":{"hash":format!("0x{:064x}", 0x7700 + height),"number":format!("{height:#x}"),"location":"0x0000","parentHash":CHECKPOINT,"primeTerminusNumber":"0x10"},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"}),
+                    );
                 }
-            }
-            if method == "quai_getHeaderByNumber" && params[0] == "0x10" && self.replace_start {
-                let mut header = self.inner.request(e, method, params).await?;
-                header["woHeader"]["hash"] = json!(format!("0x{}", "66".repeat(32)));
-                return Ok(header);
             }
             self.inner.request(e, method, params).await
         }
     }
-    for replace_start in [false, true] {
+    for always in [false, true] {
         let mut env = setup();
+        let before = env.store.snapshot().unwrap();
         let provider = Provider::new(
             Advancing {
                 inner: env.mock.clone(),
                 latest_reads: Arc::default(),
-                replace_start,
+                always,
             },
             Routing::direct("http://127.0.0.1:9200/exact", Zone::Cyprus1.into()).unwrap(),
             env.store.scope().chain_id,
         );
         let result = refresh_qi(&provider, &mut env.store, 100, || false).await;
-        if replace_start {
+        if always {
             assert!(matches!(result, Err(QiError::StaleSnapshot)));
+            assert_eq!(env.store.snapshot().unwrap().checkpoint, before.checkpoint);
         } else {
             let checkpoint = result.unwrap();
-            assert_eq!(checkpoint.height, U256::from(16), "labelled with the start");
+            assert_eq!(
+                checkpoint.height,
+                U256::from(17),
+                "labelled with the stable tip"
+            );
             assert_eq!(env.store.snapshot().unwrap().checkpoint, Some(checkpoint));
         }
     }

@@ -12,6 +12,8 @@ __pycache__/
 /fuzz/target/
 /fuzz/artifacts/
 /fuzz/coverage/
+# Working corpus: libFuzzer-discovered inputs, cached in CI, not source.
+/fuzz/workdir/
 
 # Local custody/runtime state and editor files
 *.sqlite

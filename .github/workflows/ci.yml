@@ -176,7 +176,35 @@ jobs:
       - run: cargo +nightly-2026-09-11 fuzz build --fuzz-dir fuzz --no-cfg-fuzzing --codegen-units 16
         env:
           CARGO_NET_OFFLINE: true
+      # Carry the working corpus between runs. Without this every input libFuzzer
+      # discovers is discarded at job end, so each run re-explores the same
+      # trajectory from the committed seeds and finds nothing new after the first.
+      # The restore-keys prefix lets a run start from the most recent cache and
+      # save a superset under a new key, so coverage accumulates.
+      #
+      # save-if restricts writes to the default branch: a corpus is input data
+      # rather than executable build output, but a branch that could write cache
+      # entries a later trusted run restores is a pattern worth denying by default
+      # in a repository whose CI can reach the publish path.
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: fuzz/workdir
+          key: fuzz-corpus-${{ hashFiles('fuzz/Cargo.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            fuzz-corpus-${{ hashFiles('fuzz/Cargo.lock') }}-
+            fuzz-corpus-
+          save-always: false
+          save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: python3 fuzz/run-smoke.py --seconds 30
+      # run-smoke.py already fails on any crash/timeout/oom/leak artifact, from
+      # this run or an earlier one. Upload whatever it found so a failure can be
+      # reproduced from the exact input rather than from the log alone.
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: fuzz-artifacts
+          path: fuzz/artifacts
+          if-no-files-found: ignore
   dependency-advisories:
     runs-on: ubuntu-24.04
     timeout-minutes: 20

@@ -31,6 +31,8 @@ impl From<rusqlite::Error> for StorageError {
     }
 }
 type Result<T> = std::result::Result<T, StorageError>;
+mod activity;
+pub use activity::{ActivityDetail, ActivityEntry, ActivityStatus, QiActivityKind};
 mod backup_state;
 mod observations;
 pub use observations::ObservationCache;

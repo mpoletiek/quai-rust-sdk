@@ -619,6 +619,21 @@ observe again on `Stale`, stop and alert on `NetworkMismatch`, never resubmit
 on `Ambiguous` (reconcile by transaction hash), and surface `Invalid` and
 `Storage`.
 
+## Listing outgoing activity
+
+`SqliteStore::activity(after, limit)` lists the wallet's outgoing operations
+from its own durable records, paged by `ReservationId`. Each entry's status is
+`Preparing`, `Cancelled`, `Signed`, `Pending` or `Included(block)`; inclusion is
+an observation, not finality. Signed entries are decoded: an account
+transaction's recipient, value, nonce and maximum fee, or a Qi operation's
+kind with the value sent to other addresses and returned as change. Nothing is
+read from the network.
+
+Incoming history is not in this list. Quai has no by-address transaction
+query, and past Qi receipts need the node's outpoint history
+(`Provider::outpoint_deltas`) or an indexer. The coin snapshot shows current
+holdings, not what was received.
+
 ## Signing and submitting through an injected browser wallet
 
 `InjectedProvider::sign_quai_transaction` validates a fully populated account

@@ -1680,3 +1680,106 @@ fn giveback_keeps_the_full_burn_after_a_concurrent_allocation() {
         .unwrap();
     assert!(!issued.contains(&next.address.address()));
 }
+
+#[test]
+fn activity_lists_outgoing_operations_with_status_and_decoded_amounts() {
+    use crate::storage::{ActivityDetail, ActivityStatus, QiActivityKind};
+    let db = Database::new();
+    let mut store = db.open();
+    let generation = populate(&mut store);
+    // Account: reserved, signed, submitted, then observed included.
+    let account = QuaiAddress::try_from(metadata()[1].address()).unwrap();
+    let nonce = store.reserve_nonce(id(1), account, 5).unwrap();
+    let transfer = account_transaction(nonce).sign(&signing_key(1)).unwrap();
+    store.commit_signed_quai(id(1), &transfer).unwrap();
+    store.mark_submitted(id(1)).unwrap();
+    store
+        .observe_inclusion(id(1), transfer.hash().unwrap(), block(9))
+        .unwrap();
+    // Account: reserved, then released unsigned.
+    store.reserve_nonce(id(2), account, 0).unwrap();
+    store.release_unsigned(id(2)).unwrap();
+    // Qi: one output to someone else, one back to a second address this
+    // wallet holds (outputs may not reuse an input's address).
+    let qi_account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let KeyOrigin::Bip44 { index: first, .. } = metadata()[0].origin() else {
+        panic!("HD test metadata")
+    };
+    let second = qi_account
+        .search(
+            false,
+            Search {
+                zone: scope().zone,
+                start_index: first + 1,
+                max_attempts: 10_000,
+            },
+            || false,
+        )
+        .unwrap();
+    let change_address = PublicAddress::derive(&qi_account, false, second.address.index).unwrap();
+    let key = signing_key(0);
+    let mut stranger = *metadata()[0].address().bytes();
+    stranger[19] ^= 1;
+    let qi = quai_consensus::QiTransaction {
+        chain_id: scope().chain_id,
+        inputs: coins()
+            .iter()
+            .map(|coin| quai_consensus::QiInput {
+                previous_output: coin.outpoint,
+                public_key: key.public_key(),
+            })
+            .collect(),
+        outputs: vec![
+            quai_consensus::QiOutput {
+                address: Address::from_bytes(stranger),
+                denomination: Denomination::new(1).unwrap(),
+            },
+            quai_consensus::QiOutput {
+                address: change_address.address(),
+                denomination: Denomination::new(0).unwrap(),
+            },
+        ],
+        data: vec![],
+    }
+    .sign_local(&vec![&key; coins().len()])
+    .unwrap();
+    store
+        .reserve_qi(
+            id(3),
+            generation,
+            U256::from(6),
+            &coins().iter().map(|c| c.outpoint).collect::<Vec<_>>(),
+        )
+        .unwrap();
+    store.commit_signed_qi(id(3), &qi).unwrap();
+    let generation = store.snapshot().unwrap().generation;
+    store
+        .import_metadata(generation, &[change_address])
+        .unwrap();
+
+    let activity = store.activity(None, 10).unwrap();
+    assert_eq!(activity.len(), 3);
+    assert_eq!(activity[0].status, ActivityStatus::Included(block(9)));
+    assert_eq!(activity[0].transaction, Some(transfer.hash().unwrap()));
+    assert!(matches!(
+        activity[0].detail,
+        ActivityDetail::Account { nonce: n, .. } if n == nonce
+    ));
+    assert_eq!(activity[1].status, ActivityStatus::Cancelled);
+    assert_eq!(activity[1].detail, ActivityDetail::Unsigned);
+    assert_eq!(activity[2].status, ActivityStatus::Signed);
+    assert_eq!(
+        activity[2].detail,
+        ActivityDetail::Qi {
+            kind: QiActivityKind::Transfer,
+            sent: U256::from(Denomination::new(1).unwrap().value()),
+            change: U256::from(Denomination::new(0).unwrap().value()),
+            outputs: 2,
+        }
+    );
+    // Paging continues after the last returned ID.
+    assert_eq!(store.activity(Some(id(2)), 10).unwrap().len(), 1);
+}

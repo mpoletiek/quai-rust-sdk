@@ -320,21 +320,15 @@ impl<T: Transport> Provider<T> {
         zone: Zone,
         blocks: &[BlockTag],
     ) -> Result<Vec<Option<ZoneHeader>>, ProviderError> {
-        let values = self.header_values(zone, blocks).await?;
-        if values.len() != blocks.len() {
-            return Err(ProviderError::InvalidResult("header batch count"));
-        }
-        values
-            .into_iter()
-            .zip(blocks)
-            .map(|(value, block)| Self::parse_zone_header(value, zone, *block))
-            .collect()
+        let values = self.header_values(zone, blocks).await.into_iter();
+        Self::parse_zone_headers(values, zone, blocks)
     }
 
     /// [`Self::headers`], read together with the network's genesis. `None` when
     /// the genesis is not `genesis`: that is checked before any header is
-    /// parsed, so a wrong network is reported as such rather than as a bad
-    /// header. Chain ID is guarded on every read, as always.
+    /// parsed and before any header's RPC error is returned, so a wrong network
+    /// is reported as such rather than as a bad or missing header. Chain ID is
+    /// guarded on every read, as always.
     pub async fn headers_on_network(
         &self,
         zone: Zone,
@@ -344,55 +338,82 @@ impl<T: Transport> Provider<T> {
         let mut selectors = Vec::with_capacity(blocks.len() + 1);
         selectors.push(BlockTag::Number(U256::ZERO));
         selectors.extend_from_slice(blocks);
-        let mut values = self.header_values(zone, &selectors).await?.into_iter();
+        let mut values = self.header_values(zone, &selectors).await.into_iter();
         let observed = values
             .next()
-            .ok_or(ProviderError::InvalidResult("header batch count"))?;
+            .ok_or(ProviderError::InvalidResult("header batch count"))??;
         if types::genesis_hash(observed)? != genesis {
             return Ok(None);
         }
-        let values: Vec<_> = values.collect();
-        if values.len() != blocks.len() {
+        Self::parse_zone_headers(values, zone, blocks).map(Some)
+    }
+
+    /// Parse raw header responses in order, each for the matching block.
+    fn parse_zone_headers(
+        values: impl Iterator<Item = Result<Value, ProviderError>>,
+        zone: Zone,
+        blocks: &[BlockTag],
+    ) -> Result<Vec<Option<ZoneHeader>>, ProviderError> {
+        let headers = values
+            .zip(blocks)
+            .map(|(value, block)| Self::parse_zone_header(value?, zone, *block))
+            .collect::<Result<Vec<_>, _>>()?;
+        if headers.len() != blocks.len() {
             return Err(ProviderError::InvalidResult("header batch count"));
         }
-        values
-            .into_iter()
-            .zip(blocks)
-            .map(|(value, block)| Self::parse_zone_header(value, zone, *block))
-            .collect::<Result<_, _>>()
-            .map(Some)
+        Ok(headers)
     }
 
     /// Several headers from one zone, in order, as raw responses: guarded
     /// batches of up to `MAX_BATCH_CALLS - 2` where the transport batches,
     /// otherwise one guarded read each. Parse each with `parse_zone_header`, or
     /// `types::genesis_hash` for height zero.
+    ///
+    /// Reading stops at the first error, which is the last entry, so a caller
+    /// can check an earlier response, such as the genesis, before a later
+    /// failure decides the outcome.
     pub(crate) async fn header_values(
         &self,
         zone: Zone,
         blocks: &[BlockTag],
-    ) -> Result<Vec<Value>, ProviderError> {
-        let endpoint = self.routing.endpoint(zone.into())?;
+    ) -> Vec<Result<Value, ProviderError>> {
         let mut values = Vec::with_capacity(blocks.len());
+        if let Err(error) = self.read_header_values(zone, blocks, &mut values).await {
+            values.push(Err(error));
+        }
+        values
+    }
+
+    async fn read_header_values(
+        &self,
+        zone: Zone,
+        blocks: &[BlockTag],
+        values: &mut Vec<Result<Value, ProviderError>>,
+    ) -> Result<(), ProviderError> {
+        let endpoint = self.routing.endpoint(zone.into())?;
         for page in blocks.chunks(quai_rpc::MAX_BATCH_CALLS - 2) {
             let calls = page
                 .iter()
                 .map(|block| Ok(("quai_getHeaderByNumber", json!([block.rpc_value()?]))))
                 .collect::<Result<Vec<_>, ProviderError>>()?;
-            match self.guarded_batch(endpoint, calls.clone()).await {
+            match self.guarded_batch(endpoint, calls).await {
                 Some(batch) => {
                     for value in batch? {
-                        values.push(value?);
+                        values.push(Ok(value?));
                     }
                 }
+                // Nothing was sent, so read each block alone.
                 None => {
-                    for (method, params) in calls {
-                        values.push(self.read(zone.into(), method, params).await?);
+                    for block in page {
+                        let params = json!([block.rpc_value()?]);
+                        values.push(Ok(self
+                            .read(zone.into(), "quai_getHeaderByNumber", params)
+                            .await?));
                     }
                 }
             }
         }
-        Ok(values)
+        Ok(())
     }
 
     /// Validate a header response's location and, for a numbered read, height.

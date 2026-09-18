@@ -82,7 +82,7 @@ impl HeadTracker {
         // common case; older anchors are only read on a reorg. Reads are
         // address-free, so batching discloses nothing new.
         let newest = self.checkpoint();
-        let first = provider
+        let mut first = provider
             .header_values(
                 self.zone,
                 &[
@@ -91,13 +91,19 @@ impl HeadTracker {
                     BlockTag::Number(U256::from(newest.number)),
                 ],
             )
-            .await?;
-        let [genesis, tip, newest_header]: [Value; 3] = first
-            .try_into()
-            .map_err(|_| ProviderError::InvalidResult("header batch count"))?;
+            .await
+            .into_iter();
+        // The genesis decides before a later read's error does.
+        let genesis = first
+            .next()
+            .ok_or(ProviderError::InvalidResult("header batch count"))??;
         if types::genesis_hash(genesis)? != self.genesis {
             return Err(ProviderError::InvalidResult("head replay genesis mismatch"));
         }
+        let [tip, newest_header]: [Value; 2] = first
+            .collect::<Result<Vec<_>, _>>()?
+            .try_into()
+            .map_err(|_| ProviderError::InvalidResult("header batch count"))?;
         let tip = Provider::<T>::parse_zone_header(tip, self.zone, BlockTag::Latest)?
             .ok_or(ProviderError::ReplayHistoryUnavailable)?;
         let mut common = None;
@@ -147,7 +153,11 @@ impl HeadTracker {
         let values = if numbers.is_empty() {
             Vec::new()
         } else {
-            provider.header_values(self.zone, &numbers).await?
+            provider
+                .header_values(self.zone, &numbers)
+                .await
+                .into_iter()
+                .collect::<Result<_, _>>()?
         };
         if values.len() != numbers.len() {
             return Err(ProviderError::InvalidResult("header batch count"));
@@ -179,7 +189,9 @@ impl HeadTracker {
                     self.zone,
                     &ends.map(|anchor| BlockTag::Number(U256::from(anchor.number))),
                 )
-                .await?;
+                .await
+                .into_iter()
+                .collect::<Result<Vec<_>, _>>()?;
             if values.len() != ends.len() {
                 return Err(ProviderError::InvalidResult("header batch count"));
             }

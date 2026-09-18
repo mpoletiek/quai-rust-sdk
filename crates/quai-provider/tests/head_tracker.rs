@@ -402,3 +402,67 @@ fn a_zero_header_hash_is_rejected() {
     assert!(ZoneHeader::try_from(header(hash(2))).is_ok());
     assert!(ZoneHeader::try_from(header(Hash32::ZERO)).is_err());
 }
+
+/// The mock chain, failing every header read above height zero.
+#[derive(Clone)]
+struct FailsAboveGenesis {
+    inner: Mock,
+    batch: bool,
+}
+impl Transport for FailsAboveGenesis {
+    async fn request(&self, e: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
+        if method == "quai_getHeaderByNumber" && params[0] != "0x0" {
+            return Err(RpcError::Timeout);
+        }
+        self.inner.request(e, method, params).await
+    }
+    async fn request_batch(
+        &self,
+        e: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<quai_rpc::BatchResult> {
+        if !self.batch {
+            return None;
+        }
+        let mut out = vec![];
+        for (method, params) in requests {
+            out.push(self.request(e, method, params).await);
+        }
+        Some(Ok(out))
+    }
+}
+
+#[tokio::test]
+async fn a_wrong_genesis_decides_before_a_later_header_error() {
+    use quai_provider::BlockTag;
+    for batch in [true, false] {
+        let (mock, _, _) = setup(8);
+        let provider = Provider::new(
+            FailsAboveGenesis { inner: mock, batch },
+            Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+            U256::from(9),
+        );
+        let blocks = [BlockTag::Latest, BlockTag::Number(U256::from(3))];
+        assert!(matches!(
+            provider
+                .headers_on_network(Zone::Cyprus1, hash(0), &blocks)
+                .await,
+            Err(ProviderError::Rpc(RpcError::Timeout))
+        ));
+        assert!(matches!(
+            provider
+                .headers_on_network(Zone::Cyprus1, hash(99), &blocks)
+                .await,
+            Ok(None)
+        ));
+        let start = BlockReference {
+            number: 3,
+            hash: hash(3),
+        };
+        let mut tracker = HeadTracker::new(Zone::Cyprus1, hash(99), start, 8, 8).unwrap();
+        assert!(matches!(
+            tracker.poll(&provider).await,
+            Err(ProviderError::InvalidResult("head replay genesis mismatch"))
+        ));
+    }
+}

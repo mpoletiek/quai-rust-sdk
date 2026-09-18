@@ -13,6 +13,9 @@ pub struct RecoveryMock<T> {
     pub receipt: Value,
     pub change_head: bool,
     pub head_rechecked: Arc<AtomicBool>,
+    /// Report a different hash at the inclusion height, simulating a reorg that
+    /// replaced the block a durable claim was previously recorded against.
+    pub reorg_inclusion: bool,
 }
 impl<T: Transport + Sync> Transport for RecoveryMock<T> {
     async fn request(
@@ -36,6 +39,12 @@ impl<T: Transport + Sync> Transport for RecoveryMock<T> {
             }),
             "quai_getHeaderByNumber" if params[0] != "0x0" => {
                 let tip = params[0] != "0x10";
+                if params[0] == "0x10" && self.reorg_inclusion {
+                    // The inclusion height now carries a different block.
+                    return Ok(
+                        json!({"woHeader":{"hash":HEAD,"number":"0x10","location":"0x0000","parentHash":BLOCK,"primeTerminusNumber":"0x10"},"gasLimit":"0x100000","stateLimit":"0x100000"}),
+                    );
+                }
                 let hash = if tip { HEAD } else { BLOCK };
                 let changed = params[0] == "0x11" && self.change_head;
                 if params[0] == "0x11" {

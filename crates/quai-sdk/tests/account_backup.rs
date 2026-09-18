@@ -450,3 +450,165 @@ mod browser {
         assert!(snapshot.book.operation(id(1)).is_some());
     }
 }
+
+/// Seeded, deterministic, dependency-free pseudo-random source.
+struct Lcg(u64);
+impl Lcg {
+    fn below(&mut self, n: u64) -> u64 {
+        self.0 = self
+            .0
+            .wrapping_mul(6_364_136_223_846_793_005)
+            .wrapping_add(1_442_695_040_888_963_407);
+        (self.0 >> 33) % n
+    }
+}
+
+/// Random custody activity on one side: new reservations in the side's own ID
+/// and nonce ranges, then signing, fee replacements, submission, release and
+/// inclusion on any operation. Invalid transitions are simply refused.
+fn diverge(book: &mut AccountOperationBook, side: u128, rng: &mut Lcg) {
+    for step in 0..rng.below(12) as u128 {
+        let ids: Vec<_> = book.operations().map(|op| (op.id, op.nonce)).collect();
+        // Only called when `ids` is nonempty.
+        let pick = |rng: &mut Lcg| ids[rng.below(ids.len() as u64) as usize];
+        match rng.below(6) {
+            0 | 1 => {
+                let _ = book.reserve_nonce(id(side + step), side as u64 / 100 + step as u64);
+            }
+            2 if !ids.is_empty() => {
+                let (op, nonce) = pick(rng);
+                let _ = book.commit_signed(op, &tx(nonce, 0).sign(&key()).unwrap());
+            }
+            3 if !ids.is_empty() => {
+                let (op, nonce) = pick(rng);
+                let root = tx(nonce, 0).sign(&key()).unwrap().hash().unwrap();
+                let fee = side as u64 / 1000 * 10 + 1 + rng.below(5);
+                let _ = book.commit_replacement(op, root, &tx(nonce, fee).sign(&key()).unwrap());
+            }
+            4 if !ids.is_empty() => {
+                let (op, _) = pick(rng);
+                let _ = book.mark_submitted(op);
+            }
+            5 if !ids.is_empty() => {
+                let (op, nonce) = pick(rng);
+                let _ = book.release_unsigned(op);
+                let root = tx(nonce, 0).sign(&key()).unwrap().hash().unwrap();
+                let _ = book.observe_inclusion(op, root, block());
+            }
+            _ => {}
+        }
+    }
+}
+
+fn merged(live: &AccountOperationBook, backup: &AccountOperationBook) -> AccountOperationBook {
+    let mut out = live.clone();
+    out.merge_backup(&capture(backup)).unwrap();
+    out
+}
+
+#[cfg_attr(not(target_arch = "wasm32"), test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+fn merge_keeps_all_custody_is_idempotent_and_order_independent_for_signed_evidence() {
+    use std::collections::BTreeSet;
+    let signed_rank = |state: ReservationState| {
+        matches!(
+            state,
+            ReservationState::Signed | ReservationState::Submitted | ReservationState::Confirmed
+        )
+    };
+    let mut rng = Lcg(0x9e37_79b9_7f4a_7c15);
+    // Guard against a vacuous pass: the random activity must reach these.
+    let (mut submitted, mut replaced, mut signed_ops) = (0, 0, 0);
+    for round in 0..40 {
+        let mut base = book();
+        for n in 0..rng.below(3) as u128 {
+            signed(&mut base, 100 + n, n as u64);
+        }
+        let from = |b: &AccountOperationBook| {
+            AccountOperationBook::from_backup(&capture(b), scope(), key().public_key()).unwrap()
+        };
+        let (mut a, mut b) = (from(&base), from(&base));
+        diverge(&mut a, 1_000, &mut rng);
+        diverge(&mut b, 5_000, &mut rng);
+
+        let ab = merged(&a, &b);
+        let ba = merged(&b, &a);
+        assert_eq!(
+            ab.next_nonce(),
+            a.next_nonce().max(b.next_nonce()),
+            "round {round}"
+        );
+        for (side, other) in [(&a, &b), (&b, &a)] {
+            for op in side.operations() {
+                let m = ab.operation(op.id).expect("no operation is dropped");
+                assert_eq!(m.nonce, op.nonce);
+                assert!(
+                    m.inclusion.is_none(),
+                    "inclusions are re-observed after merge"
+                );
+                let other_op = other.operation(op.id);
+                let transaction = op.transaction.or(other_op.and_then(|o| o.transaction));
+                assert_eq!(m.transaction, transaction, "round {round}");
+                assert!(op.payload.is_none() || m.payload == op.payload);
+                let edges: BTreeSet<_> = m.replacements.iter().map(|e| format!("{e:?}")).collect();
+                for edge in &op.replacements {
+                    assert!(
+                        edges.contains(&format!("{edge:?}")),
+                        "round {round}: edge dropped"
+                    );
+                }
+                // Signed evidence on either side is never lost or downgraded.
+                if transaction.is_some() {
+                    assert!(signed_rank(m.state), "round {round}: {:?}", m.state);
+                    assert_ne!(m.state, ReservationState::Confirmed);
+                }
+                if matches!(
+                    op.state,
+                    ReservationState::Submitted | ReservationState::Confirmed
+                ) {
+                    assert_eq!(m.state, ReservationState::Submitted, "round {round}");
+                }
+            }
+        }
+        // Order-independent wherever the outcome is decided by signed evidence
+        // or the operation exists on one side; an unsigned state shared by
+        // both deliberately follows the live book.
+        for op in ab.operations() {
+            let shared_unsigned = a.operation(op.id).is_some()
+                && b.operation(op.id).is_some()
+                && op.transaction.is_none();
+            if !shared_unsigned {
+                let other = ba.operation(op.id).unwrap();
+                assert_eq!(
+                    (op.nonce, op.state, op.transaction, &op.payload),
+                    (other.nonce, other.state, other.transaction, &other.payload),
+                    "round {round}"
+                );
+                let set = |o: &quai_sdk::wallet::account_custody::AccountOperation| {
+                    o.replacements
+                        .iter()
+                        .map(|e| format!("{e:?}"))
+                        .collect::<BTreeSet<_>>()
+                };
+                assert_eq!(set(op), set(other), "round {round}");
+            }
+        }
+        assert_eq!(ab.operations().count(), ba.operations().count());
+        for op in ab.operations() {
+            submitted += usize::from(op.state == ReservationState::Submitted);
+            replaced += op.replacements.len();
+            signed_ops += usize::from(op.transaction.is_some());
+        }
+        // Idempotent: merging the same backup again changes nothing.
+        let again = merged(&ab, &b);
+        assert_eq!(
+            again.export_state().unwrap(),
+            ab.export_state().unwrap(),
+            "round {round}"
+        );
+    }
+    assert!(
+        submitted > 0 && replaced > 0 && signed_ops > 0,
+        "{submitted} {replaced} {signed_ops}"
+    );
+}

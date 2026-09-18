@@ -180,8 +180,10 @@ impl HeadTracker {
         }
         // Check both ends after the page, in a later read than the page itself.
         // A forward extension is harmless; a replaced anchor/page is not
-        // committed. With nothing added, the base was read in the same batch as
-        // the tip and nothing new would be committed, so the check is skipped.
+        // committed. With nothing added, no header is committed, so the check
+        // is skipped. The base was read in the same batch as the tip or, after
+        // a reorg to a shorter chain, on its own after the tip; either way it
+        // matched, so dropping the anchors above it is sound.
         if !added.is_empty() {
             let ends = [base, previous];
             let values = provider

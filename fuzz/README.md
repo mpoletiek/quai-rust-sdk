@@ -24,11 +24,18 @@ Targets:
   exact byte roundtrips (163,887-byte mutation limit, including the full cursor).
 - `fixed`: exact fixed-point import/format roundtrips, floor/ceiling ordering,
   and arithmetic checked against independent i128 calculations.
+- `rpc_envelope`: JSON-RPC single and batch response decoding; a decoded value
+  never answers a different request ID or a row outside the issued batch window.
+- `provider_responses`: the typed header, block, outpoint and pool-content
+  parsers that feed reorg, balance and nonce decisions.
+- `ws_dispatch`: stateful WebSocket frame routing over synthetic sessions, so a
+  reply never reaches another request or subscription.
 
 `seed-corpus.py` derives the checked-in starter corpus from already-public JS/Go
 compatibility fixtures plus malformed inputs. It never reads wallets or nodes.
-Only reviewed starter files belong in the repository; the smoke runner mutates
-a temporary copy and retains crashes/logs under ignored `artifacts/`.
+Only reviewed starter files belong in the repository. The smoke runner never
+writes to `corpus/`: libFuzzer adds new inputs to the ignored `fuzz/workdir/<target>`,
+which persists between runs, and crashes and logs go to the ignored `artifacts/`.
 
 ```sh
 rustup toolchain install nightly-2026-09-11 --profile minimal --component rust-src
@@ -42,8 +49,9 @@ python3 fuzz/run-smoke.py --seconds 30
 
 The runner requires Linux `nm` and the already-built x86_64 target binaries. It
 checks for the AddressSanitizer runtime symbol, imposes a 1 GiB RSS ceiling,
-five-second per-input timeout, 64 KiB mutation limit (163,887 bytes for head state) and deterministic initial
-seed, then records binary/lock hashes and executions/coverage counters. It exits
+five-second per-input timeout and 64 KiB mutation limit (163,887 bytes for head
+state). The libFuzzer seed is fresh each run and recorded in the report; pass
+`--seed` to reproduce one. It then records binary/lock hashes and executions/coverage counters. It exits
 nonzero on any crash or timeout. Those bounds cover a useful parser slice, not
 all upper-bound payload sizes, all schemas, KDF memory behavior or persistence.
 Use sustained runs, larger transaction sizes and additional stateful targets for

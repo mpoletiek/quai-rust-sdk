@@ -86,7 +86,10 @@ tags, and with a required reviewer each release also waits for approval.
 One-time setup, already completed for the existing crates:
 
 - A GitHub environment named `release` whose deployment policy allows only `v*` tags.
-  Adding yourself as a required reviewer makes each release wait for approval.
+  Not yet done: add a required reviewer so each release waits for a person to
+  approve it. A sole maintainer must leave "Prevent self-review" off to be able
+  to approve their own release. Turn off "Allow administrators to bypass", or
+  the reviewer is advisory for an admin.
 - On crates.io, each crate's Settings → Trusted Publishing lists GitHub owner
   `mpoletiek`, repository `quai-rust-sdk`, workflow `release.yml` and environment
   `release`. A crate added to the workspace must first be published once with an

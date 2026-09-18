@@ -443,7 +443,7 @@ Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md).
 
 ### `JsonRpcApiProviderOptions`
 
-Explicit size/deadline/concurrency/routing configuration replaces inherited cache/batch/static-network knobs. Every high-level endpoint read checks chain ID; callers may issue concurrent independent requests but there is no hidden batching, stale result cache or static-network bypass.
+Explicit size/deadline/concurrency/routing configuration replaces inherited cache/batch/static-network knobs. Every high-level endpoint read checks chain ID; callers may issue concurrent independent requests. Where the transport batches, the provider sends some related reads, such as a set of headers or one discovery page, as one batch with a chain-ID guard at each end, and batches only the reads that one call issues. There is no stale result cache or static-network bypass.
 
 Rust: `quai_rpc::HttpConfig`, `quai_rpc::WsConfig`, `quai_rpc::Routing`, `quai_browser::BrowserConfig`.
 

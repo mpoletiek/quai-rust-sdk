@@ -24,8 +24,9 @@ pub const PELAGUS_MAILBOX_ADDRESS: &str = "0x004C82298b3ED69a949008d7037918B13A4
 ///
 /// Announcements cost only a zero-value transaction, so a low bound let anyone
 /// disable a receiver's discovery for good by announcing past it. This one sits
-/// above what the default 2 MiB response limit can carry (a code is about 120
-/// bytes), so the response limit binds first. Discovery pages through the list,
+/// above what the default 2 MiB response limit can carry, so the response
+/// limit binds first: each ABI-encoded code string takes about 192 bytes, 384
+/// as hex, so about 5,400 fit. Discovery pages through the list,
 /// so its length costs parsing, not scanning.
 pub const MAX_MAILBOX_NOTIFICATIONS: usize = 32_768;
 

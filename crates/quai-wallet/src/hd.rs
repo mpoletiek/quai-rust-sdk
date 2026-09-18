@@ -859,12 +859,18 @@ impl AccountPublic {
     /// [`Self::search_window`] ground in short slices, returning control to
     /// the executor between them.
     ///
-    /// A window grinds for about a second on one core, which stalls an async
-    /// executor thread for as long; on a current-thread runtime or a browser
-    /// that freezes everything else. The search is resumable at `next_index`,
-    /// so the result, cancellation points included, is exactly the one-call
-    /// result. No runtime is assumed: yielding wakes the task and returns
-    /// `Pending` once.
+    /// A window grinds for about a second on one core, which would stall an
+    /// async executor thread for as long. The search is resumable at
+    /// `next_index`, so the result, cancellation points included, is exactly
+    /// the one-call result. No runtime is assumed: yielding wakes the task and
+    /// returns `Pending` once.
+    ///
+    /// That lets other ready tasks run, but it does not free a tokio
+    /// current-thread runtime, which polls I/O and timers only occasionally
+    /// while tasks keep waking, or a browser, where the woken future resumes as
+    /// a microtask before the page can render. There, run the scan on a
+    /// multi-thread runtime with at least two workers, a dedicated thread or a
+    /// Web Worker.
     pub async fn search_window_async(
         &self,
         change: bool,

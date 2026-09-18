@@ -598,9 +598,13 @@ sync invalidates a snapshot while a send is preparing, the send fails with an
 error whose `class()` is `Stale` instead of reserving from stale state. Session
 futures are `Send`, so either task can run on a multi-threaded runtime.
 Discovery grinds addresses in slices of about 20 ms and yields between them,
-so a scan shares its executor thread; with the `rayon` feature,
+so other ready tasks run between slices; with the `rayon` feature,
 `Grinding::Parallel` on the scan options spreads each slice across the rayon
-pool.
+pool. The yield is not enough everywhere, though. A tokio current-thread
+runtime polls I/O and timers only occasionally while tasks keep waking, and a
+browser runs the resumed scan as a microtask, so the page neither renders nor
+handles input until the scan finishes. Run scans on a multi-thread runtime with
+at least two workers, on a dedicated thread, or in a Web Worker.
 
 **Sync order for each new head.**
 

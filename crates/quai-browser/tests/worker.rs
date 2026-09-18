@@ -15,11 +15,8 @@ fn endpoint(path: &str) -> Endpoint {
 }
 #[wasm_bindgen_test(async)]
 async fn worker_fetch_and_timer_require_no_window_or_tokio() {
-    let transport = BrowserFetchTransport::new(BrowserConfig {
-        request_timeout_ms: 100,
-        ..Default::default()
-    })
-    .unwrap();
+    let transport =
+        BrowserFetchTransport::new(BrowserConfig::default().with_request_timeout_ms(100)).unwrap();
     assert_eq!(
         transport
             .request(

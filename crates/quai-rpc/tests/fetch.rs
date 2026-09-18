@@ -155,10 +155,7 @@ async fn gzip_chunked_and_declared_lengths_enforce_decoded_and_wire_limits() {
         reply(200, &vec![b'x'; 2048]),
     ])
     .await;
-    let client = client(FetchConfig {
-        max_response_bytes: 1024,
-        ..FetchConfig::default()
-    });
+    let client = client(FetchConfig::default().with_max_response_bytes(1024));
     let req = FetchRequest::new(&server.url).unwrap();
     assert_eq!(
         client
@@ -187,13 +184,13 @@ async fn actual_redirect_clears_private_headers_and_slow_reads_obey_deadline() {
     let mut slow = reply(200, b"late");
     slow.delay = 200;
     let source = server(vec![redirect, slow]).await;
-    let client = client(FetchConfig {
-        timeout_ms: 1000,
-        retry_delay_ms: 0,
-        max_attempts: 2,
-        max_redirects: 1,
-        ..FetchConfig::default()
-    });
+    let client = client(
+        FetchConfig::default()
+            .with_timeout_ms(1000)
+            .with_retry_delay_ms(0)
+            .with_max_attempts(2)
+            .with_max_redirects(1),
+    );
     let mut req = FetchRequest::new(&source.url).unwrap();
     req.headers_mut()
         .set("x-api-key", "PUBLIC-TOY-TOKEN")
@@ -207,11 +204,9 @@ async fn actual_redirect_clears_private_headers_and_slow_reads_obey_deadline() {
     assert!(!destination.requests.lock().unwrap()[0].contains("x-api-key"));
     let short = FetchClient::new(
         NativeFetch::new(1000).unwrap(),
-        FetchConfig {
-            timeout_ms: 30,
-            retry_delay_ms: 0,
-            ..FetchConfig::default()
-        },
+        FetchConfig::default()
+            .with_timeout_ms(30)
+            .with_retry_delay_ms(0),
     )
     .unwrap();
     assert!(matches!(

@@ -155,11 +155,11 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
                 .wait_for_receipt(
                     scope.zone,
                     signed.hash()?,
-                    WaitConfig {
-                        confirmations: 2,
-                        timeout: std::time::Duration::from_secs(60),
-                        poll_interval: std::time::Duration::from_secs(3),
-                    },
+                    WaitConfig::new(
+                        2,
+                        std::time::Duration::from_secs(60),
+                        std::time::Duration::from_secs(3),
+                    ),
                 )
                 .await?;
             let mut receipt = result.receipt.to_rpc_json()?;

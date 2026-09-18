@@ -28,6 +28,7 @@ type Socket = WebSocketStream<MaybeTlsStream<TcpStream>>;
 
 /// Resource and deadline limits for a single explicit native WebSocket connection.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct WsConfig {
     /// DNS, TCP, TLS and upgrade handshake deadline.
     pub connect_timeout: Duration,
@@ -45,6 +46,48 @@ pub struct WsConfig {
     pub subscription_capacity: usize,
     /// Aggregate queued notification budget measured in encoded message bytes.
     pub max_notification_bytes: usize,
+}
+impl WsConfig {
+    /// Replace `connect_timeout`.
+    pub const fn with_connect_timeout(mut self, connect_timeout: Duration) -> Self {
+        self.connect_timeout = connect_timeout;
+        self
+    }
+    /// Replace `request_timeout`.
+    pub const fn with_request_timeout(mut self, request_timeout: Duration) -> Self {
+        self.request_timeout = request_timeout;
+        self
+    }
+    /// Replace `max_message_bytes`.
+    pub const fn with_max_message_bytes(mut self, max_message_bytes: usize) -> Self {
+        self.max_message_bytes = max_message_bytes;
+        self
+    }
+    /// Replace `max_frame_bytes`.
+    pub const fn with_max_frame_bytes(mut self, max_frame_bytes: usize) -> Self {
+        self.max_frame_bytes = max_frame_bytes;
+        self
+    }
+    /// Replace `max_in_flight`.
+    pub const fn with_max_in_flight(mut self, max_in_flight: usize) -> Self {
+        self.max_in_flight = max_in_flight;
+        self
+    }
+    /// Replace `max_subscriptions`.
+    pub const fn with_max_subscriptions(mut self, max_subscriptions: usize) -> Self {
+        self.max_subscriptions = max_subscriptions;
+        self
+    }
+    /// Replace `subscription_capacity`.
+    pub const fn with_subscription_capacity(mut self, subscription_capacity: usize) -> Self {
+        self.subscription_capacity = subscription_capacity;
+        self
+    }
+    /// Replace `max_notification_bytes`.
+    pub const fn with_max_notification_bytes(mut self, max_notification_bytes: usize) -> Self {
+        self.max_notification_bytes = max_notification_bytes;
+        self
+    }
 }
 impl Default for WsConfig {
     fn default() -> Self {

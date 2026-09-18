@@ -8,13 +8,7 @@ fn endpoint(path: &str) -> Endpoint {
     Endpoint::parse(&format!("{}{}", base.replacen("http://", "ws://", 1), path)).unwrap()
 }
 fn config() -> BrowserSocketConfig {
-    BrowserSocketConfig {
-        rpc: BrowserConfig {
-            request_timeout_ms: 200,
-            ..Default::default()
-        },
-        ..Default::default()
-    }
+    BrowserSocketConfig::default().with_rpc(BrowserConfig::default().with_request_timeout_ms(200))
 }
 #[wasm_bindgen_test(async)]
 async fn websocket_provider_reads_immediate_subscription_and_explicit_reconnect() {

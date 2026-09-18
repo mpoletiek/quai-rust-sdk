@@ -246,11 +246,9 @@ async fn notification_overflow_is_explicit_and_terminates_session_without_silent
             close_seen(&mut socket).await;
         })
         .await;
-        let config = WsConfig {
-            subscription_capacity: 1,
-            max_notification_bytes: if byte_budget { 1 } else { 1024 },
-            ..WsConfig::default()
-        };
+        let config = WsConfig::default()
+            .with_subscription_capacity(1)
+            .with_max_notification_bytes(if byte_budget { 1 } else { 1024 });
         let client = WsTransport::connect(endpoint, config).await.unwrap();
         let mut sub = client
             .subscribe(WsSubscriptionKind::NewHeads)
@@ -277,15 +275,9 @@ async fn cancelled_rpc_releases_capacity_and_late_reply_cannot_match_next_reques
         close_seen(&mut socket).await;
     })
     .await;
-    let client = WsTransport::connect(
-        endpoint.clone(),
-        WsConfig {
-            max_in_flight: 1,
-            ..WsConfig::default()
-        },
-    )
-    .await
-    .unwrap();
+    let client = WsTransport::connect(endpoint.clone(), WsConfig::default().with_max_in_flight(1))
+        .await
+        .unwrap();
     let worker = client.clone();
     let target = endpoint.clone();
     let abandoned =
@@ -313,11 +305,9 @@ async fn overall_deadline_includes_permit_wait_and_does_not_replay() {
     .await;
     let client = WsTransport::connect(
         endpoint.clone(),
-        WsConfig {
-            request_timeout: Duration::from_millis(40),
-            max_in_flight: 1,
-            ..WsConfig::default()
-        },
+        WsConfig::default()
+            .with_request_timeout(Duration::from_millis(40))
+            .with_max_in_flight(1),
     )
     .await
     .unwrap();
@@ -342,11 +332,9 @@ async fn oversize_inbound_and_outbound_messages_are_rejected() {
     .await;
     let client = WsTransport::connect(
         endpoint.clone(),
-        WsConfig {
-            max_message_bytes: 256,
-            max_frame_bytes: 256,
-            ..WsConfig::default()
-        },
+        WsConfig::default()
+            .with_max_message_bytes(256)
+            .with_max_frame_bytes(256),
     )
     .await
     .unwrap();

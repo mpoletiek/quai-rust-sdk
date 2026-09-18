@@ -566,12 +566,11 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 .wait_for_receipt(
                     Zone::Cyprus1,
                     hash,
-                    WaitConfig {
-                        confirmations: 2,
-                        // Mainnet inclusion exceeded 90 s on 2026-09-14.
-                        timeout: Duration::from_secs(if net().mainnet() { 300 } else { 90 }),
-                        poll_interval: Duration::from_secs(2),
-                    },
+                    WaitConfig::new(
+                        2, // Mainnet inclusion exceeded 90 s on 2026-09-14.
+                        Duration::from_secs(if net().mainnet() { 300 } else { 90 }),
+                        Duration::from_secs(2),
+                    ),
                 )
                 .await?;
             println!(

@@ -135,11 +135,7 @@ async fn batch_bounds_and_http_failures_do_not_fall_back_or_retry() {
     rx.await.unwrap();
     task.await.unwrap();
     let (endpoint, rx, task) = server(|_| response(&" ".repeat(4096))).await;
-    let client = HttpTransport::new(HttpConfig {
-        max_response_bytes: 1024,
-        ..Default::default()
-    })
-    .unwrap();
+    let client = HttpTransport::new(HttpConfig::default().with_max_response_bytes(1024)).unwrap();
     assert!(matches!(
         client
             .batch(&endpoint, vec![("quai_chainId", json!([]))])
@@ -257,11 +253,7 @@ async fn response_limit_applies_to_content_length_and_chunked_bodies() {
             let body = "x".repeat(256);
             if chunked { format!("HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n{:x}\r\n{body}\r\n0\r\n\r\n", body.len()) } else { response(&body) }
         }).await;
-        let client = HttpTransport::new(HttpConfig {
-            max_response_bytes: 64,
-            ..HttpConfig::default()
-        })
-        .unwrap();
+        let client = HttpTransport::new(HttpConfig::default().with_max_response_bytes(64)).unwrap();
         assert!(matches!(
             client.request(&endpoint, "quai_chainId", json!([])).await,
             Err(RpcError::ResponseTooLarge)
@@ -295,11 +287,11 @@ async fn timeout_and_cancellation_release_concurrency_permit() {
         started_tx.send(()).unwrap();
         std::future::pending::<()>().await;
     });
-    let client = HttpTransport::new(HttpConfig {
-        max_in_flight: 1,
-        timeout: Duration::from_millis(250),
-        ..HttpConfig::default()
-    })
+    let client = HttpTransport::new(
+        HttpConfig::default()
+            .with_max_in_flight(1)
+            .with_timeout(Duration::from_millis(250)),
+    )
     .unwrap();
     let cloned = client.clone();
     let request =
@@ -347,10 +339,7 @@ async fn timeout_and_cancellation_release_concurrency_permit() {
 #[tokio::test]
 async fn rejects_invalid_config_and_non_http_without_network() {
     assert!(matches!(
-        HttpTransport::new(HttpConfig {
-            max_in_flight: 0,
-            ..HttpConfig::default()
-        }),
+        HttpTransport::new(HttpConfig::default().with_max_in_flight(0)),
         Err(RpcError::InvalidConfig)
     ));
     let client = transport();

@@ -12,6 +12,7 @@ use tokio::sync::Semaphore;
 
 /// Limits applied to every HTTP request.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct HttpConfig {
     /// Entire request deadline, including concurrency-queue time.
     pub timeout: Duration,
@@ -21,6 +22,28 @@ pub struct HttpConfig {
     pub max_response_bytes: usize,
     /// Maximum simultaneous network requests per cloned transport group.
     pub max_in_flight: usize,
+}
+impl HttpConfig {
+    /// Replace `timeout`.
+    pub const fn with_timeout(mut self, timeout: Duration) -> Self {
+        self.timeout = timeout;
+        self
+    }
+    /// Replace `connect_timeout`.
+    pub const fn with_connect_timeout(mut self, connect_timeout: Duration) -> Self {
+        self.connect_timeout = connect_timeout;
+        self
+    }
+    /// Replace `max_response_bytes`.
+    pub const fn with_max_response_bytes(mut self, max_response_bytes: usize) -> Self {
+        self.max_response_bytes = max_response_bytes;
+        self
+    }
+    /// Replace `max_in_flight`.
+    pub const fn with_max_in_flight(mut self, max_in_flight: usize) -> Self {
+        self.max_in_flight = max_in_flight;
+        self
+    }
 }
 impl Default for HttpConfig {
     fn default() -> Self {

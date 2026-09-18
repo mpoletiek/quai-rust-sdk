@@ -3,11 +3,10 @@
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_dedicated_worker);
 use quai_sdk::provider::event_hub::*;
 fn config() -> EventHubConfig {
-    EventHubConfig {
-        max_listeners: 4,
-        capacity_per_listener: 2,
-        max_queued_items: 4,
-    }
+    EventHubConfig::default()
+        .with_max_listeners(4)
+        .with_capacity_per_listener(2)
+        .with_max_queued_items(4)
 }
 #[cfg_attr(not(target_arch = "wasm32"), test)]
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
@@ -82,11 +81,7 @@ fn capacity_failure_is_atomic_across_listeners_and_event_can_be_explicitly_retri
             );
         }
     }
-    let mut hub = EventHub::new(EventHubConfig {
-        max_queued_items: 1,
-        ..config()
-    })
-    .unwrap();
+    let mut hub = EventHub::new(config().with_max_queued_items(1)).unwrap();
     let a = hub.once(1).unwrap();
     let b = hub.on(1).unwrap();
     assert_eq!(hub.emit(&1, &5), Err(EventHubError::AtCapacity));
@@ -169,38 +164,16 @@ fn removal_clears_queued_once_registrations_and_close_never_reopens() {
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 fn invalid_limits_and_registration_capacity_fail_without_reusing_ids() {
     for c in [
-        EventHubConfig {
-            max_listeners: 0,
-            ..config()
-        },
-        EventHubConfig {
-            max_listeners: 1025,
-            ..config()
-        },
-        EventHubConfig {
-            capacity_per_listener: 0,
-            ..config()
-        },
-        EventHubConfig {
-            capacity_per_listener: 1025,
-            ..config()
-        },
-        EventHubConfig {
-            max_queued_items: 0,
-            ..config()
-        },
-        EventHubConfig {
-            max_queued_items: 65537,
-            ..config()
-        },
+        config().with_max_listeners(0),
+        config().with_max_listeners(1025),
+        config().with_capacity_per_listener(0),
+        config().with_capacity_per_listener(1025),
+        config().with_max_queued_items(0),
+        config().with_max_queued_items(65537),
     ] {
         assert!(EventHub::<u8, u8>::new(c).is_err());
     }
-    let mut hub = EventHub::<u8, u8>::new(EventHubConfig {
-        max_listeners: 1,
-        ..config()
-    })
-    .unwrap();
+    let mut hub = EventHub::<u8, u8>::new(config().with_max_listeners(1)).unwrap();
     let a = hub.once(1).unwrap();
     hub.emit(&1, &7).unwrap();
     assert_eq!(hub.on(2), Err(EventHubError::AtCapacity));

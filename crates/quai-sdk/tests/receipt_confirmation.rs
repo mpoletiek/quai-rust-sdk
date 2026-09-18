@@ -240,12 +240,7 @@ mod browser {
     use super::*;
     use quai_sdk::browser::{BrowserReceiptWaitError, BrowserWaitConfig, wait_for_receipt};
     fn config() -> BrowserWaitConfig {
-        BrowserWaitConfig {
-            confirmations: 2,
-            timeout_ms: 1000,
-            poll_interval_ms: 1,
-            max_polls: 4,
-        }
+        BrowserWaitConfig::new(2, 1000, 1, 4)
     }
     #[wasm_bindgen_test::wasm_bindgen_test]
     async fn missing_then_reorged_receipt_is_repolled_until_canonical_success() {
@@ -274,34 +269,13 @@ mod browser {
     async fn invalid_limits_and_provider_errors_do_not_start_another_read() {
         let mock = Mock::default();
         for c in [
-            BrowserWaitConfig {
-                confirmations: 0,
-                ..config()
-            },
-            BrowserWaitConfig {
-                timeout_ms: 0,
-                ..config()
-            },
-            BrowserWaitConfig {
-                timeout_ms: u32::MAX,
-                ..config()
-            },
-            BrowserWaitConfig {
-                poll_interval_ms: 0,
-                ..config()
-            },
-            BrowserWaitConfig {
-                poll_interval_ms: 1001,
-                ..config()
-            },
-            BrowserWaitConfig {
-                max_polls: 0,
-                ..config()
-            },
-            BrowserWaitConfig {
-                max_polls: 100_001,
-                ..config()
-            },
+            config().with_confirmations(0),
+            config().with_timeout_ms(0),
+            config().with_timeout_ms(u32::MAX),
+            config().with_poll_interval_ms(0),
+            config().with_poll_interval_ms(1001),
+            config().with_max_polls(0),
+            config().with_max_polls(100_001),
         ] {
             assert!(matches!(
                 wait_for_receipt(&mock.provider(), Zone::Cyprus1, TX.parse().unwrap(), c).await,
@@ -338,10 +312,7 @@ mod browser {
             &mock.provider(),
             Zone::Cyprus1,
             TX.parse().unwrap(),
-            BrowserWaitConfig {
-                timeout_ms: 50,
-                ..config()
-            },
+            config().with_timeout_ms(50),
         )
         .await;
         assert!(
@@ -360,10 +331,7 @@ mod browser {
             &mock.provider(),
             Zone::Cyprus1,
             TX.parse().unwrap(),
-            BrowserWaitConfig {
-                max_polls: 2,
-                ..config()
-            },
+            config().with_max_polls(2),
         )
         .await;
         assert!(matches!(
@@ -379,11 +347,7 @@ mod browser {
             &mock.provider(),
             Zone::Cyprus1,
             TX.parse().unwrap(),
-            BrowserWaitConfig {
-                timeout_ms: 30,
-                poll_interval_ms: 30,
-                ..config()
-            },
+            config().with_timeout_ms(30).with_poll_interval_ms(30),
         )
         .await;
         assert!(matches!(
@@ -423,11 +387,11 @@ mod browser {
     #[wasm_bindgen_test::wasm_bindgen_test]
     async fn deadline_cancels_actual_fetch_and_releases_its_only_request_permit() {
         use quai_sdk::browser::{BrowserConfig, BrowserFetchTransport};
-        let transport = BrowserFetchTransport::new(BrowserConfig {
-            request_timeout_ms: 1000,
-            max_in_flight: 1,
-            ..Default::default()
-        })
+        let transport = BrowserFetchTransport::new(
+            BrowserConfig::default()
+                .with_request_timeout_ms(1000)
+                .with_max_in_flight(1),
+        )
         .unwrap();
         let base = option_env!("QUAI_BROWSER_FIXTURE_URL").unwrap_or("http://127.0.0.1:18080");
         let provider = Provider::new(
@@ -440,10 +404,7 @@ mod browser {
                 &provider,
                 Zone::Cyprus1,
                 TX.parse().unwrap(),
-                BrowserWaitConfig {
-                    timeout_ms: 20,
-                    ..config()
-                }
+                config().with_timeout_ms(20)
             )
             .await,
             Err(BrowserReceiptWaitError::Timeout {

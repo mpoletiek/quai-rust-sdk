@@ -98,6 +98,7 @@ pub struct NoFetchHooks;
 impl FetchHooks for NoFetchHooks {}
 /// Independent resource policy; none of these settings change RPC transport behavior.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct FetchConfig {
     /// Overall timeout including hooks and delays, 1..=i32::MAX milliseconds.
     pub timeout_ms: u32,
@@ -111,6 +112,38 @@ pub struct FetchConfig {
     pub retry_delay_ms: u32,
     /// Explicit permission to retry methods other than GET/HEAD. Defaults false.
     pub retry_non_idempotent: bool,
+}
+impl FetchConfig {
+    /// Replace `timeout_ms`.
+    pub const fn with_timeout_ms(mut self, timeout_ms: u32) -> Self {
+        self.timeout_ms = timeout_ms;
+        self
+    }
+    /// Replace `max_response_bytes`.
+    pub const fn with_max_response_bytes(mut self, max_response_bytes: usize) -> Self {
+        self.max_response_bytes = max_response_bytes;
+        self
+    }
+    /// Replace `max_attempts`.
+    pub const fn with_max_attempts(mut self, max_attempts: u32) -> Self {
+        self.max_attempts = max_attempts;
+        self
+    }
+    /// Replace `max_redirects`.
+    pub const fn with_max_redirects(mut self, max_redirects: u32) -> Self {
+        self.max_redirects = max_redirects;
+        self
+    }
+    /// Replace `retry_delay_ms`.
+    pub const fn with_retry_delay_ms(mut self, retry_delay_ms: u32) -> Self {
+        self.retry_delay_ms = retry_delay_ms;
+        self
+    }
+    /// Replace `retry_non_idempotent`.
+    pub const fn with_retry_non_idempotent(mut self, retry_non_idempotent: bool) -> Self {
+        self.retry_non_idempotent = retry_non_idempotent;
+        self
+    }
 }
 impl Default for FetchConfig {
     fn default() -> Self {

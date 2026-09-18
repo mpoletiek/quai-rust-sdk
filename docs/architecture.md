@@ -26,6 +26,19 @@ requirements are listed in [status](../IMPLEMENTATION_STATUS.md) and
   qualification in progress. Native feature checks do not prove browser support.
 - `quai-sdk`: facade and native account orchestration, without duplicating codecs.
 
+## API evolution
+
+Policy and diagnostic types are `#[non_exhaustive]`: errors, classifications,
+and resource `*Config` structs. The chain keeps changing and so do the limits
+worth exposing, so these grow without a breaking release. Protocol-fixed wire
+types stay exhaustive, because a new variant there is a protocol change callers
+must handle explicitly.
+
+A non-exhaustive struct cannot be built with a struct literal or
+`..Default::default()` outside its crate. So every such struct ships a
+`with_*` method for each field, plus `Default` or a `new` that takes the
+required fields.
+
 ## Protocol values
 
 Raw `Address` accepts any 20 bytes with validated checksum syntax. Typed

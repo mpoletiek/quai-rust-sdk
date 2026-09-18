@@ -50,6 +50,7 @@ impl ContractCodeTarget {
 /// Portable millisecond limits for code-appearance waiting, without a misleading
 /// confirmation-depth setting. At most 100,000 completed observations.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct CodeWaitConfig {
     /// Overall deadline, 1..=i32::MAX milliseconds, including RPCs and delays.
     pub timeout_ms: u32,
@@ -59,6 +60,29 @@ pub struct CodeWaitConfig {
     pub max_polls: u32,
 }
 impl CodeWaitConfig {
+    /// Every limit is required: there is deliberately no default.
+    pub const fn new(timeout_ms: u32, poll_interval_ms: u32, max_polls: u32) -> Self {
+        Self {
+            timeout_ms,
+            poll_interval_ms,
+            max_polls,
+        }
+    }
+    /// Replace `timeout_ms`.
+    pub const fn with_timeout_ms(mut self, timeout_ms: u32) -> Self {
+        self.timeout_ms = timeout_ms;
+        self
+    }
+    /// Replace `poll_interval_ms`.
+    pub const fn with_poll_interval_ms(mut self, poll_interval_ms: u32) -> Self {
+        self.poll_interval_ms = poll_interval_ms;
+        self
+    }
+    /// Replace `max_polls`.
+    pub const fn with_max_polls(mut self, max_polls: u32) -> Self {
+        self.max_polls = max_polls;
+        self
+    }
     /// Validate before timers or I/O on both native and browser runtimes.
     pub fn validate(self) -> Result<(), CodeWaitError> {
         if self.timeout_ms == 0

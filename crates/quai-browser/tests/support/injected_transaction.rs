@@ -192,10 +192,7 @@ async fn injected_transaction_preflight_permissions_and_context_fail_without_ret
     assert_eq!(call_count(&wallet), 0);
     let (provider, wallet) = setup(
         "normal",
-        BrowserConfig {
-            max_request_bytes: 128,
-            ..Default::default()
-        },
+        BrowserConfig::default().with_max_request_bytes(128),
     );
     assert!(matches!(
         provider.sign_quai_transaction(address(), &tx()).await,
@@ -258,11 +255,9 @@ async fn injected_transaction_malformed_outputs_are_not_signed_transactions() {
 async fn injected_transaction_timeout_and_cancellation_release_local_capacity() {
     let (provider, wallet) = setup(
         "hang_sign",
-        BrowserConfig {
-            request_timeout_ms: 30,
-            max_in_flight: 1,
-            ..Default::default()
-        },
+        BrowserConfig::default()
+            .with_request_timeout_ms(30)
+            .with_max_in_flight(1),
     );
     let tx = tx();
     assert!(matches!(
@@ -390,13 +385,7 @@ async fn injected_submission_errors_retain_exact_id_and_never_retry() {
         "change_during_send",
         "hang_send",
     ] {
-        let (injected, wallet) = setup(
-            mode,
-            BrowserConfig {
-                request_timeout_ms: 100,
-                ..Default::default()
-            },
-        );
+        let (injected, wallet) = setup(mode, BrowserConfig::default().with_request_timeout_ms(100));
         set_signature(&wallet, &hash.to_string());
         let provider = submit_provider(&injected);
         let error = provider.broadcast(&signed).await.unwrap_err();
@@ -544,13 +533,7 @@ async fn wallet_send_distinguishes_preflight_and_ambiguous_outcomes_and_retains_
         "wallet_hang",
         "wallet_context_change",
     ] {
-        let (injected, wallet) = setup(
-            mode,
-            BrowserConfig {
-                request_timeout_ms: 100,
-                ..Default::default()
-            },
-        );
+        let (injected, wallet) = setup(mode, BrowserConfig::default().with_request_timeout_ms(100));
         set_signature(&wallet, &hash.to_string());
         let error = injected
             .send_quai_transaction(address(), &transaction)
@@ -644,11 +627,9 @@ async fn wallet_send_rejects_malformed_and_wrong_ledger_or_zone_acknowledgements
 async fn wallet_send_cancellation_retains_caller_identity_and_does_not_resubmit() {
     let (injected, wallet) = setup(
         "wallet_hang",
-        BrowserConfig {
-            request_timeout_ms: 100,
-            max_in_flight: 1,
-            ..Default::default()
-        },
+        BrowserConfig::default()
+            .with_request_timeout_ms(100)
+            .with_max_in_flight(1),
     );
     let transaction = tx();
     let identity = quai_browser::WalletSendIdentity::new(address(), &transaction).unwrap();

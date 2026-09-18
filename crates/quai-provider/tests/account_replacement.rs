@@ -134,11 +134,7 @@ async fn forged_signatures_receipts_reorgs_and_competing_occupants_reject() {
 async fn waiter_returns_unregistered_failed_winner_and_bounds_missing_or_stalled_reads() {
     use quai_provider::{WaitConfig, WaitError};
     use std::time::Duration;
-    let config = WaitConfig {
-        confirmations: 2,
-        timeout: Duration::from_millis(100),
-        poll_interval: Duration::from_millis(1),
-    };
+    let config = WaitConfig::new(2, Duration::from_millis(100), Duration::from_millis(1));
     let m = Mock::new(replacement(ReplacementReason::Cancelled), 11);
     let c = m
         .provider()
@@ -224,11 +220,11 @@ async fn waiter_drains_multiple_bounded_pages_without_skipping_the_next_block() 
             &original(),
             hash(1),
             16,
-            quai_provider::WaitConfig {
-                confirmations: 1,
-                timeout: std::time::Duration::from_secs(5),
-                poll_interval: std::time::Duration::from_millis(1),
-            },
+            quai_provider::WaitConfig::new(
+                1,
+                std::time::Duration::from_secs(5),
+                std::time::Duration::from_millis(1),
+            ),
         )
         .await
         .unwrap();

@@ -293,11 +293,11 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
                         .wait_for_receipt(
                             scope.zone,
                             hash,
-                            quai_sdk::provider::WaitConfig {
-                                confirmations: 2,
-                                timeout: std::time::Duration::from_secs(300),
-                                poll_interval: std::time::Duration::from_secs(3),
-                            },
+                            quai_sdk::provider::WaitConfig::new(
+                                2,
+                                std::time::Duration::from_secs(300),
+                                std::time::Duration::from_secs(3),
+                            ),
                         )
                         .await?;
                     let mined = provider

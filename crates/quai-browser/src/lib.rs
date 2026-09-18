@@ -28,6 +28,7 @@ pub use resource::BrowserResourceFetch;
 
 /// Browser resource limits. Concurrent calls fail fast when capacity is exhausted.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct BrowserConfig {
     /// Total request wait deadline in milliseconds; browser suspension can delay timers.
     pub request_timeout_ms: u32,
@@ -37,6 +38,28 @@ pub struct BrowserConfig {
     pub max_response_bytes: usize,
     /// Maximum active operations across all clones; no unbounded waiting queue.
     pub max_in_flight: usize,
+}
+impl BrowserConfig {
+    /// Replace `request_timeout_ms`.
+    pub const fn with_request_timeout_ms(mut self, request_timeout_ms: u32) -> Self {
+        self.request_timeout_ms = request_timeout_ms;
+        self
+    }
+    /// Replace `max_request_bytes`.
+    pub const fn with_max_request_bytes(mut self, max_request_bytes: usize) -> Self {
+        self.max_request_bytes = max_request_bytes;
+        self
+    }
+    /// Replace `max_response_bytes`.
+    pub const fn with_max_response_bytes(mut self, max_response_bytes: usize) -> Self {
+        self.max_response_bytes = max_response_bytes;
+        self
+    }
+    /// Replace `max_in_flight`.
+    pub const fn with_max_in_flight(mut self, max_in_flight: usize) -> Self {
+        self.max_in_flight = max_in_flight;
+        self
+    }
 }
 impl Default for BrowserConfig {
     fn default() -> Self {
@@ -283,6 +306,7 @@ pub use storage::{
 
 /// Browser WebSocket request and notification resource limits.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct BrowserSocketConfig {
     /// Request size, response size, deadline and shared concurrency limits.
     pub rpc: BrowserConfig,
@@ -292,6 +316,28 @@ pub struct BrowserSocketConfig {
     pub max_notifications: usize,
     /// Total queued UTF-8 notification bytes across the session, at most 128 MiB.
     pub max_queued_bytes: usize,
+}
+impl BrowserSocketConfig {
+    /// Replace `rpc`.
+    pub const fn with_rpc(mut self, rpc: BrowserConfig) -> Self {
+        self.rpc = rpc;
+        self
+    }
+    /// Replace `max_subscriptions`.
+    pub const fn with_max_subscriptions(mut self, max_subscriptions: usize) -> Self {
+        self.max_subscriptions = max_subscriptions;
+        self
+    }
+    /// Replace `max_notifications`.
+    pub const fn with_max_notifications(mut self, max_notifications: usize) -> Self {
+        self.max_notifications = max_notifications;
+        self
+    }
+    /// Replace `max_queued_bytes`.
+    pub const fn with_max_queued_bytes(mut self, max_queued_bytes: usize) -> Self {
+        self.max_queued_bytes = max_queued_bytes;
+        self
+    }
 }
 impl Default for BrowserSocketConfig {
     fn default() -> Self {
@@ -350,6 +396,7 @@ pub use socket::{BrowserSubscription, BrowserWebSocketTransport};
 /// Explicit browser transaction-wait limits. Milliseconds must be positive and fit a
 /// browser timer; polling attempts are independently bounded. No implicit defaults.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct BrowserWaitConfig {
     /// Required positive observed depth, including the containing block.
     pub confirmations: u64,
@@ -359,6 +406,42 @@ pub struct BrowserWaitConfig {
     pub poll_interval_ms: u32,
     /// At most 100,000 completed observations; zero is invalid.
     pub max_polls: u32,
+}
+impl BrowserWaitConfig {
+    /// Every limit is required: there is deliberately no default.
+    pub const fn new(
+        confirmations: u64,
+        timeout_ms: u32,
+        poll_interval_ms: u32,
+        max_polls: u32,
+    ) -> Self {
+        Self {
+            confirmations,
+            timeout_ms,
+            poll_interval_ms,
+            max_polls,
+        }
+    }
+    /// Replace `confirmations`.
+    pub const fn with_confirmations(mut self, confirmations: u64) -> Self {
+        self.confirmations = confirmations;
+        self
+    }
+    /// Replace `timeout_ms`.
+    pub const fn with_timeout_ms(mut self, timeout_ms: u32) -> Self {
+        self.timeout_ms = timeout_ms;
+        self
+    }
+    /// Replace `poll_interval_ms`.
+    pub const fn with_poll_interval_ms(mut self, poll_interval_ms: u32) -> Self {
+        self.poll_interval_ms = poll_interval_ms;
+        self
+    }
+    /// Replace `max_polls`.
+    pub const fn with_max_polls(mut self, max_polls: u32) -> Self {
+        self.max_polls = max_polls;
+        self
+    }
 }
 impl BrowserWaitConfig {
     /// Validate before allocating timers or performing provider I/O.

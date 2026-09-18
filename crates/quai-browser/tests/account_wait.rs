@@ -8,12 +8,7 @@ mod fixture;
 use fixture::{Mock, hash, original, replacement};
 wasm_bindgen_test_configure!(run_in_dedicated_worker);
 fn config() -> BrowserWaitConfig {
-    BrowserWaitConfig {
-        confirmations: 2,
-        timeout_ms: 5000,
-        poll_interval_ms: 1,
-        max_polls: 10,
-    }
+    BrowserWaitConfig::new(2, 5000, 1, 10)
 }
 #[wasm_bindgen_test(async)]
 async fn worker_waits_for_unknown_repricing_cancellation_and_changed_recipient() {
@@ -45,10 +40,7 @@ async fn worker_waiter_drains_pages_and_honors_page_budget_without_skipping() {
         &original(),
         hash(1),
         16,
-        BrowserWaitConfig {
-            confirmations: 1,
-            ..config()
-        },
+        config().with_confirmations(1),
     )
     .await
     .unwrap();
@@ -60,11 +52,7 @@ async fn worker_waiter_drains_pages_and_honors_page_budget_without_skipping() {
             &original(),
             hash(1),
             16,
-            BrowserWaitConfig {
-                confirmations: 1,
-                max_polls: 1,
-                ..config()
-            }
+            config().with_confirmations(1).with_max_polls(1)
         )
         .await,
         Err(BrowserAccountWaitError::PollLimit {
@@ -93,10 +81,7 @@ async fn worker_waiter_rejects_forgery_reorg_and_missing_history_without_claimin
             &original(),
             hash(1),
             16,
-            BrowserWaitConfig {
-                max_polls: 1,
-                ..config()
-            }
+            config().with_max_polls(1)
         )
         .await,
         Err(BrowserAccountWaitError::PollLimit {
@@ -116,10 +101,7 @@ async fn worker_waiter_deadline_and_drop_stop_stalled_reads_and_invalid_limits_d
             &original(),
             hash(1),
             16,
-            BrowserWaitConfig {
-                timeout_ms: 10,
-                ..config()
-            }
+            config().with_timeout_ms(10)
         )
         .await,
         Err(BrowserAccountWaitError::Timeout {
@@ -159,10 +141,7 @@ async fn worker_waiter_deadline_and_drop_stop_stalled_reads_and_invalid_limits_d
             &original,
             hash(1),
             16,
-            BrowserWaitConfig {
-                max_polls: 0,
-                ..config()
-            }
+            config().with_max_polls(0)
         )
         .await,
         Err(BrowserAccountWaitError::InvalidConfig)

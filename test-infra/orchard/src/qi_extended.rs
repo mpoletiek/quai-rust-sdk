@@ -403,11 +403,11 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                     .wait_for_receipt(
                         scope.zone,
                         hash,
-                        WaitConfig {
-                            confirmations: 2,
-                            timeout: std::time::Duration::from_secs(if mainnet { 300 } else { 55 }),
-                            poll_interval: std::time::Duration::from_secs(2),
-                        },
+                        WaitConfig::new(
+                            2,
+                            std::time::Duration::from_secs(if mainnet { 300 } else { 55 }),
+                            std::time::Duration::from_secs(2),
+                        ),
                     )
                     .await?;
                 let mut receipt = observed.receipt.to_rpc_json()?;

@@ -95,12 +95,12 @@ async fn browser_fetch_real_http_routing_and_envelopes() {
 }
 #[wasm_bindgen_test(async)]
 async fn browser_fetch_stream_limit_deadline_and_drop_release_capacity() {
-    let transport = BrowserFetchTransport::new(BrowserConfig {
-        max_response_bytes: 100,
-        request_timeout_ms: 100,
-        max_in_flight: 1,
-        ..Default::default()
-    })
+    let transport = BrowserFetchTransport::new(
+        BrowserConfig::default()
+            .with_max_response_bytes(100)
+            .with_request_timeout_ms(100)
+            .with_max_in_flight(1),
+    )
     .unwrap();
     assert!(matches!(
         transport
@@ -189,13 +189,7 @@ async fn explicit_accounts_and_personal_sign_use_exact_wallet_arguments() {
 #[wasm_bindgen_test(async)]
 async fn injected_limits_accessors_timeout_and_future_drop() {
     for mode in ["oversize", "accessor"] {
-        let (provider, _) = injected(
-            mode,
-            BrowserConfig {
-                max_response_bytes: 100,
-                ..Default::default()
-            },
-        );
+        let (provider, _) = injected(mode, BrowserConfig::default().with_max_response_bytes(100));
         assert!(
             provider
                 .read(&endpoint("/rpc"), "quai_blockNumber", json!([]))
@@ -205,11 +199,9 @@ async fn injected_limits_accessors_timeout_and_future_drop() {
     }
     let (provider, value) = injected(
         "hang",
-        BrowserConfig {
-            request_timeout_ms: 30,
-            max_in_flight: 1,
-            ..Default::default()
-        },
+        BrowserConfig::default()
+            .with_request_timeout_ms(30)
+            .with_max_in_flight(1),
     );
     assert!(matches!(
         provider.accounts().await,

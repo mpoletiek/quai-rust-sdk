@@ -297,11 +297,11 @@ async fn wait(
         .wait_for_transaction(
             Zone::Cyprus1,
             TX.parse().unwrap(),
-            quai_sdk::provider::WaitConfig {
-                confirmations: 2,
-                timeout: Duration::from_millis(u64::from(timeout)),
-                poll_interval: Duration::from_millis(1),
-            },
+            quai_sdk::provider::WaitConfig::new(
+                2,
+                Duration::from_millis(u64::from(timeout)),
+                Duration::from_millis(1),
+            ),
         )
         .await
         .map_err(|e| e.to_string())
@@ -315,12 +315,7 @@ async fn wait(
         provider,
         Zone::Cyprus1,
         TX.parse().unwrap(),
-        quai_sdk::browser::BrowserWaitConfig {
-            confirmations: 2,
-            timeout_ms: timeout,
-            poll_interval_ms: 1,
-            max_polls: 10,
-        },
+        quai_sdk::browser::BrowserWaitConfig::new(2, timeout, 1, 10),
     )
     .await
     .map_err(|e| e.to_string())
@@ -404,12 +399,7 @@ async fn dropping_portable_observation_releases_read_and_error_stops_immediately
                 &provider,
                 Zone::Cyprus1,
                 TX.parse().unwrap(),
-                quai_sdk::browser::BrowserWaitConfig {
-                    confirmations: 1,
-                    timeout_ms: 1000,
-                    poll_interval_ms: 1,
-                    max_polls: 1
-                }
+                quai_sdk::browser::BrowserWaitConfig::new(1, 1000, 1, 1)
             )
             .await,
             Err(quai_sdk::browser::BrowserTransactionWaitError::PollLimit {

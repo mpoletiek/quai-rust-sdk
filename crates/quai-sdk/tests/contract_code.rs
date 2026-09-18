@@ -348,11 +348,7 @@ fn code_target() -> quai_sdk::provider::ContractCodeTarget {
 }
 #[cfg(any(target_arch = "wasm32", feature = "http", feature = "ws"))]
 fn code_wait_config(timeout_ms: u32, max_polls: u32) -> quai_sdk::provider::CodeWaitConfig {
-    quai_sdk::provider::CodeWaitConfig {
-        timeout_ms,
-        poll_interval_ms: 1,
-        max_polls,
-    }
+    quai_sdk::provider::CodeWaitConfig::new(timeout_ms, 1, max_polls)
 }
 #[cfg(all(not(target_arch = "wasm32"), any(feature = "http", feature = "ws")))]
 async fn wait_code(

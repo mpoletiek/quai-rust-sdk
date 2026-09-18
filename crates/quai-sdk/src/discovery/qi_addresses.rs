@@ -6,7 +6,15 @@ use quai_provider::Provider;
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{Checkpoint, NetworkScope};
 use quai_wallet::qi_addresses::{QiAddressBook, QiUsageObservation};
-use std::{collections::BTreeSet, future::Future};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    future::Future,
+};
+
+/// Addresses per batched read. `outpoints_many` accepts up to 1024 and adapts
+/// its own page size downward on an oversize response, so this only bounds the
+/// argument list and the cancellation granularity.
+const MAX_ADDRESS_BATCH: usize = 1024;
 
 /// Refresh every registered HD/imported/channel receive address in one scoped
 /// usage book. Head/genesis are checked before and after latest-only reads. The
@@ -56,15 +64,38 @@ where
         hash: head.hash,
         height: U256::from(head.number),
     };
-    let mut seen = BTreeSet::new();
-    let mut staged = Vec::new();
-    for record in book.addresses() {
+    // The book is a known, fixed set: every address is queried and there is no
+    // gap rule that could stop early, so the reads can be batched without
+    // changing which addresses are observed. `records` is keyed by address, so
+    // the set is unique by construction and `outpoints_many`'s duplicate
+    // rejection cannot fire. Accounting below still walks the book in order, so
+    // `seen`, `max_outpoints` and `check_use` behave exactly as before.
+    let addresses = book
+        .addresses()
+        .map(|record| {
+            QiAddress::try_from(record.public().address())
+                .map_err(|_| QiDiscoveryError::InvalidRequest)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let mut observed = BTreeMap::new();
+    for page in addresses.chunks(MAX_ADDRESS_BATCH) {
         if cancelled() {
             return Err(QiDiscoveryError::Cancelled);
         }
-        let address = QiAddress::try_from(record.public().address())
-            .map_err(|_| QiDiscoveryError::InvalidRequest)?;
-        let outputs = provider.outpoints(address).await?;
+        observed.extend(provider.outpoints_many(page).await?);
+    }
+
+    let mut seen = BTreeSet::new();
+    let mut staged = Vec::new();
+    for address in addresses {
+        if cancelled() {
+            return Err(QiDiscoveryError::Cancelled);
+        }
+        // A missing row is a failure, never an empty result: defaulting it would
+        // silently record an address as unused.
+        let outputs = observed
+            .remove(&address)
+            .ok_or(QiDiscoveryError::ObservationChanged)?;
         if seen.len().saturating_add(outputs.len()) > max_outpoints {
             return Err(QiDiscoveryError::OutputLimit);
         }

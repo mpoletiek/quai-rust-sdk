@@ -223,11 +223,9 @@ impl<'a, T: Transport> QiSession<'a, T> {
             store,
         }
     }
-    async fn verify_network(&self) -> Result<(), QiError> {
+    async fn verify_network(&mut self) -> Result<(), QiError> {
         let scope = self.store.scope();
-        if self.provider.chain_id(scope.zone.into()).await? != scope.chain_id
-            || self.provider.genesis_hash(scope.zone).await? != scope.genesis
-        {
+        if !crate::network::on_network(self.provider, scope, scope.zone).await? {
             return Err(QiError::IdentityMismatch);
         }
         Ok(())
@@ -258,10 +256,8 @@ impl<'a, T: Transport> QiSession<'a, T> {
                 u64::try_from(checkpoint.height).map_err(|_| QiError::StaleSnapshot)?,
             )
             .await?
-            .map(|header| Checkpoint {
-                hash: header.hash,
-                height: U256::from(header.number),
-            });
+            .as_ref()
+            .map(crate::network::checkpoint);
         if canonical != Some(checkpoint) {
             self.store.reconcile_checkpoint(generation, canonical)?;
             return Err(QiError::StaleSnapshot);

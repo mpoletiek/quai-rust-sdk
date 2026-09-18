@@ -195,9 +195,7 @@ pub async fn revalidate_settlement_cursor<T: Transport>(
             return Err(QiError::InvalidPolicy);
         }
         for target in [scope.zone, zone] {
-            if provider.chain_id(target.into()).await? != scope.chain_id
-                || provider.genesis_hash(target).await? != scope.genesis
-            {
+            if !crate::network::on_network(provider, scope, target).await? {
                 return Err(QiError::IdentityMismatch);
             }
         }

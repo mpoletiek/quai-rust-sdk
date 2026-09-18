@@ -38,18 +38,9 @@ impl<'a, T: Transport> AccountRpcSource<'a, T> {
         Self { provider }
     }
     async fn identity(&self, scope: NetworkScope) -> Result<(), DiscoveryError> {
-        if self
-            .provider
-            .chain_id(scope.zone.into())
+        if !crate::network::on_network(self.provider, scope, scope.zone)
             .await
             .map_err(|_| DiscoveryError::SourceUnavailable)?
-            != scope.chain_id
-            || self
-                .provider
-                .genesis_hash(scope.zone)
-                .await
-                .map_err(|_| DiscoveryError::SourceUnavailable)?
-                != scope.genesis
         {
             return Err(DiscoveryError::InvalidObservation);
         }
@@ -70,10 +61,7 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
             .ok_or(DiscoveryError::SourceUnavailable)?;
         Ok(ScopedCheckpoint {
             scope,
-            checkpoint: Checkpoint {
-                hash: header.hash,
-                height: U256::from(header.number),
-            },
+            checkpoint: crate::network::checkpoint(&header),
         })
     }
     async fn observe(
@@ -139,13 +127,13 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         Ok(addresses
             .iter()
             .zip(states)
-            .map(|(address, (balance, nonce))| AddressObservation {
+            .map(|(address, state)| AddressObservation {
                 scope,
                 checkpoint,
                 address: address.address,
                 ever_used: None,
-                account_balance: Some(balance),
-                account_nonce: Some(nonce),
+                account_balance: Some(state.balance),
+                account_nonce: Some(state.nonce),
                 coins: vec![],
             })
             .collect())
@@ -183,10 +171,7 @@ impl<T: Transport> AccountRpcSource<'_, T> {
             .map_err(|_| DiscoveryError::SourceUnavailable)?;
         Ok(header.map(|header| ScopedCheckpoint {
             scope,
-            checkpoint: Checkpoint {
-                hash: header.hash,
-                height: U256::from(header.number),
-            },
+            checkpoint: crate::network::checkpoint(&header),
         }))
     }
 }

@@ -1,9 +1,11 @@
 //! Pelagus mailbox calldata and result handling against pinned quais.js encodings.
 #![cfg(all(feature = "abi", feature = "payments"))]
+#[cfg(not(target_arch = "wasm32"))]
+use quai_sdk::BlockTag;
 use quai_sdk::payment_mailbox::*;
 use quai_sdk::payments::PaymentCode;
 use quai_sdk::rpc::{Endpoint, RpcError, Transport};
-use quai_sdk::{BlockTag, Provider, Routing, U256, Zone};
+use quai_sdk::{Provider, Routing, U256, Zone};
 use serde_json::{Value, json};
 use std::sync::{Arc, Mutex};
 

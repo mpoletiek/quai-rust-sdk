@@ -53,6 +53,8 @@ pub mod contracts;
 pub mod deployments;
 #[cfg(feature = "wallet")]
 pub mod discovery;
+#[cfg(feature = "wallet")]
+mod network;
 #[cfg(all(feature = "sqlite", feature = "payments", not(target_arch = "wasm32")))]
 pub mod payment_channels;
 /// Pelagus-compatible payment-channel mailbox announcements.

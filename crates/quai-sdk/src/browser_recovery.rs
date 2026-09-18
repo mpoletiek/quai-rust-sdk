@@ -190,18 +190,9 @@ impl<'a, T: Transport> BrowserRecoverySession<'a, T> {
         Ok(self.snapshot(id).await?.payloads)
     }
     async fn network(&self, scope: NetworkScope) -> Result<(), BrowserRecoveryError> {
-        if self
-            .provider
-            .chain_id(scope.zone.into())
+        if !crate::network::on_network(self.provider, scope, scope.zone)
             .await
             .map_err(FamilyObservationError::from)?
-            != scope.chain_id
-            || self
-                .provider
-                .genesis_hash(scope.zone)
-                .await
-                .map_err(FamilyObservationError::from)?
-                != scope.genesis
         {
             return Err(FamilyObservationError::Changed.into());
         }

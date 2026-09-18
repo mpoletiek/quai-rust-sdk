@@ -491,9 +491,7 @@ pub(crate) async fn network<T: Transport>(
     provider: &Provider<T>,
     scope: NetworkScope,
 ) -> Result<(), QiPreflightError> {
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
+    if !crate::network::on_network(provider, scope, scope.zone).await? {
         return Err(QiPreflightError::Stale);
     }
     Ok(())
@@ -529,7 +527,7 @@ pub(crate) async fn candidate_height<T: Transport>(
 
 /// Include persisted HD/imported/payment owners beyond a bounded gap scan.
 /// Already-present owners retain the original source observations; missing owners
-/// are queried separately at latest. The complete extension is applied only after
+/// are queried at latest in batches. The complete extension is applied only after
 /// network/checkpoint rechecks succeed. It remains an advisory current view, with
 /// no historical/atomic guarantee and no trimming profile inferred from absence.
 pub async fn include_known_qi_addresses<T: Transport>(
@@ -579,28 +577,35 @@ pub async fn include_known_qi_addresses<T: Transport>(
         return Err(QiPreflightError::Invalid);
     }
     let mut added = Vec::new();
-    for owner in missing.values() {
-        let address =
-            QiAddress::try_from(owner.address()).map_err(|_| QiPreflightError::Invalid)?;
-        for output in provider.outpoints(address).await? {
-            if points.len() >= 100_000 {
-                return Err(QiPreflightError::Invalid);
+    let addresses = missing
+        .keys()
+        .map(|&address| QiAddress::try_from(address).map_err(|_| QiPreflightError::Invalid))
+        .collect::<Result<Vec<_>, _>>()?;
+    for page in addresses.chunks(quai_provider::MAX_OUTPOINT_ADDRESSES) {
+        let mut observed = provider.outpoints_many(page).await?;
+        for &address in page {
+            // A missing row is a failure, never an owner without coins.
+            let outputs = observed.remove(&address).ok_or(QiPreflightError::Invalid)?;
+            for output in outputs {
+                if points.len() >= 100_000 {
+                    return Err(QiPreflightError::Invalid);
+                }
+                let outpoint = quai_consensus::OutPoint {
+                    transaction_hash: output.outpoint.tx_hash,
+                    index: output.outpoint.index,
+                };
+                if !points.insert(outpoint) {
+                    return Err(QiPreflightError::Invalid);
+                }
+                added.push(CandidateCoin {
+                    outpoint,
+                    address,
+                    denomination: quai_consensus::Denomination::new(output.denomination)?,
+                    unlock_height: output.lock,
+                    expires_at: None,
+                    reserved: false,
+                });
             }
-            let outpoint = quai_consensus::OutPoint {
-                transaction_hash: output.outpoint.tx_hash,
-                index: output.outpoint.index,
-            };
-            if !points.insert(outpoint) {
-                return Err(QiPreflightError::Invalid);
-            }
-            added.push(CandidateCoin {
-                outpoint,
-                address,
-                denomination: quai_consensus::Denomination::new(output.denomination)?,
-                unlock_height: output.lock,
-                expires_at: None,
-                reserved: false,
-            });
         }
     }
     candidate_height(provider, source, max_age).await?;

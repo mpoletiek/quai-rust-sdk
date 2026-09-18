@@ -129,12 +129,10 @@ async fn worker_qi_gap_scan_returns_fixed_denominations_and_reported_locks() {
         &provider,
         scope(),
         &account,
-        &QiDiscoveryOptions {
-            gap_limit: Some(2),
-            max_addresses: 16,
-            max_outpoints: 8,
-            ..Default::default()
-        },
+        &QiDiscoveryOptions::default()
+            .with_gap_limit(Some(2))
+            .with_max_addresses(16)
+            .with_max_outpoints(8),
         || false,
     )
     .await
@@ -172,12 +170,10 @@ async fn worker_qi_use_hint_accepts_thread_local_async_state() {
         &provider("/qi-hints"),
         scope(),
         &account,
-        &QiDiscoveryOptions {
-            gap_limit: Some(1),
-            max_addresses: 4,
-            max_outpoints: 1,
-            ..Default::default()
-        },
+        &QiDiscoveryOptions::default()
+            .with_gap_limit(Some(1))
+            .with_max_addresses(4)
+            .with_max_outpoints(1),
         || false,
         move |actual_scope, _| {
             let calls = callback_calls.clone();

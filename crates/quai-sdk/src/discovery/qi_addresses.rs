@@ -1,9 +1,10 @@
 //! Refresh an explicitly populated public Qi usage view without touching custody.
 use super::QiDiscoveryError;
+use super::qi::identity;
 use quai_consensus::{Denomination, OutPoint};
 use quai_primitives::QiAddress;
 use quai_provider::{MAX_OUTPOINT_ADDRESSES, Provider};
-use quai_rpc::{Transport, U256};
+use quai_rpc::Transport;
 use quai_wallet::discovery::{Checkpoint, NetworkScope};
 use quai_wallet::qi_addresses::{QiAddressBook, QiUsageObservation};
 use std::{
@@ -55,10 +56,7 @@ where
         .latest_header(scope.zone)
         .await?
         .ok_or(QiDiscoveryError::ObservationChanged)?;
-    let checkpoint = Checkpoint {
-        hash: head.hash,
-        height: U256::from(head.number),
-    };
+    let checkpoint = crate::network::checkpoint(&head);
     // The book is a known, fixed set: every address is queried and there is no
     // gap rule that could stop early, so the reads can be batched without
     // changing which addresses are observed. `records` is keyed by address, so
@@ -131,15 +129,4 @@ where
     book.record_observations(scope, checkpoint, &staged)
         .map_err(|_| QiDiscoveryError::ObservationChanged)?;
     Ok(checkpoint)
-}
-async fn identity<T: Transport>(
-    provider: &Provider<T>,
-    scope: NetworkScope,
-) -> Result<(), QiDiscoveryError> {
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
-        return Err(QiDiscoveryError::IdentityMismatch);
-    }
-    Ok(())
 }

@@ -860,16 +860,15 @@ mod browser {
             .address;
         let point = source().coins[0].outpoint;
         m.state().outpoints.insert(found.address.to_string(),json!([{"txHash":point.transaction_hash.to_string(),"index":"0x0","denomination":"0x2","lock":"0x0"}]));
-        let options = QiDiscoveryOptions {
-            receive: IndexRange {
+        let options = QiDiscoveryOptions::default()
+            .with_receive(IndexRange {
                 start: found.index,
                 end: found.index + 1,
-            },
-            change: IndexRange { start: 0, end: 0 },
-            gap_limit: Some(50),
-            max_addresses: 1,
-            max_outpoints: 10,
-        };
+            })
+            .with_change(IndexRange { start: 0, end: 0 })
+            .with_gap_limit(Some(50))
+            .with_max_addresses(1)
+            .with_max_outpoints(10);
         let session = BrowserQiSession::new(&p, &b, &w);
         let c = pool(&a, 1).await;
         let prepared = session
@@ -906,13 +905,12 @@ mod browser {
             .unwrap();
         let point = source().coins[0].outpoint;
         m.state().outpoints.insert(known.address().to_string(),json!([{"txHash":point.transaction_hash.to_string(),"index":"0x0","denomination":"0x2","lock":"0x0"}]));
-        let options = QiDiscoveryOptions {
-            receive: IndexRange { start: 0, end: 1 },
-            change: IndexRange { start: 0, end: 0 },
-            gap_limit: Some(50),
-            max_addresses: 1,
-            max_outpoints: 10,
-        };
+        let options = QiDiscoveryOptions::default()
+            .with_receive(IndexRange { start: 0, end: 1 })
+            .with_change(IndexRange { start: 0, end: 0 })
+            .with_gap_limit(Some(50))
+            .with_max_addresses(1)
+            .with_max_outpoints(10);
         let session = BrowserQiSession::new(&p, &b, &w);
         let prepared = session
             .prepare_discovered(

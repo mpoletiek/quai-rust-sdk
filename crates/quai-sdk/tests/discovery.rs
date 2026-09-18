@@ -216,16 +216,15 @@ async fn portable_qi_deep_scan_preserves_fixed_values_locks_and_cancellation_pro
     let second = search(first.index + 1);
     let third = search(second.index + 1);
     mock.outputs.lock().unwrap().insert(first.address.to_string(),json!([{"txHash":format!("0x00000080{}","00".repeat(28)),"index":"0x0","denomination":"0x2","lock":"0x65","unknown":"not retained"}]));
-    let options = QiDiscoveryOptions {
-        receive: IndexRange {
+    let options = QiDiscoveryOptions::default()
+        .with_receive(IndexRange {
             start: first.index,
             end: third.index + 1,
-        },
-        change: IndexRange { start: 0, end: 0 },
-        gap_limit: None,
-        max_addresses: 3,
-        max_outpoints: 1,
-    };
+        })
+        .with_change(IndexRange { start: 0, end: 0 })
+        .with_gap_limit(None)
+        .with_max_addresses(3)
+        .with_max_outpoints(1);
     let report = discover_qi(&provider, scope(), &account, &options, || false)
         .await
         .unwrap();
@@ -288,16 +287,15 @@ async fn portable_qi_rejects_duplicate_outputs_limits_and_changed_heads() {
         )
         .unwrap()
         .address;
-    let options = QiDiscoveryOptions {
-        receive: IndexRange {
+    let options = QiDiscoveryOptions::default()
+        .with_receive(IndexRange {
             start: first.index,
             end: second.index + 1,
-        },
-        change: IndexRange { start: 0, end: 0 },
-        gap_limit: None,
-        max_addresses: 2,
-        max_outpoints: 2,
-    };
+        })
+        .with_change(IndexRange { start: 0, end: 0 })
+        .with_gap_limit(None)
+        .with_max_addresses(2)
+        .with_max_outpoints(2);
     let output = json!([{"txHash":format!("0x00000080{}","00".repeat(28)),"index":"0x0","denomination":"0x2","lock":"0x0"}]);
     let mock = Mock::default();
     mock.outputs
@@ -313,18 +311,12 @@ async fn portable_qi_rejects_duplicate_outputs_limits_and_changed_heads() {
         discover_qi(&source, scope(), &account, &options, || false).await,
         Err(QiDiscoveryError::InvalidOutputs)
     ));
-    let limited = QiDiscoveryOptions {
-        max_outpoints: 1,
-        ..options.clone()
-    };
+    let limited = options.clone().with_max_outpoints(1);
     assert!(matches!(
         discover_qi(&source, scope(), &account, &limited, || false).await,
         Err(QiDiscoveryError::OutputLimit)
     ));
-    let bad = QiDiscoveryOptions {
-        max_addresses: 0,
-        ..options.clone()
-    };
+    let bad = options.clone().with_max_addresses(0);
     mock.calls.lock().unwrap().clear();
     assert!(matches!(
         discover_qi(&source, scope(), &account, &bad, || false).await,
@@ -378,16 +370,15 @@ async fn optional_qi_use_checker_matches_pinned_short_circuit_and_error_behavior
         )
         .unwrap()
         .address;
-    let options = QiDiscoveryOptions {
-        receive: IndexRange {
+    let options = QiDiscoveryOptions::default()
+        .with_receive(IndexRange {
             start: first.index,
             end: first.index + 1,
-        },
-        change: IndexRange { start: 0, end: 0 },
-        gap_limit: Some(1),
-        max_addresses: 1,
-        max_outpoints: 1,
-    };
+        })
+        .with_change(IndexRange { start: 0, end: 0 })
+        .with_gap_limit(Some(1))
+        .with_max_addresses(1)
+        .with_max_outpoints(1);
     for case in fixture["vectors"].as_array().unwrap() {
         let mock = Mock::default();
         if case["outputs"] == 1 {
@@ -469,16 +460,15 @@ async fn known_spent_address_hint_prevents_early_gap_stop_without_creating_coins
         )
         .unwrap()
         .address;
-    let options = QiDiscoveryOptions {
-        receive: IndexRange {
+    let options = QiDiscoveryOptions::default()
+        .with_receive(IndexRange {
             start: first.index,
             end: second.index + 1,
-        },
-        change: IndexRange { start: 0, end: 0 },
-        gap_limit: Some(1),
-        max_addresses: 2,
-        max_outpoints: 1,
-    };
+        })
+        .with_change(IndexRange { start: 0, end: 0 })
+        .with_gap_limit(Some(1))
+        .with_max_addresses(2)
+        .with_max_outpoints(1);
     let source = provider(Mock::default());
     let report = discover_qi_with_use_checker(
         &source,
@@ -561,10 +551,7 @@ async fn portable_qi_window_queries_exactly_the_addresses_it_reports() {
     for gap_limit in [1u32, 2, 3, 7, 50] {
         let mock = Mock::default();
         let provider = provider(mock.clone());
-        let options = QiDiscoveryOptions {
-            gap_limit: Some(gap_limit),
-            ..Default::default()
-        };
+        let options = QiDiscoveryOptions::default().with_gap_limit(Some(gap_limit));
         let report = discover_qi(&provider, scope(), &account, &options, || false)
             .await
             .unwrap();
@@ -614,10 +601,7 @@ async fn portable_qi_funded_address_resets_the_gap_at_a_window_edge() {
         json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x2","lock":"0x0"}]),
     );
     let provider = provider(mock.clone());
-    let options = QiDiscoveryOptions {
-        gap_limit: Some(3),
-        ..Default::default()
-    };
+    let options = QiDiscoveryOptions::default().with_gap_limit(Some(3));
     let report = discover_qi(&provider, scope(), &account, &options, || false)
         .await
         .unwrap();
@@ -681,4 +665,37 @@ async fn account_discovery_checks_identity_and_brackets_once_per_window() {
     assert_eq!(count("quai_getHeaderByNumber", false), 4, "{calls:?}");
     assert_eq!(count("quai_getBalance", false), 10);
     assert_eq!(count("quai_getTransactionCount", false), 10);
+}
+
+#[tokio::test]
+async fn portable_qi_rejects_outpoints_from_another_zone() {
+    // Such an output could never be spent in this zone, and admitting it
+    // would make every later selection over the report fail.
+    use quai_sdk::discovery::{QiDiscoveryError, QiDiscoveryOptions, discover_qi};
+    let account = HdWallet::from_seed(&[7; 32], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let first = account
+        .search(
+            false,
+            Search {
+                zone: Zone::Cyprus1,
+                start_index: 0,
+                max_attempts: 100_000,
+            },
+            || false,
+        )
+        .unwrap()
+        .address;
+    let mock = Mock::default();
+    mock.outputs.lock().unwrap().insert(
+        first.address.to_string(),
+        json!([{"txHash":format!("0x00800180{}","00".repeat(28)),"index":"0x0","denomination":"0x2","lock":"0x0"}]),
+    );
+    let options = QiDiscoveryOptions::default().with_gap_limit(Some(1));
+    assert!(matches!(
+        discover_qi(&provider(mock), scope(), &account, &options, || false).await,
+        Err(QiDiscoveryError::InvalidOutputs)
+    ));
 }

@@ -632,12 +632,10 @@ mod browser {
             &provider,
             scope,
             &account,
-            &QiDiscoveryOptions {
-                gap_limit: Some(2),
-                max_addresses: 16,
-                max_outpoints: 8,
-                ..Default::default()
-            },
+            &QiDiscoveryOptions::default()
+                .with_gap_limit(Some(2))
+                .with_max_addresses(16)
+                .with_max_outpoints(8),
             || false,
         )
         .await

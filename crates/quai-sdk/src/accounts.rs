@@ -194,7 +194,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         })
     }
     async fn quote_conversion(
-        &self,
+        &mut self,
         sender: QuaiAddress,
         transaction: &QuaiTransaction,
         policy: FeePolicy,
@@ -255,7 +255,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         self.observation_policy = policy;
         self
     }
-    async fn observation(&self) -> Result<(BlockTag, Option<Hash32>), AccountError> {
+    async fn observation(&mut self) -> Result<(BlockTag, Option<Hash32>), AccountError> {
         match self.observation_policy {
             AccountObservationPolicy::Pending => Ok((BlockTag::Pending, None)),
             AccountObservationPolicy::PinnedLatest => {
@@ -272,7 +272,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         }
     }
     async fn verify_observation(
-        &self,
+        &mut self,
         observation: (BlockTag, Option<Hash32>),
     ) -> Result<(), AccountError> {
         if let Some(hash) = observation.1 {
@@ -288,11 +288,9 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         Ok(())
     }
 
-    async fn verify_network(&self) -> Result<(), AccountError> {
+    async fn verify_network(&mut self) -> Result<(), AccountError> {
         let scope = self.store.scope();
-        if self.provider.chain_id(scope.zone.into()).await? != scope.chain_id
-            || self.provider.genesis_hash(scope.zone).await? != scope.genesis
-        {
+        if !crate::network::on_network(self.provider, scope, scope.zone).await? {
             return Err(AccountError::IdentityMismatch);
         }
         Ok(())
@@ -579,7 +577,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
     }
 
     async fn quote_fee(
-        &self,
+        &mut self,
         request: &CallRequest,
         policy: FeePolicy,
         block: BlockTag,

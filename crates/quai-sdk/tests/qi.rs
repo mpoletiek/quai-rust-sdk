@@ -968,18 +968,17 @@ async fn current_gap_scan_and_refresh_queries_stored_addresses_and_preserves_cla
     let funded = stored.last().unwrap().address().to_string();
     env.mock.outpoints.lock().unwrap().insert(funded,json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x2","lock":"0x20"}]));
     let account = env.wallet.account_public(0).unwrap();
-    let options = QiScanOptions {
-        receive: IndexRange {
+    let options = QiScanOptions::default()
+        .with_receive(IndexRange {
             start: 0,
             end: 100_000,
-        },
-        change: IndexRange {
+        })
+        .with_change(IndexRange {
             start: 0,
             end: 100_000,
-        },
-        gap_limit: Some(2),
-        max_addresses: 20,
-    };
+        })
+        .with_gap_limit(Some(2))
+        .with_max_addresses(20);
     let report = scan_and_refresh_qi(&env.provider, &mut env.store, &account, &options, || false)
         .await
         .unwrap();
@@ -1887,15 +1886,14 @@ async fn native_use_hints_extend_gap_and_failed_checker_preserves_storage() {
     use quai_sdk::wallet::discovery::{IndexRange, ScanStop};
     let mut env = setup();
     let account = env.wallet.account_public(0).unwrap();
-    let options = QiScanOptions {
-        receive: IndexRange {
+    let options = QiScanOptions::default()
+        .with_receive(IndexRange {
             start: 0,
             end: 100_000,
-        },
-        change: IndexRange { start: 0, end: 0 },
-        gap_limit: Some(1),
-        max_addresses: 4,
-    };
+        })
+        .with_change(IndexRange { start: 0, end: 0 })
+        .with_gap_limit(Some(1))
+        .with_max_addresses(4);
     let before = env.store.snapshot().unwrap();
     let before_addresses = env.store.addresses().unwrap();
     let error = scan_and_refresh_qi_with_use_checker(
@@ -2378,18 +2376,17 @@ async fn a_windowed_scan_queries_exactly_the_addresses_it_reports() {
     for gap_limit in [1u32, 2, 3, 7, 50] {
         let env = setup();
         let account = env.wallet.account_public(0).unwrap();
-        let options = QiScanOptions {
-            receive: IndexRange {
+        let options = QiScanOptions::default()
+            .with_receive(IndexRange {
                 start: 0,
                 end: 100_000,
-            },
-            change: IndexRange {
+            })
+            .with_change(IndexRange {
                 start: 0,
                 end: 100_000,
-            },
-            gap_limit: Some(gap_limit),
-            max_addresses: 10_000,
-        };
+            })
+            .with_gap_limit(Some(gap_limit))
+            .with_max_addresses(10_000);
         env.mock.calls.lock().unwrap().clear();
         let report = scan_qi(&env.provider, env.store.scope(), &account, &options, || {
             false
@@ -2472,18 +2469,17 @@ async fn a_funded_address_resets_the_gap_across_a_window_boundary() {
     assert_eq!(funded_position, 2);
     env.mock.outpoints.lock().unwrap().insert(funded.clone(), json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x2","lock":"0x0"}]));
 
-    let options = QiScanOptions {
-        receive: IndexRange {
+    let options = QiScanOptions::default()
+        .with_receive(IndexRange {
             start: 0,
             end: 100_000,
-        },
-        change: IndexRange {
+        })
+        .with_change(IndexRange {
             start: 0,
             end: 100_000,
-        },
-        gap_limit: Some(3),
-        max_addresses: 10_000,
-    };
+        })
+        .with_gap_limit(Some(3))
+        .with_max_addresses(10_000);
     env.mock.calls.lock().unwrap().clear();
     let report = scan_qi(&env.provider, env.store.scope(), &account, &options, || {
         false

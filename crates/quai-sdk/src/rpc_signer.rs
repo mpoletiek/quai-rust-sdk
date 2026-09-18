@@ -466,9 +466,7 @@ impl RemoteSendAcknowledgement {
     ) -> Result<Option<RemoteSendObservation>, RpcSignerFailure> {
         let scope = self.identity.scope;
         let check = async || {
-            if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-                || provider.genesis_hash(scope.zone).await? != scope.genesis
-            {
+            if !crate::network::on_network(provider, scope, scope.zone).await? {
                 return Err(RpcSignerFailure::NetworkMismatch);
             }
             Ok(())

@@ -14,6 +14,7 @@ use std::future::Future;
 pub const DEFAULT_QI_GAP: u32 = 50;
 /// Public current-outpoint scan bounds, usable on native or wasm32.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiDiscoveryOptions {
     /// Receive raw BIP32 interval, including skipped zones/ledgers.
     pub receive: IndexRange,
@@ -25,6 +26,33 @@ pub struct QiDiscoveryOptions {
     pub max_addresses: usize,
     /// Maximum total outputs retained across all addresses, 1..=100,000.
     pub max_outpoints: usize,
+}
+impl QiDiscoveryOptions {
+    /// Replace `receive`.
+    pub const fn with_receive(mut self, receive: IndexRange) -> Self {
+        self.receive = receive;
+        self
+    }
+    /// Replace `change`.
+    pub const fn with_change(mut self, change: IndexRange) -> Self {
+        self.change = change;
+        self
+    }
+    /// Replace `gap_limit`.
+    pub const fn with_gap_limit(mut self, gap_limit: Option<u32>) -> Self {
+        self.gap_limit = gap_limit;
+        self
+    }
+    /// Replace `max_addresses`.
+    pub const fn with_max_addresses(mut self, max_addresses: usize) -> Self {
+        self.max_addresses = max_addresses;
+        self
+    }
+    /// Replace `max_outpoints`.
+    pub const fn with_max_outpoints(mut self, max_outpoints: usize) -> Self {
+        self.max_outpoints = max_outpoints;
+        self
+    }
 }
 impl Default for QiDiscoveryOptions {
     fn default() -> Self {
@@ -66,6 +94,7 @@ pub struct CurrentQiAddress {
 }
 /// Bounded current-state discovery, without private keys or a storage backend.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct CurrentQiDiscovery {
     /// Explicit expected network identity.
     pub scope: NetworkScope,
@@ -83,6 +112,7 @@ pub struct CurrentQiDiscovery {
 }
 /// Exact observed amounts; unlocked outputs may still be claimed, spent or trimmed.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct ObservedQiBalance {
     /// Sum over only this report's bounded address coverage.
     pub total: U256,
@@ -155,13 +185,11 @@ impl CurrentQiDiscovery {
         Ok(balance)
     }
 }
-async fn identity<T: Transport>(
+pub(super) async fn identity<T: Transport>(
     provider: &Provider<T>,
     scope: NetworkScope,
 ) -> Result<(), QiDiscoveryError> {
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
+    if !crate::network::on_network(provider, scope, scope.zone).await? {
         return Err(QiDiscoveryError::IdentityMismatch);
     }
     Ok(())
@@ -170,14 +198,9 @@ async fn head<T: Transport>(
     provider: &Provider<T>,
     scope: NetworkScope,
 ) -> Result<Checkpoint, QiDiscoveryError> {
-    let header = provider
-        .latest_header(scope.zone)
+    crate::network::latest_checkpoint(provider, scope.zone)
         .await?
-        .ok_or(QiDiscoveryError::ObservationChanged)?;
-    Ok(Checkpoint {
-        hash: header.hash,
-        height: U256::from(header.number),
-    })
+        .ok_or(QiDiscoveryError::ObservationChanged)
 }
 /// Scan current Qi receive/change outpoints with a matching-address gap (50 by default).
 /// No indexer, signer or SQLite handle is required. Retain known addresses and use
@@ -255,8 +278,8 @@ where
                 break 'branches;
             }
             // Read a window the gap rule guarantees this branch examines, so
-            // the query set is exactly the one-at-a-time scan's. See
-            // `GapCounter::guaranteed_remaining`.
+            // nothing past the gap stop is disclosed. See
+            // `GapCounter::guaranteed_remaining`, including for aborted windows.
             let start = report.next_index[branch];
             let window = account.search_window(
                 branch == 1,
@@ -307,7 +330,10 @@ where
                         transaction_hash: output.outpoint.tx_hash,
                         index: output.outpoint.index,
                     };
-                    if !seen.insert(outpoint) {
+                    // An outpoint from another zone, or the zero hash, could never
+                    // be spent here and would fail every later selection.
+                    let hash = outpoint.transaction_hash.bytes();
+                    if hash[2] != scope.zone.byte() || *hash == [0; 32] || !seen.insert(outpoint) {
                         return Err(QiDiscoveryError::InvalidOutputs);
                     }
                     outputs.push(CurrentQiOutput {

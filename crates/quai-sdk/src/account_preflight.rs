@@ -388,9 +388,7 @@ pub(crate) async fn check_network<T: Transport>(
     provider: &Provider<T>,
     scope: NetworkScope,
 ) -> Result<(), AccountPreflightError> {
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
+    if !crate::network::on_network(provider, scope, scope.zone).await? {
         return Err(AccountPreflightError::ObservationChanged);
     }
     Ok(())

@@ -10,7 +10,7 @@ impl<T: Transport, S: Signer> AccountSession<'_, T, S> {
         self
     }
     pub(super) async fn populate_access(
-        &self,
+        &mut self,
         request: &mut CallRequest,
         transaction: &mut QuaiTransaction,
         block: BlockTag,

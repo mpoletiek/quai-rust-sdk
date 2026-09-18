@@ -78,6 +78,7 @@ impl Default for PaymentScanOptions {
 /// A completed page of locally validated receive indexes. Scanning does not
 /// reserve new receive addresses or alter existing send allocation cursors.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct PaymentScanReport {
     /// Matching receive children, including the empty gap.
     pub indexes: Vec<u32>,
@@ -107,9 +108,7 @@ pub async fn scan_payment_channel<T: Transport>(
     if cancelled() {
         return Err(QiError::Cancelled);
     }
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
+    if !crate::network::on_network(provider, scope, scope.zone).await? {
         return Err(QiError::IdentityMismatch);
     }
     let mut report = PaymentScanReport {
@@ -220,6 +219,7 @@ pub struct MailboxChannelScan {
 /// Bounded mailbox discovery result. Absence of funds is not proof of none.
 #[cfg(feature = "abi")]
 #[derive(Clone, Debug, Default)]
+#[non_exhaustive]
 pub struct MailboxDiscoveryReport {
     /// Announced channels registered (if needed) and scanned, in announcement order.
     pub scanned: Vec<MailboxChannelScan>,

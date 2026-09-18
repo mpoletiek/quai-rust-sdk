@@ -125,9 +125,7 @@ async fn observe<T: Transport>(
     scope: NetworkScope,
     candidates: &[SignedIntent],
 ) -> Result<Observations, FamilyObservationError> {
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
+    if !crate::network::on_network(provider, scope, scope.zone).await? {
         return Err(FamilyObservationError::Invalid);
     }
     let tip = provider
@@ -200,9 +198,7 @@ async fn observe<T: Transport>(
             return Err(FamilyObservationError::Changed);
         }
     }
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
+    if !crate::network::on_network(provider, scope, scope.zone).await? {
         return Err(FamilyObservationError::Changed);
     }
     Ok((rows, canonical, head))

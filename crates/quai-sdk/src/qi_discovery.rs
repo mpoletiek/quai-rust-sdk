@@ -61,6 +61,7 @@ pub fn qi_balance(store: &mut SqliteStore, candidate_height: U256) -> Result<QiB
 
 /// Bounded receive/change scan options. `None` gap performs an explicit deep scan.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiScanOptions {
     /// Receive raw BIP32 child interval, including zone/ledger skips.
     pub receive: IndexRange,
@@ -70,6 +71,28 @@ pub struct QiScanOptions {
     pub gap_limit: Option<u32>,
     /// Global matching-address query limit, at most 100,000.
     pub max_addresses: usize,
+}
+impl QiScanOptions {
+    /// Replace `receive`.
+    pub const fn with_receive(mut self, receive: IndexRange) -> Self {
+        self.receive = receive;
+        self
+    }
+    /// Replace `change`.
+    pub const fn with_change(mut self, change: IndexRange) -> Self {
+        self.change = change;
+        self
+    }
+    /// Replace `gap_limit`.
+    pub const fn with_gap_limit(mut self, gap_limit: Option<u32>) -> Self {
+        self.gap_limit = gap_limit;
+        self
+    }
+    /// Replace `max_addresses`.
+    pub const fn with_max_addresses(mut self, max_addresses: usize) -> Self {
+        self.max_addresses = max_addresses;
+        self
+    }
 }
 impl Default for QiScanOptions {
     fn default() -> Self {
@@ -89,6 +112,7 @@ impl Default for QiScanOptions {
 }
 /// Coverage of a current-state scan. Empty addresses may have fully spent history.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiScanReport {
     /// Derived public receive/change metadata, including the observed gap.
     pub addresses: Vec<PublicAddress>,
@@ -102,9 +126,7 @@ async fn identity<T: Transport>(
     provider: &Provider<T>,
     scope: NetworkScope,
 ) -> Result<(), QiError> {
-    if provider.chain_id(scope.zone.into()).await? != scope.chain_id
-        || provider.genesis_hash(scope.zone).await? != scope.genesis
-    {
+    if !crate::network::on_network(provider, scope, scope.zone).await? {
         return Err(QiError::IdentityMismatch);
     }
     Ok(())
@@ -177,11 +199,10 @@ where
             // then read them together. The bound is the gap counter's own rule
             // read forwards: the branch cannot stop within `guaranteed_remaining`
             // further addresses whatever the node answers, so none of these is
-            // speculative. The query set is exactly the sequential scan's, which
-            // is what makes this a batching change rather than a policy change:
-            // no address is disclosed that would not have been, and no
-            // observation enters the report that the sequential scan would not
-            // have made.
+            // speculative. A completed scan queries exactly the sequential
+            // scan's set, which is what makes this a batching change rather
+            // than a policy change. An aborted window is covered at
+            // `GapCounter::guaranteed_remaining`.
             let start = report.next_index[branch];
             let window = account.search_window(
                 branch == 1,
@@ -284,10 +305,8 @@ pub async fn refresh_qi<T: Transport>(
         let canonical = provider
             .header_at(scope.zone, height)
             .await?
-            .map(|h| Checkpoint {
-                hash: h.hash,
-                height: U256::from(h.number),
-            });
+            .as_ref()
+            .map(crate::network::checkpoint);
         if canonical != Some(old) {
             store.reconcile_checkpoint(generation, canonical)?;
             generation = store.snapshot()?.generation;
@@ -354,14 +373,9 @@ pub async fn refresh_qi<T: Transport>(
 }
 
 async fn tip<T: Transport>(provider: &Provider<T>, zone: Zone) -> Result<Checkpoint, QiError> {
-    let header = provider
-        .latest_header(zone)
+    crate::network::latest_checkpoint(provider, zone)
         .await?
-        .ok_or(QiError::StaleSnapshot)?;
-    Ok(Checkpoint {
-        hash: header.hash,
-        height: U256::from(header.number),
-    })
+        .ok_or(QiError::StaleSnapshot)
 }
 
 /// Gap-scan a Qi account, persist discovered metadata, then refresh all known

@@ -3,7 +3,9 @@ use quai_consensus::{Denomination, OutPoint};
 use quai_primitives::QiAddress;
 use quai_provider::{Provider, ProviderError};
 use quai_rpc::{Transport, U256};
-use quai_wallet::discovery::{CanonicalStatus, Checkpoint, IndexRange, NetworkScope, ScanStop};
+use quai_wallet::discovery::{
+    CanonicalStatus, Checkpoint, GapCounter, IndexRange, NetworkScope, ScanStop,
+};
 use quai_wallet::{AccountPublic, CoinType, DerivedAddress, Search, WalletError};
 use std::collections::BTreeSet;
 use std::future::Future;
@@ -239,7 +241,7 @@ where
     };
     let mut seen = BTreeSet::new();
     'branches: for (branch, range) in [options.receive, options.change].iter().enumerate() {
-        let mut gap = 0;
+        let mut gap = GapCounter::new(options.gap_limit);
         while report.next_index[branch] < range.end {
             if cancelled() {
                 report.stopped[branch..].fill(ScanStop::Cancelled);
@@ -317,18 +319,14 @@ where
             } else {
                 false
             };
-            gap = if outputs.is_empty() && !use_hint {
-                gap + 1
-            } else {
-                0
-            };
+            let reached_gap_limit = gap.observe(!outputs.is_empty() || use_hint);
             report.next_index[branch] = found.next_index.unwrap_or(1 << 31);
             report.addresses.push(CurrentQiAddress {
                 derived: found.address,
                 outputs,
                 use_hint,
             });
-            if options.gap_limit.is_some_and(|limit| gap >= limit) {
+            if reached_gap_limit {
                 report.stopped[branch] = ScanStop::GapLimit;
                 break;
             }

@@ -192,6 +192,74 @@ pub enum ScanStop {
     /// Cancellation observed; partial report must not be committed as a snapshot.
     Cancelled,
 }
+/// The BIP44-style consecutive-unused-address rule, as one shared object.
+///
+/// Every scanner in this workspace applies the same recurrence: the counter
+/// resets on a used address and increments on an unused one, and the branch
+/// stops once it reaches the limit. It lived as three hand-written copies, in
+/// the storage-backed Qi scanner, the portable Qi scanner and the generic
+/// source scanner. Three copies of a rule that decides whether a restored
+/// wallet finds all of its funds is a divergence hazard: one scanner stopping
+/// at 49 where another stops at 50 is a silent difference in what is
+/// recoverable.
+///
+/// [`Self::guaranteed_remaining`] is the same rule read forwards, and is what
+/// makes batched scanning safe: the branch provably cannot stop within that
+/// many further addresses, whatever the node answers, so they can be fetched
+/// together without querying an address the sequential scan would not have.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct GapCounter {
+    consecutive_unused: u32,
+    limit: Option<u32>,
+}
+impl GapCounter {
+    /// Start a branch. `None` disables the rule, as an explicit deep scan does.
+    pub const fn new(limit: Option<u32>) -> Self {
+        Self {
+            consecutive_unused: 0,
+            limit,
+        }
+    }
+    /// Record one observed address in index order.
+    ///
+    /// Returns true when the branch must stop at this address, which the caller
+    /// reports as [`ScanStop::GapLimit`]. The address is still part of the
+    /// report: the rule stops *after* it, exactly as the sequential scanners do.
+    pub const fn observe(&mut self, used: bool) -> bool {
+        self.consecutive_unused = if used {
+            0
+        } else {
+            self.consecutive_unused.saturating_add(1)
+        };
+        match self.limit {
+            Some(limit) => self.consecutive_unused >= limit,
+            None => false,
+        }
+    }
+    /// Consecutive unused addresses observed since the last used one.
+    pub const fn consecutive_unused(&self) -> u32 {
+        self.consecutive_unused
+    }
+    /// How many further addresses this branch is guaranteed to examine.
+    ///
+    /// The counter can only reach the limit by incrementing once per address,
+    /// so the branch cannot stop before that many more are observed, no matter
+    /// what the node reports for any of them. `None` means unbounded, which is
+    /// what an explicit deep scan with no gap limit requests.
+    ///
+    /// A batch of at most this size therefore queries only addresses the
+    /// sequential scan would also have queried: no speculation, no extra
+    /// disclosure to the node, and no observation that could contaminate a
+    /// cross-address budget.
+    pub const fn guaranteed_remaining(&self) -> Option<u32> {
+        match self.limit {
+            // saturating_sub is defensive; observe stops the branch on equality.
+            Some(limit) => Some(limit.saturating_sub(self.consecutive_unused)),
+            None => None,
+        }
+    }
+}
+
 /// Exact examined interval and compact, lossless skipped raw-index intervals.
 #[derive(Clone, Debug)]
 pub struct BranchCoverage {
@@ -338,7 +406,7 @@ pub async fn discover<S: ObservationSource>(
     let mut seen = BTreeSet::new();
     let mut was_cancelled = false;
     for coverage in &mut report.coverage {
-        let mut gap = 0u32;
+        let mut gap = GapCounter::new(request.gap_limit);
         while coverage.next_index < coverage.requested.end {
             if was_cancelled || cancelled() {
                 was_cancelled = true;
@@ -450,7 +518,7 @@ pub async fn discover<S: ObservationSource>(
             } else {
                 observation.has_current_activity()
             };
-            gap = if used { 0 } else { gap + 1 };
+            let reached_gap_limit = gap.observe(used);
             coverage.next_index = derived.index + 1;
             coverage.observed += 1;
             report.addresses.push(ObservedAddress {
@@ -462,7 +530,7 @@ pub async fn discover<S: ObservationSource>(
                 coverage.stop = ScanStop::Cancelled;
                 break;
             }
-            if request.gap_limit.is_some_and(|limit| gap >= limit) {
+            if reached_gap_limit {
                 coverage.stop = ScanStop::GapLimit;
                 break;
             }
@@ -491,3 +559,76 @@ pub async fn discover<S: ObservationSource>(
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod gap_counter_tests {
+    use super::GapCounter;
+
+    #[test]
+    fn the_counter_resets_on_use_and_stops_after_the_limit() {
+        let mut gap = GapCounter::new(Some(3));
+        // Unused addresses accumulate; the branch stops on the third.
+        assert!(!gap.observe(false));
+        assert!(!gap.observe(false));
+        assert!(
+            gap.observe(false),
+            "the limit stops the branch at the third"
+        );
+
+        // A used address resets the run, so the limit is not reached early.
+        let mut gap = GapCounter::new(Some(3));
+        assert!(!gap.observe(false));
+        assert!(!gap.observe(false));
+        assert!(!gap.observe(true), "a used address resets the run");
+        assert_eq!(gap.consecutive_unused(), 0);
+        assert!(!gap.observe(false));
+        assert!(!gap.observe(false));
+        assert!(gap.observe(false));
+    }
+
+    #[test]
+    fn no_limit_never_stops_the_branch() {
+        let mut gap = GapCounter::new(None);
+        for _ in 0..10_000 {
+            assert!(!gap.observe(false));
+        }
+        assert_eq!(gap.guaranteed_remaining(), None, "unbounded by request");
+    }
+
+    #[test]
+    fn guaranteed_remaining_never_promises_more_than_the_branch_will_examine() {
+        // This is the property batched scanning depends on: a batch of at most
+        // `guaranteed_remaining` queries only addresses the sequential scan
+        // would also have queried, whatever the node answers for any of them.
+        for limit in 1..=64u32 {
+            for used_at in [None, Some(0), Some(1), Some(limit / 2)] {
+                let mut gap = GapCounter::new(Some(limit));
+                let mut examined = 0u32;
+                loop {
+                    let promised = gap.guaranteed_remaining().unwrap();
+                    assert!(promised > 0, "a live branch always has room to examine");
+                    // Worst case for the promise: every one of them is unused.
+                    let mut probe = gap;
+                    for step in 0..promised {
+                        let stops = probe.observe(false);
+                        assert_eq!(
+                            stops,
+                            step + 1 == promised,
+                            "limit {limit}: the branch stopped early inside its own guarantee"
+                        );
+                    }
+                    let used = used_at == Some(examined);
+                    let stopped = gap.observe(used);
+                    examined += 1;
+                    if stopped {
+                        break;
+                    }
+                    assert!(
+                        examined < limit * 4,
+                        "limit {limit}: branch did not terminate"
+                    );
+                }
+            }
+        }
+    }
+}

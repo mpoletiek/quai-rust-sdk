@@ -237,6 +237,26 @@ fn a_qi_message_that_is_an_unsigned_spend_is_refused() {
         sign_qi_message(&owner, &unsigned),
         Err(SignerError::QiTransactionMessage)
     ));
+    // A strict decoder rejects both of these, which must not let them through:
+    // an appended unknown field makes the encoding non-canonical, and a large
+    // one also exceeds the strict size bound.
+    let varint = |bytes: &mut Vec<u8>, mut value: usize| {
+        while value >= 0x80 {
+            bytes.push((value as u8) | 0x80);
+            value >>= 7;
+        }
+        bytes.push(value as u8);
+    };
+    for padding in [16usize, 2 << 20] {
+        let mut padded = unsigned.clone();
+        varint(&mut padded, 23 << 3 | 2);
+        varint(&mut padded, padding);
+        padded.resize(padded.len() + padding, 0);
+        assert!(matches!(
+            sign_qi_message(&owner, &padded),
+            Err(SignerError::QiTransactionMessage)
+        ));
+    }
     // Ordinary messages, including empty and protobuf-looking ones, still sign.
     for message in [&b""[..], b"hello", b"z", &unsigned[1..]] {
         assert!(sign_qi_message(&owner, message).is_ok(), "{message:?}");

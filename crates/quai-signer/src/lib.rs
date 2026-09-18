@@ -246,12 +246,14 @@ impl Signer for WatchOnlySigner {
 /// a domain prefix a message whose bytes are an unsigned transaction yields a
 /// valid spend signature: a requester could present a transfer of the signer's
 /// output as a "message". The format is fixed by the published wallets, so the
-/// prefix cannot be added. Instead, any message that decodes as a transaction
+/// prefix cannot be added. Instead, any message that parses as a transaction
 /// with inputs, which every Qi spend has, is refused with
-/// [`SignerError::QiTransactionMessage`].
+/// [`SignerError::QiTransactionMessage`]. The parse is lenient, so an oversized
+/// or non-canonical encoding is refused too rather than slipping past a strict
+/// decoder.
 pub fn sign_qi_message(key: &SecretKey, message: &[u8]) -> Result<SchnorrSignature, SignerError> {
     QiAddress::try_from(key.public_key().address()).map_err(|_| SignerError::InvalidAddress)?;
-    if quai_consensus::decode_proto_transaction(message).is_ok_and(|tx| tx.tx_ins.is_some()) {
+    if quai_consensus::has_transaction_inputs(message) {
         return Err(SignerError::QiTransactionMessage);
     }
     key.sign_schnorr(&keccak256(message))

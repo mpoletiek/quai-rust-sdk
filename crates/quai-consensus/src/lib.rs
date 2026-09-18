@@ -165,6 +165,15 @@ fn preflight(mut bytes: &[u8], kind: WireKind, budget: &mut usize) -> Result<(),
 pub fn decode_proto_transaction(bytes: &[u8]) -> Result<proto::Transaction, TransactionError> {
     decode(bytes)
 }
+/// Whether `bytes` parse as a transaction with inputs under any encoding.
+///
+/// Deliberately lenient: no size bound, canonical-form check or unknown-field
+/// rejection. It exists so a signer can refuse such bytes as a message, where a
+/// strict decoder's rejection of an oversized or non-canonical encoding must
+/// not read as "not a transaction". It is not a validity check.
+pub fn has_transaction_inputs(bytes: &[u8]) -> bool {
+    <proto::Transaction as prost::Message>::decode(bytes).is_ok_and(|tx| tx.tx_ins.is_some())
+}
 /// Encode a raw protobuf object within the byte/message policy. This does not
 /// establish a valid transaction or authorize submission.
 pub fn encode_proto_transaction(value: &proto::Transaction) -> Result<Vec<u8>, TransactionError> {

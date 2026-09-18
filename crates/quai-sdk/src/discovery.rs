@@ -7,7 +7,7 @@ pub use qi::{
 };
 pub use qi_addresses::{refresh_qi_address_book, refresh_qi_address_book_with_use_checker};
 use quai_primitives::QuaiAddress;
-use quai_provider::{BlockTag, Provider};
+use quai_provider::{BlockTag, Provider, ZoneHeader};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{
     AddressObservation, Checkpoint, DiscoveryError, HistoryCapability, NetworkScope,
@@ -37,14 +37,20 @@ impl<'a, T: Transport> AccountRpcSource<'a, T> {
     pub fn new(provider: &'a Provider<T>) -> Self {
         Self { provider }
     }
-    async fn identity(&self, scope: NetworkScope) -> Result<(), DiscoveryError> {
-        if !crate::network::on_network(self.provider, scope, scope.zone)
+    /// The network check and pinned header reads in one round trip, where
+    /// the transport batches. Genesis is immutable, so it is checked once per
+    /// call; every read still carries its own chain-ID guard.
+    async fn network_headers<const N: usize>(
+        &self,
+        scope: NetworkScope,
+        blocks: &[BlockTag; N],
+    ) -> Result<[Option<ZoneHeader>; N], DiscoveryError> {
+        crate::network::headers_on_network(self.provider, scope, scope.zone, blocks)
             .await
             .map_err(source_error)?
-        {
-            return Err(DiscoveryError::NetworkMismatch);
-        }
-        Ok(())
+            .ok_or(DiscoveryError::NetworkMismatch)?
+            .try_into()
+            .map_err(|_| DiscoveryError::InvalidObservation)
     }
 }
 impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_, T> {
@@ -52,13 +58,8 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         HistoryCapability::CurrentStateOnly
     }
     async fn tip(&self, scope: NetworkScope) -> Result<ScopedCheckpoint, DiscoveryError> {
-        self.identity(scope).await?;
-        let header = self
-            .provider
-            .latest_header(scope.zone)
-            .await
-            .map_err(source_error)?
-            .ok_or(DiscoveryError::SourceUnavailable)?;
+        let [header] = self.network_headers(scope, &[BlockTag::Latest]).await?;
+        let header = header.ok_or(DiscoveryError::SourceUnavailable)?;
         Ok(ScopedCheckpoint {
             scope,
             checkpoint: crate::network::checkpoint(&header),
@@ -98,12 +99,11 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         // Genesis is immutable, so identity is established once per window;
         // every provider read still carries its own chain-ID guard, so a
         // mid-window backend swap is caught per call.
-        self.identity(scope).await?;
-        let before = self
-            .canonical_at(scope, checkpoint.height)
-            .await?
-            .ok_or(DiscoveryError::SourceUnavailable)?;
-        if before.checkpoint != checkpoint {
+        let [before] = self
+            .network_headers(scope, &[pinned(checkpoint.height)?])
+            .await?;
+        let before = before.ok_or(DiscoveryError::SourceUnavailable)?;
+        if crate::network::checkpoint(&before) != checkpoint {
             return Err(DiscoveryError::InvalidObservation);
         }
         let states = self
@@ -147,8 +147,11 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         scope: NetworkScope,
         height: U256,
     ) -> Result<Option<ScopedCheckpoint>, DiscoveryError> {
-        self.identity(scope).await?;
-        self.canonical_at(scope, height).await
+        let [header] = self.network_headers(scope, &[pinned(height)?]).await?;
+        Ok(header.map(|header| ScopedCheckpoint {
+            scope,
+            checkpoint: crate::network::checkpoint(&header),
+        }))
     }
 }
 impl<T: Transport> AccountRpcSource<'_, T> {
@@ -174,6 +177,15 @@ impl<T: Transport> AccountRpcSource<'_, T> {
             checkpoint: crate::network::checkpoint(&header),
         }))
     }
+}
+
+/// A pinned height as a selector. Height zero is genesis, never a scan
+/// checkpoint, and heights past `u64` cannot be block numbers.
+fn pinned(height: U256) -> Result<BlockTag, DiscoveryError> {
+    if height == U256::ZERO || u64::try_from(height).is_err() {
+        return Err(DiscoveryError::InvalidRequest);
+    }
+    Ok(BlockTag::Number(height))
 }
 
 /// A provider failure as a discovery error. A chain mismatch is reported as

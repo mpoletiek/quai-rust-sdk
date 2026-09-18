@@ -501,18 +501,23 @@ pub(crate) async fn candidate_height<T: Transport>(
     source: &QiSource,
     max_age: u64,
 ) -> Result<U256, QiPreflightError> {
-    let n = u64::try_from(source.checkpoint.height).map_err(|_| QiPreflightError::Stale)?;
-    if provider
-        .header_at(source.scope.zone, n)
+    u64::try_from(source.checkpoint.height).map_err(|_| QiPreflightError::Stale)?;
+    // Independent, address-free reads, taken together.
+    let [canonical, head]: [_; 2] = provider
+        .headers(
+            source.scope.zone,
+            &[
+                quai_provider::BlockTag::Number(source.checkpoint.height),
+                quai_provider::BlockTag::Latest,
+            ],
+        )
         .await?
-        .is_none_or(|h| h.hash != source.checkpoint.hash)
-    {
+        .try_into()
+        .map_err(|_| QiPreflightError::Stale)?;
+    if canonical.is_none_or(|h| h.hash != source.checkpoint.hash) {
         return Err(QiPreflightError::Stale);
     }
-    let head = provider
-        .latest_header(source.scope.zone)
-        .await?
-        .ok_or(QiPreflightError::Stale)?;
+    let head = head.ok_or(QiPreflightError::Stale)?;
     let height = U256::from(head.number);
     if height
         .checked_sub(source.checkpoint.height)

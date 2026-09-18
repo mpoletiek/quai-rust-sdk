@@ -1,6 +1,6 @@
 //! Network identity and checkpoint reads shared by every scoped workflow.
 use quai_primitives::Zone;
-use quai_provider::{Provider, ProviderError, ZoneHeader};
+use quai_provider::{BlockTag, Provider, ProviderError, ZoneHeader};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{Checkpoint, NetworkScope};
 
@@ -30,10 +30,20 @@ pub(crate) fn checkpoint(header: &ZoneHeader) -> Checkpoint {
     }
 }
 
-/// The latest header's checkpoint. None means the node reported no header.
-pub(crate) async fn latest_checkpoint<T: Transport>(
+/// [`on_network`] and header reads in one round trip where the transport
+/// batches. `None` when `zone` is not on the scope's network; that is decided
+/// before any header is parsed. All reads are address-free, so joining them
+/// discloses nothing before the network is confirmed.
+pub(crate) async fn headers_on_network<T: Transport>(
     provider: &Provider<T>,
+    scope: NetworkScope,
     zone: Zone,
-) -> Result<Option<Checkpoint>, ProviderError> {
-    Ok(provider.latest_header(zone).await?.as_ref().map(checkpoint))
+    blocks: &[BlockTag],
+) -> Result<Option<Vec<Option<ZoneHeader>>>, ProviderError> {
+    if provider.expected_chain_id() != scope.chain_id {
+        return Ok(None);
+    }
+    provider
+        .headers_on_network(zone, scope.genesis, blocks)
+        .await
 }

@@ -2,8 +2,8 @@
 //! These latest-only node observations are not historical or atomic snapshots.
 use crate::qi::QiError;
 use quai_consensus::{Denomination, OutPoint};
-use quai_primitives::{QiAddress, Zone};
-use quai_provider::{MAX_OUTPOINT_ADDRESSES, Provider};
+use quai_primitives::QiAddress;
+use quai_provider::{BlockTag, MAX_OUTPOINT_ADDRESSES, Provider};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{Checkpoint, GapCounter, IndexRange, NetworkScope, ScanStop};
 use quai_wallet::storage::{PublicAddress, Snapshot, SqliteStore};
@@ -310,22 +310,29 @@ pub async fn refresh_qi<T: Transport>(
     if cancelled() {
         return Err(QiError::Cancelled);
     }
-    identity(provider, scope).await?;
     let snapshot = store.snapshot()?;
     let mut generation = snapshot.generation;
+    // The network check, the tip and the stored checkpoint's canonical header
+    // are independent, address-free reads, so they travel together.
+    let mut blocks = vec![BlockTag::Latest];
     if let Some(old) = snapshot.checkpoint {
-        let height = u64::try_from(old.height).map_err(|_| QiError::StaleSnapshot)?;
-        let canonical = provider
-            .header_at(scope.zone, height)
-            .await?
-            .as_ref()
-            .map(crate::network::checkpoint);
+        u64::try_from(old.height).map_err(|_| QiError::StaleSnapshot)?;
+        blocks.push(BlockTag::Number(old.height));
+    }
+    let headers = crate::network::headers_on_network(provider, scope, scope.zone, &blocks)
+        .await?
+        .ok_or(QiError::NetworkMismatch)?;
+    let before = headers[0]
+        .as_ref()
+        .map(crate::network::checkpoint)
+        .ok_or(QiError::StaleSnapshot)?;
+    if let Some(old) = snapshot.checkpoint {
+        let canonical = headers[1].as_ref().map(crate::network::checkpoint);
         if canonical != Some(old) {
             store.reconcile_checkpoint(generation, canonical)?;
             generation = store.snapshot()?.generation;
         }
     }
-    let before = tip(provider, scope.zone).await?;
     let addresses = store.addresses()?;
     if addresses.len() > max_addresses {
         return Err(QiError::InvalidPolicy);
@@ -395,12 +402,6 @@ pub async fn refresh_qi<T: Transport>(
         coins,
     })?;
     Ok(before)
-}
-
-async fn tip<T: Transport>(provider: &Provider<T>, zone: Zone) -> Result<Checkpoint, QiError> {
-    crate::network::latest_checkpoint(provider, zone)
-        .await?
-        .ok_or(QiError::StaleSnapshot)
 }
 
 /// Gap-scan a Qi account, persist discovered metadata, then refresh all known

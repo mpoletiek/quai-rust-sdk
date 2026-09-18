@@ -1,7 +1,7 @@
 //! Portable current-outpoint discovery; never advertises a historical or atomic snapshot.
 use quai_consensus::{Denomination, OutPoint};
 use quai_primitives::QiAddress;
-use quai_provider::{Provider, ProviderError};
+use quai_provider::{BlockTag, Provider, ProviderError};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{
     CanonicalStatus, Checkpoint, GapCounter, IndexRange, NetworkScope, ScanStop,
@@ -210,22 +210,17 @@ impl CurrentQiDiscovery {
         Ok(balance)
     }
 }
-pub(super) async fn identity<T: Transport>(
+/// The network check and header reads in one round trip.
+pub(super) async fn network_headers<T: Transport, const N: usize>(
     provider: &Provider<T>,
     scope: NetworkScope,
-) -> Result<(), QiDiscoveryError> {
-    if !crate::network::on_network(provider, scope, scope.zone).await? {
-        return Err(QiDiscoveryError::IdentityMismatch);
-    }
-    Ok(())
-}
-async fn head<T: Transport>(
-    provider: &Provider<T>,
-    scope: NetworkScope,
-) -> Result<Checkpoint, QiDiscoveryError> {
-    crate::network::latest_checkpoint(provider, scope.zone)
+    blocks: &[BlockTag; N],
+) -> Result<[Option<quai_provider::ZoneHeader>; N], QiDiscoveryError> {
+    crate::network::headers_on_network(provider, scope, scope.zone, blocks)
         .await?
-        .ok_or(QiDiscoveryError::ObservationChanged)
+        .ok_or(QiDiscoveryError::IdentityMismatch)?
+        .try_into()
+        .map_err(|_| QiDiscoveryError::ObservationChanged)
 }
 /// Scan current Qi receive/change outpoints with a matching-address gap (50 by default).
 /// No indexer, signer or SQLite handle is required. Retain known addresses and use
@@ -280,8 +275,11 @@ where
     if cancelled() {
         return Err(QiDiscoveryError::Cancelled);
     }
-    identity(provider, scope).await?;
-    let checkpoint = head(provider, scope).await?;
+    let [latest] = network_headers(provider, scope, &[BlockTag::Latest]).await?;
+    let checkpoint = latest
+        .as_ref()
+        .map(crate::network::checkpoint)
+        .ok_or(QiDiscoveryError::ObservationChanged)?;
     let mut report = CurrentQiDiscovery {
         scope,
         checkpoint,
@@ -401,11 +399,16 @@ where
             .for_each(|s| *s = ScanStop::Cancelled);
         return Ok(report);
     }
-    identity(provider, scope).await?;
-    let after = head(provider, scope).await?;
-    let height =
-        u64::try_from(checkpoint.height).map_err(|_| QiDiscoveryError::ObservationChanged)?;
-    let canonical = provider.header_at(scope.zone, height).await?;
+    let [latest, canonical] = network_headers(
+        provider,
+        scope,
+        &[BlockTag::Latest, BlockTag::Number(checkpoint.height)],
+    )
+    .await?;
+    let after = latest
+        .as_ref()
+        .map(crate::network::checkpoint)
+        .ok_or(QiDiscoveryError::ObservationChanged)?;
     report.canonical =
         if checkpoint == after && canonical.is_some_and(|h| h.hash == checkpoint.hash) {
             CanonicalStatus::Matches

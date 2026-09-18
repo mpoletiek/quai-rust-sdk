@@ -1,10 +1,10 @@
 //! Refresh an explicitly populated public Qi usage view without touching custody.
 use super::QiDiscoveryError;
-use super::qi::identity;
+use super::qi::network_headers;
 use quai_consensus::{Denomination, OutPoint};
 use quai_primitives::QiAddress;
-use quai_provider::{MAX_OUTPOINT_ADDRESSES, Provider};
-use quai_rpc::Transport;
+use quai_provider::{BlockTag, MAX_OUTPOINT_ADDRESSES, Provider};
+use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{Checkpoint, NetworkScope};
 use quai_wallet::qi_addresses::{QiAddressBook, QiUsageObservation};
 use std::{
@@ -51,11 +51,8 @@ where
         return Err(QiDiscoveryError::Cancelled);
     }
     let scope = book.scope();
-    identity(provider, scope).await?;
-    let head = provider
-        .latest_header(scope.zone)
-        .await?
-        .ok_or(QiDiscoveryError::ObservationChanged)?;
+    let [head] = network_headers(provider, scope, &[BlockTag::Latest]).await?;
+    let head = head.ok_or(QiDiscoveryError::ObservationChanged)?;
     let checkpoint = crate::network::checkpoint(&head);
     // The book is a known, fixed set: every address is queried and there is no
     // gap rule that could stop early, so the reads can be batched without
@@ -111,12 +108,13 @@ where
     if cancelled() {
         return Err(QiDiscoveryError::Cancelled);
     }
-    identity(provider, scope).await?;
-    let after = provider
-        .latest_header(scope.zone)
-        .await?
-        .ok_or(QiDiscoveryError::ObservationChanged)?;
-    let canonical = provider.header_at(scope.zone, head.number).await?;
+    let [after, canonical] = network_headers(
+        provider,
+        scope,
+        &[BlockTag::Latest, BlockTag::Number(U256::from(head.number))],
+    )
+    .await?;
+    let after = after.ok_or(QiDiscoveryError::ObservationChanged)?;
     if head.hash != after.hash
         || head.number != after.number
         || canonical.is_none_or(|h| h.hash != head.hash)

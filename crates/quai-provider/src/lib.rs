@@ -312,6 +312,57 @@ impl<T: Transport> Provider<T> {
         Self::parse_zone_header(value, zone, block)
     }
 
+    /// Several zone headers in one round trip where the transport batches, in
+    /// order, each validated as [`Self::header_at`] and [`Self::latest_header`]
+    /// validate theirs. `None` means the node reported no header.
+    pub async fn headers(
+        &self,
+        zone: Zone,
+        blocks: &[BlockTag],
+    ) -> Result<Vec<Option<ZoneHeader>>, ProviderError> {
+        let values = self.header_values(zone, blocks).await?;
+        if values.len() != blocks.len() {
+            return Err(ProviderError::InvalidResult("header batch count"));
+        }
+        values
+            .into_iter()
+            .zip(blocks)
+            .map(|(value, block)| Self::parse_zone_header(value, zone, *block))
+            .collect()
+    }
+
+    /// [`Self::headers`], read together with the network's genesis. `None` when
+    /// the genesis is not `genesis`: that is checked before any header is
+    /// parsed, so a wrong network is reported as such rather than as a bad
+    /// header. Chain ID is guarded on every read, as always.
+    pub async fn headers_on_network(
+        &self,
+        zone: Zone,
+        genesis: Hash32,
+        blocks: &[BlockTag],
+    ) -> Result<Option<Vec<Option<ZoneHeader>>>, ProviderError> {
+        let mut selectors = Vec::with_capacity(blocks.len() + 1);
+        selectors.push(BlockTag::Number(U256::ZERO));
+        selectors.extend_from_slice(blocks);
+        let mut values = self.header_values(zone, &selectors).await?.into_iter();
+        let observed = values
+            .next()
+            .ok_or(ProviderError::InvalidResult("header batch count"))?;
+        if types::genesis_hash(observed)? != genesis {
+            return Ok(None);
+        }
+        let values: Vec<_> = values.collect();
+        if values.len() != blocks.len() {
+            return Err(ProviderError::InvalidResult("header batch count"));
+        }
+        values
+            .into_iter()
+            .zip(blocks)
+            .map(|(value, block)| Self::parse_zone_header(value, zone, *block))
+            .collect::<Result<_, _>>()
+            .map(Some)
+    }
+
     /// Several headers from one zone, in order, as raw responses: guarded
     /// batches of up to `MAX_BATCH_CALLS - 2` where the transport batches,
     /// otherwise one guarded read each. Parse each with `parse_zone_header`, or

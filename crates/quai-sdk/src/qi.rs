@@ -273,24 +273,26 @@ impl<'a, T: Transport> QiSession<'a, T> {
         max_age: u64,
     ) -> Result<U256, QiError> {
         let zone = self.store.scope().zone;
-        let canonical = self
+        u64::try_from(checkpoint.height).map_err(|_| QiError::StaleSnapshot)?;
+        // Independent, address-free reads, taken together.
+        let [canonical, tip]: [_; 2] = self
             .provider
-            .header_at(
+            .headers(
                 zone,
-                u64::try_from(checkpoint.height).map_err(|_| QiError::StaleSnapshot)?,
+                &[
+                    quai_provider::BlockTag::Number(checkpoint.height),
+                    quai_provider::BlockTag::Latest,
+                ],
             )
             .await?
-            .as_ref()
-            .map(crate::network::checkpoint);
+            .try_into()
+            .map_err(|_| QiError::StaleSnapshot)?;
+        let canonical = canonical.as_ref().map(crate::network::checkpoint);
         if canonical != Some(checkpoint) {
             self.store.reconcile_checkpoint(generation, canonical)?;
             return Err(QiError::StaleSnapshot);
         }
-        let tip = self
-            .provider
-            .latest_header(zone)
-            .await?
-            .ok_or(QiError::StaleSnapshot)?;
+        let tip = tip.ok_or(QiError::StaleSnapshot)?;
         let height = U256::from(tip.number);
         let age = height
             .checked_sub(checkpoint.height)

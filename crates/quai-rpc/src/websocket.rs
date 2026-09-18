@@ -824,6 +824,83 @@ fn dispatch(
         _ => Err(RpcError::InvalidResponse("unexpected WebSocket envelope")),
     }
 }
+/// Feed frames through `dispatch` against a synthetic session: requests
+/// `1..next_id` outstanding, request 1 optionally subscribing, request 2
+/// optionally unsubscribing from "0x1", subscription "0x1" optionally live and
+/// "0x2" optionally recently unsubscribed, as `layout` selects. Asserts that a
+/// reply only ever reaches the request whose ID the frame carries, and that
+/// nothing unissued is ever pending.
+#[cfg(feature = "fuzzing")]
+pub(crate) fn fuzz_dispatch(layout: u8, frames: &[&[u8]]) {
+    let permits = Arc::new(Semaphore::new(1 << 16));
+    let permit = || {
+        permits
+            .clone()
+            .try_acquire_owned()
+            .expect("fixture permits")
+    };
+    let mut subscription_queues = Vec::new();
+    let mut registration = || {
+        let (sender, queue) = mpsc::channel(2);
+        let (terminal, watched) = watch::channel(None);
+        subscription_queues.push((queue, watched));
+        Registration {
+            sender,
+            terminal,
+            _permit: permit(),
+        }
+    };
+    let next_id = 1 + u64::from(layout % 8);
+    let mut pending = HashMap::new();
+    let mut replies = HashMap::new();
+    for id in 1..next_id {
+        let (reply, receiver) = oneshot::channel();
+        pending.insert(
+            id,
+            Pending {
+                reply,
+                registration: (layout & 0x10 != 0 && id == 1).then(&mut registration),
+                unsubscribe: (layout & 0x20 != 0 && id == 2).then(|| "0x1".to_owned()),
+                _permit: permit(),
+                deadline: Instant::now(),
+            },
+        );
+        replies.insert(id, receiver);
+    }
+    let mut subscriptions = HashMap::new();
+    if layout & 0x40 != 0 {
+        subscriptions.insert("0x1".to_owned(), registration());
+    }
+    let mut recently_unsubscribed = VecDeque::new();
+    if layout & 0x80 != 0 {
+        recently_unsubscribed.push_back("0x2".to_owned());
+    }
+    let notification_bytes = Arc::new(Semaphore::new(4096));
+    for frame in frames {
+        let result = dispatch(
+            frame,
+            &mut pending,
+            &mut subscriptions,
+            &mut recently_unsubscribed,
+            next_id,
+            &notification_bytes,
+        );
+        let frame_id = serde_json::from_slice::<Value>(frame)
+            .ok()
+            .and_then(|value| value.get("id").and_then(Value::as_u64));
+        for (id, receiver) in &mut replies {
+            if receiver.try_recv().is_ok() {
+                assert_eq!(Some(*id), frame_id, "a reply reached another request");
+            }
+        }
+        assert!(pending.keys().all(|id| *id != 0 && *id < next_id));
+        if result.is_err() {
+            // A real session closes here.
+            break;
+        }
+    }
+}
+
 fn subscription_id(value: &Value) -> Result<&str, RpcError> {
     value
         .as_str()
@@ -877,4 +954,26 @@ fn encode_request(id: u64, method: &str, params: Value, max: usize) -> Result<St
     )
     .map_err(|_| RpcError::RequestTooLarge)?;
     String::from_utf8(writer.bytes).map_err(|_| RpcError::InvalidConfig)
+}
+
+#[cfg(all(test, feature = "fuzzing"))]
+mod fuzz_harness_tests {
+    #[test]
+    fn the_dispatch_harness_routes_representative_sessions_without_panicking() {
+        let frames: [&[u8]; 8] = [
+            br#"{"jsonrpc":"2.0","id":1,"result":"0x1"}"#,
+            br#"{"jsonrpc":"2.0","id":2,"result":true}"#,
+            br#"{"jsonrpc":"2.0","id":3,"error":{"code":-32000,"message":"x"}}"#,
+            br#"{"jsonrpc":"2.0","method":"quai_subscription","params":{"subscription":"0x1","result":{}}}"#,
+            br#"{"jsonrpc":"2.0","method":"quai_subscription","params":{"subscription":"0x2","result":{}}}"#,
+            br#"{"jsonrpc":"2.0","id":9,"result":"0x1"}"#,
+            br#"{"jsonrpc":"2.0","id":1,"result":"0x1"}"#,
+            b"not json",
+        ];
+        for layout in 0..=u8::MAX {
+            for start in 0..frames.len() {
+                super::fuzz_dispatch(layout, &frames[start..]);
+            }
+        }
+    }
 }

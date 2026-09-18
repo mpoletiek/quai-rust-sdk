@@ -52,4 +52,11 @@ pub mod fuzz_internals {
     pub fn decode_batch(bytes: &[u8], first: u64, count: usize) -> BatchResult {
         crate::http::decode_batch(bytes, first, count)
     }
+
+    /// Route WebSocket frames through the session dispatcher against a
+    /// synthetic session that `layout` selects, asserting reply routing.
+    #[cfg(all(feature = "ws", not(target_arch = "wasm32")))]
+    pub fn dispatch_frames(layout: u8, frames: &[&[u8]]) {
+        crate::websocket::fuzz_dispatch(layout, frames)
+    }
 }

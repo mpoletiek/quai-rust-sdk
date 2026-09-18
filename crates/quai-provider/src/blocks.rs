@@ -234,7 +234,7 @@ impl<T: Transport> Provider<T> {
     }
 }
 
-fn block_fields(
+pub(crate) fn block_fields(
     value: Value,
     zone: Zone,
     selector: MinedBlock,

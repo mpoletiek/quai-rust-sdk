@@ -884,7 +884,8 @@ async fn redemption_credit_tracks_lock_boundary_absence_and_reorg_without_guessi
         .lock()
         .unwrap()
         .headers
-        .insert(8, Hash32::ZERO.to_string());
+        // A different block now occupies height 8.
+        .insert(8, Hash32::from_bytes([9; 32]).to_string());
     let (observed, credit) = provider(&mock)
         .observe_external_qi_credit(&reference, request(), 16)
         .await

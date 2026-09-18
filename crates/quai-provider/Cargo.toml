@@ -18,6 +18,8 @@ default = ["http"]
 http = ["quai-rpc/http", "polling"]
 polling = ["dep:tokio"]
 ws = ["quai-rpc/ws", "polling"]
+# Exposes response parsers to the fuzz harness only; not public API.
+fuzzing = []
 
 [dependencies]
 quai-primitives.workspace = true

@@ -653,3 +653,38 @@ fn quantity(value: Value) -> Result<U256, ProviderError> {
 mod head_follower;
 #[cfg(all(feature = "ws", not(target_arch = "wasm32")))]
 pub use head_follower::{HeadFollowPolicy, WsHeadFollower};
+
+/// Internal response parsers exposed for fuzzing only.
+///
+/// Not public API: the `fuzzing` feature is off by default, these items are
+/// hidden from documentation, and their signatures may change without notice.
+#[cfg(feature = "fuzzing")]
+#[doc(hidden)]
+pub mod fuzz_internals {
+    use crate::{AddressOutpoint, BlockReference, MinedBlock, ProviderError};
+    use quai_primitives::{Hash32, QuaiAddress, Zone};
+    use serde_json::{Map, Value};
+
+    /// Parse a `quai_getOutpointsByAddress` result.
+    pub fn parse_outpoints(value: Value) -> Result<Vec<AddressOutpoint>, ProviderError> {
+        crate::types::parse_outpoints(value)
+    }
+
+    /// Validate a block response for a zone and selector.
+    pub fn block_fields(
+        value: Value,
+        zone: Zone,
+        selector: MinedBlock,
+    ) -> Result<(BlockReference, Hash32, Map<String, Value>), ProviderError> {
+        crate::blocks::block_fields(value, zone, selector)
+    }
+
+    /// Parse a `txpool_content` result for one zone.
+    pub fn pool_entries(
+        value: Value,
+        zone: Zone,
+        max_entries: usize,
+    ) -> Result<Vec<(bool, QuaiAddress, u64, Value)>, ProviderError> {
+        crate::account_rpc::pool_entries(value, zone, max_entries)
+    }
+}

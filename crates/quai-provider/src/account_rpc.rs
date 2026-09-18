@@ -67,7 +67,7 @@ fn nonce(text: &str) -> Result<u64, ProviderError> {
     }
     Ok(value)
 }
-fn pool_entries(
+pub(crate) fn pool_entries(
     value: Value,
     zone: Zone,
     max_entries: usize,

@@ -393,3 +393,12 @@ async fn polls_cost_one_round_trip_idle_and_three_per_page() {
     assert_eq!(update.added.len(), 52);
     assert_eq!(update.checkpoint.hash, hash(1_301));
 }
+
+#[test]
+fn a_zero_header_hash_is_rejected() {
+    use quai_provider::ZoneHeader;
+    let parent = hash(1);
+    let header = |own: Hash32| json!({"woHeader":{"hash":own.to_string(),"parentHash":parent.to_string(),"number":"0x2","primeTerminusNumber":"0x1","location":"0x0000"},"gasLimit":"0x1","stateLimit":"0x1"});
+    assert!(ZoneHeader::try_from(header(hash(2))).is_ok());
+    assert!(ZoneHeader::try_from(header(Hash32::ZERO)).is_err());
+}

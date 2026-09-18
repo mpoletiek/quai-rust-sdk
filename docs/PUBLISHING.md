@@ -74,13 +74,14 @@ To release:
    `git tag -a v<version> -m "<version>" && git push origin v<version>`.
 
 The `verify` job refuses a tag that differs from the workspace version, lacks a
-changelog section or points at a commit not on `main`. It then runs the all-feature
+changelog section, points at a commit not on `main`, or points at a commit
+without a successful `sdk` run from a push to `main`. It then runs the all-feature
 tests and `cargo publish --workspace --dry-run --locked`, which builds every archive
 against its new sibling versions. Only then does the `publish` job, which runs in
 the `release` GitHub environment and alone holds `id-token: write`, upload the
 crates in order. It skips versions already on crates.io, so rerunning a failed
-workflow resumes a partial release. Pushing a tag is therefore the authorization to
-publish; the `release` environment only accepts `v*` tags.
+workflow resumes a partial release. The `release` environment only accepts `v*`
+tags, and with a required reviewer each release also waits for approval.
 
 One-time setup, already completed for the existing crates:
 

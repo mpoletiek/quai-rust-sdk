@@ -89,6 +89,12 @@ impl<T: Transport> WsHeadFollower<T> {
                         self.connection = Some(connection);
                         self.subscription = Some(subscription);
                         self.needs_poll = true;
+                        // The budget counts consecutive failures to establish a read
+                        // subscription, not disconnects survived. Without this reset a
+                        // single call that reconnects successfully still exhausts it and
+                        // reports Transport, attributing a remote disconnect to a local
+                        // connect failure that never happened.
+                        attempts = 0;
                     }
                     Err(error) => {
                         if attempts == self.policy.max_connect_attempts {

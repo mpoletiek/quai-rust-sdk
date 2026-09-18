@@ -31,6 +31,16 @@ thiserror = "2.0"
 reqwest = { version = "0.12.28", default-features = false, features = ["json", "rustls-tls"] }
 tokio = { version = "1", features = ["time", "sync"] }
 
+[profile.release]
+# Cargo ignores a dependency's profile, so this governs this workspace's own
+# builds, benchmarks and examples only; a consumer sets its own. The hot address
+# derivation path crosses quai-wallet -> quai-crypto -> tiny-keccak per candidate,
+# so cross-crate inlining is the point of the setting, not raw opt-level.
+# `panic` is deliberately left at the default: aborting in a published library
+# would remove a consumer's ability to catch a panic at an FFI or request boundary.
+lto = "fat"
+codegen-units = 1
+
 [workspace.lints.rust]
 unsafe_code = "forbid"
 missing_docs = "warn"

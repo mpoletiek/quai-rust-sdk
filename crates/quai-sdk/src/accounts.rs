@@ -8,9 +8,11 @@ pub use access::AccountAccessListPolicy;
 use quai_consensus::{QuaiTransaction, SignedQuaiTransaction};
 use quai_primitives::{Hash32, QuaiAddress};
 use quai_provider::{
-    AccessListItem, BlockTag, BroadcastError, BroadcastResult, CallRequest, Provider,
-    ProviderError, RpcData,
+    AccessListItem, BlockTag, BroadcastError, BroadcastResult, CallRequest, Provider, ProviderError,
 };
+// Only `prepare_deployment` builds an init-code call request.
+#[cfg(feature = "abi")]
+use quai_provider::RpcData;
 use quai_rpc::{Transport, U256};
 use quai_signer::{Signer, SignerError};
 use quai_wallet::storage::{

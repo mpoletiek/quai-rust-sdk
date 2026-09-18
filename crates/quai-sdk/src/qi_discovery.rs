@@ -321,8 +321,9 @@ where
 
 /// Read all persisted Qi addresses, including imported/channel/change addresses,
 /// then atomically replace their current coin view while preserving reservations.
-/// The snapshot is labelled with the latest block seen before the reads, which
-/// must still be canonical after them. This is still a trusted latest-state observation,
+/// The snapshot is labelled with the latest block seen before the reads and
+/// written only if the latest block is unchanged after them; after three
+/// attempts on a moving tip it fails with `QiError::StaleSnapshot`. This is still a trusted latest-state observation,
 /// not an atomic RPC snapshot, historical recovery, or spendability proof.
 /// Node-side validation remains authoritative if an output is spent or trimmed later.
 pub async fn refresh_qi<T: Transport>(

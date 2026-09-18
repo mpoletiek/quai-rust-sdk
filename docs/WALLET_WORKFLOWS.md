@@ -612,8 +612,10 @@ at least two workers, on a dedicated thread, or in a Web Worker.
    any reorg in one transaction: inclusions revert to Submitted and the coin
    snapshot is invalidated.
 2. `qi_discovery::refresh_qi` rebuilds the coin snapshot when step 1 reports
-   `refresh_required`, or on a timer. It is labelled with the block observed
-   before its reads, which must still be canonical after them.
+   `refresh_required`, or on a timer. It is labelled with the tip observed
+   before its reads and written only if the tip has not moved by the end of
+   them; after three attempts on a moving tip it fails with `StaleSnapshot`
+   (class `Stale`).
 3. Observe pending operations: `observe_nonce` and `observe_candidates` for
    accounts, `observe_candidates` for Qi.
 4. Occasionally, `discover_mailbox_channels` page by page.

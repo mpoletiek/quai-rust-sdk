@@ -35,16 +35,25 @@ Security:
 - Zone headers with an all-zero hash are rejected.
 - `discover_qi` rejects outpoints whose hash is from another zone.
 - `refresh_qi` labels a snapshot only when the tip did not move across its
-  reads, retrying up to three times, so a coin orphaned mid-refresh is never
+  reads, making up to three attempts and then failing with
+  `QiError::StaleSnapshot`, so a coin orphaned mid-refresh is never
   offered for selection.
 - Secret-handling fixes in mnemonic, keystore and fetch credential paths.
+- With a gap limit set, mailbox probes read at most `2 * MAILBOX_PROBE_GAP`
+  addresses, so a sender funding every few addresses cannot keep a probe
+  running for a full page.
+- Known limitation: the mailbox returns every announcement in one call, so
+  enough announcements (about 5,400, or fewer long strings) push the response
+  past the 2 MiB limit and `discover_mailbox_channels` fails for that receiver
+  from then on. Funds are not at risk; register a known sender directly with
+  `SqliteStore::import_payment_channel`.
 
 Breaking:
 
 - Every public error enum is `#[non_exhaustive]`; match with a wildcard arm.
   So are `ReplacementReason` and `RpcSignerFailure`. Outcome enums that gate a commit or signing decision (`ScanStop`,
-  `WindowStop`, `CanonicalStatus`, `ActivityStatus`, `ErrorClass`, candidate
-  statuses) and
+  `WindowStop`, `CanonicalStatus`, `ActivityStatus`, `ChannelRegistration`,
+  `ErrorClass`, candidate statuses) and
   spend-limit policies (`FeePolicy`, `QiPolicy`, `ReplacementPolicy`,
   `SelectionRequest`) stay exhaustive; see `docs/architecture.md`.
 - The `*Config` structs (`HttpConfig`, `WsConfig`, `FetchConfig`,
@@ -81,7 +90,18 @@ Breaking:
   `quai-sdk` exactly did not pin its siblings. Users of 0.1.0-alpha.1 through
   alpha.3 should pin every `quai-*` crate they depend on.
 - `refresh_qi_address_book` reports a row missing from a batched read as
-  `QiDiscoveryError::IncompleteObservation`, not `ObservationChanged`.
+  `QiDiscoveryError::IncompleteObservation`, not `ObservationChanged`, and
+  `scan_qi` and payment-channel scans report one as the new
+  `QiError::IncompleteObservation` (class `Transient`).
+- Legacy keystore import enforces minimum KDF strength by default
+  (`KdfLimits`: scrypt N·r·p at least 2^20, PBKDF2 at least 100,000 rounds,
+  salt at least 16 bytes). A weaker document fails with the new
+  `KeystoreError::WeakParameters`; opt out with
+  `KdfLimits::without_strength_floors()`. `DeriveError::WeakParameters`
+  reports a `DeriveLimits` floor violation; those floors are off by default.
+- Genesis mismatches in the head tracker, deployment and code waits, and
+  conversion tracking are the new `ProviderError::GenesisMismatch` (class
+  `NetworkMismatch`), not `InvalidResult`.
 
 Added:
 

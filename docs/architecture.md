@@ -36,7 +36,8 @@ where that is safe, and cannot where it is not:
   as the chain does, and a new report field is harmless to a reader.
 - **Exhaustive, deliberately:** outcome enums that gate a decision to commit,
   release, sign or broadcast, such as `ScanStop`, `WindowStop`,
-  `CanonicalStatus`, `ActivityStatus`, `ErrorClass` and the candidate statuses. A new variant must fail to
+  `CanonicalStatus`, `ActivityStatus`, `ChannelRegistration`, `ErrorClass` and
+  the candidate statuses. A new variant must fail to
   compile rather than fall into a wildcard arm in a wallet.
 - **Exhaustive, deliberately:** caller-authorized spend limits, such as
   `FeePolicy`, `QiPolicy`, `ReplacementPolicy` and `SelectionRequest`. They have

@@ -19,8 +19,8 @@ mod json;
 
 /// Sanitized failures never include passwords, keys or mnemonic metadata.
 ///
-/// Non-exhaustive: `WeakParameters` was added after the first alpha and broke
-/// downstream exhaustive matches. Marking it makes later variants additive.
+/// Non-exhaustive: `WeakParameters` is new in 0.1.0-alpha.4, and marking the
+/// enum makes later variants additive.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
 #[non_exhaustive]
 pub enum KeystoreError {

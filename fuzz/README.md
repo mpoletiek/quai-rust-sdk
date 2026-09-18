@@ -52,7 +52,9 @@ checks for the AddressSanitizer runtime symbol, imposes a 1 GiB RSS ceiling,
 five-second per-input timeout and 64 KiB mutation limit (163,887 bytes for head
 state). The libFuzzer seed is fresh each run and recorded in the report; pass
 `--seed` to reproduce one. It then records binary/lock hashes and executions/coverage counters. It exits
-nonzero on any crash or timeout. Those bounds cover a useful parser slice, not
+nonzero if libFuzzer fails or if any crash, timeout, OOM, leak or slow-unit
+artifact is in `fuzz/artifacts/<target>`, including one left by an earlier run;
+triage and delete it to go green. Those bounds cover a useful parser slice, not
 all upper-bound payload sizes, all schemas, KDF memory behavior or persistence.
 Use sustained runs, larger transaction sizes and additional stateful targets for
 release qualification; retain and minimize every finding into a regression test.

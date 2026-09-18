@@ -121,6 +121,13 @@ pub trait Transport {
     ) -> Result<Value, RpcError>;
 }
 
+/// Maximum calls accepted in one batch, for every transport that supports one.
+///
+/// Lives here rather than beside a transport so it is available without any
+/// feature, and so a caller sizing its own pages can assert against it instead
+/// of duplicating the number. `quai-provider` does exactly that.
+pub const MAX_BATCH_CALLS: usize = 128;
+
 /// Entire batch transport/envelope result, containing ordered per-request results.
 pub type BatchResult = Result<Vec<Result<Value, RpcError>>, RpcError>;
 

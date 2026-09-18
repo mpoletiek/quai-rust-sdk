@@ -613,3 +613,99 @@ async fn a_notification_for_a_never_known_subscription_still_fails_the_session()
     );
     task.abort();
 }
+
+#[tokio::test]
+async fn a_batch_multiplexes_over_one_session_and_keeps_request_order() {
+    // WS batching is not JSON-RPC array framing: the session is already
+    // pipelined, so issuing a group concurrently collapses the same round trips
+    // without teaching the dispatch path to correlate many IDs from one frame.
+    // The properties that matter are that results keep their request positions
+    // even when the server replies out of order, and that a per-call remote
+    // error stays attached to its own position.
+    let (endpoint, task) = server(|mut socket| async move {
+        // Collect the whole group before replying, which is only possible if
+        // the calls were genuinely in flight together rather than sequential.
+        let mut seen = Vec::new();
+        for _ in 0..4 {
+            seen.push(recv(&mut socket).await);
+        }
+        assert_eq!(seen.len(), 4);
+        // Reply in reverse, and fail exactly one call.
+        for request in seen.iter().rev() {
+            let index = request["params"][0].as_u64().unwrap();
+            if index == 2 {
+                let id = &request["id"];
+                socket
+                    .send(Message::Text(
+                        json!({"jsonrpc":"2.0","id":id,"error":{"code":-32000,"message":"public fixture"}})
+                            .to_string()
+                            .into(),
+                    ))
+                    .await
+                    .unwrap();
+            } else {
+                respond(&mut socket, &request["id"], json!(format!("0x{index}"))).await;
+            }
+        }
+        close_seen(&mut socket).await;
+    })
+    .await;
+
+    let client = WsTransport::connect(endpoint.clone(), WsConfig::default())
+        .await
+        .unwrap();
+    let requests: Vec<(&str, Value)> = (0..4).map(|i| ("quai_chainId", json!([i]))).collect();
+    let results = client
+        .request_batch(&endpoint, requests)
+        .await
+        .expect("the WebSocket transport supports batching")
+        .expect("the group itself succeeded");
+
+    assert_eq!(results.len(), 4);
+    // Order follows the request positions, not the reply order.
+    assert_eq!(results[0].as_ref().unwrap(), &json!("0x0"));
+    assert_eq!(results[1].as_ref().unwrap(), &json!("0x1"));
+    assert_eq!(results[3].as_ref().unwrap(), &json!("0x3"));
+    // The failing call keeps its own position and does not poison the rest.
+    assert!(
+        matches!(results[2], Err(RpcError::Remote(_))),
+        "expected a per-call remote error, got {:?}",
+        results[2]
+    );
+
+    client.shutdown().await.unwrap();
+    task.await.unwrap();
+}
+
+#[tokio::test]
+async fn a_batch_refuses_subscription_methods_and_an_oversize_group_without_sending() {
+    let (endpoint, task) = server(|mut socket| async move {
+        // Nothing must be sent for either rejection.
+        let _ = socket.next().await;
+    })
+    .await;
+    let client = WsTransport::connect(endpoint.clone(), WsConfig::default())
+        .await
+        .unwrap();
+
+    // Subscriptions carry registration state and cannot ride in a plain group.
+    assert!(matches!(
+        client
+            .request_batch(&endpoint, vec![("quai_subscribe", json!(["newHeads"]))])
+            .await,
+        Some(Err(RpcError::InvalidConfig))
+    ));
+    // Empty and oversize groups are refused rather than partially issued.
+    assert!(matches!(
+        client.request_batch(&endpoint, vec![]).await,
+        Some(Err(RpcError::InvalidConfig))
+    ));
+    let oversize: Vec<(&str, Value)> = (0..129).map(|_| ("quai_chainId", json!([]))).collect();
+    assert!(matches!(
+        client.request_batch(&endpoint, oversize).await,
+        Some(Err(RpcError::InvalidConfig))
+    ));
+
+    client.shutdown().await.unwrap();
+    task.abort();
+}

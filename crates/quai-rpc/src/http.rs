@@ -165,12 +165,6 @@ impl Transport for HttpTransport {
     }
 }
 
-/// Maximum calls accepted in one JSON-RPC batch.
-///
-/// Exported so a caller sizing its own pages can assert against it rather than
-/// duplicating the number. `quai-provider` does exactly that.
-pub const MAX_BATCH_CALLS: usize = 128;
-
 impl HttpTransport {
     /// Submit one explicit JSON-RPC batch of 1..=128 calls, without retries.
     /// Results retain request order even when the server reorders responses.
@@ -185,7 +179,7 @@ impl HttpTransport {
     ) -> crate::BatchResult {
         if !matches!(endpoint.scheme(), "http" | "https")
             || requests.is_empty()
-            || requests.len() > MAX_BATCH_CALLS
+            || requests.len() > crate::MAX_BATCH_CALLS
             || requests.iter().any(|(method, params)| {
                 method.is_empty() || !(params.is_array() || params.is_object())
             })

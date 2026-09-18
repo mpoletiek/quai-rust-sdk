@@ -1,4 +1,4 @@
-use crate::{Endpoint, RpcError, Transport, transport::decode_response};
+use crate::{Endpoint, MAX_BATCH_CALLS, RpcError, Transport, transport::decode_response};
 use futures_util::{SinkExt, StreamExt};
 use quai_primitives::{Address, Hash32};
 use serde::Deserialize;
@@ -503,6 +503,45 @@ impl Transport for WsTransport {
             return Err(RpcError::InvalidConfig);
         }
         self.request_inner(method, params, None, None).await
+    }
+
+    /// Issue a group of calls concurrently over the multiplexed session.
+    ///
+    /// This is not JSON-RPC array framing. The session is already pipelined:
+    /// requests are correlated by ID and several may be in flight at once, so
+    /// issuing a group concurrently collapses the same round trips that array
+    /// framing would, without touching the dispatch path that performs the
+    /// correlation and the duplicate/foreign/unknown-ID rejection. Array framing
+    /// would require the actor to accept a response frame carrying many IDs,
+    /// which is the one place a correlation mistake becomes a response-confusion
+    /// bug, so it is deliberately not introduced for a latency win the existing
+    /// path already provides.
+    ///
+    /// Concurrency is bounded by the session's in-flight permit count, so a
+    /// group larger than that budget proceeds in waves rather than unbounded.
+    /// Results keep their request positions. One deadline covers the whole
+    /// group, matching the HTTP batch. A failure part-way through leaves
+    /// acceptance of the already-sent calls unknown, exactly as the trait says.
+    async fn request_batch(
+        &self,
+        endpoint: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<crate::BatchResult> {
+        if endpoint != &self.inner.endpoint
+            || requests.is_empty()
+            || requests.len() > MAX_BATCH_CALLS
+            || requests.iter().any(|(method, params)| {
+                matches!(*method, "quai_subscribe" | "quai_unsubscribe")
+                    || !(params.is_array() || params.is_object())
+            })
+        {
+            return Some(Err(RpcError::InvalidConfig));
+        }
+        let deadline = Instant::now() + self.inner.config.request_timeout;
+        let pending = requests
+            .into_iter()
+            .map(|(method, params)| self.request_at(method, params, None, None, deadline));
+        Some(Ok(futures_util::future::join_all(pending).await))
     }
 }
 

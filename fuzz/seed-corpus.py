@@ -152,6 +152,12 @@ envelope(0, 0, 3, batch([2,0,1]))
 envelope(0, 0, 3, batch([0,1,1]))
 envelope(0, 0, 3, batch([0,1,9]))
 envelope(0, 0, 3, batch([0,1]))
+# Regressions found by fuzz-smoke: invalid UTF-8 inside an unknown field, which
+# serde skips without validating, so the body decoded although it is not JSON.
+import base64
+for crash in ['AQABeyJqc29ucnBjIjoiMi4wIiwiaWQiOjEsInJlc3VsdCI6IjV4OSIsImVScm9yIjp7ImNvZGUiOi0xLCJtZSpzc56YZSI6IngifX0=',
+              'AQABeyJqc29ucnBjIjoiMi4wIiwiaWQiOjEsInJlc3VsdCI6IjB4KSIsImVScm9yIjp7ImNvZGUiOi0xLCJtZXNz2mdlIjoieCJ9fQ==']:
+ put('rpc_envelope', base64.b64decode(crash))
 # Real captured node results, wrapped as single responses.
 for name in ['orchard.json','lan-mainnet.json']:
  for row in load('crates/quai-provider/tests/fixtures/'+name)['records']:

@@ -152,8 +152,13 @@ pub(crate) fn decode_response(bytes: &[u8], expected_id: u64) -> Result<Value, R
         #[serde(default, deserialize_with = "slot")]
         error: ResultSlot,
     }
-    let envelope: Envelope = serde_json::from_slice(bytes)
-        .map_err(|_| RpcError::InvalidResponse("malformed envelope"))?;
+    // Validate UTF-8 up front: serde skips an ignored field's contents without
+    // checking them, so invalid bytes inside an unknown field would otherwise
+    // decode although the body is not JSON text.
+    let text =
+        std::str::from_utf8(bytes).map_err(|_| RpcError::InvalidResponse("malformed envelope"))?;
+    let envelope: Envelope =
+        serde_json::from_str(text).map_err(|_| RpcError::InvalidResponse("malformed envelope"))?;
     if envelope.jsonrpc != "2.0" {
         return Err(RpcError::InvalidResponse("wrong protocol version"));
     }

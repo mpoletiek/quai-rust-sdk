@@ -297,4 +297,18 @@ mod batch_tests {
             assert!(decode_batch(value.as_bytes(), 7, 2).is_err());
         }
     }
+    #[test]
+    fn a_single_response_with_invalid_utf8_in_an_unknown_field_is_rejected() {
+        // Found by fuzz-smoke: serde skips an ignored field without validating
+        // it, so this decoded although it is not JSON text.
+        let body = b"{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"5x9\",\"eRror\":{\"me*ss\x9e\x98e\":\"x\"}}";
+        assert!(matches!(
+            crate::transport::decode_response(body, 1),
+            Err(RpcError::InvalidResponse(_))
+        ));
+        assert!(
+            crate::transport::decode_response(br#"{"jsonrpc":"2.0","id":1,"result":"5x9"}"#, 1)
+                .is_ok()
+        );
+    }
 }

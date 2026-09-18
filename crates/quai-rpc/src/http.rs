@@ -218,7 +218,7 @@ impl HttpTransport {
     }
 }
 
-fn decode_batch(bytes: &[u8], first: u64, count: usize) -> crate::BatchResult {
+pub(crate) fn decode_batch(bytes: &[u8], first: u64, count: usize) -> crate::BatchResult {
     let rows: Vec<Box<serde_json::value::RawValue>> =
         serde_json::from_slice(bytes).map_err(|_| RpcError::InvalidResponse("batch array"))?;
     if rows.len() != count {

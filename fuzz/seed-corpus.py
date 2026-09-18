@@ -132,4 +132,31 @@ for row in load('compatibility/fixtures/fixed-completion.json')['vectors']:
  import re
  match=re.fullmatch(r'(u?)fixed(\d+)x(\d+)',row['format']);width=int(match[2]);decimals=int(match[3]);mask=(1<<width)-1
  put('fixed',bytes([((width//8-1)<<1)|int(not match[1]),decimals])+(int(row['sourceA'])&mask).to_bytes(width//8,'big')+(int(row['sourceB'])&mask).to_bytes(width//8,'big'))
+# JSON-RPC envelopes. The target reads three leading control bytes as the
+# expected id, the batch window start and the batch count, so every seed carries
+# that prefix ahead of the envelope body.
+def envelope(expected_id, first, count, body):
+ put('rpc_envelope', bytes([expected_id & 0xff, first & 0xff, count & 0xff]) + body.encode())
+for _id in [0, 1, 7, 255]:
+ envelope(_id, _id, 1, json.dumps({"jsonrpc":"2.0","id":_id,"result":"0x9"},separators=(',',':')))
+ envelope(_id, _id, 1, json.dumps({"jsonrpc":"2.0","id":_id,"error":{"code":-32000,"message":"public fixture"}},separators=(',',':')))
+# Correlation hazards the decoder must reject: wrong id, both slots, null error,
+# duplicate ids in a batch, a row outside the issued window, and a short array.
+envelope(1, 0, 1, json.dumps({"jsonrpc":"2.0","id":2,"result":"0x9"},separators=(',',':')))
+envelope(1, 0, 1, json.dumps({"jsonrpc":"2.0","id":1,"result":"0x9","error":{"code":-1,"message":"x"}},separators=(',',':')))
+envelope(1, 0, 1, json.dumps({"jsonrpc":"2.0","id":1,"result":"0x9","error":None},separators=(',',':')))
+envelope(1, 0, 1, json.dumps({"jsonrpc":"1.0","id":1,"result":"0x9"},separators=(',',':')))
+batch = lambda ids: json.dumps([{"jsonrpc":"2.0","id":i,"result":"0x9"} for i in ids],separators=(',',':'))
+envelope(0, 0, 3, batch([0,1,2]))
+envelope(0, 0, 3, batch([2,0,1]))
+envelope(0, 0, 3, batch([0,1,1]))
+envelope(0, 0, 3, batch([0,1,9]))
+envelope(0, 0, 3, batch([0,1]))
+# Real captured node results, wrapped as single responses.
+for name in ['orchard.json','lan-mainnet.json']:
+ for row in load('crates/quai-provider/tests/fixtures/'+name)['records']:
+  for field in ['transaction','receipt']:
+   if row.get(field) is not None:
+    envelope(1, 0, 1, json.dumps({"jsonrpc":"2.0","id":1,"result":row[field]},separators=(',',':')))
+
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

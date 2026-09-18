@@ -23,3 +23,28 @@ pub use http::{HttpConfig, HttpTransport};
 mod websocket;
 #[cfg(all(feature = "ws", not(target_arch = "wasm32")))]
 pub use websocket::{WsConfig, WsSubscription, WsSubscriptionKind, WsTransport};
+
+/// Internal decoders exposed for fuzzing only.
+///
+/// Not public API: the `fuzzing` feature is off by default, these items are
+/// hidden from documentation, and their signatures may change without notice.
+/// They exist so the fuzz harness can reach the JSON-RPC envelope decoders,
+/// which every byte a remote node sends passes through, without widening the
+/// supported surface for ordinary consumers.
+#[cfg(feature = "fuzzing")]
+#[doc(hidden)]
+pub mod fuzz_internals {
+    use crate::{BatchResult, RpcError};
+    use serde_json::Value;
+
+    /// Decode one JSON-RPC response envelope against its expected request ID.
+    pub fn decode_response(bytes: &[u8], expected_id: u64) -> Result<Value, RpcError> {
+        crate::transport::decode_response(bytes, expected_id)
+    }
+
+    /// Decode a JSON-RPC batch response against its issued ID window.
+    #[cfg(feature = "http")]
+    pub fn decode_batch(bytes: &[u8], first: u64, count: usize) -> BatchResult {
+        crate::http::decode_batch(bytes, first, count)
+    }
+}

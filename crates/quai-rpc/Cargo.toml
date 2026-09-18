@@ -17,6 +17,10 @@ categories = ["cryptography"]
 default = ["http"]
 http = ["dep:reqwest", "dep:tokio", "dep:flate2"]
 ws = ["dep:tokio-tungstenite", "dep:futures-util", "dep:tokio", "tokio/rt", "tokio/macros"]
+# Exposes the JSON-RPC envelope decoders to the fuzz harness. Off by default and
+# hidden from documentation: it is a test seam, not public API, and enabling it
+# does not change any behavior that a normal build performs.
+fuzzing = []
 
 [dependencies]
 quai-primitives.workspace = true

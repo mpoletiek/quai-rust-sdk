@@ -1,7 +1,7 @@
 # Quai Rust SDK documentation
 
 This is the integration guide for the SDK in this repository, version
-`0.1.0-alpha.3`. It covers the public crate layers, native and browser workflows,
+`0.1.0-alpha.4`. It covers the public crate layers, native and browser workflows,
 recovery formats, limits, examples and verification. Exact Rust signatures and
 field documentation are hosted on [docs.rs](https://docs.rs/quai-sdk) or can be
 generated from the same checkout with `cargo doc`.
@@ -49,7 +49,7 @@ For another Rust project, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.3", features = ["sqlite", "abi", "payments", "backup"] }
+quai-sdk = { version = "=0.1.0-alpha.4", features = ["sqlite", "abi", "payments", "backup"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 

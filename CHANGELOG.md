@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0-alpha.4
 
 Hardening and speed from a full-workspace review, and the SDK pieces a desktop
 wallet needs first.

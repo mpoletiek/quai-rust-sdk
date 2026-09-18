@@ -92,10 +92,13 @@ async fn paginates_missed_heads_and_replays_reorganization_in_application_order(
 #[tokio::test]
 async fn pruned_history_deep_reorg_and_foreign_genesis_leave_cursor_unchanged() {
     let (mock, provider, mut tracker) = setup(2);
+    // A page block missing above a verified anchor means the chain changed
+    // since the tip was read (a shorter branch, or a lagging backend), so the
+    // poll is retryable rather than a lost-history re-anchor.
     *mock.missing.lock().unwrap() = Some(2);
     assert!(matches!(
         tracker.poll(&provider).await,
-        Err(ProviderError::ReplayHistoryUnavailable)
+        Err(ProviderError::ObservationChanged)
     ));
     assert_eq!(tracker.checkpoint().number, 0);
     *mock.missing.lock().unwrap() = None;
@@ -103,6 +106,19 @@ async fn pruned_history_deep_reorg_and_foreign_genesis_leave_cursor_unchanged() 
         tracker.poll(&provider).await.unwrap();
     }
     let before = tracker.checkpoint();
+    // An older anchor the node no longer serves, once the newest one is
+    // replaced, is lost history: re-anchor explicitly.
+    let newest = before.number as usize;
+    let saved = mock.chain.lock().unwrap()[newest];
+    mock.chain.lock().unwrap()[newest] = hash(newest as u64 + 500);
+    *mock.missing.lock().unwrap() = Some(newest - 1);
+    assert!(matches!(
+        tracker.poll(&provider).await,
+        Err(ProviderError::ReplayHistoryUnavailable)
+    ));
+    assert_eq!(tracker.checkpoint(), before);
+    mock.chain.lock().unwrap()[newest] = saved;
+    *mock.missing.lock().unwrap() = None;
     for n in 1..=6 {
         mock.chain.lock().unwrap()[n] = hash(n as u64 + 100);
     }

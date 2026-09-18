@@ -163,9 +163,13 @@ impl HeadTracker {
             return Err(ProviderError::InvalidResult("header batch count"));
         }
         // Validate in order, so the first broken link is the error reported.
+        // Every page block is above a verified anchor and at most the tip read
+        // earlier, so a missing one is not lost history: the chain reorganized
+        // to a shorter branch, or a load-balanced read hit a lagging node, since
+        // the tip was read. Both are transient; retry rather than re-anchor.
         for (value, block) in values.into_iter().zip(numbers) {
             let header = Provider::<T>::parse_zone_header(value, self.zone, block)?
-                .ok_or(ProviderError::ReplayHistoryUnavailable)?;
+                .ok_or(ProviderError::ObservationChanged)?;
             if header.parent_hash != previous.hash
                 || header.hash == Hash32::ZERO
                 || !seen.insert(header.hash)

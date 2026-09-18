@@ -97,6 +97,12 @@ pub enum QiError {
     /// An optional caller-owned address-use query failed; no remote text is kept.
     #[error("Qi address-use check failed")]
     UseCheckFailed,
+    /// A grouped read omitted an address that was requested.
+    ///
+    /// Never treated as an empty result: an unread address counted toward the
+    /// gap rule could stop a scan early and lose funds on a restore.
+    #[error("grouped Qi observation omitted a requested address")]
+    IncompleteObservation,
     /// A checked provider observation failed.
     #[error(transparent)]
     Provider(#[from] ProviderError),

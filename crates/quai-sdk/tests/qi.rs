@@ -2359,3 +2359,168 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     assert!(next.deferred.is_empty());
     assert_eq!(next.next_start, None);
 }
+
+#[tokio::test]
+async fn a_windowed_scan_queries_exactly_the_addresses_it_reports() {
+    // The property that separates a gap-bounded safe window from a speculative
+    // one. The window is bounded by the gap counter's guarantee, so every
+    // address it reads is one the sequential scan would also have read, and
+    // therefore every queried address must appear in the report.
+    //
+    // A speculative window fails this: it queries past the point the gap rule
+    // stopped, disclosing unissued addresses to the node and reading
+    // observations the sequential scan never made. Asserting set equality
+    // rather than a subset makes this a privacy regression test as well as a
+    // correctness one.
+    use quai_sdk::qi_discovery::{QiScanOptions, scan_qi};
+    use quai_sdk::wallet::discovery::{IndexRange, ScanStop};
+
+    for gap_limit in [1u32, 2, 3, 7, 50] {
+        let env = setup();
+        let account = env.wallet.account_public(0).unwrap();
+        let options = QiScanOptions {
+            receive: IndexRange {
+                start: 0,
+                end: 100_000,
+            },
+            change: IndexRange {
+                start: 0,
+                end: 100_000,
+            },
+            gap_limit: Some(gap_limit),
+            max_addresses: 10_000,
+        };
+        env.mock.calls.lock().unwrap().clear();
+        let report = scan_qi(&env.provider, env.store.scope(), &account, &options, || {
+            false
+        })
+        .await
+        .unwrap();
+        assert_eq!(report.stopped, [ScanStop::GapLimit; 2]);
+
+        // Every address the node was asked about.
+        let queried: std::collections::BTreeSet<String> = env
+            .mock
+            .calls
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|(method, _)| method == "quai_getOutpointsByAddress")
+            .map(|(_, params)| params[0].as_str().unwrap().to_ascii_lowercase())
+            .collect();
+        // Every address the scan reported.
+        let reported: std::collections::BTreeSet<String> = report
+            .addresses
+            .iter()
+            .map(|a| a.address().to_string().to_ascii_lowercase())
+            .collect();
+
+        assert_eq!(
+            queried, reported,
+            "gap {gap_limit}: the window read addresses it did not report"
+        );
+        // An empty wallet stops after exactly gap_limit consecutive unused
+        // addresses on each branch, windowing or not.
+        assert_eq!(
+            reported.len(),
+            (gap_limit as usize) * 2,
+            "gap {gap_limit}: wrong number of addresses examined"
+        );
+    }
+}
+
+#[tokio::test]
+async fn a_funded_address_resets_the_gap_across_a_window_boundary() {
+    // The gap counter must reset mid-window exactly as it does mid-loop, and
+    // the scan must continue past the funded address rather than stopping at
+    // the window edge.
+    use quai_sdk::qi_discovery::{QiScanOptions, scan_qi};
+    use quai_sdk::wallet::Search;
+    use quai_sdk::wallet::discovery::{IndexRange, ScanStop};
+    use quai_sdk::wallet::metadata::{KeyOrigin, PublicAddress};
+
+    let env = setup();
+    let account = env.wallet.account_public(0).unwrap();
+
+    // Fund the third usable receive address. With a gap limit of 3 the window is
+    // also 3 wide, so the reset lands on the last address of the first window --
+    // the boundary case. Funding any position at or beyond the limit would be a
+    // test error rather than a window test: the sequential scan stops before
+    // reaching it too.
+    let mut index = 0u32;
+    let mut funded_position = 0usize;
+    let mut funded = String::new();
+    for position in 0..3 {
+        let found = account
+            .search(
+                false,
+                Search {
+                    zone: env.store.scope().zone,
+                    start_index: index,
+                    max_attempts: 100_000,
+                },
+                || false,
+            )
+            .unwrap();
+        index = found.next_index.unwrap();
+        if position == 2 {
+            let metadata = PublicAddress::derive(&account, false, found.address.index).unwrap();
+            funded = metadata.address().to_string();
+            funded_position = position;
+        }
+    }
+    assert_eq!(funded_position, 2);
+    env.mock.outpoints.lock().unwrap().insert(funded.clone(), json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x2","lock":"0x0"}]));
+
+    let options = QiScanOptions {
+        receive: IndexRange {
+            start: 0,
+            end: 100_000,
+        },
+        change: IndexRange {
+            start: 0,
+            end: 100_000,
+        },
+        gap_limit: Some(3),
+        max_addresses: 10_000,
+    };
+    env.mock.calls.lock().unwrap().clear();
+    let report = scan_qi(&env.provider, env.store.scope(), &account, &options, || {
+        false
+    })
+    .await
+    .unwrap();
+    assert_eq!(report.stopped, [ScanStop::GapLimit; 2]);
+
+    let receive: Vec<String> = report
+        .addresses
+        .iter()
+        .filter(|a| matches!(a.origin(), KeyOrigin::Bip44 { change: false, .. }))
+        .map(|a| a.address().to_string())
+        .collect();
+    // Two unused, the funded one at position 2 resetting the counter, then three
+    // more unused reaching the limit: six examined rather than stopping at three.
+    assert_eq!(
+        receive.len(),
+        6,
+        "the funded address must reset the gap across the window edge: {receive:?}"
+    );
+    assert_eq!(receive[2], funded);
+
+    // And still nothing speculative was read.
+    let queried: std::collections::BTreeSet<String> = env
+        .mock
+        .calls
+        .lock()
+        .unwrap()
+        .iter()
+        .filter(|(method, _)| method == "quai_getOutpointsByAddress")
+        .map(|(_, params)| params[0].as_str().unwrap().to_ascii_lowercase())
+        .collect();
+    let reported: std::collections::BTreeSet<String> = report
+        .addresses
+        .iter()
+        .map(|a| a.address().to_string().to_ascii_lowercase())
+        .collect();
+    assert_eq!(queried, reported);
+}

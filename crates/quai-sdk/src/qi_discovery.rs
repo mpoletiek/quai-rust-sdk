@@ -11,6 +11,16 @@ use quai_wallet::{AccountPublic, CandidateCoin, CoinType, Search, WalletError};
 use std::collections::BTreeSet;
 use std::future::Future;
 
+/// Maximum addresses derived ahead and read together in one scan window.
+///
+/// The window is already bounded by the gap counter's guarantee, so this is not
+/// a safety bound; it caps how much derivation is performed before the first
+/// read. Each usable address costs hundreds of candidate derivations, so a very
+/// wide window would front-load seconds of CPU before any network work starts,
+/// and would enlarge a single batch response beyond what the transport prefers
+/// to carry.
+const MAX_SCAN_WINDOW: u32 = 64;
+
 pub use crate::discovery::DEFAULT_QI_GAP;
 
 /// Mutually exclusive current-snapshot balance buckets in native Qits.
@@ -173,38 +183,106 @@ where
                 report.stopped[branch..].fill(ScanStop::AddressLimit);
                 return Ok(report);
             }
-            let start = report.next_index[branch];
-            let found = match account.search(
-                branch == 1,
-                Search {
-                    zone: scope.zone,
-                    start_index: start,
-                    max_attempts: range.end - start,
-                },
-                &mut cancelled,
-            ) {
-                Ok(found) => found,
-                Err(WalletError::SearchExhausted { .. }) => {
-                    report.next_index[branch] = range.end;
+            // Derive a window of addresses the branch is guaranteed to examine,
+            // then read them together. The bound is the gap counter's own rule
+            // read forwards: the branch cannot stop within `guaranteed_remaining`
+            // further addresses whatever the node answers, so none of these is
+            // speculative. The query set is exactly the sequential scan's, which
+            // is what makes this a batching change rather than a policy change:
+            // no address is disclosed that would not have been, and no
+            // observation enters the report that the sequential scan would not
+            // have made.
+            let window = gap
+                .guaranteed_remaining()
+                .unwrap_or(u32::MAX)
+                .min(
+                    u32::try_from(options.max_addresses - report.addresses.len())
+                        .unwrap_or(u32::MAX),
+                )
+                .clamp(1, MAX_SCAN_WINDOW);
+
+            let mut derived = Vec::new();
+            let mut exhausted = false;
+            let mut cursor = report.next_index[branch];
+            for _ in 0..window {
+                if cursor >= range.end {
                     break;
                 }
-                Err(WalletError::Cancelled { next_index, .. }) => {
-                    report.next_index[branch] = next_index;
-                    report.stopped[branch..].fill(ScanStop::Cancelled);
-                    return Ok(report);
+                match account.search(
+                    branch == 1,
+                    Search {
+                        zone: scope.zone,
+                        start_index: cursor,
+                        max_attempts: range.end - cursor,
+                    },
+                    &mut cancelled,
+                ) {
+                    Ok(found) => {
+                        cursor = found.next_index.unwrap_or(1 << 31);
+                        derived.push(found);
+                    }
+                    Err(WalletError::SearchExhausted { .. }) => {
+                        exhausted = true;
+                        break;
+                    }
+                    Err(WalletError::Cancelled { next_index, .. }) => {
+                        // Nothing in this window was observed, so the resume
+                        // point is where the uncancelled scan would continue.
+                        if derived.is_empty() {
+                            report.next_index[branch] = next_index;
+                        }
+                        report.stopped[branch..].fill(ScanStop::Cancelled);
+                        return Ok(report);
+                    }
+                    Err(error) => return Err(error.into()),
                 }
-                Err(error) => return Err(error.into()),
-            };
-            let metadata = PublicAddress::derive(account, branch == 1, found.address.index)?;
-            let address =
-                QiAddress::try_from(metadata.address()).map_err(|_| QiError::IdentityMismatch)?;
-            let outputs = provider.outpoints(address).await?;
-            let used = !outputs.is_empty() || check_use(scope, address).await?;
-            let reached_gap_limit = gap.observe(used);
-            report.next_index[branch] = found.next_index.unwrap_or(1 << 31);
-            report.addresses.push(metadata);
-            if reached_gap_limit {
-                report.stopped[branch] = ScanStop::GapLimit;
+            }
+            if derived.is_empty() {
+                report.next_index[branch] = range.end;
+                break;
+            }
+
+            let addresses = derived
+                .iter()
+                .map(|found| {
+                    QiAddress::try_from(found.address.address)
+                        .map_err(|_| QiError::IdentityMismatch)
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            let observed = provider.outpoints_many(&addresses).await?;
+
+            // Consume strictly in derivation-index order. The map is keyed by
+            // address, so iterating it would apply the gap rule in address-byte
+            // order and could stop the branch at the wrong point.
+            let mut stop = false;
+            for found in &derived {
+                let metadata = PublicAddress::derive(account, branch == 1, found.address.index)?;
+                let address = QiAddress::try_from(metadata.address())
+                    .map_err(|_| QiError::IdentityMismatch)?;
+                // A missing row is a failure, never an empty result: defaulting
+                // it would count an unread address toward the gap and could stop
+                // the scan early, which loses funds on a restore.
+                let outputs = observed
+                    .get(&address)
+                    .ok_or(QiError::IncompleteObservation)?;
+                let used = !outputs.is_empty() || check_use(scope, address).await?;
+                let reached_gap_limit = gap.observe(used);
+                // Advance only after the observation is recorded, so a failure
+                // or cancellation never leaves the cursor past an unread
+                // address. The stored cursor is monotonic and cannot be rewound.
+                report.next_index[branch] = found.next_index.unwrap_or(1 << 31);
+                report.addresses.push(metadata);
+                if reached_gap_limit {
+                    report.stopped[branch] = ScanStop::GapLimit;
+                    stop = true;
+                    break;
+                }
+            }
+            if stop {
+                break;
+            }
+            if exhausted {
+                report.next_index[branch] = range.end;
                 break;
             }
         }

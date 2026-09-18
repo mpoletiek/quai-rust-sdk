@@ -444,6 +444,75 @@ impl HdWallet {
     }
 }
 
+/// A branch node prepared for repeated nonhardened child derivation.
+///
+/// This exists because address grinding is the SDK's dominant CPU cost. Quai
+/// encodes the zone in address byte 0 and the ledger in bit 7 of byte 1, and
+/// both come from the Keccak hash of the derived point, so a usable address
+/// cannot be chosen -- it is ground for, at roughly one in 256 * 2 candidates.
+/// A scan therefore performs hundreds of times more derivation than a standard
+/// BIP44 gap scan, which is what makes per-candidate work worth removing.
+///
+/// Against `bip32::ExtendedPublicKey::derive_child` this drops three costs the
+/// grind does not need:
+///
+/// 1. `bip32` multiplies with k256's generic `Mul` (`public_key.rs`, unchanged
+///    on its current main branch), which never consults the precomputed
+///    generator table. `PublicKey::add_tweak` uses `mul_by_generator`, which
+///    does. That is the dominant term.
+/// 2. `derive_child` computes a RIPEMD160(SHA256(..)) parent fingerprint for the
+///    child's metadata. A scan reads the point and nothing else.
+/// 3. The caller then went through `to_bytes` and `from_sec1_bytes`, compressing
+///    a point only to decompress it again: a modular square root per candidate.
+///
+/// The output is bit-identical to `bip32`, including its zero/overflow
+/// rejection, which `tests/hd_ckdpub.rs` asserts differentially. `bip32` remains
+/// the only path for extended-key import, export and serialization; this is used
+/// solely where a scan needs a child point.
+struct ScanBranch {
+    public_key: PublicKey,
+    /// Parent chain code. Sensitive: it permits deriving every sibling.
+    chain_code: Zeroizing<[u8; 32]>,
+    /// Cached compressed parent, the constant 33-byte HMAC prefix.
+    compressed: [u8; 33],
+}
+
+impl ScanBranch {
+    fn new(node: &ExtendedPublicKey) -> Result<Self, WalletError> {
+        let public_key = node.public_key()?;
+        Ok(Self {
+            public_key,
+            chain_code: Zeroizing::new(node.0.attrs().chain_code),
+            compressed: public_key.to_compressed(),
+        })
+    }
+
+    /// One CKDpub step, returning only the child point.
+    ///
+    /// `I = HMAC-SHA512(c_par, ser_P(K_par) || ser32(i))`, child point
+    /// `K_i = point(I_L) + K_par`. `I_R` is the child chain code, which a leaf
+    /// never uses, so it is not returned; the hash still computes it and the
+    /// guard still erases it.
+    fn child_public_key(&self, index: u32) -> Result<PublicKey, WalletError> {
+        if index >= HARDENED {
+            return Err(WalletError::HardenedPublicChild);
+        }
+        let mut data = [0u8; 37];
+        data[..33].copy_from_slice(&self.compressed);
+        data[33..].copy_from_slice(&index.to_be_bytes());
+        let hash = Zeroizing::new(quai_crypto::hmac_sha512(&*self.chain_code, &data));
+        let mut tweak = Zeroizing::new([0u8; 32]);
+        tweak.copy_from_slice(&hash[..32]);
+        // BIP32 says to skip an index whose tweak is zero or >= n. `bip32`
+        // returns an error instead, noting the probability is below 1 in 2^127;
+        // match that exactly rather than diverging on a case neither will meet.
+        let scalar = SecretKey::from_bytes(&tweak).map_err(|_| WalletError::Derivation)?;
+        self.public_key
+            .add_tweak(&scalar)
+            .map_err(|_| WalletError::Derivation)
+    }
+}
+
 /// An account xpub and explicit origin metadata, suitable for watch-only use.
 #[derive(Clone, Debug)]
 pub struct AccountPublic {
@@ -476,19 +545,20 @@ impl AccountPublic {
     }
     /// Derive and validate one exact index's zone and ledger.
     pub fn derive_address(&self, change: bool, index: u32) -> Result<DerivedAddress, WalletError> {
-        let node = self
-            .key
-            .derive_child(u32::from(change), false)?
-            .derive_child(index, false)?;
-        self.address_info(node, change, index)
+        let branch = ScanBranch::new(&self.key.derive_child(u32::from(change), false)?)?;
+        self.address_from_key(branch.child_public_key(index)?, change, index)
     }
-    fn address_info(
+    /// Validate one derived point's zone and ledger.
+    ///
+    /// Takes a point already in hand, so the grind path never compresses a point
+    /// only to decompress it again, which costs a modular square root per
+    /// candidate.
+    fn address_from_key(
         &self,
-        node: ExtendedPublicKey,
+        public: PublicKey,
         change: bool,
         index: u32,
     ) -> Result<DerivedAddress, WalletError> {
-        let public = node.public_key()?;
         let address = public.address();
         let zone = address
             .zone()
@@ -518,7 +588,10 @@ impl AccountPublic {
         if search.max_attempts == 0 || search.max_attempts > 10_000_000 {
             return Err(WalletError::InvalidSearchLimit);
         }
-        let node = self.key.derive_child(u32::from(change), false)?;
+        // Hoisted once, as before; the per-candidate step now avoids the generic
+        // scalar multiply, the unused parent fingerprint and the compress
+        // round trip that `ExtendedPublicKey::derive_child` performs.
+        let branch = ScanBranch::new(&self.key.derive_child(u32::from(change), false)?)?;
         let mut index = search.start_index;
         for attempt in 0..search.max_attempts {
             if cancelled() {
@@ -527,9 +600,9 @@ impl AccountPublic {
                     next_index: index,
                 });
             }
-            let candidate = node.derive_child(index, false)?;
+            let candidate = branch.child_public_key(index)?;
             let next_index = index.checked_add(1).filter(|next| *next < HARDENED);
-            match self.address_info(candidate, change, index) {
+            match self.address_from_key(candidate, change, index) {
                 Ok(address) if address.zone == search.zone => {
                     return Ok(SearchResult {
                         address,

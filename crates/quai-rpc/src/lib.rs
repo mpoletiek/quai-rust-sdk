@@ -39,17 +39,18 @@ pub use websocket::{WsConfig, WsSubscription, WsSubscriptionKind, WsTransport};
 #[cfg(feature = "fuzzing")]
 #[doc(hidden)]
 pub mod fuzz_internals {
-    use crate::{BatchResult, RpcError};
-    use serde_json::Value;
-
     /// Decode one JSON-RPC response envelope against its expected request ID.
-    pub fn decode_response(bytes: &[u8], expected_id: u64) -> Result<Value, RpcError> {
+    #[cfg(all(any(feature = "http", feature = "ws"), not(target_arch = "wasm32")))]
+    pub fn decode_response(
+        bytes: &[u8],
+        expected_id: u64,
+    ) -> Result<serde_json::Value, crate::RpcError> {
         crate::transport::decode_response(bytes, expected_id)
     }
 
     /// Decode a JSON-RPC batch response against its issued ID window.
-    #[cfg(feature = "http")]
-    pub fn decode_batch(bytes: &[u8], first: u64, count: usize) -> BatchResult {
+    #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
+    pub fn decode_batch(bytes: &[u8], first: u64, count: usize) -> crate::BatchResult {
         crate::http::decode_batch(bytes, first, count)
     }
 

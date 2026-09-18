@@ -717,6 +717,12 @@ fn dispatch(
     next_id: u64,
     notification_bytes: &Arc<Semaphore>,
 ) -> Result<(), RpcError> {
+    // Binary frames reach here as raw bytes. serde skips an ignored field's
+    // contents without validating UTF-8, so without this check a frame that is
+    // not JSON text was routed by its ID, then failed decoding as that
+    // request's reply. Found by the ws_dispatch fuzz target.
+    std::str::from_utf8(bytes)
+        .map_err(|_| RpcError::InvalidResponse("malformed WebSocket envelope"))?;
     let envelope: WireEnvelope = serde_json::from_slice(bytes)
         .map_err(|_| RpcError::InvalidResponse("malformed WebSocket envelope"))?;
     if envelope.jsonrpc != "2.0" {
@@ -970,6 +976,8 @@ mod fuzz_harness_tests {
             br#"{"jsonrpc":"2.0","id":1,"result":"0x1"}"#,
             b"not json",
         ];
+        // Invalid UTF-8 inside an unknown field: rejected before routing.
+        super::fuzz_dispatch(0x01, &[b"{\"jsonrpc\":\"2.0\",\"id\":1,\"x\":\"\xc5\"}"]);
         for layout in 0..=u8::MAX {
             for start in 0..frames.len() {
                 super::fuzz_dispatch(layout, &frames[start..]);

@@ -6,7 +6,7 @@ use quai_payments::{
 };
 use quai_provider::Provider;
 use quai_rpc::{Transport, U256};
-use quai_wallet::discovery::{IndexRange, ScanStop};
+use quai_wallet::discovery::{GapCounter, IndexRange, NetworkScope, ScanStop};
 use quai_wallet::storage::SqliteStore;
 
 /// Allocate a destination per possible denomination output before preparing a
@@ -111,12 +111,36 @@ pub async fn scan_payment_channel<T: Transport>(
     if !crate::network::on_network(provider, scope, scope.zone).await? {
         return Err(QiError::IdentityMismatch);
     }
+    let (report, _) = scan_channel(provider, scope, owner, peer, options, &mut cancelled).await?;
+    if cancelled() {
+        return Err(QiError::Cancelled);
+    }
+    store.import_payment_receive_indexes(owner, peer, &report.indexes)?;
+    refresh_qi(provider, store, 100_000, cancelled).await?;
+    Ok(report)
+}
+
+/// Derive and read one channel's receive addresses under the gap rule, without
+/// persisting anything. Also returns whether any address holds outputs.
+///
+/// Reads run in gap-bounded windows through `outpoints_many`, consumed in
+/// derivation order, exactly as the HD scanners do: a completed scan queries
+/// only what a one-at-a-time scan would, and a missing row is an error.
+async fn scan_channel<T: Transport>(
+    provider: &Provider<T>,
+    scope: NetworkScope,
+    owner: &PrivatePaymentCode,
+    peer: &PaymentCode,
+    options: &PaymentScanOptions,
+    cancelled: &mut impl FnMut() -> bool,
+) -> Result<(PaymentScanReport, bool), QiError> {
     let mut report = PaymentScanReport {
         indexes: Vec::new(),
         next_index: options.range.start,
         stopped: ScanStop::RangeEnd,
     };
-    let mut gap = 0;
+    let mut gap = GapCounter::new(options.gap_limit);
+    let mut funded = false;
     while report.next_index < options.range.end {
         if cancelled() {
             return Err(QiError::Cancelled);
@@ -125,43 +149,53 @@ pub async fn scan_payment_channel<T: Transport>(
             report.stopped = ScanStop::AddressLimit;
             break;
         }
-        let found = match owner.search(
-            peer,
-            PaymentDirection::Receive,
-            PaymentSearch {
-                zone: scope.zone,
-                start_index: report.next_index,
-                max_attempts: (options.range.end - report.next_index)
-                    .min(quai_payments::MAX_SEARCH_ATTEMPTS),
-            },
-            &mut cancelled,
-        ) {
-            Ok(found) => found,
-            Err(PaymentError::SearchExhausted { next_index, .. }) => {
-                report.next_index = next_index.unwrap_or(1 << 31);
-                continue;
+        let window = gap.window(options.max_addresses - report.indexes.len());
+        let mut found = Vec::with_capacity(window);
+        let mut cursor = report.next_index;
+        while found.len() < window && cursor < options.range.end {
+            match owner.search(
+                peer,
+                PaymentDirection::Receive,
+                PaymentSearch {
+                    zone: scope.zone,
+                    start_index: cursor,
+                    max_attempts: (options.range.end - cursor)
+                        .min(quai_payments::MAX_SEARCH_ATTEMPTS),
+                },
+                &mut *cancelled,
+            ) {
+                Ok(result) => {
+                    cursor = result.next_index.unwrap_or(1 << 31);
+                    found.push(result);
+                }
+                Err(PaymentError::SearchExhausted { next_index, .. }) => {
+                    cursor = next_index.unwrap_or(1 << 31);
+                }
+                Err(PaymentError::SearchCancelled { .. }) => return Err(QiError::Cancelled),
+                Err(_) => return Err(QiError::IdentityMismatch),
             }
-            Err(PaymentError::SearchCancelled { .. }) => return Err(QiError::Cancelled),
-            Err(_) => return Err(QiError::IdentityMismatch),
-        };
-        gap = if provider.outpoints(found.address).await?.is_empty() {
-            gap + 1
-        } else {
-            0
-        };
-        report.indexes.push(found.index);
-        report.next_index = found.next_index.unwrap_or(1 << 31);
-        if options.gap_limit.is_some_and(|limit| gap >= limit) {
-            report.stopped = ScanStop::GapLimit;
-            break;
         }
+        if !found.is_empty() {
+            let addresses: Vec<_> = found.iter().map(|result| result.address).collect();
+            let mut observed = provider.outpoints_many(&addresses).await?;
+            for result in &found {
+                let used = !observed
+                    .remove(&result.address)
+                    .ok_or(QiError::IncompleteObservation)?
+                    .is_empty();
+                funded |= used;
+                let reached_gap_limit = gap.observe(used);
+                report.indexes.push(result.index);
+                report.next_index = result.next_index.unwrap_or(1 << 31);
+                if reached_gap_limit {
+                    report.stopped = ScanStop::GapLimit;
+                    return Ok((report, funded));
+                }
+            }
+        }
+        report.next_index = cursor;
     }
-    if cancelled() {
-        return Err(QiError::Cancelled);
-    }
-    store.import_payment_receive_indexes(owner, peer, &report.indexes)?;
-    refresh_qi(provider, store, 100_000, cancelled).await?;
-    Ok(report)
+    Ok((report, funded))
 }
 
 fn validate_scan_options(options: &PaymentScanOptions) -> Result<(), QiError> {
@@ -204,15 +238,29 @@ pub async fn continue_payment_channel<T: Transport>(
     scan_payment_channel(provider, store, owner, peer, &next, cancelled).await
 }
 
+/// Matching addresses a new announced sender's probe reads before registering.
+///
+/// A sender pays its first receive address first, so a real channel is funded
+/// within a few addresses unless its early payments were already spent, which
+/// needs the channel registered. A probe costs about 5 x 512 BIP47 candidates
+/// instead of the full gap's 25,600.
+#[cfg(feature = "abi")]
+pub const MAILBOX_PROBE_GAP: u32 = 5;
+
 /// One announced channel scanned during mailbox discovery.
 #[cfg(feature = "abi")]
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct MailboxChannelScan {
     /// Validated sender code taken from the mailbox.
     pub sender: PaymentCode,
     /// Whether this call registered the channel; existing channels are rescanned.
     pub newly_registered: bool,
-    /// Receive scan result for this channel.
+    /// Whether the channel is registered after this call. False for an
+    /// unregistered sender whose probe found nothing: it was not persisted.
+    pub registered: bool,
+    /// Receive scan result: the full scan for a registered channel, otherwise
+    /// the probe.
     pub report: PaymentScanReport,
 }
 
@@ -233,13 +281,20 @@ pub struct MailboxDiscoveryReport {
     pub duplicates: usize,
 }
 
-/// Read Pelagus-compatible mailbox announcements for `owner`, then register and
-/// scan one page of up to `max_channels` (1..=64) distinct valid senders beginning
-/// at index `start`. Continue with `next_start` until it is `None`; the mailbox
-/// only appends, so indexes are stable. Announcements are unauthenticated: anyone
-/// can add codes (including ahead of a real sender), so each page is bounded and
-/// registration persists metadata. Already-registered channels in the page are
-/// rescanned. Send cursors never change; nothing is notified or broadcast.
+/// Read Pelagus-compatible mailbox announcements for `owner`, then scan one page
+/// of up to `max_channels` (1..=64) distinct valid senders beginning at index
+/// `start`. Continue with `next_start` until it is `None`; the mailbox only
+/// appends, so indexes are stable.
+///
+/// Announcements are unauthenticated and cost the announcer one zero-value
+/// transaction, so an unregistered sender is only probed first, over
+/// [`MAILBOX_PROBE_GAP`] addresses. Only a funded probe registers the channel
+/// and runs the full scan with `options`; an empty one persists nothing, so
+/// spam cannot grow the wallet's stored addresses or every later refresh.
+/// Already-registered channels are rescanned in full. Stored addresses are
+/// refreshed once per page. Send cursors never change; nothing is notified or
+/// broadcast. To recover a sender whose early payments were spent before the
+/// channel was registered, register it and call `scan_payment_channel`.
 #[cfg(feature = "abi")]
 #[allow(clippy::too_many_arguments)]
 pub async fn discover_mailbox_channels<T: Transport>(
@@ -269,8 +324,21 @@ pub async fn discover_mailbox_channels<T: Transport>(
         duplicates: announced.duplicates,
         ..Default::default()
     };
+    let scope = store.scope();
+    if !crate::network::on_network(provider, scope, scope.zone).await? {
+        return Err(QiError::IdentityMismatch);
+    }
+    let probe = PaymentScanOptions {
+        gap_limit: Some(
+            options
+                .gap_limit
+                .map_or(MAILBOX_PROBE_GAP, |gap| gap.min(MAILBOX_PROBE_GAP)),
+        ),
+        ..options.clone()
+    };
     let end = start.saturating_add(max_channels);
     let mut senders = announced.senders.into_iter().skip(start);
+    let mut imported = false;
     for sender in senders.by_ref().take(max_channels) {
         if cancelled() {
             return Err(QiError::Cancelled);
@@ -281,19 +349,39 @@ pub async fn discover_mailbox_channels<T: Transport>(
         }
         let newly_registered = store.payment_channel(owner, &sender)?.is_none();
         if newly_registered {
+            let (probed, funded) =
+                scan_channel(provider, scope, owner, &sender, &probe, &mut cancelled).await?;
+            if !funded {
+                report.scanned.push(MailboxChannelScan {
+                    sender,
+                    newly_registered: false,
+                    registered: false,
+                    report: probed,
+                });
+                continue;
+            }
             store.import_payment_channel(
                 owner,
                 &quai_payments::PaymentChannel::new(owner, sender.clone()),
                 None,
             )?;
         }
-        let scan =
-            scan_payment_channel(provider, store, owner, &sender, options, &mut cancelled).await?;
+        let (scan, _) =
+            scan_channel(provider, scope, owner, &sender, options, &mut cancelled).await?;
+        if cancelled() {
+            return Err(QiError::Cancelled);
+        }
+        store.import_payment_receive_indexes(owner, &sender, &scan.indexes)?;
+        imported = true;
         report.scanned.push(MailboxChannelScan {
             sender,
             newly_registered,
+            registered: true,
             report: scan,
         });
+    }
+    if imported {
+        refresh_qi(provider, store, 100_000, &mut cancelled).await?;
     }
     report.deferred = senders.collect();
     report.next_start = (!report.deferred.is_empty()).then_some(end);

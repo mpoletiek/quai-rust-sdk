@@ -2303,7 +2303,7 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     .unwrap();
     assert_eq!(report.scanned.len(), 1);
     assert_eq!(report.scanned[0].sender, *sender.public_code());
-    assert!(report.scanned[0].newly_registered);
+    assert!(report.scanned[0].newly_registered && report.scanned[0].registered);
     assert_eq!(report.scanned[0].report.indexes[0], found.index);
     assert_eq!(report.deferred, vec![other.public_code().clone()]);
     assert_eq!(report.next_start, Some(2));
@@ -2337,7 +2337,10 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     .unwrap();
     assert!(!again.scanned[0].newly_registered);
     assert_eq!(again.next_start, Some(2));
-    // The next page reaches the deferred announcement instead of rescanning the first.
+    // The next page reaches the deferred announcement instead of rescanning the
+    // first. That sender has no funds, so its probe persists nothing: spam
+    // announcements cannot grow the stored addresses every refresh reads.
+    let stored = env.store.addresses().unwrap().len();
     let next = discover_mailbox_channels(
         &env.provider,
         &mut env.store,
@@ -2353,7 +2356,14 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     .unwrap();
     assert_eq!(next.scanned.len(), 1);
     assert_eq!(next.scanned[0].sender, *other.public_code());
-    assert!(next.scanned[0].newly_registered);
+    assert!(!next.scanned[0].newly_registered && !next.scanned[0].registered);
+    assert!(
+        env.store
+            .payment_channel(&receiver, other.public_code())
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(env.store.addresses().unwrap().len(), stored);
     assert!(next.deferred.is_empty());
     assert_eq!(next.next_start, None);
 }
@@ -2668,5 +2678,81 @@ async fn refresh_survives_a_new_block_but_not_a_replaced_start() {
             assert_eq!(checkpoint.height, U256::from(16), "labelled with the start");
             assert_eq!(env.store.snapshot().unwrap().checkpoint, Some(checkpoint));
         }
+    }
+}
+
+#[tokio::test]
+async fn payment_channel_windows_query_exactly_the_reported_addresses() {
+    // The payment scanner now reads gap-bounded windows like the HD scanners;
+    // set equality between queried and reported addresses is the privacy check.
+    use quai_sdk::payment_channels::{PaymentScanOptions, scan_payment_channel};
+    use quai_sdk::payments::{PaymentChannel, PaymentDirection, PaymentSearch, PrivatePaymentCode};
+    let owner = PrivatePaymentCode::from_seed(&[1; 32], 0).unwrap();
+    let peer = PrivatePaymentCode::from_seed(&[2; 32], 0)
+        .unwrap()
+        .public_code()
+        .clone();
+    for gap_limit in [1u32, 3] {
+        let mut env = setup();
+        env.store
+            .import_payment_channel(&owner, &PaymentChannel::new(&owner, peer.clone()), None)
+            .unwrap();
+        env.mock.calls.lock().unwrap().clear();
+        let report = scan_payment_channel(
+            &env.provider,
+            &mut env.store,
+            &owner,
+            &peer,
+            &PaymentScanOptions {
+                gap_limit: Some(gap_limit),
+                ..Default::default()
+            },
+            || false,
+        )
+        .await
+        .unwrap();
+        assert_eq!(report.indexes.len(), gap_limit as usize);
+        let reported: std::collections::BTreeSet<String> = report
+            .indexes
+            .iter()
+            .map(|&index| {
+                owner
+                    .search(
+                        &peer,
+                        PaymentDirection::Receive,
+                        PaymentSearch {
+                            zone: Zone::Cyprus1,
+                            start_index: index,
+                            max_attempts: 1,
+                        },
+                        || false,
+                    )
+                    .unwrap()
+                    .address
+                    .to_string()
+                    .to_ascii_lowercase()
+            })
+            .collect();
+        // The refresh after the scan re-reads every stored address, so the
+        // property is: all scanned addresses were read, and nothing outside
+        // the stored set (which now includes them) ever was.
+        let queried: std::collections::BTreeSet<String> = env
+            .mock
+            .calls
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|(method, _)| method == "quai_getOutpointsByAddress")
+            .map(|(_, params)| params[0].as_str().unwrap().to_ascii_lowercase())
+            .collect();
+        let stored: std::collections::BTreeSet<String> = env
+            .store
+            .addresses()
+            .unwrap()
+            .iter()
+            .map(|a| a.address().to_string().to_ascii_lowercase())
+            .collect();
+        assert!(reported.is_subset(&queried));
+        assert!(queried.is_subset(&stored), "read an address past the gap");
     }
 }

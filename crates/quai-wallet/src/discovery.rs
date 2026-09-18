@@ -103,6 +103,24 @@ pub enum DiscoveryError {
     /// Key derivation failed, rather than merely selecting another ledger/zone.
     #[error("wallet discovery key derivation failed")]
     Derivation,
+    /// The source is on a different chain or genesis than the requested scope.
+    #[error("wallet observation source is on another network")]
+    NetworkMismatch,
+}
+impl DiscoveryError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::SourceUnavailable => ErrorClass::Transient,
+            Self::NetworkMismatch => ErrorClass::NetworkMismatch,
+            Self::Cancelled => ErrorClass::Cancelled,
+            Self::InvalidRequest
+            | Self::HistoryUnavailable
+            | Self::InvalidObservation
+            | Self::Derivation => ErrorClass::Invalid,
+        }
+    }
 }
 /// Async transport-independent observation contract. Implementations must bound I/O,
 /// response sizes and timeouts. All response state must be read at the requested block;

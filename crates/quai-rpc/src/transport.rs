@@ -74,6 +74,29 @@ pub enum RpcError {
     InvalidConfig,
 }
 
+impl RpcError {
+    /// How to react to this failure on a read. A submission's outcome after
+    /// a transport failure is ambiguous instead; `BroadcastError` reports that.
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::AtCapacity | Self::Disconnected | Self::Timeout | Self::Transport => {
+                ErrorClass::Transient
+            }
+            Self::HttpStatus(429 | 500..=599) | Self::SubscriptionClosed => ErrorClass::Transient,
+            // Notifications were missed, so what was observed is incomplete.
+            Self::SubscriptionLagged => ErrorClass::Stale,
+            Self::HttpStatus(_)
+            | Self::RequestTooLarge
+            | Self::ResponseTooLarge
+            | Self::InvalidResponse(_)
+            | Self::Remote(_)
+            | Self::RequestIdExhausted
+            | Self::InvalidConfig => ErrorClass::Invalid,
+        }
+    }
+}
+
 /// A transport independent of routing and key material.
 ///
 /// Implementations must bound untrusted data and correlate response IDs.

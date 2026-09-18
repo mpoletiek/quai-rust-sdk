@@ -439,7 +439,7 @@ async fn wrong_genesis_wallet_and_noncanonical_checkpoint_are_rejected() {
             .unwrap()
             .prepare(id(6), intent(), policy(), change)
             .await,
-        Err(QiError::IdentityMismatch)
+        Err(QiError::NetworkMismatch)
     ));
     assert_eq!(count_calls(&env.mock, "quai_estimateFeeForQi"), 0);
     env.mock.mode.store(0, Ordering::SeqCst);
@@ -589,7 +589,7 @@ async fn cancellation_at_send_retains_claims_and_preflight_mismatch_never_submit
             .unwrap()
             .broadcast(id(14))
             .await,
-        Err(QiError::IdentityMismatch)
+        Err(QiError::NetworkMismatch)
     ));
     assert_eq!(count_calls(&env.mock, "quai_sendRawTransaction"), 0);
     assert_eq!(

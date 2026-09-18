@@ -50,6 +50,19 @@ pub enum BroadcastError {
         reported_hash: Option<Hash32>,
     },
 }
+
+impl BroadcastError {
+    /// How to react; any failure after a submit was attempted is ambiguous.
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        match self {
+            Self::Preflight(error) => error.class(),
+            Self::Encoding(_) => quai_primitives::ErrorClass::Invalid,
+            Self::Ambiguous { .. } | Self::InvalidAcknowledgement { .. } => {
+                quai_primitives::ErrorClass::Ambiguous
+            }
+        }
+    }
+}
 impl BroadcastError {
     /// True for errors after calling the submit transport. Conservative for remote errors too.
     pub fn acceptance_is_ambiguous(&self) -> bool {

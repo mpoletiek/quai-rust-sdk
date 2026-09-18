@@ -109,7 +109,7 @@ pub async fn scan_payment_channel<T: Transport>(
         return Err(QiError::Cancelled);
     }
     if !crate::network::on_network(provider, scope, scope.zone).await? {
-        return Err(QiError::IdentityMismatch);
+        return Err(QiError::NetworkMismatch);
     }
     let (report, _) = scan_channel(provider, scope, owner, peer, options, &mut cancelled).await?;
     if cancelled() {
@@ -326,7 +326,7 @@ pub async fn discover_mailbox_channels<T: Transport>(
     };
     let scope = store.scope();
     if !crate::network::on_network(provider, scope, scope.zone).await? {
-        return Err(QiError::IdentityMismatch);
+        return Err(QiError::NetworkMismatch);
     }
     let probe = PaymentScanOptions {
         gap_limit: Some(

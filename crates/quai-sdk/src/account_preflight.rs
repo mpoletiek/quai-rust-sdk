@@ -92,6 +92,9 @@ pub enum AccountNonce {
 #[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
 pub enum AccountPreflightError {
+    /// The endpoint is on a different chain or genesis than the scope.
+    #[error("endpoint is on another network")]
+    NetworkMismatch,
     /// Node read or simulation failed.
     #[error(transparent)]
     Provider(#[from] ProviderError),
@@ -107,6 +110,19 @@ pub enum AccountPreflightError {
     /// Network identity or sampled canonical head changed.
     #[error("account preflight network observation changed")]
     ObservationChanged,
+}
+
+impl AccountPreflightError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::NetworkMismatch => ErrorClass::NetworkMismatch,
+            Self::Provider(error) => error.class(),
+            Self::ObservationChanged => ErrorClass::Stale,
+            _ => ErrorClass::Invalid,
+        }
+    }
 }
 /// Immutable advisory result. A caller must durably reserve its nonce before
 /// presenting it as a wallet operation; a quote alone reserves no funds or nonce.
@@ -389,7 +405,7 @@ pub(crate) async fn check_network<T: Transport>(
     scope: NetworkScope,
 ) -> Result<(), AccountPreflightError> {
     if !crate::network::on_network(provider, scope, scope.zone).await? {
-        return Err(AccountPreflightError::ObservationChanged);
+        return Err(AccountPreflightError::NetworkMismatch);
     }
     Ok(())
 }

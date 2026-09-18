@@ -44,7 +44,7 @@ pub async fn reconcile_operation<T: Transport>(
     let generation = store.observation_generation()?;
     let scope = store.scope();
     if !crate::network::on_network(provider, scope, scope.zone).await? {
-        return Err(QiError::IdentityMismatch);
+        return Err(QiError::NetworkMismatch);
     }
     let record = store
         .reservation(id)?

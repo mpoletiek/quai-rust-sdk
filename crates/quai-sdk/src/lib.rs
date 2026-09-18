@@ -95,7 +95,9 @@ pub use quai_keystore as keystore;
 #[cfg(feature = "payments")]
 pub use quai_payments as payments;
 pub use quai_primitives as primitives;
-pub use quai_primitives::{Address, Ledger, QiAddress, QuaiAddress, Region, Shard, Zone};
+pub use quai_primitives::{
+    Address, ErrorClass, Ledger, QiAddress, QuaiAddress, Region, Shard, Zone,
+};
 pub use quai_provider as provider;
 pub use quai_provider::{BlockTag, Provider, ProviderError};
 pub use quai_rpc as rpc;

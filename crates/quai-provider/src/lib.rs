@@ -130,6 +130,25 @@ pub enum ProviderError {
     InvalidResult(&'static str),
 }
 
+impl ProviderError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::Rpc(error) => error.class(),
+            Self::ChainMismatch { .. } => ErrorClass::NetworkMismatch,
+            Self::ObservationChanged => ErrorClass::Stale,
+            Self::ReplayHistoryUnavailable
+            | Self::InvalidRequest(_)
+            | Self::ConversionFeeEstimationUnavailable
+            | Self::BlockNumberOutOfRange
+            | Self::Route(_)
+            | Self::Quantity(_)
+            | Self::InvalidResult(_) => ErrorClass::Invalid,
+        }
+    }
+}
+
 /// A provider with a fixed routing table and an explicitly expected chain ID.
 ///
 /// Every high-level read checks the target endpoint's chain ID first. This is a

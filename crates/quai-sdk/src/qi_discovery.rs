@@ -127,7 +127,7 @@ async fn identity<T: Transport>(
     scope: NetworkScope,
 ) -> Result<(), QiError> {
     if !crate::network::on_network(provider, scope, scope.zone).await? {
-        return Err(QiError::IdentityMismatch);
+        return Err(QiError::NetworkMismatch);
     }
     Ok(())
 }

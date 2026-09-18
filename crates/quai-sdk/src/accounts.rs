@@ -26,6 +26,9 @@ pub use crate::account_preflight::{AccountIntent, AccountObservationPolicy, FeeP
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum AccountError {
+    /// The endpoint is on a different chain or genesis than the store's scope.
+    #[error("endpoint is on another network")]
+    NetworkMismatch,
     /// A network observation or simulation failed.
     #[error(transparent)]
     Provider(#[from] ProviderError),
@@ -63,6 +66,23 @@ pub enum AccountError {
     #[cfg(feature = "abi")]
     #[error(transparent)]
     Contract(#[from] crate::contracts::ContractError),
+}
+
+impl AccountError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::NetworkMismatch => ErrorClass::NetworkMismatch,
+            Self::Provider(error) => error.class(),
+            Self::Storage(error) => error.class(),
+            Self::Broadcast(error) => error.class(),
+            Self::ObservationChanged => ErrorClass::Stale,
+            #[cfg(feature = "abi")]
+            Self::Contract(crate::contracts::ContractError::Provider(error)) => error.class(),
+            _ => ErrorClass::Invalid,
+        }
+    }
 }
 
 /// Exact frozen payload associated with a durable unsigned nonce reservation.
@@ -291,7 +311,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
     async fn verify_network(&mut self) -> Result<(), AccountError> {
         let scope = self.store.scope();
         if !crate::network::on_network(self.provider, scope, scope.zone).await? {
-            return Err(AccountError::IdentityMismatch);
+            return Err(AccountError::NetworkMismatch);
         }
         Ok(())
     }

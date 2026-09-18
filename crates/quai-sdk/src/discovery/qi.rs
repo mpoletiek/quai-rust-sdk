@@ -156,6 +156,20 @@ pub enum QiDiscoveryError {
     #[error(transparent)]
     Wallet(#[from] WalletError),
 }
+impl QiDiscoveryError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::IdentityMismatch => ErrorClass::NetworkMismatch,
+            Self::Provider(error) => error.class(),
+            Self::ObservationChanged => ErrorClass::Stale,
+            Self::Cancelled => ErrorClass::Cancelled,
+            Self::UseCheckFailed | Self::IncompleteObservation => ErrorClass::Transient,
+            _ => ErrorClass::Invalid,
+        }
+    }
+}
 impl CurrentQiDiscovery {
     /// Sum exact denominations only after the scan's final head check succeeded.
     /// This neither merges local reservations nor proves full wallet coverage.

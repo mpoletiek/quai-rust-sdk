@@ -40,9 +40,9 @@ impl<'a, T: Transport> AccountRpcSource<'a, T> {
     async fn identity(&self, scope: NetworkScope) -> Result<(), DiscoveryError> {
         if !crate::network::on_network(self.provider, scope, scope.zone)
             .await
-            .map_err(|_| DiscoveryError::SourceUnavailable)?
+            .map_err(source_error)?
         {
-            return Err(DiscoveryError::InvalidObservation);
+            return Err(DiscoveryError::NetworkMismatch);
         }
         Ok(())
     }
@@ -57,7 +57,7 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
             .provider
             .latest_header(scope.zone)
             .await
-            .map_err(|_| DiscoveryError::SourceUnavailable)?
+            .map_err(source_error)?
             .ok_or(DiscoveryError::SourceUnavailable)?;
         Ok(ScopedCheckpoint {
             scope,
@@ -110,7 +110,7 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
             .provider
             .account_states(&accounts, BlockTag::Number(checkpoint.height))
             .await
-            .map_err(|_| DiscoveryError::SourceUnavailable)?;
+            .map_err(source_error)?;
         // Closing half of the reorg bracket: the pinned height must still carry
         // the same hash after the reads, or they may describe a block that is
         // no longer canonical.
@@ -168,10 +168,19 @@ impl<T: Transport> AccountRpcSource<'_, T> {
             .provider
             .header_at(scope.zone, height)
             .await
-            .map_err(|_| DiscoveryError::SourceUnavailable)?;
+            .map_err(source_error)?;
         Ok(header.map(|header| ScopedCheckpoint {
             scope,
             checkpoint: crate::network::checkpoint(&header),
         }))
+    }
+}
+
+/// A provider failure as a discovery error. A chain mismatch is reported as
+/// such rather than as an outage, so a sync loop stops instead of retrying.
+fn source_error(error: quai_provider::ProviderError) -> DiscoveryError {
+    match error {
+        quai_provider::ProviderError::ChainMismatch { .. } => DiscoveryError::NetworkMismatch,
+        _ => DiscoveryError::SourceUnavailable,
     }
 }

@@ -196,7 +196,7 @@ pub async fn revalidate_settlement_cursor<T: Transport>(
         }
         for target in [scope.zone, zone] {
             if !crate::network::on_network(provider, scope, target).await? {
-                return Err(QiError::IdentityMismatch);
+                return Err(QiError::NetworkMismatch);
             }
         }
         for (target, block) in [

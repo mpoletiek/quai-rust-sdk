@@ -94,6 +94,9 @@ impl QiChangePool {
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum QiError {
+    /// The endpoint is on a different chain or genesis than the store's scope.
+    #[error("endpoint is on another network")]
+    NetworkMismatch,
     /// Qi message signature generation failed without exposing backend diagnostics.
     #[error("Qi message signing failed")]
     MessageSigning,
@@ -148,6 +151,24 @@ pub enum QiError {
     /// No valid signed Qi payload is stored for this reservation.
     #[error("no recoverable signed Qi transaction")]
     MissingSignedPayload,
+}
+
+impl QiError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::NetworkMismatch => ErrorClass::NetworkMismatch,
+            Self::Provider(error) => error.class(),
+            Self::Storage(error) => error.class(),
+            Self::Broadcast(error) => error.class(),
+            Self::MissingSnapshot | Self::StaleSnapshot => ErrorClass::Stale,
+            Self::Cancelled => ErrorClass::Cancelled,
+            // A caller's history service or the node failed to answer.
+            Self::UseCheckFailed | Self::IncompleteObservation => ErrorClass::Transient,
+            _ => ErrorClass::Invalid,
+        }
+    }
 }
 
 /// Immutable reviewed transaction associated with a durable unsigned input claim.
@@ -229,7 +250,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
     async fn verify_network(&mut self) -> Result<(), QiError> {
         let scope = self.store.scope();
         if !crate::network::on_network(self.provider, scope, scope.zone).await? {
-            return Err(QiError::IdentityMismatch);
+            return Err(QiError::NetworkMismatch);
         }
         Ok(())
     }

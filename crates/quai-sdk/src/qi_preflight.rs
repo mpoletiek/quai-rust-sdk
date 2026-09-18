@@ -201,9 +201,9 @@ pub struct QiQuote {
     digest: Hash32,
     recipient_outputs: usize,
     fee_quote: Option<QiFeeQuote>,
-    pub(crate) selected: Vec<CandidateCoin>,
-    pub(crate) owners: Vec<PublicAddress>,
-    pub(crate) candidate_height: U256,
+    selected: Vec<CandidateCoin>,
+    owners: Vec<PublicAddress>,
+    candidate_height: U256,
 }
 impl QiQuote {
     /// Exact ordered inputs, outputs and operation data for review.

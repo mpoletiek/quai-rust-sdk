@@ -1,5 +1,37 @@
 # Changelog
 
+## Unreleased
+
+Hardening and speed from a full-workspace review.
+
+- **Breaking:** every public error and classification enum is
+  `#[non_exhaustive]`; match them with a wildcard arm.
+- **Breaking:** the nine public `*Config` structs (`HttpConfig`, `WsConfig`,
+  `FetchConfig`, `EventHubConfig`, `WaitConfig`, `CodeWaitConfig`,
+  `BrowserConfig`, `BrowserSocketConfig`, `BrowserWaitConfig`), `KdfLimits`
+  and `DeriveLimits` are `#[non_exhaustive]`. Build them with `Default::default()` or `new` and
+  the `with_*` methods instead of struct literals. The three wait configs have
+  no default by design, so `new` takes every limit.
+- `ObservationSource` gains `observe_many` for batched sources. Its default
+  calls `observe` once per address, so existing sources compile unchanged.
+- Add `DynTransport`, so one `Provider<DynTransport>` type can hold any native
+  transport chosen at runtime.
+- Add `Provider::account_states`, reading the balance and nonce of up to 1,024
+  accounts in batched, chain-guarded pages.
+- Add `AccountPublic::search_window`, which finds several consecutive usable
+  addresses while deriving the branch once.
+- All three Qi scanners and the generic account scanner now read addresses in
+  gap-bounded windows. A window only includes addresses that the one-at-a-time
+  scan would also have read, so no unissued address is disclosed. `refresh_qi`
+  reads every stored address through one `outpoints_many` call per 1,024
+  addresses instead of pages of eight.
+- Reads carry their chain guard in the same batch as the call. Batching is
+  supported on HTTP and WebSocket.
+- Opt-in `rayon` feature on `quai-wallet` for parallel address grinding.
+- Faster address derivation and signing (k256 generator tables and a
+  scan-specific derivation path), plus secret-handling fixes in mnemonic,
+  keystore and fetch credential paths.
+
 ## 0.1.0-alpha.3
 
 Security, stability and wallet-usability fixes from a full project review.

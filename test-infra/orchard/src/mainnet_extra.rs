@@ -644,13 +644,13 @@ pub async fn run(op: &str) -> Result<(), Box<dyn Error>> {
             let observation = AccountSession::new(&ctx.provider, &signer, &mut store)?
                 .observe_nonce(
                     id,
-                    quai_sdk::provider::AccountReplacementScanRequest {
-                        from_block: from,
-                        to_block: head.min(from + 255),
-                        max_transactions_per_block: 4096,
-                        max_total_transactions: 65_536,
-                        preceding_block: None,
-                    },
+                    quai_sdk::provider::AccountReplacementScanRequest::new(
+                        from,
+                        head.min(from + 255),
+                        4096,
+                        65_536,
+                    )
+                    .with_preceding_block(None),
                 )
                 .await?;
             let summary = match &observation.outcome {

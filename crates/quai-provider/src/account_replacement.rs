@@ -21,6 +21,7 @@ pub enum ReplacementReason {
 }
 /// One explicit page of canonical-by-number account transaction discovery.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct AccountReplacementScanRequest {
     /// Positive inclusive start; never silently advances across missing history.
     pub from_block: u64,
@@ -32,6 +33,51 @@ pub struct AccountReplacementScanRequest {
     pub max_total_transactions: usize,
     /// Optional previously checked page end; must directly precede this page.
     pub preceding_block: Option<BlockReference>,
+}
+impl AccountReplacementScanRequest {
+    /// A page with no preceding anchor; set one with `with_preceding_block`.
+    pub const fn new(
+        from_block: u64,
+        to_block: u64,
+        max_transactions_per_block: usize,
+        max_total_transactions: usize,
+    ) -> Self {
+        Self {
+            from_block,
+            to_block,
+            max_transactions_per_block,
+            max_total_transactions,
+            preceding_block: None,
+        }
+    }
+    /// Replace `from_block`.
+    pub const fn with_from_block(mut self, from_block: u64) -> Self {
+        self.from_block = from_block;
+        self
+    }
+    /// Replace `to_block`.
+    pub const fn with_to_block(mut self, to_block: u64) -> Self {
+        self.to_block = to_block;
+        self
+    }
+    /// Replace `max_transactions_per_block`.
+    pub const fn with_max_transactions_per_block(
+        mut self,
+        max_transactions_per_block: usize,
+    ) -> Self {
+        self.max_transactions_per_block = max_transactions_per_block;
+        self
+    }
+    /// Replace `max_total_transactions`.
+    pub const fn with_max_total_transactions(mut self, max_total_transactions: usize) -> Self {
+        self.max_total_transactions = max_total_transactions;
+        self
+    }
+    /// Replace `preceding_block`.
+    pub const fn with_preceding_block(mut self, preceding_block: Option<BlockReference>) -> Self {
+        self.preceding_block = preceding_block;
+        self
+    }
 }
 /// A cryptographically verified transaction occupying the watched sender/nonce.
 #[derive(Clone, Debug)]

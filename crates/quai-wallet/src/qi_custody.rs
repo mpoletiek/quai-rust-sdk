@@ -25,6 +25,7 @@ pub struct QiInputClaim {
 }
 /// Immutable inspection of one operation. Metadata does not grant key ownership.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct QiOperation {
     /// Caller-generated unique operation ID; never reuse after release.
     pub id: ReservationId,

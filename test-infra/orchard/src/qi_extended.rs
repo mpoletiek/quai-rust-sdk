@@ -498,14 +498,14 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                 id,
                 hash,
                 quai_sdk::settlement::SettlementKind::Conversion,
-                quai_sdk::provider::EtxScanRequest {
-                    zone: scope.zone,
+                quai_sdk::provider::EtxScanRequest::new(
+                    scope.zone,
                     from,
-                    to: head.number.min(from + 31),
-                    max_transactions_per_block: 4096,
-                    max_total_transactions: 65536,
-                    preceding_block: None,
-                },
+                    head.number.min(from + 31),
+                    4096,
+                    65536,
+                )
+                .with_preceding_block(None),
                 100,
             )
             .await?;
@@ -531,14 +531,14 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                 id,
                 hash,
                 quai_sdk::settlement::SettlementKind::QiWrapping,
-                quai_sdk::provider::EtxScanRequest {
-                    zone: scope.zone,
+                quai_sdk::provider::EtxScanRequest::new(
+                    scope.zone,
                     from,
-                    to: head.number.min(from + 31),
-                    max_transactions_per_block: 4096,
-                    max_total_transactions: 65536,
-                    preceding_block: None,
-                },
+                    head.number.min(from + 31),
+                    4096,
+                    65536,
+                )
+                .with_preceding_block(None),
                 100,
             )
             .await?;

@@ -52,18 +52,18 @@ async fn worker_discovers_numbered_account_state_without_native_runtime_or_signe
         )
         .unwrap()
         .address;
-    let mut request = DiscoveryRequest {
-        scope: scope(),
-        receive: IndexRange {
+    let mut request = DiscoveryRequest::new(
+        scope(),
+        IndexRange {
             start: found.index,
             end: found.index + 1,
         },
-        change: IndexRange { start: 0, end: 0 },
-        gap_limit: Some(50),
-        require_history: false,
-        max_addresses: 1,
-        max_coins: 1,
-    };
+        IndexRange { start: 0, end: 0 },
+    )
+    .with_gap_limit(Some(50))
+    .with_require_history(false)
+    .with_max_addresses(1)
+    .with_max_coins(1);
     let report = discover(&source, &account, &request, || false)
         .await
         .unwrap();

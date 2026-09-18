@@ -5,6 +5,7 @@ use quai_wallet::storage::ReorgInvalidation;
 
 /// Head replay result after any required durable rollback has committed.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct WalletReplayUpdate {
     /// Bounded linked head page; removals precede additions.
     pub heads: HeadUpdate,
@@ -54,6 +55,7 @@ pub async fn reconcile_head_replay<T: Transport>(
 
 /// Canonical replay with its ancestry committed to the same wallet database.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct PersistedWalletReplayUpdate {
     /// Applied heads and any conservative source-state invalidation.
     pub update: WalletReplayUpdate,

@@ -838,14 +838,8 @@ async fn settlement_reconstructs_durable_candidate_and_invalidates_stale_cache_o
     let hash = signed.hash().unwrap();
     // A direct Cyprus-1 provider cannot attest Cyprus-2. Failed observation is
     // persisted as an invalidation, never as completed or dropped settlement.
-    let request = quai_sdk::provider::EtxScanRequest {
-        zone: Zone::Cyprus2,
-        from: 1,
-        to: 2,
-        max_transactions_per_block: 16,
-        max_total_transactions: 32,
-        preceding_block: None,
-    };
+    let request = quai_sdk::provider::EtxScanRequest::new(Zone::Cyprus2, 1, 2, 16, 32)
+        .with_preceding_block(None);
     assert!(
         track_settlement(
             &provider,

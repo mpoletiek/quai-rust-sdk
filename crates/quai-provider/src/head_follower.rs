@@ -7,6 +7,7 @@ use std::time::Duration;
 
 /// Bounded reconnection and missed-notification polling policy.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct HeadFollowPolicy {
     /// Maximum connection/subscription attempts within one `next` call, 1..=8.
     pub max_connect_attempts: u8,
@@ -14,6 +15,35 @@ pub struct HeadFollowPolicy {
     pub retry_delay: Duration,
     /// Poll canonical heads after this quiet interval; 1 millisecond through 60 seconds.
     pub idle_poll_interval: Duration,
+}
+impl HeadFollowPolicy {
+    /// Every limit is required: there is deliberately no default.
+    pub const fn new(
+        max_connect_attempts: u8,
+        retry_delay: Duration,
+        idle_poll_interval: Duration,
+    ) -> Self {
+        Self {
+            max_connect_attempts,
+            retry_delay,
+            idle_poll_interval,
+        }
+    }
+    /// Replace `max_connect_attempts`.
+    pub const fn with_max_connect_attempts(mut self, max_connect_attempts: u8) -> Self {
+        self.max_connect_attempts = max_connect_attempts;
+        self
+    }
+    /// Replace `retry_delay`.
+    pub const fn with_retry_delay(mut self, retry_delay: Duration) -> Self {
+        self.retry_delay = retry_delay;
+        self
+    }
+    /// Replace `idle_poll_interval`.
+    pub const fn with_idle_poll_interval(mut self, idle_poll_interval: Duration) -> Self {
+        self.idle_poll_interval = idle_poll_interval;
+        self
+    }
 }
 /// A new-head subscription paired with bounded canonical replay. Raw notifications
 /// are wake-up hints only. No transaction submission or pending-event replay occurs.

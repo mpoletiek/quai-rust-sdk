@@ -128,11 +128,7 @@ mod websocket {
     use std::time::Duration;
     use tokio_tungstenite::{accept_async, tungstenite::Message};
     fn policy() -> HeadFollowPolicy {
-        HeadFollowPolicy {
-            max_connect_attempts: 2,
-            retry_delay: Duration::from_millis(5),
-            idle_poll_interval: Duration::from_millis(10),
-        }
+        HeadFollowPolicy::new(2, Duration::from_millis(5), Duration::from_millis(10))
     }
     #[tokio::test]
     async fn reconnect_replays_missed_blocks_and_quiet_polling_catches_lost_notifications() {

@@ -230,6 +230,7 @@ pub struct IndexRange {
 }
 /// Receive and change are scanned independently, always with explicit raw bounds.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct DiscoveryRequest {
     /// Trusted network identity.
     pub scope: NetworkScope,
@@ -246,6 +247,55 @@ pub struct DiscoveryRequest {
     pub max_addresses: usize,
     /// Maximum total returned current UTXOs, 1 through 100,000.
     pub max_coins: usize,
+}
+impl DiscoveryRequest {
+    /// Scan both explicit ranges in full, with no gap stop, no history requirement, and the same address and coin limits as the Qi scan options. The ranges bound the cost; set a gap with `with_gap_limit`.
+    pub const fn new(scope: NetworkScope, receive: IndexRange, change: IndexRange) -> Self {
+        Self {
+            scope,
+            receive,
+            change,
+            gap_limit: None,
+            require_history: false,
+            max_addresses: 10_000,
+            max_coins: 100_000,
+        }
+    }
+    /// Replace `scope`.
+    pub const fn with_scope(mut self, scope: NetworkScope) -> Self {
+        self.scope = scope;
+        self
+    }
+    /// Replace `receive`.
+    pub const fn with_receive(mut self, receive: IndexRange) -> Self {
+        self.receive = receive;
+        self
+    }
+    /// Replace `change`.
+    pub const fn with_change(mut self, change: IndexRange) -> Self {
+        self.change = change;
+        self
+    }
+    /// Replace `gap_limit`.
+    pub const fn with_gap_limit(mut self, gap_limit: Option<u32>) -> Self {
+        self.gap_limit = gap_limit;
+        self
+    }
+    /// Replace `require_history`.
+    pub const fn with_require_history(mut self, require_history: bool) -> Self {
+        self.require_history = require_history;
+        self
+    }
+    /// Replace `max_addresses`.
+    pub const fn with_max_addresses(mut self, max_addresses: usize) -> Self {
+        self.max_addresses = max_addresses;
+        self
+    }
+    /// Replace `max_coins`.
+    pub const fn with_max_coins(mut self, max_coins: usize) -> Self {
+        self.max_coins = max_coins;
+        self
+    }
 }
 /// Why a branch stopped; all are bounded coverage, never a proof of complete recovery.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

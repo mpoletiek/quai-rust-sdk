@@ -21,6 +21,7 @@ const MAGIC: &[u8; 8] = b"QACCTBK1";
 
 /// Immutable inspection of an allocated nonce and its candidate family.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct AccountOperation {
     /// Caller-generated ID, never reused for a different operation.
     pub id: ReservationId,

@@ -8,6 +8,7 @@ pub use state::MAX_HEAD_STATE_BYTES;
 
 /// A bounded update in application order: undo removed blocks, then apply added blocks.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct HeadUpdate {
     /// Previously observed blocks removed, newest first.
     pub removed: Vec<BlockReference>,

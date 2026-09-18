@@ -31,13 +31,17 @@ requirements are listed in [status](../IMPLEMENTATION_STATUS.md) and
 Three categories, so the chain and the SDK can grow without a breaking release
 where that is safe, and cannot where it is not:
 
-- **Non-exhaustive:** error enums, resource `*Config` structs, scan options, and
-  reports. Errors and limits keep growing as the chain does, and a new report
-  field is harmless to a reader.
+- **Non-exhaustive:** error enums, resource `*Config` and follow policies, scan
+  options and requests, and reports and updates. Errors and limits keep growing
+  as the chain does, and a new report field is harmless to a reader.
 - **Exhaustive, deliberately:** outcome enums that gate a decision to commit,
   release, sign or broadcast, such as `ScanStop`, `WindowStop`,
   `CanonicalStatus` and the candidate statuses. A new variant must fail to
   compile rather than fall into a wildcard arm in a wallet.
+- **Exhaustive, deliberately:** caller-authorized spend limits, such as
+  `FeePolicy`, `QiPolicy`, `ReplacementPolicy` and `SelectionRequest`. They have
+  no safe default, so a new limit must fail to compile at every caller rather
+  than take one silently.
 - **Exhaustive:** protocol-fixed wire types, and structs a caller builds as input
   to a trait it implements, such as `AddressObservation`.
 

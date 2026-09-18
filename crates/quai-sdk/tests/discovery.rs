@@ -637,15 +637,11 @@ async fn account_discovery_checks_identity_and_brackets_once_per_window() {
         start: 0,
         end: 100_000,
     };
-    let request = DiscoveryRequest {
-        scope: scope(),
-        receive: range,
-        change: range,
-        gap_limit: None,
-        require_history: false,
-        max_addresses: 10,
-        max_coins: 1,
-    };
+    let request = DiscoveryRequest::new(scope(), range, range)
+        .with_gap_limit(None)
+        .with_require_history(false)
+        .with_max_addresses(10)
+        .with_max_coins(1);
     let report = discover(&source, &account, &request, || false)
         .await
         .unwrap();

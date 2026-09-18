@@ -1096,10 +1096,7 @@ async fn payment_scan_imports_matching_receive_children_and_is_idempotent() {
         found.public_key
     );
     env.mock.outpoints.lock().unwrap().insert(found.address.to_string(),json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x6","lock":"0x0"}]));
-    let options = PaymentScanOptions {
-        gap_limit: Some(2),
-        ..Default::default()
-    };
+    let options = PaymentScanOptions::default().with_gap_limit(Some(2));
     let first = scan_payment_channel(
         &env.provider,
         &mut env.store,
@@ -1477,14 +1474,8 @@ async fn wrapping_observation_is_saved_before_return_and_survives_reopen() {
         .unwrap();
     let signed = session.sign_special(&prepared).unwrap();
     let hash = signed.hash().unwrap();
-    let request = quai_sdk::provider::EtxScanRequest {
-        zone: Zone::Cyprus1,
-        from: 16,
-        to: 16,
-        max_transactions_per_block: 16,
-        max_total_transactions: 32,
-        preceding_block: None,
-    };
+    let request = quai_sdk::provider::EtxScanRequest::new(Zone::Cyprus1, 16, 16, 16, 32)
+        .with_preceding_block(None);
     let observed = track_settlement(
         &env.provider,
         &mut env.store,
@@ -2117,10 +2108,7 @@ async fn payment_discovery_continues_past_an_empty_gap_after_reopen() {
             None,
         )
         .unwrap();
-    let options = PaymentScanOptions {
-        gap_limit: Some(1),
-        ..Default::default()
-    };
+    let options = PaymentScanOptions::default().with_gap_limit(Some(1));
     let first = scan_payment_channel(
         &env.provider,
         &mut env.store,
@@ -2171,14 +2159,12 @@ async fn payment_discovery_continues_past_an_empty_gap_after_reopen() {
         Some(0)
     );
     // A full rescan remains possible, without replacing the explicit range by a cursor.
-    let deep = PaymentScanOptions {
-        range: quai_sdk::wallet::discovery::IndexRange {
+    let deep = PaymentScanOptions::default()
+        .with_range(quai_sdk::wallet::discovery::IndexRange {
             start: 0,
             end: next.next_index,
-        },
-        gap_limit: None,
-        ..Default::default()
-    };
+        })
+        .with_gap_limit(None);
     let all = scan_payment_channel(
         &env.provider,
         &mut env.store,
@@ -2268,10 +2254,7 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     let caller = "0x0006506bDE7140b85DED58a40D7444F84cde4821"
         .parse()
         .unwrap();
-    let options = PaymentScanOptions {
-        gap_limit: Some(2),
-        ..Default::default()
-    };
+    let options = PaymentScanOptions::default().with_gap_limit(Some(2));
     assert!(
         discover_mailbox_channels(
             &env.provider,
@@ -2703,10 +2686,7 @@ async fn payment_channel_windows_query_exactly_the_reported_addresses() {
             &mut env.store,
             &owner,
             &peer,
-            &PaymentScanOptions {
-                gap_limit: Some(gap_limit),
-                ..Default::default()
-            },
+            &PaymentScanOptions::default().with_gap_limit(Some(gap_limit)),
             || false,
         )
         .await

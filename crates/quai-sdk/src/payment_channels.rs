@@ -55,6 +55,7 @@ pub fn payment_intent(
 
 /// Receive scan bounds; raw child indexes include zone and ledger skips.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct PaymentScanOptions {
     /// Explicit interval; None gap scans the entire bounded interval.
     pub range: IndexRange,
@@ -62,6 +63,23 @@ pub struct PaymentScanOptions {
     pub gap_limit: Option<u32>,
     /// Maximum matching addresses per page, at most 1024.
     pub max_addresses: usize,
+}
+impl PaymentScanOptions {
+    /// Replace `range`.
+    pub const fn with_range(mut self, range: IndexRange) -> Self {
+        self.range = range;
+        self
+    }
+    /// Replace `gap_limit`.
+    pub const fn with_gap_limit(mut self, gap_limit: Option<u32>) -> Self {
+        self.gap_limit = gap_limit;
+        self
+    }
+    /// Replace `max_addresses`.
+    pub const fn with_max_addresses(mut self, max_addresses: usize) -> Self {
+        self.max_addresses = max_addresses;
+        self
+    }
 }
 impl Default for PaymentScanOptions {
     fn default() -> Self {

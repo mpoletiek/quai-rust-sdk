@@ -45,6 +45,7 @@ pub enum RpcSignerFailure {
 /// on rejection or timeout. Dropping a future cannot return this phase to callers.
 #[derive(Debug, thiserror::Error)]
 #[error("remote signer request failed (dispatched: {dispatched}): {source}")]
+#[non_exhaustive]
 pub struct RpcSignerError {
     /// True once the state-changing RPC may have been dispatched.
     pub dispatched: bool,

@@ -3,6 +3,7 @@ use super::*;
 
 /// Public state invalidated in one SQLite transaction following a trusted reorg.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct ReorgInvalidation {
     /// New scope generation; old discovery and observation writers are stale.
     pub generation: u64,

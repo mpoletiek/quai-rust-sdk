@@ -85,18 +85,14 @@ impl SettlementCursor {
         } else {
             through.min(from.saturating_add(255))
         };
-        Ok(EtxScanRequest {
-            zone: self.zone,
+        Ok(EtxScanRequest::new(
+            self.zone,
             from,
             to,
             max_transactions_per_block,
             max_total_transactions,
-            preceding_block: if self.execution.is_some() {
-                None
-            } else {
-                Some(self.last)
-            },
-        })
+        )
+        .with_preceding_block(self.execution.is_none().then_some(self.last)))
     }
 }
 fn anchor(value: &Value) -> Result<Option<BlockReference>, QiError> {

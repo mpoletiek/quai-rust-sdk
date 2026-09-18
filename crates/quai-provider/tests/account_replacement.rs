@@ -8,16 +8,10 @@ use quai_provider::{
 mod fixture;
 use fixture::{Mock, hash, original, replacement};
 fn request() -> AccountReplacementScanRequest {
-    AccountReplacementScanRequest {
-        from_block: 16,
-        to_block: 17,
-        max_transactions_per_block: 16,
-        max_total_transactions: 32,
-        preceding_block: Some(BlockReference {
-            number: 15,
-            hash: hash(15),
-        }),
-    }
+    AccountReplacementScanRequest::new(16, 17, 16, 32).with_preceding_block(Some(BlockReference {
+        number: 15,
+        hash: hash(15),
+    }))
 }
 #[tokio::test]
 async fn portable_cursor_rechecks_prior_page_even_when_head_retreats_and_errors_do_not_advance() {

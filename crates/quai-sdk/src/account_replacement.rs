@@ -147,13 +147,13 @@ pub async fn quote_account_replacement<T: Transport>(
         };
         provider.estimate_gas(&request, block).await?
     };
-    // A replacement keeps the parent's gas limit, so the margin-adjusted
-    // estimate must fit it rather than the policy's own gas cap.
-    if policy
-        .fees
-        .margin_gas(estimate)
-        .is_none_or(|gas| gas > transaction.gas_limit)
-    {
+    // A replacement keeps the parent's gas limit, which already carries the
+    // margin applied at preparation. Applying the margin again would refuse a
+    // replacement whenever the estimate grew at all, for a conversion as soon
+    // as the exchange rate added an output, and leave the nonce stuck behind an
+    // underpriced parent. The limit only has to cover what the transaction
+    // needs now.
+    if estimate > transaction.gas_limit {
         return Err(E::FeeLimit);
     }
     if fee.checked_add(transaction.value).ok_or(E::FeeLimit)?

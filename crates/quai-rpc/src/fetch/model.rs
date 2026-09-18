@@ -49,8 +49,10 @@ const SENSITIVE_HEADERS: [&str; 3] = ["authorization", "proxy-authorization", "c
 
 /// Case-insensitive, bounded HTTP headers. Diagnostics redact names and values.
 ///
-/// Values for [`SENSITIVE_HEADERS`] are zeroized on drop, so the copies created
-/// by cloning a request (once per retry attempt) do not outlive their owner.
+/// `authorization`, `proxy-authorization` and `cookie` values are zeroized on
+/// drop, so the copies created by cloning a request (once per retry attempt) do
+/// not outlive their owner. This cannot erase copies a caller made itself, or
+/// transients created inside the transport that ultimately sends the request.
 #[derive(Clone, Default, PartialEq, Eq)]
 pub struct FetchHeaders(BTreeMap<String, String>);
 impl Drop for FetchHeaders {

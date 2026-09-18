@@ -62,7 +62,7 @@ pub struct AllocatedAddress {
     /// Public address and immutable exact derivation origin.
     pub address: PublicAddress,
     /// Raw range consumed, including skipped indexes, and the unexamined tail
-    /// when a concurrent allocation prevented giving it back.
+    /// when a concurrent write prevented giving it back.
     pub burned: crate::discovery::IndexRange,
     /// Snapshot generation after metadata invalidation.
     pub generation: u64,
@@ -246,8 +246,7 @@ impl SqliteStore {
     /// address before returning it. The search runs without holding the write
     /// lock. Every index in that range stays consumed after cancellation,
     /// failure, process death or restart. On success, the range past the
-    /// returned address is released again unless another allocation ran
-    /// meanwhile. `max_attempts` must be 1..=100,000.
+    /// returned address is released again unless the store changed meanwhile. `max_attempts` must be 1..=100,000.
     pub fn allocate_address(
         &mut self,
         account: &AccountPublic,
@@ -374,21 +373,25 @@ impl SqliteStore {
         let (tx, found) = match found {
             Some(found) => (tx, found),
             None => {
+                let reserved_generation = checkpoint_read(&tx, &self.key)?.0;
                 tx.commit()?;
                 let found = derive()?;
                 let tx = self
                     .connection
                     .transaction_with_behavior(TransactionBehavior::Immediate)?;
-                // Give back the unexamined tail of the burn when no allocation
-                // ran meanwhile. Every allocation moves the cursor under this
-                // same write lock, so an unchanged cursor proves nothing else
-                // was issued from the range. Keeping a full burn would skip
-                // about max_attempts / 512 matching addresses, enough past a
-                // few thousand attempts to put the next address beyond a
-                // default restore gap.
+                // Give back the unexamined tail of the burn when the store is
+                // unchanged since the reservation. The cursor value alone
+                // cannot show that: imports, discovery and backup merges raise
+                // it with max(), so one that records an address inside the
+                // tail leaves it equal to `limit`, and rewinding would issue
+                // that address again. Every writer bumps the scope generation,
+                // so an unchanged generation does prove nothing was recorded.
+                // Keeping a full burn would skip about max_attempts / 512
+                // matching addresses, enough past a few thousand attempts to
+                // put the next address beyond a default restore gap.
                 if tx.execute(
-                    "UPDATE derivation_cursors SET next_index=?1 WHERE scope=?2 AND coin=?3 AND account=?4 AND change_branch=?5 AND next_index=?6",
-                    params![found.address.index + 1, &self.key[..], coin, account_index, change, limit],
+                    "UPDATE derivation_cursors SET next_index=?1 WHERE scope=?2 AND coin=?3 AND account=?4 AND change_branch=?5 AND next_index=?6 AND (SELECT generation FROM scopes WHERE scope=?2)=?7",
+                    params![found.address.index + 1, &self.key[..], coin, account_index, change, limit, reserved_generation],
                 )? == 1
                 {
                     end = found.address.index + 1;

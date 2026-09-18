@@ -1583,3 +1583,104 @@ fn compact_hd_allocations_commit_only_examined_children_and_preserve_old_floors(
     assert_ne!(next.address, first.address);
     assert_eq!(store.addresses().unwrap().len(), 3);
 }
+
+/// Two connections to one store, plus a hook that runs `during` while the
+/// first connection's legacy allocation is searching outside the write lock.
+fn allocate_with_concurrent_write(
+    during: impl FnOnce(&mut SqliteStore),
+) -> (Database, AllocatedAddress, SqliteStore, AccountPublic) {
+    let db = Database::new();
+    let mut store = db.open();
+    let mut other = Some((db.open(), during));
+    let account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    // The first check runs before the reservation; the second is the search's
+    // first candidate, after the reservation committed and the lock dropped.
+    let mut calls = 0;
+    let allocated = store
+        .allocate_address(&account, false, 100_000, || {
+            calls += 1;
+            if calls == 2
+                && let Some((mut other, during)) = other.take()
+            {
+                during(&mut other);
+            }
+            false
+        })
+        .unwrap();
+    (db, allocated, store, account)
+}
+
+#[test]
+fn giveback_never_rewinds_below_an_address_recorded_meanwhile() {
+    // Discovery on another connection records the next matching address,
+    // inside this allocation's reserved tail. That raises the cursor with
+    // max(), leaving it equal to the reserved limit, so a cursor-only check
+    // rewound past it and the next allocation issued the same address.
+    let account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let search = |start| {
+        account
+            .search(
+                false,
+                crate::Search {
+                    zone: scope().zone,
+                    start_index: start,
+                    max_attempts: 100_000,
+                },
+                || false,
+            )
+            .unwrap()
+            .address
+            .index
+    };
+    let second = search(search(0) + 1);
+    let recorded = PublicAddress::derive(&account, false, second).unwrap();
+    let copy = recorded.clone();
+    let (_db, first, mut store, account) = allocate_with_concurrent_write(move |other| {
+        let generation = other.snapshot().unwrap().generation;
+        other.import_metadata(generation, &[copy]).unwrap();
+    });
+    assert_eq!(
+        first.burned.end,
+        first.burned.start + 100_000,
+        "full burn kept"
+    );
+    let next = store
+        .allocate_address_compact(&account, false, 100_000, || false)
+        .unwrap();
+    assert_ne!(next.address.address(), recorded.address());
+}
+
+#[test]
+fn giveback_keeps_the_full_burn_after_a_concurrent_allocation() {
+    let (_db, first, mut store, account) = allocate_with_concurrent_write(|other| {
+        let account = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+            .unwrap()
+            .account_public(0)
+            .unwrap();
+        other
+            .allocate_address_compact(&account, false, 100_000, || false)
+            .unwrap();
+    });
+    assert_eq!(
+        first.burned.end,
+        first.burned.start + 100_000,
+        "full burn kept"
+    );
+    let issued: BTreeSet<_> = store
+        .addresses()
+        .unwrap()
+        .iter()
+        .map(|a| a.address())
+        .collect();
+    assert_eq!(issued.len(), 2);
+    let next = store
+        .allocate_address_compact(&account, false, 100_000, || false)
+        .unwrap();
+    assert!(!issued.contains(&next.address.address()));
+}

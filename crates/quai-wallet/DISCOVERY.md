@@ -92,7 +92,7 @@ already bound coin/account namespace.
 `next_derivation_index` exposes durable burned-range bounds for recovery planning.
 Cancellation, failure or process death before address exposure leaves the entire
 reserved range consumed. A successful allocation gives back the range past its
-address unless another allocation ran meanwhile, so consecutive allocations do
+address unless the store changed meanwhile, so consecutive allocations do
 not skip matching addresses a gap-limited restore would need. A returned
 `AllocatedAddress` includes both its exact origin and the burned interval. Bounds
 are 1 through 100,000 attempts; exhausting a range returns an error and still burns

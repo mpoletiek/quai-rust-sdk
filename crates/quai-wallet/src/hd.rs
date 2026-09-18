@@ -734,52 +734,108 @@ impl AccountPublic {
         &self,
         change: bool,
         search: Search,
-        mut cancelled: impl FnMut() -> bool,
+        cancelled: impl FnMut() -> bool,
     ) -> Result<SearchResult, WalletError> {
+        let mut window = self.search_window(change, search, 1, cancelled)?;
+        match (window.stop, window.addresses.pop()) {
+            (WindowStop::Filled, Some(address)) => Ok(SearchResult {
+                address,
+                attempts: window.attempts,
+                next_index: window.next_index,
+            }),
+            (WindowStop::Cancelled, _) => Err(WalletError::Cancelled {
+                attempts: window.attempts,
+                next_index: window.next_index.ok_or(WalletError::InvalidSearchLimit)?,
+            }),
+            _ => Err(WalletError::SearchExhausted {
+                attempts: window.attempts,
+                next_index: window.next_index,
+            }),
+        }
+    }
+
+    /// Up to `count` consecutive matching addresses, deriving the branch once.
+    ///
+    /// Scanners read a window of addresses per round trip. Calling
+    /// [`Self::search`] once per address re-derived the branch node through
+    /// `bip32` each time; this derives it once for the whole window. Candidates
+    /// are examined in the same order with the same cancellation check before
+    /// each one, so the addresses are exactly what `count` successive searches
+    /// would return. `max_attempts` bounds the candidates across the window.
+    ///
+    /// Running out of candidates or being cancelled is a [`WindowStop`], not an
+    /// error, because the addresses already found remain valid.
+    pub fn search_window(
+        &self,
+        change: bool,
+        search: Search,
+        count: usize,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> Result<SearchWindow, WalletError> {
         child(search.start_index, false)?;
-        if search.max_attempts == 0 || search.max_attempts > 10_000_000 {
+        if count == 0 || search.max_attempts == 0 || search.max_attempts > 10_000_000 {
             return Err(WalletError::InvalidSearchLimit);
         }
-        // Hoisted once, as before; the per-candidate step now avoids the generic
+        // Hoisted once per window; the per-candidate step avoids the generic
         // scalar multiply, the unused parent fingerprint and the compress
         // round trip that `ExtendedPublicKey::derive_child` performs.
         let branch = ScanBranch::new(&self.key.derive_child(u32::from(change), false)?)?;
-        let mut index = search.start_index;
-        for attempt in 0..search.max_attempts {
+        let mut window = SearchWindow {
+            addresses: Vec::with_capacity(count.min(64)),
+            attempts: 0,
+            next_index: Some(search.start_index),
+            stop: WindowStop::Exhausted,
+        };
+        while window.attempts < search.max_attempts {
+            let Some(index) = window.next_index else {
+                break;
+            };
             if cancelled() {
-                return Err(WalletError::Cancelled {
-                    attempts: attempt,
-                    next_index: index,
-                });
+                window.stop = WindowStop::Cancelled;
+                return Ok(window);
             }
             let candidate = branch.child_public_key(index)?;
-            let next_index = index.checked_add(1).filter(|next| *next < HARDENED);
+            window.attempts += 1;
+            window.next_index = index.checked_add(1).filter(|next| *next < HARDENED);
             match self.address_from_key(candidate, change, index) {
                 Ok(address) if address.zone == search.zone => {
-                    return Ok(SearchResult {
-                        address,
-                        attempts: attempt + 1,
-                        next_index,
-                    });
+                    window.addresses.push(address);
+                    if window.addresses.len() == count {
+                        window.stop = WindowStop::Filled;
+                        return Ok(window);
+                    }
                 }
                 Ok(_) | Err(WalletError::InvalidDerivedAddress) => {}
                 Err(error) => return Err(error),
             }
-            match next_index {
-                Some(next) => index = next,
-                None => {
-                    return Err(WalletError::SearchExhausted {
-                        attempts: attempt + 1,
-                        next_index: None,
-                    });
-                }
-            }
         }
-        Err(WalletError::SearchExhausted {
-            attempts: search.max_attempts,
-            next_index: Some(index),
-        })
+        Ok(window)
     }
+}
+
+/// Matching addresses from one [`AccountPublic::search_window`] call.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SearchWindow {
+    /// Matches in derivation-index order.
+    pub addresses: Vec<DerivedAddress>,
+    /// Candidates examined, including matches.
+    pub attempts: u32,
+    /// First unexamined candidate, or None past the last nonhardened index.
+    pub next_index: Option<u32>,
+    /// Why the window ended.
+    pub stop: WindowStop,
+}
+
+/// Why a [`SearchWindow`] ended.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum WindowStop {
+    /// The requested number of addresses was found.
+    Filled,
+    /// `max_attempts` or the nonhardened index space ran out first.
+    Exhausted,
+    /// Cancellation was observed before examining `next_index`.
+    Cancelled,
 }
 
 /// Explicit search range; returned continuation metadata supports caller-owned checkpoints.

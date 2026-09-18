@@ -537,3 +537,148 @@ async fn one_observation_establishes_identity_once_and_keeps_the_reorg_bracket()
     // identity reads does not drop a chain check.
     assert!(chain >= 4, "each read stays chain-guarded: {calls:?}");
 }
+
+fn queried_outpoint_addresses(mock: &Mock) -> std::collections::BTreeSet<String> {
+    mock.calls
+        .lock()
+        .unwrap()
+        .iter()
+        .filter(|(method, _)| method == "quai_getOutpointsByAddress")
+        .map(|(_, params)| params[0].as_str().unwrap().to_ascii_lowercase())
+        .collect()
+}
+
+#[tokio::test]
+async fn portable_qi_window_queries_exactly_the_addresses_it_reports() {
+    // Set equality, not a subset: a window that read past the gap stop would
+    // disclose unissued addresses to the node, so this is a privacy test too.
+    use quai_sdk::discovery::{QiDiscoveryOptions, discover_qi};
+    use quai_sdk::wallet::discovery::ScanStop;
+    let account = HdWallet::from_seed(&[7; 32], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    for gap_limit in [1u32, 2, 3, 7, 50] {
+        let mock = Mock::default();
+        let provider = provider(mock.clone());
+        let options = QiDiscoveryOptions {
+            gap_limit: Some(gap_limit),
+            ..Default::default()
+        };
+        let report = discover_qi(&provider, scope(), &account, &options, || false)
+            .await
+            .unwrap();
+        assert_eq!(report.stopped, [ScanStop::GapLimit; 2]);
+        let reported: std::collections::BTreeSet<String> = report
+            .addresses
+            .iter()
+            .map(|a| a.derived.address.to_string().to_ascii_lowercase())
+            .collect();
+        assert_eq!(
+            queried_outpoint_addresses(&mock),
+            reported,
+            "gap {gap_limit}"
+        );
+        assert_eq!(reported.len(), gap_limit as usize * 2, "gap {gap_limit}");
+    }
+}
+
+#[tokio::test]
+async fn portable_qi_funded_address_resets_the_gap_at_a_window_edge() {
+    // With a gap of 3 the first window is 3 wide, so funding its last address
+    // is the boundary case: the scan must continue rather than stop at the edge.
+    use quai_sdk::discovery::{QiDiscoveryOptions, discover_qi};
+    use quai_sdk::wallet::discovery::ScanStop;
+    let account = HdWallet::from_seed(&[7; 32], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let third = account
+        .search_window(
+            false,
+            Search {
+                zone: Zone::Cyprus1,
+                start_index: 0,
+                max_attempts: 100_000,
+            },
+            3,
+            || false,
+        )
+        .unwrap()
+        .addresses
+        .pop()
+        .unwrap();
+    let mock = Mock::default();
+    mock.outputs.lock().unwrap().insert(
+        third.address.to_string(),
+        json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x2","lock":"0x0"}]),
+    );
+    let provider = provider(mock.clone());
+    let options = QiDiscoveryOptions {
+        gap_limit: Some(3),
+        ..Default::default()
+    };
+    let report = discover_qi(&provider, scope(), &account, &options, || false)
+        .await
+        .unwrap();
+    assert_eq!(report.stopped, [ScanStop::GapLimit; 2]);
+    let receive: Vec<_> = report
+        .addresses
+        .iter()
+        .filter(|a| !a.derived.change)
+        .collect();
+    // Two unused, the funded one, then three unused reaching the limit.
+    assert_eq!(receive.len(), 6);
+    assert_eq!(receive[2].derived, third);
+    assert_eq!(receive[2].outputs.len(), 1);
+    let reported: std::collections::BTreeSet<String> = report
+        .addresses
+        .iter()
+        .map(|a| a.derived.address.to_string().to_ascii_lowercase())
+        .collect();
+    assert_eq!(queried_outpoint_addresses(&mock), reported);
+}
+
+#[tokio::test]
+async fn account_discovery_checks_identity_and_brackets_once_per_window() {
+    use quai_sdk::wallet::discovery::{DiscoveryRequest, IndexRange, ScanStop, discover};
+    let mock = Mock::default();
+    let provider = provider(mock.clone());
+    let source = AccountRpcSource::new(&provider);
+    let account = HdWallet::from_seed(&[7; 32], CoinType::Quai)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    let range = IndexRange {
+        start: 0,
+        end: 100_000,
+    };
+    let request = DiscoveryRequest {
+        scope: scope(),
+        receive: range,
+        change: range,
+        gap_limit: None,
+        require_history: false,
+        max_addresses: 10,
+        max_coins: 1,
+    };
+    let report = discover(&source, &account, &request, || false)
+        .await
+        .unwrap();
+    assert_eq!(report.addresses.len(), 10);
+    assert_eq!(report.coverage[0].stop, ScanStop::AddressLimit);
+    let calls = mock.calls.lock().unwrap().clone();
+    let count = |method: &str, genesis: bool| {
+        calls
+            .iter()
+            .filter(|(m, p)| m == method && (p[0] == "0x0") == genesis)
+            .count()
+    };
+    // One ten-address window: tip, the window and the final canonical check
+    // each establish identity once, rather than once per address.
+    assert_eq!(count("quai_getHeaderByNumber", true), 3, "{calls:?}");
+    // Latest for the tip, the window's before/after bracket, the final check.
+    assert_eq!(count("quai_getHeaderByNumber", false), 4, "{calls:?}");
+    assert_eq!(count("quai_getBalance", false), 10);
+    assert_eq!(count("quai_getTransactionCount", false), 10);
+}

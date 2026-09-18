@@ -22,6 +22,14 @@ const MAX_OUTPOINT_PAGE: usize = 126;
 #[cfg(feature = "http")]
 const _: () = assert!(MAX_OUTPOINT_PAGE + 2 <= quai_rpc::MAX_BATCH_CALLS);
 
+/// Most addresses one [`Provider::outpoints_many`] call accepts. It pages them
+/// internally, so a caller needs no page size of its own.
+pub const MAX_OUTPOINT_ADDRESSES: usize = 1024;
+
+/// Accounts per batched balance-and-nonce page: two calls each, plus the two
+/// chain guards, within the transport's batch limit.
+const ACCOUNT_STATE_PAGE: usize = (quai_rpc::MAX_BATCH_CALLS - 2) / 2;
+
 /// Exact created/deleted outpoints reported over a block-hash range, inclusive.
 /// The connected node must retain spent/trimmed history; this is not a proof.
 #[derive(Clone, Debug)]
@@ -273,7 +281,7 @@ impl<T: Transport> Provider<T> {
         &self,
         addresses: &[QiAddress],
     ) -> Result<BTreeMap<QiAddress, Vec<AddressOutpoint>>, ProviderError> {
-        if addresses.is_empty() || addresses.len() > 1024 {
+        if addresses.is_empty() || addresses.len() > MAX_OUTPOINT_ADDRESSES {
             return Err(ProviderError::InvalidRequest("address query bound"));
         }
         let unique: BTreeSet<_> = addresses.iter().copied().collect();
@@ -337,6 +345,69 @@ impl<T: Transport> Provider<T> {
             }
         }
         Ok(result)
+    }
+    /// Balance and nonce for several accounts at one block, in input order.
+    ///
+    /// Uses explicit batches with a chain guard at each end where the transport
+    /// supports them, one per zone run of up to 63 accounts. Otherwise each
+    /// account is read through the guarded single-call path, at most four in
+    /// flight. No failed batch is replayed. Pin `block` to a number and bracket
+    /// the call with a canonical-header check to get a consistent view.
+    pub async fn account_states(
+        &self,
+        accounts: &[QuaiAddress],
+        block: BlockTag,
+    ) -> Result<Vec<(U256, u64)>, ProviderError> {
+        if accounts.is_empty() || accounts.len() > 1024 {
+            return Err(ProviderError::InvalidRequest("account query bound"));
+        }
+        let selector = block.rpc_value()?;
+        let mut states = Vec::with_capacity(accounts.len());
+        let mut rest = accounts;
+        while let Some(first) = rest.first() {
+            let zone = first.zone();
+            let run = rest
+                .iter()
+                .take(ACCOUNT_STATE_PAGE)
+                .take_while(|account| account.zone() == zone)
+                .count();
+            let (page, tail) = rest.split_at(run);
+            rest = tail;
+            let endpoint = self.routing.endpoint(zone.into())?;
+            let mut requests = vec![("quai_chainId", json!([]))];
+            for account in page {
+                let params = json!([account.to_string(), selector]);
+                requests.push(("quai_getBalance", params.clone()));
+                requests.push(("quai_getTransactionCount", params));
+            }
+            requests.push(("quai_chainId", json!([])));
+            let Some(batch) = self.transport.request_batch(endpoint, requests).await else {
+                let mut pending = stream::iter(page.iter().copied().map(|account| async move {
+                    Ok::<_, ProviderError>((
+                        self.balance(account, block).await?,
+                        self.transaction_count(account, block).await?,
+                    ))
+                }))
+                .buffered(4);
+                while let Some(state) = pending.next().await {
+                    states.push(state?);
+                }
+                continue;
+            };
+            let mut responses = batch?;
+            if responses.len() != page.len() * 2 + 2 {
+                return Err(ProviderError::InvalidResult("batch response count"));
+            }
+            // Both guards must pass before any payload is used.
+            for observed in [responses.pop().expect("checked count"), responses.remove(0)] {
+                self.check_chain_id(observed?)?;
+            }
+            let mut responses = responses.into_iter();
+            while let (Some(balance), Some(nonce)) = (responses.next(), responses.next()) {
+                states.push((quantity(balance?)?, types::uint64(nonce?)?));
+            }
+        }
+        Ok(states)
     }
     /// Read node-indexed deltas for explicit inclusive block hashes. Callers must
     /// verify canonicality, continuity, range limits and retained history. The

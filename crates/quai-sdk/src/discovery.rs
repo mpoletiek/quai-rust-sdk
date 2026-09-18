@@ -82,26 +82,34 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         address: &DerivedAddress,
         checkpoint: Checkpoint,
     ) -> Result<AddressObservation, DiscoveryError> {
-        if address.coin != CoinType::Quai {
-            return Err(DiscoveryError::SourceUnavailable);
-        }
-        let account = QuaiAddress::try_from(address.address)
-            .map_err(|_| DiscoveryError::InvalidObservation)?;
-        if account.zone() != scope.zone {
-            return Err(DiscoveryError::InvalidObservation);
-        }
-        // Establish chain and genesis identity once for this observation.
-        //
-        // This previously ran three times per observed address: once here and
-        // once inside each bracketing `canonical` call, each re-reading
-        // `genesis_hash`, which is the height-zero header and immutable for the
-        // life of the chain. The reorg bracket below is the property that
-        // matters and is unchanged; only the repeated identity reads are gone.
-        //
-        // Every provider read now carries its own chain-ID guard in the same
-        // request, so a mid-observation backend swap is still caught per call,
-        // and a swap to a different chain would also fail the header checks
-        // below, which compare the exact hash at the pinned height.
+        self.observe_many(scope, std::slice::from_ref(address), checkpoint)
+            .await?
+            .pop()
+            .ok_or(DiscoveryError::InvalidObservation)
+    }
+    /// One identity check and one reorg bracket for the whole window, with the
+    /// balance and nonce reads batched between them.
+    async fn observe_many(
+        &self,
+        scope: NetworkScope,
+        addresses: &[DerivedAddress],
+        checkpoint: Checkpoint,
+    ) -> Result<Vec<AddressObservation>, DiscoveryError> {
+        let accounts = addresses
+            .iter()
+            .map(|address| {
+                if address.coin != CoinType::Quai {
+                    return Err(DiscoveryError::SourceUnavailable);
+                }
+                QuaiAddress::try_from(address.address)
+                    .ok()
+                    .filter(|account| account.zone() == scope.zone)
+                    .ok_or(DiscoveryError::InvalidObservation)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        // Genesis is immutable, so identity is established once per window;
+        // every provider read still carries its own chain-ID guard, so a
+        // mid-window backend swap is caught per call.
         self.identity(scope).await?;
         let before = self
             .canonical_at(scope, checkpoint.height)
@@ -110,20 +118,14 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         if before.checkpoint != checkpoint {
             return Err(DiscoveryError::InvalidObservation);
         }
-        let block = BlockTag::Number(checkpoint.height);
-        let balance = self
+        let states = self
             .provider
-            .balance(account, block)
-            .await
-            .map_err(|_| DiscoveryError::SourceUnavailable)?;
-        let nonce = self
-            .provider
-            .transaction_count(account, block)
+            .account_states(&accounts, BlockTag::Number(checkpoint.height))
             .await
             .map_err(|_| DiscoveryError::SourceUnavailable)?;
         // Closing half of the reorg bracket: the pinned height must still carry
-        // the same hash after the balance and nonce reads, or they may describe
-        // a block that is no longer canonical.
+        // the same hash after the reads, or they may describe a block that is
+        // no longer canonical.
         if self
             .canonical_at(scope, checkpoint.height)
             .await?
@@ -131,15 +133,22 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         {
             return Err(DiscoveryError::InvalidObservation);
         }
-        Ok(AddressObservation {
-            scope,
-            checkpoint,
-            address: address.address,
-            ever_used: None,
-            account_balance: Some(balance),
-            account_nonce: Some(nonce),
-            coins: vec![],
-        })
+        if states.len() != addresses.len() {
+            return Err(DiscoveryError::InvalidObservation);
+        }
+        Ok(addresses
+            .iter()
+            .zip(states)
+            .map(|(address, (balance, nonce))| AddressObservation {
+                scope,
+                checkpoint,
+                address: address.address,
+                ever_used: None,
+                account_balance: Some(balance),
+                account_nonce: Some(nonce),
+                coins: vec![],
+            })
+            .collect())
     }
     /// Check identity, then read the canonical checkpoint at a height.
     ///
@@ -154,7 +163,7 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         self.canonical_at(scope, height).await
     }
 }
-impl<T: Transport + SourceConcurrency> AccountRpcSource<'_, T> {
+impl<T: Transport> AccountRpcSource<'_, T> {
     /// Read the canonical checkpoint at a height, assuming identity is already
     /// established for this observation. Callers that have not checked identity
     /// must use `canonical`.

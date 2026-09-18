@@ -40,7 +40,7 @@ pub use backup::{BackupError, BackupKdf, EncryptedSeedBackup, SeedBackup};
 
 pub use hd::{
     AccountPublic, CoinType, DerivedAddress, ExtendedKeyMetadata, ExtendedPrivateKey,
-    ExtendedPublicKey, HdWallet, Search, SearchResult,
+    ExtendedPublicKey, HdWallet, Search, SearchResult, SearchWindow, WindowStop,
 };
 pub use mnemonic::{Language, Mnemonic, MnemonicEntropy, SecretString, Seed};
 use thiserror::Error;

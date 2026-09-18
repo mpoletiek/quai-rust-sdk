@@ -318,3 +318,128 @@ fn watch_only_quai_both_branches_and_spendability_flags() {
     assert!(classify_coin(&coin, U256::from(20), false).expired);
     assert!(!classify_coin(&coin, U256::from(10), true).spendable);
 }
+
+/// Records each `observe_many` window, delegating every address to `Source`.
+struct Recording {
+    inner: Source,
+    windows: std::sync::Mutex<Vec<Vec<DerivedAddress>>>,
+}
+impl ObservationSource for Recording {
+    fn history_capability(&self, scope: NetworkScope, coin: CoinType) -> HistoryCapability {
+        self.inner.history_capability(scope, coin)
+    }
+    async fn tip(&self, scope: NetworkScope) -> Result<ScopedCheckpoint, DiscoveryError> {
+        self.inner.tip(scope).await
+    }
+    async fn observe(
+        &self,
+        _: NetworkScope,
+        _: &DerivedAddress,
+        _: Checkpoint,
+    ) -> Result<AddressObservation, DiscoveryError> {
+        panic!("the scanner reads through observe_many")
+    }
+    async fn observe_many(
+        &self,
+        scope: NetworkScope,
+        addresses: &[DerivedAddress],
+        checkpoint: Checkpoint,
+    ) -> Result<Vec<AddressObservation>, DiscoveryError> {
+        self.windows.lock().unwrap().push(addresses.to_vec());
+        let mut observed = vec![];
+        for address in addresses {
+            observed.push(self.inner.observe(scope, address, checkpoint).await?);
+        }
+        Ok(observed)
+    }
+    async fn canonical(
+        &self,
+        scope: NetworkScope,
+        height: U256,
+    ) -> Result<Option<ScopedCheckpoint>, DiscoveryError> {
+        self.inner.canonical(scope, height).await
+    }
+}
+
+#[test]
+fn windows_observe_exactly_the_reported_addresses_and_batch_deep_scans() {
+    let account = account(CoinType::Qi);
+    for (history, gap_limit) in [
+        (HistoryCapability::CurrentStateOnly, Some(1)),
+        (HistoryCapability::CurrentStateOnly, Some(2)),
+        (HistoryCapability::HistoricalEverUsed, Some(2)),
+        (HistoryCapability::HistoricalEverUsed, None),
+    ] {
+        let source = Recording {
+            inner: Source::new(history),
+            windows: Default::default(),
+        };
+        let request = DiscoveryRequest {
+            gap_limit,
+            ..request()
+        };
+        let report = ready(discover(&source, &account, &request, || false)).unwrap();
+        let windows = source.windows.into_inner().unwrap();
+        let observed: Vec<_> = windows.iter().flatten().cloned().collect();
+        let reported: Vec<_> = report.addresses.iter().map(|a| a.derived.clone()).collect();
+        // Same addresses in the same order: nothing read past the gap stop.
+        assert_eq!(observed, reported, "{history:?} gap {gap_limit:?}");
+        if gap_limit.is_none() {
+            // A deep scan is unbounded by the gap, so each branch is one window.
+            assert_eq!(windows.len(), 2);
+            assert!(windows.iter().all(|w| w.len() == 8));
+        }
+    }
+}
+
+#[test]
+fn a_short_batch_response_is_rejected() {
+    struct Short(Source);
+    impl ObservationSource for Short {
+        fn history_capability(&self, scope: NetworkScope, coin: CoinType) -> HistoryCapability {
+            self.0.history_capability(scope, coin)
+        }
+        async fn tip(&self, scope: NetworkScope) -> Result<ScopedCheckpoint, DiscoveryError> {
+            self.0.tip(scope).await
+        }
+        async fn observe(
+            &self,
+            scope: NetworkScope,
+            address: &DerivedAddress,
+            checkpoint: Checkpoint,
+        ) -> Result<AddressObservation, DiscoveryError> {
+            self.0.observe(scope, address, checkpoint).await
+        }
+        async fn observe_many(
+            &self,
+            scope: NetworkScope,
+            addresses: &[DerivedAddress],
+            checkpoint: Checkpoint,
+        ) -> Result<Vec<AddressObservation>, DiscoveryError> {
+            // Drops the last address: counting it as unused could stop a
+            // restore early, so the scanner must refuse the whole response.
+            let mut observed = vec![];
+            for address in &addresses[..addresses.len() - 1] {
+                observed.push(self.0.observe(scope, address, checkpoint).await?);
+            }
+            Ok(observed)
+        }
+        async fn canonical(
+            &self,
+            scope: NetworkScope,
+            height: U256,
+        ) -> Result<Option<ScopedCheckpoint>, DiscoveryError> {
+            self.0.canonical(scope, height).await
+        }
+    }
+    let source = Short(Source::new(HistoryCapability::CurrentStateOnly));
+    assert!(matches!(
+        ready(discover(
+            &source,
+            &account(CoinType::Qi),
+            &request(),
+            || false
+        )),
+        Err(DiscoveryError::InvalidObservation)
+    ));
+}

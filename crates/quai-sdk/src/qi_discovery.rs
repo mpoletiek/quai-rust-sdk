@@ -3,23 +3,13 @@
 use crate::qi::QiError;
 use quai_consensus::{Denomination, OutPoint};
 use quai_primitives::{QiAddress, Zone};
-use quai_provider::Provider;
+use quai_provider::{MAX_OUTPOINT_ADDRESSES, Provider};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{Checkpoint, GapCounter, IndexRange, NetworkScope, ScanStop};
 use quai_wallet::storage::{PublicAddress, Snapshot, SqliteStore};
-use quai_wallet::{AccountPublic, CandidateCoin, CoinType, Search, WalletError};
+use quai_wallet::{AccountPublic, CandidateCoin, CoinType, Search, WindowStop};
 use std::collections::BTreeSet;
 use std::future::Future;
-
-/// Maximum addresses derived ahead and read together in one scan window.
-///
-/// The window is already bounded by the gap counter's guarantee, so this is not
-/// a safety bound; it caps how much derivation is performed before the first
-/// read. Each usable address costs hundreds of candidate derivations, so a very
-/// wide window would front-load seconds of CPU before any network work starts,
-/// and would enlarge a single batch response beyond what the transport prefers
-/// to carry.
-const MAX_SCAN_WINDOW: u32 = 64;
 
 pub use crate::discovery::DEFAULT_QI_GAP;
 
@@ -192,61 +182,35 @@ where
             // no address is disclosed that would not have been, and no
             // observation enters the report that the sequential scan would not
             // have made.
-            let window = gap
-                .guaranteed_remaining()
-                .unwrap_or(u32::MAX)
-                .min(
-                    u32::try_from(options.max_addresses - report.addresses.len())
-                        .unwrap_or(u32::MAX),
-                )
-                .clamp(1, MAX_SCAN_WINDOW);
-
-            let mut derived = Vec::new();
-            let mut exhausted = false;
-            let mut cursor = report.next_index[branch];
-            for _ in 0..window {
-                if cursor >= range.end {
-                    break;
+            let start = report.next_index[branch];
+            let window = account.search_window(
+                branch == 1,
+                Search {
+                    zone: scope.zone,
+                    start_index: start,
+                    max_attempts: range.end - start,
+                },
+                gap.window(options.max_addresses - report.addresses.len()),
+                &mut cancelled,
+            )?;
+            if window.stop == WindowStop::Cancelled || cancelled() {
+                // Nothing in this window was observed, so the resume point is
+                // where the uncancelled scan would continue.
+                if window.addresses.is_empty() {
+                    report.next_index[branch] = window.next_index.unwrap_or(range.end);
                 }
-                match account.search(
-                    branch == 1,
-                    Search {
-                        zone: scope.zone,
-                        start_index: cursor,
-                        max_attempts: range.end - cursor,
-                    },
-                    &mut cancelled,
-                ) {
-                    Ok(found) => {
-                        cursor = found.next_index.unwrap_or(1 << 31);
-                        derived.push(found);
-                    }
-                    Err(WalletError::SearchExhausted { .. }) => {
-                        exhausted = true;
-                        break;
-                    }
-                    Err(WalletError::Cancelled { next_index, .. }) => {
-                        // Nothing in this window was observed, so the resume
-                        // point is where the uncancelled scan would continue.
-                        if derived.is_empty() {
-                            report.next_index[branch] = next_index;
-                        }
-                        report.stopped[branch..].fill(ScanStop::Cancelled);
-                        return Ok(report);
-                    }
-                    Err(error) => return Err(error.into()),
-                }
+                report.stopped[branch..].fill(ScanStop::Cancelled);
+                return Ok(report);
             }
-            if derived.is_empty() {
+            if window.addresses.is_empty() {
                 report.next_index[branch] = range.end;
                 break;
             }
-
+            let derived = window.addresses;
             let addresses = derived
                 .iter()
                 .map(|found| {
-                    QiAddress::try_from(found.address.address)
-                        .map_err(|_| QiError::IdentityMismatch)
+                    QiAddress::try_from(found.address).map_err(|_| QiError::IdentityMismatch)
                 })
                 .collect::<Result<Vec<_>, _>>()?;
             let observed = provider.outpoints_many(&addresses).await?;
@@ -256,7 +220,7 @@ where
             // order and could stop the branch at the wrong point.
             let mut stop = false;
             for found in &derived {
-                let metadata = PublicAddress::derive(account, branch == 1, found.address.index)?;
+                let metadata = PublicAddress::derive(account, branch == 1, found.index)?;
                 let address = QiAddress::try_from(metadata.address())
                     .map_err(|_| QiError::IdentityMismatch)?;
                 // A missing row is a failure, never an empty result: defaulting
@@ -270,18 +234,22 @@ where
                 // Advance only after the observation is recorded, so a failure
                 // or cancellation never leaves the cursor past an unread
                 // address. The stored cursor is monotonic and cannot be rewound.
-                report.next_index[branch] = found.next_index.unwrap_or(1 << 31);
+                report.next_index[branch] = found.index + 1;
                 report.addresses.push(metadata);
                 if reached_gap_limit {
                     report.stopped[branch] = ScanStop::GapLimit;
                     stop = true;
                     break;
                 }
+                if cancelled() {
+                    report.stopped[branch..].fill(ScanStop::Cancelled);
+                    return Ok(report);
+                }
             }
             if stop {
                 break;
             }
-            if exhausted {
+            if window.stop == WindowStop::Exhausted {
                 report.next_index[branch] = range.end;
                 break;
             }
@@ -336,13 +304,20 @@ pub async fn refresh_qi<T: Transport>(
         .into_iter()
         .filter_map(|metadata| QiAddress::try_from(metadata.address()).ok())
         .collect();
-    // Small bounded pages avoid serial network latency consuming an entire block.
-    // The same before/after head guard still rejects a moving current-state view.
-    for page in addresses.chunks(8) {
+    // `outpoints_many` pages and adapts its own batch size, so each call gets
+    // its full argument bound; paging smaller here would restart that
+    // adaptation on every page. Cancellation is checked between calls.
+    for page in addresses.chunks(MAX_OUTPOINT_ADDRESSES) {
         if cancelled() {
             return Err(QiError::Cancelled);
         }
-        for (address, outputs) in provider.outpoints_many(page).await? {
+        let mut observed = provider.outpoints_many(page).await?;
+        for &address in page {
+            // A missing row is a failure, never an empty result: it would
+            // replace the address's coins with none.
+            let outputs = observed
+                .remove(&address)
+                .ok_or(QiError::IncompleteObservation)?;
             for output in outputs {
                 let outpoint = OutPoint {
                     transaction_hash: output.outpoint.tx_hash,

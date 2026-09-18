@@ -2524,3 +2524,51 @@ async fn a_funded_address_resets_the_gap_across_a_window_boundary() {
         .collect();
     assert_eq!(queried, reported);
 }
+
+#[tokio::test]
+async fn refresh_reads_every_stored_address_in_one_batch_per_page() {
+    // `outpoints_many` pages and adapts its own batch size. `refresh_qi` used
+    // to feed it eight addresses at a time, which split a small wallet into
+    // many batches and restarted the adaptation on every one.
+    use quai_sdk::qi_discovery::refresh_qi;
+    use quai_sdk::rpc::BatchResult;
+    #[derive(Clone)]
+    struct Batching(Mock, Arc<Mutex<Vec<usize>>>);
+    impl Transport for Batching {
+        async fn request(&self, e: &Endpoint, m: &str, p: Value) -> Result<Value, RpcError> {
+            self.0.request(e, m, p).await
+        }
+        async fn request_batch(
+            &self,
+            endpoint: &Endpoint,
+            requests: Vec<(&str, Value)>,
+        ) -> Option<BatchResult> {
+            let outpoints = requests
+                .iter()
+                .filter(|(m, _)| *m == "quai_getOutpointsByAddress")
+                .count();
+            if outpoints > 0 {
+                self.1.lock().unwrap().push(outpoints);
+            }
+            let mut responses = vec![];
+            for (method, params) in requests {
+                responses.push(self.0.request(endpoint, method, params).await);
+            }
+            Some(Ok(responses))
+        }
+    }
+    let mut env = setup();
+    let _change = pool(&mut env, 16);
+    let stored = env.store.addresses().unwrap().len();
+    assert!(stored > 8, "enough addresses to have needed several pages");
+    let batches = Arc::new(Mutex::new(vec![]));
+    let provider = Provider::new(
+        Batching(env.mock.clone(), batches.clone()),
+        Routing::direct("http://127.0.0.1:9200/exact", Zone::Cyprus1.into()).unwrap(),
+        env.store.scope().chain_id,
+    );
+    refresh_qi(&provider, &mut env.store, 100, || false)
+        .await
+        .unwrap();
+    assert_eq!(*batches.lock().unwrap(), [stored]);
+}

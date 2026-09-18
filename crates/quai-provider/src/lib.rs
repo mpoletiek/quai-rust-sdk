@@ -50,7 +50,7 @@ mod qi_special_fee;
 pub use qi_special_fee::{QiFeeProfile, QiFeeQuote, qi_special_gas};
 mod wallet_rpc;
 pub use logs::{LogFilter, LogRange, TopicMatch};
-pub use wallet_rpc::OutpointDeltas;
+pub use wallet_rpc::{MAX_OUTPOINT_ADDRESSES, OutpointDeltas};
 mod response_json;
 mod submission;
 mod types;

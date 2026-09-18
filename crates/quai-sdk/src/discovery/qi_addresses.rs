@@ -2,7 +2,7 @@
 use super::QiDiscoveryError;
 use quai_consensus::{Denomination, OutPoint};
 use quai_primitives::QiAddress;
-use quai_provider::Provider;
+use quai_provider::{MAX_OUTPOINT_ADDRESSES, Provider};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{Checkpoint, NetworkScope};
 use quai_wallet::qi_addresses::{QiAddressBook, QiUsageObservation};
@@ -10,11 +10,6 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     future::Future,
 };
-
-/// Addresses per batched read. `outpoints_many` accepts up to 1024 and adapts
-/// its own page size downward on an oversize response, so this only bounds the
-/// argument list and the cancellation granularity.
-const MAX_ADDRESS_BATCH: usize = 1024;
 
 /// Refresh every registered HD/imported/channel receive address in one scoped
 /// usage book. Head/genesis are checked before and after latest-only reads. The
@@ -78,7 +73,7 @@ where
         })
         .collect::<Result<Vec<_>, _>>()?;
     let mut observed = BTreeMap::new();
-    for page in addresses.chunks(MAX_ADDRESS_BATCH) {
+    for page in addresses.chunks(MAX_OUTPOINT_ADDRESSES) {
         if cancelled() {
             return Err(QiDiscoveryError::Cancelled);
         }
@@ -95,7 +90,7 @@ where
         // silently record an address as unused.
         let outputs = observed
             .remove(&address)
-            .ok_or(QiDiscoveryError::ObservationChanged)?;
+            .ok_or(QiDiscoveryError::IncompleteObservation)?;
         if seen.len().saturating_add(outputs.len()) > max_outpoints {
             return Err(QiDiscoveryError::OutputLimit);
         }

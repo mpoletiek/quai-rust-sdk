@@ -1,5 +1,6 @@
 //! Bounded, history-aware watch-only discovery; observations are not chain proofs.
-use crate::{AccountPublic, CandidateCoin, CoinType, DerivedAddress, Search, WalletError};
+use crate::{AccountPublic, CandidateCoin, CoinType, DerivedAddress, Search, WindowStop};
+use quai_consensus::OutPoint;
 use quai_consensus::U256;
 use quai_primitives::{Address, Hash32, Zone};
 use std::{collections::BTreeSet, future::Future};
@@ -123,6 +124,35 @@ pub trait ObservationSource {
         address: &DerivedAddress,
         checkpoint: Checkpoint,
     ) -> impl Future<Output = Result<AddressObservation, DiscoveryError>> + Send;
+    /// Observe several public addresses at the exact checkpoint, one result per
+    /// address in input order.
+    ///
+    /// [`discover`] calls this with a window the gap rule guarantees it will
+    /// examine whatever the answers, so a source may read them together without
+    /// disclosing any address a one-at-a-time scan would not have. The default
+    /// observes them one at a time through [`Self::observe`].
+    #[cfg(not(target_arch = "wasm32"))]
+    fn observe_many(
+        &self,
+        scope: NetworkScope,
+        addresses: &[DerivedAddress],
+        checkpoint: Checkpoint,
+    ) -> impl Future<Output = Result<Vec<AddressObservation>, DiscoveryError>> + Send {
+        // Futures are created up front so the returned future holds only them,
+        // not `&self`, and is Send without requiring the source to be Sync.
+        // They are lazy, so they still run one at a time, in order.
+        let pending: Vec<_> = addresses
+            .iter()
+            .map(|address| self.observe(scope, address, checkpoint))
+            .collect();
+        async move {
+            let mut observed = Vec::with_capacity(pending.len());
+            for observation in pending {
+                observed.push(observation.await?);
+            }
+            Ok(observed)
+        }
+    }
     /// Re-read canonical hash at this height. None means absent/noncanonical/unknown;
     /// the report then cannot be committed as a consistent snapshot.
     #[cfg(not(target_arch = "wasm32"))]
@@ -145,6 +175,22 @@ pub trait ObservationSource {
         address: &DerivedAddress,
         checkpoint: Checkpoint,
     ) -> impl Future<Output = Result<AddressObservation, DiscoveryError>>;
+    /// Browser batch observation with no Send requirement; see the native form.
+    #[cfg(target_arch = "wasm32")]
+    fn observe_many(
+        &self,
+        scope: NetworkScope,
+        addresses: &[DerivedAddress],
+        checkpoint: Checkpoint,
+    ) -> impl Future<Output = Result<Vec<AddressObservation>, DiscoveryError>> {
+        async move {
+            let mut observed = Vec::with_capacity(addresses.len());
+            for address in addresses {
+                observed.push(self.observe(scope, address, checkpoint).await?);
+            }
+            Ok(observed)
+        }
+    }
     /// Browser canonical-view request with no Send requirement.
     #[cfg(target_arch = "wasm32")]
     fn canonical(
@@ -192,6 +238,14 @@ pub enum ScanStop {
     /// Cancellation observed; partial report must not be committed as a snapshot.
     Cancelled,
 }
+/// Most addresses a scanner derives ahead and reads in one round trip.
+///
+/// Not a safety bound: [`GapCounter::window`] is already bounded by the gap
+/// guarantee. It caps how much derivation runs before the first read. Each
+/// usable address costs hundreds of candidate derivations, so a very wide
+/// window would front-load seconds of CPU before any network work began.
+pub const MAX_SCAN_WINDOW: usize = 64;
+
 /// The BIP44-style consecutive-unused-address rule, as one shared object.
 ///
 /// Every scanner in this workspace applies the same recurrence: the counter
@@ -257,6 +311,17 @@ impl GapCounter {
             Some(limit) => Some(limit.saturating_sub(self.consecutive_unused)),
             None => None,
         }
+    }
+    /// Addresses a branch derives and reads together next.
+    ///
+    /// The gap guarantee, further capped by the scan's remaining address budget
+    /// and [`MAX_SCAN_WINDOW`]. At least one, so a live branch always advances;
+    /// callers check the address budget before asking.
+    pub fn window(&self, address_budget: usize) -> usize {
+        self.guaranteed_remaining()
+            .map_or(usize::MAX, |n| usize::try_from(n).unwrap_or(usize::MAX))
+            .min(address_budget)
+            .clamp(1, MAX_SCAN_WINDOW)
     }
 }
 
@@ -350,8 +415,10 @@ pub fn classify_coin(
 
 /// Scan one watch-only account's receive and change branches. Use explicit ranges
 /// without gap stopping when recovering wallets that exceeded a gap or lack history.
-/// Cancellation is checked around every awaited observation and inside HD grinding;
-/// in-flight source futures require their own bounded timeout/cancellation support.
+/// Addresses are derived and observed in gap-bounded windows (see
+/// [`ObservationSource::observe_many`]). Cancellation is checked before each window,
+/// inside HD grinding and after each recorded address; in-flight source futures
+/// require their own bounded timeout/cancellation support.
 pub async fn discover<S: ObservationSource>(
     source: &S,
     account: &AccountPublic,
@@ -407,131 +474,85 @@ pub async fn discover<S: ObservationSource>(
     let mut was_cancelled = false;
     for coverage in &mut report.coverage {
         let mut gap = GapCounter::new(request.gap_limit);
-        while coverage.next_index < coverage.requested.end {
+        'branch: while coverage.next_index < coverage.requested.end {
             if was_cancelled || cancelled() {
                 was_cancelled = true;
-                coverage.stop = ScanStop::Cancelled;
                 break;
             }
             if report.addresses.len() >= request.max_addresses {
                 coverage.stop = ScanStop::AddressLimit;
                 break;
             }
+            // Derive a window the branch is guaranteed to examine and observe
+            // it together. The gap counter cannot stop the branch inside its
+            // own guarantee whatever the source answers, so the set observed
+            // is exactly the one-at-a-time scan's: nothing speculative is
+            // disclosed and no extra observation enters the coin budget.
             let start = coverage.next_index;
-            let found = account.search(
-                coverage.change,
-                Search {
-                    zone: request.scope.zone,
-                    start_index: start,
-                    max_attempts: coverage.requested.end - start,
-                },
-                &mut cancelled,
-            );
-            let derived = match found {
-                Ok(found) => {
-                    if found.address.index > start {
-                        coverage.skipped.push(IndexRange {
-                            start,
-                            end: found.address.index,
-                        });
-                    }
-                    found.address
-                }
-                Err(WalletError::SearchExhausted { attempts, .. }) => {
-                    coverage.next_index = start + attempts;
-                    if attempts > 0 {
-                        coverage.skipped.push(IndexRange {
-                            start,
-                            end: coverage.next_index,
-                        });
-                    }
-                    break;
-                }
-                Err(WalletError::Cancelled { attempts, .. }) => {
-                    coverage.next_index = start + attempts;
-                    if attempts > 0 {
-                        coverage.skipped.push(IndexRange {
-                            start,
-                            end: coverage.next_index,
-                        });
-                    }
-                    coverage.stop = ScanStop::Cancelled;
-                    was_cancelled = true;
-                    break;
-                }
-                Err(_) => return Err(DiscoveryError::Derivation),
-            };
-            // Do not advance past a matching address until its observation is recorded.
-            coverage.next_index = derived.index;
-            if cancelled() {
-                was_cancelled = true;
-                coverage.stop = ScanStop::Cancelled;
+            let window = account
+                .search_window(
+                    coverage.change,
+                    Search {
+                        zone: request.scope.zone,
+                        start_index: start,
+                        max_attempts: coverage.requested.end - start,
+                    },
+                    gap.window(request.max_addresses - report.addresses.len()),
+                    &mut cancelled,
+                )
+                .map_err(|_| DiscoveryError::Derivation)?;
+            let derived_to = window.next_index.unwrap_or(1 << 31);
+            if window.addresses.is_empty() {
+                // Every candidate examined was a zone or ledger mismatch.
+                skip(coverage, derived_to);
+                was_cancelled = window.stop == WindowStop::Cancelled;
                 break;
             }
-            let mut observation = source
-                .observe(request.scope, &derived, tip.checkpoint)
+            // Addresses found before a cancellation are discarded unobserved,
+            // so the cursor stays at the window start.
+            if window.stop == WindowStop::Cancelled || cancelled() {
+                was_cancelled = true;
+                break;
+            }
+            let observed = source
+                .observe_many(request.scope, &window.addresses, tip.checkpoint)
                 .await?;
-            if observation.scope != request.scope
-                || observation.checkpoint != tip.checkpoint
-                || observation.address != derived.address
-            {
+            if observed.len() != window.addresses.len() {
                 return Err(DiscoveryError::InvalidObservation);
             }
-            if history == HistoryCapability::HistoricalEverUsed && observation.ever_used.is_none() {
-                return Err(DiscoveryError::HistoryUnavailable);
-            }
-            if observation.ever_used == Some(false) && observation.has_current_activity() {
-                return Err(DiscoveryError::InvalidObservation);
-            }
-            if account.coin_type() == CoinType::Quai
-                && (!observation.coins.is_empty()
-                    || observation.account_balance.is_none()
-                    || observation.account_nonce.is_none())
-                || account.coin_type() == CoinType::Qi
-                    && (observation.account_balance.is_some()
-                        || observation.account_nonce.is_some())
-            {
-                return Err(DiscoveryError::InvalidObservation);
-            }
-            total_coins = total_coins
-                .checked_add(observation.coins.len())
-                .ok_or(DiscoveryError::InvalidObservation)?;
-            if total_coins > request.max_coins {
-                return Err(DiscoveryError::InvalidObservation);
-            }
-            for coin in &mut observation.coins {
-                let hash = coin.outpoint.transaction_hash.bytes();
-                if coin.address.address() != derived.address
-                    || hash[2] != request.scope.zone.byte()
-                    || *hash == [0; 32]
-                    || !seen.insert(coin.outpoint)
-                    || coin
-                        .expires_at
-                        .is_some_and(|height| height <= coin.unlock_height)
-                {
-                    return Err(DiscoveryError::InvalidObservation);
+            // Consume in derivation-index order. The cursor advances only after
+            // each observation is recorded, so an error or cancellation never
+            // leaves it past an unrecorded address.
+            for (derived, mut observation) in window.addresses.into_iter().zip(observed) {
+                let used = check_observation(
+                    &mut observation,
+                    &derived,
+                    request,
+                    tip.checkpoint,
+                    account.coin_type(),
+                    history,
+                    &mut seen,
+                    &mut total_coins,
+                )?;
+                let reached_gap_limit = gap.observe(used);
+                skip(coverage, derived.index);
+                coverage.next_index = derived.index + 1;
+                coverage.observed += 1;
+                report.addresses.push(ObservedAddress {
+                    derived,
+                    observation,
+                });
+                if cancelled() {
+                    was_cancelled = true;
+                    break 'branch;
                 }
-                coin.reserved = false;
+                if reached_gap_limit {
+                    coverage.stop = ScanStop::GapLimit;
+                    break 'branch;
+                }
             }
-            let used = if history == HistoryCapability::HistoricalEverUsed {
-                observation.ever_used == Some(true)
-            } else {
-                observation.has_current_activity()
-            };
-            let reached_gap_limit = gap.observe(used);
-            coverage.next_index = derived.index + 1;
-            coverage.observed += 1;
-            report.addresses.push(ObservedAddress {
-                derived,
-                observation,
-            });
-            if cancelled() {
-                was_cancelled = true;
-                coverage.stop = ScanStop::Cancelled;
-                break;
-            }
-            if reached_gap_limit {
-                coverage.stop = ScanStop::GapLimit;
+            if window.stop == WindowStop::Exhausted {
+                skip(coverage, derived_to);
                 break;
             }
         }
@@ -555,6 +576,78 @@ pub async fn discover<S: ObservationSource>(
         };
     }
     Ok(report)
+}
+
+/// Record raw children from the cursor up to `to` as skipped and advance to it.
+fn skip(coverage: &mut BranchCoverage, to: u32) {
+    if to > coverage.next_index {
+        coverage.skipped.push(IndexRange {
+            start: coverage.next_index,
+            end: to,
+        });
+        coverage.next_index = to;
+    }
+}
+
+/// Check one source response against its request and return whether the
+/// address counts as used. Coins enter the report's budget and duplicate set.
+#[allow(clippy::too_many_arguments)]
+fn check_observation(
+    observation: &mut AddressObservation,
+    derived: &DerivedAddress,
+    request: &DiscoveryRequest,
+    checkpoint: Checkpoint,
+    coin: CoinType,
+    history: HistoryCapability,
+    seen: &mut BTreeSet<OutPoint>,
+    total_coins: &mut usize,
+) -> Result<bool, DiscoveryError> {
+    if observation.scope != request.scope
+        || observation.checkpoint != checkpoint
+        || observation.address != derived.address
+    {
+        return Err(DiscoveryError::InvalidObservation);
+    }
+    if history == HistoryCapability::HistoricalEverUsed && observation.ever_used.is_none() {
+        return Err(DiscoveryError::HistoryUnavailable);
+    }
+    if observation.ever_used == Some(false) && observation.has_current_activity() {
+        return Err(DiscoveryError::InvalidObservation);
+    }
+    if coin == CoinType::Quai
+        && (!observation.coins.is_empty()
+            || observation.account_balance.is_none()
+            || observation.account_nonce.is_none())
+        || coin == CoinType::Qi
+            && (observation.account_balance.is_some() || observation.account_nonce.is_some())
+    {
+        return Err(DiscoveryError::InvalidObservation);
+    }
+    *total_coins = total_coins
+        .checked_add(observation.coins.len())
+        .ok_or(DiscoveryError::InvalidObservation)?;
+    if *total_coins > request.max_coins {
+        return Err(DiscoveryError::InvalidObservation);
+    }
+    for candidate in &mut observation.coins {
+        let hash = candidate.outpoint.transaction_hash.bytes();
+        if candidate.address.address() != derived.address
+            || hash[2] != request.scope.zone.byte()
+            || *hash == [0; 32]
+            || !seen.insert(candidate.outpoint)
+            || candidate
+                .expires_at
+                .is_some_and(|height| height <= candidate.unlock_height)
+        {
+            return Err(DiscoveryError::InvalidObservation);
+        }
+        candidate.reserved = false;
+    }
+    Ok(if history == HistoryCapability::HistoricalEverUsed {
+        observation.ever_used == Some(true)
+    } else {
+        observation.has_current_activity()
+    })
 }
 
 #[cfg(test)]

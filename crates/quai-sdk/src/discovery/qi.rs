@@ -6,7 +6,7 @@ use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{
     CanonicalStatus, Checkpoint, GapCounter, IndexRange, NetworkScope, ScanStop,
 };
-use quai_wallet::{AccountPublic, CoinType, DerivedAddress, Search, WalletError};
+use quai_wallet::{AccountPublic, CoinType, DerivedAddress, Search, WalletError, WindowStop};
 use std::collections::BTreeSet;
 use std::future::Future;
 
@@ -116,6 +116,9 @@ pub enum QiDiscoveryError {
     /// An optional caller-owned address-use query failed.
     #[error("Qi address-use check failed")]
     UseCheckFailed,
+    /// A batched read omitted an address it was asked for.
+    #[error("Qi discovery observation omitted an address")]
+    IncompleteObservation,
     /// Provider observation failed.
     #[error(transparent)]
     Provider(#[from] ProviderError),
@@ -251,83 +254,88 @@ where
                 report.stopped[branch..].fill(ScanStop::AddressLimit);
                 break 'branches;
             }
+            // Read a window the gap rule guarantees this branch examines, so
+            // the query set is exactly the one-at-a-time scan's. See
+            // `GapCounter::guaranteed_remaining`.
             let start = report.next_index[branch];
-            let found = match account.search(
+            let window = account.search_window(
                 branch == 1,
                 Search {
                     zone: scope.zone,
                     start_index: start,
                     max_attempts: range.end - start,
                 },
+                gap.window(options.max_addresses - report.addresses.len()),
                 &mut cancelled,
-            ) {
-                Ok(found) => found,
-                Err(WalletError::SearchExhausted { .. }) => {
-                    report.next_index[branch] = range.end;
-                    break;
+            )?;
+            if window.stop == WindowStop::Cancelled || cancelled() {
+                // Nothing in this window was observed; resume past any
+                // mismatches only when no address was found before them.
+                if window.addresses.is_empty() {
+                    report.next_index[branch] = window.next_index.unwrap_or(range.end);
                 }
-                Err(WalletError::Cancelled { next_index, .. }) => {
-                    report.next_index[branch] = next_index;
-                    report.stopped[branch..].fill(ScanStop::Cancelled);
-                    return Ok(report);
-                }
-                Err(error) => return Err(error.into()),
-            };
-            if cancelled() {
-                report.next_index[branch] = found.address.index;
                 report.stopped[branch..].fill(ScanStop::Cancelled);
                 return Ok(report);
             }
-            let raw = provider
-                .outpoints(
-                    found
-                        .address
-                        .address
-                        .try_into()
-                        .map_err(|_| QiDiscoveryError::InvalidRequest)?,
-                )
-                .await?;
-            if raw.len() > options.max_outpoints - seen.len() {
-                return Err(QiDiscoveryError::OutputLimit);
+            if window.addresses.is_empty() {
+                report.next_index[branch] = range.end;
+                break;
             }
-            let mut outputs = Vec::with_capacity(raw.len());
-            for output in raw {
-                let outpoint = OutPoint {
-                    transaction_hash: output.outpoint.tx_hash,
-                    index: output.outpoint.index,
-                };
-                if !seen.insert(outpoint) {
-                    return Err(QiDiscoveryError::InvalidOutputs);
+            let addresses = window
+                .addresses
+                .iter()
+                .map(|derived| {
+                    QiAddress::try_from(derived.address)
+                        .map_err(|_| QiDiscoveryError::InvalidRequest)
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            let mut observed = provider.outpoints_many(&addresses).await?;
+            // Consume in derivation-index order, never by iterating the
+            // address-keyed map, and advance only after recording each address.
+            for (derived, address) in window.addresses.into_iter().zip(addresses) {
+                // A missing row is a failure, never an empty result: counting
+                // an unread address toward the gap could stop a restore early.
+                let raw = observed
+                    .remove(&address)
+                    .ok_or(QiDiscoveryError::IncompleteObservation)?;
+                if raw.len() > options.max_outpoints - seen.len() {
+                    return Err(QiDiscoveryError::OutputLimit);
                 }
-                outputs.push(CurrentQiOutput {
-                    outpoint,
-                    denomination: Denomination::new(output.denomination)
-                        .map_err(|_| QiDiscoveryError::InvalidOutputs)?,
-                    unlock_height: output.lock,
+                let mut outputs = Vec::with_capacity(raw.len());
+                for output in raw {
+                    let outpoint = OutPoint {
+                        transaction_hash: output.outpoint.tx_hash,
+                        index: output.outpoint.index,
+                    };
+                    if !seen.insert(outpoint) {
+                        return Err(QiDiscoveryError::InvalidOutputs);
+                    }
+                    outputs.push(CurrentQiOutput {
+                        outpoint,
+                        denomination: Denomination::new(output.denomination)
+                            .map_err(|_| QiDiscoveryError::InvalidOutputs)?,
+                        unlock_height: output.lock,
+                    });
+                }
+                let use_hint = outputs.is_empty() && check_use(scope, address).await?;
+                let reached_gap_limit = gap.observe(!outputs.is_empty() || use_hint);
+                report.next_index[branch] = derived.index + 1;
+                report.addresses.push(CurrentQiAddress {
+                    derived,
+                    outputs,
+                    use_hint,
                 });
+                if reached_gap_limit {
+                    report.stopped[branch] = ScanStop::GapLimit;
+                    continue 'branches;
+                }
+                if cancelled() {
+                    report.stopped[branch..].fill(ScanStop::Cancelled);
+                    return Ok(report);
+                }
             }
-            let use_hint = if outputs.is_empty() {
-                check_use(
-                    scope,
-                    found
-                        .address
-                        .address
-                        .try_into()
-                        .map_err(|_| QiDiscoveryError::InvalidRequest)?,
-                )
-                .await?
-            } else {
-                false
-            };
-            let reached_gap_limit = gap.observe(!outputs.is_empty() || use_hint);
-            report.next_index[branch] = found.next_index.unwrap_or(1 << 31);
-            report.addresses.push(CurrentQiAddress {
-                derived: found.address,
-                outputs,
-                use_hint,
-            });
-            if reached_gap_limit {
-                report.stopped[branch] = ScanStop::GapLimit;
+            if window.stop == WindowStop::Exhausted {
+                report.next_index[branch] = range.end;
                 break;
             }
         }

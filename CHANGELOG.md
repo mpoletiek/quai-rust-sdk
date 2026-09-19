@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0-alpha.5
 
 Fixes from the first mainnet soak on 0.1.0-alpha.4, and the follow-ups the
 alpha.4 reviews deferred.

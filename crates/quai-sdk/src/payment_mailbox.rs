@@ -11,14 +11,19 @@ use crate::contracts::{Contract, ContractCall, ContractError};
 use quai_abi::AbiInterface;
 use quai_payments::PaymentCode;
 use quai_primitives::QuaiAddress;
-use quai_provider::{BlockTag, Provider};
-use quai_rpc::{Transport, U256};
+use quai_provider::{BlockTag, LogRange, Provider, ProviderError};
+use quai_rpc::{RpcError, Transport, U256};
 use serde_json::Value;
 
 /// Mailbox used by Pelagus (`pelagus-extension` 8c8a044, `MAILBOX_CONTRACT_ADDRESS`).
 /// Identical runtime bytes were observed at this address on mainnet and Orchard
 /// on 2026-09-14 (SHA-256 `475892f0…3051691d`). Verify deployments before use.
 pub const PELAGUS_MAILBOX_ADDRESS: &str = "0x004C82298b3ED69a949008d7037918B13A4260c5";
+
+/// Most blocks one `NotificationSent` log request covers: the provider's limit.
+/// [`PaymentMailbox::notifications_in_blocks`] halves a request whose response
+/// is too large, so a range dense with announcements still reads.
+pub const MAILBOX_LOG_BLOCKS: u64 = 10_000;
 
 /// Maximum announcements accepted from one read; larger results fail explicitly.
 ///
@@ -110,17 +115,74 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
         if entries.len() > MAX_MAILBOX_NOTIFICATIONS {
             return Err(ContractError::InvalidResult);
         }
-        let mut out = MailboxNotifications::default();
-        let mut seen = std::collections::HashSet::new();
+        let mut out = Collector::default();
         for entry in entries {
-            let text = entry.as_str().ok_or(ContractError::InvalidResult)?;
-            match PaymentCode::from_base58(text) {
-                Ok(code) if !seen.insert(code.to_base58()) => out.duplicates += 1,
-                Ok(code) => out.senders.push(code),
-                Err(_) => out.invalid.push(text.to_owned()),
-            }
+            out.add(entry.as_str().ok_or(ContractError::InvalidResult)?);
         }
-        Ok(out)
+        Ok(out.notifications)
+    }
+
+    /// Announcements to `receiver` from `NotificationSent` logs in the
+    /// inclusive block range `from..=to`, in announcement order.
+    ///
+    /// Unlike [`Self::notifications`], no single response grows with the
+    /// mailbox: the range is read in requests of at most [`MAILBOX_LOG_BLOCKS`]
+    /// blocks, halved while a response is too large. So announcement spam can
+    /// slow a read but cannot disable it. The event indexes nothing, so the
+    /// node returns every announcement in the range and the receiver is matched
+    /// here; the query reveals nothing about which receiver is reading.
+    ///
+    /// Logs are canonical-chain observations. Read up to a block the caller
+    /// treats as settled, and persist `to + 1` as the next range's start;
+    /// rereading a range is harmless, since repeated senders collapse.
+    pub async fn notifications_in_blocks(
+        &self,
+        receiver: &PaymentCode,
+        from: u64,
+        to: u64,
+    ) -> Result<MailboxNotifications, ContractError> {
+        if from > to {
+            return Err(ProviderError::InvalidRequest("mailbox log range is empty").into());
+        }
+        let mut out = Collector::default();
+        let (mut next, mut width) = (from, MAILBOX_LOG_BLOCKS);
+        loop {
+            let end = to.min(next.saturating_add(width - 1));
+            let range = LogRange::Inclusive {
+                from: next,
+                to: end,
+            };
+            let events = match self.contract.events("NotificationSent", range, &[]).await {
+                Ok(events) => events,
+                Err(ContractError::Provider(ProviderError::Rpc(RpcError::ResponseTooLarge)))
+                    if end > next =>
+                {
+                    width = (end - next).div_ceil(2);
+                    continue;
+                }
+                Err(error) => return Err(error),
+            };
+            for event in events.iter().filter(|event| !event.log.removed) {
+                let [sender, to_receiver] = event.values.as_slice() else {
+                    return Err(ContractError::InvalidResult);
+                };
+                let (
+                    quai_abi::AbiEventValue::Value(Value::String(sender)),
+                    quai_abi::AbiEventValue::Value(Value::String(to_receiver)),
+                ) = (sender, to_receiver)
+                else {
+                    return Err(ContractError::InvalidResult);
+                };
+                if PaymentCode::from_base58(to_receiver).is_ok_and(|code| code == *receiver) {
+                    out.add(sender);
+                }
+            }
+            if end == to {
+                return Ok(out.notifications);
+            }
+            next = end + 1;
+            width = MAILBOX_LOG_BLOCKS;
+        }
     }
 
     /// Whether `sender` is already announced to `receiver` (Pelagus's
@@ -137,5 +199,21 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
             .await?
             .senders
             .contains(sender))
+    }
+}
+
+/// Validates and de-duplicates announced sender codes in order.
+#[derive(Default)]
+struct Collector {
+    notifications: MailboxNotifications,
+    seen: std::collections::HashSet<String>,
+}
+impl Collector {
+    fn add(&mut self, text: &str) {
+        match PaymentCode::from_base58(text) {
+            Ok(code) if !self.seen.insert(code.to_base58()) => self.notifications.duplicates += 1,
+            Ok(code) => self.notifications.senders.push(code),
+            Err(_) => self.notifications.invalid.push(text.to_owned()),
+        }
     }
 }

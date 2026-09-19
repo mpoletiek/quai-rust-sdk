@@ -287,12 +287,36 @@ pub enum MailboxRegistration {
     RegisterFunded,
 }
 
+/// Where mailbox discovery reads announcements.
+#[cfg(feature = "abi")]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[non_exhaustive]
+pub enum MailboxSource {
+    /// `getNotifications`: every announcement to the receiver in one call.
+    /// Simple, but the response grows with the list, and anyone can grow the
+    /// list, so past the response limit this read fails for good.
+    #[default]
+    Contract,
+    /// `NotificationSent` logs in the inclusive block range, read in bounded
+    /// requests (see `PaymentMailbox::notifications_in_blocks`). Spam slows
+    /// it but cannot disable it. Page through one range with `start`, then
+    /// move on to the next range from `to + 1`, keeping `to` at a block the
+    /// wallet treats as settled.
+    Logs {
+        /// First block.
+        from: u64,
+        /// Last block, inclusive.
+        to: u64,
+    },
+}
+
 /// One page of mailbox discovery.
 #[cfg(feature = "abi")]
 #[derive(Clone, Debug)]
 #[non_exhaustive]
 pub struct MailboxDiscovery {
-    /// First announcement index; continue with the report's `next_start`.
+    /// First announcement index within `source`; continue with the report's
+    /// `next_start`.
     pub start: usize,
     /// Distinct valid senders to scan in this page, 1 through 64.
     pub max_channels: usize,
@@ -303,6 +327,8 @@ pub struct MailboxDiscovery {
     pub options: PaymentScanOptions,
     /// What to persist for unregistered senders.
     pub registration: MailboxRegistration,
+    /// Where announcements are read.
+    pub source: MailboxSource,
 }
 #[cfg(feature = "abi")]
 impl MailboxDiscovery {
@@ -313,6 +339,7 @@ impl MailboxDiscovery {
             max_channels,
             options: PaymentScanOptions::default(),
             registration: MailboxRegistration::ReportOnly,
+            source: MailboxSource::Contract,
         }
     }
     /// Replace `start`.
@@ -333,6 +360,11 @@ impl MailboxDiscovery {
     /// Replace `registration`.
     pub fn with_registration(mut self, registration: MailboxRegistration) -> Self {
         self.registration = registration;
+        self
+    }
+    /// Replace `source`.
+    pub fn with_source(mut self, source: MailboxSource) -> Self {
+        self.source = source;
         self
     }
 }
@@ -397,9 +429,10 @@ pub struct MailboxDiscoveryReport {
 /// refreshed once per page, and after a mid-page failure if anything was
 /// already imported. Send cursors never change; nothing is broadcast.
 ///
-/// The mailbox returns every announcement in one call, so a list larger than
-/// the transport's response limit (about 5,400 announcements at the default
-/// 2 MiB) fails until that limit is raised.
+/// With the default [`MailboxSource::Contract`], the mailbox returns every
+/// announcement in one call, so a list larger than the transport's response
+/// limit (about 5,400 announcements at the default 2 MiB) fails until that
+/// limit is raised. [`MailboxSource::Logs`] reads bounded block ranges instead.
 #[cfg(feature = "abi")]
 pub async fn discover_mailbox_channels<T: Transport>(
     provider: &Provider<T>,
@@ -414,13 +447,23 @@ pub async fn discover_mailbox_channels<T: Transport>(
         return Err(QiError::InvalidPolicy);
     }
     validate_scan_options(&request.options)?;
-    let announced = mailbox
-        .notifications(caller, owner.public_code(), quai_provider::BlockTag::Latest)
-        .await
-        .map_err(|error| match error {
-            crate::contracts::ContractError::Provider(error) => QiError::Provider(error),
-            _ => QiError::MailboxUnreadable,
-        })?;
+    let announced = match request.source {
+        MailboxSource::Contract => {
+            mailbox
+                .notifications(caller, owner.public_code(), quai_provider::BlockTag::Latest)
+                .await
+        }
+        MailboxSource::Logs { from, to } if from <= to => {
+            mailbox
+                .notifications_in_blocks(owner.public_code(), from, to)
+                .await
+        }
+        MailboxSource::Logs { .. } => return Err(QiError::InvalidPolicy),
+    }
+    .map_err(|error| match error {
+        crate::contracts::ContractError::Provider(error) => QiError::Provider(error),
+        _ => QiError::MailboxUnreadable,
+    })?;
     let mut report = MailboxDiscoveryReport {
         invalid: announced.invalid,
         duplicates: announced.duplicates,

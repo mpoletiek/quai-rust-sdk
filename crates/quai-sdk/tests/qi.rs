@@ -30,6 +30,7 @@ struct Mock {
     invalidate: Arc<Mutex<Option<(std::path::PathBuf, NetworkScope)>>>,
     outpoints: Arc<Mutex<std::collections::BTreeMap<String, Value>>>,
     call_result: Arc<Mutex<Option<Value>>>,
+    logs: Arc<Mutex<Vec<Value>>>,
 }
 impl Transport for Mock {
     async fn request(&self, _: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
@@ -61,6 +62,7 @@ impl Transport for Mock {
                 .unwrap()
                 .clone()
                 .expect("unexpected quai_call"),
+            "quai_getLogs" => Value::Array(self.logs.lock().unwrap().clone()),
             "quai_quaiToQi" => json!("0x5"),
             "quai_qiToQuai" => json!("0xffffffffff"),
             "quai_estimateFeeForQi" => {
@@ -2392,6 +2394,61 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     assert_eq!(env.store.addresses().unwrap().len(), stored);
     assert!(next.deferred.is_empty());
     assert_eq!(next.next_start, None);
+
+    // The same discovery reading NotificationSent logs for a block range: the
+    // funded sender's announcement is found and its channel rescanned, and an
+    // announcement to another receiver is ignored.
+    use quai_sdk::payment_channels::MailboxSource;
+    let event = mailbox
+        .contract()
+        .interface()
+        .event("NotificationSent")
+        .unwrap()
+        .clone();
+    let log = |index: u64, to: &PrivatePaymentCode| {
+        let (topics, data) = event
+            .encode_log(&[
+                json!(sender.public_code().to_base58()),
+                json!(to.public_code().to_base58()),
+            ])
+            .unwrap();
+        json!({"address":PELAGUS_MAILBOX_ADDRESS,"topics":topics.iter().map(ToString::to_string).collect::<Vec<_>>(),
+            "data":RpcData::new(data).unwrap().to_hex(),"blockHash":GENESIS,"blockNumber":"0x10",
+            "transactionHash":CHECKPOINT,"transactionIndex":"0x0","logIndex":format!("{index:#x}"),"removed":false})
+    };
+    *env.mock.logs.lock().unwrap() = vec![log(0, &other), log(1, &receiver)];
+    let logged = |from, to| register(0).with_source(MailboxSource::Logs { from, to });
+    let report = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        &logged(0x10, 0x10),
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(report.scanned.len(), 1);
+    assert_eq!(report.scanned[0].sender, *sender.public_code());
+    assert_eq!(
+        report.scanned[0].registration,
+        ChannelRegistration::Existing
+    );
+    assert_eq!(report.next_start, None);
+    assert!(matches!(
+        discover_mailbox_channels(
+            &env.provider,
+            &mut env.store,
+            &receiver,
+            &mailbox,
+            caller,
+            &logged(0x11, 0x10),
+            || false,
+        )
+        .await,
+        Err(QiError::InvalidPolicy)
+    ));
 }
 
 #[tokio::test]

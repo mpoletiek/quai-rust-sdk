@@ -11,7 +11,7 @@ use crate::contracts::{Contract, ContractCall, ContractError};
 use quai_abi::AbiInterface;
 use quai_payments::PaymentCode;
 use quai_primitives::QuaiAddress;
-use quai_provider::{BlockTag, LogRange, Provider, ProviderError};
+use quai_provider::{BlockTag, LogFilter, LogRange, Provider, ProviderError, TopicMatch};
 use quai_rpc::{RpcError, Transport, U256};
 use serde_json::Value;
 
@@ -21,9 +21,24 @@ use serde_json::Value;
 pub const PELAGUS_MAILBOX_ADDRESS: &str = "0x004C82298b3ED69a949008d7037918B13A4260c5";
 
 /// Most blocks one `NotificationSent` log request covers: the provider's limit.
-/// [`PaymentMailbox::notifications_in_blocks`] halves a request whose response
-/// is too large, so a range dense with announcements still reads.
+/// [`PaymentMailbox::notifications_in_blocks`] halves a request that exceeds
+/// the transport's response limit, so a range dense with announcements still
+/// reads.
 pub const MAILBOX_LOG_BLOCKS: u64 = 10_000;
+
+/// Blocks the end of a log range must sit below the tip. Zone reorgs are
+/// usually one or two blocks deep, and a load-balanced backend may lag a few
+/// blocks; below this depth, neither can change or hide the range.
+pub const MAILBOX_SETTLED_DEPTH: u64 = 16;
+
+/// Longest invalid announcement kept verbatim; the rest is cut. A valid code
+/// is at most 120 characters.
+const INVALID_ENTRY_CHARS: usize = 128;
+
+/// Undecodable logs kept as diagnostics per read. They cannot be tied to a
+/// receiver, so they are not counted toward the read's size cap: otherwise
+/// one sender's junk could fail every wallet's read of that range.
+const UNDECODABLE_KEPT: usize = 16;
 
 /// Maximum announcements accepted from one read; larger results fail explicitly.
 ///
@@ -56,6 +71,7 @@ pub struct MailboxNotifications {
 /// account intents for review, signing and submission through a wallet session.
 pub struct PaymentMailbox<'a, T> {
     contract: Contract<'a, T>,
+    provider: &'a Provider<T>,
 }
 
 impl<'a, T: Transport> PaymentMailbox<'a, T> {
@@ -67,6 +83,7 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
                 AbiInterface::from_json(MAILBOX_ABI.as_bytes())?,
                 provider,
             ),
+            provider,
         })
     }
 
@@ -126,15 +143,21 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
     /// inclusive block range `from..=to`, in announcement order.
     ///
     /// Unlike [`Self::notifications`], no single response grows with the
-    /// mailbox: the range is read in requests of at most [`MAILBOX_LOG_BLOCKS`]
-    /// blocks, halved while a response is too large. So announcement spam can
-    /// slow a read but cannot disable it. The event indexes nothing, so the
-    /// node returns every announcement in the range and the receiver is matched
-    /// here; the query reveals nothing about which receiver is reading.
+    /// mailbox. The range is read in requests of at most [`MAILBOX_LOG_BLOCKS`]
+    /// blocks, halved while a response exceeds the transport's limit, so
+    /// announcement spam can slow a read but cannot disable it. A log that does
+    /// not decode is listed in `invalid` and skipped, never failing the read.
+    /// The event indexes nothing, so the node returns every announcement in the
+    /// range and the receiver is matched here: the query reveals nothing about
+    /// which receiver is reading.
     ///
-    /// Logs are canonical-chain observations. Read up to a block the caller
-    /// treats as settled, and persist `to + 1` as the next range's start;
-    /// rereading a range is harmless, since repeated senders collapse.
+    /// `to` must be at least [`MAILBOX_SETTLED_DEPTH`] blocks below the tip
+    /// (`ProviderError::InvalidRequest` otherwise), and its hash must be the
+    /// same after the read as before (`ProviderError::ObservationChanged`
+    /// otherwise; retry). A read that returns `Ok` covered a settled range, so
+    /// the caller can persist `to + 1` as the next range's start. More than
+    /// [`MAX_MAILBOX_NOTIFICATIONS`] entries in one read fail with
+    /// `InvalidResult`; read a narrower range.
     pub async fn notifications_in_blocks(
         &self,
         receiver: &PaymentCode,
@@ -144,45 +167,74 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
         if from > to {
             return Err(ProviderError::InvalidRequest("mailbox log range is empty").into());
         }
+        let zone = self.contract.address().zone();
+        let settled = |headers: Vec<Option<quai_provider::ZoneHeader>>| match headers.as_slice() {
+            [Some(tip), Some(end)] => Ok((tip.number, end.hash)),
+            _ => Err(ProviderError::ObservationChanged),
+        };
+        let at_end = [BlockTag::Latest, BlockTag::Number(U256::from(to))];
+        let (tip, anchor) = settled(self.provider.headers(zone, &at_end).await?)?;
+        if tip < to.saturating_add(MAILBOX_SETTLED_DEPTH) {
+            return Err(ProviderError::InvalidRequest("mailbox log range is not settled").into());
+        }
+        let event = self.contract.interface().event("NotificationSent")?;
         let mut out = Collector::default();
         let (mut next, mut width) = (from, MAILBOX_LOG_BLOCKS);
         loop {
             let end = to.min(next.saturating_add(width - 1));
-            let range = LogRange::Inclusive {
-                from: next,
-                to: end,
+            let filter = LogFilter {
+                zone,
+                range: LogRange::Inclusive {
+                    from: next,
+                    to: end,
+                },
+                addresses: vec![self.contract.address().address()],
+                topics: vec![TopicMatch::Exact(event.topic_hash())],
             };
-            let events = match self.contract.events("NotificationSent", range, &[]).await {
-                Ok(events) => events,
-                Err(ContractError::Provider(ProviderError::Rpc(RpcError::ResponseTooLarge)))
-                    if end > next =>
-                {
+            let logs = match self.provider.logs(&filter).await {
+                Ok(logs) => logs,
+                Err(ProviderError::Rpc(RpcError::ResponseTooLarge)) if end > next => {
                     width = (end - next).div_ceil(2);
                     continue;
                 }
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.into()),
             };
-            for event in events.iter().filter(|event| !event.log.removed) {
-                let [sender, to_receiver] = event.values.as_slice() else {
+            for log in logs.iter().filter(|log| !log.removed) {
+                // Each log is decoded alone: anyone can emit one that does not
+                // decode, such as a non-UTF-8 string, and it must not hide the rest.
+                let values = event.decode_log(&log.topics, log.data.bytes());
+                let strings = values.as_deref().ok().and_then(|values| match values {
+                    [
+                        quai_abi::AbiEventValue::Value(Value::String(sender)),
+                        quai_abi::AbiEventValue::Value(Value::String(to_receiver)),
+                    ] => Some((sender, to_receiver)),
+                    _ => None,
+                });
+                match strings {
+                    Some((sender, to_receiver)) => {
+                        if PaymentCode::from_base58(to_receiver).is_ok_and(|c| c == *receiver) {
+                            out.add(sender);
+                        }
+                    }
+                    None => out.undecodable(log.transaction_hash, log.log_index),
+                }
+                if out.len() > MAX_MAILBOX_NOTIFICATIONS {
                     return Err(ContractError::InvalidResult);
-                };
-                let (
-                    quai_abi::AbiEventValue::Value(Value::String(sender)),
-                    quai_abi::AbiEventValue::Value(Value::String(to_receiver)),
-                ) = (sender, to_receiver)
-                else {
-                    return Err(ContractError::InvalidResult);
-                };
-                if PaymentCode::from_base58(to_receiver).is_ok_and(|code| code == *receiver) {
-                    out.add(sender);
                 }
             }
             if end == to {
-                return Ok(out.notifications);
+                break;
             }
             next = end + 1;
-            width = MAILBOX_LOG_BLOCKS;
+            // Grow back after a dense stretch rather than retrying the full
+            // width, which would repeat every halving for each chunk.
+            width = width.saturating_mul(2).min(MAILBOX_LOG_BLOCKS);
         }
+        let (_, after) = settled(self.provider.headers(zone, &at_end).await?)?;
+        if after != anchor {
+            return Err(ProviderError::ObservationChanged.into());
+        }
+        Ok(out.notifications)
     }
 
     /// Whether `sender` is already announced to `receiver` (Pelagus's
@@ -207,13 +259,29 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
 struct Collector {
     notifications: MailboxNotifications,
     seen: std::collections::HashSet<String>,
+    undecodable: usize,
 }
 impl Collector {
     fn add(&mut self, text: &str) {
         match PaymentCode::from_base58(text) {
             Ok(code) if !self.seen.insert(code.to_base58()) => self.notifications.duplicates += 1,
             Ok(code) => self.notifications.senders.push(code),
-            Err(_) => self.notifications.invalid.push(text.to_owned()),
+            Err(_) => self
+                .notifications
+                .invalid
+                .push(text.chars().take(INVALID_ENTRY_CHARS).collect()),
         }
+    }
+    fn undecodable(&mut self, transaction: quai_primitives::Hash32, index: u64) {
+        if self.undecodable < UNDECODABLE_KEPT {
+            self.notifications
+                .invalid
+                .push(format!("undecodable log {transaction}:{index}"));
+        }
+        self.undecodable += 1;
+    }
+    fn len(&self) -> usize {
+        let n = &self.notifications;
+        n.senders.len() + n.invalid.len() + n.duplicates - self.undecodable.min(UNDECODABLE_KEPT)
     }
 }

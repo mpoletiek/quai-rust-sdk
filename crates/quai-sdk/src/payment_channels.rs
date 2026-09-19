@@ -291,7 +291,7 @@ pub enum MailboxRegistration {
 
 /// Where mailbox discovery reads announcements.
 #[cfg(feature = "abi")]
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum MailboxSource {
     /// `getNotifications`: every announcement to the receiver in one call.
@@ -301,15 +301,24 @@ pub enum MailboxSource {
     Contract,
     /// `NotificationSent` logs in the inclusive block range, read in bounded
     /// requests (see `PaymentMailbox::notifications_in_blocks`). Spam slows
-    /// it but cannot disable it. Page through one range with `start`, then
-    /// move on to the next range from `to + 1`, keeping `to` at a block the
-    /// wallet treats as settled.
+    /// it but cannot disable it. `to` must be `MAILBOX_SETTLED_DEPTH` below
+    /// the tip. Page through one range with `start`, then move on to the next
+    /// range from `to + 1`.
+    ///
+    /// A later range never sees an earlier announcement again. Keep the
+    /// senders a pass reports as `Unregistered` or `Refused` that you may want
+    /// later, such as one announced before its first payment, and probe them
+    /// again with [`MailboxSource::Senders`].
     Logs {
         /// First block.
         from: u64,
         /// Last block, inclusive.
         to: u64,
     },
+    /// These senders, in this order, with no mailbox read: for probing again
+    /// senders an earlier pass left unregistered. At most
+    /// `MAX_MAILBOX_NOTIFICATIONS`; repeats collapse.
+    Senders(Vec<PaymentCode>),
 }
 
 /// One page of mailbox discovery.
@@ -388,8 +397,10 @@ pub enum ChannelRegistration {
     Existing,
     /// Registered by this call and scanned in full.
     Registered,
-    /// Not registered and nothing persisted; the report is its probe. It is
-    /// probed again on every later pass that covers its index.
+    /// Not registered and nothing persisted; the report is its probe. With
+    /// `MailboxSource::Contract` it is probed again on every later pass that
+    /// covers its index. With `Logs`, only a read of the same range sees it
+    /// again: keep it and pass it in `MailboxSource::Senders`.
     Unregistered,
     /// Its probe found funds, but the store's channel limit is reached.
     Refused,
@@ -458,7 +469,7 @@ pub async fn discover_mailbox_channels<T: Transport>(
         return Err(QiError::InvalidPolicy);
     }
     validate_scan_options(&request.options)?;
-    let announced = match request.source {
+    let announced = match &request.source {
         MailboxSource::Contract => {
             mailbox
                 .notifications(caller, owner.public_code(), quai_provider::BlockTag::Latest)
@@ -466,10 +477,25 @@ pub async fn discover_mailbox_channels<T: Transport>(
         }
         MailboxSource::Logs { from, to } if from <= to => {
             mailbox
-                .notifications_in_blocks(owner.public_code(), from, to)
+                .notifications_in_blocks(owner.public_code(), *from, *to)
                 .await
         }
         MailboxSource::Logs { .. } => return Err(QiError::InvalidPolicy),
+        MailboxSource::Senders(codes)
+            if codes.len() <= crate::payment_mailbox::MAX_MAILBOX_NOTIFICATIONS =>
+        {
+            let mut known = crate::payment_mailbox::MailboxNotifications::default();
+            let mut seen = std::collections::HashSet::with_capacity(codes.len());
+            for code in codes {
+                if seen.insert(code.to_bytes()) {
+                    known.senders.push(code.clone());
+                } else {
+                    known.duplicates += 1;
+                }
+            }
+            Ok(known)
+        }
+        MailboxSource::Senders(_) => return Err(QiError::InvalidPolicy),
     }
     .map_err(|error| match error {
         crate::contracts::ContractError::Provider(error) => QiError::Provider(error),

@@ -4,6 +4,8 @@
 use quai_sdk::BlockTag;
 use quai_sdk::payment_mailbox::*;
 use quai_sdk::payments::PaymentCode;
+#[cfg(not(target_arch = "wasm32"))]
+use quai_sdk::primitives::Hash32;
 use quai_sdk::rpc::{Endpoint, RpcError, Transport};
 use quai_sdk::{Provider, Routing, U256, Zone};
 use serde_json::{Value, json};
@@ -113,14 +115,21 @@ async fn notifications_are_validated_deduplicated_and_bounded() {
     );
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+type Ranges = Arc<Mutex<Vec<(u64, u64)>>>;
+
 /// Serves `NotificationSent` logs for requested ranges, refusing as too large
-/// any multi-block range that covers the dense block.
+/// any multi-block range that covers the dense block, and zone headers whose
+/// hashes change after `reorg_after` header reads, to model a reorg.
 #[cfg(not(target_arch = "wasm32"))]
 #[derive(Clone)]
 struct Logs {
     entries: Arc<Vec<(u64, Value)>>,
     dense: u64,
-    ranges: Arc<Mutex<Vec<(u64, u64)>>>,
+    ranges: Ranges,
+    tip: u64,
+    reorg_after: Option<usize>,
+    headers: Arc<Mutex<usize>>,
 }
 #[cfg(not(target_arch = "wasm32"))]
 impl Transport for Logs {
@@ -130,6 +139,24 @@ impl Transport for Logs {
         };
         match method {
             "quai_chainId" => Ok(json!("0x9")),
+            "quai_getHeaderByNumber" => {
+                let n = if params[0] == "latest" {
+                    self.tip
+                } else {
+                    number(&params[0])
+                };
+                let mut served = self.headers.lock().unwrap();
+                *served += 1;
+                let salt = u8::from(self.reorg_after.is_some_and(|after| *served > after));
+                let mut hash = [salt; 32];
+                hash[24..].copy_from_slice(&(n + 1).to_be_bytes());
+                Ok(
+                    json!({"woHeader":{"hash":Hash32::from_bytes(hash).to_string(),
+                    "parentHash":Hash32::from_bytes([9; 32]).to_string(),
+                    "number":format!("{n:#x}"),"location":"0x0000","primeTerminusNumber":"0x1"},
+                    "gasLimit":"0x1","stateLimit":"0x1"}),
+                )
+            }
             "quai_getLogs" => {
                 let (from, to) = (
                     number(&params[0]["fromBlock"]),
@@ -154,8 +181,10 @@ impl Transport for Logs {
 
 #[cfg(not(target_arch = "wasm32"))]
 #[tokio::test]
-async fn log_announcements_are_filtered_bounded_and_split_when_too_large() {
+async fn log_announcements_are_filtered_bounded_settled_and_split_when_too_large() {
+    use quai_sdk::contracts::ContractError;
     use quai_sdk::payments::PrivatePaymentCode;
+    use quai_sdk::provider::ProviderError;
     let code = |n: u8| {
         PrivatePaymentCode::from_seed(&[n; 32], 0)
             .unwrap()
@@ -171,8 +200,13 @@ async fn log_announcements_are_filtered_bounded_and_split_when_too_large() {
         .event("NotificationSent")
         .unwrap()
         .clone();
-    let log = |block: u64, index: u64, from: &str, to: &str, removed: bool| {
-        let (topics, data) = event.encode_log(&[json!(from), json!(to)]).unwrap();
+    // `undecodable` corrupts the sender string into non-UTF-8, which Solidity
+    // accepts and which cannot decode.
+    let log = |block: u64, index: u64, from: &str, to: &str, removed: bool, undecodable: bool| {
+        let (topics, mut data) = event.encode_log(&[json!(from), json!(to)]).unwrap();
+        if undecodable {
+            data[0x60] = 0xff;
+        }
         let mut hash = [0u8; 32];
         hash[24..].copy_from_slice(&block.to_be_bytes());
         (
@@ -181,9 +215,9 @@ async fn log_announcements_are_filtered_bounded_and_split_when_too_large() {
                 "address": PELAGUS_MAILBOX_ADDRESS,
                 "topics": topics.iter().map(ToString::to_string).collect::<Vec<_>>(),
                 "data": format!("0x{}", data.iter().map(|b| format!("{b:02x}")).collect::<String>()),
-                "blockHash": quai_sdk::primitives::Hash32::from_bytes(hash).to_string(),
+                "blockHash": Hash32::from_bytes(hash).to_string(),
                 "blockNumber": format!("{block:#x}"),
-                "transactionHash": quai_sdk::primitives::Hash32::from_bytes([7; 32]).to_string(),
+                "transactionHash": Hash32::from_bytes([7; 32]).to_string(),
                 "transactionIndex": "0x0",
                 "logIndex": format!("{index:#x}"),
                 "removed": removed,
@@ -196,34 +230,45 @@ async fn log_announcements_are_filtered_bounded_and_split_when_too_large() {
         other.to_base58(),
         stranger.to_base58(),
     );
-    let entries = vec![
-        log(5, 0, &s, &r, false),
-        log(4_321, 0, &x, &o, false), // to another receiver: not ours
-        log(4_321, 1, "not-a-payment-code", &r, false),
-        log(4_321, 2, &s, &r, false), // repeated sender collapses
-        log(15_000, 0, &x, &r, true), // reorged out
-        log(25_000, 0, &o, &r, false),
-    ];
-    let ranges = Arc::new(Mutex::new(Vec::new()));
-    let provider = Provider::new(
-        Logs {
-            entries: Arc::new(entries),
-            dense: 4_321,
-            ranges: ranges.clone(),
-        },
-        Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
-        U256::from(9),
-    );
+    let entries = Arc::new(vec![
+        log(5, 0, &s, &r, false, false),
+        log(4_321, 0, &x, &o, false, false), // to another receiver: not ours
+        log(4_321, 1, "not-a-payment-code", &r, false, false),
+        log(4_321, 2, &s, &r, false, false), // repeated sender collapses
+        log(15_000, 0, &x, &r, true, false), // reorged out
+        log(20_000, 0, &x, &r, false, true), // does not decode: listed, not fatal
+        log(25_000, 0, &o, &r, false, false),
+    ]);
+    let logs = |tip: u64, reorg_after: Option<usize>, ranges: &Ranges| {
+        Provider::new(
+            Logs {
+                entries: entries.clone(),
+                dense: 4_321,
+                ranges: ranges.clone(),
+                tip,
+                reorg_after,
+                headers: Default::default(),
+            },
+            Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+            U256::from(9),
+        )
+    };
+    let settled = 30_000 + MAILBOX_SETTLED_DEPTH;
+
+    let ranges = Ranges::default();
+    let provider = logs(settled, None, &ranges);
     let mailbox = PaymentMailbox::new(PELAGUS_MAILBOX_ADDRESS.parse().unwrap(), &provider).unwrap();
     let found = mailbox
         .notifications_in_blocks(&receiver, 0, 30_000)
         .await
         .unwrap();
     assert_eq!(found.senders, vec![sender.clone(), other.clone()]);
-    assert_eq!(found.invalid, vec!["not-a-payment-code".to_string()]);
+    assert_eq!(found.invalid.len(), 2);
+    assert_eq!(found.invalid[0], "not-a-payment-code");
+    assert!(found.invalid[1].starts_with("undecodable log "));
     assert_eq!(found.duplicates, 1);
-    // Every request stays within the provider's limit; the dense block is
-    // finally read alone; successful reads cover 0..=30,000 exactly once, in order.
+    // Every request stays within the provider's limit, the dense block is
+    // finally read alone, and successful reads cover 0..=30,000 once, in order.
     let ranges = ranges.lock().unwrap().clone();
     assert!(ranges.iter().all(|(f, t)| t - f < MAILBOX_LOG_BLOCKS));
     assert!(ranges.contains(&(4_321, 4_321)));
@@ -241,4 +286,24 @@ async fn log_announcements_are_filtered_bounded_and_split_when_too_large() {
             .await
             .is_err()
     );
+
+    // A range ending too close to the tip is refused before any log request:
+    // a lagging node or a shallow reorg could still hide an announcement in it.
+    let near = Ranges::default();
+    let provider = logs(settled - 1, None, &near);
+    let mailbox = PaymentMailbox::new(PELAGUS_MAILBOX_ADDRESS.parse().unwrap(), &provider).unwrap();
+    assert!(matches!(
+        mailbox.notifications_in_blocks(&receiver, 0, 30_000).await,
+        Err(ContractError::Provider(ProviderError::InvalidRequest(_)))
+    ));
+    assert!(near.lock().unwrap().is_empty());
+
+    // If the end block changes during the read, the result is not trusted.
+    let moved = Ranges::default();
+    let provider = logs(settled, Some(2), &moved);
+    let mailbox = PaymentMailbox::new(PELAGUS_MAILBOX_ADDRESS.parse().unwrap(), &provider).unwrap();
+    assert!(matches!(
+        mailbox.notifications_in_blocks(&receiver, 0, 30_000).await,
+        Err(ContractError::Provider(ProviderError::ObservationChanged))
+    ));
 }

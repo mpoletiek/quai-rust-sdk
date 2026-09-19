@@ -31,6 +31,9 @@ struct Mock {
     outpoints: Arc<Mutex<std::collections::BTreeMap<String, Value>>>,
     call_result: Arc<Mutex<Option<Value>>>,
     logs: Arc<Mutex<Vec<Value>>>,
+    /// When nonzero, `latest` reports this height and numbered header reads
+    /// echo the requested number, for settled-range checks.
+    tip: Arc<AtomicU64>,
 }
 impl Transport for Mock {
     async fn request(&self, _: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
@@ -51,6 +54,13 @@ impl Transport for Mock {
                 .unwrap_or(json!([])),
             "quai_getHeaderByNumber" if params[0] == "0x0" => {
                 json!({"woHeader":{"hash": if mode == 4 { CHECKPOINT } else { GENESIS }, "number":"0x0","location":"0x","parentHash":format!("0x{}","00".repeat(32))}})
+            }
+            "quai_getHeaderByNumber" if self.tip.load(Ordering::SeqCst) != 0 => {
+                let n = match params[0].as_str().unwrap() {
+                    "latest" => self.tip.load(Ordering::SeqCst),
+                    n => u64::from_str_radix(n.trim_start_matches("0x"), 16).unwrap(),
+                };
+                json!({"woHeader":{"hash":CHECKPOINT,"number":format!("{n:#x}"),"location":"0x0000","parentHash":GENESIS,"primeTerminusNumber":"0x10"},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
             }
             "quai_getHeaderByNumber" => {
                 json!({"woHeader":{"hash":if mode==5 {GENESIS} else {CHECKPOINT}, "number": if params[0]=="latest" && mode==6 {"0x11"} else {"0x10"},"location":"0x0000","parentHash":GENESIS,"primeTerminusNumber": if mode==8 {"0x1ac778"} else {"0x10"}},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
@@ -2443,6 +2453,11 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
             "transactionHash":CHECKPOINT,"transactionIndex":"0x0","logIndex":format!("{index:#x}"),"removed":false})
     };
     *env.mock.logs.lock().unwrap() = vec![log(0, &other), log(1, &receiver)];
+    // The range must sit MAILBOX_SETTLED_DEPTH below the tip.
+    env.mock.tip.store(
+        0x10 + quai_sdk::payment_mailbox::MAILBOX_SETTLED_DEPTH,
+        Ordering::SeqCst,
+    );
     let logged = |from, to| register(0).with_source(MailboxSource::Logs { from, to });
     let report = discover_mailbox_channels(
         &env.provider,
@@ -2475,6 +2490,33 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
         .await,
         Err(QiError::InvalidPolicy)
     ));
+    // A sender a log pass left unregistered can be probed again by code,
+    // without reading the mailbox; repeats collapse.
+    let known = |codes: Vec<quai_sdk::payments::PaymentCode>| {
+        page(0).with_source(MailboxSource::Senders(codes))
+    };
+    let again = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        &known(vec![
+            other.public_code().clone(),
+            other.public_code().clone(),
+        ]),
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(again.scanned.len(), 1);
+    assert_eq!(again.scanned[0].sender, *other.public_code());
+    assert_eq!(
+        again.scanned[0].registration,
+        ChannelRegistration::Unregistered
+    );
+    assert_eq!(again.duplicates, 1);
+    assert!(again.invalid.is_empty());
 }
 
 #[tokio::test]

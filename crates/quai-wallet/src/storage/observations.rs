@@ -63,7 +63,7 @@ impl SqliteStore {
     /// Atomically replace a public observation of at most 4096 bytes after source
     /// revalidation. At most 2048 candidate/slot caches are held per operation.
     /// `None` expected revision means never written; `None` payload invalidates.
-    /// Concurrent observers must reread/revalidate after a revision conflict.
+    /// A moved revision is `ObservationRaced`: reread and revalidate, then retry.
     /// No keys, credentials or private application content belong in this cache.
     /// This slot-only convenience does not fence asynchronous scope changes;
     /// capture `observation_generation` and use the scoped method for node reads.
@@ -165,7 +165,7 @@ impl SqliteStore {
             })
             .collect::<Result<_>>()?;
         if actual != expected_candidates {
-            return Err(StorageError::Conflict);
+            return Err(StorageError::ObservationRaced);
         }
         let revision = write_observation(
             &tx,
@@ -196,7 +196,7 @@ fn write_observation(
         .transpose()
         .map_err(|_| StorageError::Invalid)?;
     if old != expected_revision {
-        return Err(StorageError::Conflict);
+        return Err(StorageError::ObservationRaced);
     }
     if old.is_none() {
         let count: i64 = connection.query_row(

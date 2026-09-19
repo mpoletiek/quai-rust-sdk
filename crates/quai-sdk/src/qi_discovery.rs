@@ -6,7 +6,7 @@ use quai_primitives::QiAddress;
 use quai_provider::{BlockTag, MAX_OUTPOINT_ADDRESSES, Provider};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::{Checkpoint, GapCounter, IndexRange, NetworkScope, ScanStop};
-use quai_wallet::storage::{PublicAddress, Snapshot, SqliteStore};
+use quai_wallet::storage::{PublicAddress, Snapshot, SqliteStore, StorageError};
 use quai_wallet::{AccountPublic, CandidateCoin, CoinType, Grinding, Search, WindowStop};
 use std::collections::BTreeSet;
 use std::future::Future;
@@ -319,20 +319,70 @@ where
     Ok(report)
 }
 
+/// Options for [`refresh_qi_with`].
+#[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
+pub struct RefreshOptions {
+    /// Stored-address limit, at most 100,000.
+    pub max_addresses: usize,
+    /// Refreshes tried before failing, 1 to 16. An attempt is lost to a new
+    /// block during the reads or to another writer's commit, and the next one
+    /// redoes every read.
+    pub attempts: usize,
+}
+impl RefreshOptions {
+    /// Replace `max_addresses`.
+    pub const fn with_max_addresses(mut self, max_addresses: usize) -> Self {
+        self.max_addresses = max_addresses;
+        self
+    }
+    /// Replace `attempts`.
+    pub const fn with_attempts(mut self, attempts: usize) -> Self {
+        self.attempts = attempts;
+        self
+    }
+}
+impl Default for RefreshOptions {
+    /// 100,000 addresses and three attempts, as `refresh_qi` uses.
+    fn default() -> Self {
+        Self {
+            max_addresses: 100_000,
+            attempts: 3,
+        }
+    }
+}
+
 /// Read all persisted Qi addresses, including imported/channel/change addresses,
 /// then atomically replace their current coin view while preserving reservations.
 /// The snapshot is labelled with the latest block seen before the reads and
-/// written only if the latest block is unchanged after them; after three
-/// attempts on a moving tip it fails with `QiError::StaleSnapshot`. This is still a trusted latest-state observation,
-/// not an atomic RPC snapshot, historical recovery, or spendability proof.
-/// Node-side validation remains authoritative if an output is spent or trimmed later.
+/// written only if the latest block is unchanged after them. When nothing but
+/// the label changed, only the label is written and the generation is kept.
+///
+/// Another handle on the same store may commit first. Its snapshot is returned
+/// when it is labelled at or after this refresh's block; otherwise the refresh
+/// starts again, so reads are never committed under a generation they did not
+/// start from. After three lost attempts it fails with `QiError::StaleSnapshot`
+/// (class `Stale`). This is still a trusted latest-state observation, not an
+/// atomic RPC snapshot, historical recovery, or spendability proof. Node-side
+/// validation remains authoritative if an output is spent or trimmed later.
 pub async fn refresh_qi<T: Transport>(
     provider: &Provider<T>,
     store: &mut SqliteStore,
     max_addresses: usize,
+    cancelled: impl FnMut() -> bool,
+) -> Result<Checkpoint, QiError> {
+    let options = RefreshOptions::default().with_max_addresses(max_addresses);
+    refresh_qi_with(provider, store, options, cancelled).await
+}
+
+/// [`refresh_qi`] with an explicit attempt budget.
+pub async fn refresh_qi_with<T: Transport>(
+    provider: &Provider<T>,
+    store: &mut SqliteStore,
+    options: RefreshOptions,
     mut cancelled: impl FnMut() -> bool,
 ) -> Result<Checkpoint, QiError> {
-    if !(1..=100_000).contains(&max_addresses) {
+    if !(1..=100_000).contains(&options.max_addresses) || !(1..=16).contains(&options.attempts) {
         return Err(QiError::InvalidPolicy);
     }
     // The tip must not move across the reads: then every output read is on
@@ -341,23 +391,18 @@ pub async fn refresh_qi<T: Transport>(
     // with an earlier block let an output from an orphaned block be selected,
     // leaving the spend's other inputs claimed. Reads are batched, so a
     // refresh usually fits inside one block; a new block retries the reads.
-    for _ in 0..REFRESH_ATTEMPTS - 1 {
+    for _ in 0..options.attempts {
         if let Some(checkpoint) =
-            refresh_once(provider, store, max_addresses, &mut cancelled).await?
+            refresh_once(provider, store, options.max_addresses, &mut cancelled).await?
         {
             return Ok(checkpoint);
         }
     }
-    refresh_once(provider, store, max_addresses, &mut cancelled)
-        .await?
-        .ok_or(QiError::StaleSnapshot)
+    Err(QiError::StaleSnapshot)
 }
 
-/// Refresh attempts before a moving tip is reported as `StaleSnapshot`.
-const REFRESH_ATTEMPTS: usize = 3;
-
-/// One refresh. `None` means a new block arrived during the reads and nothing
-/// was written.
+/// One refresh. `None` means a new block arrived during the reads, or another
+/// writer committed an older snapshot first, and nothing was written.
 async fn refresh_once<T: Transport>(
     provider: &Provider<T>,
     store: &mut SqliteStore,
@@ -383,7 +428,10 @@ async fn refresh_once<T: Transport>(
     if let Some(old) = snapshot.checkpoint {
         let canonical = headers[1].as_ref().map(crate::network::checkpoint);
         if canonical != Some(old) {
-            store.reconcile_checkpoint(generation, canonical)?;
+            match store.reconcile_checkpoint(generation, canonical) {
+                Err(StorageError::StaleSnapshot) => return Ok(None),
+                result => result?,
+            };
             generation = store.snapshot()?.generation;
         }
     }
@@ -447,13 +495,22 @@ async fn refresh_once<T: Transport>(
     if after != Some(before) {
         return Ok(None);
     }
-    store.replace_snapshot(&Snapshot {
+    match store.replace_snapshot(&Snapshot {
         scope,
         generation,
         checkpoint: Some(before),
         coins,
-    })?;
-    Ok(Some(before))
+    }) {
+        Ok(_) => Ok(Some(before)),
+        // Another writer committed after our snapshot read. Its snapshot
+        // stands in for ours only if it is at least as new; our reads are never
+        // committed under its generation, which an import may have moved.
+        Err(StorageError::StaleSnapshot) => Ok(store
+            .snapshot()?
+            .checkpoint
+            .filter(|stored| stored.height > before.height || *stored == before)),
+        Err(error) => Err(error.into()),
+    }
 }
 
 /// Gap-scan a Qi account, persist discovered metadata, then refresh all known

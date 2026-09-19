@@ -4,6 +4,56 @@ This answers [the asks](WALLET_ASKS_2026-09-19.md) from Quai Terminal. Each was
 checked against `main` at `0.1.0-alpha.5`. It records what we will do, what we
 changed from the proposal, and the plan for `0.1.0-alpha.6`.
 
+## Outcome
+
+Implemented on branch `alpha6` for `0.1.0-alpha.6`. Where the work departed
+from the plan below, review or measurement changed it:
+
+- **Phase 1.** Done as planned. A third race site also returns
+  `ObservationRaced`: a `SettlementCursor` whose saved revision moved.
+- **Phase 2.** Done, with one change: there is no jitter.
+  - A loser returns the other writer's snapshot when it is at least as new.
+    Otherwise it redoes the network reads, which already spaces its retry.
+  - Jitter would need a runtime-specific timer and a random source, including
+    on wasm, for no measured gain.
+  - `RefreshOptions` is non-exhaustive, so jitter can be added later.
+  - Because an unchanged refresh no longer moves the generation, an idle
+    wallet's refresh no longer fences a concurrent send either.
+  - The mainnet check ran on copies of the custody Qi store
+    (`test-infra/orchard/mainnet-refresh-race-2026-09-19.json`):
+
+    | Check | alpha.5 | alpha.6 |
+    |---|---|---|
+    | Three concurrent refreshes, 36 runs | 24 failed | 0 failed |
+    | WAL growth over 10 idle refreshes | 370,832 bytes | 0 bytes; one 4 KB page per new block |
+    | Generation change over 10 idle refreshes | +10 | 0 |
+- **Phase 3.** Done for change addresses, after the review in
+  [reusing change that was never signed](QI_CHANGE_REUSE.md). Three
+  departures:
+  - A rejected review returns its change through `QiChangePool::reclaim`,
+    which consumes the prepared transaction. `release_unsigned` does not do it.
+  - Taking a released address does not bump the generation. Nothing new is
+    recorded, and every released index is below the cursor.
+  - **Payment destinations are deferred.** A `QiIntent` is cloneable data, so
+    the SDK cannot prove a released destination was never signed. Reissuing
+    one would reuse the peer's address on chain.
+- **Phase 4.** The dependency move was measured and dropped; one keystore
+  parity fix came out of it.
+  - Measured against the SDK's normal dependency graph, every configuration
+    still duplicates part of RustCrypto:
+    - **alpha.5:** 224 packages; sha2 and hmac are duplicated.
+    - **Keystore moved down:** 224 packages. scrypt 0.11 needs salsa20 0.10,
+      which brings cipher 0.4 and inout 0.1 instead.
+    - **Keystore and the wallet's argon2 and chacha20poly1305 moved down:**
+      222 packages. This adds a chacha20 duplicate and loses the poly1305
+      state wipe.
+  - The newer generation stays in any case, through tungstenite 0.30 (sha1
+    0.11, rand 0.10), which the WebSocket transport needs.
+  - Two packages did not justify changing security-critical versions.
+  - The one-generation goal waits for k256 and bip32 to move up.
+  - **Parity fix.** scrypt 0.12 had dropped RFC 7914's `N < 2^(16r)` check,
+    which quais.js keeps, so the keystore now enforces it itself.
+
 ## Verdicts
 
 | Ask | Verdict | Effort |

@@ -18,6 +18,20 @@ impl<T: Transport> QiSession<'_, T> {
         mut outputs: impl BorrowMut<QiChangePool>,
     ) -> Result<PreparedQiTransaction, QiError> {
         let outputs = outputs.borrow_mut();
+        match self.prepare_sweep_once(id, mode, policy, outputs).await {
+            Err(error) if lost_race(&error) => {
+                self.prepare_sweep_once(id, mode, policy, outputs).await
+            }
+            result => result,
+        }
+    }
+    async fn prepare_sweep_once(
+        &mut self,
+        id: ReservationId,
+        mode: SweepMode,
+        policy: QiPolicy,
+        outputs: &mut QiChangePool,
+    ) -> Result<PreparedQiTransaction, QiError> {
         if !(1..=1024).contains(&policy.max_inputs)
             || !(1..=1024).contains(&policy.max_outputs)
             || !(1..=32).contains(&policy.max_fee_rounds)

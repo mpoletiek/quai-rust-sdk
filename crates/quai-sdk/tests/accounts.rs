@@ -1075,7 +1075,9 @@ async fn family_recovery_persists_replacement_winner_and_rejects_concurrent_cand
     );
     assert!(matches!(
         track_family(&raced, &mut store, id).await,
-        Err(quai_sdk::qi::QiError::Storage(StorageError::Conflict))
+        Err(quai_sdk::qi::QiError::Storage(
+            StorageError::ObservationRaced
+        ))
     ));
     let invalidated = store
         .observation_cache(id, root_hash, u16::MAX)

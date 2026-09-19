@@ -72,4 +72,10 @@ fn scans(
     send(discover(&source, account, request, || false));
     send(p.account_states(accounts, BlockTag::Latest));
     send(quai_sdk::qi_discovery::refresh_qi(p, store, 10, || false));
+    send(quai_sdk::qi_discovery::refresh_qi_with(
+        p,
+        store,
+        Default::default(),
+        || false,
+    ));
 }

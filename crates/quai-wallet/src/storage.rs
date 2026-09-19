@@ -15,14 +15,14 @@ use quai_crypto::PublicKey;
 use quai_primitives::{Address, Hash32, QiAddress, QuaiAddress};
 use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 use std::{
-    collections::BTreeSet,
+    collections::{BTreeMap, BTreeSet},
     path::Path,
     sync::atomic::{AtomicUsize, Ordering},
     time::Duration,
 };
 
 const APP_ID: i64 = 0x51574149;
-const VERSION: i64 = 5;
+const VERSION: i64 = 6;
 const MAX_COINS: usize = 100_000;
 
 impl From<rusqlite::Error> for StorageError {
@@ -35,6 +35,7 @@ mod activity;
 pub use activity::{ActivityDetail, ActivityEntry, ActivityStatus, QiActivityKind};
 mod backup_state;
 mod observations;
+mod released;
 pub use observations::ObservationCache;
 mod replay;
 pub use replay::ReorgInvalidation;
@@ -105,7 +106,7 @@ pub struct SqliteStore {
     key: [u8; 65],
 }
 impl SqliteStore {
-    /// Open/create schema v5, atomically migrating validated v1/v2/v3/v4 state. Foreign application IDs and nonempty unknown databases
+    /// Open/create schema v6, atomically migrating validated v1 to v5 state. Foreign application IDs and nonempty unknown databases
     /// are rejected before persistent writes. WAL requires a local filesystem.
     pub fn open(path: impl AsRef<Path>, scope: NetworkScope) -> Result<Self> {
         Self::open_with_busy_timeout(path, scope, Duration::from_secs(5))
@@ -146,9 +147,10 @@ impl SqliteStore {
             tx.execute_batch(replacements::REPLACEMENT_SCHEMA)?;
             tx.execute_batch(observations::OBSERVATION_SCHEMA)?;
             tx.execute_batch(head_state::HEAD_SCHEMA)?;
+            tx.execute_batch(released::RELEASED_SCHEMA)?;
             tx.pragma_update(None, "application_id", APP_ID)?;
             tx.pragma_update(None, "user_version", VERSION)?;
-        } else if app == APP_ID && matches!(version, 1..=4) {
+        } else if app == APP_ID && matches!(version, 1..=5) {
             backup_state::validate_native_schema_version(&tx, version as u8)?;
             if version == 1 {
                 tx.execute_batch(payment::PAYMENT_SCHEMA)?;
@@ -159,7 +161,10 @@ impl SqliteStore {
             if version < 4 {
                 tx.execute_batch(observations::OBSERVATION_SCHEMA)?;
             }
-            tx.execute_batch(head_state::HEAD_SCHEMA)?;
+            if version < 5 {
+                tx.execute_batch(head_state::HEAD_SCHEMA)?;
+            }
+            tx.execute_batch(released::RELEASED_SCHEMA)?;
             tx.pragma_update(None, "user_version", VERSION)?;
         } else if app != APP_ID || version != VERSION {
             return Err(StorageError::Schema);
@@ -386,8 +391,10 @@ impl SqliteStore {
                 // cannot show that: imports, discovery and backup merges raise
                 // it with max(), so one that records an address inside the
                 // tail leaves it equal to `limit`, and rewinding would issue
-                // that address again. Every writer bumps the scope generation,
-                // so an unchanged generation does prove nothing was recorded.
+                // that address again. Every writer that records an address or
+                // moves a cursor bumps the scope generation (only a refresh
+                // with unchanged coins keeps it), so an unchanged generation
+                // does prove nothing was recorded.
                 // Keeping a full burn would skip about max_attempts / 512
                 // matching addresses, enough past a few thousand attempts to
                 // put the next address beyond a default restore gap.
@@ -603,6 +610,11 @@ impl SqliteStore {
     }
     /// Atomically replace coins and checkpoint using generation compare-and-swap.
     /// Rewinds or same-height hash changes require explicit invalidation first.
+    /// When a checkpoint is stored and the coins equal the stored ones (outpoint,
+    /// owner, denomination, lock and expiry), only the checkpoint advances and
+    /// the generation is kept, so reservations and observers fenced on it stay
+    /// valid; an unchanged checkpoint writes nothing. Returns the generation
+    /// after the commit.
     pub fn replace_snapshot(&mut self, snapshot: &Snapshot) -> Result<u64> {
         if snapshot.scope != self.scope {
             return Err(StorageError::StaleSnapshot);
@@ -615,20 +627,19 @@ impl SqliteStore {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         let next = next_generation(&tx, &self.key, snapshot.generation)?;
-        if let Some(old) = checkpoint_read(&tx, &self.key)?.1
+        let old = checkpoint_read(&tx, &self.key)?.1;
+        if let Some(old) = old
             && (old.height > checkpoint.height
                 || (old.height == checkpoint.height && old.hash != checkpoint.hash))
         {
             return Err(StorageError::StaleSnapshot);
         }
-        tx.execute("DELETE FROM coins WHERE scope=?1", [&self.key[..]])?;
-        let mut seen = BTreeSet::new();
+        let mut rows = CoinRows::new();
         for coin in &snapshot.coins {
             let hash = coin.outpoint.transaction_hash.bytes();
             if coin.address.zone() != self.scope.zone
                 || hash[2] != self.scope.zone.byte()
                 || *hash == [0; 32]
-                || !seen.insert(coin.outpoint)
                 || coin
                     .expires_at
                     .is_some_and(|height| height <= coin.unlock_height)
@@ -636,17 +647,44 @@ impl SqliteStore {
                 return Err(StorageError::Invalid);
             }
             require_address(&tx, &self.key, coin.address.address())?;
-            let expiry = coin.expires_at.map(|v| v.to_be_bytes::<32>());
+            let row = (
+                *coin.address.bytes(),
+                coin.denomination.index(),
+                coin.unlock_height.to_be_bytes::<32>(),
+                coin.expires_at.map(|v| v.to_be_bytes::<32>()),
+            );
+            if rows.insert((*hash, coin.outpoint.index), row).is_some() {
+                return Err(StorageError::Invalid);
+            }
+        }
+        // A stored checkpoint means the stored coins are a complete view at
+        // this generation, so an identical set needs no rewrite.
+        if old.is_some() && coin_rows(&tx, &self.key)? == rows {
+            if old != Some(checkpoint) {
+                tx.execute(
+                    "UPDATE scopes SET block_hash=?2,height=?3 WHERE scope=?1",
+                    params![
+                        &self.key[..],
+                        &checkpoint.hash.bytes()[..],
+                        &checkpoint.height.to_be_bytes::<32>()[..]
+                    ],
+                )?;
+                tx.commit()?;
+            }
+            return Ok(snapshot.generation);
+        }
+        tx.execute("DELETE FROM coins WHERE scope=?1", [&self.key[..]])?;
+        for ((hash, index), (address, denomination, unlock, expiry)) in &rows {
             // Cached: this runs once per coin, and a refresh replaces them all.
             tx.prepare_cached("INSERT INTO coins VALUES(?1,?2,?3,?4,?5,?6,?7,?8)")?
                 .execute(params![
                     &self.key[..],
                     &hash[..],
-                    coin.outpoint.index,
+                    index,
                     next,
-                    &coin.address.bytes()[..],
-                    coin.denomination.index(),
-                    &coin.unlock_height.to_be_bytes::<32>()[..],
+                    &address[..],
+                    denomination,
+                    &unlock[..],
                     expiry.as_ref().map(|v| &v[..])
                 ])?;
         }
@@ -1275,6 +1313,7 @@ fn commit_payload(
         "INSERT INTO signed_payloads VALUES(?1,?2,?3,?4)",
         params![key, &id.0[..], kind, payload],
     )?;
+    released::burn_signed(connection, key, payload)?;
     if operation.state == ReservationState::Reserved {
         connection.execute(
             "UPDATE reservations SET state=1,transaction_hash=?3 WHERE scope=?1 AND id=?2",
@@ -1312,6 +1351,27 @@ fn next_generation(connection: &Connection, key: &[u8], expected: u64) -> Result
         return Err(StorageError::StaleSnapshot);
     }
     current.checked_add(1).ok_or(StorageError::Overflow)
+}
+/// Stored coin columns by outpoint: owner, denomination, unlock height, expiry.
+type CoinRows = BTreeMap<([u8; 32], u16), ([u8; 20], u8, [u8; 32], Option<[u8; 32]>)>;
+fn coin_rows(connection: &Connection, key: &[u8]) -> Result<CoinRows> {
+    let mut statement = connection.prepare("SELECT tx_hash,output_index,address,denomination,unlock_height,expires_at FROM coins WHERE scope=?1")?;
+    let mut rows = statement.query([key])?;
+    let mut result = CoinRows::new();
+    while let Some(row) = rows.next()? {
+        result.insert(
+            (array(&row.get::<_, Vec<u8>>(0)?)?, row.get(1)?),
+            (
+                array(&row.get::<_, Vec<u8>>(2)?)?,
+                row.get(3)?,
+                array(&row.get::<_, Vec<u8>>(4)?)?,
+                row.get::<_, Option<Vec<u8>>>(5)?
+                    .map(|v| array(&v))
+                    .transpose()?,
+            ),
+        );
+    }
+    Ok(result)
 }
 fn clear_snapshot(connection: &Connection, key: &[u8], next: i64) -> Result<()> {
     connection.execute("DELETE FROM coins WHERE scope=?1", [key])?;

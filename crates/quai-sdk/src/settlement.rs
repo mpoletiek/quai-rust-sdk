@@ -89,7 +89,7 @@ async fn track_inner<T: Transport>(
     let previous = store.observation_cache(id, candidate, slot)?;
     let expected = previous.as_ref().map(|v| v.revision);
     if expected_revision.is_some_and(|revision| expected != Some(revision)) {
-        return Err(quai_wallet::storage::StorageError::Conflict.into());
+        return Err(quai_wallet::storage::StorageError::ObservationRaced.into());
     }
 
     let result = observe(provider, store, id, candidate, kind, request, max_outputs).await;

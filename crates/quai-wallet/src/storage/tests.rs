@@ -1110,13 +1110,16 @@ fn observation_cache_cas_slots_restart_and_tombstones_preserve_signed_claims() {
             .unwrap(),
         2
     );
+    // Losing the race is Stale, not Invalid: the loser re-reads and retries.
+    let raced = store.compare_exchange_observation(id(98), hash, 0, Some(1), Some(b"stale"));
+    assert_eq!(raced, Err(StorageError::ObservationRaced));
     assert_eq!(
-        store.compare_exchange_observation(id(98), hash, 0, Some(1), Some(b"stale")),
-        Err(StorageError::Conflict)
+        raced.unwrap_err().class(),
+        quai_primitives::ErrorClass::Stale
     );
     assert_eq!(
         store.compare_exchange_observation(id(98), hash, 0, None, Some(b"ABA")),
-        Err(StorageError::Conflict)
+        Err(StorageError::ObservationRaced)
     );
     assert!(
         store
@@ -1153,7 +1156,7 @@ fn schema_three_migrates_observation_cache_without_changing_signed_state() {
     store
         .connection
         .execute_batch(
-            "DROP TABLE head_replay; DROP TABLE observation_cache; PRAGMA user_version=3;",
+            "DROP TABLE released_change; DROP TABLE head_replay; DROP TABLE observation_cache; PRAGMA user_version=3;",
         )
         .unwrap();
     drop(store);
@@ -1457,7 +1460,7 @@ fn head_replay_migrates_v4_and_rejects_bounds_overflow_and_failed_resets() {
     let generation = populate(&mut store);
     store
         .connection
-        .execute_batch("DROP TABLE head_replay; PRAGMA user_version=4;")
+        .execute_batch("DROP TABLE released_change; DROP TABLE head_replay; PRAGMA user_version=4;")
         .unwrap();
     drop(store);
     let mut store = db.open();
@@ -1813,4 +1816,248 @@ fn activity_lists_outgoing_operations_with_status_and_decoded_amounts() {
     );
     // Paging continues after the last returned ID.
     assert_eq!(store.activity(Some(id(2)), 10).unwrap().len(), 1);
+}
+
+#[test]
+fn unchanged_coins_advance_only_the_checkpoint_and_keep_the_generation() {
+    // An idle wallet's refresh used to rewrite every coin row and bump the
+    // generation, which failed concurrent reservations and observers.
+    let db = Database::new();
+    let mut store = db.open();
+    let generation = populate(&mut store);
+    let mut other = db.open();
+    let same = |checkpoint| Snapshot {
+        scope: scope(),
+        generation,
+        checkpoint: Some(checkpoint),
+        coins: coins(),
+    };
+    let written = store.connection.total_changes();
+    assert_eq!(store.replace_snapshot(&same(block(5))).unwrap(), generation);
+    assert_eq!(
+        store.connection.total_changes(),
+        written,
+        "no-op writes nothing"
+    );
+    assert_eq!(other.replace_snapshot(&same(block(9))).unwrap(), generation);
+    assert_eq!(other.connection.total_changes(), 1, "only the scope row");
+    let snapshot = store.snapshot().unwrap();
+    assert_eq!(
+        (snapshot.generation, snapshot.checkpoint),
+        (generation, Some(block(9)))
+    );
+    assert_eq!(snapshot.coins, coins());
+    // A reservation fenced on the generation it read still succeeds.
+    store
+        .reserve_qi(id(1), generation, U256::from(10), &[coins()[0].outpoint])
+        .unwrap();
+    // The label still never rewinds, and any coin difference bumps.
+    assert_eq!(
+        store.replace_snapshot(&same(block(8))),
+        Err(StorageError::StaleSnapshot)
+    );
+    let mut changed = same(block(10));
+    changed.coins[1].unlock_height = U256::from(1);
+    assert_eq!(store.replace_snapshot(&changed).unwrap(), generation + 1);
+    // After invalidation the coins are unknown, so the full write runs.
+    let invalidated = store.invalidate_snapshot(generation + 1).unwrap();
+    let mut refill = same(block(11));
+    refill.generation = invalidated;
+    refill.coins.clear();
+    assert_eq!(store.replace_snapshot(&refill).unwrap(), invalidated + 1);
+}
+
+fn qi_account() -> AccountPublic {
+    HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap()
+}
+/// A populated store plus `count` fresh change addresses, lowest first.
+fn change(store: &mut SqliteStore, count: usize) -> Vec<PublicAddress> {
+    populate(store);
+    (0..count)
+        .map(|_| {
+            store
+                .allocate_address_compact(&qi_account(), true, 10000, || false)
+                .unwrap()
+                .address
+        })
+        .collect()
+}
+
+#[test]
+fn released_change_comes_back_lowest_first_without_invalidating() {
+    let db = Database::new();
+    let mut store = db.open();
+    let account = qi_account();
+    let addresses = change(&mut store, 3);
+    let cursor = store.next_derivation_index(&account, true).unwrap();
+    let generation = store.snapshot().unwrap().generation;
+    store
+        .release_change(&account, &[addresses[2].clone(), addresses[0].clone()])
+        .unwrap();
+    // Releasing twice is harmless.
+    store.release_change(&account, &addresses[..1]).unwrap();
+    assert_eq!(
+        store.take_released_change(&account, 1).unwrap(),
+        &addresses[..1]
+    );
+    assert_eq!(
+        store.take_released_change(&account, 9).unwrap(),
+        &addresses[2..]
+    );
+    assert!(store.take_released_change(&account, 9).unwrap().is_empty());
+    assert_eq!(store.snapshot().unwrap().generation, generation);
+    assert_eq!(store.next_derivation_index(&account, true).unwrap(), cursor);
+}
+
+#[test]
+fn only_unsigned_change_of_the_bound_account_is_released() {
+    let db = Database::new();
+    let mut store = db.open();
+    let account = qi_account();
+    let addresses = change(&mut store, 2);
+    // A receive address, an address of another account, too many at once.
+    assert_eq!(
+        store.release_change(&account, &metadata()[..1]),
+        Err(StorageError::Invalid)
+    );
+    let other = HdWallet::from_seed(&[0; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(1)
+        .unwrap();
+    assert_eq!(
+        store.release_change(&other, &addresses),
+        Err(StorageError::Invalid)
+    );
+    let foreign = HdWallet::from_seed(&[9; 16], CoinType::Qi)
+        .unwrap()
+        .account_public(0)
+        .unwrap();
+    assert_eq!(
+        store.release_change(&foreign, &addresses),
+        Err(StorageError::Conflict)
+    );
+    assert_eq!(
+        store.release_change(&account, &vec![addresses[0].clone(); 1025]),
+        Err(StorageError::Invalid)
+    );
+    // An address in a stored signed payload is never released, and signing
+    // burns one that was.
+    let generation = store.snapshot().unwrap().generation;
+    let mut snapshot = store.snapshot().unwrap();
+    snapshot.checkpoint = Some(block(5));
+    snapshot.coins = coins();
+    let generation = store
+        .replace_snapshot(&Snapshot {
+            generation,
+            ..snapshot
+        })
+        .unwrap();
+    store.release_change(&account, &addresses[1..]).unwrap();
+    let key = signing_key(0);
+    let pay = |to: &PublicAddress, coin: &CandidateCoin| {
+        quai_consensus::QiTransaction {
+            chain_id: scope().chain_id,
+            inputs: vec![quai_consensus::QiInput {
+                previous_output: coin.outpoint,
+                public_key: key.public_key(),
+            }],
+            outputs: vec![quai_consensus::QiOutput {
+                address: to.address(),
+                denomination: Denomination::new(1).unwrap(),
+            }],
+            data: vec![],
+        }
+        .sign_local(&[&key])
+        .unwrap()
+    };
+    for (n, (to, coin)) in addresses.iter().zip(coins()).enumerate() {
+        store
+            .reserve_qi(id(n as u8 + 1), generation, U256::from(6), &[coin.outpoint])
+            .unwrap();
+        store
+            .commit_signed_qi(id(n as u8 + 1), &pay(to, &coin))
+            .unwrap();
+    }
+    assert_eq!(
+        store.release_change(&account, &addresses[..1]),
+        Err(StorageError::Transition)
+    );
+    assert!(store.take_released_change(&account, 9).unwrap().is_empty());
+}
+
+#[test]
+fn concurrent_takes_never_share_a_released_address() {
+    let db = Database::new();
+    let mut store = db.open();
+    let addresses = change(&mut store, 24);
+    store.release_change(&qi_account(), &addresses).unwrap();
+    let barrier = Arc::new(Barrier::new(4));
+    let workers: Vec<_> = (0..4)
+        .map(|_| {
+            let (path, barrier) = (db.0.clone(), barrier.clone());
+            thread::spawn(move || {
+                let mut store = SqliteStore::open(path, scope()).unwrap();
+                barrier.wait();
+                let mut taken = vec![];
+                loop {
+                    let next = store.take_released_change(&qi_account(), 2).unwrap();
+                    if next.is_empty() {
+                        return taken;
+                    }
+                    taken.extend(next);
+                }
+            })
+        })
+        .collect();
+    let mut taken: Vec<_> = workers
+        .into_iter()
+        .flat_map(|worker| worker.join().unwrap())
+        .map(|address| address.address())
+        .collect();
+    taken.sort();
+    let mut expected: Vec<_> = addresses.iter().map(|a| a.address()).collect();
+    expected.sort();
+    assert_eq!(taken, expected);
+}
+
+#[test]
+fn a_restore_burns_the_released_set() {
+    let db = Database::new();
+    let mut store = db.open();
+    let addresses = change(&mut store, 2);
+    store.release_change(&qi_account(), &addresses).unwrap();
+    let state = store.capture_public_state().unwrap();
+    store.restore_public_state(&state, &[]).unwrap();
+    assert!(
+        store
+            .take_released_change(&qi_account(), 9)
+            .unwrap()
+            .is_empty()
+    );
+}
+
+#[test]
+fn schema_five_migrates_to_an_empty_released_set() {
+    let db = Database::new();
+    let mut store = db.open();
+    let addresses = change(&mut store, 1);
+    store
+        .connection
+        .execute_batch("DROP TABLE released_change; PRAGMA user_version=5;")
+        .unwrap();
+    drop(store);
+    let mut store = db.open();
+    let version: i64 = store
+        .connection
+        .pragma_query_value(None, "user_version", |r| r.get(0))
+        .unwrap();
+    assert_eq!(version, 6);
+    store.release_change(&qi_account(), &addresses).unwrap();
+    assert_eq!(
+        store.take_released_change(&qi_account(), 1).unwrap(),
+        addresses
+    );
 }

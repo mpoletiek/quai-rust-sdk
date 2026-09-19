@@ -45,6 +45,12 @@ fn classes_separate_retry_reobserve_stop_and_reconcile() {
     assert_eq!(QiError::Broadcast(ambiguous).class(), ErrorClass::Ambiguous);
     assert_eq!(StorageError::Database.class(), ErrorClass::Storage);
     assert_eq!(StorageError::Conflict.class(), ErrorClass::Invalid);
+    // Another observer committed first; observe again.
+    assert_eq!(StorageError::ObservationRaced.class(), ErrorClass::Stale);
+    assert_eq!(
+        QiError::Storage(StorageError::ObservationRaced).class(),
+        ErrorClass::Stale
+    );
     assert_eq!(
         DiscoveryError::SourceUnavailable.class(),
         ErrorClass::Transient

@@ -133,6 +133,7 @@ impl SqliteStore {
                 new.payload
             ],
         )?;
+        super::released::burn_signed(&tx, &self.key, &new.payload)?;
         // A family view omitting this new candidate is stale immediately. Keep
         // its revision as a tombstone under the same writer lock as the append.
         // SQLite STRICT integer storage also rejects revision overflow, rolling

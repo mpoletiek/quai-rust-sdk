@@ -12,8 +12,8 @@ use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::Checkpoint;
 use quai_wallet::qi_keys::QiKeyResolver;
 use quai_wallet::storage::{
-    NetworkScope, PublicAddress, ReservationId, ReservationState, SqliteStore, StorageError,
-    StoreInstance,
+    KeyOrigin, NetworkScope, PublicAddress, ReservationId, ReservationState, SqliteStore,
+    StorageError, StoreInstance,
 };
 use quai_wallet::{AccountPublic, CoinType, HdWallet, WalletError};
 use quai_wallet::{SelectionError, SelectionRequest, select_fewest};
@@ -26,15 +26,18 @@ pub use special::{PreparedQiOperation, QiSpecialIntent, QiSpecialTransaction};
 
 pub use crate::qi_preflight::{QiIntent, QiPolicy};
 
-/// A one-use, scoped pool of fresh, durably burned BIP44 change addresses.
+/// A scoped pool of BIP44 change addresses that never appeared in a signed payload.
 ///
 /// There is deliberately no constructor from addresses, clone or deserialization.
 /// This pool belongs to its exact opened storage handle; another/reopened handle
 /// rejects it even when all public state is identical.
 /// A prepare given the pool by `&mut` takes only the addresses it used, so a
-/// failed prepare leaves the pool reusable; a dropped pool's unused addresses
-/// remain burned. Allocate this before
-/// refreshing discovery: adding metadata invalidates the old wallet snapshot.
+/// failed prepare leaves the pool reusable. `reclaim` returns a rejected
+/// review's change, and `release` stores the unused addresses for the next
+/// `allocate`, which hands them out lowest index first. That keeps change inside
+/// the window a seed-only restore scans. A pool dropped without `release`
+/// burns its addresses. Allocate before refreshing discovery: fresh metadata
+/// invalidates the old wallet snapshot, although released addresses do not.
 #[derive(Debug)]
 pub struct QiChangePool {
     instance: StoreInstance,
@@ -44,9 +47,11 @@ pub struct QiChangePool {
     addresses: Vec<PublicAddress>,
 }
 impl QiChangePool {
-    /// Allocate a bounded number of fresh change addresses before exposing them.
-    /// `count <= 1024`, attempts per address is 1..=100,000 and their product is
-    /// at most 100,000. Failure never rewinds any already burned range.
+    /// Take up to `count` released addresses, lowest index first, then burn
+    /// fresh ones for the rest before exposing any. `count <= 1024`, attempts
+    /// per address is 1..=100,000 and their product is at most 100,000.
+    /// Failure never rewinds any already burned range; addresses already taken
+    /// from the released set are burned with it.
     pub fn allocate(
         store: &mut SqliteStore,
         account: &AccountPublic,
@@ -61,9 +66,9 @@ impl QiChangePool {
         {
             return Err(QiError::InvalidPolicy);
         }
-        let mut addresses = Vec::with_capacity(count);
+        let mut addresses = store.take_released_change(account, count)?;
         let mut burned_through = None;
-        for _ in 0..count {
+        while addresses.len() < count {
             if cancelled() {
                 return Err(QiError::Cancelled);
             }
@@ -87,6 +92,73 @@ impl QiChangePool {
     /// Persisted metadata to include in the subsequent qualified discovery scan.
     pub fn addresses(&self) -> &[PublicAddress] {
         &self.addresses
+    }
+    /// Store the unused addresses so a later `allocate` on this store hands
+    /// them out again. They stay burned in backups and on other devices.
+    pub fn release(self, store: &mut SqliteStore) -> Result<(), QiError> {
+        if self.instance != store.instance() || self.scope != store.scope() {
+            return Err(QiError::IdentityMismatch);
+        }
+        if self.addresses.is_empty() {
+            return Ok(());
+        }
+        Ok(store.release_change(&self.account, &self.addresses)?)
+    }
+    /// Release an unsigned prepared transaction's input claim, as
+    /// `SqliteStore::release_unsigned` does, and return its change outputs to
+    /// this pool. A signed transaction cannot be reclaimed. Consuming it means
+    /// it can no longer be signed.
+    pub fn reclaim(
+        &mut self,
+        store: &mut SqliteStore,
+        prepared: PreparedQiTransaction,
+    ) -> Result<(), QiError> {
+        self.reclaim_outputs(
+            store,
+            (prepared.instance, prepared.scope, prepared.id),
+            &prepared.transaction,
+        )
+    }
+    fn reclaim_outputs(
+        &mut self,
+        store: &mut SqliteStore,
+        prepared: (StoreInstance, NetworkScope, ReservationId),
+        transaction: &QiTransaction,
+    ) -> Result<(), QiError> {
+        let (instance, scope, id) = prepared;
+        if self.instance != store.instance()
+            || instance != store.instance()
+            || self.scope != scope
+            || store.scope() != scope
+        {
+            return Err(QiError::IdentityMismatch);
+        }
+        let mut metadata: BTreeMap<_, _> = store
+            .addresses()?
+            .into_iter()
+            .map(|entry| (entry.address(), entry))
+            .collect();
+        let change: Vec<_> = transaction
+            .outputs
+            .iter()
+            .filter_map(|output| metadata.remove(&output.address))
+            .filter(|entry| self.owns(entry))
+            .collect();
+        store.release_unsigned(id)?;
+        self.addresses.extend(change);
+        // Every pool address is an owned change address, so it has an index.
+        self.addresses.sort_by_key(|entry| match entry.origin() {
+            KeyOrigin::Bip44 { index, .. } => index,
+            KeyOrigin::ImportedPublic => u32::MAX,
+        });
+        Ok(())
+    }
+    fn owns(&self, entry: &PublicAddress) -> bool {
+        matches!(
+            entry.origin(),
+            KeyOrigin::Bip44 { coin: CoinType::Qi, account, change: true, .. }
+                if account == self.account.account_index()
+        )
     }
 }
 
@@ -189,6 +261,13 @@ impl QiError {
             | Self::MissingSignedPayload => ErrorClass::Invalid,
         }
     }
+}
+
+/// Another writer committed a snapshot while a prepare read the old one. Nothing
+/// was claimed and no pool address was taken, so the prepare is redone once
+/// from the new snapshot. A claim conflict is `Conflict` and is not retried.
+fn lost_race(error: &QiError) -> bool {
+    matches!(error, QiError::Storage(StorageError::StaleSnapshot))
 }
 
 /// Immutable reviewed transaction associated with a durable unsigned input claim.
@@ -331,7 +410,8 @@ impl<'a, T: Transport> QiSession<'a, T> {
     /// Its addresses may already have appeared in a fee estimate sent to the
     /// node, but never in a signed payload. Passed by value, the pool is
     /// dropped as before. All network reads precede claims; no signing or
-    /// submission occurs here.
+    /// submission occurs here. A claim made stale by another handle's commit
+    /// is prepared once more from the new snapshot.
     /// Fees/state can change later; estimates do not guarantee node acceptance.
     pub async fn prepare(
         &mut self,
@@ -366,6 +446,25 @@ impl<'a, T: Transport> QiSession<'a, T> {
             .await
     }
     async fn prepare_transfer(
+        &mut self,
+        id: ReservationId,
+        intent: QiIntent,
+        policy: QiPolicy,
+        change: &mut QiChangePool,
+        cross_zone: bool,
+    ) -> Result<PreparedQiTransaction, QiError> {
+        match self
+            .prepare_transfer_once(id, intent.clone(), policy, change, cross_zone)
+            .await
+        {
+            Err(error) if lost_race(&error) => {
+                self.prepare_transfer_once(id, intent, policy, change, cross_zone)
+                    .await
+            }
+            result => result,
+        }
+    }
+    async fn prepare_transfer_once(
         &mut self,
         id: ReservationId,
         intent: QiIntent,

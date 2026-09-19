@@ -54,6 +54,20 @@ pub struct PreparedQiOperation {
     fee: U256,
     quote: Option<QiFeeQuote>,
 }
+impl QiChangePool {
+    /// [`QiChangePool::reclaim`] for a prepared conversion or wrapping.
+    pub fn reclaim_operation(
+        &mut self,
+        store: &mut SqliteStore,
+        prepared: PreparedQiOperation,
+    ) -> Result<(), QiError> {
+        self.reclaim_outputs(
+            store,
+            (prepared.instance, prepared.scope, prepared.id),
+            prepared.transaction.transaction(),
+        )
+    }
+}
 impl PreparedQiOperation {
     /// Durable reservation for recovery and explicit broadcast.
     pub fn reservation_id(&self) -> ReservationId {
@@ -119,6 +133,26 @@ impl<T: Transport> QiSession<'_, T> {
         .await
     }
     async fn prepare_special_inner(
+        &mut self,
+        id: ReservationId,
+        amount: U256,
+        intent: QiSpecialIntent,
+        mode: FeeMode,
+        policy: QiPolicy,
+        change: &mut QiChangePool,
+    ) -> Result<PreparedQiOperation, QiError> {
+        match self
+            .prepare_special_once(id, amount, intent, mode, policy, change)
+            .await
+        {
+            Err(error) if lost_race(&error) => {
+                self.prepare_special_once(id, amount, intent, mode, policy, change)
+                    .await
+            }
+            result => result,
+        }
+    }
+    async fn prepare_special_once(
         &mut self,
         id: ReservationId,
         amount: U256,

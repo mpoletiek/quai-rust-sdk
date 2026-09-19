@@ -52,10 +52,17 @@ cargo run -p quai-sdk --features sqlite --example qi_scan -- \
 1. Register public ownership and construct `QiSession` with an HD wallet, or
    `QiSession::with_keys` with a `QiKeyring` for mixed HD/imported/BIP47 inputs.
 2. Allocate a bounded `QiChangePool` **before** refreshing the wallet snapshot.
-   Allocation commits burned raw ranges; cancellation never reuses them.
+   Allocation takes released addresses first, lowest index first, then commits
+   burned raw ranges; cancellation never reuses a burned range.
 3. Use `prepare(id, QiIntent, QiPolicy, pool)` to select inputs and converge fees
    against the exact final payload. Supply a distinct recipient address per
    denomination output. Inspect the frozen transaction, fee and signing digest.
+   Lend the pool by `&mut` across retries. On a rejected review,
+   `reclaim(&mut store, prepared)` releases the claim and returns the change.
+   When done, `release(&mut store)` stores the unused addresses for the next
+   allocation, so retries and rejections never push change past the gap-50
+   window a seed-only restore scans. See
+   [reusing change that was never signed](QI_CHANGE_REUSE.md).
 4. Explicit `sign` persists verified bytes and exact claims before returning.
    Explicit `broadcast(id)` submits those bytes. After restart, reload the store
    and broadcast the same ID; timeout does not authorize a new transaction.
@@ -277,6 +284,8 @@ candidate/ETX-index cache slots with revision checks; versions 1–3 migrate
 atomically. `observation_cache` and `cached_settlement` expose restart summaries.
 Applications must recheck their anchors before choosing continuation ranges.
 Errors attempt a revision-checked invalidation; signed claims never change.
+When another handle commits first, the loser gets `StorageError::ObservationRaced`
+(class `Stale`): observe again rather than reporting a conflict.
 Caches are disposable and excluded from full backups; restore clears them and
 retains the exact signed candidates used to reconstruct references.
 
@@ -595,7 +604,11 @@ across network awaits, so give background sync and each user-initiated send
 their own `SqliteStore` handle on the same file (`open_with_busy_timeout` sets
 the lock wait). Writers fence each other through the scope generation: when
 sync invalidates a snapshot while a send is preparing, the send fails with an
-error whose `class()` is `Stale` instead of reserving from stale state. Session
+error whose `class()` is `Stale` instead of reserving from stale state. A
+prepare (`prepare`, `prepare_special`, `prepare_sweep`) whose reservation loses
+to another handle's refresh selects again once from the new snapshot, and a
+refresh that changes no coins does not move the generation at all. Two
+processes may share one store file the same way. Session
 futures are `Send`, so either task can run on a multi-threaded runtime.
 Discovery grinds addresses in slices of about 20 ms and yields between them,
 so other ready tasks run between slices; with the `rayon` feature,
@@ -614,8 +627,10 @@ at least two workers, on a dedicated thread, or in a Web Worker.
 2. `qi_discovery::refresh_qi` rebuilds the coin snapshot when step 1 reports
    `refresh_required`, or on a timer. It is labelled with the tip observed
    before its reads and written only if the tip has not moved by the end of
-   them; after three attempts on a moving tip it fails with `StaleSnapshot`
-   (class `Stale`).
+   them. If another handle commits first, a snapshot at or after that tip is
+   returned as is, and an older one means the reads are redone. After three
+   lost attempts it fails with `StaleSnapshot` (class `Stale`);
+   `refresh_qi_with` sets another budget.
 3. Observe pending operations: `observe_nonce` and `observe_candidates` for
    accounts, `observe_candidates` for Qi.
 4. Occasionally, `discover_mailbox_channels` page by page. Prefer
@@ -625,7 +640,10 @@ at least two workers, on a dedicated thread, or in a Web Worker.
 Each step's errors carry an `ErrorClass`: retry `Transient` with backoff,
 observe again on `Stale`, stop and alert on `NetworkMismatch`, never resubmit
 on `Ambiguous` (reconcile by transaction hash), and surface `Invalid` and
-`Storage`.
+`Storage`. Decide retries on `class()`, never on a specific variant: several
+variants share a class (`QiError::StaleSnapshot`, `StorageError::StaleSnapshot`
+and `StorageError::ObservationRaced` are all `Stale`), and new ones are added
+to the existing classes.
 
 ## Listing outgoing activity
 

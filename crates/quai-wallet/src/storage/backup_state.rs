@@ -138,6 +138,8 @@ impl SqliteStore {
             // Cached source observations are disposable and must be revalidated
             // after restoration, just like the UTXO snapshot checkpoint.
             tx.execute("DELETE FROM observation_cache WHERE scope=?1", [&key[..]])?;
+            // Another device may have signed with a released address: burn them.
+            tx.execute("DELETE FROM released_change WHERE scope=?1", [&key[..]])?;
             let current = checkpoint_read(&tx, &key)?.0;
             let next = next_generation(&tx, &key, current as u64)?;
             for address in &scope_state.addresses {
@@ -355,7 +357,7 @@ fn read_operation(
 }
 
 fn validate_native_schema(connection: &Connection) -> Result<()> {
-    validate_native_schema_version(connection, 5)
+    validate_native_schema_version(connection, 6)
 }
 pub(super) fn validate_native_schema_version(connection: &Connection, version: u8) -> Result<()> {
     // Refuse future tables/columns rather than silently omitting channel or other state.
@@ -435,6 +437,10 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
             &["scope", "operation", "sequence", "parent_hash", "payload"],
         ),
         (
+            "released_change",
+            &["scope", "account", "child_index", "address"],
+        ),
+        (
             "reservations",
             &[
                 "scope",
@@ -452,7 +458,7 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
             &["scope", "operation", "kind", "payload"],
         ),
     ];
-    let mut statement=connection.prepare("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name LIMIT 15")?;
+    let mut statement=connection.prepare("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name LIMIT 16")?;
     let names: Vec<String> = statement
         .query_map([], |row| row.get(0))?
         .collect::<std::result::Result<_, _>>()?;
@@ -463,6 +469,7 @@ pub(super) fn validate_native_schema_version(connection: &Connection, version: u
                 && (version >= 3 || *name != "quai_replacements")
                 && (version >= 4 || *name != "observation_cache")
                 && (version >= 5 || *name != "head_replay")
+                && (version >= 6 || *name != "released_change")
         })
         .collect();
     if names != tables.iter().map(|(name, _)| *name).collect::<Vec<_>>() {

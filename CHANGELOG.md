@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0-alpha.6
 
 Answers to Quai Terminal's asks of 2026-09-19
 ([response](docs/WALLET_ASKS_2026-09-19_RESPONSE.md)).

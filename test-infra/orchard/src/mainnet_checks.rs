@@ -18,6 +18,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Qits credited by conversions 2, 4 and 6 on 2026-09-14.
 const CREDITED_QITS: &str = "3416"; // 689 + 1362 + 1365
+/// Unlock heights of the three conversion credits.
+const CREDIT_UNLOCKS: [u64; 3] = [10_338_942, 10_339_066, 10_339_111];
 
 fn scope() -> Result<NetworkScope, Box<dyn Error>> {
     Ok(NetworkScope {
@@ -178,10 +180,9 @@ pub async fn run(check: &str) -> Result<(), Box<dyn Error>> {
             .await?;
             let funded: Vec<String> = serde_json::from_value(summary["fundedAddresses"].clone())?;
             let expected = expected_recipients()?;
-            let all_found = expected.iter().all(|a| funded.contains(a));
-            // The wallet keeps spending after the conversions, so compare the
-            // seed-only restore with custody's current coins rather than with
-            // the balance recorded when the credit arrived.
+            // The wallet keeps spending, so compare the seed-only restore with
+            // custody's current coins rather than a recorded balance. A coin
+            // arriving or leaving between the two reads fails it; rerun.
             let coin_set = |coins: &serde_json::Value| -> std::collections::BTreeSet<String> {
                 coins
                     .as_array()
@@ -193,24 +194,56 @@ pub async fn run(check: &str) -> Result<(), Box<dyn Error>> {
             let recovered = coin_set(&summary["coins"]);
             let custody = {
                 let mut store = SqliteStore::open(dir().join("state/qi.sqlite"), scope()?)?;
-                quai_sdk::qi_discovery::refresh_qi(&provider, &mut store, 1000, || false).await?;
+                for attempt in 1..=4 {
+                    match quai_sdk::qi_discovery::refresh_qi(&provider, &mut store, 1000, || false)
+                        .await
+                    {
+                        Ok(_) => break,
+                        Err(quai_sdk::qi::QiError::StaleSnapshot) if attempt < 4 => {
+                            tokio::time::sleep(std::time::Duration::from_secs(2)).await
+                        }
+                        Err(error) => return Err(error.into()),
+                    }
+                }
                 let coins = store.snapshot()?.coins;
                 coin_set(&json!(coins.iter().map(|c| json!({"hash":c.outpoint.transaction_hash.to_string(),"index":c.outpoint.index,"qits":c.denomination.value()})).collect::<Vec<_>>()))
             };
-            let credited: u64 = summary["coins"]
+            let matches_custody = recovered == custody;
+            // Until the credit unlocks nothing can spend it, so the restore
+            // must find it whole, still locked at its recorded heights. After
+            // that the wallet may spend it, and custody is the reference.
+            let height: u64 = summary["checkpointHeight"]
+                .as_str()
+                .and_then(|h| h.parse().ok())
+                .ok_or("recovery checkpoint")?;
+            let locked_period = height < CREDIT_UNLOCKS[0];
+            let credit: Vec<_> = summary["coins"]
                 .as_array()
                 .into_iter()
                 .flatten()
                 .filter(|c| expected.iter().any(|a| c["address"] == a.as_str()))
-                .filter_map(|c| c["qits"].as_u64())
-                .sum();
-            let matches_custody = recovered == custody;
-            let credit_intact = credited.to_string() == CREDITED_QITS;
+                .collect();
+            let credited: u64 = credit.iter().filter_map(|c| c["qits"].as_u64()).sum();
+            let at_recorded_heights = credit.iter().all(|c| {
+                c["unlockHeight"]
+                    .as_str()
+                    .and_then(|h| h.parse::<u64>().ok())
+                    .is_some_and(|h| CREDIT_UNLOCKS.contains(&h))
+            });
+            let locked: u64 = summary["balance"]["locked"]
+                .as_str()
+                .and_then(|q| q.parse().ok())
+                .unwrap_or(0);
+            let credit_intact = !locked_period
+                || (expected.iter().all(|a| funded.contains(a))
+                    && credited.to_string() == CREDITED_QITS
+                    && at_recorded_heights
+                    && locked >= credited);
             record(
                 "recovery",
-                &json!({"check":"seed-only-gap-50-recovery","expectedRecipients":expected,"allRecipientsFound":all_found,"creditIntact":credit_intact,"matchesCustody":matches_custody,"custodyCoins":custody.len(),"result":summary}),
+                &json!({"check":"seed-only-gap-50-recovery","expectedRecipients":expected,"lockedPeriod":locked_period,"creditIntact":credit_intact,"matchesCustody":matches_custody,"custodyCoins":custody.len(),"result":summary}),
             )?;
-            if !all_found || !credit_intact || !matches_custody {
+            if !credit_intact || !matches_custody {
                 return Err(
                     "recovery did not reproduce custody's coins and the conversion credit".into(),
                 );

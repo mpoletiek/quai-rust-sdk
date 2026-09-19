@@ -2316,6 +2316,32 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     assert_eq!(env.store.addresses().unwrap().len(), stored);
     // Two slots: the sender and the self-announcement; the other peer is deferred.
     let register = |start| page(start).with_registration(MailboxRegistration::RegisterFunded);
+    // Below the caller's minimum, a funded probe registers nothing: dust
+    // cannot buy a permanent, rescanned channel.
+    let funded = U256::from(quai_sdk::consensus::Denomination::new(7).unwrap().value());
+    let report = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        &register(0).with_min_funded(funded + U256::from(1)),
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(
+        report.scanned[0].registration,
+        ChannelRegistration::Unregistered
+    );
+    assert_eq!(report.scanned[0].found, funded);
+    assert!(
+        env.store
+            .payment_channel(&receiver, sender.public_code())
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(env.store.addresses().unwrap().len(), stored);
     let report = discover_mailbox_channels(
         &env.provider,
         &mut env.store,

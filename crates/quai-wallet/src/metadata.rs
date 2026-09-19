@@ -36,6 +36,10 @@ pub enum StorageError {
     /// Generation or account nonce cannot increment without overflow.
     #[error("wallet storage counter exhausted")]
     Overflow,
+    /// A bounded table is full, such as the 1,024 payment channels one store
+    /// holds. Nothing was written.
+    #[error("wallet storage limit reached")]
+    LimitReached,
 }
 
 impl StorageError {
@@ -52,7 +56,8 @@ impl StorageError {
             | Self::Invalid
             | Self::DerivationExhausted
             | Self::Transition
-            | Self::Overflow => ErrorClass::Invalid,
+            | Self::Overflow
+            | Self::LimitReached => ErrorClass::Invalid,
         }
     }
 }

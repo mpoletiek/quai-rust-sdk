@@ -470,8 +470,9 @@ pub(super) fn write_channel(
         connection.query_row("SELECT count(*) FROM payment_channels", [], |row| {
             row.get(0)
         })?;
+    // Store-wide, across networks and owners: the bound is on the file.
     if count > 1024 || new_count > 1024 {
-        return Err(StorageError::Invalid);
+        return Err(StorageError::LimitReached);
     }
     Ok(())
 }
@@ -704,6 +705,37 @@ mod tests {
             PrivatePaymentCode::from_seed(&[0; 16], 0).unwrap(),
             PrivatePaymentCode::from_seed(&[1; 16], 0).unwrap(),
         )
+    }
+    #[test]
+    fn the_store_wide_channel_limit_is_its_own_error_and_writes_nothing() {
+        let db = Database::new();
+        let mut store = db.open();
+        let (owner, _) = pair();
+        let peer = |n: u32| {
+            let mut seed = [2u8; 16];
+            seed[..4].copy_from_slice(&n.to_be_bytes());
+            PrivatePaymentCode::from_seed(&seed, 0)
+                .unwrap()
+                .public_code()
+                .clone()
+        };
+        for n in 0..1024 {
+            store
+                .import_payment_channel(&owner, &PaymentChannel::new(&owner, peer(n)), None)
+                .unwrap();
+        }
+        let extra = PaymentChannel::new(&owner, peer(1024));
+        assert_eq!(
+            store.import_payment_channel(&owner, &extra, None),
+            Err(StorageError::LimitReached)
+        );
+        assert!(
+            store
+                .payment_channel(&owner, &peer(1024))
+                .unwrap()
+                .is_none()
+        );
+        assert_eq!(store.payment_channels(&owner).unwrap().len(), 1024);
     }
     #[test]
     fn concurrent_compact_payment_allocators_commit_disjoint_examined_ranges() {

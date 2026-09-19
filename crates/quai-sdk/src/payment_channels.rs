@@ -281,9 +281,11 @@ pub enum MailboxRegistration {
     /// decides, for example by asking the user, whether to register one.
     #[default]
     ReportOnly,
-    /// Register any sender whose probe finds unspent outputs, then scan it
-    /// fully. Anyone can fund a probe with dust, so this suits a restore or an
-    /// application that accepts that cost, not unattended background sync.
+    /// Register any sender whose probe finds unspent outputs worth at least
+    /// the page's `min_funded`, then scan it fully. Anyone can fund a probe
+    /// with dust, and each registration is permanent and rescanned on every
+    /// pass, so set `min_funded` to more than spam is worth. This suits a
+    /// restore, not unattended background sync.
     RegisterFunded,
 }
 
@@ -329,6 +331,9 @@ pub struct MailboxDiscovery {
     pub registration: MailboxRegistration,
     /// Where announcements are read.
     pub source: MailboxSource,
+    /// Qits a probe must find before `RegisterFunded` registers a sender.
+    /// Zero registers any funded sender.
+    pub min_funded: U256,
 }
 #[cfg(feature = "abi")]
 impl MailboxDiscovery {
@@ -340,6 +345,7 @@ impl MailboxDiscovery {
             options: PaymentScanOptions::default(),
             registration: MailboxRegistration::ReportOnly,
             source: MailboxSource::Contract,
+            min_funded: U256::ZERO,
         }
     }
     /// Replace `start`.
@@ -365,6 +371,11 @@ impl MailboxDiscovery {
     /// Replace `source`.
     pub fn with_source(mut self, source: MailboxSource) -> Self {
         self.source = source;
+        self
+    }
+    /// Replace `min_funded`.
+    pub fn with_min_funded(mut self, min_funded: U256) -> Self {
+        self.min_funded = min_funded;
         self
     }
 }
@@ -553,7 +564,10 @@ async fn scan_announced<T: Transport>(
     } else {
         let (probed, found) =
             scan_channel(provider, scope, owner, &sender, probe, cancelled).await?;
-        if found == U256::ZERO || request.registration == MailboxRegistration::ReportOnly {
+        if found == U256::ZERO
+            || found < request.min_funded
+            || request.registration == MailboxRegistration::ReportOnly
+        {
             return Ok(MailboxChannelScan {
                 sender,
                 registration: ChannelRegistration::Unregistered,
@@ -568,7 +582,7 @@ async fn scan_announced<T: Transport>(
         ) {
             // The store's channel limit: skip this sender rather than fail
             // every later page at the same index.
-            Err(quai_wallet::storage::StorageError::Invalid) => {
+            Err(quai_wallet::storage::StorageError::LimitReached) => {
                 return Ok(MailboxChannelScan {
                     sender,
                     registration: ChannelRegistration::Refused,

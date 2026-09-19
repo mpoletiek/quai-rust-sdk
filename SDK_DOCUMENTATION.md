@@ -630,6 +630,11 @@ and receiver points. Bounded `search` selects a Qi zone match with cancellation
 and continuation indices. Public codes expose linkage information, even though
 they do not contain private keys.
 
+Payment-code keys are for payments. The ECDH between two codes' notification keys
+is the pair's index-0 payment secret, and any static key derived from the two seeds
+has no forward secrecy. Do not build messaging or other protocols on them; see
+[using payment codes for anything but payments](docs/PAYMENT_CODES_BEYOND_PAYMENTS.md).
+
 Exchange peer codes explicitly out of band. `PaymentChannel` validates the local
 owner and stores send/receive cursors per zone. Exhaustion never rewinds.
 Native `SqliteStore::import_payment_channel` registers an owned channel;

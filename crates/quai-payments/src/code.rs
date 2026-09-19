@@ -237,6 +237,11 @@ impl PrivatePaymentCode {
         self.account
     }
     /// Explicitly derive a secret notification child for a protocol using it.
+    ///
+    /// This key enters the shared secret of every payment this code sends,
+    /// and its ECDH with a peer's notification key is the pair's index-0
+    /// payment secret. Do not use it, or that ECDH, for messaging or any other
+    /// protocol. See `docs/PAYMENT_CODES_BEYOND_PAYMENTS.md` in the repository.
     pub fn notification_key(&self) -> Result<SecretKey, PaymentError> {
         SecretKey::from_bytes(&self.notification.export_bytes())
             .map_err(|_| PaymentError::Derivation)

@@ -324,8 +324,21 @@
   "findings": [
     "Seed-only gap-50 recovery on 0.1.0-alpha.4 reproduced custody's full Qi coin set exactly (49 coins, 16,307 Qits), found all three conversion recipients, and kept the 3,416 credited Qits locked until 10,338,942-10,339,111.",
     "Specialized-fee quotes, authenticated backup restore with wrong-password rejection, bounded WQUAI log decoding and transaction interchange round trips all passed on 0.1.0-alpha.4.",
-    "The 98.6-hour head soak (alpha.3-era binary) followed 71,074 blocks through 152 reorgs of at most two blocks. Its three ReplayHistoryUnavailable errors cannot have been lost history with 4,096 retained anchors. They fit a page read that missed a block at or below the tip it had just read, which is the case fabfdc6 now retries as ObservationChanged. The log does not show which read returned null.",
-    "Two check runs failed transiently: a JSON-RPC -32000 on getLogs and an RPC timeout. Both passed on an immediate rerun. The gateway answered in about 0.15 s between them.",
-    "locked-spend was not rerun: it assumes every coin is locked, and the wallet now holds spendable Qi."
-  ]
+    "The 98.7-hour head soak (alpha.3-era binary) followed 71,199 blocks through 152 reorgs of at most two blocks. Its three ReplayHistoryUnavailable errors cannot have been lost history with 4,096 retained anchors. They fit a page read or a newest-anchor read that missed a block at or below the tip it had just read. The log does not show which; the next release retries the page case only.",
+    "Two check runs failed transiently, a JSON-RPC -32000 on getLogs and an RPC timeout; both passed on an immediate rerun, with the gateway answering in about 0.15 s. The soak logged 9 errors across its restarts, 7 of them in the final run's heartbeat.",
+    "locked-spend was not rerun: it assumes every coin is locked, and the wallet now holds spendable Qi.",
+    "Log-based mailbox read: 30,001 blocks of NotificationSent logs took 10.7 s in four requests (about 3.5 s per 10,000 blocks) and returned exactly the recorded Pelagus sender."
+  ],
+  "mailboxLogRead": {
+    "range": [
+      10080000,
+      10110000
+    ],
+    "seconds": 10.7,
+    "requests": 4,
+    "senders": [
+      "PM8TJgT4bZYopT5Mj2fWtwc8K49YRnTfBLLZdfSSqzXyqfZ9zsTrGcHU32uf28zdmX3ruMbYKSCB8TfbuqxNSw5CeG9VCYbbcM9jchyQdADT4abNFoaa"
+    ],
+    "note": "PaymentMailbox::notifications_in_blocks, before the settled-depth check was added; it found exactly the Pelagus sender recorded on 2026-09-14."
+  }
 }

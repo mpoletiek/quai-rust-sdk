@@ -302,8 +302,8 @@ pub enum MailboxSource {
     /// `NotificationSent` logs in the inclusive block range, read in bounded
     /// requests (see `PaymentMailbox::notifications_in_blocks`). Spam slows
     /// it but cannot disable it. `to` must be `MAILBOX_SETTLED_DEPTH` below
-    /// the tip. Page through one range with `start`, then move on to the next
-    /// range from `to + 1`.
+    /// the tip; `from > to` is `QiError::InvalidPolicy`. Page through one range
+    /// with `start`, then move on to the next range from `to + 1`.
     ///
     /// A later range never sees an earlier announcement again. Keep the
     /// senders a pass reports as `Unregistered` or `Refused` that you may want

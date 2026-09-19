@@ -157,7 +157,8 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
     /// otherwise; retry). A read that returns `Ok` covered a settled range, so
     /// the caller can persist `to + 1` as the next range's start. More than
     /// [`MAX_MAILBOX_NOTIFICATIONS`] entries in one read fail with
-    /// `InvalidResult`; read a narrower range.
+    /// `InvalidResult`; read a narrower range. `from > to` is
+    /// `ProviderError::InvalidRequest`.
     pub async fn notifications_in_blocks(
         &self,
         receiver: &PaymentCode,

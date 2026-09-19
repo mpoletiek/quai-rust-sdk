@@ -292,7 +292,7 @@ for a 1 Qi conversion, 33 for a wrap), backup restore and interchange.
 
 [September 18 checks](mainnet-checks-2026-09-18.json) repeated the read-only set on
 0.1.0-alpha.4. A seed-only restore reproduced custody's 49 coins (16,307 Qits),
-with the 3,416 credited Qits still locked. They also summarise the first 98.6-hour
+with the 3,416 credited Qits still locked. They also summarise the first 98.7-hour
 head soak. `locked-spend` assumes an all-locked wallet, so it is only meaningful
 before any spendable Qi arrives.
 

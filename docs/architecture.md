@@ -145,11 +145,14 @@ allow the expected permission-driven account change and recheck the chain afterw
 `HeadTracker` polls a configured provider from an explicit trusted checkpoint. It
 retains 2–4096 block anchors and returns at most 256 new headers per page, checking
 parent links and both page anchors. Reorganizations return removed blocks newest
-first and replacement headers oldest first. A missing retained anchor or a fork older
-than the retained window returns `ReplayHistoryUnavailable` without changing the
-cursor. A block missing from a page returns `ObservationChanged` (retry). That
-block lies above a verified anchor and at or below the tip just read, so its
-absence means the chain moved between the reads, not that history is gone.
+first and replacement headers oldest first. A missing tip, a missing retained
+anchor (including the newest) or a fork older than the retained window returns
+`ReplayHistoryUnavailable` without changing the cursor. A block missing from a page
+above a base this poll read from the node returns `ObservationChanged` (retry): it
+lies at or below the tip just read, so the chain moved between the reads. Above a
+genesis base, which is the trusted hash and never read, it stays
+`ReplayHistoryUnavailable`. A caller should cap retries of a repeated `Stale`
+error before telling the user.
 A checkpoint at genesis uses the verified genesis hash; replay starts at block one.
 
 With the `ws` feature, `WsHeadFollower` subscribes before replay, reconnects within

@@ -668,17 +668,27 @@ is `None`; otherwise senders announced after the first page are never scanned. B
 announcements are unauthenticated, anyone can place codes ahead of a real sender. By
 default (`MailboxRegistration::ReportOnly`) discovery persists nothing for a new
 sender; `RegisterFunded` registers one only when its probe finds at least `min_funded`
-Qits.
+Qits. Each registration is permanent and rescanned on every pass, so set `min_funded`
+above what spam is worth.
 
 `getNotifications` returns every announcement in one response, which spam can push
 past the transport's response limit for good. `MailboxSource::Logs { from, to }` reads
 `NotificationSent` logs for a block range instead, through
-`PaymentMailbox::notifications_in_blocks`, in requests of at most 10,000 blocks. It
-halves any request whose response is too large. Page through one range with `start`,
-then continue from `to + 1`, keeping `to` at a block the wallet treats as settled. The
-event indexes nothing, so every announcement in the range is fetched and matched
-locally: the node learns nothing about the receiver. On mainnet a 10,000-block
-request took about 3.5 s, so a first read of a long history is a background job.
+`PaymentMailbox::notifications_in_blocks`, in requests of at most 10,000 blocks.
+- It halves any request that exceeds the transport's response limit.
+- A log that does not decode is skipped, not fatal.
+- `to` must be `MAILBOX_SETTLED_DEPTH` (16) blocks below the tip, and its hash is
+  checked again after the read, so an `Ok` result can be persisted as covered.
+- Page through one range with `start`, then continue from `to + 1`.
+- A later range never sees an earlier announcement. Keep the senders a pass left
+  `Unregistered` or `Refused` that may matter later, such as one announced before
+  its first payment, and probe them again with `MailboxSource::Senders`.
+- With `Logs`, every announcement in the range is fetched and matched locally, so the
+  node learns nothing about the receiver. The default `Contract` read sends the
+  receiver's code.
+- On mainnet, 30,001 blocks took 10.7 s in four requests
+  (`test-infra/orchard/mainnet-checks-2026-09-18.json`), so a first read of a long
+  history is a background job.
 
 ## Conversions and wrapped assets
 

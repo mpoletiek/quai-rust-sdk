@@ -1,0 +1,331 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-18",
+  "network": "mainnet",
+  "chainId": 9,
+  "genesis": "0xac81c28f1a72591b87b5f16c9793cdc0e87c45c6d426d1a364c3b8f6386b5b8b",
+  "endpoint": "https://rpc.quai.network/cyprus1",
+  "provenance": {
+    "sdkVersion": "0.1.0-alpha.4",
+    "baseCommit": "dd223a2a18efc823dcfef1ffd30000c76dd1cfc1",
+    "sourceDirty": false,
+    "harnessSha256": {
+      "test-infra/orchard/src/mainnet_checks.rs": "dddefac379f80a6eae41e4e19895077247733b4249b958af51a11a5f002d5c29",
+      "test-infra/orchard/src/qi_extended.rs": "3b0859b37a29d8c7a40338a608071ac09b97247b23aeb6b38aa2f370fc3b578a",
+      "test-infra/orchard/src/bin/head_soak.rs": "588369ec3cf6c8a7449f32949a957b92485624f82c7797e91387cec64e0e4894",
+      "test-infra/orchard/src/network.rs": "fb6e6caaefb7b6d779df4f708672dfbad2b2e0ec2d3ee6721fec9cc96df4b7dc",
+      "test-infra/orchard/src/main.rs": "7c3553fc35b6c5ac35b2bba8a450e841ccafef50323172b1ad477a150a1d104c"
+    }
+  },
+  "readOnly": {
+    "recovery": {
+      "allRecipientsFound": true,
+      "check": "seed-only-gap-50-recovery",
+      "creditIntact": true,
+      "custodyCoins": 49,
+      "expectedRecipients": [
+        "0x00c8B493864937e854B2Aac0E2d10d4c4d85143f",
+        "0x008c264bEB889d14321aba31e3490B4CA0c5cDeE",
+        "0x00C174695883E4A918c3875FCAEEccCE4a7756Ef"
+      ],
+      "matchesCustody": true,
+      "balance": {
+        "expired": "0",
+        "locked": "3416",
+        "reserved": "0",
+        "spendable": "12891",
+        "total": "16307"
+      },
+      "checkpointHeight": "10170250",
+      "stopped": "[GapLimit, GapLimit]",
+      "nextRawChild": [
+        22914,
+        51868
+      ],
+      "derivedAddresses": 151
+    },
+    "special-fee": {
+      "check": "automatic-special-fee-estimation",
+      "note": "unsigned shapes from locked outputs; nothing reserved or signed",
+      "profile": "V056ShaAnchored",
+      "quotes": [
+        {
+          "blockNumber": 10170223,
+          "feeIts": "4534818429030005600",
+          "gasMatches": true,
+          "gasPriceIts": "36748933784684",
+          "gasRecomputed": 123400,
+          "independentQuaiToQiQits": "35",
+          "inputs": 3,
+          "outputs": 2,
+          "quoteQits": "36",
+          "requiredGas": 123400,
+          "sample": 0,
+          "shape": "qi-to-quai-1qi",
+          "utxoSetSize": 1227822
+        },
+        {
+          "blockNumber": 10170223,
+          "feeIts": "4534818429030005600",
+          "gasMatches": true,
+          "gasPriceIts": "36748933784684",
+          "gasRecomputed": 123400,
+          "independentQuaiToQiQits": "35",
+          "inputs": 3,
+          "outputs": 2,
+          "quoteQits": "36",
+          "requiredGas": 123400,
+          "sample": 1,
+          "shape": "qi-to-quai-1qi",
+          "utxoSetSize": 1227822
+        },
+        {
+          "blockNumber": 10170223,
+          "feeIts": "4174678877940102400",
+          "gasMatches": true,
+          "gasPriceIts": "36748933784684",
+          "gasRecomputed": 113600,
+          "independentQuaiToQiQits": "32",
+          "inputs": 2,
+          "outputs": 1,
+          "quoteQits": "33",
+          "requiredGas": 113600,
+          "sample": 0,
+          "shape": "wqi-wrap-1qi",
+          "utxoSetSize": 1227822
+        },
+        {
+          "blockNumber": 10170223,
+          "feeIts": "4174678877940102400",
+          "gasMatches": true,
+          "gasPriceIts": "36748933784684",
+          "gasRecomputed": 113600,
+          "independentQuaiToQiQits": "32",
+          "inputs": 2,
+          "outputs": 1,
+          "quoteQits": "33",
+          "requiredGas": 113600,
+          "sample": 1,
+          "shape": "wqi-wrap-1qi",
+          "utxoSetSize": 1227822
+        }
+      ]
+    },
+    "backup": {
+      "check": "authenticated-full-backup-restore",
+      "kdf": "Argon2id default (64 MiB, 3 passes, 4 lanes)",
+      "results": [
+        {
+          "addressesMatch": true,
+          "encryptedBytes": 4824,
+          "hashOnly": 0,
+          "rescanRequired": true,
+          "reservations": 18,
+          "reservationsAndPayloadsMatched": 18,
+          "retainedSigned": 18,
+          "store": "account-0",
+          "wrongPasswordRejected": true
+        },
+        {
+          "addressesMatch": true,
+          "encryptedBytes": 1430,
+          "hashOnly": 0,
+          "rescanRequired": true,
+          "reservations": 4,
+          "reservationsAndPayloadsMatched": 4,
+          "retainedSigned": 4,
+          "store": "account-1",
+          "wrongPasswordRejected": true
+        },
+        {
+          "addressesMatch": true,
+          "encryptedBytes": 10055,
+          "rescanRequired": true,
+          "restoredRefreshBalance": {
+            "locked": "3416",
+            "spendable": "12891",
+            "total": "16307"
+          },
+          "snapshotInvalidatedOnRestore": true,
+          "sourceBalance": {
+            "expired": "0",
+            "locked": "3416",
+            "reserved": "0",
+            "spendable": "12891",
+            "total": "16307"
+          },
+          "store": "qi-recovered"
+        }
+      ]
+    },
+    "events": {
+      "check": "bounded-log-query-and-event-decoding",
+      "contract": "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB",
+      "decoded": [
+        {
+          "block": 10096936,
+          "event": "Deposit",
+          "logIndex": 0,
+          "removed": false,
+          "tx": "0x00130052789a6ec79bba58de2b3819917fcf731d753a93e3f54ecd3cf6f90aa2",
+          "values": "[Value(String(\"0x0006506bDE7140b85DED58a40D7444F84cde4821\")), Value(String(\"10000000000000000\"))]"
+        },
+        {
+          "block": 10096940,
+          "event": "Withdrawal",
+          "logIndex": 0,
+          "removed": false,
+          "tx": "0x00620036b4fb674c8d52380b5caaeb00f0fd7af6cf494c4c2bc6bcffdb2504a0",
+          "values": "[Value(String(\"0x0006506bDE7140b85DED58a40D7444F84cde4821\")), Value(String(\"10000000000000000\"))]"
+        }
+      ],
+      "logs": 2,
+      "ownerLogs": 2
+    },
+    "interchange": {
+      "check": "mined-transaction-json-protobuf-round-trip",
+      "failures": 0,
+      "transactions": [
+        {
+          "bytes": 126,
+          "hash": "0x00110047bb518d5cc27abb0e1c9c6086e7124f6081df13de343ec644b2788679",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 128,
+          "hash": "0x0012003608a55174f23b29b4012d90acc9c610de680e737eaea2244f69626410",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 129,
+          "hash": "0x00130052789a6ec79bba58de2b3819917fcf731d753a93e3f54ecd3cf6f90aa2",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 129,
+          "hash": "0x0015001e2d33ad54c6ff80df1b4ad7e09bde3874fc8f4bd25f82b0e0b9ac6b2d",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 128,
+          "hash": "0x0036004d15158ae746973178885e0eb77ccfa1f75072010c46659207dde67673",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 124,
+          "hash": "0x0041007aeeb688320647ebed5f13dc12737bd2ce593f2cb85cfdf36b3fef4f57",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 146,
+          "hash": "0x00480074f626e67476ab77029cdc8e9c71f8e6f5df1ce71252227e0c3dc96fa0",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 129,
+          "hash": "0x004c0038910a4882f9f305205d098a3094a0bcfb23d64180dacc00f38c988bb6",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 128,
+          "hash": "0x005b005091cb45522bfc8f64a7bc7341568fbb07db9d1f0210f33a1942ed5dd3",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 242,
+          "hash": "0x005f005c6ee8c7ebfcc3b22beb7a63152004a9246e6c7186e96e961ffacfd20b",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 154,
+          "hash": "0x00620036b4fb674c8d52380b5caaeb00f0fd7af6cf494c4c2bc6bcffdb2504a0",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "bytes": 125,
+          "hash": "0x0069004c0b82b61eb613fc1f7cd32ce8595c2ca737cca82f505b93018f0fa648",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        },
+        {
+          "hash": "0x006c0012024b7c40a97a80d66407827baaebbce683120d2586d7515f336a41c0",
+          "mined": false
+        },
+        {
+          "bytes": 128,
+          "hash": "0x007c001613f8adb8e04cf9e812d40994679b0a0d4159f74d5abb5aa40445268e",
+          "hashMatches": true,
+          "jsonRoundTrip": true,
+          "mined": true,
+          "protoRoundTrip": true
+        }
+      ]
+    }
+  },
+  "custodyInventory": {
+    "coins": 49,
+    "qits": 16307,
+    "reserved": 0
+  },
+  "headSoak": {
+    "binary": "0.1.0-alpha.3-era head_soak (built 2026-09-14)",
+    "uptimeHours": 98.7,
+    "blocks": 71199,
+    "reorgs": 152,
+    "maxReorgDepth": 2,
+    "removedBlocks": 157,
+    "observationChanged": 25,
+    "errors": {
+      "canonical observation changed during the request": 2,
+      "canonical replay history unavailable; restore an older checkpoint explicitly": 3,
+      "RPC HTTP status 502": 2,
+      "RPC request timed out": 2
+    },
+    "reanchors": 3,
+    "rebuilds": 7,
+    "finalCheckpoint": 10170203,
+    "finalHttpHead": "10170203"
+  },
+  "findings": [
+    "Seed-only gap-50 recovery on 0.1.0-alpha.4 reproduced custody's full Qi coin set exactly (49 coins, 16,307 Qits), found all three conversion recipients, and kept the 3,416 credited Qits locked until 10,338,942-10,339,111.",
+    "Specialized-fee quotes, authenticated backup restore with wrong-password rejection, bounded WQUAI log decoding and transaction interchange round trips all passed on 0.1.0-alpha.4.",
+    "The 98.6-hour head soak (alpha.3-era binary) followed 71,074 blocks through 152 reorgs of at most two blocks. Its three ReplayHistoryUnavailable errors cannot have been lost history with 4,096 retained anchors. They fit a page read that missed a block at or below the tip it had just read, which is the case fabfdc6 now retries as ObservationChanged. The log does not show which read returned null.",
+    "Two check runs failed transiently: a JSON-RPC -32000 on getLogs and an RPC timeout. Both passed on an immediate rerun. The gateway answered in about 0.15 s between them.",
+    "locked-spend was not rerun: it assumes every coin is locked, and the wallet now holds spendable Qi."
+  ]
+}

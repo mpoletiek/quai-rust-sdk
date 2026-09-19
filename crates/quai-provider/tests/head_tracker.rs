@@ -92,17 +92,29 @@ async fn paginates_missed_heads_and_replays_reorganization_in_application_order(
 #[tokio::test]
 async fn pruned_history_deep_reorg_and_foreign_genesis_leave_cursor_unchanged() {
     let (mock, provider, mut tracker) = setup(2);
-    // A page block missing above a verified anchor means the chain changed
-    // since the tip was read (a shorter branch, or a lagging backend), so the
-    // poll is retryable rather than a lost-history re-anchor.
+    // Above a genesis base, which is the trusted hash and never read, a
+    // missing block may be history the node lacks: re-anchor explicitly.
     *mock.missing.lock().unwrap() = Some(2);
+    assert!(matches!(
+        tracker.poll(&provider).await,
+        Err(ProviderError::ReplayHistoryUnavailable)
+    ));
+    assert_eq!(tracker.checkpoint().number, 0);
+    *mock.missing.lock().unwrap() = None;
+    tracker.poll(&provider).await.unwrap();
+    // Above a base this poll read from the node, a missing page block means
+    // the chain changed since the tip was read (a shorter branch, or a
+    // lagging backend), so the poll is retryable.
+    let base = tracker.checkpoint();
+    assert_ne!(base.number, 0);
+    *mock.missing.lock().unwrap() = Some(base.number as usize + 2);
     assert!(matches!(
         tracker.poll(&provider).await,
         Err(ProviderError::ObservationChanged)
     ));
-    assert_eq!(tracker.checkpoint().number, 0);
+    assert_eq!(tracker.checkpoint(), base);
     *mock.missing.lock().unwrap() = None;
-    for _ in 0..3 {
+    for _ in 0..2 {
         tracker.poll(&provider).await.unwrap();
     }
     let before = tracker.checkpoint();

@@ -163,9 +163,20 @@ impl HeadTracker {
             return Err(ProviderError::InvalidResult("header batch count"));
         }
         // Validate in order, so the first broken link is the error reported.
+        // A page block sits above the base and at most at the tip read
+        // earlier. When this poll read the base from the node, a missing page
+        // block means the chain reorganized to a shorter branch or a
+        // load-balanced read hit a lagging node since the tip was read: retry.
+        // A genesis base is the trusted hash, never read, so a node missing
+        // block one may simply lack that history.
         for (value, block) in values.into_iter().zip(numbers) {
-            let header = Provider::<T>::parse_zone_header(value, self.zone, block)?
-                .ok_or(ProviderError::ReplayHistoryUnavailable)?;
+            let lost = base.number == 0 && block == BlockTag::Number(U256::from(1));
+            let header =
+                Provider::<T>::parse_zone_header(value, self.zone, block)?.ok_or(if lost {
+                    ProviderError::ReplayHistoryUnavailable
+                } else {
+                    ProviderError::ObservationChanged
+                })?;
             if header.parent_hash != previous.hash
                 || header.hash == Hash32::ZERO
                 || !seen.insert(header.hash)

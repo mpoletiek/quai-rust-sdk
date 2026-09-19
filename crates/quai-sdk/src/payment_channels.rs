@@ -281,10 +281,44 @@ pub enum MailboxRegistration {
     /// decides, for example by asking the user, whether to register one.
     #[default]
     ReportOnly,
-    /// Register any sender whose probe finds unspent outputs, then scan it
-    /// fully. Anyone can fund a probe with dust, so this suits a restore or an
-    /// application that accepts that cost, not unattended background sync.
+    /// Register any sender whose probe finds unspent outputs worth at least
+    /// the page's `min_funded`, then scan it fully. Anyone can fund a probe
+    /// with dust, and each registration is permanent and rescanned on every
+    /// pass, so set `min_funded` to more than spam is worth. This suits a
+    /// restore, not unattended background sync.
     RegisterFunded,
+}
+
+/// Where mailbox discovery reads announcements.
+#[cfg(feature = "abi")]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[non_exhaustive]
+pub enum MailboxSource {
+    /// `getNotifications`: every announcement to the receiver in one call.
+    /// Simple, but the response grows with the list, and anyone can grow the
+    /// list, so past the response limit this read fails for good.
+    #[default]
+    Contract,
+    /// `NotificationSent` logs in the inclusive block range, read in bounded
+    /// requests (see `PaymentMailbox::notifications_in_blocks`). Spam slows
+    /// it but cannot disable it. `to` must be `MAILBOX_SETTLED_DEPTH` below
+    /// the tip; `from > to` is `QiError::InvalidPolicy`. Page through one range
+    /// with `start`, then move on to the next range from `to + 1`.
+    ///
+    /// A later range never sees an earlier announcement again. Keep the
+    /// senders a pass reports as `Unregistered` or `Refused` that you may want
+    /// later, such as one announced before its first payment, and probe them
+    /// again with [`MailboxSource::Senders`].
+    Logs {
+        /// First block.
+        from: u64,
+        /// Last block, inclusive.
+        to: u64,
+    },
+    /// These senders, in this order, with no mailbox read: for probing again
+    /// senders an earlier pass left unregistered. At most
+    /// `MAX_MAILBOX_NOTIFICATIONS`; repeats collapse.
+    Senders(Vec<PaymentCode>),
 }
 
 /// One page of mailbox discovery.
@@ -292,7 +326,8 @@ pub enum MailboxRegistration {
 #[derive(Clone, Debug)]
 #[non_exhaustive]
 pub struct MailboxDiscovery {
-    /// First announcement index; continue with the report's `next_start`.
+    /// First announcement index within `source`; continue with the report's
+    /// `next_start`.
     pub start: usize,
     /// Distinct valid senders to scan in this page, 1 through 64.
     pub max_channels: usize,
@@ -303,6 +338,11 @@ pub struct MailboxDiscovery {
     pub options: PaymentScanOptions,
     /// What to persist for unregistered senders.
     pub registration: MailboxRegistration,
+    /// Where announcements are read.
+    pub source: MailboxSource,
+    /// Qits a probe must find before `RegisterFunded` registers a sender.
+    /// Zero registers any funded sender.
+    pub min_funded: U256,
 }
 #[cfg(feature = "abi")]
 impl MailboxDiscovery {
@@ -313,6 +353,8 @@ impl MailboxDiscovery {
             max_channels,
             options: PaymentScanOptions::default(),
             registration: MailboxRegistration::ReportOnly,
+            source: MailboxSource::Contract,
+            min_funded: U256::ZERO,
         }
     }
     /// Replace `start`.
@@ -335,6 +377,16 @@ impl MailboxDiscovery {
         self.registration = registration;
         self
     }
+    /// Replace `source`.
+    pub fn with_source(mut self, source: MailboxSource) -> Self {
+        self.source = source;
+        self
+    }
+    /// Replace `min_funded`.
+    pub fn with_min_funded(mut self, min_funded: U256) -> Self {
+        self.min_funded = min_funded;
+        self
+    }
 }
 
 /// How discovery left an announced sender's channel.
@@ -345,8 +397,10 @@ pub enum ChannelRegistration {
     Existing,
     /// Registered by this call and scanned in full.
     Registered,
-    /// Not registered and nothing persisted; the report is its probe. It is
-    /// probed again on every later pass that covers its index.
+    /// Not registered and nothing persisted; the report is its probe. With
+    /// `MailboxSource::Contract` it is probed again on every later pass that
+    /// covers its index. With `Logs`, only a read of the same range sees it
+    /// again: keep it and pass it in `MailboxSource::Senders`.
     Unregistered,
     /// Its probe found funds, but the store's channel limit is reached.
     Refused,
@@ -397,9 +451,10 @@ pub struct MailboxDiscoveryReport {
 /// refreshed once per page, and after a mid-page failure if anything was
 /// already imported. Send cursors never change; nothing is broadcast.
 ///
-/// The mailbox returns every announcement in one call, so a list larger than
-/// the transport's response limit (about 5,400 announcements at the default
-/// 2 MiB) fails until that limit is raised.
+/// With the default [`MailboxSource::Contract`], the mailbox returns every
+/// announcement in one call, so a list larger than the transport's response
+/// limit (about 5,400 announcements at the default 2 MiB) fails until that
+/// limit is raised. [`MailboxSource::Logs`] reads bounded block ranges instead.
 #[cfg(feature = "abi")]
 pub async fn discover_mailbox_channels<T: Transport>(
     provider: &Provider<T>,
@@ -414,13 +469,38 @@ pub async fn discover_mailbox_channels<T: Transport>(
         return Err(QiError::InvalidPolicy);
     }
     validate_scan_options(&request.options)?;
-    let announced = mailbox
-        .notifications(caller, owner.public_code(), quai_provider::BlockTag::Latest)
-        .await
-        .map_err(|error| match error {
-            crate::contracts::ContractError::Provider(error) => QiError::Provider(error),
-            _ => QiError::MailboxUnreadable,
-        })?;
+    let announced = match &request.source {
+        MailboxSource::Contract => {
+            mailbox
+                .notifications(caller, owner.public_code(), quai_provider::BlockTag::Latest)
+                .await
+        }
+        MailboxSource::Logs { from, to } if from <= to => {
+            mailbox
+                .notifications_in_blocks(owner.public_code(), *from, *to)
+                .await
+        }
+        MailboxSource::Logs { .. } => return Err(QiError::InvalidPolicy),
+        MailboxSource::Senders(codes)
+            if codes.len() <= crate::payment_mailbox::MAX_MAILBOX_NOTIFICATIONS =>
+        {
+            let mut known = crate::payment_mailbox::MailboxNotifications::default();
+            let mut seen = std::collections::HashSet::with_capacity(codes.len());
+            for code in codes {
+                if seen.insert(code.to_bytes()) {
+                    known.senders.push(code.clone());
+                } else {
+                    known.duplicates += 1;
+                }
+            }
+            Ok(known)
+        }
+        MailboxSource::Senders(_) => return Err(QiError::InvalidPolicy),
+    }
+    .map_err(|error| match error {
+        crate::contracts::ContractError::Provider(error) => QiError::Provider(error),
+        _ => QiError::MailboxUnreadable,
+    })?;
     let mut report = MailboxDiscoveryReport {
         invalid: announced.invalid,
         duplicates: announced.duplicates,
@@ -510,7 +590,10 @@ async fn scan_announced<T: Transport>(
     } else {
         let (probed, found) =
             scan_channel(provider, scope, owner, &sender, probe, cancelled).await?;
-        if found == U256::ZERO || request.registration == MailboxRegistration::ReportOnly {
+        if found == U256::ZERO
+            || found < request.min_funded
+            || request.registration == MailboxRegistration::ReportOnly
+        {
             return Ok(MailboxChannelScan {
                 sender,
                 registration: ChannelRegistration::Unregistered,
@@ -525,7 +608,7 @@ async fn scan_announced<T: Transport>(
         ) {
             // The store's channel limit: skip this sender rather than fail
             // every later page at the same index.
-            Err(quai_wallet::storage::StorageError::Invalid) => {
+            Err(quai_wallet::storage::StorageError::LimitReached) => {
                 return Ok(MailboxChannelScan {
                     sender,
                     registration: ChannelRegistration::Refused,

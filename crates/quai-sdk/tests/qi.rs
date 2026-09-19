@@ -30,6 +30,13 @@ struct Mock {
     invalidate: Arc<Mutex<Option<(std::path::PathBuf, NetworkScope)>>>,
     outpoints: Arc<Mutex<std::collections::BTreeMap<String, Value>>>,
     call_result: Arc<Mutex<Option<Value>>>,
+    logs: Arc<Mutex<Vec<Value>>>,
+    /// When nonzero, `latest` reports this height and numbered header reads
+    /// echo the requested number, for settled-range checks.
+    tip: Arc<AtomicU64>,
+    /// Answer batches, which the mailbox's log reads require. Off by default
+    /// so other tests keep their single-request shape.
+    batches: Arc<std::sync::atomic::AtomicBool>,
 }
 impl Transport for Mock {
     async fn request(&self, _: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
@@ -51,6 +58,13 @@ impl Transport for Mock {
             "quai_getHeaderByNumber" if params[0] == "0x0" => {
                 json!({"woHeader":{"hash": if mode == 4 { CHECKPOINT } else { GENESIS }, "number":"0x0","location":"0x","parentHash":format!("0x{}","00".repeat(32))}})
             }
+            "quai_getHeaderByNumber" if self.tip.load(Ordering::SeqCst) != 0 => {
+                let n = match params[0].as_str().unwrap() {
+                    "latest" => self.tip.load(Ordering::SeqCst),
+                    n => u64::from_str_radix(n.trim_start_matches("0x"), 16).unwrap(),
+                };
+                json!({"woHeader":{"hash":CHECKPOINT,"number":format!("{n:#x}"),"location":"0x0000","parentHash":GENESIS,"primeTerminusNumber":"0x10"},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
+            }
             "quai_getHeaderByNumber" => {
                 json!({"woHeader":{"hash":if mode==5 {GENESIS} else {CHECKPOINT}, "number": if params[0]=="latest" && mode==6 {"0x11"} else {"0x10"},"location":"0x0000","parentHash":GENESIS,"primeTerminusNumber": if mode==8 {"0x1ac778"} else {"0x10"}},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
             }
@@ -61,6 +75,7 @@ impl Transport for Mock {
                 .unwrap()
                 .clone()
                 .expect("unexpected quai_call"),
+            "quai_getLogs" => Value::Array(self.logs.lock().unwrap().clone()),
             "quai_quaiToQi" => json!("0x5"),
             "quai_qiToQuai" => json!("0xffffffffff"),
             "quai_estimateFeeForQi" => {
@@ -99,6 +114,20 @@ impl Transport for Mock {
             }
             _ => panic!("unexpected method {method}"),
         })
+    }
+    async fn request_batch(
+        &self,
+        e: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<quai_sdk::rpc::BatchResult> {
+        if !self.batches.load(Ordering::SeqCst) {
+            return None;
+        }
+        let mut out = Vec::with_capacity(requests.len());
+        for (method, params) in requests {
+            out.push(self.request(e, method, params).await);
+        }
+        Some(Ok(out))
     }
 }
 struct Environment {
@@ -1983,6 +2012,14 @@ fn qi_message_resolver_checks_exact_hd_and_imported_ownership() {
         quai_sdk::qi::sign_message(&WrongKey, &hd, message),
         Err(QiError::IdentityMismatch)
     ));
+    // Bytes carrying a top-level inputs field are a spend, whatever the
+    // encoding; the refusal has its own variant so a wallet can tell the
+    // requester, rather than report a generic signing failure.
+    let spend_shaped = [0x7a, 0x00];
+    assert!(quai_sdk::consensus::has_transaction_inputs(&spend_shaped));
+    let refused = quai_sdk::qi::sign_message(&env.wallet, &hd, &spend_shaped).unwrap_err();
+    assert!(matches!(refused, QiError::TransactionMessage));
+    assert_eq!(refused.class(), quai_sdk::primitives::ErrorClass::Invalid);
 }
 
 #[cfg(feature = "payments")]
@@ -2306,6 +2343,32 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     assert_eq!(env.store.addresses().unwrap().len(), stored);
     // Two slots: the sender and the self-announcement; the other peer is deferred.
     let register = |start| page(start).with_registration(MailboxRegistration::RegisterFunded);
+    // Below the caller's minimum, a funded probe registers nothing: dust
+    // cannot buy a permanent, rescanned channel.
+    let funded = U256::from(quai_sdk::consensus::Denomination::new(7).unwrap().value());
+    let report = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        &register(0).with_min_funded(funded + U256::from(1)),
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(
+        report.scanned[0].registration,
+        ChannelRegistration::Unregistered
+    );
+    assert_eq!(report.scanned[0].found, funded);
+    assert!(
+        env.store
+            .payment_channel(&receiver, sender.public_code())
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(env.store.addresses().unwrap().len(), stored);
     let report = discover_mailbox_channels(
         &env.provider,
         &mut env.store,
@@ -2384,6 +2447,94 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
     assert_eq!(env.store.addresses().unwrap().len(), stored);
     assert!(next.deferred.is_empty());
     assert_eq!(next.next_start, None);
+
+    // The same discovery reading NotificationSent logs for a block range: the
+    // funded sender's announcement is found and its channel rescanned, and an
+    // announcement to another receiver is ignored.
+    use quai_sdk::payment_channels::MailboxSource;
+    let event = mailbox
+        .contract()
+        .interface()
+        .event("NotificationSent")
+        .unwrap()
+        .clone();
+    let log = |index: u64, to: &PrivatePaymentCode| {
+        let (topics, data) = event
+            .encode_log(&[
+                json!(sender.public_code().to_base58()),
+                json!(to.public_code().to_base58()),
+            ])
+            .unwrap();
+        json!({"address":PELAGUS_MAILBOX_ADDRESS,"topics":topics.iter().map(ToString::to_string).collect::<Vec<_>>(),
+            "data":RpcData::new(data).unwrap().to_hex(),"blockHash":GENESIS,"blockNumber":"0x10",
+            "transactionHash":CHECKPOINT,"transactionIndex":"0x0","logIndex":format!("{index:#x}"),"removed":false})
+    };
+    *env.mock.logs.lock().unwrap() = vec![log(0, &other), log(1, &receiver)];
+    // The range must sit MAILBOX_SETTLED_DEPTH below the tip.
+    env.mock.tip.store(
+        0x10 + quai_sdk::payment_mailbox::MAILBOX_SETTLED_DEPTH,
+        Ordering::SeqCst,
+    );
+    env.mock.batches.store(true, Ordering::SeqCst);
+    let logged = |from, to| register(0).with_source(MailboxSource::Logs { from, to });
+    let report = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        &logged(0x10, 0x10),
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(report.scanned.len(), 1);
+    assert_eq!(report.scanned[0].sender, *sender.public_code());
+    assert_eq!(
+        report.scanned[0].registration,
+        ChannelRegistration::Existing
+    );
+    assert_eq!(report.next_start, None);
+    assert!(matches!(
+        discover_mailbox_channels(
+            &env.provider,
+            &mut env.store,
+            &receiver,
+            &mailbox,
+            caller,
+            &logged(0x11, 0x10),
+            || false,
+        )
+        .await,
+        Err(QiError::InvalidPolicy)
+    ));
+    // A sender a log pass left unregistered can be probed again by code,
+    // without reading the mailbox; repeats collapse.
+    let known = |codes: Vec<quai_sdk::payments::PaymentCode>| {
+        page(0).with_source(MailboxSource::Senders(codes))
+    };
+    let again = discover_mailbox_channels(
+        &env.provider,
+        &mut env.store,
+        &receiver,
+        &mailbox,
+        caller,
+        &known(vec![
+            other.public_code().clone(),
+            other.public_code().clone(),
+        ]),
+        || false,
+    )
+    .await
+    .unwrap();
+    assert_eq!(again.scanned.len(), 1);
+    assert_eq!(again.scanned[0].sender, *other.public_code());
+    assert_eq!(
+        again.scanned[0].registration,
+        ChannelRegistration::Unregistered
+    );
+    assert_eq!(again.duplicates, 1);
+    assert!(again.invalid.is_empty());
 }
 
 #[tokio::test]

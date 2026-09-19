@@ -1,5 +1,69 @@
 # Changelog
 
+## 0.1.0-alpha.5
+
+Fixes from the first mainnet soak on 0.1.0-alpha.4, and the follow-ups the
+alpha.4 reviews deferred.
+
+Changed:
+
+- `HeadTracker::poll` reports a page block missing above a base it read from
+  the node as `ProviderError::ObservationChanged` (class `Stale`, retry), not
+  `ReplayHistoryUnavailable` (class `Invalid`, re-anchor). The block goes
+  missing when the chain reorganizes to a shorter branch between the two reads,
+  or when a load-balanced read reaches a lagging node. A 98.7-hour mainnet soak
+  through `rpc.quai.network` logged three `ReplayHistoryUnavailable` errors,
+  with every reorg at most two blocks deep. The log does not show which read
+  missed a block, so some may have been the still-unretried newest-anchor case.
+  A missing tip, a missing retained anchor (including the newest), and a
+  missing block one above a genesis base, which is never read, are still
+  `ReplayHistoryUnavailable`. A wallet should cap how often it retries a
+  `Stale` error before telling the user.
+- Payment-channel writes return the new `StorageError::LimitReached`, not
+  `Invalid`, when the store's 1,024 channels are full. That includes
+  `import_payment_channel`, receive-index import, payment-address allocation
+  and backup restore. Mailbox discovery reports `ChannelRegistration::Refused`
+  only for that error, where a damaged row used to be reported the same way.
+- `quai_sdk::qi::sign_message` returns the new `QiError::TransactionMessage`, not
+  `MessageSigning`, for a message that is a Qi transaction.
+- `MailboxSource` (new) is `Clone`, not `Copy`, because `Senders` carries a list.
+- Invalid mailbox entries are cut to 128 characters.
+
+Added:
+
+- `PaymentMailbox::notifications_in_blocks` reads `NotificationSent` logs for a
+  block range, in requests of at most `MAILBOX_LOG_BLOCKS` (10,000) blocks.
+  - It halves a request that exceeds the transport's response limit, and grows
+    back after one that succeeds.
+  - A log that does not decode is listed in `invalid` and skipped; it no longer
+    fails the read.
+  - Announcement spam can slow the read but, unlike `getNotifications`, cannot
+    disable it.
+  - The range's end must be `MAILBOX_SETTLED_DEPTH` (16) blocks below the tip,
+    and its hash must match before and after the read. Each log request is
+    batched with the header of its last block, so a lagging backend cannot
+    answer with missing logs. Any of these failing is `ObservationChanged`
+    (retry), and an `Ok` result can be persisted as covered. The transport
+    must batch.
+  - More than `MAX_MAILBOX_NOTIFICATIONS` entries fail the read; narrow the range.
+  - The event indexes nothing, so this read reveals nothing about which
+    receiver is reading.
+- `MailboxDiscovery::source` with `with_source`, and `MailboxSource`:
+  - `Contract` (default): the one-call read.
+  - `Logs { from, to }`: pages a block range. A reversed range is `InvalidPolicy`.
+  - `Senders(codes)`: probes senders an earlier `Logs` pass left unregistered.
+    A later range never sees those announcements again.
+- `MailboxDiscovery::min_funded` with `with_min_funded`: `RegisterFunded`
+  registers a sender only when its probe finds at least this many Qits. The
+  default of zero keeps the old behavior.
+- `QiError::TransactionMessage` and `StorageError::LimitReached`.
+- `Provider::logs_served_through`: a range's logs, read in one guarded batch
+  with the header of the range's last block, so the answering node is shown to
+  have the whole range.
+- `estimated_gas()` on `AccountReplacementQuote` and `PreparedAccountReplacement`:
+  the gas a fee replacement needs now, so a wallet can see the headroom left
+  under the parent's fixed gas limit.
+
 ## 0.1.0-alpha.4
 
 Hardening and speed from a full-workspace review, and the SDK pieces a desktop

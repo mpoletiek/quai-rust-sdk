@@ -1,7 +1,7 @@
 # Quai Rust SDK documentation
 
 This is the integration guide for the SDK in this repository, version
-`0.1.0-alpha.4`. It covers the public crate layers, native and browser workflows,
+`0.1.0-alpha.5`. It covers the public crate layers, native and browser workflows,
 recovery formats, limits, examples and verification. Exact Rust signatures and
 field documentation are hosted on [docs.rs](https://docs.rs/quai-sdk) or can be
 generated from the same checkout with `cargo doc`.
@@ -49,7 +49,7 @@ For another Rust project, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.4", features = ["sqlite", "abi", "payments", "backup"] }
+quai-sdk = { version = "=0.1.0-alpha.5", features = ["sqlite", "abi", "payments", "backup"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -665,8 +665,34 @@ both codes on-chain. A Pelagus recipient only discovers a channel after
 one page of at most `max_channels` (1–64) distinct senders from index `start`, and
 reports deferred, invalid and duplicate entries. Call again with `next_start` until it
 is `None`; otherwise senders announced after the first page are never scanned. Because
-announcements are unauthenticated, anyone can place codes ahead of a real sender, and
-each registration persists metadata for a code anyone could have announced.
+announcements are unauthenticated, anyone can place codes ahead of a real sender. By
+default (`MailboxRegistration::ReportOnly`) discovery persists nothing for a new
+sender; `RegisterFunded` registers one only when its probe finds at least `min_funded`
+Qits. Each registration is permanent and rescanned on every pass, so set `min_funded`
+above what spam is worth.
+
+`getNotifications` returns every announcement in one response, which spam can push
+past the transport's response limit for good. `MailboxSource::Logs { from, to }` reads
+`NotificationSent` logs for a block range instead, through
+`PaymentMailbox::notifications_in_blocks`, in requests of at most 10,000 blocks.
+- It halves any request that exceeds the transport's response limit.
+- A log that does not decode is skipped, not fatal.
+- `to` must be `MAILBOX_SETTLED_DEPTH` (16) blocks below the tip, and its hash is
+  checked again after the read. Each log request is batched with the header of its
+  last block, so a backend lagging behind the range cannot answer with missing logs.
+  Failures are `ObservationChanged` (retry), and an `Ok` result can be persisted as
+  covered. The transport must batch: the native HTTP and WebSocket transports do;
+  the browser Fetch transport does not.
+- Page through one range with `start`, then continue from `to + 1`.
+- A later range never sees an earlier announcement. Keep the senders a pass left
+  `Unregistered` or `Refused` that may matter later, such as one announced before
+  its first payment, and probe them again with `MailboxSource::Senders`.
+- With `Logs`, every announcement in the range is fetched and matched locally, so the
+  node learns nothing about the receiver. The default `Contract` read sends the
+  receiver's code.
+- On mainnet, 30,001 blocks took 10.7 s in four requests
+  (`test-infra/orchard/mainnet-checks-2026-09-18.json`), so a first read of a long
+  history is a background job.
 
 ## Conversions and wrapped assets
 

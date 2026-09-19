@@ -104,6 +104,11 @@ pub enum QiError {
     /// Qi message signature generation failed without exposing backend diagnostics.
     #[error("Qi message signing failed")]
     MessageSigning,
+    /// The message bytes are a Qi transaction with inputs, so a message
+    /// signature over them would authorize that spend. Refused before signing;
+    /// a wallet should reject the request rather than retry it.
+    #[error("refused: the Qi message is a transaction")]
+    TransactionMessage,
     /// An optional caller-owned address-use query failed; no remote text is kept.
     #[error("Qi address-use check failed")]
     UseCheckFailed,
@@ -173,6 +178,7 @@ impl QiError {
             // A caller's history service or the node failed to answer.
             Self::UseCheckFailed | Self::IncompleteObservation => ErrorClass::Transient,
             Self::MessageSigning
+            | Self::TransactionMessage
             | Self::MailboxUnreadable
             | Self::Selection(_)
             | Self::Transaction(_)
@@ -636,5 +642,8 @@ pub fn sign_message(
     {
         return Err(QiError::IdentityMismatch);
     }
-    quai_signer::sign_qi_message(&key, message).map_err(|_| QiError::MessageSigning)
+    quai_signer::sign_qi_message(&key, message).map_err(|error| match error {
+        quai_signer::SignerError::QiTransactionMessage => QiError::TransactionMessage,
+        _ => QiError::MessageSigning,
+    })
 }

@@ -711,6 +711,10 @@ async fn replacement_fee_review_preserves_nonce_and_all_signed_candidates_after_
     let mut expected = root.transaction().clone();
     expected.gas_price = U256::from(3);
     assert_eq!(prepared.transaction(), &expected);
+    // The native session passes the current estimate through, so a wallet
+    // can see the headroom its reviewer is approving.
+    assert_eq!(prepared.estimated_gas(), 21_000);
+    assert!(prepared.estimated_gas() <= prepared.transaction().gas_limit);
     let first = session.sign_replacement(&prepared).unwrap();
     assert!(matches!(
         session

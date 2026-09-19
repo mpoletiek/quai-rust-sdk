@@ -92,17 +92,51 @@ async fn paginates_missed_heads_and_replays_reorganization_in_application_order(
 #[tokio::test]
 async fn pruned_history_deep_reorg_and_foreign_genesis_leave_cursor_unchanged() {
     let (mock, provider, mut tracker) = setup(2);
-    *mock.missing.lock().unwrap() = Some(2);
+    // Above a genesis base, which is the trusted hash and never read, a
+    // missing block one may be history the node lacks: re-anchor explicitly.
+    *mock.missing.lock().unwrap() = Some(1);
     assert!(matches!(
         tracker.poll(&provider).await,
         Err(ProviderError::ReplayHistoryUnavailable)
     ));
+    // Block one present and a later page block missing is the chain moving.
+    *mock.missing.lock().unwrap() = Some(2);
+    assert!(matches!(
+        tracker.poll(&provider).await,
+        Err(ProviderError::ObservationChanged)
+    ));
     assert_eq!(tracker.checkpoint().number, 0);
     *mock.missing.lock().unwrap() = None;
-    for _ in 0..3 {
+    tracker.poll(&provider).await.unwrap();
+    // Above a base this poll read from the node, a missing page block means
+    // the chain changed since the tip was read (a shorter branch, or a
+    // lagging backend), so the poll is retryable.
+    let base = tracker.checkpoint();
+    assert_ne!(base.number, 0);
+    *mock.missing.lock().unwrap() = Some(base.number as usize + 2);
+    assert!(matches!(
+        tracker.poll(&provider).await,
+        Err(ProviderError::ObservationChanged)
+    ));
+    assert_eq!(tracker.checkpoint(), base);
+    *mock.missing.lock().unwrap() = None;
+    for _ in 0..2 {
         tracker.poll(&provider).await.unwrap();
     }
     let before = tracker.checkpoint();
+    // An older anchor the node no longer serves, once the newest one is
+    // replaced, is lost history: re-anchor explicitly.
+    let newest = before.number as usize;
+    let saved = mock.chain.lock().unwrap()[newest];
+    mock.chain.lock().unwrap()[newest] = hash(newest as u64 + 500);
+    *mock.missing.lock().unwrap() = Some(newest - 1);
+    assert!(matches!(
+        tracker.poll(&provider).await,
+        Err(ProviderError::ReplayHistoryUnavailable)
+    ));
+    assert_eq!(tracker.checkpoint(), before);
+    mock.chain.lock().unwrap()[newest] = saved;
+    *mock.missing.lock().unwrap() = None;
     for n in 1..=6 {
         mock.chain.lock().unwrap()[n] = hash(n as u64 + 100);
     }

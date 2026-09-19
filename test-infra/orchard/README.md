@@ -290,6 +290,12 @@ locked until blocks 10,338,942, 10,339,066 and 10,339,111. Read-only checks
 verified seed-only recovery, locked exclusion, automatic specialized fees (36 Qits
 for a 1 Qi conversion, 33 for a wrap), backup restore and interchange.
 
+[September 18 checks](mainnet-checks-2026-09-18.json) repeated the read-only set on
+0.1.0-alpha.4. A seed-only restore reproduced custody's 49 coins (16,307 Qits),
+with the 3,416 credited Qits still locked. They also summarise the first 98.7-hour
+head soak. `locked-spend` assumes an all-locked wallet, so it is only meaningful
+before any spendable Qi arrives.
+
 `target/release/head_soak` is a detached read-only WebSocket head follower writing
 `soak/head-soak.jsonl`; `fork_watch.py` records prime blocks around 2,237,000.
 Stop them with `pkill -x head_soak` and `pkill -f fork_watch.py`.

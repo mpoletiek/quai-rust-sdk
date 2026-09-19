@@ -1983,6 +1983,14 @@ fn qi_message_resolver_checks_exact_hd_and_imported_ownership() {
         quai_sdk::qi::sign_message(&WrongKey, &hd, message),
         Err(QiError::IdentityMismatch)
     ));
+    // Bytes carrying a top-level inputs field are a spend, whatever the
+    // encoding; the refusal has its own variant so a wallet can tell the
+    // requester, rather than report a generic signing failure.
+    let spend_shaped = [0x7a, 0x00];
+    assert!(quai_sdk::consensus::has_transaction_inputs(&spend_shaped));
+    let refused = quai_sdk::qi::sign_message(&env.wallet, &hd, &spend_shaped).unwrap_err();
+    assert!(matches!(refused, QiError::TransactionMessage));
+    assert_eq!(refused.class(), quai_sdk::primitives::ErrorClass::Invalid);
 }
 
 #[cfg(feature = "payments")]

@@ -22,6 +22,7 @@ pub struct AccountReplacementQuote {
     transaction: QuaiTransaction,
     parent: Hash32,
     fee: U256,
+    estimated_gas: u64,
     digest: Hash32,
 }
 impl AccountReplacementQuote {
@@ -36,6 +37,18 @@ impl AccountReplacementQuote {
     /// Maximum gas debit in Its.
     pub fn maximum_fee(&self) -> U256 {
         self.fee
+    }
+    /// Gas the replacement needs now: the node's estimate, or for a
+    /// conversion the same origin-cost budget preparation used.
+    ///
+    /// A fee-only replacement keeps its parent's gas limit, and the quote
+    /// accepts any estimate within it, because refusing leaves the nonce stuck
+    /// behind an underpriced parent. `transaction().gas_limit - estimated_gas()`
+    /// is the remaining headroom. For a conversion, a rate move before
+    /// inclusion can use it up, so a wallet may warn when it is below the
+    /// margin it prepares with.
+    pub fn estimated_gas(&self) -> u64 {
+        self.estimated_gas
     }
     /// Exact fixed signing digest.
     pub fn signing_digest(&self) -> Hash32 {
@@ -182,6 +195,7 @@ pub async fn quote_account_replacement<T: Transport>(
         transaction,
         parent: parent.hash().map_err(|_| E::Invalid)?,
         fee,
+        estimated_gas: estimate,
         digest,
     })
 }

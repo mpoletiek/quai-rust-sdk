@@ -10,6 +10,7 @@ pub struct PreparedAccountReplacement {
     parent: Hash32,
     sender: QuaiAddress,
     transaction: QuaiTransaction,
+    estimated_gas: u64,
 }
 impl PreparedAccountReplacement {
     /// Exact unsigned candidate for review before signing.
@@ -23,6 +24,11 @@ impl PreparedAccountReplacement {
     /// Original durable family reservation.
     pub fn reservation_id(&self) -> ReservationId {
         self.id
+    }
+    /// Gas the candidate needs now; `transaction().gas_limit` minus this is
+    /// the headroom left. See `AccountReplacementQuote::estimated_gas`.
+    pub fn estimated_gas(&self) -> u64 {
+        self.estimated_gas
     }
 }
 impl<T: Transport, S: Signer> AccountSession<'_, T, S> {
@@ -121,6 +127,7 @@ impl<T: Transport, S: Signer> AccountSession<'_, T, S> {
             parent,
             sender,
             transaction,
+            estimated_gas: quote.estimated_gas(),
         })
     }
     /// Sign the reviewed candidate and persist its replacement edge before exposure.

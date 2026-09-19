@@ -1180,4 +1180,6 @@ async fn a_replacement_is_allowed_while_the_estimate_still_fits_the_parent_limit
     .await
     .unwrap();
     assert_eq!(replacement.transaction().gas_limit, 23_102);
+    // The grown estimate is reported, so a wallet can see the headroom left.
+    assert_eq!(replacement.estimated_gas(), 0x5a3c);
 }

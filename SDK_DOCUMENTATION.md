@@ -678,7 +678,11 @@ past the transport's response limit for good. `MailboxSource::Logs { from, to }`
 - It halves any request that exceeds the transport's response limit.
 - A log that does not decode is skipped, not fatal.
 - `to` must be `MAILBOX_SETTLED_DEPTH` (16) blocks below the tip, and its hash is
-  checked again after the read, so an `Ok` result can be persisted as covered.
+  checked again after the read. Each log request is batched with the header of its
+  last block, so a backend lagging behind the range cannot answer with missing logs.
+  Failures are `ObservationChanged` (retry), and an `Ok` result can be persisted as
+  covered. The transport must batch: the native HTTP and WebSocket transports do;
+  the browser Fetch transport does not.
 - Page through one range with `start`, then continue from `to + 1`.
 - A later range never sees an earlier announcement. Keep the senders a pass left
   `Unregistered` or `Refused` that may matter later, such as one announced before

@@ -151,11 +151,14 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
     /// range and the receiver is matched here: the query reveals nothing about
     /// which receiver is reading.
     ///
-    /// `to` must be at least [`MAILBOX_SETTLED_DEPTH`] blocks below the tip
-    /// (`ProviderError::InvalidRequest` otherwise), and its hash must be the
-    /// same after the read as before (`ProviderError::ObservationChanged`
-    /// otherwise; retry). A read that returns `Ok` covered a settled range, so
-    /// the caller can persist `to + 1` as the next range's start. More than
+    /// `to` must be at least [`MAILBOX_SETTLED_DEPTH`] blocks below the tip,
+    /// and its hash must be the same after the read as before. Each log
+    /// request travels in one batch with the header of its last block, so a
+    /// backend lagging behind the range cannot answer it with missing logs.
+    /// Any of these failing is `ProviderError::ObservationChanged` (class
+    /// `Stale`: retry, later if the range is young). The transport must batch.
+    /// An `Ok` result covered the settled range, so the caller can persist
+    /// `to + 1` as the next range's start. More than
     /// [`MAX_MAILBOX_NOTIFICATIONS`] entries in one read fail with
     /// `InvalidResult`; read a narrower range. `from > to` is
     /// `ProviderError::InvalidRequest`.
@@ -175,8 +178,9 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
         };
         let at_end = [BlockTag::Latest, BlockTag::Number(U256::from(to))];
         let (tip, anchor) = settled(self.provider.headers(zone, &at_end).await?)?;
+        // Not settled yet: the same range succeeds once the chain has moved on.
         if tip < to.saturating_add(MAILBOX_SETTLED_DEPTH) {
-            return Err(ProviderError::InvalidRequest("mailbox log range is not settled").into());
+            return Err(ProviderError::ObservationChanged.into());
         }
         let event = self.contract.interface().event("NotificationSent")?;
         let mut out = Collector::default();
@@ -192,7 +196,7 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
                 addresses: vec![self.contract.address().address()],
                 topics: vec![TopicMatch::Exact(event.topic_hash())],
             };
-            let logs = match self.provider.logs(&filter).await {
+            let logs = match self.provider.logs_served_through(&filter).await {
                 Ok(logs) => logs,
                 Err(ProviderError::Rpc(RpcError::ResponseTooLarge)) if end > next => {
                     width = (end - next).div_ceil(2);

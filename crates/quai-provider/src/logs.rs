@@ -1,6 +1,6 @@
-use crate::{Log, Provider, ProviderError, types};
+use crate::{BlockTag, Log, Provider, ProviderError, types};
 use quai_primitives::{Address, Hash32, Zone};
-use quai_rpc::Transport;
+use quai_rpc::{Transport, U256};
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
 
@@ -116,10 +116,47 @@ impl<T: Transport> Provider<T> {
     /// applications must reconcile canonical history/reorgs before finality claims.
     pub async fn logs(&self, filter: &LogFilter) -> Result<Vec<Log>, ProviderError> {
         let request = filter.rpc_value()?;
-        let Value::Array(values) = self
+        let values = self
             .read(filter.zone.into(), "quai_getLogs", json!([request]))
-            .await?
-        else {
+            .await?;
+        Self::checked_logs(filter, values)
+    }
+
+    /// [`Self::logs`] for an inclusive range, read in the same guarded batch
+    /// as the header of the range's last block. A node whose head is below
+    /// the range can answer `quai_getLogs` with fewer logs and no error; one
+    /// batch reaches one backend, so a present header shows the node that
+    /// answered had every block in the range. `ObservationChanged` when it
+    /// does not, or when the transport cannot batch, since separate requests
+    /// may reach different backends.
+    pub async fn logs_served_through(&self, filter: &LogFilter) -> Result<Vec<Log>, ProviderError> {
+        let LogRange::Inclusive { to, .. } = filter.range else {
+            return Err(ProviderError::InvalidRequest(
+                "served-through logs need a block range",
+            ));
+        };
+        let request = filter.rpc_value()?;
+        let endpoint = self.routing.endpoint(filter.zone.into())?;
+        let block = BlockTag::Number(U256::from(to));
+        let calls = vec![
+            ("quai_getLogs", json!([request])),
+            ("quai_getHeaderByNumber", json!([block.rpc_value()?])),
+        ];
+        let Some(batch) = self.guarded_batch(endpoint, calls).await else {
+            return Err(ProviderError::ObservationChanged);
+        };
+        let mut results = batch?.into_iter();
+        let (Some(logs), Some(header)) = (results.next(), results.next()) else {
+            return Err(ProviderError::InvalidResult("batch response count"));
+        };
+        if Self::parse_zone_header(header?, filter.zone, block)?.is_none() {
+            return Err(ProviderError::ObservationChanged);
+        }
+        Self::checked_logs(filter, logs?)
+    }
+
+    fn checked_logs(filter: &LogFilter, values: Value) -> Result<Vec<Log>, ProviderError> {
+        let Value::Array(values) = values else {
             return Err(ProviderError::InvalidResult("expected log array"));
         };
         if values.len() > 65_536 {

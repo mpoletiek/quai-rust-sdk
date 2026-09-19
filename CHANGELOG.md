@@ -16,7 +16,7 @@ Changed:
   with every reorg at most two blocks deep. The log does not show which read
   missed a block, so some may have been the still-unretried newest-anchor case.
   A missing tip, a missing retained anchor (including the newest), and a
-  missing block above a genesis base, which is never read, are still
+  missing block one above a genesis base, which is never read, are still
   `ReplayHistoryUnavailable`. A wallet should cap how often it retries a
   `Stale` error before telling the user.
 - Payment-channel writes return the new `StorageError::LimitReached`, not
@@ -40,8 +40,11 @@ Added:
   - Announcement spam can slow the read but, unlike `getNotifications`, cannot
     disable it.
   - The range's end must be `MAILBOX_SETTLED_DEPTH` (16) blocks below the tip,
-    and its hash must match before and after the read, so an `Ok` result can be
-    persisted as covered.
+    and its hash must match before and after the read. Each log request is
+    batched with the header of its last block, so a lagging backend cannot
+    answer with missing logs. Any of these failing is `ObservationChanged`
+    (retry), and an `Ok` result can be persisted as covered. The transport
+    must batch.
   - More than `MAX_MAILBOX_NOTIFICATIONS` entries fail the read; narrow the range.
   - The event indexes nothing, so this read reveals nothing about which
     receiver is reading.
@@ -54,6 +57,9 @@ Added:
   registers a sender only when its probe finds at least this many Qits. The
   default of zero keeps the old behavior.
 - `QiError::TransactionMessage` and `StorageError::LimitReached`.
+- `Provider::logs_served_through`: a range's logs, read in one guarded batch
+  with the header of the range's last block, so the answering node is shown to
+  have the whole range.
 - `estimated_gas()` on `AccountReplacementQuote` and `PreparedAccountReplacement`:
   the gas a fee replacement needs now, so a wallet can see the headroom left
   under the parent's fixed gas limit.

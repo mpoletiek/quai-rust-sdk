@@ -149,8 +149,8 @@ first and replacement headers oldest first. A missing tip, a missing retained
 anchor (including the newest) or a fork older than the retained window returns
 `ReplayHistoryUnavailable` without changing the cursor. A block missing from a page
 above a base this poll read from the node returns `ObservationChanged` (retry): it
-lies at or below the tip just read, so the chain moved between the reads. Above a
-genesis base, which is the trusted hash and never read, it stays
+lies at or below the tip just read, so the chain moved between the reads. Block one
+missing above a genesis base, which is the trusted hash and never read, stays
 `ReplayHistoryUnavailable`. A caller should cap retries of a repeated `Stale`
 error before telling the user.
 A checkpoint at genesis uses the verified genesis hash; replay starts at block one.

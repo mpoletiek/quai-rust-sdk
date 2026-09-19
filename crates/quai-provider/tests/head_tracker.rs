@@ -93,11 +93,17 @@ async fn paginates_missed_heads_and_replays_reorganization_in_application_order(
 async fn pruned_history_deep_reorg_and_foreign_genesis_leave_cursor_unchanged() {
     let (mock, provider, mut tracker) = setup(2);
     // Above a genesis base, which is the trusted hash and never read, a
-    // missing block may be history the node lacks: re-anchor explicitly.
-    *mock.missing.lock().unwrap() = Some(2);
+    // missing block one may be history the node lacks: re-anchor explicitly.
+    *mock.missing.lock().unwrap() = Some(1);
     assert!(matches!(
         tracker.poll(&provider).await,
         Err(ProviderError::ReplayHistoryUnavailable)
+    ));
+    // Block one present and a later page block missing is the chain moving.
+    *mock.missing.lock().unwrap() = Some(2);
+    assert!(matches!(
+        tracker.poll(&provider).await,
+        Err(ProviderError::ObservationChanged)
     ));
     assert_eq!(tracker.checkpoint().number, 0);
     *mock.missing.lock().unwrap() = None;

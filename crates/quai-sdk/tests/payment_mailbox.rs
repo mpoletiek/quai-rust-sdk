@@ -130,6 +130,8 @@ struct Logs {
     tip: u64,
     reorg_after: Option<usize>,
     headers: Arc<Mutex<usize>>,
+    /// Head of the backend that answers batches, when it lags the tip.
+    batch_head: Option<u64>,
 }
 #[cfg(not(target_arch = "wasm32"))]
 impl Transport for Logs {
@@ -176,6 +178,36 @@ impl Transport for Logs {
             }
             _ => panic!("unexpected method {method}"),
         }
+    }
+    async fn request_batch(
+        &self,
+        e: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<quai_sdk::rpc::BatchResult> {
+        let mut out = Vec::with_capacity(requests.len());
+        // Only the backend answering log batches lags; header checks reach a
+        // healthy one, as behind a load balancer.
+        let logs = requests.iter().any(|(method, _)| *method == "quai_getLogs");
+        for (method, params) in requests {
+            let lagging = logs
+                && self.batch_head.is_some_and(|head| {
+                    method == "quai_getHeaderByNumber"
+                        && params[0] != "latest"
+                        && u64::from_str_radix(
+                            params[0].as_str().unwrap().trim_start_matches("0x"),
+                            16,
+                        )
+                        .unwrap()
+                            > head
+                });
+            match self.request(e, method, params).await {
+                // One oversized member fails the whole response.
+                Err(RpcError::ResponseTooLarge) => return Some(Err(RpcError::ResponseTooLarge)),
+                _ if lagging => out.push(Ok(Value::Null)),
+                result => out.push(result),
+            }
+        }
+        Some(Ok(out))
     }
 }
 
@@ -239,7 +271,7 @@ async fn log_announcements_are_filtered_bounded_settled_and_split_when_too_large
         log(20_000, 0, &x, &r, false, true), // does not decode: listed, not fatal
         log(25_000, 0, &o, &r, false, false),
     ]);
-    let logs = |tip: u64, reorg_after: Option<usize>, ranges: &Ranges| {
+    let backend = |tip: u64, reorg_after: Option<usize>, batch_head, ranges: &Ranges| {
         Provider::new(
             Logs {
                 entries: entries.clone(),
@@ -248,11 +280,13 @@ async fn log_announcements_are_filtered_bounded_settled_and_split_when_too_large
                 tip,
                 reorg_after,
                 headers: Default::default(),
+                batch_head,
             },
             Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
             U256::from(9),
         )
     };
+    let logs = |tip, reorg_after, ranges: &Ranges| backend(tip, reorg_after, None, ranges);
     let settled = 30_000 + MAILBOX_SETTLED_DEPTH;
 
     let ranges = Ranges::default();
@@ -287,16 +321,28 @@ async fn log_announcements_are_filtered_bounded_settled_and_split_when_too_large
             .is_err()
     );
 
-    // A range ending too close to the tip is refused before any log request:
-    // a lagging node or a shallow reorg could still hide an announcement in it.
+    // A range ending too close to the tip is refused, retryably, before any
+    // log request: a shallow reorg could still hide an announcement in it.
     let near = Ranges::default();
     let provider = logs(settled - 1, None, &near);
     let mailbox = PaymentMailbox::new(PELAGUS_MAILBOX_ADDRESS.parse().unwrap(), &provider).unwrap();
     assert!(matches!(
         mailbox.notifications_in_blocks(&receiver, 0, 30_000).await,
-        Err(ContractError::Provider(ProviderError::InvalidRequest(_)))
+        Err(ContractError::Provider(ProviderError::ObservationChanged))
     ));
     assert!(near.lock().unwrap().is_empty());
+
+    // A backend lagging behind the range answers getLogs with what it has.
+    // The header in the same batch exposes it, so the short answer is refused.
+    let lag = Ranges::default();
+    let provider = backend(settled, None, Some(24_999), &lag);
+    let mailbox = PaymentMailbox::new(PELAGUS_MAILBOX_ADDRESS.parse().unwrap(), &provider).unwrap();
+    assert!(matches!(
+        mailbox.notifications_in_blocks(&receiver, 0, 30_000).await,
+        Err(ContractError::Provider(ProviderError::ObservationChanged))
+    ));
+    // It failed at a log batch past the lagging head, not before any.
+    assert!(lag.lock().unwrap().iter().any(|(_, to)| *to > 24_999));
 
     // If the end block changes during the read, the result is not trusted.
     let moved = Ranges::default();

@@ -34,6 +34,9 @@ struct Mock {
     /// When nonzero, `latest` reports this height and numbered header reads
     /// echo the requested number, for settled-range checks.
     tip: Arc<AtomicU64>,
+    /// Answer batches, which the mailbox's log reads require. Off by default
+    /// so other tests keep their single-request shape.
+    batches: Arc<std::sync::atomic::AtomicBool>,
 }
 impl Transport for Mock {
     async fn request(&self, _: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
@@ -111,6 +114,20 @@ impl Transport for Mock {
             }
             _ => panic!("unexpected method {method}"),
         })
+    }
+    async fn request_batch(
+        &self,
+        e: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<quai_sdk::rpc::BatchResult> {
+        if !self.batches.load(Ordering::SeqCst) {
+            return None;
+        }
+        let mut out = Vec::with_capacity(requests.len());
+        for (method, params) in requests {
+            out.push(self.request(e, method, params).await);
+        }
+        Some(Ok(out))
     }
 }
 struct Environment {
@@ -2458,6 +2475,7 @@ async fn mailbox_discovery_registers_bounded_announced_channels_and_finds_funds(
         0x10 + quai_sdk::payment_mailbox::MAILBOX_SETTLED_DEPTH,
         Ordering::SeqCst,
     );
+    env.mock.batches.store(true, Ordering::SeqCst);
     let logged = |from, to| register(0).with_source(MailboxSource::Logs { from, to });
     let report = discover_mailbox_channels(
         &env.provider,

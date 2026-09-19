@@ -179,15 +179,41 @@ pub async fn run(check: &str) -> Result<(), Box<dyn Error>> {
             let funded: Vec<String> = serde_json::from_value(summary["fundedAddresses"].clone())?;
             let expected = expected_recipients()?;
             let all_found = expected.iter().all(|a| funded.contains(a));
-            let exact = summary["balance"]["total"] == CREDITED_QITS
-                && summary["balance"]["locked"] == CREDITED_QITS
-                && summary["balance"]["spendable"] == "0";
+            // The wallet keeps spending after the conversions, so compare the
+            // seed-only restore with custody's current coins rather than with
+            // the balance recorded when the credit arrived.
+            let coin_set = |coins: &serde_json::Value| -> std::collections::BTreeSet<String> {
+                coins
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .map(|c| format!("{}:{}:{}", c["hash"], c["index"], c["qits"]))
+                    .collect()
+            };
+            let recovered = coin_set(&summary["coins"]);
+            let custody = {
+                let mut store = SqliteStore::open(dir().join("state/qi.sqlite"), scope()?)?;
+                quai_sdk::qi_discovery::refresh_qi(&provider, &mut store, 1000, || false).await?;
+                let coins = store.snapshot()?.coins;
+                coin_set(&json!(coins.iter().map(|c| json!({"hash":c.outpoint.transaction_hash.to_string(),"index":c.outpoint.index,"qits":c.denomination.value()})).collect::<Vec<_>>()))
+            };
+            let credited: u64 = summary["coins"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter(|c| expected.iter().any(|a| c["address"] == a.as_str()))
+                .filter_map(|c| c["qits"].as_u64())
+                .sum();
+            let matches_custody = recovered == custody;
+            let credit_intact = credited.to_string() == CREDITED_QITS;
             record(
                 "recovery",
-                &json!({"check":"seed-only-gap-50-recovery","expectedRecipients":expected,"allRecipientsFound":all_found,"exactLockedBalance":exact,"result":summary}),
+                &json!({"check":"seed-only-gap-50-recovery","expectedRecipients":expected,"allRecipientsFound":all_found,"creditIntact":credit_intact,"matchesCustody":matches_custody,"custodyCoins":custody.len(),"result":summary}),
             )?;
-            if !all_found || !exact {
-                return Err("recovery did not reproduce the credited locked Qi".into());
+            if !all_found || !credit_intact || !matches_custody {
+                return Err(
+                    "recovery did not reproduce custody's coins and the conversion credit".into(),
+                );
             }
         }
         "locked-spend" => {

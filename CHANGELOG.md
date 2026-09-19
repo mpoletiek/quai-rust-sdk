@@ -1,5 +1,63 @@
 # Changelog
 
+## 0.1.0-alpha.6
+
+Answers to Quai Terminal's asks of 2026-09-19
+([response](docs/WALLET_ASKS_2026-09-19_RESPONSE.md)).
+
+Changed:
+
+- An observation that loses a race to another writer now returns the new
+  `StorageError::ObservationRaced` (class `Stale`: observe again), not
+  `Conflict` (class `Invalid`). This covers a moved cache revision, a stale
+  `SettlementCursor`, and a replacement candidate that joined the family during
+  `track_family`. It applies to `compare_exchange_observation[_scoped]`,
+  `compare_exchange_family_observation[_scoped]`, `track_settlement`,
+  `SettlementCursor::track`, `track_deployment` and `track_family`. `Conflict`
+  keeps its other meanings. Callers that matched `Conflict` to detect a race
+  should retry on `class() == Stale` instead.
+
+- `SqliteStore::replace_snapshot` keeps the generation when the coins equal the
+  stored ones and a checkpoint is stored: only the checkpoint advances, and an
+  unchanged checkpoint writes nothing. It returns the generation after the
+  commit, so use its return value rather than assuming a bump. An idle wallet's
+  refresh no longer rewrites every coin row, grows the WAL, or fences
+  concurrent reservations and observers.
+- `refresh_qi` no longer fails when another handle on the same store commits
+  first. It returns that handle's snapshot if it is labelled at or after its own
+  block, and otherwise redoes its reads; reads are never committed under a
+  generation they did not start from, because an import in between would drop
+  the new address's coins. The three attempts now cover both a moving tip and a
+  lost commit.
+- `QiSession::prepare`, `prepare_cross_zone`, `prepare_special`,
+  `prepare_special_estimated` and `prepare_sweep` select again once when
+  another handle's commit makes their reservation stale. Nothing is claimed and
+  no pool address is taken before that. A claim conflict is not retried. After
+  an invalidation the retry reports `MissingSnapshot` (class `Stale`).
+
+- **Schema v6.** Native stores migrate from v1 to v5 on open. An older SDK
+  cannot open a v6 store.
+- `QiChangePool::allocate` takes released change addresses first, lowest index
+  first, and only then derives fresh ones. A pool made only of released
+  addresses adds no metadata, so it needs no refresh.
+- Committing a signed payload or a replacement removes any released change
+  address it contains from the released set.
+- A keystore whose scrypt cost breaks RFC 7914's `N < 2^(16r)` is refused with
+  `KeystoreError::Format`. quais.js refuses it too; scrypt 0.12 had dropped the
+  check, so such a file opened here but not in quais.js.
+
+Added:
+
+- `StorageError::ObservationRaced`.
+- `QiChangePool::release`, `reclaim` and `reclaim_operation`, and
+  `SqliteStore::release_change` and `take_released_change`. Change that never
+  appeared in a signed payload is handed out again, so retries, rejected
+  reviews and pools dropped after a send no longer push change past a
+  gap-limited restore. Payment-code destinations are not released yet; see
+  [reusing change that was never signed](docs/QI_CHANGE_REUSE.md).
+- `qi_discovery::refresh_qi_with` and `RefreshOptions` (`max_addresses`, and
+  `attempts` from 1 to 16).
+
 ## 0.1.0-alpha.5
 
 Fixes from the first mainnet soak on 0.1.0-alpha.4, and the follow-ups the

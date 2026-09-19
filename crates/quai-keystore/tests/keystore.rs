@@ -409,3 +409,14 @@ fn this_crates_own_export_clears_the_default_strength_floor() {
             .is_ok()
     );
 }
+
+#[test]
+fn scrypt_cost_beyond_the_rfc_bound_is_refused_like_quais_js() {
+    // quais.js's scrypt requires N < 2^(16r); scrypt 0.12 dropped that check,
+    // so r = 1 with N = 2^16 used to open here and fail there.
+    let mut raw = fixtures()[0]["json"].clone();
+    raw["Crypto"]["kdfparams"]["n"] = json!(1 << 16);
+    assert!(matches!(parsed(&raw), Err(KeystoreError::Format)));
+    raw["Crypto"]["kdfparams"]["n"] = json!(1 << 15);
+    assert!(parsed(&raw).is_ok());
+}

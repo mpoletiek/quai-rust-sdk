@@ -236,6 +236,11 @@ impl Kdf {
                 if work < limits.min_scrypt_work {
                     return Err(KeystoreError::WeakParameters);
                 }
+                // RFC 7914's N < 2^(16r). quais.js enforces it and scrypt 0.12
+                // no longer does, so without it we would open what quais.js refuses.
+                if u32::from(log_n) >= r.saturating_mul(16) {
+                    return Err(KeystoreError::Format);
+                }
                 scrypt::Params::new(log_n, r, p).map_err(|_| KeystoreError::Format)?;
             }
             Self::Pbkdf2 { rounds, .. } => {

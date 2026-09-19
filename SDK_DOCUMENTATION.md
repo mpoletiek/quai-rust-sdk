@@ -1,7 +1,7 @@
 # Quai Rust SDK documentation
 
 This is the integration guide for the SDK in this repository, version
-`0.1.0-alpha.5`. It covers the public crate layers, native and browser workflows,
+`0.1.0-alpha.6`. It covers the public crate layers, native and browser workflows,
 recovery formats, limits, examples and verification. Exact Rust signatures and
 field documentation are hosted on [docs.rs](https://docs.rs/quai-sdk) or can be
 generated from the same checkout with `cargo doc`.
@@ -49,7 +49,7 @@ For another Rust project, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.5", features = ["sqlite", "abi", "payments", "backup"] }
+quai-sdk = { version = "=0.1.0-alpha.6", features = ["sqlite", "abi", "payments", "backup"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -187,8 +187,9 @@ this optional capability; `None` means no requests were sent.
 
 `Provider::outpoints_many` groups each zone into pages of at most 32 addresses,
 including chain-ID checks in each supported batch. Other transports use at most
-four concurrent individual reads. Native `refresh_qi` uses eight-address pages
-and retains its before/after head guard. This reduces HTTP overhead and public
+four concurrent individual reads. Native `refresh_qi` hands it every stored
+address, in calls of at most `MAX_OUTPOINT_ADDRESSES`, and retains its
+before/after head guard. This reduces HTTP overhead and public
 gateway rate-limit pressure while preserving rejection of a moving view; it
 does not make latest-only outpoint reads historical or atomic.
 
@@ -478,8 +479,14 @@ Reports expose stop reasons and continuation indices.
 `refresh_qi` queries all persisted Qi addresses, including imported keys, known
 payment receive exposures and allocated change beyond the gap. It validates
 scope, duplicate outpoints, locks and sampled headers before a generation-checked
-update. `qi_balance` classifies total, spendable, reserved, locked and expired
-Qits; held claims take precedence.
+update. When the coins are unchanged, only the checkpoint is written and the
+generation is kept, so an idle wallet's refresh does not fence concurrent
+reservations or observers. When another handle on the store commits first,
+`refresh_qi` returns that snapshot if it is labelled at or after its own block,
+and otherwise redoes its reads; it never commits reads under a generation they
+did not start from. `refresh_qi_with` takes `RefreshOptions` to set the attempt
+budget (three by default). `qi_balance` classifies total, spendable, reserved,
+locked and expired Qits; held claims take precedence.
 
 Portable `discovery::discover_qi` and `AccountRpcSource` provide the corresponding
 bounded read foundation for other runtimes. Optional caller-supplied address-use
@@ -550,6 +557,17 @@ burn unused trailing search candidates. A failed preparation still consumes all
 addresses already returned; old burned ranges never rewind. The bounded search
 holds a SQLite write lock. Allocate before refreshing because new ownership
 metadata invalidates the old snapshot.
+
+Change that never appeared in a signed payload can be handed out again.
+`QiChangePool::reclaim` (or `reclaim_operation`) releases a rejected prepared
+spend's claim and returns its change to the pool; `QiChangePool::release`
+stores a pool's unused addresses. `allocate` takes those first, lowest index
+first, without new metadata or a refresh, which keeps change inside the window
+a seed-only restore scans. `SqliteStore::release_change` refuses an address
+whose bytes appear in any stored signed payload, and signing burns any released
+address it uses. A backup restore burns the released set. The review and the
+remaining ways to burn change are in
+[reusing change that was never signed](docs/QI_CHANGE_REUSE.md).
 
 `prepare` selects inputs and converges the fee against the final payload under
 `QiPolicy`. Supply distinct recipient address capacity for denomination outputs.
@@ -629,6 +647,11 @@ directly, matching executed reference behavior.
 and receiver points. Bounded `search` selects a Qi zone match with cancellation
 and continuation indices. Public codes expose linkage information, even though
 they do not contain private keys.
+
+Payment-code keys are for payments. The ECDH between two codes' notification keys
+is the pair's index-0 payment secret, and any static key derived from the two seeds
+has no forward secrecy. Do not build messaging or other protocols on them; see
+[using payment codes for anything but payments](docs/PAYMENT_CODES_BEYOND_PAYMENTS.md).
 
 Exchange peer codes explicitly out of band. `PaymentChannel` validates the local
 owner and stores send/receive cursors per zone. Exhaustion never rewinds.

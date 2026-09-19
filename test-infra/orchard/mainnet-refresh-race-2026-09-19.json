@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-19",
+  "network": "mainnet",
+  "endpoint": "https://rpc.quai.network/cyprus1",
+  "store": "copies of the custody qi.sqlite (sha256 52d3cdeaab8468515c920549e0d5dfdf71f1a10a49f77c1dc9982f40ad40c2bb); the custody file was not opened",
+  "method": "three threads, each with its own SqliteStore handle, call refresh_qi at a barrier, 12 rounds; then 10 sequential refreshes after a WAL truncate. Read-only against the node.",
+  "results": {
+    "0.1.0-alpha.5 (c0481b2)": {
+      "concurrent_failed": "24 of 36, all Storage(StaleSnapshot)",
+      "idle_wal_bytes_for_10_refreshes": 370832,
+      "idle_generation_change": 10
+    },
+    "alpha6 branch": {
+      "concurrent_failed": "0 of 36",
+      "idle_wal_bytes_for_10_refreshes": "0 with an unmoved tip; 4152 when the tip moved one block (checkpoint 10181269 -> 10181270)",
+      "idle_generation_change": 0
+    }
+  }
+}

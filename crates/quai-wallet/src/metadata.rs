@@ -24,6 +24,11 @@ pub enum StorageError {
     /// Immutable metadata, reservation ID or spend claim already exists.
     #[error("wallet metadata or reservation conflict")]
     Conflict,
+    /// Another observer committed first: the observation cache revision moved,
+    /// or a replacement candidate joined the family, after this observer read
+    /// it. Nothing was written; observe again.
+    #[error("observation superseded by a concurrent writer")]
+    ObservationRaced,
     /// Bounded derivation allocation was cancelled; burned indexes remain consumed.
     #[error("fresh address allocation cancelled")]
     Cancelled,
@@ -48,10 +53,11 @@ impl StorageError {
         use quai_primitives::ErrorClass;
         match self {
             Self::Database | Self::Schema => ErrorClass::Storage,
-            Self::StaleSnapshot => ErrorClass::Stale,
+            Self::StaleSnapshot | Self::ObservationRaced => ErrorClass::Stale,
             Self::Cancelled => ErrorClass::Cancelled,
             // Conflict covers both a claim race and a mismatched account xpub;
             // the latter never succeeds on retry, so neither is retried blindly.
+            // Observation races have their own variant.
             Self::Conflict
             | Self::Invalid
             | Self::DerivationExhausted

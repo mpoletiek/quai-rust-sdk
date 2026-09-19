@@ -508,7 +508,8 @@ async fn concurrent_snapshot_invalidation_cannot_reserve_stale_selection() {
         .prepare(id(9), intent(), policy(), change)
         .await
         .unwrap_err();
-    assert!(matches!(error, QiError::Storage(_)));
+    // The prepare redoes itself once and finds no snapshot to spend from.
+    assert!(matches!(error, QiError::MissingSnapshot));
     assert_eq!(error.class(), quai_sdk::ErrorClass::Stale);
     assert!(env.store.reservation(id(9)).unwrap().is_none());
 }
@@ -1624,7 +1625,7 @@ async fn settlement_cursor_reopens_revalidates_and_preserves_revision_through_tr
             .track(&env.provider, &mut env.store, 18, 16, 32, 16)
             .await,
         Err(QiError::Storage(
-            quai_sdk::wallet::storage::StorageError::Conflict
+            quai_sdk::wallet::storage::StorageError::ObservationRaced
         ))
     ));
     assert_eq!(env.mock.calls.lock().unwrap().len(), calls);
@@ -1832,7 +1833,7 @@ async fn settlement_cursor_cannot_clear_or_overwrite_a_concurrent_observer() {
             .track(&provider, &mut env.store, 18, 16, 32, 16)
             .await,
         Err(QiError::Storage(
-            quai_sdk::wallet::storage::StorageError::Conflict
+            quai_sdk::wallet::storage::StorageError::ObservationRaced
         ))
     ));
     let cache = env
@@ -2925,4 +2926,298 @@ async fn payment_channel_windows_query_exactly_the_reported_addresses() {
         assert!(reported.is_subset(&queried));
         assert!(queried.is_subset(&stored), "read an address past the gap");
     }
+}
+
+type Hook = Box<dyn FnOnce() + Send>;
+/// Runs `hook` once, on the first request for `method`, before answering it.
+#[derive(Clone)]
+struct Interleaved {
+    inner: Mock,
+    method: &'static str,
+    hook: Arc<Mutex<Option<Hook>>>,
+}
+impl Transport for Interleaved {
+    async fn request(&self, e: &Endpoint, method: &str, params: Value) -> Result<Value, RpcError> {
+        if method == self.method
+            && let Some(hook) = self.hook.lock().unwrap().take()
+        {
+            hook();
+        }
+        self.inner.request(e, method, params).await
+    }
+}
+fn interleaved(
+    env: &Environment,
+    method: &'static str,
+    hook: impl FnOnce() + Send + 'static,
+) -> Provider<Interleaved> {
+    Provider::new(
+        Interleaved {
+            inner: env.mock.clone(),
+            method,
+            hook: Arc::new(Mutex::new(Some(Box::new(hook)))),
+        },
+        Routing::direct("http://127.0.0.1:9200/exact", Zone::Cyprus1.into()).unwrap(),
+        env.store.scope().chain_id,
+    )
+}
+
+#[tokio::test]
+async fn refresh_that_loses_to_newer_work_returns_it_without_rereading() {
+    use quai_sdk::qi_discovery::refresh_qi;
+    let mut env = setup();
+    let (path, scope) = (env.path.clone(), env.store.scope());
+    let newer = Checkpoint {
+        hash: GENESIS.parse().unwrap(),
+        height: U256::from(17),
+    };
+    let theirs = env.store.snapshot().unwrap().coins;
+    let provider = interleaved(&env, "quai_getOutpointsByAddress", move || {
+        let mut other = SqliteStore::open(path, scope).unwrap();
+        let mut snapshot = other.snapshot().unwrap();
+        snapshot.checkpoint = Some(newer);
+        other.replace_snapshot(&snapshot).unwrap();
+    });
+    let checkpoint = refresh_qi(&provider, &mut env.store, 100, || false)
+        .await
+        .unwrap();
+    assert_eq!(checkpoint, newer);
+    let snapshot = env.store.snapshot().unwrap();
+    assert_eq!((snapshot.checkpoint, snapshot.coins), (Some(newer), theirs));
+    let stored = env.store.addresses().unwrap().len();
+    assert_eq!(
+        count_calls(&env.mock, "quai_getOutpointsByAddress"),
+        stored,
+        "one pass of reads"
+    );
+}
+
+#[tokio::test]
+async fn refresh_that_loses_to_an_import_redoes_its_reads() {
+    // Committing the first pass under the import's generation would drop the
+    // imported address's coins; the refresh must read again instead.
+    use quai_sdk::qi_discovery::refresh_qi;
+    let mut env = setup();
+    let (path, scope) = (env.path.clone(), env.store.scope());
+    let account = env.wallet.account_public(0).unwrap();
+    let found = account
+        .search(
+            true,
+            Search {
+                zone: Zone::Cyprus1,
+                start_index: 0,
+                max_attempts: 10000,
+            },
+            || false,
+        )
+        .unwrap();
+    let imported = PublicAddress::derive(&account, true, found.address.index).unwrap();
+    env.mock.outpoints.lock().unwrap().insert(imported.address().to_string(), json!([{"txHash":"0x0080008033333333333333333333333333333333333333333333333333333333","index":"0x0","denomination":"0x2","lock":"0x0"}]));
+    let address = imported.address();
+    let provider = interleaved(&env, "quai_getOutpointsByAddress", move || {
+        let mut other = SqliteStore::open(path, scope).unwrap();
+        let generation = other.snapshot().unwrap().generation;
+        other.import_metadata(generation, &[imported]).unwrap();
+    });
+    let checkpoint = refresh_qi(&provider, &mut env.store, 100, || false)
+        .await
+        .unwrap();
+    let snapshot = env.store.snapshot().unwrap();
+    assert_eq!(snapshot.checkpoint, Some(checkpoint));
+    assert_eq!(snapshot.coins.len(), 1);
+    assert_eq!(snapshot.coins[0].address.address(), address);
+}
+
+#[test]
+fn concurrent_refreshes_on_one_store_all_succeed() {
+    use quai_sdk::qi_discovery::{RefreshOptions, refresh_qi_with};
+    let env = setup();
+    let first = env.store.addresses().unwrap()[0].address().to_string();
+    for round in 0..8u8 {
+        // Change the coins each round, so every round has one real commit.
+        env.mock.outpoints.lock().unwrap().insert(first.clone(), json!([{"txHash":format!("0x008000803333333333333333333333333333333333333333333333333333{round:04x}"),"index":"0x0","denomination":"0x2","lock":"0x0"}]));
+        let barrier = Arc::new(std::sync::Barrier::new(6));
+        let workers: Vec<_> = (0..6)
+            .map(|_| {
+                let (path, scope, barrier) = (env.path.clone(), env.store.scope(), barrier.clone());
+                let provider = env.provider.clone();
+                std::thread::spawn(move || {
+                    let mut store = SqliteStore::open(path, scope).unwrap();
+                    barrier.wait();
+                    tokio::runtime::Builder::new_current_thread()
+                        .enable_all()
+                        .build()
+                        .unwrap()
+                        .block_on(refresh_qi_with(
+                            &provider,
+                            &mut store,
+                            RefreshOptions::default(),
+                            || false,
+                        ))
+                })
+            })
+            .collect();
+        for worker in workers {
+            worker.join().unwrap().unwrap();
+        }
+    }
+    let options = RefreshOptions::default();
+    assert_eq!((options.max_addresses, options.attempts), (100_000, 3));
+}
+
+#[tokio::test]
+async fn refresh_options_are_bounded() {
+    use quai_sdk::qi_discovery::{RefreshOptions, refresh_qi_with};
+    let mut env = setup();
+    for options in [
+        RefreshOptions::default().with_attempts(0),
+        RefreshOptions::default().with_attempts(17),
+        RefreshOptions::default().with_max_addresses(0),
+    ] {
+        assert!(matches!(
+            refresh_qi_with(&env.provider, &mut env.store, options, || false).await,
+            Err(QiError::InvalidPolicy)
+        ));
+    }
+}
+
+#[tokio::test]
+async fn a_prepare_that_loses_its_reservation_to_a_refresh_selects_again() {
+    let mut env = setup();
+    let change = pool(&mut env, 0);
+    refresh(&mut env);
+    let (path, scope) = (env.path.clone(), env.store.scope());
+    let provider = interleaved(&env, "quai_estimateFeeForQi", move || {
+        // Another handle commits a refresh that found one more coin.
+        let mut other = SqliteStore::open(path, scope).unwrap();
+        let mut snapshot = other.snapshot().unwrap();
+        let mut extra = snapshot.coins[0].clone();
+        extra.outpoint.index = 1;
+        snapshot.coins.push(extra);
+        other.replace_snapshot(&snapshot).unwrap();
+    });
+    let generation = env.store.snapshot().unwrap().generation;
+    let prepared = QiSession::new(&provider, &env.wallet, &mut env.store)
+        .unwrap()
+        .prepare(id(11), intent(), policy(), change)
+        .await
+        .unwrap();
+    assert_eq!(env.store.snapshot().unwrap().generation, generation + 1);
+    assert_eq!(
+        env.store.reserved_outpoints(id(11)).unwrap().len(),
+        prepared.transaction().inputs.len()
+    );
+    assert_eq!(count_calls(&env.mock, "quai_estimateFeeForQi"), 2);
+}
+
+/// A policy and fee quote under which `intent()` leaves change.
+fn with_change(mock: &Mock) -> QiPolicy {
+    *mock.fees.lock().unwrap() = [1].into();
+    QiPolicy {
+        initial_fee: U256::ZERO,
+        ..policy()
+    }
+}
+
+#[tokio::test]
+async fn rejected_reviews_and_released_pools_keep_change_inside_a_restore_gap() {
+    // Every rejected review and dropped pool used to burn change for good; a
+    // few dozen pushed later change past the gap-50 window a seed-only
+    // restore scans.
+    use quai_sdk::qi_discovery::DEFAULT_QI_GAP;
+    let mut env = setup();
+    let account = env.wallet.account_public(0).unwrap();
+    let first = pool(&mut env, 4);
+    let allocated = first.addresses().to_vec();
+    let cursor = env.store.next_derivation_index(&account, true).unwrap();
+    first.release(&mut env.store).unwrap();
+    refresh(&mut env);
+    for round in 0..DEFAULT_QI_GAP as u8 + 10 {
+        let generation = env.store.snapshot().unwrap().generation;
+        let mut change = pool(&mut env, 4);
+        assert_eq!(change.addresses(), &allocated[..], "lowest first");
+        assert_eq!(
+            env.store.snapshot().unwrap().generation,
+            generation,
+            "released addresses need no refresh"
+        );
+        let prepared = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+            .unwrap()
+            .prepare(id(round), intent(), with_change(&env.mock), &mut change)
+            .await
+            .unwrap();
+        assert!(change.addresses().len() < allocated.len());
+        // The user rejects the review.
+        change.reclaim(&mut env.store, prepared).unwrap();
+        assert_eq!(
+            env.store.reservation(id(round)).unwrap().unwrap().state,
+            ReservationState::Released
+        );
+        assert_eq!(change.addresses(), &allocated[..]);
+        change.release(&mut env.store).unwrap();
+    }
+    assert_eq!(
+        env.store.next_derivation_index(&account, true).unwrap(),
+        cursor
+    );
+}
+
+#[tokio::test]
+async fn signed_change_is_never_reclaimed_or_released() {
+    let mut env = setup();
+    let mut change = pool(&mut env, 4);
+    refresh(&mut env);
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let prepared = session
+        .prepare(id(12), intent(), with_change(&env.mock), &mut change)
+        .await
+        .unwrap();
+    let used: Vec<_> = prepared.transaction().outputs[prepared.recipient_outputs()..]
+        .iter()
+        .map(|output| output.address)
+        .collect();
+    assert!(!used.is_empty());
+    session.sign(&prepared).unwrap();
+    assert!(matches!(
+        change.reclaim(&mut env.store, prepared),
+        Err(QiError::Storage(
+            quai_sdk::wallet::storage::StorageError::Transition
+        ))
+    ));
+    let remaining = change.addresses().to_vec();
+    change.release(&mut env.store).unwrap();
+    let again = pool(&mut env, remaining.len() + 1);
+    assert_eq!(&again.addresses()[..remaining.len()], &remaining[..]);
+    assert!(
+        again
+            .addresses()
+            .iter()
+            .all(|address| !used.contains(&address.address())),
+        "signed change is never handed out again"
+    );
+}
+
+#[tokio::test]
+async fn a_pool_or_prepared_spend_from_another_handle_is_refused() {
+    let mut env = setup();
+    let mut change = pool(&mut env, 2);
+    refresh(&mut env);
+    let prepared = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+        .unwrap()
+        .prepare(id(13), intent(), policy(), &mut change)
+        .await
+        .unwrap();
+    let mut other = SqliteStore::open(&env.path, env.store.scope()).unwrap();
+    assert!(matches!(
+        change.reclaim(&mut other, prepared),
+        Err(QiError::IdentityMismatch)
+    ));
+    assert_eq!(
+        env.store.reservation(id(13)).unwrap().unwrap().state,
+        ReservationState::Reserved
+    );
+    assert!(matches!(
+        change.release(&mut other),
+        Err(QiError::IdentityMismatch)
+    ));
 }

@@ -618,7 +618,9 @@ at least two workers, on a dedicated thread, or in a Web Worker.
    (class `Stale`).
 3. Observe pending operations: `observe_nonce` and `observe_candidates` for
    accounts, `observe_candidates` for Qi.
-4. Occasionally, `discover_mailbox_channels` page by page.
+4. Occasionally, `discover_mailbox_channels` page by page. Prefer
+   `MailboxSource::Logs` with a persisted block cursor over the default
+   one-call read, which announcement spam can disable.
 
 Each step's errors carry an `ErrorClass`: retry `Transient` with backoff,
 observe again on `Stale`, stop and alert on `NetworkMismatch`, never resubmit

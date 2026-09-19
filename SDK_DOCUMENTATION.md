@@ -665,8 +665,20 @@ both codes on-chain. A Pelagus recipient only discovers a channel after
 one page of at most `max_channels` (1–64) distinct senders from index `start`, and
 reports deferred, invalid and duplicate entries. Call again with `next_start` until it
 is `None`; otherwise senders announced after the first page are never scanned. Because
-announcements are unauthenticated, anyone can place codes ahead of a real sender, and
-each registration persists metadata for a code anyone could have announced.
+announcements are unauthenticated, anyone can place codes ahead of a real sender. By
+default (`MailboxRegistration::ReportOnly`) discovery persists nothing for a new
+sender; `RegisterFunded` registers one only when its probe finds at least `min_funded`
+Qits.
+
+`getNotifications` returns every announcement in one response, which spam can push
+past the transport's response limit for good. `MailboxSource::Logs { from, to }` reads
+`NotificationSent` logs for a block range instead, through
+`PaymentMailbox::notifications_in_blocks`, in requests of at most 10,000 blocks. It
+halves any request whose response is too large. Page through one range with `start`,
+then continue from `to + 1`, keeping `to` at a block the wallet treats as settled. The
+event indexes nothing, so every announcement in the range is fetched and matched
+locally: the node learns nothing about the receiver. On mainnet a 10,000-block
+request took about 3.5 s, so a first read of a long history is a background job.
 
 ## Conversions and wrapped assets
 

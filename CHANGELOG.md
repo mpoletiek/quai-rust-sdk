@@ -1,5 +1,45 @@
 # Changelog
 
+## Unreleased
+
+Fixes from the first mainnet soak on 0.1.0-alpha.4 and the follow-ups the
+alpha.4 reviews deferred.
+
+Fixed:
+
+- `HeadTracker::poll` reports a page block missing below the tip it just read
+  as `ProviderError::ObservationChanged` (class `Stale`, retry), not
+  `ReplayHistoryUnavailable` (class `Invalid`, re-anchor). The block goes
+  missing when the chain reorganizes to a shorter branch between the two reads,
+  or when a load-balanced read reaches a lagging node. A 98.6-hour mainnet
+  soak hit this three times through `rpc.quai.network`, with every reorg at most
+  two blocks deep. A missing older anchor is still `ReplayHistoryUnavailable`.
+- Mailbox discovery reports `ChannelRegistration::Refused` only when the
+  store's channel limit is reached. A damaged row used to be reported the same
+  way, because both returned `StorageError::Invalid`.
+
+Added:
+
+- `PaymentMailbox::notifications_in_blocks` reads `NotificationSent` logs for a
+  block range, in requests of at most `MAILBOX_LOG_BLOCKS` (10,000) blocks. It
+  halves a request whose response is too large. Announcement spam can slow it
+  but, unlike `getNotifications`, cannot disable it. The event indexes nothing,
+  so the receiver is matched locally and the node learns nothing about who is
+  reading.
+- `MailboxDiscovery::source` and `MailboxSource`. The default, `Contract`, keeps
+  the one-call read; `Logs { from, to }` pages a block range.
+- `MailboxDiscovery::min_funded`: `RegisterFunded` registers a sender only when
+  its probe finds at least this many Qits. The default of zero keeps the old
+  behavior.
+- `QiError::TransactionMessage`, returned by `quai_sdk::qi::sign_message` for a
+  message that is a Qi transaction. It used to return the generic
+  `MessageSigning`.
+- `StorageError::LimitReached`, for a full bounded table such as the store-wide
+  1,024 payment channels.
+- `estimated_gas()` on `AccountReplacementQuote` and `PreparedAccountReplacement`:
+  the gas a fee replacement needs now, so a wallet can see the headroom left
+  under the parent's fixed gas limit.
+
 ## 0.1.0-alpha.4
 
 Hardening and speed from a full-workspace review, and the SDK pieces a desktop

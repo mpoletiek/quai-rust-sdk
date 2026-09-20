@@ -391,9 +391,7 @@ pub async fn run(check: &str) -> Result<(), Box<dyn Error>> {
                         tx.outputs.len(),
                         tx.outputs
                             .iter()
-                            .filter(|o| {
-                                o.address.ledger() == quai_sdk::primitives::Ledger::Quai
-                            })
+                            .filter(|o| o.address.ledger() == quai_sdk::primitives::Ledger::Quai)
                             .count(),
                         quote.utxo_set_size,
                     )?;

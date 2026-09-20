@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+Fixed:
+
+- Qi conversions and wrapping decompose their destination outputs largest-first,
+  through the new `select_fewest_converting`, instead of being capped by the
+  input denominations. The node credits one aggregated value to the Quai-ledger
+  destination and leaves those outputs out of its `CheckDenominations` rule, as
+  the reference's `ConversionCoinSelector` already assumed. A mainnet wrap of
+  15 Qi built twelve destination outputs where the reference builds two, which
+  made it six times larger than it needed to be and cost it the scarce Qi block
+  slot. Ordinary transfers keep the inventory-preserving decomposition, which is
+  what the node enforces for them. Reported from a wallet in
+  [docs/QI_CONVERSION_SELECTION_GAP.md](docs/QI_CONVERSION_SELECTION_GAP.md).
+- A fee replacement of a conversion or a wrap checks only the outputs that stay
+  in the Qi ledger against the input denominations, so an aggregated destination
+  output no longer makes the replacement unbuildable.
+
 ## 0.1.0-alpha.6
 
 Answers to Quai Terminal's asks of 2026-09-19

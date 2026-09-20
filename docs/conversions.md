@@ -31,6 +31,12 @@ let result = provider.broadcast_qi_conversion(&signed).await?;
 
 The builder writes exactly 22 data bytes: two-byte unsigned big-endian slippage, then the 20-byte Qi refund address. `ConversionSlippage` rejects values outside 30–9000 ten-thousandths (0.3%–90%) instead of silently accepting the node's clamp. No default slippage is supplied.
 
+Selection for a conversion or a wrap uses `select_fewest_converting`, so the
+account outputs are decomposed largest-first without regard to the input
+denominations: the node credits their total as one value and exempts them from
+the rule that forbids combining smaller inputs into larger outputs. Change stays
+in the Qi ledger and is still bound by the input inventory.
+
 Every account output must target one same-zone Quai address. Repeated conversion outputs to that address are valid: Go block processing aggregates their denomination values and removes the address from its reuse set. Different account destinations are rejected even though the transaction-pool validator is less strict. Change outputs must be unique same-zone Qi addresses and cannot reuse any input address. This intentionally supports a narrower shape than combining conversion with cross-zone Qi outputs. A conversion must contain at least one account output; 20-byte wrapping payloads are a separate operation and are rejected.
 
 `from_transaction` explicitly classifies an existing unsigned payload without changing its bytes. `decode_unsigned`, `SignedQiConversionTransaction::decode`, signing digests and transaction IDs preserve order and reject noncanonical or unknown wire fields. Single-input signing, ordered multi-input signing, reversed input ordering and duplicate input keys are supported; duplicate **outpoints** are rejected. Local signing is not a distributed MuSig protocol.

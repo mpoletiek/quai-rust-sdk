@@ -35,7 +35,8 @@ pub use state::{ReservationId, ReservationState};
 pub mod storage;
 pub use selection::{
     AggregationPolicy, CandidateCoin, CoinSelection, SelectionError, SelectionRequest, SweepMode,
-    preserves_denominations, select_aggregate, select_fewest, select_sweep, select_with_fee,
+    preserves_denominations, select_aggregate, select_fewest, select_fewest_converting,
+    select_sweep, select_with_fee,
 };
 mod mnemonic;
 pub mod wordlist;

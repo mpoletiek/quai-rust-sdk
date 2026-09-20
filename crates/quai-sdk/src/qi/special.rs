@@ -1,6 +1,7 @@
 //! Durable specialized Qi operations with an explicitly authorized fee.
 use super::*;
 use quai_provider::{QiFeeProfile, QiFeeQuote};
+use quai_wallet::select_fewest_converting;
 
 #[derive(Clone, Copy)]
 enum FeeMode {
@@ -207,7 +208,9 @@ impl<T: Transport> QiSession<'_, T> {
             .candidate_height(snapshot.generation, checkpoint, policy.max_snapshot_age)
             .await?;
         for _ in 0..rounds {
-            let selection = select_fewest(
+            // The node aggregates the destination outputs, so they are not
+            // bound by the input denominations.
+            let selection = select_fewest_converting(
                 &snapshot.coins,
                 &SelectionRequest {
                     zone: scope.zone,

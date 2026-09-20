@@ -196,9 +196,43 @@ pub fn select_sweep(
 
 /// Match the reference's fewest-input policy: smallest sufficient single coin,
 /// otherwise descending-value greedy inputs. No exponential subset search.
+///
+/// Spend and change outputs both preserve the input denomination inventory: a
+/// transfer may split a larger input down, never combine smaller inputs into a
+/// larger output. go-quai enforces exactly that in `CheckDenominations`, which
+/// only the first Qi transaction in a block skips. Use
+/// [`select_fewest_converting`] for conversions and wrapping, whose spend
+/// outputs the node aggregates instead.
 pub fn select_fewest(
     coins: &[CandidateCoin],
     request: &SelectionRequest,
+) -> Result<CoinSelection, SelectionError> {
+    select_fewest_inner(coins, request, false)
+}
+
+/// [`select_fewest`] for a conversion or a wrapping, whose spend outputs are one
+/// Quai-ledger destination the node credits as a single aggregated value.
+///
+/// Those outputs are therefore decomposed largest-first without regard to the
+/// input denominations, as the reference's `ConversionCoinSelector` does, and
+/// they do not consume the input inventory: go-quai removes each of them from
+/// the tally before `CheckDenominations`, so they need no first-in-block
+/// exception. Change keeps the inventory-preserving decomposition, because it
+/// stays in the Qi ledger and is still checked.
+///
+/// Using this for an ordinary transfer would build a transaction the node
+/// rejects unless it is the first Qi transaction in its block.
+pub fn select_fewest_converting(
+    coins: &[CandidateCoin],
+    request: &SelectionRequest,
+) -> Result<CoinSelection, SelectionError> {
+    select_fewest_inner(coins, request, true)
+}
+
+fn select_fewest_inner(
+    coins: &[CandidateCoin],
+    request: &SelectionRequest,
+    aggregated_spend: bool,
 ) -> Result<CoinSelection, SelectionError> {
     if request.target == U256::ZERO
         || request.fee > request.max_fee
@@ -268,7 +302,11 @@ pub fn select_fewest(
     for coin in &chosen {
         capacity[usize::from(coin.denomination.index())] += 1;
     }
-    let spend_outputs = denominate_available(request.target, &mut capacity, request.max_outputs)?;
+    let spend_outputs = if aggregated_spend {
+        denominate_largest(request.target, request.max_outputs)?
+    } else {
+        denominate_available(request.target, &mut capacity, request.max_outputs)?
+    };
     let change_outputs = denominate_available(
         total - required,
         &mut capacity,
@@ -285,6 +323,32 @@ pub fn select_fewest(
         input_value: total,
         fee: request.fee,
     })
+}
+
+// Fewest largest-first denominations for an exact value, the analogue of the
+// reference's uncapped `denominate`. Only valid where the node aggregates the
+// outputs, so no input inventory bounds it. Denomination 0 is one Qit, so every
+// value decomposes exactly.
+fn denominate_largest(
+    mut value: U256,
+    max_outputs: usize,
+) -> Result<Vec<Denomination>, SelectionError> {
+    let mut result = Vec::new();
+    for i in (0..15).rev() {
+        let denomination = Denomination::new(i as u8).map_err(|_| SelectionError::InvalidCoin)?;
+        let unit = U256::from(denomination.value());
+        while value >= unit {
+            if result.len() == max_outputs {
+                return Err(SelectionError::LimitExceeded);
+            }
+            value -= unit;
+            result.push(denomination);
+        }
+    }
+    if value != U256::ZERO {
+        return Err(SelectionError::InsufficientFunds);
+    }
+    Ok(result)
 }
 
 // Ordinary transactions may split denominations, but cannot combine smaller

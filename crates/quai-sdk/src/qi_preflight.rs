@@ -12,7 +12,7 @@ use quai_wallet::discovery::{CanonicalStatus, Checkpoint, NetworkScope};
 use quai_wallet::metadata::{PublicAddress, StorageError};
 use quai_wallet::{
     AccountPublic, CandidateCoin, CoinType, SelectionError, SelectionRequest, SweepMode,
-    select_fewest, select_sweep,
+    select_fewest, select_fewest_converting, select_sweep,
 };
 use std::collections::{BTreeMap, BTreeSet};
 /// Explicit limits for bounded selection and network fee convergence.
@@ -358,6 +358,9 @@ pub async fn quote_qi<T: Transport>(
         };
         let selection = if let Some(mode) = sweep {
             select_sweep(&source.coins, &selection_request, mode)?
+        } else if special {
+            // Conversion and wrapping spend outputs are aggregated by the node.
+            select_fewest_converting(&source.coins, &selection_request)?
         } else {
             select_fewest(&source.coins, &selection_request)?
         };

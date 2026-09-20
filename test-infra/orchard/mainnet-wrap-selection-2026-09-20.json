@@ -1,0 +1,37 @@
+{
+  "date": "2026-09-20",
+  "network": "mainnet",
+  "endpoint": "https://rpc.quai.network/cyprus1",
+  "purpose": "Confirm the alpha.7 conversion/wrapping selection fix on funded mainnet custody: the destination outputs are aggregated, and such a wrap is mined.",
+  "orchard": "Not run: all three Orchard Qi stores hold zero coins (289, 186 and 17 addresses, no outpoints), so the operation could not be funded there.",
+  "operation": {
+    "kind": "Qi wrapping (WQI)",
+    "reservation": 20,
+    "amountQits": 10000,
+    "feeQits": 65,
+    "feeProfile": "V056ShaAnchored, estimated",
+    "beneficiary": "0x0006506bDE7140b85DED58a40D7444F84cde4821",
+    "ownerContract": "0x002b2596EcF05C93a31ff916E8b456DF6C77c750",
+    "hash": "0x00d900858e8c44b807bdd1d08458bd26509ff00bee3cad930b5e84caf9abd107",
+    "block": 10191794,
+    "receiptStatus": "0x1",
+    "payloadBytes": 920,
+    "inputs": 7,
+    "destinationOutputs": [10000],
+    "changeOutputs": [500, 100, 100, 100, 100, 10, 10, 10, 5]
+  },
+  "comparison": {
+    "alpha6WouldHaveBuilt": "6 destination outputs (5000 + 5x1000), capped by the input denominations",
+    "alpha7Built": "1 destination output (10000)",
+    "timeToInclusion": "under one minute; broadcast and mined in block 10191794",
+    "wallet_alpha6_wrap": "0x00a100d1754d77c14f013d24a0dd9fe8e75cb27dd0f422a5b2e555f62110fea5, 12 destination outputs, still pending more than a day after broadcast"
+  },
+  "custody": {
+    "storeSchema": "migrated v5 -> v6 on first alpha.7 open; backup state-backup-20260920-004728-pre-alpha7",
+    "unlockedQitsBefore": 12891,
+    "unlockedQitsAfter": 2826,
+    "lockedQits": 3416,
+    "releasedChangeAddresses": 7,
+    "note": "The wrapped 10 Qi is WQI backing for the beneficiary, recoverable with the claim/unwrap/redemption-spend runbook."
+  }
+}

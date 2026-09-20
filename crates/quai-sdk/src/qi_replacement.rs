@@ -165,11 +165,15 @@ pub async fn quote_qi_replacement<T: Transport>(
             .ok_or(E::Invalid)?;
         denominations.push(coin.denomination);
     }
+    // Only outputs that stay in the Qi ledger are checked: go-quai removes
+    // a conversion or wrapping destination from the tally before
+    // `CheckDenominations`, because it credits their total as one value.
     quai_wallet::preserves_denominations(
         &denominations,
         &transaction
             .outputs
             .iter()
+            .filter(|o| o.address.ledger() != quai_primitives::Ledger::Quai)
             .map(|o| o.denomination)
             .collect::<Vec<_>>(),
     )?;

@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.1.0-alpha.8
+
+Fixed:
+
+- `qi_special_gas` bounds both of the node's fee floors for a conversion or a
+  wrap, not just one. Execution charges `QiToQuaiConversionGas` (100,000) once,
+  which is what it modelled; inclusion charges `ETXGas` (21,000) for **each**
+  Quai-ledger destination output, and that overtakes the flat charge past four of
+  them. A quote priced on the smaller figure is valid but unmineable: the miner
+  divides the fee by the inclusion gas, skips anything under the base fee, and
+  neither reports nor evicts it. A mainnet wrap with twelve destination outputs
+  needed 409,400 gas, was priced for 257,400, and sat pooled for a day. The bound
+  is checked against the pinned node in `test-infra/go-oracle`. It takes a new
+  `destination_outputs` argument, so callers must say how many outputs create a
+  conversion ETX.
+
+Added:
+
+- `QiFeeQuote::floor_qits`: the same sample without the estimator's margin, which
+  is the smallest fee that clears both floors for that exact shape. It is
+  corrected like the quote itself, so converting it back never falls short of
+  the fee it has to cover.
+- `QiSession::prepare_special` refuses an explicit fee below that floor with the
+  new `QiError::FeeBelowInclusionFloor`, rather than building something no miner
+  takes. Only a chain state the profile does not cover leaves the fee unchecked;
+  the explicit-fee path therefore now performs the estimator's reads and can
+  surface a provider error, including head drift, where it previously performed
+  none. Retry as with any other read in a prepare.
+- `quote_qi_replacement` and `QiSession::prepare_replacement` apply the same
+  floor to a conversion's or wrap's replacement, with
+  `QiPreflightError::FeeBelowInclusionFloor` on the portable path. Replacing a
+  parent the miner skips must not produce a second candidate below the same
+  threshold. A profiled quote already covers it.
+- `QiReplacementIntent::aggregate_destination` re-decomposes a conversion's or
+  wrap's Quai-ledger destination largest-first, keeping its address and total
+  value, so a parent the miner keeps skipping becomes includable. Rejected for an
+  ordinary transfer. `quai_wallet::denominate_largest` is now public for the same
+  purpose.
+
 ## 0.1.0-alpha.7
 
 Fixed:

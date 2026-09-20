@@ -226,6 +226,12 @@ pub enum QiError {
     /// Exact denomination decomposition needs more already allocated change addresses.
     #[error("insufficient preallocated Qi change addresses")]
     InsufficientChange,
+    /// The explicit fee is below what the node's inclusion filter requires for
+    /// this exact shape, so a miner would skip the transaction without evicting
+    /// it and without reporting anything. Raise the fee, or build a smaller
+    /// shape. `QiFeeQuote::floor_qits` is that threshold.
+    #[error("fee is below the node's inclusion floor for this shape")]
+    FeeBelowInclusionFloor,
     /// Allocation was explicitly cancelled; burned ranges remain consumed.
     #[error("Qi change allocation cancelled")]
     Cancelled,
@@ -258,6 +264,7 @@ impl QiError {
             | Self::InvalidPolicy
             | Self::InsufficientDestinations
             | Self::InsufficientChange
+            | Self::FeeBelowInclusionFloor
             | Self::MissingSignedPayload => ErrorClass::Invalid,
         }
     }

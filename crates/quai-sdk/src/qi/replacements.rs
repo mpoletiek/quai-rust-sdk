@@ -143,6 +143,12 @@ impl<T: Transport> QiSession<'_, T> {
             .map(|(_, o)| o)
             .chain(intent.change_outputs)
             .collect();
+        if intent.aggregate_destination {
+            crate::qi_replacement::aggregate_destination_outputs(
+                &mut transaction,
+                policy.max_outputs,
+            )?;
+        }
         if transaction.inputs.len() > policy.max_inputs
             || transaction.outputs.len() > policy.max_outputs
         {
@@ -220,6 +226,16 @@ impl<T: Transport> QiSession<'_, T> {
         };
         if quote.is_some_and(|required| required > fee) {
             return Err(SelectionError::FeeBudgetExceeded.into());
+        }
+        // A profiled quote already carries the floor plus its margin. Without
+        // one, check the floor directly: replacing a parent the miner skips
+        // must not produce a second candidate below the same threshold.
+        if special_profile.is_none()
+            && crate::qi_replacement::inclusion_floor(self.provider, &transaction)
+                .await?
+                .is_some_and(|floor| fee < floor)
+        {
+            return Err(QiError::FeeBelowInclusionFloor);
         }
         let final_height = self
             .candidate_height(snapshot.generation, checkpoint, policy.max_snapshot_age)

@@ -267,7 +267,35 @@ impl<T: Transport> QiSession<'_, T> {
             };
             transaction.signing_digest()?;
             let quote = match mode {
-                FeeMode::Explicit(_) => None,
+                FeeMode::Explicit(explicit) => {
+                    // A fee the node accepts as valid can still be one no miner
+                    // takes: the inclusion filter divides it by this shape's
+                    // block gas and skips anything under the base fee, silently
+                    // and without evicting it. Check it where the shape is
+                    // final. A profile that does not apply to this chain state
+                    // leaves the caller's explicit fee untouched.
+                    match self
+                        .provider
+                        .estimate_qi_special_fee(
+                            transaction.transaction(),
+                            quai_provider::QiFeeProfile::V056ShaAnchored,
+                        )
+                        .await
+                    {
+                        Ok(quote) if explicit < quote.floor_qits => {
+                            return Err(QiError::FeeBelowInclusionFloor);
+                        }
+                        Ok(_) => None,
+                        // Only a chain state the profile does not cover leaves
+                        // the fee unchecked. Anything else, head drift included,
+                        // is surfaced rather than silently skipping the check:
+                        // the caller retries, as it would for any other read
+                        // here. Failing open would build exactly the
+                        // unmineable transaction this guard exists to refuse.
+                        Err(ProviderError::ConversionFeeEstimationUnavailable) => None,
+                        Err(error) => return Err(error.into()),
+                    }
+                }
                 FeeMode::Estimated(profile) => {
                     let quote = self
                         .provider

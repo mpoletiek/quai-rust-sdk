@@ -179,6 +179,11 @@ pub enum QiPreflightError {
     /// Exact consensus shape failed validation.
     #[error(transparent)]
     Transaction(#[from] TransactionError),
+    /// The fee is below what the node's inclusion filter requires for this
+    /// exact shape, so a miner would skip the transaction without evicting it
+    /// and without reporting anything.
+    #[error("fee is below the node's inclusion floor for this shape")]
+    FeeBelowInclusionFloor,
 }
 /// Read-only preparation inputs. Fresh change allocation and custody are separate.
 pub struct QiQuoteRequest<'a> {

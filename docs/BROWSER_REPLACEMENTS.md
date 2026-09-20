@@ -40,7 +40,13 @@ output indexes asserted to be owned change, and the replacement change outputs.
 
 All original inputs, all unselected outputs in their original order, and the
 complete conversion/wrapping data remain fixed. Only selected owned change may be
-reduced. The new change value must be strictly lower; both old and new change
+reduced. `aggregate_destination` is the one exception: on a conversion or a wrap
+it re-decomposes the Quai-ledger destination outputs largest-first, keeping their
+address and total value. The node credits that destination with one aggregated
+value and charges `ETXGas` per destination output when deciding whether to
+include the transaction, so collapsing the shape cuts the gas the fee must cover.
+It is rejected for an ordinary transfer, whose recipient outputs stay bound to
+the input denominations. The new change value must be strictly lower; both old and new change
 require exact same-zone Qi metadata and locally resolved ownership, in addition
 to input ownership. Supply these public origins in `QiSource::owners`, including
 allocated outputs which do not yet exist as confirmed UTXOs. New change addresses

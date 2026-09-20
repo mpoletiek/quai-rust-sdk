@@ -6,12 +6,13 @@ use quai_consensus::{
     QiConversionTransaction, QiOutput, QiTransaction, QiWrappingTransaction, SignedQiOperation,
 };
 use quai_primitives::{Hash32, QiAddress};
-use quai_provider::Provider;
+use quai_provider::{Provider, ProviderError};
 use quai_rpc::{Transport, U256};
 use quai_wallet::{SelectionError, metadata::PublicAddress};
 use std::collections::{BTreeMap, BTreeSet};
 /// Explicit parent and owned change to reduce. All nonselected parent outputs are
-/// preserved, including payment recipients and conversion/wrapping destinations.
+/// preserved, including payment recipients and, unless `aggregate_destination`
+/// asks otherwise, conversion/wrapping destinations.
 #[derive(Clone, Debug)]
 pub struct QiReplacementIntent {
     /// Original or earlier persisted candidate to replace.
@@ -20,6 +21,17 @@ pub struct QiReplacementIntent {
     pub change_indexes: Vec<u16>,
     /// Replacement owned change outputs; their total must be strictly lower.
     pub change_outputs: Vec<QiOutput>,
+    /// Re-decompose a conversion's or wrap's Quai-ledger destination outputs
+    /// largest-first, keeping their address and total value.
+    ///
+    /// The node credits that destination with one aggregated value, so the shape
+    /// is free, and it charges `ETXGas` per destination output when deciding
+    /// whether to include the transaction. Collapsing twelve outputs into two
+    /// therefore cuts the gas the fee has to cover by more than half, which is
+    /// how a parent that the miner keeps skipping becomes includable. Rejected
+    /// for an ordinary transfer, whose recipient outputs are bound to the input
+    /// denominations.
+    pub aggregate_destination: bool,
 }
 /// Immutable same-input candidate; every unselected output and all data are fixed.
 #[derive(Debug)]
@@ -130,6 +142,9 @@ pub async fn quote_qi_replacement<T: Transport>(
         .map(|(_, o)| o)
         .chain(intent.change_outputs)
         .collect();
+    if intent.aggregate_destination {
+        aggregate_destination_outputs(&mut transaction, policy.max_outputs)?;
+    }
     if transaction.inputs.len() > policy.max_inputs
         || transaction.outputs.len() > policy.max_outputs
     {
@@ -183,6 +198,15 @@ pub async fn quote_qi_replacement<T: Transport>(
     if input_value < value(&parent.transaction().outputs)? || fee > policy.max_fee {
         return Err(SelectionError::FeeBudgetExceeded.into());
     }
+    // A profiled quote already carries the floor plus its margin; every other
+    // mode is checked against the floor directly.
+    if !matches!(fees, QiFeeMode::Profile(_))
+        && inclusion_floor(provider, &transaction)
+            .await?
+            .is_some_and(|floor| fee < floor)
+    {
+        return Err(E::FeeBelowInclusionFloor);
+    }
     let required = match fees {
         QiFeeMode::Node => provider.estimate_qi_fee(&transaction).await?,
         QiFeeMode::Profile(profile) => {
@@ -219,6 +243,90 @@ pub async fn quote_qi_replacement<T: Transport>(
         owners: owners.into_values().collect(),
     })
 }
+/// The smallest fee a conversion or wrap of this shape needs before the node's
+/// inclusion filter will consider it, or `None` for an ordinary transfer or a
+/// chain state the profile does not cover.
+///
+/// A replacement is the remedy for a parent the miner keeps skipping, so it must
+/// not be another transaction below the same floor.
+pub(crate) async fn inclusion_floor<T: Transport>(
+    provider: &Provider<T>,
+    transaction: &QiTransaction,
+) -> Result<Option<U256>, ProviderError> {
+    if transaction.data.is_empty() {
+        return Ok(None);
+    }
+    match provider
+        .estimate_qi_special_fee(transaction, quai_provider::QiFeeProfile::V056ShaAnchored)
+        .await
+    {
+        Ok(quote) => Ok(Some(quote.floor_qits)),
+        Err(ProviderError::ConversionFeeEstimationUnavailable) => Ok(None),
+        Err(error) => Err(error),
+    }
+}
+
+/// Re-decompose a conversion's or wrap's Quai-ledger destination largest-first,
+/// keeping its address and total value, in place of the parent's shape. The node
+/// aggregates that destination into one credit and charges `ETXGas` for each of
+/// those outputs when deciding whether to include the transaction, so a smaller
+/// shape needs a much smaller fee to clear the same floor.
+pub(crate) fn aggregate_destination_outputs(
+    transaction: &mut QiTransaction,
+    max_outputs: usize,
+) -> Result<(), SelectionError> {
+    let mut total = U256::ZERO;
+    let mut destination = None;
+    let mut first = None;
+    for (index, output) in transaction.outputs.iter().enumerate() {
+        if output.address.ledger() != quai_primitives::Ledger::Quai {
+            continue;
+        }
+        if destination.is_some_and(|address| address != output.address) {
+            // Consensus rejects a conversion with two destinations anyway.
+            return Err(SelectionError::InvalidRequest);
+        }
+        destination = Some(output.address);
+        first.get_or_insert(index);
+        total = total
+            .checked_add(U256::from(output.denomination.value()))
+            .ok_or(SelectionError::Overflow)?;
+    }
+    // Only a conversion or a wrap has one. An ordinary transfer's recipient
+    // outputs stay bound to the input denominations.
+    let (destination, first) = destination
+        .zip(first)
+        .ok_or(SelectionError::InvalidRequest)?;
+    let kept = transaction
+        .outputs
+        .iter()
+        .filter(|output| output.address.ledger() != quai_primitives::Ledger::Quai)
+        .count();
+    let denominations = quai_wallet::denominate_largest(
+        total,
+        max_outputs
+            .checked_sub(kept)
+            .ok_or(SelectionError::LimitExceeded)?,
+    )?;
+    let mut outputs = Vec::with_capacity(kept + denominations.len());
+    for (index, output) in std::mem::take(&mut transaction.outputs)
+        .into_iter()
+        .enumerate()
+    {
+        if index == first {
+            outputs.extend(denominations.iter().map(|denomination| QiOutput {
+                address: destination,
+                denomination: *denomination,
+            }));
+        }
+        if output.address.ledger() != quai_primitives::Ledger::Quai {
+            outputs.push(output);
+        }
+    }
+    transaction.outputs = outputs;
+    Ok(())
+}
+
 fn value(outputs: &[QiOutput]) -> Result<U256, QiPreflightError> {
     outputs.iter().try_fold(U256::ZERO, |sum, o| {
         sum.checked_add(U256::from(o.denomination.value()))

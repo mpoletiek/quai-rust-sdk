@@ -325,11 +325,15 @@ fn select_fewest_inner(
     })
 }
 
-// Fewest largest-first denominations for an exact value, the analogue of the
-// reference's uncapped `denominate`. Only valid where the node aggregates the
-// outputs, so no input inventory bounds it. Denomination 0 is one Qit, so every
-// value decomposes exactly.
-fn denominate_largest(
+/// Fewest largest-first denominations for an exact value, the analogue of the
+/// reference's uncapped `denominate`.
+///
+/// Only valid where the node aggregates the outputs, which means the Quai-ledger
+/// destination of a conversion or a wrap, so no input inventory bounds it. Using
+/// it for outputs that stay in the Qi ledger builds a transaction the node
+/// rejects unless it is the first Qi transaction in its block. Denomination 0 is
+/// one Qit, so every value decomposes exactly.
+pub fn denominate_largest(
     mut value: U256,
     max_outputs: usize,
 ) -> Result<Vec<Denomination>, SelectionError> {

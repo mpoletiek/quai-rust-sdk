@@ -173,3 +173,36 @@ unbuildable.
   the node's `CheckDenominations`, output-bound and fee cases, the 75 generated
   reference vectors across both selectors, and an SDK wrap that asserts one
   aggregated output and a working fee replacement. Each fails without the fix.
+
+## Follow-up: why the stuck wrap never mined
+
+Fixing the shape was not the whole story. The wallet's 15 Qi wrap stayed pooled
+because of a second defect, in this SDK's fee model.
+
+The node prices a conversion or wrap twice, and a fee must clear both:
+
+- **Execution** (`ProcessQiTx`) charges the intrinsic gas plus
+  `QiToQuaiConversionGas`, 100,000, once.
+- **Inclusion** (`CalculateBlockQiTxGas`, used by the miner's filter at
+  `worker.go:3037` and by block validation) charges the intrinsic gas plus
+  `ETXGas`, 21,000, for *each* output that creates an ETX. Every Quai-ledger
+  destination output is one.
+
+`qi_special_gas` modelled only the execution charge, as a flat 100,000. At twelve
+destination outputs the node wanted 409,400 gas and the SDK priced 257,400, so
+the quoted 78 Qits came to 2.43e13 wei per gas against a 3.04e13 base fee. The
+miner's filter classes that as "not an invalid tx": it skips the transaction and
+leaves it in the pool, reporting nothing. The Qi pool is an LRU keyed by hash
+with no time expiry, so it sits there. Our own 10 Qi wrap, with one destination
+output, came to 6.93e13 per gas and mined in under a minute.
+
+Both are fixed: the gas bound now takes the larger of the two floors,
+`QiFeeQuote::floor_qits` reports the un-margined threshold, and
+`prepare_special` refuses an explicit fee below it.
+
+For a parent that is already stuck,
+`QiReplacementIntent::aggregate_destination` re-decomposes the destination
+outputs largest-first while keeping the same inputs, address and total. The
+storage layer already allowed it: a Qi family requires the same inputs, the same
+data and a strictly lower output total, not identical outputs. Consensus allows
+it because the node aggregates that destination into one credit.

@@ -1312,7 +1312,11 @@ async fn specialized_estimates_converge_before_claims_and_enforce_budget_and_rou
                 assert_eq!(prepared.fee(), U256::from(5));
                 assert_eq!(prepared.fee_quote().unwrap().qits, U256::from(5));
                 assert_eq!(prepared.transaction().transaction().inputs.len(), 2);
-                assert_eq!(count_calls(&env.mock, "quai_quaiToQi"), 2);
+                // Two conversion rounds, each converting the margined quote and
+                // the un-margined inclusion floor at the sampled height.
+                assert_eq!(count_calls(&env.mock, "quai_quaiToQi"), 4);
+                let quote = prepared.fee_quote().unwrap();
+                assert!(quote.floor_qits <= quote.qits, "{quote:?}");
                 session.sign_special(&prepared).unwrap();
             }
             1 => assert!(matches!(
@@ -1359,6 +1363,7 @@ async fn conflicting_qi_candidates_preserve_recipients_and_survive_restart_and_t
         parent: root.hash().unwrap(),
         change_indexes: vec![1],
         change_outputs: vec![],
+        aggregate_destination: false,
     };
     let mut bad = replacement.clone();
     bad.change_indexes = vec![0];
@@ -1469,6 +1474,7 @@ async fn qi_replacement_rechecks_snapshot_after_fee_estimation() {
         parent: root.hash().unwrap(),
         change_indexes: vec![1],
         change_outputs: vec![],
+        aggregate_destination: false,
     };
     let result = session
         .prepare_replacement(id(96), intent, limits, None)
@@ -3330,6 +3336,7 @@ async fn a_wrap_aggregates_its_destination_outputs_instead_of_copying_the_inputs
                 parent: signed.hash().unwrap(),
                 change_indexes: vec![change_index],
                 change_outputs: vec![],
+                aggregate_destination: false,
             },
             policy(),
             None,
@@ -3349,4 +3356,465 @@ async fn a_wrap_aggregates_its_destination_outputs_instead_of_copying_the_inputs
         [10]
     );
     session.sign_replacement(&raised).unwrap();
+}
+
+#[tokio::test]
+async fn an_explicit_special_fee_below_the_inclusion_floor_is_refused() {
+    // A Qi fee can satisfy validation and still be one no miner takes: the
+    // inclusion filter divides it by the shape's block gas and skips anything
+    // under the base fee, silently and without evicting it. A mainnet wrap sat
+    // pooled for days that way.
+    use quai_sdk::consensus::QiWrappingIntent;
+    use quai_sdk::qi::QiSpecialIntent;
+    let intent = || {
+        QiSpecialIntent::Wrapping(QiWrappingIntent {
+            destination: "0x0000000000000000000000000000000000000001"
+                .parse()
+                .unwrap(),
+            owner_contract: "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+                .parse()
+                .unwrap(),
+        })
+    };
+    // Mode 8 puts the mock at/after the profile's activation prime terminus, and
+    // its conversion rate puts the floor at five Qits.
+    for (fee, expected_floor_error) in [(1u64, true), (5, false)] {
+        let mut env = setup();
+        env.mock.mode.store(8, Ordering::SeqCst);
+        let change = pool(&mut env, 4);
+        refresh(&mut env);
+        let result = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+            .unwrap()
+            .prepare_special(
+                id(21),
+                U256::from(5),
+                intent(),
+                U256::from(fee),
+                policy(),
+                change,
+            )
+            .await;
+        if expected_floor_error {
+            assert!(
+                matches!(result, Err(QiError::FeeBelowInclusionFloor)),
+                "{result:?}"
+            );
+            assert!(env.store.reservation(id(21)).unwrap().is_none());
+            assert_eq!(
+                QiError::FeeBelowInclusionFloor.class(),
+                quai_sdk::ErrorClass::Invalid
+            );
+        } else {
+            let prepared = result.unwrap();
+            assert_eq!(prepared.fee(), U256::from(5));
+            // The explicit path still reports no quote of its own.
+            assert!(prepared.fee_quote().is_none());
+        }
+    }
+}
+
+#[tokio::test]
+async fn an_explicit_special_fee_is_untouched_when_the_profile_does_not_apply() {
+    // Before the profile's activation the floor cannot be computed from the
+    // public rates, so an explicit fee is the caller's business as before.
+    use quai_sdk::consensus::QiWrappingIntent;
+    use quai_sdk::qi::QiSpecialIntent;
+    let mut env = setup();
+    let change = pool(&mut env, 4);
+    refresh(&mut env);
+    let prepared = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+        .unwrap()
+        .prepare_special(
+            id(22),
+            U256::from(5),
+            QiSpecialIntent::Wrapping(QiWrappingIntent {
+                destination: "0x0000000000000000000000000000000000000001"
+                    .parse()
+                    .unwrap(),
+                owner_contract: "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+                    .parse()
+                    .unwrap(),
+            }),
+            U256::from(1),
+            policy(),
+            change,
+        )
+        .await
+        .unwrap();
+    assert_eq!(prepared.fee(), U256::from(1));
+}
+
+#[tokio::test]
+async fn an_aggregating_replacement_shrinks_a_wraps_destination_and_its_gas() {
+    // A wrap built before the selection fix copies the input denominations into
+    // its destination, and the node charges ETXGas for every one of those
+    // outputs when deciding whether to include it. Such a parent can be refused
+    // by the miner forever while staying valid and pooled: the mainnet wrap of
+    // 15 Qi did exactly that. Re-decomposing the destination, which the node
+    // credits as a single value, is how it becomes includable.
+    use quai_sdk::consensus::{QiInput, QiOutput, QiWrappingIntent, QiWrappingTransaction};
+    use quai_sdk::provider::qi_special_gas;
+    use quai_sdk::qi::QiReplacementIntent;
+    let mut env = setup();
+    let change = pool(&mut env, 4);
+    let owner = env
+        .store
+        .addresses()
+        .unwrap()
+        .into_iter()
+        .find(|m| {
+            matches!(
+                m.origin(),
+                quai_sdk::wallet::storage::KeyOrigin::Bip44 { change: false, .. }
+            )
+        })
+        .unwrap();
+    // Six five-Qit coins, as an old capped decomposition would have spent them.
+    let mut snapshot = env.store.snapshot().unwrap();
+    snapshot.checkpoint = Some(Checkpoint {
+        hash: CHECKPOINT.parse().unwrap(),
+        height: U256::from(16),
+    });
+    snapshot.coins = (0..6u16)
+        .map(|index| {
+            let mut hash = [0u8; 32];
+            hash[3] = 0x80;
+            hash[31] = index as u8 + 1;
+            CandidateCoin {
+                outpoint: OutPoint {
+                    transaction_hash: quai_sdk::primitives::Hash32::from_bytes(hash),
+                    index,
+                },
+                address: owner.address().try_into().unwrap(),
+                denomination: Denomination::new(1).unwrap(),
+                unlock_height: U256::ZERO,
+                expires_at: None,
+                reserved: false,
+            }
+        })
+        .collect();
+    let generation = env.store.replace_snapshot(&snapshot).unwrap();
+    let destination: quai_sdk::QuaiAddress = "0x0000000000000000000000000000000000000001"
+        .parse()
+        .unwrap();
+    let key = env
+        .wallet
+        .derive_key(
+            0,
+            false,
+            match owner.origin() {
+                quai_sdk::wallet::storage::KeyOrigin::Bip44 { index, .. } => index,
+                _ => unreachable!(),
+            },
+        )
+        .unwrap()
+        .secret_key()
+        .unwrap();
+    // The parent: five five-Qit destination outputs for 25 Qits, one Qit of
+    // change, and a five-Qit fee. Exactly the shape alpha.6 built.
+    let inputs: Vec<_> = snapshot
+        .coins
+        .iter()
+        .map(|coin| QiInput {
+            previous_output: coin.outpoint,
+            public_key: key.public_key(),
+        })
+        .collect();
+    let parent_wrapped = vec![Denomination::new(1).unwrap(); 5];
+    let change_address = change.addresses()[0].address();
+    let parent = QiWrappingTransaction::new(
+        env.store.scope().chain_id,
+        inputs,
+        parent_wrapped.clone(),
+        vec![QiOutput {
+            address: change_address,
+            denomination: Denomination::new(0).unwrap(),
+        }],
+        QiWrappingIntent {
+            destination,
+            owner_contract: "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+                .parse()
+                .unwrap(),
+        },
+    )
+    .unwrap();
+    let signed_parent = parent.sign_local(&[&key; 6]).unwrap();
+    env.store
+        .reserve_qi(
+            id(23),
+            generation,
+            U256::from(17),
+            &snapshot
+                .coins
+                .iter()
+                .map(|coin| coin.outpoint)
+                .collect::<Vec<_>>(),
+        )
+        .unwrap();
+    env.store
+        .commit_signed_qi_operation(
+            id(23),
+            &quai_sdk::consensus::SignedQiOperation::Wrapping(signed_parent.clone()),
+        )
+        .unwrap();
+    let parent_tx = signed_parent.transaction().transaction().clone();
+    assert_eq!(
+        parent_tx
+            .outputs
+            .iter()
+            .filter(|o| o.address == destination.address())
+            .count(),
+        5,
+        "the parent copies its input denominations"
+    );
+
+    // Replace it: collapse the destination and drop the one Qit of change.
+    let limits = QiPolicy {
+        max_inputs: 8,
+        max_outputs: 16,
+        ..policy()
+    };
+    let change_index = parent_tx
+        .outputs
+        .iter()
+        .position(|o| o.address != destination.address())
+        .unwrap() as u16;
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let raised = session
+        .prepare_replacement(
+            id(23),
+            QiReplacementIntent {
+                parent: signed_parent.hash().unwrap(),
+                change_indexes: vec![change_index],
+                change_outputs: vec![],
+                aggregate_destination: true,
+            },
+            limits,
+            None,
+        )
+        .await
+        .unwrap();
+    let replacement = raised.transaction();
+    let new_wrapped: Vec<u64> = replacement
+        .outputs
+        .iter()
+        .filter(|o| o.address == destination.address())
+        .map(|o| o.denomination.value())
+        .collect();
+    // Five fives become 10 + 10 + 5, the fewest denominations for 25 Qits.
+    assert_eq!(new_wrapped, [10, 10, 5]);
+    assert_eq!(
+        new_wrapped.iter().sum::<u64>(),
+        25,
+        "the total is unchanged"
+    );
+    assert_eq!(replacement.inputs, parent_tx.inputs, "same inputs");
+    assert_eq!(replacement.data, parent_tx.data, "same owner contract");
+    assert!(
+        replacement.outputs.len() < parent_tx.outputs.len(),
+        "a smaller transaction"
+    );
+    // Thirty Qits in, 26 out: the parent paid four, and the dropped Qit of
+    // change makes the replacement pay five.
+    assert_eq!(
+        raised.fee(),
+        U256::from(5),
+        "the dropped Qit pays the miner"
+    );
+
+    // The point of the exercise: the node's binding gas floor falls.
+    let before = qi_special_gas(parent_tx.inputs.len(), parent_tx.outputs.len(), 5, 1).unwrap();
+    let after = qi_special_gas(
+        replacement.inputs.len(),
+        replacement.outputs.len(),
+        new_wrapped.len(),
+        1,
+    )
+    .unwrap();
+    assert!(
+        after < before,
+        "gas floor {after} should fall below {before}"
+    );
+    session.sign_replacement(&raised).unwrap();
+    assert_eq!(session.signed_candidates(id(23)).unwrap().len(), 2);
+}
+
+#[tokio::test]
+async fn an_aggregating_replacement_is_refused_for_an_ordinary_transfer() {
+    // An ordinary transfer's recipient outputs are bound to the input
+    // denominations, so re-decomposing them would build what the node rejects.
+    use quai_sdk::qi::QiReplacementIntent;
+    let mut env = setup();
+    let mut change = pool(&mut env, 4);
+    refresh(&mut env);
+    let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
+    let prepared = session
+        .prepare(id(24), intent(), with_change(&env.mock), &mut change)
+        .await
+        .unwrap();
+    let signed = session.sign(&prepared).unwrap();
+    let change_index = prepared.recipient_outputs() as u16;
+    let result = session
+        .prepare_replacement(
+            id(24),
+            QiReplacementIntent {
+                parent: signed.hash().unwrap(),
+                change_indexes: vec![change_index],
+                change_outputs: vec![],
+                aggregate_destination: true,
+            },
+            policy(),
+            None,
+        )
+        .await;
+    assert!(
+        matches!(
+            result,
+            Err(QiError::Selection(SelectionError::InvalidRequest))
+        ),
+        "{result:?}"
+    );
+}
+
+#[tokio::test]
+async fn a_replacement_below_the_inclusion_floor_is_refused_too() {
+    // Replacing a stuck conversion or wrap is the remedy for a parent the miner
+    // keeps skipping, so the replacement must clear the floor the parent missed.
+    use quai_sdk::consensus::{QiInput, QiOutput, QiWrappingIntent, QiWrappingTransaction};
+    use quai_sdk::qi::QiReplacementIntent;
+    let mut env = setup();
+    let change = pool(&mut env, 4);
+    let owner = env
+        .store
+        .addresses()
+        .unwrap()
+        .into_iter()
+        .find(|m| {
+            matches!(
+                m.origin(),
+                quai_sdk::wallet::storage::KeyOrigin::Bip44 { change: false, .. }
+            )
+        })
+        .unwrap();
+    let mut snapshot = env.store.snapshot().unwrap();
+    snapshot.checkpoint = Some(Checkpoint {
+        hash: CHECKPOINT.parse().unwrap(),
+        height: U256::from(16),
+    });
+    snapshot.coins = (0..6u16)
+        .map(|index| {
+            let mut hash = [0u8; 32];
+            hash[3] = 0x80;
+            hash[31] = index as u8 + 1;
+            CandidateCoin {
+                outpoint: OutPoint {
+                    transaction_hash: quai_sdk::primitives::Hash32::from_bytes(hash),
+                    index,
+                },
+                address: owner.address().try_into().unwrap(),
+                denomination: Denomination::new(1).unwrap(),
+                unlock_height: U256::ZERO,
+                expires_at: None,
+                reserved: false,
+            }
+        })
+        .collect();
+    let generation = env.store.replace_snapshot(&snapshot).unwrap();
+    let destination: quai_sdk::QuaiAddress = "0x0000000000000000000000000000000000000001"
+        .parse()
+        .unwrap();
+    let key = env
+        .wallet
+        .derive_key(
+            0,
+            false,
+            match owner.origin() {
+                quai_sdk::wallet::storage::KeyOrigin::Bip44 { index, .. } => index,
+                _ => unreachable!(),
+            },
+        )
+        .unwrap()
+        .secret_key()
+        .unwrap();
+    // Thirty Qits in, 25 wrapped and four Qits of change: a one-Qit fee.
+    let parent = QiWrappingTransaction::new(
+        env.store.scope().chain_id,
+        snapshot
+            .coins
+            .iter()
+            .map(|coin| QiInput {
+                previous_output: coin.outpoint,
+                public_key: key.public_key(),
+            })
+            .collect(),
+        vec![Denomination::new(1).unwrap(); 5],
+        change.addresses()[..4]
+            .iter()
+            .map(|address| QiOutput {
+                address: address.address(),
+                denomination: Denomination::new(0).unwrap(),
+            })
+            .collect(),
+        QiWrappingIntent {
+            destination,
+            owner_contract: "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+                .parse()
+                .unwrap(),
+        },
+    )
+    .unwrap();
+    let signed_parent = parent.sign_local(&[&key; 6]).unwrap();
+    env.store
+        .reserve_qi(
+            id(25),
+            generation,
+            U256::from(17),
+            &snapshot
+                .coins
+                .iter()
+                .map(|coin| coin.outpoint)
+                .collect::<Vec<_>>(),
+        )
+        .unwrap();
+    env.store
+        .commit_signed_qi_operation(
+            id(25),
+            &quai_sdk::consensus::SignedQiOperation::Wrapping(signed_parent.clone()),
+        )
+        .unwrap();
+    // The mock's rate puts the floor at five Qits once the profile applies.
+    env.mock.mode.store(8, Ordering::SeqCst);
+    let limits = QiPolicy {
+        max_inputs: 8,
+        max_outputs: 16,
+        ..policy()
+    };
+    let result = QiSession::new(&env.provider, &env.wallet, &mut env.store)
+        .unwrap()
+        .prepare_replacement(
+            id(25),
+            QiReplacementIntent {
+                parent: signed_parent.hash().unwrap(),
+                // Dropping one Qit of change lifts the fee to two: still short.
+                change_indexes: vec![5],
+                change_outputs: vec![],
+                aggregate_destination: true,
+            },
+            limits,
+            None,
+        )
+        .await;
+    assert!(
+        matches!(result, Err(QiError::FeeBelowInclusionFloor)),
+        "{result:?}"
+    );
+    assert_eq!(
+        QiSession::new(&env.provider, &env.wallet, &mut env.store)
+            .unwrap()
+            .signed_candidates(id(25))
+            .unwrap()
+            .len(),
+        1,
+        "no second candidate was committed"
+    );
 }

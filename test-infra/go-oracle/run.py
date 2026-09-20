@@ -89,7 +89,7 @@ def main():
                 report["specialFeeRegression"] = {
                     "testSourceSha256": hashlib.sha256((HERE / "special_fee_test.go").read_bytes()).hexdigest(),
                     "passed": True,
-                    "tests": ["TestSpecialFeeGasBound", "TestShaAnchoredFeeRatesIgnoreDifficultyArgument"],
+                    "tests": ["TestSpecialFeeGasBound", "TestSpecialFeeInclusionGasBound", "TestShaAnchoredFeeRatesIgnoreDifficultyArgument"],
                     "scope": "Pinned function tests; not funded chain acceptance",
                 }
             if contracts:

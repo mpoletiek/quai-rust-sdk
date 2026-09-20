@@ -85,12 +85,37 @@ async fn specialized_fee_rounds_up_and_pins_rates_to_sampled_height() {
         .unwrap();
     assert_eq!(q.qits, U256::from(3));
     assert_eq!(q.gas_price, U256::from(1));
+    // The floor is corrected the same way the quote is. This mock's rate
+    // credits two Qits with less than the fee they must cover, so an
+    // uncorrected floor would report two: a caller paying exactly that would
+    // land under the node's threshold, which is the case this field exists to
+    // rule out.
+    assert_eq!(q.floor_qits, U256::from(3));
+    assert!(q.floor_qits <= q.qits);
+    let conversion_outputs = tx
+        .transaction()
+        .transaction()
+        .outputs
+        .iter()
+        .filter(|o| o.address.ledger() == quai_primitives::Ledger::Quai)
+        .count();
+    assert_eq!(
+        q.required_gas,
+        qi_special_gas(
+            tx.transaction().transaction().inputs.len(),
+            tx.transaction().transaction().outputs.len(),
+            conversion_outputs,
+            1,
+        )
+        .unwrap()
+    );
     assert_eq!(
         q.required_gas,
         100_000
             + 3_000
             + 800 * tx.transaction().transaction().inputs.len() as u64
-            + 9000 * tx.transaction().transaction().outputs.len() as u64
+            + 9000 * tx.transaction().transaction().outputs.len() as u64,
+        "one destination output keeps the flat execution charge binding"
     );
 }
 #[tokio::test]
@@ -116,10 +141,55 @@ async fn rejects_unsupported_profile_head_drift_inconsistent_rounding_and_overfl
 }
 #[test]
 fn special_gas_bounds_and_scaling_threshold() {
-    assert_eq!(qi_special_gas(1, 1, 0).unwrap(), 112_800);
-    assert_eq!(qi_special_gas(1, 1, 3_269_017).unwrap(), 112_800);
-    assert_eq!(qi_special_gas(1, 1, 3_269_018).unwrap(), 112_802);
-    assert!(qi_special_gas(0, 1, 1).is_err());
-    assert!(qi_special_gas(1, 1025, 1).is_err());
-    assert!(qi_special_gas(1024, 1024, u64::MAX).unwrap() < 31_000_000);
+    // One destination output: the flat execution charge of 100,000 still binds.
+    assert_eq!(qi_special_gas(1, 1, 1, 0).unwrap(), 112_800);
+    assert_eq!(qi_special_gas(1, 1, 1, 3_269_017).unwrap(), 112_800);
+    assert_eq!(qi_special_gas(1, 1, 1, 3_269_018).unwrap(), 112_802);
+    assert!(qi_special_gas(0, 1, 1, 1).is_err());
+    assert!(qi_special_gas(1, 1025, 1, 1).is_err());
+    assert!(
+        qi_special_gas(1, 1, 0, 1).is_err(),
+        "at least one destination"
+    );
+    assert!(
+        qi_special_gas(1, 2, 3, 1).is_err(),
+        "more destinations than outputs"
+    );
+    // A shape with a thousand destination outputs prices past any block gas
+    // limit, because each one is charged ETXGas for inclusion. That is the
+    // node's rule, not a bound this function imposes.
+    assert!(qi_special_gas(1024, 1024, 1, u64::MAX).unwrap() < 31_000_000);
+    assert!(qi_special_gas(1024, 1024, 1024, u64::MAX).unwrap() > 31_000_000);
+}
+
+#[test]
+fn inclusion_gas_overtakes_the_flat_execution_charge_past_four_destinations() {
+    // The node charges ETXGas per Quai-ledger destination output when deciding
+    // whether a Qi transaction may be included, and a flat 100,000 once when
+    // executing it. A fee priced on the smaller figure is never mined.
+    let intrinsic =
+        |inputs: usize, outputs: usize| inputs as u64 * 800 + outputs as u64 * 9000 + 3000;
+    for destinations in 1..=4 {
+        assert_eq!(
+            qi_special_gas(2, 6, destinations, 0).unwrap(),
+            intrinsic(2, 6) + 100_000,
+            "execution charge binds for {destinations} destinations"
+        );
+    }
+    for destinations in 5..=6 {
+        assert_eq!(
+            qi_special_gas(2, 6, destinations, 0).unwrap(),
+            intrinsic(2, 6) + 21_000 * destinations as u64,
+            "inclusion charge binds for {destinations} destinations"
+        );
+    }
+    // The mainnet wrap that stalled: 13 inputs, 16 outputs, 12 of them to the
+    // WQI beneficiary. The node needed 409,400 gas; the old flat model priced
+    // 257,400, which left the fee below the base fee and the transaction
+    // unmined while still perfectly valid.
+    assert_eq!(qi_special_gas(13, 16, 12, 0).unwrap(), 409_400);
+    // The same value wrapped with the aggregated shape this SDK now builds:
+    // two destination outputs, so the flat execution charge binds again and the
+    // fee is priced well above the inclusion floor of 109,400.
+    assert_eq!(qi_special_gas(13, 6, 2, 0).unwrap(), 167_400);
 }

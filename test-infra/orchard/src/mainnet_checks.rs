@@ -389,6 +389,12 @@ pub async fn run(check: &str) -> Result<(), Box<dyn Error>> {
                     let recomputed = quai_sdk::provider::qi_special_gas(
                         tx.inputs.len(),
                         tx.outputs.len(),
+                        tx.outputs
+                            .iter()
+                            .filter(|o| {
+                                o.address.ledger() == quai_sdk::primitives::Ledger::Quai
+                            })
+                            .count(),
                         quote.utxo_set_size,
                     )?;
                     let its = quote.gas_price * U256::from(quote.required_gas);

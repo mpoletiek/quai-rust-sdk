@@ -512,6 +512,7 @@ async fn qi_replacement_reduces_only_owned_change_and_keeps_inputs_and_special_d
             parent: parent.hash().unwrap(),
             change_indexes: vec![1],
             change_outputs: vec![],
+            aggregate_destination: false,
         };
         let fees = if kind == 0 {
             QiFeeMode::Node
@@ -768,7 +769,8 @@ mod browser {
                     QiReplacementIntent {
                         parent: root.hash().unwrap(),
                         change_indexes: vec![2],
-                        change_outputs: vec![]
+                        change_outputs: vec![],
+                        aggregate_destination: false,
                     },
                     policy(),
                     QiFeeMode::Node,
@@ -786,6 +788,7 @@ mod browser {
                     parent: root.hash().unwrap(),
                     change_indexes: vec![2],
                     change_outputs: vec![],
+                    aggregate_destination: false,
                 },
                 policy(),
                 QiFeeMode::Node,

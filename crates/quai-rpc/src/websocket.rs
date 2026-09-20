@@ -891,9 +891,17 @@ pub(crate) fn fuzz_dispatch(layout: u8, frames: &[&[u8]]) {
             next_id,
             &notification_bytes,
         );
-        let frame_id = serde_json::from_slice::<Value>(frame)
+        // Read the ID exactly as `dispatch` does. Parsing the frame into a
+        // `Value` instead range-checks every number in it, including ones the
+        // dispatcher skips unread, so a valid reply carrying a field like
+        // 1e400 looked like a frame with no ID and this assertion fired on
+        // correct routing. Found by the ws_dispatch fuzz target.
+        let frame_id = serde_json::from_slice::<WireEnvelope>(frame)
             .ok()
-            .and_then(|value| value.get("id").and_then(Value::as_u64));
+            .and_then(|envelope| match envelope.id {
+                Slot::Present(id) => id.as_u64(),
+                Slot::Absent => None,
+            });
         for (id, receiver) in &mut replies {
             if receiver.try_recv().is_ok() {
                 assert_eq!(Some(*id), frame_id, "a reply reached another request");
@@ -978,6 +986,10 @@ mod fuzz_harness_tests {
         ];
         // Invalid UTF-8 inside an unknown field: rejected before routing.
         super::fuzz_dispatch(0x01, &[b"{\"jsonrpc\":\"2.0\",\"id\":1,\"x\":\"\xc5\"}"]);
+        // An unknown field whose number overflows f64. The dispatcher skips it
+        // unread and routes the reply by its ID, so the harness must read that
+        // ID the same way instead of materializing the whole frame.
+        super::fuzz_dispatch(0x37, &[br#"{"jsonrpc":"2.0","id":1,"re3-lt":6666.6E6666}"#]);
         for layout in 0..=u8::MAX {
             for start in 0..frames.len() {
                 super::fuzz_dispatch(layout, &frames[start..]);

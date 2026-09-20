@@ -180,6 +180,9 @@ ws_frames = [json.dumps(v, separators=(',',':')).encode() for v in [
 ]]
 # Regression: invalid UTF-8 inside an unknown field of a reply frame.
 put('ws_dispatch', b'\x01{"jsonrpc":"2.0","id":1,"x":"\xc5"}')
+# An unread field whose number overflows f64: the dispatcher skips it, so the
+# frame is a valid reply for its ID.
+put('ws_dispatch', b'\x37{"jsonrpc":"2.0","id":1,"re3-lt":6666.6E6666}')
 for layout in [0x00, 0x13, 0x37, 0x5a, 0x7f, 0xf3, 0xff]:
  put('ws_dispatch', bytes([layout]) + b'\xff'.join(ws_frames))
  for frame in ws_frames:

@@ -178,9 +178,11 @@ fn derivation(c: &mut Criterion) {
 fn coin_selection(c: &mut Criterion) {
     let mut group = c.benchmark_group("selection");
     group.sample_size(30);
-    // Selection was reviewed as O(n) bucketed rather than quadratic. These sizes
-    // exist to hold that line: the per-element cost should stay flat as n grows.
-    for count in [100usize, 1_000, 10_000] {
+    // Selection is O(n) bucketed rather than quadratic, and these sizes hold
+    // that line. They run to the selector's own 100,000 cap because the claim
+    // that per-element cost stays flat was previously only checked to 10,000,
+    // and the constant factor above that is where the dedupe set showed up.
+    for count in [100usize, 1_000, 10_000, 100_000] {
         let coins = fixture_coins(count);
         group.throughput(Throughput::Elements(count as u64));
         group.bench_with_input(BenchmarkId::new("select_fewest", count), &coins, |b, c| {
@@ -193,5 +195,103 @@ fn coin_selection(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, seed_and_wallet, derivation, coin_selection);
+/// Fee convergence re-chooses against one validated snapshot.
+///
+/// The interesting ratio is this against `selection/select_fewest` at the same
+/// size: a round that re-validated the whole snapshot would make eight rounds
+/// cost eight selections, and the point of hoisting the validation is that it
+/// does not.
+fn selection_fee_rounds(c: &mut Criterion) {
+    let mut group = c.benchmark_group("selection_fee");
+    group.sample_size(20);
+    for count in [10_000usize, 100_000] {
+        let coins = fixture_coins(count);
+        for rounds in [1u8, 8] {
+            group.throughput(Throughput::Elements(count as u64));
+            group.bench_with_input(
+                BenchmarkId::new(format!("select_with_fee_{rounds}_rounds"), count),
+                &coins,
+                |b, c| {
+                    b.iter(|| {
+                        let request = fixture_request();
+                        let mut seen = 0u8;
+                        // Every quote but the last must exceed the fee currently
+                        // held, or `select_with_fee` converges immediately and
+                        // both arms measure a single round. The fixture starts
+                        // at 10 with a 1,000 ceiling, so ramp in tens and stay
+                        // under it: call n quotes 10*(n+2), which is above the
+                        // 10*(n+1) set by the previous call. The final call
+                        // quotes zero to converge.
+                        let _ = black_box(quai_wallet::select_with_fee(
+                            black_box(c),
+                            black_box(&request),
+                            rounds,
+                            |_| {
+                                seen += 1;
+                                Ok(if seen < rounds {
+                                    U256::from(10u64 * (u64::from(seen) + 2))
+                                } else {
+                                    U256::ZERO
+                                })
+                            },
+                        ));
+                    });
+                },
+            );
+        }
+    }
+    group.finish();
+}
+
+/// The window scan, sequential against parallel.
+///
+/// This is the grind the README advertises, and it had no bench at all, which
+/// is how the parallel path went on deriving one index at a time — skipping the
+/// batch normalization the sequential path had always used — without anything
+/// noticing. Both variants grind the same fixed window, so the parallel/
+/// sequential ratio is the speedup, and a regression in either shows up against
+/// `address_search/next_usable_cyprus1` in the same run.
+fn window_scan(c: &mut Criterion) {
+    let account = account();
+    let mut group = c.benchmark_group("window_scan");
+    group.sample_size(10);
+    // Wide enough to cross several batches at the 1-in-512 hit rate.
+    let window = || Search {
+        zone: BENCH_ZONE,
+        start_index: 0,
+        max_attempts: 4_096,
+    };
+    group.throughput(Throughput::Elements(4_096));
+    group.bench_function("sequential", |b| {
+        b.iter(|| {
+            let _ = black_box(account.search_window(
+                black_box(false),
+                black_box(window()),
+                black_box(8),
+                || false,
+            ));
+        });
+    });
+    #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+    group.bench_function("parallel", |b| {
+        b.iter(|| {
+            let _ = black_box(account.search_window_parallel(
+                black_box(false),
+                black_box(window()),
+                black_box(8),
+                || false,
+            ));
+        });
+    });
+    group.finish();
+}
+
+criterion_group!(
+    benches,
+    seed_and_wallet,
+    derivation,
+    coin_selection,
+    selection_fee_rounds,
+    window_scan
+);
 criterion_main!(benches);

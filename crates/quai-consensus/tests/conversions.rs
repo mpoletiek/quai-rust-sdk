@@ -327,3 +327,38 @@ fn the_raw_signing_api_enforces_the_conversion_envelope_not_only_the_typed_build
     );
     assert!(cross.sign(&key).is_err());
 }
+
+#[test]
+fn the_kquai_hold_window_covers_exactly_the_interval_after_each_controller_change() {
+    use quai_consensus::{
+        KAWPOW_FORK_BLOCK, KQUAI_CHANGE_HOLD_INTERVAL, SHA_EQUIVALENT_DIFFICULTY_FORK_BLOCK,
+        conversion_held,
+    };
+
+    // The pinned node's own values. A drift here is a protocol change, not a
+    // refactor, so it is asserted rather than derived.
+    assert_eq!(KAWPOW_FORK_BLOCK, 1_171_500);
+    assert_eq!(SHA_EQUIVALENT_DIFFICULTY_FORK_BLOCK, 1_755_000);
+    assert_eq!(KQUAI_CHANGE_HOLD_INTERVAL, 20_000);
+
+    for fork in [KAWPOW_FORK_BLOCK, SHA_EQUIVALENT_DIFFICULTY_FORK_BLOCK] {
+        // Half-open: the fork block itself is held, the first block past the
+        // interval is not. An inclusive upper bound would hold one block too
+        // long and refuse a conversion the node would have taken.
+        assert!(!conversion_held(fork - 1), "before {fork}");
+        assert!(conversion_held(fork), "at {fork}");
+        assert!(
+            conversion_held(fork + KQUAI_CHANGE_HOLD_INTERVAL - 1),
+            "last held block after {fork}"
+        );
+        assert!(
+            !conversion_held(fork + KQUAI_CHANGE_HOLD_INTERVAL),
+            "first free block after {fork}"
+        );
+    }
+
+    // Genesis and the current chain are both outside every window; the mainnet
+    // prime terminus read on 2026-09-20 was 2,256,896.
+    assert!(!conversion_held(0));
+    assert!(!conversion_held(2_256_896));
+}

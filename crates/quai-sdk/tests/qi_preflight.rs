@@ -179,7 +179,7 @@ impl Transport for Mock {
                 json!({"woHeader":{"hash":hash(if s.mode==1{9}else{1}).to_string(),"number":"0x0","location":"0x","parentHash":Hash32::ZERO.to_string()}})
             }
             "quai_getHeaderByNumber" => {
-                json!({"woHeader":{"hash":hash(if s.mode==2{9}else{2}).to_string(),"number":if params[0]=="latest"&&s.mode==3{"0x11"}else{"0x10"},"location":"0x0000","parentHash":hash(1).to_string(),"primeTerminusNumber":if s.mode==5{"0x1ac778"}else{"0x10"}},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
+                json!({"woHeader":{"hash":hash(if s.mode==2{9}else{2}).to_string(),"number":if params[0]=="latest"&&s.mode==3{"0x11"}else{"0x10"},"location":"0x0000","parentHash":hash(1).to_string(),"primeTerminusNumber":if s.mode==5{"0x1b1598"}else{"0x10"}},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
             }
             "quai_estimateFeeForQi" => {
                 s.fee_calls += 1;
@@ -304,6 +304,53 @@ async fn special_fee_modes_preserve_data_and_never_use_ordinary_estimation() {
                     .any(|(method, _)| method == "quai_estimateFeeForQi")
             );
         }
+    }
+}
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn portable_explicit_fee_below_the_inclusion_floor_is_refused() {
+    let c = [change()];
+    for wrap in [false, true] {
+        // The mock quotes a floor of five Qits once the profile applies, so
+        // four is below it. The portable path must refuse it exactly as the
+        // session path does: an accepted-but-unmineable conversion is the
+        // failure this guard exists to prevent.
+        let m = Mock::default();
+        m.state().mode = 5;
+        let error = quote_qi(
+            &m.provider(),
+            QiQuoteRequest {
+                source: &source(),
+                intent: special(wrap),
+                policy: policy(),
+                fees: QiFeeMode::Explicit(U256::from(4)),
+                change: &c,
+            },
+        )
+        .await
+        .unwrap_err();
+        assert!(
+            matches!(error, QiPreflightError::FeeBelowInclusionFloor),
+            "{error:?}"
+        );
+        assert!(m.state().sends.is_empty());
+        // An ordinary transfer creates no conversion ETX and has no such
+        // floor, so the same fee is left untouched.
+        let m = Mock::default();
+        m.state().mode = 5;
+        let quote = quote_qi(
+            &m.provider(),
+            QiQuoteRequest {
+                source: &source(),
+                intent: intent(),
+                policy: policy(),
+                fees: QiFeeMode::Explicit(U256::from(4)),
+                change: &c,
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(quote.fee(), U256::from(4));
     }
 }
 #[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
@@ -472,7 +519,11 @@ async fn qi_replacement_reduces_only_owned_change_and_keeps_inputs_and_special_d
     let change = change();
     for kind in 0..3 {
         let m = Mock::default();
-        m.state().mode = 5;
+        // The parent is built before the specialized profile applies, which is
+        // the one chain state that leaves an explicit fee unchecked. The zero
+        // fee keeps the parent's change output, which is what this test then
+        // replaces; a floor-clearing parent would spend the whole coin and
+        // leave nothing to reduce.
         let p = m.provider();
         let mut source = source();
         source.owners.push(change.clone());
@@ -508,12 +559,10 @@ async fn qi_replacement_reduces_only_owned_change_and_keeps_inputs_and_special_d
                     .unwrap(),
             ),
         };
-        let intent = QiReplacementIntent {
-            parent: parent.hash().unwrap(),
-            change_indexes: vec![1],
-            change_outputs: vec![],
-            aggregate_destination: false,
-        };
+        // The replacement is quoted once the profile applies, so it is the
+        // path that must hold the inclusion floor.
+        m.state().mode = 5;
+        let intent = QiReplacementIntent::new(parent.hash().unwrap(), vec![1], vec![]);
         let fees = if kind == 0 {
             QiFeeMode::Node
         } else {

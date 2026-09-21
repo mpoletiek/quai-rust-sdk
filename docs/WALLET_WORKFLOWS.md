@@ -619,6 +619,18 @@ browser runs the resumed scan as a microtask, so the page neither renders nor
 handles input until the scan finishes. Run scans on a multi-thread runtime with
 at least two workers, on a dedicated thread, or in a Web Worker.
 
+**Narrowing what each head costs.** The order below runs per head, which is
+correct but does the work whether or not anything touched the wallet. A node
+will also report accesses per account:
+`rpc::WsSubscriptionKind::Accesses { address }` subscribes to every block that
+touches that account on either ledger, which is how the reference wallet learns
+that funds arrived, that a pending transaction confirmed, and that a conversion
+succeeded or reverted. Use it to decide *whether* to run the steps below for a
+given account, never to replace them: a disconnect is terminal here, accesses
+that happened while disconnected are not replayed, and the subscription reports
+that an account was touched rather than what the wallet's state should now be.
+Reconcile on reconnect before resubscribing, and keep a timer as the floor.
+
 **Sync order for each new head.**
 
 1. `recovery::reconcile_persisted_head_replay` records the head and applies

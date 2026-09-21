@@ -227,7 +227,10 @@ pub fn prepare_deployment(
         || init_code.is_empty()
         || search.max_attempts == 0
         || search.max_attempts > 10_000
-        || init_code.len() > quai_consensus::MAX_TRANSACTION_BYTES - 512
+        // Bounded against what the node's pool takes, not the codec ceiling: a
+        // deployment above `txMaxSize` is refused with `ErrOversizedData` after
+        // the nonce is reserved and the transaction signed.
+        || init_code.len() > quai_consensus::MAX_POOL_TRANSACTION_BYTES - 512
     {
         return Err(ContractError::InvalidDeployment);
     }
@@ -247,7 +250,12 @@ pub fn prepare_deployment(
         .checked_add(arguments.len())
         .and_then(|n| n.checked_add(4))
         .ok_or(ContractError::InvalidDeployment)?;
-    if total > quai_consensus::MAX_TRANSACTION_BYTES - 512 {
+    // The whole payload goes on the wire, not just the init code, so this is the
+    // binding check: constructor arguments can carry a deployment past the pool
+    // limit on their own. Bounding only `init_code` above would let such a
+    // transaction reserve a nonce and be signed, after which submission refuses
+    // it locally and the nonce is consumed without ever reaching the chain.
+    if total > quai_consensus::MAX_POOL_TRANSACTION_BYTES - 512 {
         return Err(ContractError::InvalidDeployment);
     }
     let mut data = Vec::with_capacity(total);

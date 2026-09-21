@@ -85,6 +85,102 @@ basis points at or below the flow amount, `10 + ceil(10·(T/F)³)` up to ten tim
 and the node's 9000 floor beyond. Size slippage against the flow you are willing to
 share a batch with. Any k-Quai discount is applied separately.
 
+The k-Quai discount applies to exactly **one direction at a time**, chosen by
+whether the exchange rate rose over the last `MinerDifficultyWindow` prime
+blocks: Quai-to-Qi takes it while the rate is increasing, Qi-to-Quai while it is
+not. On mainnet on 2026-09-20 the header's `kQuaiDiscount` was `0x0`, so it
+currently removes nothing; because the k-Quai controller is frozen the rate is
+not increasing, so Qi-to-Quai is the side that takes it whenever it becomes
+nonzero. Whichever discounts apply, the node floors the result at one tenth of
+the original value, which is the same boundary as the 9000-basis-point cap.
+
+## When conversions are held entirely
+
+go-quai v0.56.0 hard-codes **two** windows in which it refuses conversions — one
+after each of the two k-Quai controller changes it knows about, each
+`KQuaiChangeHoldInterval` (20,000 prime blocks, about six to seven days) long,
+enforced as literal height comparisons.
+
+**Both directions are held, and the failure differs sharply.** Wrapping is
+exempt either way: the Qi path tracks `conversion` and `wrapping` as separate
+flags and holds only the former.
+
+| Direction | Where it is refused | What it costs |
+| --- | --- | --- |
+| Qi → Quai | Pool admission, in `ValidateQiTxOutputsAndSignature` via `addQiTxs` | Nothing. The submit errors, the transaction never enters the mempool, and the same signed bytes work once the window passes. |
+| Quai → Qi | **EVM execution**, in `CreateETX` and `opConvert` | **Nonce consumed and gas burned.** The transaction is admitted and mined; only the conversion fails. A retry needs a fresh transaction. |
+
+**This is not a rule that controller changes halt conversions.** Qi is designed
+as energy money whose purchasing power external markets price against production
+cost, and those markets are still being bootstrapped; whether a future
+controller change carries a hold at all is the protocol team's decision and is
+not something this SDK predicts. What is modelled here is two specific
+historical windows, re-pinned whenever the go-quai constants are.
+
+There is also nothing to query instead. No header field reports it, and
+`quai_getKQuaiAndUpdateBit` returns a hardcoded constant in v0.56.0 with its
+state lookup unreachable, so mirroring the node's constants is the only faithful
+source.
+
+`quai_consensus::conversion_held(prime_terminus)` answers this, and
+the fork heights and the interval are public beside it.
+
+**What actually happens to a held conversion.** The check runs inside
+`ValidateQiTxOutputsAndSignature`, which the pool calls from `addQiTxs`, so the
+node rejects the transaction at **admission**: `quai_sendRawTransaction` returns
+an error and the transaction never enters the mempool. It does not sit pending
+and it is not permanently dead either — the hold is height-based, so the same
+signed bytes become acceptable once the window passes. Resubmitting the retained
+payload afterwards is the remedy, and no funds are at risk in the meantime.
+
+Checking first therefore avoids a wasted cycle, and for the Quai-to-Qi direction
+it avoids burning gas on a conversion that cannot happen. **The SDK does not
+check for you**: `Provider::estimate_qi_special_fee` deliberately does not
+consult the windows, because they cannot recur on mainnet and a chain still
+below one runs parameters a matching chain ID does not attest.
+
+Note that a fork block is the *first* block of its own window, so a profile that
+activates at a controller change cannot convert during its own opening 20,000
+prime blocks.
+
+Both windows are behind **mainnet**, which was at prime terminus 2,256,896 on
+2026-09-20, so nothing is held there and conversions are being accepted. They
+are not behind every chain: **Orchard was at 1,728,920** the same day, about
+26,000 prime blocks below the window that opens at 1,755,000. When it crosses
+that height the profile becomes applicable and the window opens in the same
+block, so a conversion becomes priceable and unacceptable simultaneously. Note
+that Orchard's fork parameters are not independently attested; see
+[node-harness.md](node-harness.md).
+
+## Two different slippage numbers
+
+A conversion involves two quantities that are easy to confuse, and a wallet
+needs both:
+
+- **What you will lose now.** `Provider::estimate_conversion` returns the
+  undiscounted `rate_amount`, the node's discounted `expected_amount`, and
+  `implied_slippage_bps` between them, all read at the current head. Show this.
+- **What you will tolerate.** `ConversionSlippage`, encoded into the
+  transaction's first two bytes. Send this. The node clamps it into 30..=9000
+  and treats missing slip as 9000; this SDK rejects out-of-range values instead
+  of silently rewriting the intent. If the realized discount exceeds it, the
+  conversion is refunded rather than settled.
+
+`estimate_conversion` prices one transaction alone, exactly as the node's own
+`quai_calculateConversionAmount` does, so it is a **lower bound** on the
+realized slippage rather than a prediction: the batch above is what decides the
+outcome. It also carries a small rate-basis difference, because the rate RPCs
+evaluate against the zone header while `quai_calculateConversionAmount`
+evaluates against the prime terminus block, and the rate includes that block's
+`2 x AvgTxFees` after the conversion-lock fork. No RPC exposes the
+prime-terminus basis alone, and the reference wallet computes its displayed
+figure the same way. The cubic discount is at least 20 basis points for any
+value, so this never reads zero for a real conversion. Use `conversion_batch_discount_bps` to size the tolerance, and
+`estimate_conversion` to tell the user what the discounts cost at this instant.
+Both quote at the current head deliberately — `quai_quaiToQi` resolves its rate
+from the current head whatever block selector it is given, so pairing it with an
+older selector would report a gap between two different rates as slippage.
+
 On mainnet on 2026-09-14, a recurring third-party Qi-to-Quai conversion of about
 255–280 QUAI at 1500 basis points shared every observed batch. It refunded a
 100 QUAI conversion at 100 basis points and another at 500 (two competitors), and

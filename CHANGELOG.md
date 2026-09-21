@@ -1,6 +1,154 @@
 # Changelog
 
+## 0.1.0-alpha.9
+
+Breaking:
+
+- `QiFeeQuote`, `QiFeeProfile` and `QiReplacementIntent` are
+  `#[non_exhaustive]`, joining the error enums. The first two are outputs and
+  need no change at a call site; build the third with the new
+  `QiReplacementIntent::new(parent, change_indexes, change_outputs)`, and opt
+  into destination aggregation with `aggregating_destination()` rather than the
+  field. Both of the fields added in 0.1.0-alpha.8 broke downstream struct
+  literals, and a node release that changes the reward math needs a second fee
+  profile; neither should break a caller again.
+- Contract deployment and account sends are bounded by
+  `MAX_POOL_TRANSACTION_BYTES` (128 KiB) instead of the 1 MiB codec ceiling, and
+  the check runs before a nonce is reserved. A payload between the two limits
+  used to reserve a nonce and be signed, then be refused at submission, which
+  consumed the nonce locally for a transaction that never reached the chain.
+  Anything the node's pool would have rejected now fails earlier and more
+  cheaply; nothing that the node would have accepted is newly refused.
+- `WsSubscriptionKind` is `#[non_exhaustive]`. It gained the `Accesses` variant
+  in this release, and the node's subscription registry will gain more.
+
+Fixed:
+
+- An oversized Quai transaction is refused before submission rather than after a
+  round trip. The node's pool rejects anything above its `txMaxSize` with
+  `ErrOversizedData` before any other validation, which for a deployment means
+  the nonce was already reserved and the transaction already signed. The new
+  `quai_consensus::MAX_POOL_TRANSACTION_BYTES` (128 KiB) records that bound,
+  distinct from the codec's `MAX_TRANSACTION_BYTES`, and contract deployment
+  planning now bounds init code against it. Qi transactions take a pool path
+  with no size check, so this is Quai-ledger only.
+- The inclusion-floor guard added in 0.1.0-alpha.8 reached only one of the two
+  paths that build a conversion or a wrap. `QiSession::prepare_special` refused
+  an explicit fee below the node's inclusion floor; the portable `quote_qi`,
+  which is what the browser and WASM consumers use, accepted it and built the
+  unmineable transaction the guard exists to refuse. All three paths — session,
+  portable and replacement — now share one `inclusion_floor` check, so they
+  cannot disagree about the same operation. `quote_qi` reports
+  `QiPreflightError::FeeBelowInclusionFloor`, which was previously constructed
+  only on the replacement path. An ordinary transfer creates no conversion ETX,
+  has no such floor, and is unaffected.
+- Secret text guards are sized by measuring the normalized length rather than
+  reserving a multiple of the input. NFKD expands U+FDFA from three bytes to
+  thirty-three, so the previous fourfold reserve grew the buffer, and a growing
+  `String` frees each earlier allocation unwiped — leaving progressively longer
+  prefixes of a seed phrase or passphrase on the heap for a core dump, swap file
+  or same-user read. `Mnemonic::to_seed` took no length bound at all. Also
+  covers `Mnemonic::parse`, the Chinese re-spacing path, and the
+  `CustomMnemonic` phrase, passphrase and `to_lowercase` paths in `wordlist`.
+
+Added:
+
+- `Provider::estimate_conversion` returns the undiscounted rate quote, the
+  node's discounted estimate and the `implied_slippage_bps` between them, as the
+  new `ConversionEstimate`. This is the pair of numbers a wallet shows before
+  asking the user to pick a slippage tolerance: what the rate alone gives, and
+  what the cubic flow discount, the k-Quai discount and the node's ten percent
+  floor leave of it. All three RPCs were already wrapped; nothing assembled
+  them. Both halves are read at the current head on purpose, because
+  `quai_quaiToQi` resolves its rate from the current head whatever selector it
+  is given. It prices one transaction, as the node's RPC does, so it is a lower
+  bound on realized slippage and not a prediction — the node discounts a whole
+  prime-block batch together. Size the tolerance with
+  `conversion_batch_discount_bps`; see
+  [docs/conversions.md](docs/conversions.md).
+- `quai_consensus::conversion_held`, with `KAWPOW_FORK_BLOCK`,
+  `SHA_EQUIVALENT_DIFFICULTY_FORK_BLOCK` and `KQUAI_CHANGE_HOLD_INTERVAL` beside
+  it. go-quai v0.56.0 hard-codes two windows in which it refuses every
+  conversion, one after each k-Quai controller change. **Both directions are
+  held and they fail differently**: Qi-to-Quai is refused at pool admission, so
+  nothing is spent and the same signed bytes work later, while Quai-to-Qi is
+  refused inside the EVM in `CreateETX`/`opConvert`, so the transaction is mined
+  and its nonce and gas are burned. Wrapping is exempt either way. Both windows
+  are behind
+  mainnet and cannot recur there, so the SDK records the rule rather than
+  enforcing it: a chain still below one runs parameters a matching chain ID does
+  not attest, and nothing is at risk either way, since the same signed bytes
+  become acceptable once the window passes. Callers targeting such a chain can
+  check before building. This is not a claim that controller changes halt
+  conversions in general.
+- `WsSubscriptionKind::Accesses { address }` subscribes to `["accesses", addr]`,
+  the per-account notification the reference wallet drives its refresh from:
+  every block touching that account on either ledger. Previously reachable only
+  as an untyped `Raw` frame. The address is sent in the mixed-case checksum
+  form, as the reference sends it. A disconnect stays terminal and accesses
+  that happened while disconnected are not replayed, so reconcile before
+  resubscribing; see [docs/WALLET_WORKFLOWS.md](docs/WALLET_WORKFLOWS.md).
+
+Security:
+
+- `RpcAccountSigner::unlock` refuses to put a keystore password on an
+  unencrypted transport, with the new `RpcSignerFailure::InsecureTransport`,
+  before dispatch. `Endpoint::parse` accepts `http` and `ws`, over which that
+  password is readable on the path and unlocks every account in the node's
+  keystore for the requested duration. `RpcAccountSigner::allow_insecure_unlock`
+  opts back in for a loopback or private-network node, which is what the local
+  harnesses use. No other call on the adapter is gated, because none carries a
+  durable secret.
+
+Changed:
+
+- Coin selection deduplicates its snapshot in a hash set rather than an ordered
+  one, and fee convergence validates and buckets that snapshot once instead of
+  once per round. The ordered insert dominated selection at large snapshots, and
+  a `select_with_fee` that re-validated every round made eight rounds cost eight
+  selections. Neither changes which coins are chosen: ordering comes from the
+  denomination buckets, not the dedupe set, and the 69 pinned JavaScript
+  selection vectors are unchanged. `OutPoint` now derives `Hash`.
+- The parallel address grind derives in batches, as the sequential grind always
+  has. Both rayon paths called the single-index derivation inside their parallel
+  loop, so the path the README advertises as roughly four times faster was the
+  one paying a full point inversion per candidate instead of one per batch of
+  thirty-two. Chunking the range restores the batch without changing which
+  address is found; the existing sequential/parallel equivalence tests cover it.
+  `window_scan` gives the parallel *window* path bench coverage it never had;
+  the single-address `find_map_first` path is still unbenched.
+- `compatibility` pins the reference package's compiled half as well as its
+  source. `quais@1.0.0-alpha.57` ships a `lib/` build stamped `1.0.0-alpha.52`,
+  and the export map resolves the package to `lib/`, so the oracle, every
+  generated fixture and the declaration inventory observe alpha.52 while being
+  labelled alpha.57. `npm run verify` now checks both `_version.js` files, an
+  aggregate digest over the whole `lib/` tree, and the agreement between the two
+  halves, so a future release that fixes the mismatch fails loudly instead of
+  silently relocating the behavioral reference. Documented in
+  `compatibility/README.md` and `SDK_PARITY_ANALYSIS.md`.
+- `test-infra/go-oracle/SPECIAL-FEE-RESULTS.json` was regenerated against the
+  pinned node. The committed artifact still recorded the 0.1.0-alpha.7 test file
+  and omitted `TestSpecialFeeInclusionGasBound`, so 0.1.0-alpha.8's claim that
+  its inclusion-gas bound "is checked against the pinned node" had no committed
+  evidence behind it. The test passes; the transaction results are unchanged.
+- A full protocol, security, performance and parity review against go-quai
+  v0.56.0, `quais@1.0.0-alpha.57` and Pelagus 1.0 is recorded in
+  [docs/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md](docs/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md).
+
 ## 0.1.0-alpha.8
+
+Breaking:
+
+- `qi_special_gas` takes a third argument, `destination_outputs`, between the
+  output count and the UTXO set size: how many outputs create a conversion ETX,
+  which is the count of Quai-ledger destination outputs. Two-argument calls no
+  longer compile, and the count cannot be inferred from the other two.
+- `QiFeeQuote` gains the public field `floor_qits`, and `QiReplacementIntent`
+  gains the required public field `aggregate_destination`. Neither struct is
+  `#[non_exhaustive]`, so any struct literal naming every field no longer
+  compiles. Build a `QiFeeQuote` from `Provider::estimate_qi_special_fee` rather
+  than by hand, and set `aggregate_destination: false` to keep the previous
+  replacement behavior.
 
 Fixed:
 
@@ -27,7 +175,8 @@ Added:
   takes. Only a chain state the profile does not cover leaves the fee unchecked;
   the explicit-fee path therefore now performs the estimator's reads and can
   surface a provider error, including head drift, where it previously performed
-  none. Retry as with any other read in a prepare.
+  none. Retry as with any other read in a prepare. The portable `quote_qi` does
+  **not** carry this guard in this release; see 0.1.0-alpha.9.
 - `quote_qi_replacement` and `QiSession::prepare_replacement` apply the same
   floor to a conversion's or wrap's replacement, with
   `QiPreflightError::FeeBelowInclusionFloor` on the portable path. Replacing a

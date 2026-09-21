@@ -149,6 +149,19 @@ impl Mock {
             (method.into(), params, Ok(response)),
         ]))))
     }
+    /// Several reads in order, each preceded by its own chain guard.
+    fn sequence(calls: &[(&str, Value, Value)], chain: u64) -> Self {
+        let mut queue = VecDeque::new();
+        for (method, params, response) in calls {
+            queue.push_back((
+                "quai_chainId".into(),
+                json!([]),
+                Ok(json!(format!("0x{chain:x}"))),
+            ));
+            queue.push_back(((*method).into(), params.clone(), Ok(response.clone())));
+        }
+        Self(Arc::new(Mutex::new(queue)))
+    }
     fn provider(&self, chain: u64) -> Provider<Self> {
         Provider::new(
             self.clone(),
@@ -632,6 +645,111 @@ async fn typed_conversion_quotes_preserve_units_selectors_and_missing_data() {
         Mock::default()
             .provider(9)
             .calculate_conversion_amount(from, from, U256::from(1))
+            .await
+            .is_err()
+    );
+}
+
+#[tokio::test]
+async fn a_conversion_estimate_pairs_the_rate_with_the_discounted_amount_at_one_head() {
+    let quai: quai_primitives::Address = ADDRESS.parse().unwrap();
+    let qi: quai_primitives::Address = QI.parse().unwrap();
+
+    // Qi to Quai: the discounted estimate is read first, then the undiscounted
+    // rate for the same amount, both at the current head.
+    let mock = Mock::sequence(
+        &[
+            (
+                "quai_calculateConversionAmount",
+                json!([{"from":QI,"to":ADDRESS,"value":"0x3e8"}]),
+                json!("0x384"),
+            ),
+            ("quai_qiToQuai", json!(["0x3e8", "latest"]), json!("0x3e8")),
+        ],
+        9,
+    );
+    let estimate = mock
+        .provider(9)
+        .estimate_conversion(qi, quai, U256::from(1000))
+        .await
+        .unwrap();
+    assert_eq!(estimate.rate_amount, U256::from(1000));
+    assert_eq!(estimate.expected_amount, U256::from(900));
+    assert_eq!(estimate.implied_slippage_bps, 1000);
+    mock.drained();
+
+    // The other direction uses the Quai-to-Qi rate, and the slippage rounds up
+    // so a wallet is never shown less than the estimate implies: one part in
+    // three is 3333.33 basis points, reported as 3334.
+    let mock = Mock::sequence(
+        &[
+            (
+                "quai_calculateConversionAmount",
+                json!([{"from":ADDRESS,"to":QI,"value":"0x3"}]),
+                json!("0x2"),
+            ),
+            ("quai_quaiToQi", json!(["0x3", "latest"]), json!("0x3")),
+        ],
+        9,
+    );
+    assert_eq!(
+        mock.provider(9)
+            .estimate_conversion(quai, qi, U256::from(3))
+            .await
+            .unwrap()
+            .implied_slippage_bps,
+        3334
+    );
+    mock.drained();
+
+    // Two independent integer divisions can leave the estimate marginally above
+    // the rate quote; that is reported as no slippage, never as a negative one.
+    let mock = Mock::sequence(
+        &[
+            (
+                "quai_calculateConversionAmount",
+                json!([{"from":QI,"to":ADDRESS,"value":"0x64"}]),
+                json!("0x65"),
+            ),
+            ("quai_qiToQuai", json!(["0x64", "latest"]), json!("0x64")),
+        ],
+        9,
+    );
+    assert_eq!(
+        mock.provider(9)
+            .estimate_conversion(qi, quai, U256::from(100))
+            .await
+            .unwrap()
+            .implied_slippage_bps,
+        0
+    );
+    mock.drained();
+
+    // A null or zero rate is missing data, not a free conversion.
+    let mock = Mock::sequence(
+        &[
+            (
+                "quai_calculateConversionAmount",
+                json!([{"from":QI,"to":ADDRESS,"value":"0x64"}]),
+                json!("0x1"),
+            ),
+            ("quai_qiToQuai", json!(["0x64", "latest"]), Value::Null),
+        ],
+        9,
+    );
+    assert!(
+        mock.provider(9)
+            .estimate_conversion(qi, quai, U256::from(100))
+            .await
+            .is_err()
+    );
+    mock.drained();
+
+    // Scope validation happens before any read.
+    assert!(
+        Mock::default()
+            .provider(9)
+            .estimate_conversion(qi, qi, U256::from(1))
             .await
             .is_err()
     );

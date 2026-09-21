@@ -184,7 +184,8 @@ The node prices a conversion or wrap twice, and a fee must clear both:
 - **Execution** (`ProcessQiTx`) charges the intrinsic gas plus
   `QiToQuaiConversionGas`, 100,000, once.
 - **Inclusion** (`CalculateBlockQiTxGas`, used by the miner's filter at
-  `worker.go:3037` and by block validation) charges the intrinsic gas plus
+  `worker.go:2526` and by block validation at `state_processor.go:389`) charges
+  the intrinsic gas plus
   `ETXGas`, 21,000, for *each* output that creates an ETX. Every Quai-ledger
   destination output is one.
 

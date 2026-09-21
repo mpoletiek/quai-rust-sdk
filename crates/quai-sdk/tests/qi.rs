@@ -66,7 +66,7 @@ impl Transport for Mock {
                 json!({"woHeader":{"hash":CHECKPOINT,"number":format!("{n:#x}"),"location":"0x0000","parentHash":GENESIS,"primeTerminusNumber":"0x10"},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
             }
             "quai_getHeaderByNumber" => {
-                json!({"woHeader":{"hash":if mode==5 {GENESIS} else {CHECKPOINT}, "number": if params[0]=="latest" && mode==6 {"0x11"} else {"0x10"},"location":"0x0000","parentHash":GENESIS,"primeTerminusNumber": if mode==8 {"0x1ac778"} else {"0x10"}},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
+                json!({"woHeader":{"hash":if mode==5 {GENESIS} else {CHECKPOINT}, "number": if params[0]=="latest" && mode==6 {"0x11"} else {"0x10"},"location":"0x0000","parentHash":GENESIS,"primeTerminusNumber": if mode==8 {"0x1b1598"} else {"0x10"}},"baseFeePerGas":"0x1","gasLimit":"0x100000","stateLimit":"0x100000"})
             }
             "quai_getLatestUTXOSetSize" => json!("0x1"),
             "quai_call" => self
@@ -1359,12 +1359,7 @@ async fn conflicting_qi_candidates_preserve_recipients_and_survive_restart_and_t
         .unwrap();
     let root = session.sign(&prepared).unwrap();
     assert_eq!(root.transaction().outputs.len(), 5);
-    let replacement = QiReplacementIntent {
-        parent: root.hash().unwrap(),
-        change_indexes: vec![1],
-        change_outputs: vec![],
-        aggregate_destination: false,
-    };
+    let replacement = QiReplacementIntent::new(root.hash().unwrap(), vec![1], vec![]);
     let mut bad = replacement.clone();
     bad.change_indexes = vec![0];
     assert!(matches!(
@@ -1470,12 +1465,7 @@ async fn qi_replacement_rechecks_snapshot_after_fee_estimation() {
         .unwrap();
     let root = session.sign(&prepared).unwrap();
     *env.mock.invalidate.lock().unwrap() = Some((env.path.clone(), scope));
-    let intent = QiReplacementIntent {
-        parent: root.hash().unwrap(),
-        change_indexes: vec![1],
-        change_outputs: vec![],
-        aggregate_destination: false,
-    };
+    let intent = QiReplacementIntent::new(root.hash().unwrap(), vec![1], vec![]);
     let result = session
         .prepare_replacement(id(96), intent, limits, None)
         .await;
@@ -3332,12 +3322,11 @@ async fn a_wrap_aggregates_its_destination_outputs_instead_of_copying_the_inputs
     let raised = session
         .prepare_replacement(
             id(20),
-            quai_sdk::qi::QiReplacementIntent {
-                parent: signed.hash().unwrap(),
-                change_indexes: vec![change_index],
-                change_outputs: vec![],
-                aggregate_destination: false,
-            },
+            quai_sdk::qi::QiReplacementIntent::new(
+                signed.hash().unwrap(),
+                vec![change_index],
+                vec![],
+            ),
             policy(),
             None,
         )
@@ -3583,12 +3572,8 @@ async fn an_aggregating_replacement_shrinks_a_wraps_destination_and_its_gas() {
     let raised = session
         .prepare_replacement(
             id(23),
-            QiReplacementIntent {
-                parent: signed_parent.hash().unwrap(),
-                change_indexes: vec![change_index],
-                change_outputs: vec![],
-                aggregate_destination: true,
-            },
+            QiReplacementIntent::new(signed_parent.hash().unwrap(), vec![change_index], vec![])
+                .aggregating_destination(),
             limits,
             None,
         )
@@ -3657,12 +3642,8 @@ async fn an_aggregating_replacement_is_refused_for_an_ordinary_transfer() {
     let result = session
         .prepare_replacement(
             id(24),
-            QiReplacementIntent {
-                parent: signed.hash().unwrap(),
-                change_indexes: vec![change_index],
-                change_outputs: vec![],
-                aggregate_destination: true,
-            },
+            QiReplacementIntent::new(signed.hash().unwrap(), vec![change_index], vec![])
+                .aggregating_destination(),
             policy(),
             None,
         )
@@ -3793,13 +3774,9 @@ async fn a_replacement_below_the_inclusion_floor_is_refused_too() {
         .unwrap()
         .prepare_replacement(
             id(25),
-            QiReplacementIntent {
-                parent: signed_parent.hash().unwrap(),
-                // Dropping one Qit of change lifts the fee to two: still short.
-                change_indexes: vec![5],
-                change_outputs: vec![],
-                aggregate_destination: true,
-            },
+            // Dropping one Qit of change lifts the fee to two: still short.
+            QiReplacementIntent::new(signed_parent.hash().unwrap(), vec![5], vec![])
+                .aggregating_destination(),
             limits,
             None,
         )

@@ -8,6 +8,51 @@ use crate::{
 use quai_crypto::{RecoverableSignature, SchnorrSignature, SecretKey, keccak256};
 use quai_primitives::{Hash32, Ledger, QiAddress, QuaiAddress, Zone};
 
+/// Prime-block height at which go-quai v0.56.0 changed the k-Quai controller for
+/// the KawPow transition, and one of the two heights it holds conversions after.
+pub const KAWPOW_FORK_BLOCK: u64 = 1_171_500;
+/// Prime-block height at which it changed the controller again for SHA-equivalent
+/// difficulty. This is also where [`QiFeeProfile::V056ShaAnchored`] starts to apply.
+///
+/// [`QiFeeProfile::V056ShaAnchored`]: https://docs.rs/quai-provider
+pub const SHA_EQUIVALENT_DIFFICULTY_FORK_BLOCK: u64 = 1_755_000;
+/// Length of each of the two hold windows go-quai v0.56.0 implements, about six
+/// to seven days of prime blocks. The pinned node's `KQuaiChangeHoldInterval`.
+///
+/// The node applies this constant to two specific fork heights. It is not a
+/// duration the protocol promises for any future controller change.
+pub const KQUAI_CHANGE_HOLD_INTERVAL: u64 = 20_000;
+
+/// Whether the pinned node refuses conversions at this prime terminus height.
+///
+/// Mirrors go-quai v0.56.0, which hard-codes exactly two windows — one after
+/// each k-Quai controller change it knows about — as literal height
+/// comparisons. It is **not** a general rule that a controller change halts
+/// conversions, and it forecasts nothing about future ones.
+///
+/// Both directions are held and they fail differently. Qi-to-Quai is refused at
+/// pool admission, so nothing is spent and the same signed bytes work once the
+/// window passes. Quai-to-Qi is refused inside the EVM, in `CreateETX` and
+/// `opConvert`, so the transaction is mined and **its nonce and gas are burned**.
+/// Wrapping is exempt in both directions.
+///
+/// The SDK does not enforce this — both windows are behind mainnet, and a chain
+/// still below one runs parameters a matching chain ID does not attest. It is
+/// exposed so a caller on such a chain can check before building. There is no
+/// node-side signal to query instead.
+///
+/// See [docs/conversions.md] for the full account, including why no margin or
+/// upper bound is applied.
+///
+/// [docs/conversions.md]: https://github.com/mpoletiek/quai-rust-sdk/blob/main/docs/conversions.md
+pub const fn conversion_held(prime_terminus: u64) -> bool {
+    const fn held_after(prime_terminus: u64, fork: u64) -> bool {
+        prime_terminus >= fork && prime_terminus < fork + KQUAI_CHANGE_HOLD_INTERVAL
+    }
+    held_after(prime_terminus, KAWPOW_FORK_BLOCK)
+        || held_after(prime_terminus, SHA_EQUIVALENT_DIFFICULTY_FORK_BLOCK)
+}
+
 /// Explicit slippage in ten-thousandths, restricted to the pinned node's clamp range.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ConversionSlippage(u16);

@@ -440,7 +440,23 @@ pub async fn quote_qi<T: Transport>(
             }
         };
         let fee_quote = match fees {
-            QiFeeMode::Explicit(_) => None,
+            // A fee the node accepts as valid can still be one no miner takes:
+            // the inclusion filter divides it by this shape's block gas and
+            // skips anything under the base fee, silently and without evicting
+            // it. Check it where the shape is final, through the same helper
+            // the session and replacement paths use; the three must not
+            // disagree about the same operation. The helper returns None for an
+            // ordinary transfer, which creates no conversion ETX and has no
+            // such floor, and for a chain state the profile does not cover.
+            QiFeeMode::Explicit(explicit) => {
+                if crate::qi_replacement::inclusion_floor(provider, &transaction)
+                    .await?
+                    .is_some_and(|floor| explicit < floor)
+                {
+                    return Err(E::FeeBelowInclusionFloor);
+                }
+                None
+            }
             QiFeeMode::Node => {
                 let estimated = provider.estimate_qi_fee(&transaction).await?;
                 if estimated > policy.max_fee {

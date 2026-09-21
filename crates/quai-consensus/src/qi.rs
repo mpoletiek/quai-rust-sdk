@@ -41,7 +41,11 @@ impl Denomination {
 }
 
 /// Unique reference to an existing transaction output.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+///
+/// `Hash` is derived so selection can deduplicate a large snapshot in a hash set
+/// rather than an ordered set; the ordering impls remain for deterministic
+/// output.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct OutPoint {
     /// Creating transaction ID, whose destination zone byte identifies the UTXO zone.
     /// Its ledger bit may be Quai: a Qi-to-Quai refund creates Qi outputs under

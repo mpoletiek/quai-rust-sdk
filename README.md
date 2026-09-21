@@ -8,14 +8,18 @@ and browser adapters.
 [![crates.io](https://img.shields.io/crates/v/quai-sdk.svg)](https://crates.io/crates/quai-sdk)
 [![docs.rs](https://img.shields.io/docsrs/quai-sdk)](https://docs.rs/quai-sdk)
 
-**Alpha release:** `0.1.0-alpha.8` is published on
+**Alpha release:** `0.1.0-alpha.9` is published on
 [crates.io](https://crates.io/crates/quai-sdk), with breaking changes expected. The pinned
-quais.js declaration review is complete, with explicit Rust differences. This
+quais.js declaration review is complete, with explicit Rust differences; read it
+together with the reference-half divergence recorded in
+[SDK_PARITY_ANALYSIS.md](SDK_PARITY_ANALYSIS.md), since the pinned package's
+executed build is older than its published source. This
 alpha is not production-qualified for real-fund custody. The public repository is
 MIT licensed; API documentation is hosted on [docs.rs](https://docs.rs/quai-sdk).
 Read the [complete SDK guide](SDK_DOCUMENTATION.md) and
 [quais.js comparison, gaps and Rust additions](SDK_PARITY_ANALYSIS.md).
 See [implementation status](IMPLEMENTATION_STATUS.md),
+[protocol alignment review](docs/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md),
 [feature completeness review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md), [wallet gaps](docs/WALLET_GAPS.md)
 and the [security review](docs/SECURITY_REVIEW_2026-09-11.md) before integrating it.
 
@@ -39,7 +43,7 @@ For an application outside this workspace, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.8", features = ["sqlite", "abi"] }
+quai-sdk = { version = "=0.1.0-alpha.9", features = ["sqlite", "abi"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 

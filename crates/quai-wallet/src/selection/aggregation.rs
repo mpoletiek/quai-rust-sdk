@@ -46,7 +46,7 @@ pub fn select_aggregate(
     if coins.len() > 100_000 {
         return Err(SelectionError::LimitExceeded);
     }
-    let mut seen = BTreeSet::new();
+    let mut seen = HashSet::with_capacity(coins.len());
     let mut buckets: [Vec<&CandidateCoin>; 15] = std::array::from_fn(|_| Vec::new());
     let mut total = U256::ZERO;
     let mut small_value = U256::ZERO;

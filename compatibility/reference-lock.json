@@ -13,6 +13,13 @@
       "manifest": "reference-source-manifest.json",
       "note": "All 153 published source files (151 TypeScript and 2 protobuf) byte-equal the inspected checkout. npm gitHead differs; neither this comparison nor gitHead proves full release reproducibility.",
       "matchingSourceFiles": 153
+    },
+    "runtime": {
+      "version": "1.0.0-alpha.52",
+      "matchesPublishedSource": false,
+      "files": 1204,
+      "sha256": "d194eeed079f000a34e226b647ea97375d5ace792790d3a97d8ada67fea5cbfe",
+      "note": "The 1.0.0-alpha.57 package ships a lib/ build stamped 1.0.0-alpha.52 in both lib/esm/_version.js and lib/commonjs/_version.js. The export map resolves the package to lib/, so the oracle, every generated fixture and the declaration inventory observe alpha.52 behavior and declarations. Members added to src/ after alpha.52 are therefore absent from api-inventory.json and parity.json. The digest covers the whole lib/ tree, path and bytes, so any change to the executed half fails verification."
     }
   },
   "goQuai": {

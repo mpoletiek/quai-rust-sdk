@@ -2,7 +2,20 @@
 
 This private development package pins the published `quais@1.0.0-alpha.57`
 artifact and its complete npm dependency graph. It is not a runtime dependency
-of the Rust SDK and must not be published. Installation disables lifecycle
+of the Rust SDK and must not be published.
+
+**The pinned artifact ships two halves, and they are not the same version.** Its
+`src/` is TypeScript stamped `1.0.0-alpha.57`; its compiled `lib/` is stamped
+`1.0.0-alpha.52` in both `lib/esm/_version.js` and `lib/commonjs/_version.js`.
+The package's export map resolves `quais` to `lib/`, so everything here that
+runs or reads declarations observes **alpha.52**: the oracle in
+`scripts/reference.mjs`, every generated fixture, every `*.test.mjs` regression,
+and the declaration inventory in `scripts/inventory.mjs`, which walks the export
+map's `.d.ts` files. Members added to `src/` after alpha.52 therefore have no
+rows in `api-inventory.json` or `parity.json` at all. Read behavioral evidence
+produced here as evidence about alpha.52, and check `src/` directly before
+concluding that the reference lacks something. `npm run verify` pins both halves
+separately and prints which version the behavior reflects. Installation disables lifecycle
 scripts via `.npmrc` and the explicit command below. No upstream `.env`, wallet
 files, example project configuration, or production credentials were copied.
 

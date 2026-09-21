@@ -235,11 +235,23 @@ impl Wordlist {
         if phrase.len() > MAX_PHRASE_BYTES {
             return Err(WordlistError::Limit);
         }
-        let text = Zeroizing::new(if self.style == WordlistStyle::General {
-            phrase.to_lowercase()
+        // Deliberately `str::to_lowercase`, not a per-character fold. Only the
+        // whole-string form implements Unicode `Final_Sigma`, so "ΟΔΟΣ" folds to
+        // "οδος" here and to "οδοσ" character by character. The reference's
+        // `toLowerCase` has the same rule, and a custom wordlist holding a
+        // final-sigma word would otherwise stop matching an uppercase phrase —
+        // a wallet that restored under an earlier release would not restore.
+        //
+        // The cost is that this grows its own buffer internally and can leave
+        // unwiped fragments of the phrase on the heap, which the guards
+        // elsewhere in this file avoid. Correctness of restore wins; sizing this
+        // exactly needs a final-sigma-aware pass, which is a separate change.
+        let text = if self.style == WordlistStyle::General {
+            Zeroizing::new(phrase.to_lowercase())
         } else {
-            phrase.to_owned()
-        });
+            // `to_owned` on a `&str` allocates once at the exact length.
+            Zeroizing::new(phrase.to_owned())
+        };
         if text.len() > MAX_PHRASE_BYTES {
             return Err(WordlistError::Limit);
         }
@@ -521,9 +533,12 @@ impl<'a> CustomMnemonic<'a> {
         if !matches!(split.expose().len(), 12 | 15 | 18 | 21 | 24) {
             return Err(WordlistError::Mnemonic);
         }
-        let mut english = Zeroizing::new(String::new());
+        // The English rendering is as secret as the input phrase, so it is
+        // reserved once. No BIP39 English word exceeds eight bytes, and one
+        // separator follows all but the last.
+        let mut english = Zeroizing::new(String::with_capacity(split.expose().len() * 9));
         for word in split.expose() {
-            let normalized = Zeroizing::new(word.nfkd().collect::<String>());
+            let normalized = crate::mnemonic::normalized_guard(|| word.nfkd());
             let index = wordlist
                 .get_word_index(&normalized)
                 .ok_or(WordlistError::Mnemonic)?;
@@ -562,8 +577,8 @@ impl<'a> CustomMnemonic<'a> {
             return Err(WordlistError::Limit);
         }
         let phrase = self.phrase()?;
-        let password = Zeroizing::new(phrase.expose().nfkd().collect::<String>());
-        let passphrase = Zeroizing::new(passphrase.nfkd().collect::<String>());
+        let password = crate::mnemonic::normalized_guard(|| phrase.expose().nfkd());
+        let passphrase = crate::mnemonic::normalized_guard(|| passphrase.nfkd());
         if password.len() > MAX_PHRASE_BYTES || passphrase.len() > MAX_PHRASE_BYTES {
             return Err(WordlistError::Limit);
         }

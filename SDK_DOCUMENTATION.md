@@ -1,7 +1,7 @@
 # Quai Rust SDK documentation
 
 This is the integration guide for the SDK in this repository, version
-`0.1.0-alpha.8`. It covers the public crate layers, native and browser workflows,
+`0.1.0-alpha.9`. It covers the public crate layers, native and browser workflows,
 recovery formats, limits, examples and verification. Exact Rust signatures and
 field documentation are hosted on [docs.rs](https://docs.rs/quai-sdk) or can be
 generated from the same checkout with `cargo doc`.
@@ -49,7 +49,7 @@ For another Rust project, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.8", features = ["sqlite", "abi", "payments", "backup"] }
+quai-sdk = { version = "=0.1.0-alpha.9", features = ["sqlite", "abi", "payments", "backup"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -628,6 +628,14 @@ wallet-mediated submission acknowledgements on native and Wasm transports.
 `RpcSignerError::dispatched` preserves the distinction between preflight failure
 and a potentially accepted request. No request is automatically retried.
 
+`unlock` is the one call that puts a durable secret on the wire, so it is the
+one that checks the transport: over `http` or `ws` it refuses before dispatch
+with `RpcSignerFailure::InsecureTransport`, because that password is readable on
+the path and unlocks every account in the node's keystore for the requested
+duration. `RpcAccountSigner::allow_insecure_unlock` opts back in for a loopback
+or private-network node, which is what the local harnesses use. No other call on
+the adapter is gated, because none carries a durable secret.
+
 Native and browser prepared account transactions accept verified external bytes
 through `commit_external_signature`; the exact reviewed fields and live reservation
 must still match before persistence. Wallet-mediated sends instead return a
@@ -736,6 +744,29 @@ the pinned formula; see [conversion slippage](docs/conversions.md).
 integer quantities and unknown results. A historical selector is not a promise
 of a historical quote: the pinned node's Quai-to-Qi path uses its current prime
 terminus. Controller estimates are advisory settlement estimates.
+
+**Two slippage numbers, and they are not the same.** `Provider::estimate_conversion`
+returns a `ConversionEstimate` pairing the undiscounted `rate_amount` with the
+node's discounted `expected_amount` and the `implied_slippage_bps` between them
+— what the discounts cost right now, which a wallet displays. `ConversionSlippage`
+is the tolerance the user accepts, encoded into the transaction's first two
+bytes and enforced by the node. Both halves of the estimate are read at the
+current head deliberately, because `quai_quaiToQi` resolves its rate from the
+current head whatever selector it is given. The estimate prices one transaction,
+as the node's own RPC does, so it is a lower bound on realized slippage, not a
+prediction: size the tolerance with `conversion_batch_discount_bps`. It also
+carries a small rate-basis difference between the two RPCs, documented on the
+method and in [conversions](docs/conversions.md).
+
+The node also refuses conversions outright inside the two k-Quai hold windows it
+hard-codes, in **both** directions, leaving wrapping alone. Qi-to-Quai is
+refused at pool admission and costs nothing; Quai-to-Qi is refused inside the
+EVM at execution, so the transaction is mined and its nonce and gas are burned.
+Both are behind mainnet and cannot recur there, so the SDK records the rule in
+`quai_consensus::conversion_held` rather than enforcing it; a caller
+on a chain still below one can check before building. Nothing is at risk either
+way, since the hold is height-based and the same signed bytes become acceptable
+once the window passes. See [conversions](docs/conversions.md).
 
 | Operation | API path | Required accounting |
 | --- | --- | --- |
@@ -1054,6 +1085,9 @@ avoid logging their own raw secret inputs.
 | Fixed point | 8–256 bits in byte increments; 0–80 decimals |
 | Explicit address/payment search | Up to 100,000 attempts per bounded request |
 | Native Qi transaction policy | Up to 1024 inputs/outputs; 1–32 fee rounds |
+| Signed Quai transaction, node pool | `MAX_POOL_TRANSACTION_BYTES`, 128 KiB; refused before submission |
+| Encoded transaction, codec ceiling | `MAX_TRANSACTION_BYTES`, 1 MiB; not a promise the node accepts it |
+| Portable custody operations | 256 per ledger per scope, retained for the wallet's lifetime with no pruning |
 | Browser account/Qi retained operations | 256 IDs per journal |
 | Browser HD/payment retained allocations | 4096 / 1024 IDs |
 | Browser snapshot / coordinated restore | 16 MiB per store / total restore; up to 128 restore targets; 2048 database slots including tombstones |

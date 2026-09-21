@@ -1,5 +1,13 @@
 # Dependency advisory audit
 
+> **The figures below are a dated observation and the locks have since moved.**
+> As of 2026-09-20 the workspace lock records 403 packages and the fuzz lock 359,
+> against the 373 and 259 recorded here, and the lock hash quoted at the end is
+> no longer current. The scan itself was not repeated for that check, so nothing
+> here should be read as a statement about the present lock. Re-run
+> `cargo audit` against both locks and refresh this document before any release
+> that claims an advisory position.
+
 Original scan **2026-09-11, 20:31–20:34 UTC**; final Rust scans at **2026-09-11T22:53:09.297428+00:00** (using the same refreshed advisory snapshot). The expanded wallet/browser/legacy-keystore lock was scanned; no dependency versions or
 implementation files were changed by the scan, and no advisories were ignored.
 

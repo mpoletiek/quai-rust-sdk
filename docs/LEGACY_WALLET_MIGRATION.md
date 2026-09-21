@@ -15,12 +15,19 @@ represented by `ExtendedPublicKey`. The document cannot supply its own trust
 anchor. This also detects wrong passphrases for empty/import-only wallets, where
 there may be no HD address available to verify identity.
 
-The pinned JavaScript `QuaiHDWallet.xPub()` and `QiHDWallet.xPub()` methods actually
-return **xprv strings**, contrary to their names and comments. Treat those raw
-values as secrets. Derive a public trust anchor explicitly:
+The pinned JavaScript `QuaiHDWallet.xPub()` and `QiHDWallet.xPub()` methods return
+**xprv strings** in the package's compiled `lib/`, contrary to their names and
+comments. Treat those raw values as secrets. The published `src/` for the same
+release already neuters them, so a build made from source returns an xpub; see
+the reference-half divergence in [../SDK_PARITY_ANALYSIS.md](../SDK_PARITY_ANALYSIS.md).
+
+Derive a public trust anchor in a way that holds either way. Calling `.neuter()`
+unconditionally throws once `xPub()` starts returning an xpub, because
+`fromExtendedKey` then yields an `HDNodeVoidWallet`, which has no such method:
 
 ```javascript
-const expectedRoot = HDNodeWallet.fromExtendedKey(wallet.xPub()).neuter().extendedKey;
+const node = HDNodeWallet.fromExtendedKey(wallet.xPub());
+const expectedRoot = (node.neuter ? node.neuter() : node).extendedKey;
 ```
 
 Rust's `HdWallet::root_public_key().export()` returns only an xpub;

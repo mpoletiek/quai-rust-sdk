@@ -137,3 +137,69 @@ async fn malformed_or_conflicting_acknowledgements_remain_ambiguous() {
         mock.drained();
     }
 }
+
+#[tokio::test]
+async fn an_oversized_quai_transaction_is_refused_before_the_submit() {
+    use quai_consensus::QuaiTransaction;
+    use quai_crypto::SecretKey;
+
+    // Signing binds the sender's zone and ledger, and only about one key in 512
+    // yields a Cyprus-1 Quai address, so the fixture key is ground rather than
+    // picked.
+    let key = (1u64..)
+        .find_map(|n| {
+            let mut scalar = [0u8; 32];
+            scalar[24..].copy_from_slice(&n.to_be_bytes());
+            let key = SecretKey::from_bytes(&scalar).ok()?;
+            let address = key.public_key().address();
+            (address.zone().ok() == Some(Zone::Cyprus1)
+                && address.ledger() == quai_primitives::Ledger::Quai)
+                .then_some(key)
+        })
+        .expect("a Cyprus-1 Quai key exists");
+    let base = |data: Vec<u8>| QuaiTransaction {
+        chain_id: U256::from(9),
+        nonce: 0,
+        to: Some(key.public_key().address()),
+        value: U256::ZERO,
+        gas_limit: 21_000,
+        gas_price: U256::from(1),
+        data,
+        access_list: vec![],
+    };
+
+    // The node's pool rejects a Quai transaction over `txMaxSize` with
+    // ErrOversizedData before anything else, so this must fail locally and
+    // unambiguously rather than after a round trip.
+    let oversized = base(vec![0x11; quai_consensus::MAX_POOL_TRANSACTION_BYTES])
+        .sign(&key)
+        .unwrap();
+    assert!(
+        oversized.signed_bytes().unwrap().len() > quai_consensus::MAX_POOL_TRANSACTION_BYTES,
+        "fixture must exceed the pool bound"
+    );
+    let mock = Mock::default();
+    let error = mock.provider(9).broadcast(&oversized).await.unwrap_err();
+    assert!(matches!(error, BroadcastError::Preflight(_)), "{error:?}");
+    assert!(
+        !error.acceptance_is_ambiguous(),
+        "nothing was sent, so the outcome is not ambiguous"
+    );
+    mock.drained();
+
+    // A transaction just inside the bound still goes out, so the check is a
+    // bound and not a blanket refusal of large payloads.
+    let accepted = base(vec![0x11; 1024]).sign(&key).unwrap();
+    assert!(accepted.signed_bytes().unwrap().len() <= quai_consensus::MAX_POOL_TRANSACTION_BYTES);
+    let hash = accepted.hash().unwrap();
+    let mock = Mock::scripted(&accepted, Ok(json!(hash.to_string())));
+    assert_eq!(
+        mock.provider(9)
+            .broadcast(&accepted)
+            .await
+            .unwrap()
+            .transaction_hash,
+        hash
+    );
+    mock.drained();
+}

@@ -23,6 +23,41 @@ assert.deepEqual(installed, manifest.files.map(entry => entry.file));
 for (const entry of manifest.files) {
   assert.equal(hash(readFileSync(path.join(base, 'node_modules/quais', entry.file))), entry.sha256, entry.file);
 }
+// The published package ships two halves and nothing here executes the one the
+// hashes above cover. `src/` is TypeScript; the export map resolves `quais` to
+// `lib/`, so the oracle, the fixtures and the declaration inventory all run and
+// read the compiled build. In the pinned release those halves are not the same
+// version, so the runtime half is pinned on its own terms: its recorded version
+// and one aggregate digest over the whole tree. A future release that fixes the
+// mismatch will fail here rather than silently move the behavioral reference.
+const runtimeVersion = file => {
+  const text = readFileSync(path.join(base, 'node_modules/quais', file), 'utf8');
+  const found = text.match(/version\s*=\s*'([^']+)'/);
+  assert.ok(found, `${file} declares no version`);
+  return found[1];
+};
+const esmVersion = runtimeVersion('lib/esm/_version.js');
+assert.equal(esmVersion, runtimeVersion('lib/commonjs/_version.js'), 'ESM and CommonJS builds disagree');
+assert.equal(esmVersion, reference.quais.runtime.version, 'compiled runtime version changed');
+assert.equal(
+  esmVersion === reference.quais.version,
+  reference.quais.runtime.matchesPublishedSource,
+  'agreement between the compiled runtime and the published source changed',
+);
+const libRoot = path.join(base, 'node_modules/quais/lib');
+const libFiles = readdirSync(libRoot, { recursive: true })
+  .filter(file => statSync(path.join(libRoot, file)).isFile())
+  .map(file => file.split(path.sep).join('/'))
+  .sort();
+assert.equal(libFiles.length, reference.quais.runtime.files, 'compiled runtime file count changed');
+const aggregate = createHash('sha256');
+for (const file of libFiles) {
+  aggregate.update(file);
+  aggregate.update('\0');
+  aggregate.update(readFileSync(path.join(libRoot, file)));
+  aggregate.update('\0');
+}
+assert.equal(aggregate.digest('hex'), reference.quais.runtime.sha256, 'compiled runtime tree changed');
 for (let index = 2; index < process.argv.length; index += 2) {
   const option = process.argv[index], argument = process.argv[index + 1];
   assert.ok(argument, `${option} needs a path`);
@@ -37,3 +72,9 @@ for (let index = 2; index < process.argv.length; index += 2) {
   }
 }
 console.log(`Verified dependency lock, installed versions, and ${manifest.files.length} published source hashes.`);
+console.log(
+  `Compiled runtime pinned at ${esmVersion} over ${libFiles.length} files` +
+    (reference.quais.runtime.matchesPublishedSource
+      ? '.'
+      : `; the published source is ${reference.quais.version}, so behavior evidence reflects ${esmVersion}.`),
+);

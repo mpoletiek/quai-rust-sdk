@@ -125,6 +125,23 @@ impl<T: Transport> Provider<T> {
         }
         let transaction_hash = signed.hash().map_err(BroadcastError::Encoding)?;
         let bytes = signed.signed_bytes().map_err(BroadcastError::Encoding)?;
+        // The node's pool rejects an oversized Quai transaction with
+        // `ErrOversizedData` before any other check, so sending it wastes the
+        // round trip and leaves the caller reconciling an ambiguous outcome for
+        // a transaction that was never going to be accepted. Refuse before the
+        // submit, where the failure is still unambiguous.
+        //
+        // This compares the protobuf wire length against a threshold the node
+        // applies to `tx.Size()`, which is an RLP encoding, so the two can
+        // disagree by a small margin right at the boundary. It is a courtesy
+        // check, not the node's own: preparation bounds the unsigned worst case
+        // at 512 bytes below this limit, so a transaction this SDK built never
+        // reaches the boundary, and only externally constructed bytes can.
+        if bytes.len() > quai_consensus::MAX_POOL_TRANSACTION_BYTES {
+            return Err(BroadcastError::Preflight(ProviderError::InvalidRequest(
+                "signed transaction exceeds the node's pool size limit",
+            )));
+        }
         let zone = signed.from().zone();
         self.submit_signed_bytes(zone, transaction_hash, bytes)
             .await

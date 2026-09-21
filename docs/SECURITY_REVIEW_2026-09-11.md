@@ -243,6 +243,8 @@ mainnet or funded Orchard writes, full historical recovery, or reorganization be
    resolve dependency maintenance/license/SBOM and package-contained test gates;
    designate a security owner and private reporting channel before release.
 
-All crates remain `publish = false`. No publication or security certification was
-performed. Full SDK feature parity also remains unfinished; see the
+All crates were `publish = false` when this review was written. That is no longer
+true: `Cargo.toml` has carried `publish = ["crates-io"]` since the first alpha
+upload, and releases through `0.1.0-alpha.8` are on crates.io. No security
+certification was performed then or since. Full SDK feature parity also remains unfinished; see the
 [implementation status](../IMPLEMENTATION_STATUS.md) and [wallet gaps](WALLET_GAPS.md).

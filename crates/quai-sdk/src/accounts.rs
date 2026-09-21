@@ -491,9 +491,20 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
             data: intent.data.bytes().to_vec(),
             access_list: intent.access_list,
         };
-        transaction
+        // `nonce` and `gas_price` are at their maximum above, so this encoding
+        // is the worst case for size. Bound it by what the node's pool takes,
+        // not just the codec ceiling, and do it here — before a nonce is
+        // reserved. A payload between the two limits would otherwise reserve a
+        // nonce, be signed, and only then be refused at submission, consuming
+        // the nonce locally for a transaction that never reached the chain.
+        if transaction
             .unsigned_bytes()
-            .map_err(|_| AccountError::InvalidOperation)?;
+            .map_err(|_| AccountError::InvalidOperation)?
+            .len()
+            > quai_consensus::MAX_POOL_TRANSACTION_BYTES - 512
+        {
+            return Err(AccountError::InvalidOperation);
+        }
         self.verify_network().await?;
         let observation = self.observation().await?;
         let pending_nonce = self

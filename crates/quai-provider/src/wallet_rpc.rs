@@ -7,6 +7,29 @@ use quai_rpc::{Transport, U256};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 
+/// One conversion priced two ways at the current head, and the gap between.
+///
+/// Produced by [`Provider::estimate_conversion`]. The amounts are in the
+/// destination ledger's base units: Its for a Qi-to-Quai conversion, Qits for
+/// Quai-to-Qi.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
+pub struct ConversionEstimate {
+    /// What the node's undiscounted rate alone gives for this amount.
+    pub rate_amount: U256,
+    /// What the node's single-transaction estimate leaves after its cubic flow
+    /// discount, its k-Quai discount and its ten percent floor. Never more than
+    /// a tenth below `rate_amount` short of that floor applying.
+    pub expected_amount: U256,
+    /// `rate_amount` less `expected_amount`, in ten-thousandths of
+    /// `rate_amount`, rounded up and bounded by 10,000.
+    ///
+    /// Compare this against the slippage tolerance a conversion will carry; it
+    /// is a lower bound on the realized slippage, not a prediction of it, for
+    /// the batching reason given on [`Provider::estimate_conversion`].
+    pub implied_slippage_bps: u16,
+}
+
 /// Starting addresses per batched outpoint page.
 ///
 /// The transport accepts 128 calls per batch and each page adds two chain-guard
@@ -177,6 +200,78 @@ impl<T: Transport> Provider<T> {
             )
             .await?,
         )
+    }
+    /// Undiscounted quote, discounted estimate, and the slippage between them,
+    /// for one conversion of `value` from `from`'s ledger to `to`'s.
+    ///
+    /// This is the pair of numbers a wallet shows before asking the user to
+    /// choose a slippage tolerance: what the rate alone would give, and what the
+    /// node's discounts currently leave of it. Both halves are read at the
+    /// current head, because `quai_calculateConversionAmount` takes no block
+    /// argument and `quai_quaiToQi` resolves its rate from the current head
+    /// whatever selector it is given.
+    ///
+    /// **The two halves do not share a rate basis, and this figure carries that
+    /// difference.** The rate RPCs evaluate `QiToQuai`/`QuaiToQi` against the
+    /// *zone* header, while `quai_calculateConversionAmount` evaluates them
+    /// against the *prime terminus* block. At and after the conversion-lock
+    /// fork the rate includes `2 x AvgTxFees`, a per-block field, so the two
+    /// denominators differ and `implied_slippage_bps` is the discount plus that
+    /// basis gap rather than the discount alone. No RPC exposes the
+    /// prime-terminus basis on its own, so the gap cannot be removed here; the
+    /// reference wallet computes its displayed slippage the same way, which is
+    /// why this matches what a user sees there.
+    ///
+    /// Note also that the cubic flow discount is at least 20 basis points for
+    /// any value, so a real conversion never reads as zero slippage.
+    ///
+    /// **This is not the slippage the conversion will experience.** The node
+    /// prices a whole prime-block batch together, in descending slippage order,
+    /// so conversions submitted by other people in the same block change the
+    /// realized discount. This estimate prices one transaction alone, exactly as
+    /// the node's own RPC does. Size a tolerance against the batch you are
+    /// willing to share with, using
+    /// [`quai_consensus::conversion_batch_discount_bps`], and treat this figure
+    /// as the floor of what you will lose rather than the whole of it.
+    pub async fn estimate_conversion(
+        &self,
+        from: Address,
+        to: Address,
+        value: U256,
+    ) -> Result<ConversionEstimate, ProviderError> {
+        // Validates scope, ledgers and amount, so the rate half below can assume
+        // a well-formed same-zone cross-ledger conversion.
+        let expected_amount = self.calculate_conversion_amount(from, to, value).await?;
+        let zone = from
+            .zone()
+            .map_err(|_| ProviderError::InvalidRequest("conversion origin"))?;
+        let rate_amount = match from.ledger() {
+            quai_primitives::Ledger::Qi => self.qi_to_quai(zone, value, BlockTag::Latest).await?,
+            quai_primitives::Ledger::Quai => self.quai_to_qi(zone, value, BlockTag::Latest).await?,
+        }
+        .filter(|quote| *quote != U256::ZERO)
+        .ok_or(ProviderError::InvalidResult("conversion rate unavailable"))?;
+        // The discounts only ever remove value, but the two figures come from
+        // separate integer divisions, so a rounding step could leave the
+        // estimate marginally above the rate quote. Report no slippage rather
+        // than a negative one.
+        let removed = rate_amount.saturating_sub(expected_amount);
+        let scaled = removed
+            .checked_mul(U256::from(10_000))
+            .ok_or(ProviderError::InvalidResult("conversion slippage overflow"))?;
+        // Round up: a wallet comparing this against a tolerance must not be
+        // shown less slippage than the estimate implies.
+        let rounded = scaled
+            .checked_add(rate_amount - U256::from(1))
+            .ok_or(ProviderError::InvalidResult("conversion slippage overflow"))?
+            / rate_amount;
+        // `removed <= rate_amount` bounds this by 10,000 before the clamp.
+        let implied_slippage_bps = rounded.min(U256::from(10_000)).to::<u64>() as u16;
+        Ok(ConversionEstimate {
+            rate_amount,
+            expected_amount,
+            implied_slippage_bps,
+        })
     }
     /// Unclaimed protocol backing in Qits for an owner contract and beneficiary,
     /// at the requested account-state selector. This is not ERC-20 balanceOf.

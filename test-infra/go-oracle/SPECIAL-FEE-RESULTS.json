@@ -164,10 +164,11 @@
   "sourceCommitVerified": "f3f345c877300c044e3e0081a48bf3cf786fb9cc",
   "cgoEnabled": true,
   "specialFeeRegression": {
-    "testSourceSha256": "d95e1278567c264969fdf109e9abca137c6ddcbf2582858787f741231ee90ddd",
+    "testSourceSha256": "2a883cb643a505e915cc108f331decf4e51aaca4c84e4b4fb454334b7ec00bf5",
     "passed": true,
     "tests": [
       "TestSpecialFeeGasBound",
+      "TestSpecialFeeInclusionGasBound",
       "TestShaAnchoredFeeRatesIgnoreDifficultyArgument"
     ],
     "scope": "Pinned function tests; not funded chain acceptance"

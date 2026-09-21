@@ -196,10 +196,22 @@ async fn log_and_pending_filters_use_exact_quai_subscription_arguments() {
         .parse()
         .unwrap();
     let topic = Hash32::ZERO;
+    // The reference subscribes to accesses with the mixed-case checksum form of
+    // the address, so this one is deliberately not all zeros: it pins the
+    // encoding rather than a string that looks the same in any case.
+    let accessed: Address = "0x002b2596EcF05C93a31ff916E8b456DF6C77c750"
+        .parse()
+        .unwrap();
+    assert_ne!(
+        accessed.to_string(),
+        accessed.to_string().to_ascii_lowercase(),
+        "fixture no longer exercises the checksum form"
+    );
     let (endpoint, task) = server(move |mut socket| async move {
         for expected in [
             json!(["newPendingTransactions"]),
             json!(["logs",{"address":[address.to_string()],"topics":[null,[topic.to_string()]]}]),
+            json!(["accesses", accessed.to_string()]),
         ] {
             let request = recv(&mut socket).await;
             assert_eq!(request["params"], expected);
@@ -225,6 +237,13 @@ async fn log_and_pending_filters_use_exact_quai_subscription_arguments() {
             addresses: vec![address],
             topics: vec![None, Some(vec![topic])],
         })
+        .await
+        .unwrap()
+        .unsubscribe()
+        .await
+        .unwrap();
+    client
+        .subscribe(WsSubscriptionKind::Accesses { address: accessed })
         .await
         .unwrap()
         .unsubscribe()

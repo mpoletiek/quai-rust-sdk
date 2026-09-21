@@ -608,6 +608,39 @@ impl AccountPublic {
         let branch = ScanBranch::new(&self.key.derive_child(u32::from(change), false)?)?;
         self.address_from_key(branch.child_public_key(index)?, change, index)
     }
+    /// Derive and classify one contiguous run of indexes, paying a single batch
+    /// normalization for the whole run.
+    ///
+    /// `add_tweaks` inverts once for a batch where `add_tweak` inverts once per
+    /// candidate, which is about a tenth of the per-candidate cost. The
+    /// sequential scan has always taken this path through `child_public_keys`;
+    /// the parallel scans derived one index at a time and so paid full price on
+    /// exactly the path that advertises itself as the fast one. Chunking the
+    /// rayon range restores it without affecting which address is found: the
+    /// results stay in index order.
+    #[cfg(all(feature = "rayon", not(target_arch = "wasm32")))]
+    fn classify_run(
+        &self,
+        branch: &ScanBranch,
+        base: u32,
+        width: u32,
+        change: bool,
+        zone: Zone,
+    ) -> Vec<Result<Option<DerivedAddress>, WalletError>> {
+        branch
+            .child_public_keys(base, width)
+            .into_iter()
+            .enumerate()
+            .map(|(offset, point)| {
+                let index = base + offset as u32;
+                match point.and_then(|point| self.address_from_key(point, change, index)) {
+                    Ok(address) if address.zone == zone => Ok(Some(address)),
+                    Ok(_) | Err(WalletError::InvalidDerivedAddress) => Ok(None),
+                    Err(error) => Err(error),
+                }
+            })
+            .collect()
+    }
     /// Validate one derived point's zone and ledger.
     ///
     /// Takes a point already in hand, so the grind path never compresses a point
@@ -724,17 +757,21 @@ impl AccountPublic {
 
             // The first match or hard error in index order, exactly what the
             // sequential search would reach first. `find_map_first` resolves
-            // by position, not by which thread finishes first.
-            let first = (0..width).into_par_iter().find_map_first(|offset| {
-                let index = base + offset;
-                match branch
-                    .child_public_key(index)
-                    .and_then(|point| self.address_from_key(point, change, index))
-                {
-                    Ok(address) if address.zone == search.zone => Some((offset, Ok(address))),
-                    Ok(_) | Err(WalletError::InvalidDerivedAddress) => None,
-                    Err(error) => Some((offset, Err(error))),
-                }
+            // by position, not by which thread finishes first, and the runs
+            // below are in index order, so chunking does not change which
+            // candidate wins.
+            let runs = width.div_ceil(SCAN_BATCH);
+            let first = (0..runs).into_par_iter().find_map_first(|run| {
+                let start = run * SCAN_BATCH;
+                let run_width = SCAN_BATCH.min(width - start);
+                self.classify_run(&branch, base + start, run_width, change, search.zone)
+                    .into_iter()
+                    .enumerate()
+                    .find_map(|(offset, result)| match result {
+                        Ok(Some(address)) => Some((start + offset as u32, Ok(address))),
+                        Ok(None) => None,
+                        Err(error) => Some((start + offset as u32, Err(error))),
+                    })
             });
             match first {
                 Some((_, Err(error))) => return Err(error),
@@ -968,18 +1005,13 @@ impl AccountPublic {
             let width = window_chunk()
                 .min(search.max_attempts - window.attempts)
                 .min(HARDENED - base);
-            let derived: Vec<_> = (0..width)
+            let runs = width.div_ceil(SCAN_BATCH);
+            let derived: Vec<_> = (0..runs)
                 .into_par_iter()
-                .map(|offset| {
-                    let index = base + offset;
-                    match branch
-                        .child_public_key(index)
-                        .and_then(|point| self.address_from_key(point, change, index))
-                    {
-                        Ok(address) if address.zone == search.zone => Ok(Some(address)),
-                        Ok(_) | Err(WalletError::InvalidDerivedAddress) => Ok(None),
-                        Err(error) => Err(error),
-                    }
+                .flat_map(|run| {
+                    let start = run * SCAN_BATCH;
+                    let run_width = SCAN_BATCH.min(width - start);
+                    self.classify_run(&branch, base + start, run_width, change, search.zone)
                 })
                 .collect();
             for (offset, result) in (0..width).zip(derived) {

@@ -6,7 +6,12 @@ use quai_rpc::{Transport, U256};
 use serde_json::json;
 
 /// Caller-selected rules. Chain ID/client-version strings do not attest software.
+///
+/// Non-exhaustive: a node release that changes the reward or conversion math
+/// needs a new profile beside this one, and adding it must not break a caller's
+/// match.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub enum QiFeeProfile {
     /// Pinned go-quai v0.56.0 after prime 1,755,000. SHA-anchored reward
     /// conversion ignores the difficulty argument, making the public rate RPCs
@@ -15,13 +20,23 @@ pub enum QiFeeProfile {
 }
 
 /// Advisory quote for the exact specialized input/output shape and sampled head.
+///
+/// Non-exhaustive: this is an output type, built only by
+/// [`Provider::estimate_qi_special_fee`], and `floor_qits` was already added to
+/// it once in a way that broke downstream struct literals.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct QiFeeQuote {
     /// Header sampled before and after all latest-state queries.
     pub block_hash: Hash32,
     /// Zone block height of the sample, not guaranteed inclusion height.
     pub block_number: u64,
-    /// Sampled current UTXO set size used for gas scaling.
+    /// UTXO set size sampled from `quai_getLatestUTXOSetSize` for gas scaling.
+    ///
+    /// This is the node's *current* count. Block validation scales with the
+    /// *parent's*, so this is the value the quote used, not the value the node
+    /// will use. The difference is immaterial below the scaling threshold,
+    /// where the factor is ignored entirely.
     pub utxo_set_size: u64,
     /// Binding gas floor: the larger of the node's execution and inclusion
     /// charges for this exact shape. See [`qi_special_gas`].
@@ -160,8 +175,20 @@ impl<T: Transport> Provider<T> {
             .latest_header(zone)
             .await?
             .ok_or(ProviderError::InvalidResult("missing fee header"))?;
+        // The k-Quai hold windows are deliberately *not* enforced here. Both are
+        // permanently behind mainnet, whose prime terminus only increases, so
+        // the check could never fire on the chain that matters; a chain that is
+        // still below one runs its own parameters, which a matching chain ID
+        // does not attest. Callers that know their chain follows the pinned
+        // constants can ask `quai_consensus::conversion_held` before
+        // building. Nothing is at risk either way: the node refuses a held
+        // conversion at pool admission, and the same signed bytes become
+        // acceptable once the window passes.
         match profile {
-            QiFeeProfile::V056ShaAnchored if before.prime_terminus_number < 1_755_000 => {
+            QiFeeProfile::V056ShaAnchored
+                if before.prime_terminus_number
+                    < quai_consensus::SHA_EQUIVALENT_DIFFICULTY_FORK_BLOCK =>
+            {
                 return Err(ProviderError::ConversionFeeEstimationUnavailable);
             }
             QiFeeProfile::V056ShaAnchored => (),

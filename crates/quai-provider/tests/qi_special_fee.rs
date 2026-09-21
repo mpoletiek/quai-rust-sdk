@@ -26,7 +26,14 @@ impl Transport for Mock {
                 h["woHeader"] = wo;
                 h["woHeader"]["primeTerminusNumber"] = json!(format!(
                     "0x{:x}",
-                    if self.mode == 1 { 1_754_999 } else { 1_755_000 }
+                    match self.mode {
+                        // One block below the profile's activation.
+                        1 => 1_754_999,
+                        // Past the profile's activation. Deliberately not the
+                        // fork block itself, which is the first block of that
+                        // fork's k-Quai hold window on a chain that applies it.
+                        _ => 1_775_000,
+                    }
                 ));
                 h["baseFeePerGas"] = if self.mode == 4 {
                     json!(format!("0x{}", "ff".repeat(32)))

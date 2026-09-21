@@ -2,7 +2,11 @@
 
 The Rust SDK implements the reviewed application capabilities of the pinned
 **quais@1.0.0-alpha.57** package across native and browser targets. The declaration
-review has no pending or partial rows. This is a feature-equivalence assessment
+review has no pending or partial rows — but read that together with the
+reference-half divergence under
+[Reference and audit method](#reference-and-audit-method): the pinned package's
+executed build is stamped `1.0.0-alpha.52`, and the review covers what that
+build declares. This is a feature-equivalence assessment
 with explicit differences, **not identical JavaScript API/behavior compatibility
 or production qualification**. No known working reference operation is left as an
 unexplained omission in the reviewed inventory.
@@ -26,6 +30,19 @@ inspected checkout is `94e32c7eb9960de36054135c40a341c44c84f922`. They are not i
 The [registry recheck](test-infra/reports/reference-version-recheck-2026-09-13.json)
 is a dated observation, not a claim about future releases. Selected wire/rule
 checks also use go-quai v0.56.0 at `f3f345c877300c044e3e0081a48bf3cf786fb9cc`.
+
+**The pinned artifact's compiled half is older than its source half, and the
+ledger describes the compiled half.** `quais@1.0.0-alpha.57` ships `lib/esm` and
+`lib/commonjs` builds stamped `1.0.0-alpha.52`, and its export map resolves the
+package to `lib/`. The declaration inventory walks that export map, and the
+oracle imports through it, so the counts and behavioral evidence below are
+statements about **alpha.52**, not alpha.57. Public members added to `src/`
+between alpha.53 and alpha.57 — among them `getOutpointsByAddresses`,
+`QiHDWallet.deepScan`, `setAddressStatus`, `setGapLimit` and
+`getReusableAddress` — have no rows here in any status, so "no pending or
+partial rows" does not assert that they were reviewed. They were not. See
+[compatibility/README.md](compatibility/README.md); `npm run verify` now pins
+both halves separately and reports the divergence.
 
 The [ledger](compatibility/parity.json) covers 12 export roots/subpaths, 581 exports
 and 3347 member entries. Re-exports, inherited properties and overloads inflate

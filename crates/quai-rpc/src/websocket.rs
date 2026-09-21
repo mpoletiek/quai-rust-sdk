@@ -133,7 +133,11 @@ impl WsConfig {
 }
 
 /// Common Quai subscription requests. The endpoint selects the shard; no zone parameter is added.
+///
+/// Non-exhaustive: the node's subscription registry gains events over time, and
+/// adding one here must not break a caller's match.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub enum WsSubscriptionKind {
     /// `quai_subscribe` with `["newHeads"]`.
     NewHeads,
@@ -145,6 +149,29 @@ pub enum WsSubscriptionKind {
         addresses: Vec<Address>,
         /// Up to four topic positions, each a wildcard or an ordered OR-list.
         topics: Vec<Option<Vec<Hash32>>>,
+    },
+    /// `quai_subscribe` with `["accesses", address]`: every block that touches
+    /// this account, on either ledger.
+    ///
+    /// This is how a wallet learns that funds arrived, that a pending
+    /// transaction confirmed, or that a conversion succeeded or reverted,
+    /// without re-reading the account on every head. The reference wallet opens
+    /// one of these per watched address and drives its refresh from them.
+    ///
+    /// **Cyprus-1 only on the pinned node.** Unlike every other address RPC,
+    /// this one does not re-resolve the address against the node's location:
+    /// `Address::UnmarshalJSON` bakes in `Location{0, 0}` before
+    /// `InternalAddress()` checks scope, so a non-Cyprus-1 address is rejected
+    /// whatever endpoint it is sent to. Reported upstream; until it changes,
+    /// other zones must fall back to per-head reconciliation.
+    ///
+    /// Delivery is still bounded and a disconnect is still terminal: on
+    /// reconnect, reconcile the account before resubscribing, because accesses
+    /// that happened while disconnected are not replayed.
+    Accesses {
+        /// Account whose accesses the node reports. Sent in the mixed-case
+        /// checksum form, as the reference sends it.
+        address: Address,
     },
     /// Explicit compatibility escape hatch for additional Quai events, not arbitrary RPC methods.
     Raw {
@@ -159,6 +186,7 @@ impl WsSubscriptionKind {
         match self {
             Self::NewHeads => Ok(json!(["newHeads"])),
             Self::NewPendingTransactions => Ok(json!(["newPendingTransactions"])),
+            Self::Accesses { address } => Ok(json!(["accesses", address.to_string()])),
             Self::Logs { addresses, topics } => {
                 if addresses.len() > 1024
                     || topics.len() > 4

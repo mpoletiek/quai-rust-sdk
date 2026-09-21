@@ -272,29 +272,24 @@ impl<T: Transport> QiSession<'_, T> {
                     // takes: the inclusion filter divides it by this shape's
                     // block gas and skips anything under the base fee, silently
                     // and without evicting it. Check it where the shape is
-                    // final. A profile that does not apply to this chain state
-                    // leaves the caller's explicit fee untouched.
-                    match self
-                        .provider
-                        .estimate_qi_special_fee(
-                            transaction.transaction(),
-                            quai_provider::QiFeeProfile::V056ShaAnchored,
-                        )
-                        .await
+                    // final, through the same helper the portable and
+                    // replacement paths use, so the three cannot disagree about
+                    // the same operation. A profile that does not apply to this
+                    // chain state leaves the caller's explicit fee untouched;
+                    // any other error, head drift included, is surfaced rather
+                    // than silently skipping the check, because failing open
+                    // would build exactly the unmineable transaction this guard
+                    // exists to refuse.
+                    if crate::qi_replacement::inclusion_floor(
+                        self.provider,
+                        transaction.transaction(),
+                    )
+                    .await?
+                    .is_some_and(|floor| explicit < floor)
                     {
-                        Ok(quote) if explicit < quote.floor_qits => {
-                            return Err(QiError::FeeBelowInclusionFloor);
-                        }
-                        Ok(_) => None,
-                        // Only a chain state the profile does not cover leaves
-                        // the fee unchecked. Anything else, head drift included,
-                        // is surfaced rather than silently skipping the check:
-                        // the caller retries, as it would for any other read
-                        // here. Failing open would build exactly the
-                        // unmineable transaction this guard exists to refuse.
-                        Err(ProviderError::ConversionFeeEstimationUnavailable) => None,
-                        Err(error) => return Err(error.into()),
+                        return Err(QiError::FeeBelowInclusionFloor);
                     }
+                    None
                 }
                 FeeMode::Estimated(profile) => {
                     let quote = self

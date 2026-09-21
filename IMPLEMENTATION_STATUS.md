@@ -1,5 +1,26 @@
 # Implementation status
 
+**September 20, 2026 update.** `0.1.0-alpha.9` is prepared. A full protocol,
+security, performance and parity review against go-quai v0.56.0,
+`quais@1.0.0-alpha.57` and Pelagus 1.0 is recorded in
+[the protocol alignment review](docs/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md),
+which is the current assessment and supersedes the dated sections below where
+they disagree. Three things it establishes are worth carrying here:
+
+- The SDK is pinned to the current tip of every reference: go-quai `main` *is*
+  the pinned `v0.56.0` commit, and npm's `quais` `latest` *is* the pinned
+  `1.0.0-alpha.57`.
+- **The pinned `quais@1.0.0-alpha.57` package ships a compiled `lib/` stamped
+  `1.0.0-alpha.52`**, and the export map resolves to `lib/`. The declaration
+  ledger and every generated fixture therefore describe alpha.52. The counts
+  below are accurate for what was reviewed; they are not a statement about
+  alpha.57's full surface. `npm run verify` now pins both halves separately.
+- No consensus-level encoding, signing or denomination defect was found.
+
+The remaining open items are listed in that review's sequencing section; the
+largest is the custody operation lifecycle, where the portable books retain 256
+operations per ledger per scope with no pruning.
+
 Updated September 14, 2026 (US/Central). The `0.1.0-alpha.1` implementation and
 published-reference declaration review are complete within the explicit
 [parity differences](SDK_PARITY_ANALYSIS.md). All 3928 rows are reconciled: 74

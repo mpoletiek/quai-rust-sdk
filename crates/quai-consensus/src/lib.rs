@@ -9,8 +9,10 @@ pub mod proto;
 mod qi;
 mod quai;
 pub use conversion::{
-    ConversionSlippage, MIN_QUAI_CONVERSION_VALUE, QiConversionIntent, QiConversionTransaction,
-    QuaiToQiTransaction, SignedQiConversionTransaction, conversion_batch_discount_bps,
+    ConversionSlippage, KAWPOW_FORK_BLOCK, KQUAI_CHANGE_HOLD_INTERVAL, MIN_QUAI_CONVERSION_VALUE,
+    QiConversionIntent, QiConversionTransaction, QuaiToQiTransaction,
+    SHA_EQUIVALENT_DIFFICULTY_FORK_BLOCK, SignedQiConversionTransaction,
+    conversion_batch_discount_bps, conversion_held,
 };
 use prost::Message;
 pub use qi::{Denomination, OutPoint, QiInput, QiOutput, QiTransaction, SignedQiTransaction};
@@ -19,7 +21,24 @@ pub use ruint::aliases::U256;
 use thiserror::Error;
 
 /// Encoded input/output byte ceiling, not a promise that a node accepts this size.
+///
+/// This bounds decoding and encoding. For what the pinned node's pool actually
+/// takes, see [`MAX_POOL_TRANSACTION_BYTES`].
 pub const MAX_TRANSACTION_BYTES: usize = 1024 * 1024;
+
+/// Largest signed **Quai** transaction the pinned node's pool accepts, its
+/// `txMaxSize` of four 32 KiB slots.
+///
+/// A transaction above this is rejected with `ErrOversizedData` before any other
+/// validation, which for a deployment means the nonce was already reserved and
+/// the transaction already signed. The realistic way to reach it is contract
+/// init code, so deployment planning bounds against this rather than against
+/// [`MAX_TRANSACTION_BYTES`].
+///
+/// Qi transactions take a different pool path that applies no size check, so
+/// this bound is Quai-ledger only; a Qi transaction is bounded by its input and
+/// output counts instead.
+pub const MAX_POOL_TRANSACTION_BYTES: usize = 4 * 32 * 1024;
 /// Total nested-message ceiling, checked before protobuf decoder allocation.
 pub const MAX_TRANSACTION_MESSAGES: usize = 16384;
 

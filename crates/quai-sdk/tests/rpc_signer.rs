@@ -160,6 +160,45 @@ fn typed(chain: u64) -> TypedData {
 }
 #[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn unlock_refuses_an_unencrypted_transport_unless_explicitly_permitted() {
+    // A keystore password is the only durable secret this adapter puts on the
+    // wire, and it unlocks every account in that node's keystore. Over http or
+    // ws it is readable by anything on the path, so the default refuses before
+    // dispatch and the opt-in is explicit.
+    for scheme in ["http://node.invalid", "ws://node.invalid"] {
+        let mock = Mock::default();
+        mock.state().reply = json!(true);
+        let build = || {
+            RpcAccountSigner::new(
+                mock.clone(),
+                Routing::direct(scheme, Zone::Cyprus1.into()).unwrap(),
+                scope(),
+                address(),
+            )
+            .unwrap()
+        };
+        let error = build().unlock("PUBLIC", 60).await.unwrap_err();
+        assert!(matches!(error.source, RpcSignerFailure::InsecureTransport));
+        assert!(!error.dispatched, "password reached the transport");
+        assert!(
+            !mock
+                .state()
+                .calls
+                .iter()
+                .any(|(method, _)| method == "personal_unlockAccount")
+        );
+        // Nothing else on the adapter is gated, and the opt-in restores unlock.
+        assert!(
+            build()
+                .allow_insecure_unlock()
+                .unlock("PUBLIC", 60)
+                .await
+                .unwrap()
+        );
+    }
+}
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 async fn messages_typed_data_legacy_and_unlock_match_exact_rpc_and_recover() {
     let (signer, mock) = setup(0, signature(&hash_message(b"hello"), 805));
     signer.sign_message(b"hello").await.unwrap();

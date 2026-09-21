@@ -305,3 +305,26 @@ fn entropy_export_uses_validated_indexes_for_every_language_size_and_pattern() {
         }
     }
 }
+
+#[test]
+fn general_splitting_keeps_the_unicode_final_sigma_rule() {
+    // `str::to_lowercase` implements Unicode Final_Sigma; folding character by
+    // character does not, and would produce "οδοσ" where the reference's
+    // `toLowerCase` produces "οδος". A custom wordlist holding a final-sigma
+    // word would then stop matching an uppercase phrase, so a wallet that
+    // restored under an earlier release would fail to restore here.
+    let mut words: Vec<String> = (0..2048).map(|i| format!("w{i}")).collect();
+    words[0] = "οδος".to_string();
+    let list = Wordlist::from_words("custom", words, WordlistStyle::General).unwrap();
+
+    let split = list.split("ΟΔΟΣ").unwrap();
+    assert_eq!(split.expose(), &["οδος".to_string()]);
+    assert_eq!(
+        list.get_word_index("οδος"),
+        Some(0),
+        "the folded word must resolve to its dictionary entry"
+    );
+
+    // The same phrase already in lower case is unaffected either way.
+    assert_eq!(list.split("οδος").unwrap().expose(), &["οδος".to_string()]);
+}

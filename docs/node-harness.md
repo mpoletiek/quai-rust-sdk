@@ -43,8 +43,27 @@ The following pinned values are minimum boundary inventory, not a claim that the
 | `MaxGrindIncreaseForkBlock` | 1,865,000 | Address grinding constraints |
 | `ConversionStabilityForkBlock` | 1,872,600 | Conversion rules |
 | `SelfDestructRefundForkBlock` | 1,919,500 | EVM behavior |
+| `QiWrappingChangeBlock` | 1,570,000 | Whether a wrap destination also creates a local Qi UTXO |
 | `ConversionLockChangeForkBlock` | 2,237,000 | Conversion lock duration/controller freeze |
 | `MaxCodeSizeForkHeight` | 3,490,000 | Contract deployment size bound |
+
+Two interval constants govern conversions rather than a single switch height.
+`KQuaiChangeHoldInterval` is 20,000 prime blocks, roughly six to seven days.
+v0.56.0 applies it to exactly two heights — `KawPowForkBlock` and
+`ShaEquivalentDifficultyForkBlock` — rejecting every Qi-to-Quai conversion for
+that many blocks after each, and leaving wraps alone. It is two hard-coded
+windows rather than a general consequence of changing the controller.
+`UnwrapQiLockPeriod` is 10 blocks, the short unwrap-only lock that replaces the
+full conversion lock from `ConversionLockChangeForkBlock` onward.
+
+Both hold windows are behind mainnet (prime terminus 2,256,896 on 2026-09-20),
+but **Orchard was at 1,728,920** the same day and had not yet reached the
+1,755,000 window. If Orchard shares these constants — which this document
+otherwise warns must not be assumed from a matching chain ID — it enters a
+20,000 prime-block window in which Qi-to-Quai conversions are refused. Worth
+confirming with the protocol team before qualifying conversions there. Whether a
+future controller change carries a hold at all is a protocol decision and a
+re-pinning question, not something to extrapolate.
 
 Do not apply this table to Orchard solely because the chain ID matches. The observed Orchard node binary/version is not attested; its actual parameters may differ. The read-only probe reports raw context and leaves fork qualification unresolved.
 

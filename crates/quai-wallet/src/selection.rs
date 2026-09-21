@@ -1,7 +1,7 @@
 //! Bounded deterministic ordinary-transfer selection over an explicit UTXO snapshot.
 use quai_consensus::{Denomination, MAX_TRANSACTION_MESSAGES, OutPoint, U256};
 use quai_primitives::{QiAddress, Zone};
-use std::collections::BTreeSet;
+use std::collections::HashSet;
 use thiserror::Error;
 mod aggregation;
 pub use aggregation::{AggregationPolicy, select_aggregate};
@@ -126,7 +126,7 @@ pub fn select_sweep(
     if coins.len() > 100_000 {
         return Err(SelectionError::LimitExceeded);
     }
-    let mut seen = BTreeSet::new();
+    let mut seen = HashSet::with_capacity(coins.len());
     let mut inputs = Vec::new();
     let mut capacity = [0u64; 15];
     let mut total = U256::ZERO;
@@ -229,11 +229,17 @@ pub fn select_fewest_converting(
     select_fewest_inner(coins, request, true)
 }
 
-fn select_fewest_inner(
-    coins: &[CandidateCoin],
-    request: &SelectionRequest,
-    aggregated_spend: bool,
-) -> Result<CoinSelection, SelectionError> {
+/// The fee-independent half of a selection: validated, zone-filtered candidates
+/// grouped by denomination.
+///
+/// Fee convergence re-runs the choice with a larger fee but the same snapshot,
+/// so this is built once and borrowed by every round. Fifteen denomination
+/// buckets provide O(n) grouping while matching the reference's stable ascending
+/// order and reversed tie order in its fallback.
+type Buckets<'a> = [Vec<&'a CandidateCoin>; 15];
+
+/// Scalar request checks, which are the only ones a changed fee can invalidate.
+fn validate_request(request: &SelectionRequest) -> Result<(), SelectionError> {
     if request.target == U256::ZERO
         || request.fee > request.max_fee
         || !(1..=4096).contains(&request.max_inputs)
@@ -241,15 +247,23 @@ fn select_fewest_inner(
     {
         return Err(SelectionError::InvalidRequest);
     }
+    Ok(())
+}
+
+/// Validate every candidate once and bucket the eligible ones.
+///
+/// Deduplication uses a hash set rather than an ordered one: at a hundred
+/// thousand candidates the ordered insert dominated the whole selection, and
+/// nothing here depends on the iteration order, which comes from the buckets.
+fn validate_and_bucket<'a>(
+    coins: &'a [CandidateCoin],
+    request: &SelectionRequest,
+) -> Result<Buckets<'a>, SelectionError> {
     if coins.len() > 100000 {
         return Err(SelectionError::LimitExceeded);
     }
-    let required = request
-        .target
-        .checked_add(request.fee)
-        .ok_or(SelectionError::Overflow)?;
-    let mut seen = BTreeSet::new();
-    let mut buckets: [Vec<&CandidateCoin>; 15] = std::array::from_fn(|_| Vec::new());
+    let mut seen = HashSet::with_capacity(coins.len());
+    let mut buckets: Buckets<'a> = std::array::from_fn(|_| Vec::new());
     for coin in coins {
         let hash = coin.outpoint.transaction_hash.bytes();
         if !seen.insert(coin.outpoint) || hash[2] != coin.address.zone().byte() || *hash == [0; 32]
@@ -266,8 +280,30 @@ fn select_fewest_inner(
             buckets[usize::from(coin.denomination.index())].push(coin);
         }
     }
-    // Fifteen denomination buckets provide O(n) grouping while matching the
-    // reference's stable ascending order and reversed tie order in its fallback.
+    Ok(buckets)
+}
+
+fn select_fewest_inner(
+    coins: &[CandidateCoin],
+    request: &SelectionRequest,
+    aggregated_spend: bool,
+) -> Result<CoinSelection, SelectionError> {
+    validate_request(request)?;
+    let required = request
+        .target
+        .checked_add(request.fee)
+        .ok_or(SelectionError::Overflow)?;
+    let buckets = validate_and_bucket(coins, request)?;
+    choose(&buckets, request, required, aggregated_spend)
+}
+
+/// Pick inputs for one exact `required` total from already-validated buckets.
+fn choose(
+    buckets: &Buckets<'_>,
+    request: &SelectionRequest,
+    required: U256,
+    aggregated_spend: bool,
+) -> Result<CoinSelection, SelectionError> {
     let mut chosen = Vec::new();
     let mut total = U256::ZERO;
     if let Some(coin) = buckets
@@ -279,9 +315,10 @@ fn select_fewest_inner(
         total = U256::from(coin.denomination.value());
     } else {
         for coin in buckets
-            .into_iter()
+            .iter()
             .rev()
-            .flat_map(|bucket| bucket.into_iter().rev())
+            .flat_map(|bucket| bucket.iter().rev())
+            .copied()
         {
             if total >= required {
                 break;
@@ -410,9 +447,19 @@ pub fn select_with_fee(
     if !(1..=32).contains(&max_rounds) {
         return Err(SelectionError::InvalidRequest);
     }
+    validate_request(request)?;
+    // The snapshot does not change between rounds, only the fee, so the
+    // candidates are validated and bucketed once instead of per round. At a
+    // hundred thousand candidates eight rounds cost fourteen times one round
+    // before this.
+    let buckets = validate_and_bucket(coins, request)?;
     let mut current = request.clone();
     for _ in 0..max_rounds {
-        let selection = select_fewest(coins, &current)?;
+        let required = current
+            .target
+            .checked_add(current.fee)
+            .ok_or(SelectionError::Overflow)?;
+        let selection = choose(&buckets, &current, required, false)?;
         let quoted = estimate(&selection)?;
         if quoted <= current.fee {
             return Ok(selection);

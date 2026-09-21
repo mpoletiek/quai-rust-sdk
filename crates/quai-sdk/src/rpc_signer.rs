@@ -34,6 +34,9 @@ pub enum RpcSignerFailure {
     /// Signature, transaction or acknowledgement failed validation.
     #[error("invalid remote signing response")]
     InvalidResponse,
+    /// A keystore password would have crossed an unencrypted transport.
+    #[error("remote unlock refused over an unencrypted transport")]
+    InsecureTransport,
     /// A typed provider check failed.
     #[error(transparent)]
     Provider(#[from] ProviderError),
@@ -101,6 +104,7 @@ pub struct RpcAccountSigner<T> {
     endpoint: Endpoint,
     address: QuaiAddress,
     scope: NetworkScope,
+    allow_insecure_unlock: bool,
 }
 impl<T> fmt::Debug for RpcAccountSigner<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -134,7 +138,22 @@ impl<T: Transport + Clone> RpcAccountSigner<T> {
             endpoint,
             address,
             scope,
+            allow_insecure_unlock: false,
         })
+    }
+    /// Permit [`unlock`](Self::unlock) to send a keystore password over `http`
+    /// or `ws`.
+    ///
+    /// Every other call here carries no long-lived secret, so only `unlock` is
+    /// gated. Opt in for a loopback or private-network node whose traffic cannot
+    /// be observed, which is what the local harnesses use; never for a remote
+    /// endpoint. The password unlocks every account in that node's keystore for
+    /// the requested duration, and the transport performs no proxying, so
+    /// nothing else terminates TLS on its behalf.
+    #[must_use]
+    pub fn allow_insecure_unlock(mut self) -> Self {
+        self.allow_insecure_unlock = true;
+        self
     }
     /// Bound account; this does not assert current remote availability.
     pub fn address(&self) -> QuaiAddress {
@@ -277,6 +296,13 @@ impl<T: Transport + Clone> RpcAccountSigner<T> {
     ) -> Result<bool, RpcSignerError> {
         if password.len() > 1024 || !(1..=3600).contains(&duration_seconds) {
             return Err(RpcSignerError::before(RpcSignerFailure::InvalidRequest));
+        }
+        // This is the one call that puts a durable secret on the wire, so it is
+        // the one that checks the transport. `Endpoint::parse` accepts `http`
+        // and `ws`, and over either the password is readable by anything on the
+        // path and unlocks every account in that node's keystore.
+        if !matches!(self.endpoint.scheme(), "https" | "wss") && !self.allow_insecure_unlock {
+            return Err(RpcSignerError::before(RpcSignerFailure::InsecureTransport));
         }
         let value = self
             .dispatch(

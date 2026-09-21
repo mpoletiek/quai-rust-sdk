@@ -6,14 +6,31 @@ use zeroize::{Zeroize, Zeroizing};
 /// All ten BIP39 languages supported by the pinned JavaScript reference.
 pub use bip39::Language;
 
-/// Upper bound reserved for a normalized phrase or passphrase guard.
+/// Capacity reserved for the canonical phrase a wallet UI displays.
 ///
-/// Inputs are already rejected above 4096 bytes. NFKD plus case folding can
-/// expand a character, and Chinese re-spacing inserts a separator per
-/// ideograph, so guards reserve a multiple of the input up to this ceiling.
-/// Over-reserving costs one bounded allocation; under-reserving would let the
-/// buffer grow and free unwiped copies of the secret.
+/// Ten words of the longest published wordlist with separators stay far inside
+/// this, so the export path allocates once at a fixed size rather than growing.
 const MAX_NORMALIZED_BYTES: usize = 16 * 1024;
+
+/// Copy a normalized or case-folded secret into a guard sized in a counting pass.
+///
+/// A reserved multiple of the input length is a guess, and a wrong guess is a
+/// security bug rather than a slow path: `String` growth frees each earlier
+/// buffer without wiping it, leaving progressively longer prefixes of the
+/// secret on the heap for a core dump, swap file or same-user read to recover.
+/// NFKD expansion has no small bound — U+FDFA is three bytes in and thirty-three
+/// out — so the size is measured instead of assumed. The counting pass iterates
+/// the caller's borrowed text and copies nothing, so it creates no new exposure.
+pub(crate) fn normalized_guard<I: Iterator<Item = char>>(
+    source: impl Fn() -> I,
+) -> Zeroizing<String> {
+    let mut guard = Zeroizing::new(String::with_capacity(
+        source().map(char::len_utf8).sum::<usize>(),
+    ));
+    guard.extend(source());
+    debug_assert_eq!(guard.len(), guard.capacity(), "guard grew while filling");
+    guard
+}
 
 /// Explicitly exported secret text. Diagnostics redact the text; Drop zeroizes it.
 pub struct SecretString(pub(crate) Zeroizing<String>);
@@ -102,24 +119,22 @@ impl Mnemonic {
         if phrase.len() > 4096 {
             return Err(WalletError::InvalidMnemonic);
         }
-        // Allocate the final bounded guard before copying any secret. Zeroizing
-        // erases only the buffer it owns at drop, so growing a String from zero
+        // Allocate the final guard before copying any secret. Zeroizing erases
+        // only the buffer it owns at drop, so growing a String from too small a
         // capacity frees each earlier allocation unwiped, leaving a trail of
-        // progressively longer prefixes of the phrase on the heap. NFKD plus
-        // case folding can expand a character, so reserve against that bound.
-        let mut normalized = Zeroizing::new(String::with_capacity(
-            phrase.len().saturating_mul(4).min(MAX_NORMALIZED_BYTES),
-        ));
-        normalized.extend(phrase.nfkd().flat_map(char::to_lowercase));
+        // progressively longer prefixes of the phrase on the heap.
+        let normalized = normalized_guard(|| phrase.nfkd().flat_map(char::to_lowercase));
         // Published Chinese wordlists also accept unseparated ideographs.
         let normalized = if matches!(
             language,
             Language::SimplifiedChinese | Language::TraditionalChinese
         ) {
-            // Re-spacing can at most double the length by inserting one
-            // separator per character; reserve once rather than growing.
+            // Re-spacing keeps every non-whitespace character and inserts one
+            // separator between them, so the exact size is known before any
+            // character is copied.
+            let kept = || normalized.chars().filter(|c| !c.is_whitespace());
             let mut spaced = Zeroizing::new(String::with_capacity(
-                normalized.len().saturating_mul(2).min(MAX_NORMALIZED_BYTES),
+                kept().map(char::len_utf8).sum::<usize>() + kept().count().saturating_sub(1),
             ));
             for c in normalized.chars().filter(|c| !c.is_whitespace()) {
                 if !spaced.is_empty() {
@@ -181,10 +196,10 @@ impl Mnemonic {
     pub fn to_seed(&self, passphrase: &str) -> Seed {
         // Same reasoning as `parse`: size the guard before copying the secret,
         // so normalization does not scatter unwiped prefixes of the passphrase.
-        let mut normalized = Zeroizing::new(String::with_capacity(
-            passphrase.len().saturating_mul(4).min(MAX_NORMALIZED_BYTES),
-        ));
-        normalized.extend(passphrase.nfkd());
+        // This path takes no length bound, so a reserved multiple of the input
+        // would be a guess: NFKD expands U+FDFA from three bytes to thirty-three,
+        // eleven times, which any small fixed factor under-reserves.
+        let normalized = normalized_guard(|| passphrase.nfkd());
         Seed(Zeroizing::new(self.0.to_seed_normalized(&normalized)))
     }
 }
@@ -240,5 +255,33 @@ mod generation_tests {
         // A passphrase is normalized on the seed path; NFKD can expand it.
         let seed = reparsed.to_seed("\u{fdfa}");
         assert_eq!(seed.0.len(), 64);
+    }
+
+    #[test]
+    fn a_normalized_guard_is_exact_for_the_worst_expansion_this_crate_can_see() {
+        // U+FDFA is three bytes in and thirty-three out under NFKD, an eleven
+        // times expansion. Any reserve of a small multiple of the input length
+        // under-reserves it, and the guard then grows and frees an unwiped
+        // prefix of the secret. Assert the size is measured, not assumed: a
+        // guard whose length equals its capacity never reallocated while
+        // filling, which is the property that keeps the secret in one buffer.
+        let guard = normalized_guard(|| "\u{fdfa}".nfkd());
+        assert_eq!(guard.len(), 33);
+        assert_eq!(guard.capacity(), 33, "guard was not sized before filling");
+
+        // The same holds once the expansion is repeated past any fixed ceiling
+        // a previous bound would have clamped to, and for the case-folding
+        // variant the parse path uses.
+        let long = "\u{fdfa}".repeat(1024);
+        let guard = normalized_guard(|| long.nfkd());
+        assert_eq!(guard.len(), 33 * 1024);
+        assert_eq!(guard.capacity(), guard.len());
+        let folded = normalized_guard(|| "\u{130}ABC".nfkd().flat_map(char::to_lowercase));
+        assert_eq!(folded.capacity(), folded.len());
+        assert!(folded.ends_with("abc"));
+
+        // An empty secret must not allocate a growing buffer either.
+        let empty = normalized_guard(|| "".nfkd());
+        assert_eq!(empty.len(), 0);
     }
 }

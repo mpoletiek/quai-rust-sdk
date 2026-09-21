@@ -13,7 +13,12 @@ use std::collections::{BTreeMap, BTreeSet};
 /// Explicit parent and owned change to reduce. All nonselected parent outputs are
 /// preserved, including payment recipients and, unless `aggregate_destination`
 /// asks otherwise, conversion/wrapping destinations.
+///
+/// Non-exhaustive: build it with [`QiReplacementIntent::new`] rather than a
+/// struct literal, so a later field does not break callers as
+/// `aggregate_destination` did.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiReplacementIntent {
     /// Original or earlier persisted candidate to replace.
     pub parent: Hash32,
@@ -32,6 +37,31 @@ pub struct QiReplacementIntent {
     /// for an ordinary transfer, whose recipient outputs are bound to the input
     /// denominations.
     pub aggregate_destination: bool,
+}
+impl QiReplacementIntent {
+    /// Replace `parent`, giving up the owned change at `change_indexes` in
+    /// favour of `change_outputs`, whose total must be strictly lower. The
+    /// difference becomes fee.
+    ///
+    /// `aggregate_destination` starts false, which preserves every parent
+    /// output that is not named here; [`Self::aggregating_destination`] opts
+    /// into re-decomposing a conversion's or wrap's destination.
+    pub fn new(parent: Hash32, change_indexes: Vec<u16>, change_outputs: Vec<QiOutput>) -> Self {
+        Self {
+            parent,
+            change_indexes,
+            change_outputs,
+            aggregate_destination: false,
+        }
+    }
+    /// Re-decompose a conversion's or wrap's Quai-ledger destination outputs
+    /// largest-first, keeping their address and total value. See
+    /// [`Self::aggregate_destination`]; rejected for an ordinary transfer.
+    #[must_use]
+    pub fn aggregating_destination(mut self) -> Self {
+        self.aggregate_destination = true;
+        self
+    }
 }
 /// Immutable same-input candidate; every unselected output and all data are fixed.
 #[derive(Debug)]

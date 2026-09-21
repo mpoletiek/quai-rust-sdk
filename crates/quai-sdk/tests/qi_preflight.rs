@@ -815,12 +815,7 @@ mod browser {
                     id(1),
                     revision,
                     source.clone(),
-                    QiReplacementIntent {
-                        parent: root.hash().unwrap(),
-                        change_indexes: vec![2],
-                        change_outputs: vec![],
-                        aggregate_destination: false,
-                    },
+                    QiReplacementIntent::new(root.hash().unwrap(), vec![2], vec![]),
                     policy(),
                     QiFeeMode::Node,
                 )
@@ -833,12 +828,7 @@ mod browser {
                 id(1),
                 b.snapshot().await.unwrap().revision,
                 source,
-                QiReplacementIntent {
-                    parent: root.hash().unwrap(),
-                    change_indexes: vec![2],
-                    change_outputs: vec![],
-                    aggregate_destination: false,
-                },
+                QiReplacementIntent::new(root.hash().unwrap(), vec![2], vec![]),
                 policy(),
                 QiFeeMode::Node,
             )

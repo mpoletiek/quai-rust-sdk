@@ -3,7 +3,10 @@
 This workspace is not production-qualified. The `0.1` alpha packages are published on crates.io as an alpha; publication is not a production-safety claim.
 It contains wallet keys, encrypted seed/full-wallet backups, transaction signing,
 legacy keystore import/export and account/Qi submission APIs. Public fixtures are reproducible and must never hold
-real funds. Mainnet testing in this development session is read-only.
+real funds. Funded mainnet qualification has run with small balances held in
+custody outside this repository: transfers, fee replacement, conversions,
+wrapping, recovery and payment-code receipt. Its evidence is under
+`test-infra/orchard/mainnet-*.json`. It is acceptance evidence, not an audit.
 
 Implemented controls include explicit ledger/zone and chain checks, canonical
 bounded transaction decoding, immutable signed payloads, redacted zeroizing key
@@ -41,7 +44,7 @@ See [architecture](docs/architecture.md), [current parity and qualification](SDK
 [dependency advisory evidence](docs/dependency-audit.md). Advisory reports bind
 an exact lock hash; additions require rescanning. No finding has been suppressed.
 
-The [2026-09-11 internal security review](docs/SECURITY_REVIEW_2026-09-11.md)
+The [2026-09-11 internal security review](docs/history/SECURITY_REVIEW_2026-09-11.md)
 records four fixed medium findings, password-buffer hardening, regression evidence
 and unresolved limits. Parser sanitizer smoke runs are bounded checks, not sustained
 fuzz qualification. Two inactive optional dependencies remain unmaintained.

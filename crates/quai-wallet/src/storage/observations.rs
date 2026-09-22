@@ -4,6 +4,7 @@ pub(super) const OBSERVATION_SCHEMA: &str = "CREATE TABLE observation_cache(scop
 /// Versioned public source observation. A tombstone retains its revision to avoid ABA.
 /// Never use cached data as proof of canonicality, spendability or claim release.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct ObservationCache {
     /// Monotonic local revision, including invalidations.
     pub revision: u64,

@@ -49,6 +49,7 @@ pub use payment::{PaymentAddressAllocation, PaymentAddressRecord, VersionedPayme
 
 /// Atomic scanner snapshot. Importing this requires exact scope and prior generation.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct Snapshot {
     /// Network scope, checked on replacement.
     pub scope: NetworkScope,
@@ -59,8 +60,25 @@ pub struct Snapshot {
     /// Public UTXO candidates; reserved flags are computed from durable claims on reads.
     pub coins: Vec<CandidateCoin>,
 }
+impl Snapshot {
+    /// A snapshot for [`SqliteStore::replace_snapshot`].
+    pub fn new(
+        scope: NetworkScope,
+        generation: u64,
+        checkpoint: Option<Checkpoint>,
+        coins: Vec<CandidateCoin>,
+    ) -> Self {
+        Self {
+            scope,
+            generation,
+            checkpoint,
+            coins,
+        }
+    }
+}
 /// A fresh public address, returned only after its range and metadata are durable.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct AllocatedAddress {
     /// Public address and immutable exact derivation origin.
     pub address: PublicAddress,
@@ -130,6 +148,7 @@ impl SqliteStore {
             return Err(StorageError::Invalid);
         }
         let instance = StoreInstance::allocate()?;
+        create_private(path.as_ref())?;
         let mut connection = Connection::open(path)?;
         connection.busy_timeout(busy_timeout)?;
         // Validate inside a writer transaction to serialize first-open schema creation.
@@ -590,23 +609,58 @@ impl SqliteStore {
         let mut rows = statement.query([&self.key[..]])?;
         let mut result = Vec::new();
         while let Some(row) = rows.next()? {
-            let address = Address::from_bytes(array(&row.get::<_, Vec<u8>>(0)?)?);
-            let public_key = array(&row.get::<_, Vec<u8>>(1)?)?;
-            let origin = KeyOrigin::decode(&row.get::<_, Vec<u8>>(2)?)?;
-            let key = PublicKey::from_sec1_bytes(&public_key).map_err(|_| StorageError::Invalid)?;
-            if key.address() != address
-                || address.zone().map_err(|_| StorageError::Invalid)? != self.scope.zone
-                || result.len() == MAX_COINS
-            {
+            if result.len() == MAX_COINS {
                 return Err(StorageError::Invalid);
             }
-            result.push(PublicAddress {
-                address,
-                public_key,
-                origin,
-            });
+            result.push(self.address_row(row)?);
         }
         Ok(result)
+    }
+    /// Public metadata for exactly these addresses, keyed by address; an
+    /// address this store does not hold is absent from the map.
+    ///
+    /// Each row is validated as [`Self::addresses`] validates it. Validation
+    /// decompresses and hashes the stored key, about 30 µs per row, and a Qi
+    /// wallet only ever adds addresses, so an operation that needs its inputs
+    /// and change should read those rather than the whole table.
+    pub fn public_addresses(
+        &self,
+        addresses: impl IntoIterator<Item = Address>,
+    ) -> Result<BTreeMap<Address, PublicAddress>> {
+        let mut statement = self.connection.prepare_cached(
+            "SELECT address,public_key,origin FROM addresses WHERE scope=?1 AND address=?2",
+        )?;
+        let mut result = BTreeMap::new();
+        for address in addresses {
+            if result.contains_key(&address) {
+                continue;
+            }
+            if result.len() == MAX_COINS {
+                return Err(StorageError::Invalid);
+            }
+            let mut rows = statement.query(params![&self.key[..], &address.bytes()[..]])?;
+            if let Some(row) = rows.next()? {
+                result.insert(address, self.address_row(row)?);
+            }
+        }
+        Ok(result)
+    }
+    /// Decode and validate one `address,public_key,origin` row.
+    fn address_row(&self, row: &rusqlite::Row<'_>) -> Result<PublicAddress> {
+        let address = Address::from_bytes(array(&row.get::<_, Vec<u8>>(0)?)?);
+        let public_key = array(&row.get::<_, Vec<u8>>(1)?)?;
+        let origin = KeyOrigin::decode(&row.get::<_, Vec<u8>>(2)?)?;
+        let key = PublicKey::from_sec1_bytes(&public_key).map_err(|_| StorageError::Invalid)?;
+        if key.address() != address
+            || address.zone().map_err(|_| StorageError::Invalid)? != self.scope.zone
+        {
+            return Err(StorageError::Invalid);
+        }
+        Ok(PublicAddress {
+            address,
+            public_key,
+            origin,
+        })
     }
     /// Atomically replace coins and checkpoint using generation compare-and-swap.
     /// Rewinds or same-height hash changes require explicit invalidation first.
@@ -1183,6 +1237,35 @@ fn signed_payload_read(
         return Err(StorageError::Invalid);
     }
     Ok(Some(payload))
+}
+/// Create a new database file readable by its owner only.
+///
+/// The store holds account xpubs, which reveal every address a wallet owns,
+/// and SQLite otherwise creates files at 0644 under the common umask. SQLite
+/// gives the WAL and shared-memory files the database file's mode, so creating
+/// this one first covers all three. An existing file keeps its permissions, and
+/// `:memory:`, the empty temporary path and `file:` URIs are left to SQLite.
+#[cfg(unix)]
+fn create_private(path: &Path) -> Result<()> {
+    use std::os::unix::fs::OpenOptionsExt;
+    let text = path.as_os_str().as_encoded_bytes();
+    if text.is_empty() || text == b":memory:" || text.starts_with(b"file:") {
+        return Ok(());
+    }
+    match std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .mode(0o600)
+        .open(path)
+    {
+        Ok(_) => Ok(()),
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => Ok(()),
+        Err(_) => Err(StorageError::Database),
+    }
+}
+#[cfg(not(unix))]
+fn create_private(_: &Path) -> Result<()> {
+    Ok(())
 }
 fn insert_address(
     connection: &Connection,

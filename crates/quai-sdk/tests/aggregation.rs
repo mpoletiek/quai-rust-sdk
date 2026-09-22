@@ -10,32 +10,22 @@ use quai_sdk::wallet::{
 use quai_sdk::{U256, Zone};
 use serde_json::Value;
 fn coin(index: u16, denomination: u8) -> CandidateCoin {
-    CandidateCoin {
-        outpoint: OutPoint {
+    CandidateCoin::new(
+        OutPoint {
             transaction_hash: "0x0080008011111111111111111111111111111111111111111111111111111111"
                 .parse()
                 .unwrap(),
             index,
         },
-        address: "0x0088223344556677889900112233445566778899"
+        "0x0088223344556677889900112233445566778899"
             .parse()
             .unwrap(),
-        denomination: Denomination::new(denomination).unwrap(),
-        unlock_height: U256::ZERO,
-        expires_at: None,
-        reserved: false,
-    }
+        Denomination::new(denomination).unwrap(),
+    )
 }
 fn request(fee: u64) -> SelectionRequest {
-    SelectionRequest {
-        zone: Zone::Cyprus1,
-        candidate_height: U256::from(100),
-        target: U256::ZERO,
-        fee: U256::from(fee),
-        max_fee: U256::from(10000),
-        max_inputs: 100,
-        max_outputs: 1000,
-    }
+    SelectionRequest::new(Zone::Cyprus1, U256::from(100), U256::ZERO, 100, 1000)
+        .with_fee(U256::from(fee), U256::from(10000))
 }
 fn conservation(s: &CoinSelection) {
     let inputs: U256 = s
@@ -73,11 +63,11 @@ fn reference_order_and_exact_fee_corrections() {
             .map(|(i, d)| coin(i as u16, d.as_u64().unwrap() as u8))
             .collect();
         let req = request(v["fee"].as_str().unwrap().parse().unwrap());
-        let policy = AggregationPolicy {
-            maximum_input: Denomination::new(v["maximumInput"].as_u64().unwrap() as u8).unwrap(),
-            maximum_output: Denomination::new(v["maximumOutput"].as_u64().unwrap() as u8).unwrap(),
-            require_reduction: false,
-        };
+        let policy = AggregationPolicy::new(
+            Denomination::new(v["maximumInput"].as_u64().unwrap() as u8).unwrap(),
+            Denomination::new(v["maximumOutput"].as_u64().unwrap() as u8).unwrap(),
+            false,
+        );
         let result = select_aggregate(&coins, &req, policy);
         let e = &v["expected"];
         if e["error"] == true {
@@ -124,9 +114,10 @@ fn reference_order_and_exact_fee_corrections() {
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 fn fee_shortfall_is_funded_and_refund_stays_separate() {
     let coins = [coin(0, 1), coin(1, 1), coin(2, 1)];
-    let policy = AggregationPolicy {
-        require_reduction: false,
-        ..Default::default()
+    let policy = {
+        let mut updated = AggregationPolicy::default();
+        updated.require_reduction = false;
+        updated
     };
     let s = select_aggregate(&coins, &request(6), policy).unwrap();
     // Reference pays only 5 of the requested 6 Qits on this exact snapshot.
@@ -156,9 +147,10 @@ fn fee_shortfall_is_funded_and_refund_stays_separate() {
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 fn threshold_preserves_large_coins_and_dispatches_through_sweep() {
     let coins = [coin(0, 1), coin(1, 1), coin(2, 1), coin(3, 7), coin(4, 8)];
-    let mut p = AggregationPolicy {
-        maximum_input: Denomination::new(1).unwrap(),
-        ..Default::default()
+    let mut p = {
+        let mut updated = AggregationPolicy::default();
+        updated.maximum_input = Denomination::new(1).unwrap();
+        updated
     };
     let s = select_aggregate(&coins, &request(0), p).unwrap();
     assert_eq!(s.inputs.len(), 3);

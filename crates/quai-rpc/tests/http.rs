@@ -1,7 +1,7 @@
 //! Real loopback HTTP tests for routing, protocol validation, limits and cancellation.
 #![cfg(all(feature = "http", not(target_arch = "wasm32")))]
 use quai_primitives::{Shard, Zone};
-use quai_rpc::{Endpoint, HttpConfig, HttpTransport, Routing, RpcError, Transport};
+use quai_rpc::{Endpoint, HttpConfig, HttpProxy, HttpTransport, Routing, RpcError, Transport};
 use serde_json::{Value, json};
 use std::time::Duration;
 use tokio::{
@@ -363,4 +363,49 @@ async fn rejects_invalid_config_and_non_http_without_network() {
             .await,
         Err(RpcError::InvalidConfig)
     ));
+}
+
+#[tokio::test]
+async fn an_explicit_proxy_carries_the_request_and_is_redacted() {
+    // The fixture server acts as the proxy: a plain-http endpoint reaches it
+    // as an absolute-form request line naming the real destination.
+    let (proxy, rx, task) = server(|req| {
+        response(&json!({"jsonrpc":"2.0","id":req["id"],"result":"0x3a98"}).to_string())
+    })
+    .await;
+    let proxy_url = proxy
+        .as_str()
+        .split('/')
+        .take(3)
+        .collect::<Vec<_>>()
+        .join("/");
+    let with_credentials = proxy_url.replacen("http://", "http://user:SECRET@", 1);
+    let config =
+        HttpConfig::default().with_proxy(Some(HttpProxy::parse(&with_credentials).unwrap()));
+    assert!(!format!("{config:?}").contains("SECRET"));
+    let destination = Endpoint::parse("http://rpc.invalid:8545/cyprus1").unwrap();
+    let result = HttpTransport::new(config)
+        .unwrap()
+        .request(&destination, "quai_chainId", json!([]))
+        .await
+        .unwrap();
+    assert_eq!(result, "0x3a98");
+    let (headers, _) = rx.await.unwrap();
+    assert!(
+        headers.starts_with("POST http://rpc.invalid:8545/cyprus1 HTTP/1.1\r\n"),
+        "{headers}"
+    );
+    assert!(
+        headers
+            .to_ascii_lowercase()
+            .contains("proxy-authorization: basic")
+    );
+    task.await.unwrap();
+
+    for invalid in ["socks5://127.0.0.1:1080", "ftp://proxy", "not a url"] {
+        assert!(matches!(
+            HttpProxy::parse(invalid),
+            Err(RpcError::InvalidConfig)
+        ));
+    }
 }

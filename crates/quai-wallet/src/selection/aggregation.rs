@@ -3,6 +3,7 @@ use super::*;
 /// Threshold aggregation policy. Increasing denominations requires the pinned
 /// node's first-Qi-transaction block exception; this selector cannot arrange it.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct AggregationPolicy {
     /// Coins up to this denomination are aggregation candidates.
     pub maximum_input: Denomination,
@@ -11,6 +12,20 @@ pub struct AggregationPolicy {
     /// Reject plans that do not reduce the total selected UTXO count. Set false
     /// explicitly to allow the reference's warning-only behavior.
     pub require_reduction: bool,
+}
+impl AggregationPolicy {
+    /// Aggregate inputs up to `maximum_input` into outputs up to `maximum_output`.
+    pub const fn new(
+        maximum_input: Denomination,
+        maximum_output: Denomination,
+        require_reduction: bool,
+    ) -> Self {
+        Self {
+            maximum_input,
+            maximum_output,
+            require_reduction,
+        }
+    }
 }
 impl Default for AggregationPolicy {
     fn default() -> Self {

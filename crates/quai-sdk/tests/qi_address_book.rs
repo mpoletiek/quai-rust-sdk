@@ -481,8 +481,8 @@ impl quai_sdk::rpc::Transport for BatchingMock {
         _: &Endpoint,
         requests: Vec<(&str, Value)>,
     ) -> Option<quai_sdk::rpc::BatchResult> {
-        let payload = requests.len() - 2;
-        // Record only the multi-address reads, not the single bracketed reads
+        let payload = requests.len() - 1;
+        // Record only the multi-address reads, not the single guarded reads
         // that `Provider::read` issues for headers and chain identity.
         if requests
             .iter()
@@ -506,7 +506,6 @@ impl quai_sdk::rpc::Transport for BatchingMock {
                 other => panic!("unexpected batched method {other}"),
             }));
         }
-        responses.push(Ok(json!("0x9")));
         Some(Ok(responses))
     }
 }

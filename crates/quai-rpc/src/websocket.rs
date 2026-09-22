@@ -1,8 +1,8 @@
-use crate::{Endpoint, MAX_BATCH_CALLS, RpcError, Transport, transport::decode_response};
+use crate::{Endpoint, MAX_BATCH_CALLS, RemoteError, RpcError, Transport};
 use futures_util::{SinkExt, StreamExt};
 use quai_primitives::{Address, Hash32};
 use serde::Deserialize;
-use serde_json::{Value, json};
+use serde_json::{Value, json, value::RawValue};
 use std::{
     collections::{HashMap, VecDeque},
     fmt,
@@ -46,6 +46,12 @@ pub struct WsConfig {
     pub subscription_capacity: usize,
     /// Aggregate queued notification budget measured in encoded message bytes.
     pub max_notification_bytes: usize,
+    /// Send a ping after this long without one, and close the session as
+    /// disconnected after two intervals with no inbound frame; None disables
+    /// both. Without it a half-open TCP connection, which a NAT or load
+    /// balancer produces by dropping idle state, goes silent rather than
+    /// failing, and a sparse subscription such as `Accesses` never learns.
+    pub ping_interval: Option<Duration>,
 }
 impl WsConfig {
     /// Replace `connect_timeout`.
@@ -88,6 +94,11 @@ impl WsConfig {
         self.max_notification_bytes = max_notification_bytes;
         self
     }
+    /// Replace `ping_interval`.
+    pub const fn with_ping_interval(mut self, ping_interval: Option<Duration>) -> Self {
+        self.ping_interval = ping_interval;
+        self
+    }
 }
 impl Default for WsConfig {
     fn default() -> Self {
@@ -100,6 +111,7 @@ impl Default for WsConfig {
             max_subscriptions: 16,
             subscription_capacity: 64,
             max_notification_bytes: 8 * 1024 * 1024,
+            ping_interval: Some(Duration::from_secs(30)),
         }
     }
 }
@@ -125,6 +137,9 @@ impl WsConfig {
             || self.max_message_bytes > 16 * 1024 * 1024
             || Instant::now().checked_add(self.connect_timeout).is_none()
             || Instant::now().checked_add(self.request_timeout).is_none()
+            || self.ping_interval.is_some_and(|interval| {
+                interval < Duration::from_millis(10) || interval > Duration::from_secs(3600)
+            })
         {
             return Err(RpcError::InvalidConfig);
         }
@@ -298,7 +313,9 @@ impl fmt::Debug for WsSubscription {
 }
 impl Drop for WsSubscription {
     fn drop(&mut self) {
-        if self.armed {
+        // A subscription the session already ended, by lag or disconnect, has
+        // no server-side registration left to hide, so dropping it is safe.
+        if self.armed && self.terminal.borrow().is_none() {
             let _ = self.owner.inner.shutdown.send(true);
         }
     }
@@ -320,6 +337,10 @@ impl WsSubscription {
             let closed = self.owner.inner.closed.borrow().clone();
             if let Some(error) = terminal.or(closed) {
                 self.finished = true;
+                // Release queued notifications now: each holds part of the
+                // session's shared byte budget, which live subscriptions need.
+                self.receiver.close();
+                while self.receiver.try_recv().is_ok() {}
                 return Err(error);
             }
             tokio::select! {biased;
@@ -332,6 +353,13 @@ impl WsSubscription {
     /// Remove this subscription using exactly one `quai_unsubscribe` request.
     /// Any unsuccessful or cancelled unsubscribe closes the session during Drop.
     pub async fn unsubscribe(mut self) -> Result<(), RpcError> {
+        // A lagged subscription was already removed, and unsubscribed on the
+        // node, by the session itself.
+        if matches!(*self.terminal.borrow(), Some(RpcError::SubscriptionLagged)) {
+            self.armed = false;
+            self.finished = true;
+            return Ok(());
+        }
         let response = self
             .owner
             .request_inner(
@@ -635,9 +663,24 @@ async fn run(
     let notification_bytes = Arc::new(Semaphore::new(config.max_notification_bytes));
     let mut cleanup = tokio::time::interval(Duration::from_millis(10).min(config.request_timeout));
     cleanup.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+    // A disabled keepalive still needs a timer for the select; its arm is off.
+    let ping_period = config.ping_interval.unwrap_or(Duration::from_secs(3600));
+    let mut ping = tokio::time::interval_at(Instant::now() + ping_period, ping_period);
+    ping.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+    let mut last_inbound = Instant::now();
     let failure = loop {
         tokio::select! {biased;
             _=shutdown.changed()=>{break RpcError::Disconnected},
+            _=ping.tick(), if config.ping_interval.is_some()=>{
+                if last_inbound.elapsed() >= ping_period * 2 {
+                    break RpcError::Disconnected;
+                }
+                let result=tokio::select! {biased;
+                    _=shutdown.changed()=>break RpcError::Disconnected,
+                    result=tokio::time::timeout(config.request_timeout,socket.send(Message::Ping(Vec::new().into())))=>result,
+                };
+                match result {Ok(Ok(()))=>{},Ok(Err(error))=>break ws_error(error),Err(_)=>break RpcError::Disconnected}
+            },
             _=cleanup.tick()=>{
                 let mut close=subscriptions.values().any(|subscription|subscription.sender.is_closed());
                 let abandoned:Vec<_>=pending.iter().filter(|(_,request)|request.reply.is_closed()||Instant::now()>=request.deadline).map(|(id,_)|*id).collect();
@@ -666,6 +709,7 @@ async fn run(
             },
             message=socket.next()=>{
                 let message=match message {Some(Ok(message))=>message,Some(Err(error))=>break ws_error(error),None=>break RpcError::Disconnected};
+                last_inbound=Instant::now();
                 let bytes=match &message {
                     Message::Text(text)=>text.as_str().as_bytes(),
                     Message::Binary(bytes)=>bytes.as_ref(),
@@ -679,7 +723,19 @@ async fn run(
                     },
                     _=>break RpcError::InvalidResponse("unexpected WebSocket frame"),
                 };
-                if let Err(error)=dispatch(bytes,&mut pending,&mut subscriptions,&mut recently_unsubscribed,next_id.load(Ordering::Relaxed),&notification_bytes) {break error}
+                let lagged=match dispatch(bytes,&mut pending,&mut subscriptions,&mut recently_unsubscribed,next_id.load(Ordering::Relaxed),&notification_bytes) {Ok(lagged)=>lagged,Err(error)=>break error};
+                // Unsubscribe a lagged subscription on the node, so none is
+                // left running unseen. The reply is untracked: it arrives as a
+                // late response to an issued ID, which dispatch accepts.
+                if let Some(subscription)=lagged {
+                    let Ok(id)=next_id.fetch_update(Ordering::Relaxed,Ordering::Relaxed,|id|id.checked_add(1)) else {break RpcError::RequestIdExhausted};
+                    let body=match encode_request(id,"quai_unsubscribe",json!([subscription]),config.max_message_bytes) {Ok(body)=>body,Err(error)=>break error};
+                    let result=tokio::select! {biased;
+                        _=shutdown.changed()=>break RpcError::Disconnected,
+                        result=tokio::time::timeout(config.request_timeout,socket.send(Message::Text(body.into())))=>result,
+                    };
+                    match result {Ok(Ok(()))=>{},Ok(Err(error))=>break ws_error(error),Err(_)=>break RpcError::Disconnected}
+                }
             },
         }
     };
@@ -701,14 +757,31 @@ async fn run(
     let _ = closed.send(Some(failure));
 }
 
+/// A field's raw JSON, kept unparsed so a frame is parsed once: the envelope
+/// routes on it, and only the routed part is decoded.
 #[derive(Default)]
 enum Slot {
     #[default]
     Absent,
-    Present(Value),
+    Present(Box<RawValue>),
 }
 fn slot<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Slot, D::Error> {
-    Value::deserialize(deserializer).map(Slot::Present)
+    Box::<RawValue>::deserialize(deserializer).map(Slot::Present)
+}
+/// A response's result, or its error, from the raw slots; exactly one is allowed.
+fn response_value(result: Slot, error: Slot) -> Result<Value, RpcError> {
+    match (result, error) {
+        (Slot::Present(result), Slot::Absent) => serde_json::from_str(result.get())
+            .map_err(|_| RpcError::InvalidResponse("malformed envelope")),
+        (Slot::Absent, Slot::Present(error)) => {
+            let error: RemoteError = serde_json::from_str(error.get())
+                .map_err(|_| RpcError::InvalidResponse("malformed error"))?;
+            Err(RpcError::Remote(error))
+        }
+        _ => Err(RpcError::InvalidResponse(
+            "expected exactly one result or error",
+        )),
+    }
 }
 #[derive(Deserialize)]
 struct WireEnvelope {
@@ -729,10 +802,6 @@ struct Notification {
     subscription: String,
     result: Value,
 }
-#[derive(Deserialize)]
-struct NotificationFrame {
-    params: Notification,
-}
 /// Maximum subscription IDs remembered after unsubscribing, enough to cover
 /// notifications already in flight when the acknowledgement was processed.
 const MAX_RECENTLY_UNSUBSCRIBED: usize = 64;
@@ -744,7 +813,7 @@ fn dispatch(
     recently_unsubscribed: &mut VecDeque<String>,
     next_id: u64,
     notification_bytes: &Arc<Semaphore>,
-) -> Result<(), RpcError> {
+) -> Result<Option<String>, RpcError> {
     // Binary frames reach here as raw bytes. serde skips an ignored field's
     // contents without validating UTF-8, so without this check a frame that is
     // not JSON text was routed by its ID, then failed decoding as that
@@ -763,19 +832,18 @@ fn dispatch(
         envelope.result,
         envelope.error,
     ) {
-        (Slot::Present(id), Slot::Absent, Slot::Absent, _, _) => {
-            let id = id
-                .as_u64()
-                .ok_or(RpcError::InvalidResponse("invalid response ID"))?;
+        (Slot::Present(id), Slot::Absent, Slot::Absent, result, error) => {
+            let id: u64 = serde_json::from_str(id.get())
+                .map_err(|_| RpcError::InvalidResponse("invalid response ID"))?;
             if id == 0 || id >= next_id {
                 return Err(RpcError::InvalidResponse("unissued response ID"));
             }
-            let result = decode_response(bytes, id);
+            let result = response_value(result, error);
             let Some(mut request) = pending.remove(&id) else {
                 // IDs are never reused; this can only be a late/duplicate response to an abandoned/completed request.
-                return result.map(|_| ()).or_else(|error| {
+                return result.map(|_| None).or_else(|error| {
                     if matches!(error, RpcError::Remote(_)) {
-                        Ok(())
+                        Ok(None)
                     } else {
                         Err(error)
                     }
@@ -806,7 +874,7 @@ fn dispatch(
                 recently_unsubscribed.push_back(id);
             }
             let _ = request.reply.send(result);
-            Ok(())
+            Ok(None)
         }
         (
             Slot::Absent,
@@ -814,46 +882,52 @@ fn dispatch(
             Slot::Present(params),
             Slot::Absent,
             Slot::Absent,
-        ) if method == json!("quai_subscription") => {
-            let _ = params;
-            let notification: NotificationFrame = serde_json::from_slice(bytes)
+        ) if serde_json::from_str::<String>(method.get())
+            .is_ok_and(|method| method == "quai_subscription") =>
+        {
+            let notification: Notification = serde_json::from_str(params.get())
                 .map_err(|_| RpcError::InvalidResponse("malformed subscription notification"))?;
-            let notification = notification.params;
             let Some(subscription) = subscriptions.get(&notification.subscription) else {
                 // A notification that raced its own unsubscribe acknowledgement
                 // is expected, not a protocol violation, and must not fail the
                 // whole multiplexed session: doing so would cancel every other
                 // subscription and every in-flight request on this connection.
                 if recently_unsubscribed.contains(&notification.subscription) {
-                    return Ok(());
+                    return Ok(None);
                 }
                 return Err(RpcError::InvalidResponse("unknown subscription ID"));
             };
-            let permit = match notification_bytes
+            if let Ok(permit) = notification_bytes
                 .clone()
                 .try_acquire_many_owned(bytes.len() as u32)
             {
-                Ok(permit) => permit,
-                Err(_) => {
-                    let _ = subscription
-                        .terminal
-                        .send(Some(RpcError::SubscriptionLagged));
-                    return Err(RpcError::Disconnected);
+                match subscription.sender.try_send(QueuedNotification {
+                    payload: notification.result,
+                    _permit: permit,
+                }) {
+                    Ok(()) => return Ok(None),
+                    Err(mpsc::error::TrySendError::Closed(_)) => {
+                        return Err(RpcError::Disconnected);
+                    }
+                    Err(mpsc::error::TrySendError::Full(_)) => {}
                 }
-            };
-            match subscription.sender.try_send(QueuedNotification {
-                payload: notification.result,
-                _permit: permit,
-            }) {
-                Ok(()) => Ok(()),
-                Err(mpsc::error::TrySendError::Full(_)) => {
-                    let _ = subscription
-                        .terminal
-                        .send(Some(RpcError::SubscriptionLagged));
-                    Err(RpcError::Disconnected)
-                }
-                Err(mpsc::error::TrySendError::Closed(_)) => Err(RpcError::Disconnected),
             }
+            // This subscriber fell behind, or the queued total hit the byte
+            // budget. Continuity is lost for it alone: end it with an explicit
+            // terminal error and leave every other subscription and request on
+            // the session running. The run loop unsubscribes it on the node;
+            // notifications already in flight are tolerated as for any
+            // unsubscribe.
+            if let Some(subscription) = subscriptions.remove(&notification.subscription) {
+                let _ = subscription
+                    .terminal
+                    .send(Some(RpcError::SubscriptionLagged));
+            }
+            if recently_unsubscribed.len() == MAX_RECENTLY_UNSUBSCRIBED {
+                recently_unsubscribed.pop_front();
+            }
+            recently_unsubscribed.push_back(notification.subscription.clone());
+            Ok(Some(notification.subscription))
         }
         _ => Err(RpcError::InvalidResponse("unexpected WebSocket envelope")),
     }
@@ -927,7 +1001,7 @@ pub(crate) fn fuzz_dispatch(layout: u8, frames: &[&[u8]]) {
         let frame_id = serde_json::from_slice::<WireEnvelope>(frame)
             .ok()
             .and_then(|envelope| match envelope.id {
-                Slot::Present(id) => id.as_u64(),
+                Slot::Present(id) => serde_json::from_str::<u64>(id.get()).ok(),
                 Slot::Absent => None,
             });
         for (id, receiver) in &mut replies {

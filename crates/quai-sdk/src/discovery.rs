@@ -134,14 +134,11 @@ impl<T: Transport + SourceConcurrency> ObservationSource for AccountRpcSource<'_
         Ok(addresses
             .iter()
             .zip(states)
-            .map(|(address, state)| AddressObservation {
-                scope,
-                checkpoint,
-                address: address.address,
-                ever_used: None,
-                account_balance: Some(state.balance),
-                account_nonce: Some(state.nonce),
-                coins: vec![],
+            .map(|(address, state)| {
+                let mut observation = AddressObservation::new(scope, checkpoint, address.address);
+                observation.account_balance = Some(state.balance);
+                observation.account_nonce = Some(state.nonce);
+                observation
             })
             .collect())
     }

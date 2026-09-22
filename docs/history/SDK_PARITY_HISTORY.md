@@ -2,7 +2,7 @@
 
 This is the chronological review preserved on September 13, 2026. Its earlier gap
 counts and conclusions describe earlier revisions. For the current assessment, use
-[SDK_PARITY_ANALYSIS.md](SDK_PARITY_ANALYSIS.md).
+[SDK_PARITY_ANALYSIS.md](../../SDK_PARITY_ANALYSIS.md).
 
 # Rust SDK versus quais.js: feature parity and differences
 
@@ -15,7 +15,7 @@ and several network/release qualification gates remain open.
 
 This document compares the checked-in implementation, rather than treating an
 API name, a passing synthetic test or a large declaration count as completion.
-[SDK documentation](SDK_DOCUMENTATION.md) explains the supported workflows.
+[SDK documentation](../../SDK_DOCUMENTATION.md) explains the supported workflows.
 
 ## Audit of this report
 
@@ -29,11 +29,11 @@ The declaration ledger has fallen behind implementation. Specific examples:
 
 | Ledger observation at the audited commit | Implementation evidence | Audit conclusion |
 | --- | --- | --- |
-| `denominations` is pending | `Denomination::VALUES` and validated indices in [consensus](crates/quai-consensus/src/qi.rs); [denomination tests](crates/quai-consensus/tests/qi_vectors.rs) | Fixed denominations are implemented; the export mapping is unfinished |
-| `FewestCoinSelector.performSelection` is pending | `select_fewest` in [selection](crates/quai-wallet/src/selection.rs), with [69 reference selection vectors](crates/quai-wallet/tests/selection.rs) | Coin selection is implemented; class/configuration semantics still need explicit reconciliation |
-| `Wallet.signTransaction` is pending | `QuaiTransaction::sign` in [consensus](crates/quai-consensus/src/quai.rs), [signed reference vectors](crates/quai-consensus/tests/quai_vectors.rs), and [account sessions](crates/quai-sdk/src/accounts.rs) | Transaction signing exists; the JS wallet method's complete population/provider behavior is a separate mapping question |
-| `TransactionReceipt.hash`, `.status` and `.logs` are pending | `Receipt` has `transaction_hash`, typed `outcome` and `logs` in [provider types](crates/quai-provider/src/types.rs) | Receipt data is implemented with Rust representations; the entire JS receipt helper class is not thereby qualified |
-| 16 transaction property rows say specialized Qi is awaiting typed builders | Public conversion/wrapping types in [consensus exports](crates/quai-consensus/src/lib.rs), with [conversion](crates/quai-consensus/tests/conversions.rs) and [wrapping](crates/quai-consensus/tests/wrapping.rs) vectors | That rationale is stale. It has been corrected without promoting the rows to completed parity |
+| `denominations` is pending | `Denomination::VALUES` and validated indices in [consensus](../../crates/quai-consensus/src/qi.rs); [denomination tests](../../crates/quai-consensus/tests/qi_vectors.rs) | Fixed denominations are implemented; the export mapping is unfinished |
+| `FewestCoinSelector.performSelection` is pending | `select_fewest` in [selection](../../crates/quai-wallet/src/selection.rs), with [69 reference selection vectors](../../crates/quai-wallet/tests/selection.rs) | Coin selection is implemented; class/configuration semantics still need explicit reconciliation |
+| `Wallet.signTransaction` is pending | `QuaiTransaction::sign` in [consensus](../../crates/quai-consensus/src/quai.rs), [signed reference vectors](../../crates/quai-consensus/tests/quai_vectors.rs), and [account sessions](../../crates/quai-sdk/src/accounts.rs) | Transaction signing exists; the JS wallet method's complete population/provider behavior is a separate mapping question |
+| `TransactionReceipt.hash`, `.status` and `.logs` are pending | `Receipt` has `transaction_hash`, typed `outcome` and `logs` in [provider types](../../crates/quai-provider/src/types.rs) | Receipt data is implemented with Rust representations; the entire JS receipt helper class is not thereby qualified |
+| 16 transaction property rows say specialized Qi is awaiting typed builders | Public conversion/wrapping types in [consensus exports](../../crates/quai-consensus/src/lib.rs), with [conversion](../../crates/quai-consensus/tests/conversions.rs) and [wrapping](../../crates/quai-consensus/tests/wrapping.rs) vectors | That rationale is stale. It has been corrected without promoting the rows to completed parity |
 
 Ignoring export subpaths, the 3,928 rows reduce to 2,023 distinct
 `(symbol, behavior, signatures)` keys. That still counts inherited class members,
@@ -49,11 +49,11 @@ Three different completion questions must be answered separately:
 | Does every required published quais.js behavior have a tested Rust equivalent or justified difference? | Not established. The semantic review is unfinished, and browser/native orchestration has explicit storage and lifecycle differences |
 | Is the SDK production-qualified? | No. Funded unmodified-network acceptance and broader reliability/security/platform qualification remain open |
 
-The browser gap is visible in the [facade feature gates](crates/quai-sdk/src/lib.rs):
+The browser gap is visible in the [facade feature gates](../../crates/quai-sdk/src/lib.rs):
 `accounts`, `qi`, `recovery` and related full native sessions require native
 SQLite, while browser sessions compose their own IndexedDB custody, preparation, signing,
 submission and recovery APIs.
-Existing [reconciliation APIs](crates/quai-sdk/src/recovery.rs) must not be
+Existing [reconciliation APIs](../../crates/quai-sdk/src/recovery.rs) must not be
 reported as wholly absent merely because automatic lifecycle application remains
 unfinished. Similarly, an unrun funded acceptance test is a qualification gap,
 not evidence that its transaction builder has not been implemented.
@@ -67,13 +67,13 @@ requirements for declaring reference parity.
 ## Reference and method
 
 The reference is the **published `quais@1.0.0-alpha.57` npm artifact**, locked in
-[compatibility/package-lock.json](compatibility/package-lock.json). The
-[September 13 registry recheck](test-infra/reports/reference-version-recheck-2026-09-13.json)
+[compatibility/package-lock.json](../../compatibility/package-lock.json). The
+[September 13 registry recheck](../../test-infra/reports/reference-version-recheck-2026-09-13.json)
 found the same latest version and integrity. That is a dated observation, not a
 promise that the release remains latest.
 
-The [reference lock](compatibility/reference-lock.json) and
-[source manifest](compatibility/reference-source-manifest.json) retain provenance
+The [reference lock](../../compatibility/reference-lock.json) and
+[source manifest](../../compatibility/reference-source-manifest.json) retain provenance
 and hashes for 153 published source files. The separately inspected quais.js
 checkout is `94e32c7eb9960de36054135c40a341c44c84f922`; npm's recorded `gitHead` is
 `3bd0bf5b077f4aa5fab480474e3982e50e1af506`. Those commit IDs are not interchangeable.
@@ -89,7 +89,7 @@ The TypeScript inventory resolves all 12 published export roots/subpaths,
 including aliases, overloads and inherited public class members. There are 581
 export entries and 3347 member entries: **3928 tracking rows**, with repeated
 exports and inherited definitions included. These are not 3928 independent
-features. The [parity ledger](compatibility/parity.json) preserves the denominator
+features. The [parity ledger](../../compatibility/parity.json) preserves the denominator
 and per-row Rust APIs, test paths, documentation and deviation notes.
 
 | Ledger status | Rows | Meaning |
@@ -105,7 +105,7 @@ its text must be inspected. A `pending` type alias may have a straightforward
 Rust equivalent, while a pending wallet method can represent substantial work.
 This analysis does not relabel unresolved rows to make the counts appear complete.
 
-The [HD wallet review](docs/HD_WALLET_PARITY_REVIEW.md) maps exact derivation,
+The [HD wallet review](../HD_WALLET_PARITY_REVIEW.md) maps exact derivation,
 address collections, channels, scanning, signing and sending. Cached address-status
 views and verified legacy wallet-JSON migration now have native/worker tests.
 Both pinned HD `xPub()` methods return private xprv strings; Rust public-root
@@ -137,15 +137,15 @@ export deliberately corrects that exposure.
 | Backup/restore | Authenticated private origins, public ownership proofs, channels, burned floors, exact candidate families, monotonic merge | Portable backups retain floors/exposures rather than missing allocation request history; browser/native storage APIs differ |
 | Platform and release | Linux/macOS/Windows CI, Chromium, native/Wasm extracted package checks and bounded sanitizer fuzzing | Broader engine/extension/fault/reorg/soak/performance, funded acceptance and independent security review remain open; crates.io publishing disabled |
 
-Evidence for the wallet rows is linked from [wallet workflows](docs/WALLET_WORKFLOWS.md),
-[browser custody](docs/BROWSER_QI_CUSTODY.md), [atomic restore](docs/BROWSER_ATOMIC_RESTORE.md),
-[ABI](crates/quai-abi/README.md), [provider review](docs/PROVIDER_PARITY_REVIEW_2026-09-13.md)
-and [retained test reports](test-infra/reports). Per-declaration evidence is in the
-machine-readable ledger. [Unknown account replacements](docs/ACCOUNT_NONCE_REPLACEMENTS.md)
+Evidence for the wallet rows is linked from [wallet workflows](../WALLET_WORKFLOWS.md),
+[browser custody](../BROWSER_QI_CUSTODY.md), [atomic restore](../BROWSER_ATOMIC_RESTORE.md),
+[ABI](../../crates/quai-abi/README.md), [provider review](PROVIDER_PARITY_REVIEW_2026-09-13.md)
+and [retained test reports](../../test-infra/reports). Per-declaration evidence is in the
+machine-readable ledger. [Unknown account replacements](../ACCOUNT_NONCE_REPLACEMENTS.md)
 now have executable reference comparisons and typed observation/wait APIs.
-The [local/watch-only signer review](docs/SIGNER_PARITY_REVIEW.md) reconciles
+The [local/watch-only signer review](../SIGNER_PARITY_REVIEW.md) reconciles
 provider composition, signing, HD origins and native/Wasm legacy key interchange.
-The [Qi selection review](docs/QI_SELECTION_PARITY_REVIEW.md) maps fixed
+The [Qi selection review](../QI_SELECTION_PARITY_REVIEW.md) maps fixed
 denominations, coin records, selection state and corrected fee adjustments.
 
 ## Concrete remaining gaps
@@ -183,21 +183,21 @@ application could build equivalent behavior.
 
 | Addition/difference | Practical effect | Evidence |
 | --- | --- | --- |
-| Typed ledger/zone/network boundaries | Earlier rejection of wrong-ledger destinations and scoped storage/claim confusion | [primitives](crates/quai-primitives/README.md), [storage](crates/quai-wallet/STORAGE.md) |
-| Durable prepare/sign/submit separation | Exact authorized bytes and claims survive restart before network ambiguity | [account workflow](docs/account-workflow.md), [Qi workflow](docs/qi-transactions.md) |
-| Conservative candidate-family custody | Fee replacements retain roots/claims and merge compatible branches without releasing funds on uncertain observations | [account custody](docs/BROWSER_ACCOUNT_CUSTODY.md), [Qi custody](docs/BROWSER_QI_CUSTODY.md) |
-| Durable range-before-search allocation | Cancellation and failed searches cannot expose a reused HD/payment index | [allocation restore](docs/BROWSER_ALLOCATION_RESTORE.md), [discovery](crates/quai-wallet/DISCOVERY.md) |
-| Atomic browser recovery | All selected live allocation/account/Qi/payment journals restore in one transaction; conflicts cannot partially update a wallet | [atomic restore](docs/BROWSER_ATOMIC_RESTORE.md) |
-| Ownership-proved authenticated full backup | Effective origins, burned floors, channels and exact signed candidates restore without trusting stale checkpoints | [backup format](crates/quai-wallet/FULL_BACKUP_FORMAT.md), [capture](docs/PORTABLE_WALLET_CAPTURE.md) |
-| Explicit imported payment-account backup | Retains guarded account xprv while documenting its unprovable omitted ancestry | [payment origins](crates/quai-payments/README.md), [backup format](crates/quai-wallet/FULL_BACKUP_FORMAT.md) |
-| Canonical contract-code preflight | Binds deployment presence/code hash to genesis and rechecked numeric block observations | [code preflight](docs/CONTRACT_CODE_PREFLIGHT.md) |
-| Strict canonical/bounded parsing | Rejects duplicate JSON fields, ambiguous ABI selectors, malformed encodings and resource overflow early | [ABI](crates/quai-abi/README.md), [RPC](crates/quai-rpc/README.md), [browser](crates/quai-browser/README.md) |
-| Verified injected results | Recovers message/typed signatures and validates exact returned transaction fields and context | [browser](crates/quai-browser/README.md) |
-| Guarded secret ownership | Redacted diagnostics and zeroizing owned buffers; explicit secret exports | [crypto](crates/quai-crypto/README.md), [keystore limits](crates/quai-keystore/README.md) |
-| Exact numeric corrections | Mathematical fixed-point rounding, declared integer bounds and no fee shortfall acceptance | [fixed point](crates/quai-primitives/README.md), [ABI values](crates/quai-abi/README.md), [selection vectors](compatibility/fixtures/selection.json) |
-| Exact CREATE init bytes | Preserves leading zeros that the pinned JS predictor strips | [deployment prediction](crates/quai-primitives/README.md) |
-| Explicit protocol fee/redemption profiles | Refuses generic specialized estimates or silent redemption dust under an asserted profile | [conversions/wrappers](docs/WALLET_WORKFLOWS.md) |
-| Finite resource policies | Bounds scans, queues, payloads, KDFs and retained journals instead of unbounded convenience behavior | [SDK limits](SDK_DOCUMENTATION.md#errors-and-operational-limits) |
+| Typed ledger/zone/network boundaries | Earlier rejection of wrong-ledger destinations and scoped storage/claim confusion | [primitives](../../crates/quai-primitives/README.md), [storage](../../crates/quai-wallet/STORAGE.md) |
+| Durable prepare/sign/submit separation | Exact authorized bytes and claims survive restart before network ambiguity | [account workflow](../account-workflow.md), [Qi workflow](../qi-transactions.md) |
+| Conservative candidate-family custody | Fee replacements retain roots/claims and merge compatible branches without releasing funds on uncertain observations | [account custody](../BROWSER_ACCOUNT_CUSTODY.md), [Qi custody](../BROWSER_QI_CUSTODY.md) |
+| Durable range-before-search allocation | Cancellation and failed searches cannot expose a reused HD/payment index | [allocation restore](../BROWSER_ALLOCATION_RESTORE.md), [discovery](../../crates/quai-wallet/DISCOVERY.md) |
+| Atomic browser recovery | All selected live allocation/account/Qi/payment journals restore in one transaction; conflicts cannot partially update a wallet | [atomic restore](../BROWSER_ATOMIC_RESTORE.md) |
+| Ownership-proved authenticated full backup | Effective origins, burned floors, channels and exact signed candidates restore without trusting stale checkpoints | [backup format](../../crates/quai-wallet/FULL_BACKUP_FORMAT.md), [capture](../PORTABLE_WALLET_CAPTURE.md) |
+| Explicit imported payment-account backup | Retains guarded account xprv while documenting its unprovable omitted ancestry | [payment origins](../../crates/quai-payments/README.md), [backup format](../../crates/quai-wallet/FULL_BACKUP_FORMAT.md) |
+| Canonical contract-code preflight | Binds deployment presence/code hash to genesis and rechecked numeric block observations | [code preflight](../CONTRACT_CODE_PREFLIGHT.md) |
+| Strict canonical/bounded parsing | Rejects duplicate JSON fields, ambiguous ABI selectors, malformed encodings and resource overflow early | [ABI](../../crates/quai-abi/README.md), [RPC](../../crates/quai-rpc/README.md), [browser](../../crates/quai-browser/README.md) |
+| Verified injected results | Recovers message/typed signatures and validates exact returned transaction fields and context | [browser](../../crates/quai-browser/README.md) |
+| Guarded secret ownership | Redacted diagnostics and zeroizing owned buffers; explicit secret exports | [crypto](../../crates/quai-crypto/README.md), [keystore limits](../../crates/quai-keystore/README.md) |
+| Exact numeric corrections | Mathematical fixed-point rounding, declared integer bounds and no fee shortfall acceptance | [fixed point](../../crates/quai-primitives/README.md), [ABI values](../../crates/quai-abi/README.md), [selection vectors](../../compatibility/fixtures/selection.json) |
+| Exact CREATE init bytes | Preserves leading zeros that the pinned JS predictor strips | [deployment prediction](../../crates/quai-primitives/README.md) |
+| Explicit protocol fee/redemption profiles | Refuses generic specialized estimates or silent redemption dust under an asserted profile | [conversions/wrappers](../WALLET_WORKFLOWS.md) |
+| Finite resource policies | Bounds scans, queues, payloads, KDFs and retained journals instead of unbounded convenience behavior | [SDK limits](../../SDK_DOCUMENTATION.md#errors-and-operational-limits) |
 
 JavaScript-specific constructors, branding, mutable singleton hooks, named
 `Result` properties, Promise-like addresses and dynamic contract methods often
@@ -209,7 +209,7 @@ by changing expected vectors.
 The reference also contains placeholders: `waitForBlock` throws
 `NOT_IMPLEMENTED`, and its JSON-RPC transaction-result path does not supply
 historical execution return data. Rust does not need a throwing placeholder to
-claim that unsupported capability. The [provider review](docs/PROVIDER_PARITY_REVIEW_2026-09-13.md)
+claim that unsupported capability. The [provider review](PROVIDER_PARITY_REVIEW_2026-09-13.md)
 retains executable reference observations and the precise distinction.
 
 ## Evidence and completion criteria
@@ -245,7 +245,7 @@ root/subpath exports account for much of the volume.
 ## Remote JSON-RPC account signer reconciliation
 
 All 40 `JsonRpcSigner` declaration rows now map to explicit Rust behavior in
-[the remote signer guide](docs/RPC_SIGNER.md). Native and Wasm signing support
+[the remote signer guide](../RPC_SIGNER.md). Native and Wasm signing support
 personal/typed/legacy message requests, exact type-0 signing, finite-duration
 unlocking and wallet-mediated sends. Returned signatures are recovered and
 transactions compared field by field. Send acknowledgements require separate
@@ -257,7 +257,7 @@ nonce claims. Provider conveniences use typed requests and explicit quotation.
 
 Reviewed 272 declaration rows across `Block`, `TransactionReceipt`,
 `ContractTransactionReceipt`, `Log`, `EventLog` and `UndecodedEventLog`.
-[The response review](docs/RESPONSE_PARITY.md) maps typed data, explicit provider
+[The response review](../RESPONSE_PARITY.md) maps typed data, explicit provider
 reads, canonical confirmation/replay composition and ABI log interpretation.
 New APIs add exact block lookup, bounded metadata/outbound views, checked receipt
 fees, normalized JSON exports and receipt log views that retain decoding errors.
@@ -268,7 +268,7 @@ implementation. No archive execution data or finality is inferred.
 ## Provider family lifecycle reconciliation
 
 Reviewed 702 previously pending/partial rows across the six main provider classes.
-[The provider review](docs/PROVIDER_PARITY.md) documents explicit routing,
+[The provider review](../PROVIDER_PARITY.md) documents explicit routing,
 initialization futures, request/error normalization, detached responses, remote
 account selection, bounded subscriptions and local event delivery. New APIs add
 passive account listing, native WebSocket state inspection and a portable bounded
@@ -282,7 +282,7 @@ No transaction is resubmitted or nonce released by connection/event recovery.
 
 Named call/return/error/event results, parameter trees, individual fragment
 formatting, bounded sync/async walking and exact gas metadata now have Rust APIs
-and native/browser evidence. The [ABI reflection review](docs/ABI_REFLECTION_PARITY.md)
+and native/browser evidence. The [ABI reflection review](../ABI_REFLECTION_PARITY.md)
 records source defects (gas JSON serialization, indexed array metadata loss and
 prototype-key omission), eager decoding and explicit Rust collection/type choices.
 Gas hints do not change transaction fee policy. Standalone named tuple metadata
@@ -297,7 +297,7 @@ and production release qualification are not claimed.
 
 ## Typed-data utility review — 2026-09-13
 
-The [typed-data review](docs/TYPED_DATA_PARITY.md) closes primitive/array-root
+The [typed-data review](../TYPED_DATA_PARITY.md) closes primitive/array-root
 encoding, reusable type encoders, immutable schema views and value traversal.
 Published encodings match 107 independent vectors; visitor differences include
 strict extra-field rejection, complete shape validation before callbacks and
@@ -311,7 +311,7 @@ full feature parity and release qualification remain open.
 
 ## Signature and signing-key review — 2026-09-13
 
-The [crypto review](docs/CRYPTO_PARITY.md) closes EIP-2098 compact signatures,
+The [crypto review](../CRYPTO_PARITY.md) closes EIP-2098 compact signatures,
 explicit legacy signature metadata, checked V/chain helpers, full SEC1 ECDH
 output and general public-point addition. Rust validates scalar/point ownership
 and low S instead of retaining the published permissive constructor behavior.
@@ -325,7 +325,7 @@ Wordlist, transaction/contract response and transport utility reviews remain ope
 
 ## Wordlist and mnemonic review — 2026-09-13
 
-[Wordlist parity](docs/WORDLIST_PARITY.md) covers all ten compiled dictionaries,
+[Wordlist parity](../WORDLIST_PARITY.md) covers all ten compiled dictionaries,
 checked lookups, phrase conventions, bounded OWL/OWL-A decoding, custom BIP39
 mnemonics and exact seed derivation. Explicit Chinese entropy export avoids a
 backend language-ambiguity panic. Guarded secret outputs, eager checksums and
@@ -339,7 +339,7 @@ statuses, not independent feature counts or a completion percentage.
 
 ## Transaction interchange review — 2026-09-13
 
-[Transaction interchange parity](docs/TRANSACTION_INTERCHANGE_PARITY.md) reconciles
+[Transaction interchange parity](../TRANSACTION_INTERCHANGE_PARITY.md) reconciles
 the abstract/account/Qi classes, generic protobuf helpers and access-list forms.
 The document API covers exact JSON data, verified signatures and supplied identity
 claims, all supported Qi operations, full quantities and every Qi destination
@@ -353,7 +353,7 @@ counts do not imply complete application workflows or funded acceptance.
 
 ## Transaction response review — 2026-09-13
 
-[Response parity](docs/TRANSACTION_RESPONSE_PARITY.md) reconciles typed account,
+[Response parity](../TRANSACTION_RESPONSE_PARITY.md) reconciles typed account,
 Qi and contract response classes with explicit provider ownership, exact node
 JSON, canonical membership/depth observations and bounded native/browser waits.
 New transaction waits support Qi without requiring account-style receipts;
@@ -368,7 +368,7 @@ unsupported source conveniences and node claims are documented separately.
 
 ## Contract review — 2026-09-13
 
-[Contract parity](docs/CONTRACT_PARITY.md) reconciles 212 binding, factory, event
+[Contract parity](../CONTRACT_PARITY.md) reconciles 212 binding, factory, event
 payload and associated type rows: 174 pending and all 16 remaining partial rows
 now have concrete equivalents or documented differences. The ledger has 505
 pending declarations; this is not a feature-completion percentage. Raw
@@ -379,7 +379,7 @@ reviewed. Event delivery and signing remain application-owned compositions.
 
 ## Resource fetch review — 2026-09-13
 
-[Fetch parity](docs/FETCH_PARITY.md) closes 116 pending rows with explicit bounded
+[Fetch parity](../FETCH_PARITY.md) closes 116 pending rows with explicit bounded
 request/response models, native/browser execution, cancellation, per-client hooks,
 data/custom/IPFS gateways and opt-in retry/redirect policy. Source credential
 forwarding, Retry-After unit handling and diagnostic exposure are corrected.
@@ -390,7 +390,7 @@ independent features or a completion percentage.
 
 ## Network, public-node and KDF review — 2026-09-13
 
-[Utility parity](docs/UTILITY_PARITY.md) reconciles 142 rows for network/fee
+[Utility parity](../UTILITY_PARITY.md) reconciles 142 rows for network/fee
 metadata, BIP44, BaseWallet, standalone PBKDF2/scrypt and subscriber lifecycles.
 Network registries are explicit and bounded; raw public derivation supports
 synthetic roots or checked metadata. KDF outputs are guarded and total output-block
@@ -402,7 +402,7 @@ MuSig adapter operations and aggregation threshold policy still under review.
 
 ### Curve adapter and aggregation review
 
-The [curve and aggregation review](docs/CURVE_AND_AGGREGATION_PARITY.md) maps all
+The [curve and aggregation review](../CURVE_AND_AGGREGATION_PARITY.md) maps all
 26 operations inside the published `musigCrypto` object and the `N` constant.
 New guarded scalar arithmetic, validated point multiplication/lifting and bounded
 multipart/tagged hashes complete this adapter. UTF-8 tags are available separately
@@ -416,7 +416,7 @@ rows are reconciled; 235 remain pending.
 
 ### Final declaration reconciliation
 
-The [final declaration review](docs/DECLARATION_PARITY.md) closes the last 235
+The [final declaration review](../DECLARATION_PARITY.md) closes the last 235
 pending rows. All 3928 declarations are now mapped: 74 are marked implemented
 and 3854 carry an explicit deviation; none are pending or partial. These counts
 are declaration bookkeeping, not independent-feature percentages or a statement
@@ -426,7 +426,7 @@ Rust equivalents for the remaining type aliases and runtime helpers.
 
 ### Fixed-point deviation closure
 
-The [fixed-point review](docs/FIXED_POINT_PARITY.md) implements the five previously
+The [fixed-point review](../FIXED_POINT_PARITY.md) implements the five previously
 omitted wrapping/float methods with explicit Rust names. Five native/Chromium
 tests cover 632 differential operations, exhaustive eight-bit operand pairs and
 source signed-minimum corrections. Remaining empty API mappings are checked

@@ -66,6 +66,7 @@ pub enum ContractError {
 
 /// Decoded event values together with their complete source association and removal flag.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct ContractEvent {
     /// Caller-selected ABI declaration, not proof of the emitter's semantics.
     pub signature: String,
@@ -152,11 +153,21 @@ fn receipt_logs<'a>(
 /// Appending bytes can affect hand-written init code that inspects trailing code;
 /// review/simulate the final bytes, never assume arbitrary init code ignores them.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct DeploymentSearch {
     /// First suffix, big endian. Overflow stops rather than reusing a suffix.
     pub start_salt: u32,
     /// Maximum candidates, from one through 10,000.
     pub max_attempts: u32,
+}
+impl DeploymentSearch {
+    /// Up to `max_attempts` suffixes from `start_salt`.
+    pub const fn new(start_salt: u32, max_attempts: u32) -> Self {
+        Self {
+            start_salt,
+            max_attempts,
+        }
+    }
 }
 /// Frozen deployment bytes, nonce and predicted address, before fee parameters.
 #[derive(Debug)]
@@ -499,12 +510,11 @@ impl<'a, T: Transport> Contract<'a, T> {
         topics: Vec<TopicMatch>,
     ) -> Result<Vec<ContractEvent>, ContractError> {
         self.provider
-            .logs(&LogFilter {
-                zone: self.address.zone(),
-                range,
-                addresses: vec![self.address.address()],
-                topics,
-            })
+            .logs(
+                &LogFilter::new(self.address.zone(), range)
+                    .with_addresses(vec![self.address.address()])
+                    .with_topics(topics),
+            )
             .await?
             .into_iter()
             .map(|log| self.decode_event(event, log))

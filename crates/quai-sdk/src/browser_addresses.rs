@@ -29,6 +29,7 @@ pub enum BrowserAddressError {
 }
 /// A validated public journal and its IndexedDB revision, for read-only inspection.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct BrowserAddressSnapshot {
     /// Exact revision to identify this observation; no finality/freshness assertion.
     pub revision: u64,

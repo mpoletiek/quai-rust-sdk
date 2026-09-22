@@ -8,7 +8,7 @@ material actually is, why reusing it is riskier than it looks, and what to use
 instead.
 
 Status: the SDK exposes payment-code keys only for payments. A general pairwise
-key between codes was requested on 2026-09-19 ([asks](WALLET_ASKS_2026-09-19.md),
+key between codes was requested on 2026-09-19 ([asks](history/WALLET_ASKS_2026-09-19.md),
 ask 4) and is deferred. See [what the SDK may add](#what-the-sdk-may-add).
 
 ## What the keys are

@@ -49,6 +49,7 @@ impl<'a> BackupScope<'a> {
 }
 /// One authenticated public derivation cursor; `2^31` means exhausted.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct BackupDerivationCursor<'a> {
     /// Quai or Qi BIP44 coin.
     pub coin: CoinType,
@@ -64,6 +65,7 @@ pub struct BackupDerivationCursor<'a> {
 /// Borrowed custody record. Exposed signed bytes are public transaction data,
 /// not a request to submit them or evidence that their claims are spendable.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct BackupOperation<'a> {
     /// Monotonic state, transaction ID and any caller-observed inclusion.
     pub reservation: &'a Reservation,
@@ -110,6 +112,7 @@ impl BackupPaymentChannel<'_> {
 }
 /// Borrowed payment exposure with exact network and peer/owner context.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct BackupPaymentExposure<'a> {
     /// Chain ID followed by genesis hash, 32 big-endian bytes each.
     pub network_key: &'a [u8; 64],

@@ -82,7 +82,7 @@ fn detached_fee_view_preserves_null_and_full_precision_without_display_marker() 
         let gas_price = row["gasPrice"]
             .as_str()
             .map(|s| U256::from_str_radix(s, 10).unwrap());
-        let out = FeeData { gas_price }.to_json();
+        let out = FeeData::new(gas_price).to_json();
         assert_eq!(out["gasPrice"], row["gasPrice"]);
         assert!(out.get("_type").is_none());
     }

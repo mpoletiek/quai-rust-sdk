@@ -63,15 +63,16 @@ async fn explicit_endpoint_wallet_reads() {
     };
     let height = u64::try_from(height).unwrap();
     provider
-        .logs(&LogFilter {
-            zone: Zone::Cyprus1,
-            range: LogRange::Inclusive {
-                from: height,
-                to: height,
-            },
-            addresses: vec![address.address()],
-            topics: vec![],
-        })
+        .logs(
+            &LogFilter::new(
+                Zone::Cyprus1,
+                LogRange::Inclusive {
+                    from: height,
+                    to: height,
+                },
+            )
+            .with_addresses(vec![address.address()]),
+        )
         .await
         .unwrap();
 }

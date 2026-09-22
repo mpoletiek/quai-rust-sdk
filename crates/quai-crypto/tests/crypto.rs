@@ -327,3 +327,28 @@ fn guarded_ecdh_and_additive_tweaks_match_known_curve_points() {
     assert!(minus_one.add_tweak(&one).is_err());
     assert!(minus_one.public_key().add_tweak(&one).is_err());
 }
+
+#[test]
+fn a_digest_above_the_group_order_signs_as_noble_and_recovers_the_signer() {
+    // noble-curves `secp256k1.sign("ff".repeat(32), "07".repeat(32), {lowS: true})`,
+    // the backend quais uses. The digest exceeds n, so RFC 6979 reduces it;
+    // signing now also recovers the signer before returning.
+    let key = SecretKey::from_bytes(&[7; 32]).unwrap();
+    let digest = [0xff; 32];
+    let signature = key.sign_prehash(&digest).unwrap();
+    let hex: String = signature
+        .to_compact()
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
+    assert_eq!(
+        hex,
+        "62776b3e9ff45aa5f72b4d941f7a7c3f40a2342a2551eaee384ae32df1fc2d5c\
+         53215fe89f507446b72bdbd2ceae1c256ea7c76d04203f6f12bdf870c6be11a1"
+    );
+    assert_eq!(signature.recovery_id(), 1);
+    assert_eq!(
+        signature.recover_prehash(&digest).unwrap(),
+        key.public_key()
+    );
+}

@@ -6,6 +6,7 @@ use quai_rpc::{Transport, U256};
 /// Source-reported runtime code at one exact canonical block, including empty code.
 /// This does not prove ABI semantics, proxy implementation, future code or finality.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct ContractCodeObservation {
     /// Configured chain, checked against the endpoint before each individual read.
     pub chain_id: U256,

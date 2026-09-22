@@ -33,6 +33,7 @@ pub enum BrowserQiError {
 }
 /// Detached complete custody state and its exact IndexedDB revision.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct BrowserQiSnapshot {
     /// Capture before discovery/canonical reads and pass to dependent writes.
     pub revision: u64,
@@ -218,14 +219,10 @@ impl BrowserQiBook {
                 if !seen.insert(output.outpoint) {
                     return Err(StorageError::Invalid.into());
                 }
-                coins.push(CandidateCoin {
-                    outpoint: output.outpoint,
-                    address: owner,
-                    denomination: output.denomination,
-                    unlock_height: output.unlock_height,
-                    expires_at: None,
-                    reserved: false,
-                });
+                coins.push(
+                    CandidateCoin::new(output.outpoint, owner, output.denomination)
+                        .with_unlock_height(output.unlock_height),
+                );
             }
         }
         if seen != wanted {

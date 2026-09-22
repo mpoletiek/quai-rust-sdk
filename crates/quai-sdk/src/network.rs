@@ -22,6 +22,21 @@ pub(crate) async fn on_network<T: Transport>(
         && provider.genesis_hash(zone).await? == scope.genesis)
 }
 
+/// [`on_network`] and the zone's gas price in one round trip where the
+/// transport batches. `None` when `zone` is not on the scope's network. Both
+/// reads are address-free, so joining them discloses nothing before the
+/// network is confirmed.
+pub(crate) async fn gas_price_on_network<T: Transport>(
+    provider: &Provider<T>,
+    scope: NetworkScope,
+    zone: Zone,
+) -> Result<Option<U256>, ProviderError> {
+    if provider.expected_chain_id() != scope.chain_id {
+        return Ok(None);
+    }
+    provider.gas_price_on_network(zone, scope.genesis).await
+}
+
 /// The checkpoint a header identifies.
 pub(crate) fn checkpoint(header: &ZoneHeader) -> Checkpoint {
     Checkpoint {

@@ -6,7 +6,7 @@
 //! imported and registered payment receive keys; conversions use separate types.
 use quai_consensus::{QiInput, QiOutput, QiTransaction, SignedQiTransaction, TransactionError};
 use quai_crypto::{PublicKey, SecretKey};
-use quai_primitives::{Address, Hash32, QiAddress};
+use quai_primitives::{Hash32, QiAddress};
 use quai_provider::{BroadcastError, BroadcastResult, Provider, ProviderError};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::Checkpoint;
@@ -16,7 +16,7 @@ use quai_wallet::storage::{
     StorageError, StoreInstance,
 };
 use quai_wallet::{AccountPublic, CoinType, HdWallet, WalletError};
-use quai_wallet::{SelectionError, SelectionRequest, select_fewest};
+use quai_wallet::{CandidateCoin, SelectionError, SelectionRequest, select_fewest};
 use std::borrow::BorrowMut;
 use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
@@ -133,11 +133,8 @@ impl QiChangePool {
         {
             return Err(QiError::IdentityMismatch);
         }
-        let mut metadata: BTreeMap<_, _> = store
-            .addresses()?
-            .into_iter()
-            .map(|entry| (entry.address(), entry))
-            .collect();
+        let mut metadata =
+            store.public_addresses(transaction.outputs.iter().map(|output| output.address))?;
         let change: Vec<_> = transaction
             .outputs
             .iter()
@@ -372,6 +369,55 @@ impl<'a, T: Transport> QiSession<'a, T> {
         }
         Ok(key)
     }
+    /// Inputs for selected coins, keyed from their stored public metadata.
+    ///
+    /// No secret is derived here, so a fee loop can call it every round; call
+    /// [`Self::confirm_signable`] once on the returned entries after the loop.
+    fn selected_inputs(
+        &self,
+        coins: &[CandidateCoin],
+    ) -> Result<(Vec<QiInput>, Vec<PublicAddress>), QiError> {
+        let metadata = self
+            .store
+            .public_addresses(coins.iter().map(|coin| coin.address.address()))?;
+        let mut inputs = Vec::with_capacity(coins.len());
+        let mut entries = Vec::with_capacity(coins.len());
+        for coin in coins {
+            let entry = metadata
+                .get(&coin.address.address())
+                .ok_or(QiError::IdentityMismatch)?;
+            inputs.push(QiInput {
+                previous_output: coin.outpoint,
+                public_key: PublicKey::from_sec1_bytes(entry.public_key())
+                    .map_err(|_| QiError::IdentityMismatch)?,
+            });
+            entries.push(entry.clone());
+        }
+        Ok((inputs, entries))
+    }
+    /// Resolve every entry's key once, confirming this wallet can sign for it.
+    fn confirm_signable(&self, entries: &[PublicAddress]) -> Result<(), QiError> {
+        for entry in entries {
+            self.key_for(entry)?;
+        }
+        Ok(())
+    }
+    /// Resolve the keys for a signed or prepared transaction's inputs, in order.
+    fn input_keys(&self, inputs: &[QiInput]) -> Result<Vec<SecretKey>, QiError> {
+        let metadata = self
+            .store
+            .public_addresses(inputs.iter().map(|input| input.public_key.address()))?;
+        inputs
+            .iter()
+            .map(|input| {
+                self.key_for(
+                    metadata
+                        .get(&input.public_key.address())
+                        .ok_or(QiError::IdentityMismatch)?,
+                )
+            })
+            .collect()
+    }
     async fn candidate_height(
         &mut self,
         generation: u64,
@@ -501,12 +547,9 @@ impl<'a, T: Transport> QiSession<'a, T> {
         {
             return Err(QiError::IdentityMismatch);
         }
-        let metadata: BTreeMap<Address, PublicAddress> = self
+        let owned = self
             .store
-            .addresses()?
-            .into_iter()
-            .map(|entry| (entry.address(), entry))
-            .collect();
+            .public_addresses(change.addresses.iter().map(PublicAddress::address))?;
         let mut seen = BTreeSet::new();
         for destination in &intent.destinations {
             if (!cross_zone && destination.zone() != scope.zone)
@@ -518,7 +561,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
         for address in &change.addresses {
             if address.address().zone().ok() != Some(scope.zone)
                 || !seen.insert(address.address())
-                || metadata.get(&address.address()) != Some(address)
+                || owned.get(&address.address()) != Some(address)
             {
                 return Err(QiError::IdentityMismatch);
             }
@@ -534,15 +577,14 @@ impl<'a, T: Transport> QiSession<'a, T> {
         for _ in 0..policy.max_fee_rounds {
             let selection = select_fewest(
                 &snapshot.coins,
-                &SelectionRequest {
-                    zone: scope.zone,
+                &SelectionRequest::new(
+                    scope.zone,
                     candidate_height,
-                    target: intent.amount,
-                    fee,
-                    max_fee: policy.max_fee,
-                    max_inputs: policy.max_inputs,
-                    max_outputs: policy.max_outputs,
-                },
+                    intent.amount,
+                    policy.max_inputs,
+                    policy.max_outputs,
+                )
+                .with_fee(fee, policy.max_fee),
             )?;
             if selection.spend_outputs.len() > intent.destinations.len() {
                 return Err(QiError::InsufficientDestinations);
@@ -550,21 +592,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
             if selection.change_outputs.len() > change.addresses.len() {
                 return Err(QiError::InsufficientChange);
             }
-            let inputs: Vec<QiInput> = selection
-                .inputs
-                .iter()
-                .map(|coin| {
-                    let entry = metadata
-                        .get(&coin.address.address())
-                        .ok_or(QiError::IdentityMismatch)?;
-                    let public_key = PublicKey::from_sec1_bytes(entry.public_key())
-                        .map_err(|_| QiError::IdentityMismatch)?;
-                    Ok(QiInput {
-                        previous_output: coin.outpoint,
-                        public_key,
-                    })
-                })
-                .collect::<Result<_, QiError>>()?;
+            let (inputs, entries) = self.selected_inputs(&selection.inputs)?;
             let recipient_outputs = selection.spend_outputs.len();
             let outputs = selection
                 .spend_outputs
@@ -597,13 +625,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
                 fee = quote;
                 continue;
             }
-            for coin in &selection.inputs {
-                self.key_for(
-                    metadata
-                        .get(&coin.address.address())
-                        .ok_or(QiError::IdentityMismatch)?,
-                )?;
-            }
+            self.confirm_signable(&entries)?;
             // Recheck canonicality and lock/expiry eligibility after the asynchronous fee loop.
             let final_height = self
                 .candidate_height(snapshot.generation, checkpoint, policy.max_snapshot_age)
@@ -656,23 +678,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
         if reservation.state != ReservationState::Reserved || expected != actual {
             return Err(QiError::IdentityMismatch);
         }
-        let metadata: BTreeMap<_, _> = self
-            .store
-            .addresses()?
-            .into_iter()
-            .map(|entry| (entry.address(), entry))
-            .collect();
-        let keys = prepared
-            .transaction
-            .inputs
-            .iter()
-            .map(|input| {
-                let entry = metadata
-                    .get(&input.public_key.address())
-                    .ok_or(QiError::IdentityMismatch)?;
-                self.key_for(entry)
-            })
-            .collect::<Result<Vec<_>, QiError>>()?;
+        let keys = self.input_keys(&prepared.transaction.inputs)?;
         let references: Vec<_> = keys.iter().collect();
         let signed = prepared.transaction.sign_local(&references)?;
         self.store.commit_signed_qi(prepared.id, &signed)?;
@@ -698,19 +704,7 @@ impl<'a, T: Transport> QiSession<'a, T> {
             .signed_payload(id)?
             .ok_or(QiError::MissingSignedPayload)?;
         let signed = quai_consensus::SignedQiOperation::decode(&bytes)?;
-        let metadata: BTreeMap<_, _> = self
-            .store
-            .addresses()?
-            .into_iter()
-            .map(|entry| (entry.address(), entry))
-            .collect();
-        for input in &signed.transaction().inputs {
-            self.key_for(
-                metadata
-                    .get(&input.public_key.address())
-                    .ok_or(QiError::IdentityMismatch)?,
-            )?;
-        }
+        self.input_keys(&signed.transaction().inputs)?;
         self.verify_network().await?;
         self.store.mark_submitted(id)?;
         Ok(match &signed {

@@ -21,6 +21,7 @@ pub const WQI_ATOMS_PER_QIT: u64 = 1_000_000_000_000_000;
 /// Pinned go-quai v0.56.0 redemption output accounting, independent of contract
 /// balance or node execution. Small denominations are discarded by that profile.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiRedemptionPlan {
     /// Exact surviving output denominations, largest first.
     pub outputs: Vec<quai_consensus::Denomination>,

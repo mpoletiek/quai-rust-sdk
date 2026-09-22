@@ -66,6 +66,7 @@ impl DeploymentReference {
 /// Code in the source's state at the end of the canonical inclusion block.
 /// Empty code is preserved: successful creation does not guarantee deployed code.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct DeploymentCode {
     /// Bounded runtime bytes, not init code. Debug reveals length only.
     pub bytes: RpcData,

@@ -21,6 +21,7 @@ pub struct AccountCustodyCapture<'a> {
 /// Callers must provide every relevant journal and known address, and establish a
 /// consistent snapshot before capture. Missing inputs cannot be discovered here.
 #[derive(Default)]
+#[non_exhaustive]
 pub struct PortableWalletCapture<'a> {
     /// HD receive/change burned cursors and completed owned addresses.
     pub allocations: &'a [&'a AddressAllocationBook],
@@ -38,6 +39,52 @@ pub struct PortableWalletCapture<'a> {
     /// Previously known owned addresses absent from the current journals, for
     /// example inventory retained after initializing allocators from an old backup.
     pub additional_addresses: &'a [(NetworkScope, PublicAddress)],
+}
+impl<'a> PortableWalletCapture<'a> {
+    /// An empty capture; add sources with the `with_*` methods.
+    pub const fn new() -> Self {
+        Self {
+            allocations: &[],
+            accounts: &[],
+            qi: &[],
+            payments: &[],
+            previous_inventory: None,
+            additional_addresses: &[],
+        }
+    }
+    /// Replace `allocations`.
+    pub const fn with_allocations(mut self, allocations: &'a [&'a AddressAllocationBook]) -> Self {
+        self.allocations = allocations;
+        self
+    }
+    /// Replace `accounts`.
+    pub const fn with_accounts(mut self, accounts: &'a [AccountCustodyCapture<'a>]) -> Self {
+        self.accounts = accounts;
+        self
+    }
+    /// Replace `qi`.
+    pub const fn with_qi(mut self, qi: &'a [&'a QiOperationBook]) -> Self {
+        self.qi = qi;
+        self
+    }
+    /// Replace `payments`.
+    pub const fn with_payments(mut self, payments: &'a [&'a PaymentAllocationBook]) -> Self {
+        self.payments = payments;
+        self
+    }
+    /// Replace `previous_inventory`.
+    pub const fn with_previous_inventory(mut self, previous: Option<&'a WalletBackup>) -> Self {
+        self.previous_inventory = previous;
+        self
+    }
+    /// Replace `additional_addresses`.
+    pub const fn with_additional_addresses(
+        mut self,
+        additional_addresses: &'a [(NetworkScope, PublicAddress)],
+    ) -> Self {
+        self.additional_addresses = additional_addresses;
+        self
+    }
 }
 fn scope_state(
     scopes: &mut BTreeMap<[u8; 65], ScopeState>,

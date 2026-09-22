@@ -65,6 +65,7 @@ fn object(value: Value) -> Result<Map<String, Value>, ProviderError> {
 /// A mined block containing executed transaction identities only. This saves
 /// transport/decoding work but cannot validate each transaction's inclusion fields.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct BlockHashes {
     /// Reported block identity; hash lookup does not imply canonicality.
     pub block: BlockReference,

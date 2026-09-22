@@ -8,20 +8,14 @@ and browser adapters.
 [![crates.io](https://img.shields.io/crates/v/quai-sdk.svg)](https://crates.io/crates/quai-sdk)
 [![docs.rs](https://img.shields.io/docsrs/quai-sdk)](https://docs.rs/quai-sdk)
 
-**Alpha release:** `0.1.0-alpha.9` is published on
-[crates.io](https://crates.io/crates/quai-sdk), with breaking changes expected. The pinned
-quais.js declaration review is complete, with explicit Rust differences; read it
-together with the reference-half divergence recorded in
-[SDK_PARITY_ANALYSIS.md](SDK_PARITY_ANALYSIS.md), since the pinned package's
-executed build is older than its published source. This
-alpha is not production-qualified for real-fund custody. The public repository is
-MIT licensed; API documentation is hosted on [docs.rs](https://docs.rs/quai-sdk).
-Read the [complete SDK guide](SDK_DOCUMENTATION.md) and
-[quais.js comparison, gaps and Rust additions](SDK_PARITY_ANALYSIS.md).
-See [implementation status](IMPLEMENTATION_STATUS.md),
-[protocol alignment review](docs/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md),
-[feature completeness review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md), [wallet gaps](docs/WALLET_GAPS.md)
-and the [security review](docs/SECURITY_REVIEW_2026-09-11.md) before integrating it.
+**Pre-release:** `0.1.0-alpha.10` is published on
+[crates.io](https://crates.io/crates/quai-sdk). It is not production-qualified for
+real-fund custody and has had no external security audit; read [SECURITY.md](SECURITY.md)
+and the [wallet gaps](docs/WALLET_GAPS.md) before integrating it. The
+[SDK guide](SDK_DOCUMENTATION.md) covers every workflow, and the
+[quais.js comparison](SDK_PARITY_ANALYSIS.md) records gaps and Rust differences.
+API documentation is on [docs.rs](https://docs.rs/quai-sdk). Dated reviews and the
+original plan are kept under [docs/history](docs/history/).
 
 ## Getting started
 
@@ -43,17 +37,22 @@ For an application outside this workspace, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.9", features = ["sqlite", "abi"] }
+quai-sdk = { version = "=0.1.0-alpha.10", features = ["sqlite", "abi"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
+Structs the SDK may extend are `#[non_exhaustive]`: build inputs such as
+`FeePolicy` or `QiPolicy` with their constructors and `with_*` methods, and
+read outputs by field. Types whose fields a protocol fixes, such as
+transactions, outpoints and `NetworkScope`, stay plain structs. CI rejects a
+change to the published API unless the changelog declares it under `Breaking:`.
+
 Pre-release versions are only selected when requested explicitly. The `=` pin
-keeps a later alpha, which may break the API, from being picked up automatically;
-commit your application's lockfile as well. Through `0.1.0-alpha.3`
-the facade required its sibling `quai-*` crates with caret requirements, so on
-those versions pin every `quai-*` crate you depend on as well. To follow unreleased development,
-use `git = "https://github.com/mpoletiek/quai-rust-sdk"` with a reviewed `rev`,
-or `path = "../quai-rust-sdk/crates/quai-sdk"` for a neighboring checkout.
+keeps a later pre-release, which may break the API, from being picked up
+automatically; commit your application's lockfile as well. To follow unreleased
+development, use `git = "https://github.com/mpoletiek/quai-rust-sdk"` with a
+reviewed `rev`, or `path = "../quai-rust-sdk/crates/quai-sdk"` for a neighboring
+checkout.
 
 ### Build settings for wallet scanning
 
@@ -100,15 +99,14 @@ cargo run --locked -p quai-sdk --example read_network
 Its explicit arguments are `URL USE_PATHING EXPECTED_CHAIN_ID`:
 
 ```sh
-# Direct local/mainnet node: preserve the supplied URL and port.
-cargo run --locked -p quai-sdk --example read_network -- http://10.0.0.12:9200 false 9
+# Direct local or mainnet node: preserve the supplied URL and port.
+cargo run --locked -p quai-sdk --example read_network -- http://127.0.0.1:9200 false 9
 
 # Orchard gateway: derive the Cyprus-1 route from the base URL.
 cargo run --locked -p quai-sdk --example read_network -- https://orchard.rpc.quai.network true 15000
 ```
 
-`10.0.0.12` is the development environment's private LAN address; substitute your
-own endpoint and expected chain ID. These commands read chain identity and height;
+Substitute your own endpoint and expected chain ID. These commands read chain identity and height;
 they do not load keys or send transactions. The separately patched disposable
 harness uses port `19200` and chain ID `1337`, with its own documented genesis.
 
@@ -167,6 +165,11 @@ cargo check -p quai-sdk --no-default-features \
 SQLite sessions and native HTTP/WS transports are not browser persistence or
 transport implementations. See [browser support and real-browser tests](crates/quai-browser/README.md).
 
+Contract bindings include exact fallback/receive intents, lossless bounded event
+queries and code-appearance waits ([contract operations](docs/CONTRACT_PARITY.md)).
+General resource fetching supports native HTTP and browser workers with bounded
+bodies, cancellation and explicit hooks/gateways ([resource fetching](docs/FETCH_PARITY.md)).
+
 | Crate | Responsibility |
 | --- | --- |
 | [`quai-primitives`](crates/quai-primitives/README.md) | Ledger/zone addresses, hashes, exact amounts, CREATE/CREATE2 prediction |
@@ -198,28 +201,27 @@ Unsigned prepared objects are bound to the exact open wallet-store handle.
 - [Security policy and limits](SECURITY.md): threat boundaries, secret handling and unresolved release gates.
 
 The HTTP transport verifies TLS, disables redirects, automatic retries and environment
-proxies, bounds responses/concurrency/deadlines, and redacts credentials in diagnostics.
+proxies (an explicit proxy is opt-in), bounds responses/concurrency/deadlines, and
+redacts credentials in diagnostics. The WebSocket transport pings idle connections
+so a half-open socket fails rather than going silent.
 There is no automatic failover. Chain/genesis checks detect configuration mistakes;
 they do not authenticate remote observations. Raw `Transport::request` bypasses typed
 provider checks. Conversion receipt success alone does not prove maturity or spendability.
 
-The [2026-09-11 internal security review](docs/SECURITY_REVIEW_2026-09-11.md) fixed
-four medium findings and hardened password handling. Remaining concerns include
-unwiped upstream scrypt workspace memory, malicious source observations, copied-wallet
-rollback, full reorg/recovery behavior and specialist external review. No external
-security audit or production certification has occurred.
+Remaining concerns include unwiped upstream scrypt workspace memory, malicious
+source observations, copied-wallet rollback, full reorg/recovery behavior and
+specialist external review; see [SECURITY.md](SECURITY.md). No external security
+audit or production certification has occurred.
 
 ## Validation and node evidence
 
-The 2026-09-11 security baseline recorded 254 native tests, three subprocess checks
-and 875,310 short sanitizer fuzz executions; the [retained evidence](test-infra/reports/security-2026-09-11/summary.json)
-describes that scope. The current all-features workspace suite is larger (637 passing
-tests on 2026-09-14) and runs in CI with strict Clippy, rustdoc, format, no-default-feature
-and Chromium worker checks. Dependency scans found no known vulnerability matches; two inactive
-optional unmaintained dependencies remain documented in the [advisory report](docs/dependency-audit.md).
+CI runs the workspace suite on Linux, macOS and Windows with strict Clippy,
+rustdoc, format, no-default-feature, semver, Chromium worker, fuzz-smoke and
+dependency-advisory checks. Two inactive optional unmaintained dependencies are
+documented in the [advisory report](docs/dependency-audit.md).
 
-Read-only HTTP and actual WebSocket head notifications were exercised against the
-LAN mainnet node and Orchard gateway. The [isolated harness](test-infra/local-chain/README.md)
+Read-only HTTP and WebSocket head notifications were exercised against a
+mainnet node and the Orchard gateway. The [isolated harness](test-infra/local-chain/README.md)
 verified transfers, deployments, multi-input Qi, replacement and conversion behavior
 on explicitly patched development profiles. The [high-level Qi run](test-infra/local-chain/HIGHLEVEL.md)
 also verified fee convergence, persisted signatures, process restart and exact outputs.
@@ -258,13 +260,12 @@ alone does not establish macOS, Windows or remote CI qualification.
 
 ## Roadmap and contributing
 
-The [build plan](QUAI_RUST_SDK_PLAN.md), [plan audit](QUAI_RUST_SDK_AUDIT.md),
-[architecture](docs/architecture.md) and [wallet gaps](docs/WALLET_GAPS.md) track scope.
-The [current parity analysis](SDK_PARITY_ANALYSIS.md) supersedes historical backlog
-statements. Remaining production qualification includes funded unmodified-node
+The [architecture](docs/architecture.md), [wallet gaps](docs/WALLET_GAPS.md) and
+[current parity analysis](SDK_PARITY_ANALYSIS.md) track scope; the original plan
+and its audit are in [docs/history](docs/history/). Remaining production qualification includes funded unmodified-node
 acceptance, mature redemption spend, broader engine/extension interoperability,
 sustained fault/fuzz/performance work and independent security review. See the
-[changelog](CHANGELOG.md) and [publishing guide](docs/PUBLISHING.md) for this alpha.
+[changelog](CHANGELOG.md) and [publishing guide](docs/PUBLISHING.md).
 
 Changes should document API behavior and limitations, include meaningful regressions
 or independent compatibility evidence, and pass the relevant checks above. Keep
@@ -278,12 +279,4 @@ secrets in a public issue. Use [private vulnerability reporting](https://github.
 First-party SDK code is licensed under the **[MIT License](LICENSE)**.
 Third-party code, reference data and tools retain their original licenses and
 attribution; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Referencing or
-building go-quai does not relicense its code under MIT. All Rust SDK crates restrict publication to crates.io; uploads are a separate
-release step from committing or pushing this repository.
-
-Contract bindings include exact fallback/receive intents, lossless bounded event
-queries, and native/browser code appearance waits. See [contract operations and
-parity](docs/CONTRACT_PARITY.md).
-
-General resource fetching supports native HTTP and browser workers with bounded
-bodies, cancellation and explicit hooks/gateways. See [resource fetching](docs/FETCH_PARITY.md).
+building go-quai does not relicense its code under MIT.

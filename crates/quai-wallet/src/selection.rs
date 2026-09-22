@@ -8,6 +8,7 @@ pub use aggregation::{AggregationPolicy, select_aggregate};
 
 /// Caller-supplied, validated-index UTXO candidate; this type does not prove on-chain ownership.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct CandidateCoin {
     /// Exact output reference.
     pub outpoint: OutPoint,
@@ -23,8 +24,37 @@ pub struct CandidateCoin {
     /// Reserved by another pending payment in the wallet snapshot.
     pub reserved: bool,
 }
+impl CandidateCoin {
+    /// An unlocked, unexpiring, unreserved coin.
+    pub const fn new(outpoint: OutPoint, address: QiAddress, denomination: Denomination) -> Self {
+        Self {
+            outpoint,
+            address,
+            denomination,
+            unlock_height: U256::ZERO,
+            expires_at: None,
+            reserved: false,
+        }
+    }
+    /// Replace `unlock_height`.
+    pub const fn with_unlock_height(mut self, unlock_height: U256) -> Self {
+        self.unlock_height = unlock_height;
+        self
+    }
+    /// Replace `expires_at`.
+    pub const fn with_expires_at(mut self, expires_at: Option<U256>) -> Self {
+        self.expires_at = expires_at;
+        self
+    }
+    /// Replace `reserved`.
+    pub const fn with_reserved(mut self, reserved: bool) -> Self {
+        self.reserved = reserved;
+        self
+    }
+}
 /// Explicit transfer constraints, including the fee budget approved by the caller.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct SelectionRequest {
     /// Spend from this zone only.
     pub zone: Zone,
@@ -41,8 +71,35 @@ pub struct SelectionRequest {
     /// Maximum combined recipient/change outputs, from 1 through 4096.
     pub max_outputs: usize,
 }
+impl SelectionRequest {
+    /// A zero-fee request; set the fee budget with [`Self::with_fee`].
+    pub const fn new(
+        zone: Zone,
+        candidate_height: U256,
+        target: U256,
+        max_inputs: usize,
+        max_outputs: usize,
+    ) -> Self {
+        Self {
+            zone,
+            candidate_height,
+            target,
+            fee: U256::ZERO,
+            max_fee: U256::ZERO,
+            max_inputs,
+            max_outputs,
+        }
+    }
+    /// Replace the starting `fee` and the `max_fee` any round may reach.
+    pub const fn with_fee(mut self, fee: U256, max_fee: U256) -> Self {
+        self.fee = fee;
+        self.max_fee = max_fee;
+        self
+    }
+}
 /// Pure selection result; reserving these inputs and fresh output addresses is a separate atomic step.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct CoinSelection {
     /// Ordered selected coins; stable reference ordering is retained for equal values.
     pub inputs: Vec<CandidateCoin>,

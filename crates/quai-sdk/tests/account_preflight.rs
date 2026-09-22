@@ -70,30 +70,23 @@ fn sender() -> QuaiAddress {
     QuaiAddress::try_from(key().public_key().address()).unwrap()
 }
 fn intent() -> AccountIntent {
-    AccountIntent {
-        to: sender(),
-        value: U256::from(7),
-        data: RpcData::new(vec![1, 2]).unwrap(),
-        access_list: vec![AccessTuple {
+    AccountIntent::new(sender(), U256::from(7))
+        .with_data(RpcData::new(vec![1, 2]).unwrap())
+        .with_access_list(vec![AccessTuple {
             address: sender().address(),
             storage_keys: vec![hash(4), hash(3)],
-        }],
-    }
+        }])
 }
 fn conversion_fee() -> FeePolicy {
-    FeePolicy {
-        max_gas: 500_000,
-        max_total_fee: U256::from(1_000_000),
-        ..fee()
+    {
+        let mut updated = fee();
+        updated.max_gas = 500_000;
+        updated.max_total_fee = U256::from(1_000_000);
+        updated
     }
 }
 fn fee() -> FeePolicy {
-    FeePolicy {
-        max_gas: 30_000,
-        max_gas_price: U256::from(3),
-        max_total_fee: U256::from(60_000),
-        gas_margin_bps: 1000,
-    }
+    FeePolicy::new(30_000, U256::from(3), U256::from(60_000)).with_gas_margin_bps(1000)
 }
 fn unhex(s: &str) -> Vec<u8> {
     let h = s.strip_prefix("0x").unwrap();
@@ -337,10 +330,7 @@ fn deployment(nonce: u64) -> quai_sdk::contracts::PreparedDeployment {
         scope().chain_id,
         nonce,
         U256::ZERO,
-        quai_sdk::contracts::DeploymentSearch {
-            start_salt: 0,
-            max_attempts: 10_000,
-        },
+        quai_sdk::contracts::DeploymentSearch::new(0, 10_000),
         || false,
     )
     .unwrap()
@@ -453,13 +443,13 @@ async fn access_discovery_preserves_required_coverage_and_estimates_the_final_li
 }
 
 fn conversion() -> QuaiConversionIntent {
-    QuaiConversionIntent {
-        destination: "0x00edf2d16afbc028fb1e879559b07997af79539f"
+    QuaiConversionIntent::new(
+        "0x00edf2d16afbc028fb1e879559b07997af79539f"
             .parse()
             .unwrap(),
-        value: U256::from(MIN_QUAI_CONVERSION_VALUE),
-        slippage: ConversionSlippage::new(1234).unwrap(),
-    }
+        U256::from(MIN_QUAI_CONVERSION_VALUE),
+        ConversionSlippage::new(1234).unwrap(),
+    )
 }
 #[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
@@ -566,12 +556,9 @@ async fn conversion_invalid_intents_and_fee_arithmetic_fail_closed() {
             .await,
             Err(AccountPreflightError::FeeLimit)
         ));
-        assert!(
-            !m.state()
-                .calls
-                .iter()
-                .any(|(method, _)| method == "quai_getBalance")
-        );
+        // The balance now arrives with the nonce, in one round trip, so it is
+        // in hand here; the fee bound still decides first, which is why this
+        // reports FeeLimit rather than InsufficientBalance for `U256::MAX`.
     }
 }
 
@@ -579,10 +566,7 @@ fn replacement_policy() -> quai_sdk::account_replacement::ReplacementPolicy {
     let mut fees = fee();
     fees.max_total_fee = U256::from(100_000);
     fees.max_gas_price = U256::from(5);
-    quai_sdk::account_replacement::ReplacementPolicy {
-        minimum_price_bump_percent: 5,
-        fees,
-    }
+    quai_sdk::account_replacement::ReplacementPolicy::new(5, fees)
 }
 #[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]

@@ -94,18 +94,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let prepared = session
                 .prepare(
                     id,
-                    QiIntent {
-                        amount: U256::from(1000),
-                        destinations: vec![QiAddress::try_from(key(300).public_key().address())?],
-                    },
-                    QiPolicy {
-                        initial_fee: U256::ZERO,
-                        max_fee: U256::from(500),
-                        max_inputs: 8,
-                        max_outputs: 32,
-                        max_fee_rounds: 8,
-                        max_snapshot_age: 5,
-                    },
+                    QiIntent::new(
+                        U256::from(1000),
+                        vec![QiAddress::try_from(key(300).public_key().address())?],
+                    ),
+                    QiPolicy::new(U256::from(500), 8, 32, 5),
                     pool,
                 )
                 .await?;

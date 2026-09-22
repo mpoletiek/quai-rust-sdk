@@ -30,18 +30,9 @@ let mut change = QiChangePool::allocate(&mut store, &account, 8, 2_000, || false
 // Do not label latest-only RPC outpoints as a pinned checkpoint snapshot.
 refresh_from_your_qualified_source(&mut store).await?;
 
-let policy = QiPolicy {
-    initial_fee: U256::ZERO,
-    max_fee: approved_fee_in_qits,
-    max_inputs: 64,
-    max_outputs: 64,
-    max_fee_rounds: 8,
-    max_snapshot_age: 2,
-};
-let intent = QiIntent {
-    amount: amount_in_qits,
-    destinations: fresh_recipient_addresses,
-};
+// Maximum fee, inputs, outputs and snapshot age in blocks.
+let policy = QiPolicy::new(approved_fee_in_qits, 64, 64, 2);
+let intent = QiIntent::new(amount_in_qits, fresh_recipient_addresses);
 let mut session = QiSession::new(&provider, &wallet, &mut store)?;
 let prepared = session.prepare(unique_reservation_id, intent, policy, &mut change).await?;
 // `change` keeps any unused addresses for the next spend. On rejection:

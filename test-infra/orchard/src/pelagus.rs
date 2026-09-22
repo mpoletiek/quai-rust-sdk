@@ -249,14 +249,7 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
                         .prepare(
                             id,
                             intent,
-                            quai_sdk::qi::QiPolicy {
-                                initial_fee: U256::ZERO,
-                                max_fee: U256::from(200),
-                                max_inputs: 8,
-                                max_outputs: 32,
-                                max_fee_rounds: 8,
-                                max_snapshot_age: 5,
-                            },
+                            quai_sdk::qi::QiPolicy::new(U256::from(200), 8, 32, 5),
                             pool,
                         )
                         .await?;

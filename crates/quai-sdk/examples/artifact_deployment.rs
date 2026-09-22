@@ -34,10 +34,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         U256::from(1337),
         1,
         U256::ZERO,
-        DeploymentSearch {
-            start_salt: 0,
-            max_attempts: 10_000,
-        },
+        DeploymentSearch::new(0, 10_000),
         || false,
     )?;
     println!(

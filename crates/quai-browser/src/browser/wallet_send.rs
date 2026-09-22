@@ -8,6 +8,7 @@ use quai_provider::{Inclusion, Provider, ProviderError};
 /// The signing digest is NOT a transaction ID. A wallet can change fields in its
 /// approval flow; after an unknown outcome this identity alone cannot prove reuse safe.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct WalletSendIdentity {
     /// Requested exposed account.
     pub from: QuaiAddress,

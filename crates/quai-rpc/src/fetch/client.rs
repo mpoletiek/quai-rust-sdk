@@ -230,6 +230,7 @@ impl Drop for CancelGuard {
 }
 /// Result with explicit original and final request context; Debug stays redacted.
 #[derive(Debug)]
+#[non_exhaustive]
 pub struct FetchedResource {
     /// Caller-supplied request before hooks/gateways/redirects.
     pub original: FetchRequest,

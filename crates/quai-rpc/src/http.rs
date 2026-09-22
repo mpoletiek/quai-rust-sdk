@@ -22,6 +22,9 @@ pub struct HttpConfig {
     pub max_response_bytes: usize,
     /// Maximum simultaneous network requests per cloned transport group.
     pub max_in_flight: usize,
+    /// Explicit forward proxy; None connects directly. System proxy
+    /// variables are never consulted either way.
+    pub proxy: Option<HttpProxy>,
 }
 impl HttpConfig {
     /// Replace `timeout`.
@@ -44,6 +47,42 @@ impl HttpConfig {
         self.max_in_flight = max_in_flight;
         self
     }
+    /// Replace `proxy`.
+    pub fn with_proxy(mut self, proxy: Option<HttpProxy>) -> Self {
+        self.proxy = proxy;
+        self
+    }
+}
+
+/// An explicit HTTP(S) forward proxy for [`HttpTransport`].
+///
+/// Opt-in only: the transport never reads `HTTP_PROXY` or similar variables,
+/// so traffic is routed through a proxy only when the application names one.
+/// An `https` endpoint is tunnelled with `CONNECT` and its TLS is verified end
+/// to end, so the proxy sees the destination host but not the requests; a
+/// plain `http` endpoint's requests are visible to it. The URL may carry
+/// `user:password@` credentials, which diagnostics never display.
+#[derive(Clone)]
+pub struct HttpProxy {
+    url: String,
+}
+impl HttpProxy {
+    /// Accept an `http://` or `https://` proxy URL, with optional credentials.
+    pub fn parse(url: &str) -> Result<Self, RpcError> {
+        let parsed = url::Url::parse(url).map_err(|_| RpcError::InvalidConfig)?;
+        if !matches!(parsed.scheme(), "http" | "https") || parsed.host_str().is_none() {
+            return Err(RpcError::InvalidConfig);
+        }
+        reqwest::Proxy::all(url).map_err(|_| RpcError::InvalidConfig)?;
+        Ok(Self {
+            url: url.to_owned(),
+        })
+    }
+}
+impl fmt::Debug for HttpProxy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("HttpProxy([REDACTED])")
+    }
 }
 impl Default for HttpConfig {
     fn default() -> Self {
@@ -52,6 +91,7 @@ impl Default for HttpConfig {
             connect_timeout: Duration::from_secs(3),
             max_response_bytes: 2 * 1024 * 1024,
             max_in_flight: 16,
+            proxy: None,
         }
     }
 }
@@ -86,15 +126,18 @@ impl HttpTransport {
         {
             return Err(RpcError::InvalidConfig);
         }
-        let client = reqwest::Client::builder()
+        let mut builder = reqwest::Client::builder()
             .timeout(config.timeout)
             .connect_timeout(config.connect_timeout)
             .redirect(reqwest::redirect::Policy::none())
             .retry(reqwest::retry::never())
             .no_proxy()
-            .user_agent(concat!("quai-rust-sdk/", env!("CARGO_PKG_VERSION")))
-            .build()
-            .map_err(|_| RpcError::InvalidConfig)?;
+            .user_agent(concat!("quai-rust-sdk/", env!("CARGO_PKG_VERSION")));
+        if let Some(proxy) = &config.proxy {
+            builder = builder
+                .proxy(reqwest::Proxy::all(&proxy.url).map_err(|_| RpcError::InvalidConfig)?);
+        }
+        let client = builder.build().map_err(|_| RpcError::InvalidConfig)?;
         Ok(Self {
             inner: Arc::new(Inner {
                 client,
@@ -249,12 +292,10 @@ pub(crate) fn decode_batch(bytes: &[u8], first: u64, count: usize) -> crate::Bat
     }
     let mut ordered: Vec<Option<Result<Value, RpcError>>> = (0..count).map(|_| None).collect();
     for row in rows {
-        let value: Value = serde_json::from_str(row.get())
-            .map_err(|_| RpcError::InvalidResponse("batch response"))?;
-        let id = value
-            .get("id")
-            .and_then(Value::as_u64)
-            .ok_or(RpcError::InvalidResponse("batch ID"))?;
+        // One parse per row: the envelope yields the ID and the payload
+        // together. Decoding the original raw object also rejects duplicate
+        // envelope fields.
+        let (id, result) = crate::transport::decode_envelope(row.get().as_bytes())?;
         let offset = id
             .checked_sub(first)
             .and_then(|n| usize::try_from(n).ok())
@@ -263,8 +304,6 @@ pub(crate) fn decode_batch(bytes: &[u8], first: u64, count: usize) -> crate::Bat
         if ordered[offset].is_some() {
             return Err(RpcError::InvalidResponse("duplicate batch ID"));
         }
-        // Decode the original raw object so duplicate envelope fields are rejected.
-        let result = decode_response(row.get().as_bytes(), id);
         match result {
             Ok(_) | Err(RpcError::Remote(_)) => ordered[offset] = Some(result),
             Err(error) => return Err(error),

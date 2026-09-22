@@ -1,10 +1,15 @@
-//! Chain-guard bracketing on batched reads.
+//! Chain-guard batching on reads.
 //!
-//! A read sends `[quai_chainId, method, quai_chainId]` as one batch where the
-//! transport supports batching, instead of a sequential guard then call. These
-//! tests pin the two properties that makes load bearing: the round-trip count,
-//! and that either guard failing rejects the read rather than returning a
-//! payload the guard did not cover.
+//! A read sends `[quai_chainId, method]` as one batch where the transport
+//! supports batching, instead of a sequential guard then call. These tests pin
+//! the properties that make that load bearing: the round-trip count, one guard
+//! and no more, and that a failing guard rejects the read rather than returning
+//! a payload it did not cover.
+//!
+//! There is deliberately no trailing guard. A batch is one request that one
+//! backend answers, so nothing changes chains between its elements, and a
+//! gateway that splits a batch across backends can route the payload away from
+//! a guard at either end, so a second guard would not cover that case either.
 
 use quai_primitives::Zone;
 use quai_provider::{Provider, ProviderError};
@@ -18,24 +23,22 @@ use std::sync::{
 const URL: &str = "http://127.0.0.1:9200/rpc?fixture=public";
 const CHAIN: u64 = 9;
 
-/// Batching transport that returns a caller-chosen triple.
+/// Batching transport that returns a caller-chosen guard and payload.
 #[derive(Clone)]
-struct Bracketed {
+struct Guarded {
     leading: Value,
     payload: Result<Value, RpcError>,
-    trailing: Value,
     /// Extra responses to append, to exercise the count check.
     extra: usize,
     batches: Arc<AtomicUsize>,
     singles: Arc<AtomicUsize>,
 }
 
-impl Bracketed {
-    fn new(leading: u64, trailing: u64) -> Self {
+impl Guarded {
+    fn new(leading: u64) -> Self {
         Self {
             leading: json!(format!("{leading:#x}")),
             payload: Ok(json!("0x2a")),
-            trailing: json!(format!("{trailing:#x}")),
             extra: 0,
             batches: Arc::default(),
             singles: Arc::default(),
@@ -43,7 +46,7 @@ impl Bracketed {
     }
 }
 
-impl Transport for Bracketed {
+impl Transport for Guarded {
     async fn request(&self, _: &Endpoint, _: &str, _: Value) -> Result<Value, RpcError> {
         self.singles.fetch_add(1, SeqCst);
         panic!("a batching transport must not fall back to sequential requests")
@@ -54,16 +57,13 @@ impl Transport for Bracketed {
         requests: Vec<(&str, Value)>,
     ) -> Option<BatchResult> {
         self.batches.fetch_add(1, SeqCst);
-        // The guard must bracket the call, not merely precede it.
-        assert_eq!(requests.len(), 3, "read must send exactly three calls");
-        assert_eq!(requests[0].0, "quai_chainId");
-        assert_eq!(requests[1].0, "quai_blockNumber");
-        assert_eq!(requests[2].0, "quai_chainId");
-        let mut responses = vec![
-            Ok(self.leading.clone()),
-            self.payload.clone(),
-            Ok(self.trailing.clone()),
-        ];
+        let methods: Vec<_> = requests.iter().map(|(method, _)| *method).collect();
+        assert_eq!(
+            methods,
+            ["quai_chainId", "quai_blockNumber"],
+            "a read sends exactly one guard, ahead of its call"
+        );
+        let mut responses = vec![Ok(self.leading.clone()), self.payload.clone()];
         for _ in 0..self.extra {
             responses.push(Ok(json!("0x0")));
         }
@@ -71,7 +71,7 @@ impl Transport for Bracketed {
     }
 }
 
-fn provider(transport: Bracketed) -> Provider<Bracketed> {
+fn provider(transport: Guarded) -> Provider<Guarded> {
     Provider::new(
         transport,
         Routing::direct(URL, Zone::Cyprus1.into()).unwrap(),
@@ -80,20 +80,19 @@ fn provider(transport: Bracketed) -> Provider<Bracketed> {
 }
 
 #[tokio::test]
-async fn a_batched_read_costs_one_round_trip_and_carries_both_guards() {
-    let transport = Bracketed::new(CHAIN, CHAIN);
+async fn a_batched_read_costs_one_round_trip_and_two_calls() {
+    let transport = Guarded::new(CHAIN);
     let batches = transport.batches.clone();
     let singles = transport.singles.clone();
     let value = provider(transport).block_number(Zone::Cyprus1.into()).await;
     assert_eq!(value.unwrap(), U256::from(0x2au64));
-    // The point of the change: one round trip, not a guard followed by a call.
     assert_eq!(batches.load(SeqCst), 1);
     assert_eq!(singles.load(SeqCst), 0);
 }
 
 #[tokio::test]
-async fn a_leading_guard_mismatch_rejects_the_read() {
-    let result = provider(Bracketed::new(0xa, CHAIN))
+async fn a_guard_mismatch_rejects_the_read() {
+    let result = provider(Guarded::new(0xa))
         .block_number(Zone::Cyprus1.into())
         .await;
     assert!(
@@ -103,22 +102,8 @@ async fn a_leading_guard_mismatch_rejects_the_read() {
 }
 
 #[tokio::test]
-async fn a_trailing_guard_mismatch_rejects_the_read() {
-    // The backend-swap case: the endpoint answered the guard correctly, served
-    // the payload, then reported a different chain. The payload must not be
-    // returned, since it is no longer covered by a passing guard.
-    let result = provider(Bracketed::new(CHAIN, 0xa))
-        .block_number(Zone::Cyprus1.into())
-        .await;
-    assert!(
-        matches!(result, Err(ProviderError::ChainMismatch { .. })),
-        "expected ChainMismatch, got {result:?}"
-    );
-}
-
-#[tokio::test]
-async fn a_payload_error_surfaces_rather_than_being_masked_by_the_guards() {
-    let mut transport = Bracketed::new(CHAIN, CHAIN);
+async fn a_payload_error_surfaces_rather_than_being_masked_by_the_guard() {
+    let mut transport = Guarded::new(CHAIN);
     transport.payload = Err(RpcError::Timeout);
     let result = provider(transport).block_number(Zone::Cyprus1.into()).await;
     assert!(
@@ -128,13 +113,13 @@ async fn a_payload_error_surfaces_rather_than_being_masked_by_the_guards() {
 }
 
 #[tokio::test]
-async fn a_short_or_long_batch_response_is_rejected() {
-    let mut transport = Bracketed::new(CHAIN, CHAIN);
+async fn a_long_batch_response_is_rejected() {
+    let mut transport = Guarded::new(CHAIN);
     transport.extra = 1;
     let result = provider(transport).block_number(Zone::Cyprus1.into()).await;
     assert!(
         matches!(result, Err(ProviderError::InvalidResult(_))),
-        "expected InvalidResult for a four-response batch, got {result:?}"
+        "expected InvalidResult for a three-response batch, got {result:?}"
     );
 }
 
@@ -189,7 +174,7 @@ use std::sync::Mutex;
 #[derive(Clone)]
 struct Paged {
     limit: usize,
-    /// Payload calls per batch, in order, excluding the two chain guards.
+    /// Payload calls per batch, in order, excluding the chain guard.
     pages: Arc<Mutex<Vec<usize>>>,
     /// Fail every page with this instead, to prove other errors are not retried.
     always: Option<RpcError>,
@@ -204,7 +189,7 @@ impl Transport for Paged {
         _: &Endpoint,
         requests: Vec<(&str, Value)>,
     ) -> Option<BatchResult> {
-        let payload = requests.len() - 2;
+        let payload = requests.len() - 1;
         self.pages.lock().unwrap().push(payload);
         if let Some(error) = self.always.clone() {
             return Some(Err(error));
@@ -215,7 +200,6 @@ impl Transport for Paged {
         }
         let mut responses = vec![Ok(json!(format!("{CHAIN:#x}")))];
         responses.extend((0..payload).map(|_| Ok(json!([]))));
-        responses.push(Ok(json!(format!("{CHAIN:#x}"))));
         Some(Ok(responses))
     }
 }
@@ -259,7 +243,7 @@ async fn an_oversize_page_halves_and_the_working_size_is_remembered() {
     // 140 addresses at a working size of 15 is nine pages, the last of size 5.
     assert_eq!(
         observed,
-        vec![126, 63, 31, 15, 15, 15, 15, 15, 15, 15, 15, 15, 5],
+        vec![127, 63, 31, 15, 15, 15, 15, 15, 15, 15, 15, 15, 5],
         "expected three probes then a stable working size"
     );
     // Every address is queried exactly once despite the retries.
@@ -338,7 +322,7 @@ async fn the_page_is_not_halved_when_the_transport_does_not_batch() {
     // one address's own set exceeds the cap, so halving is provably futile: it
     // would re-read every prefix address at every level and surface the same
     // error. Without this rule the change would be strictly worse than the fixed
-    // page it replaced -- roughly 750 reads instead of at most 126.
+    // page it replaced -- roughly 750 reads instead of at most 127.
     let transport = OversizeSingles::default();
     let reads = transport.reads.clone();
     let provider = Provider::new(

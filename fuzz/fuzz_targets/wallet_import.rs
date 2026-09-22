@@ -20,9 +20,9 @@ fuzz_target!(|data:&[u8]| {
   use quai_wallet::{CandidateCoin,SelectionRequest,AggregationPolicy,select_aggregate,select_sweep,SweepMode};
   use quai_consensus::{Denomination,OutPoint};use quai_primitives::{Hash32,Zone};
   let mut hash=[0;32];hash[3]=0x80;let address="0x0088223344556677889900112233445566778899".parse().unwrap();
-  let coins:Vec<_>=data[8..].chunks(2).take(128).enumerate().map(|(i,b)|CandidateCoin{outpoint:OutPoint{transaction_hash:Hash32::from_bytes(hash),index:i as u16},address,denomination:Denomination::new(b[0]%15).unwrap(),unlock_height:U256::from(if b.get(1).copied().unwrap_or(0)&2==0{0}else{101}),expires_at:if b.get(1).copied().unwrap_or(0)&4==0{None}else{Some(U256::from(100))},reserved:b.get(1).copied().unwrap_or(0)&1!=0}).collect();
-  let request=SelectionRequest{zone:Zone::Cyprus1,candidate_height:U256::from(100),target:U256::ZERO,fee:U256::from(u16::from_be_bytes([data[4],data[5]])),max_fee:U256::from(65535),max_inputs:128,max_outputs:128};
-  let policy=AggregationPolicy{maximum_input:Denomination::new(data[6]%15).unwrap(),maximum_output:Denomination::new(data[7]%15).unwrap(),require_reduction:data[6]&128!=0};
+  let coins:Vec<_>=data[8..].chunks(2).take(128).enumerate().map(|(i,b)|CandidateCoin::new(OutPoint{transaction_hash:Hash32::from_bytes(hash),index:i as u16}, address, Denomination::new(b[0]%15).unwrap()).with_unlock_height(U256::from(if b.get(1).copied().unwrap_or(0)&2==0{0}else{101})).with_expires_at(if b.get(1).copied().unwrap_or(0)&4==0{None}else{Some(U256::from(100))}).with_reserved(b.get(1).copied().unwrap_or(0)&1!=0)).collect();
+  let request=SelectionRequest::new(Zone::Cyprus1, U256::from(100), U256::ZERO, 128, 128).with_fee(U256::from(u16::from_be_bytes([data[4],data[5]])), U256::from(65535));
+  let policy=AggregationPolicy::new(Denomination::new(data[6]%15).unwrap(), Denomination::new(data[7]%15).unwrap(), data[6]&128!=0);
   if let Ok(plan)=select_aggregate(&coins,&request,policy) {
    assert_eq!(select_sweep(&coins,&request,SweepMode::AggregateThreshold(policy)).unwrap(),plan);
    let input:U256=plan.inputs.iter().map(|c|U256::from(c.denomination.value())).sum();let output:U256=plan.spend_outputs.iter().map(|d|U256::from(d.value())).sum();
@@ -97,8 +97,8 @@ fuzz_target!(|data:&[u8]| {
    });
    // Fixed public toy ownership proofs only; arbitrary valid public origins may be unowned.
    let origins=keys.iter().map(quai_wallet::full_backup::BackupOrigin::from_private_key).collect();
-   if let Ok(backup)=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{qi:&[&book],..Default::default()},origins){
-    let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{qi:&[&book],previous_inventory:Some(&backup),..Default::default()},keys.iter().map(quai_wallet::full_backup::BackupOrigin::from_private_key).collect()).unwrap();
+   if let Ok(backup)=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture::new().with_qi(&[&book]),origins){
+    let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture::new().with_qi(&[&book]).with_previous_inventory(Some(&backup)),keys.iter().map(quai_wallet::full_backup::BackupOrigin::from_private_key).collect()).unwrap();
     let restored=quai_wallet::qi_custody::QiOperationBook::from_backup(&backup,scope,identity).unwrap();
     let report=book.merge_backup(&backup).unwrap();assert_eq!(report.operations_added,0);assert_eq!(report.candidates_added,0);assert_eq!(book.export_state().unwrap(),restored.export_state().unwrap());
    }
@@ -113,8 +113,8 @@ fuzz_target!(|data:&[u8]| {
   if let Ok(mut book)=quai_wallet::account_custody::AccountOperationBook::from_state(data,scope,owner){
    assert_eq!(book.export_state().unwrap(),data);assert_eq!(book.scope(),scope);
    // Ownership proof and public-state merge only; never execute a password KDF.
-   let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{accounts:&[quai_wallet::full_backup::AccountCustodyCapture{book:&book,address:&quai_wallet::metadata::PublicAddress::imported(&owner).unwrap()}],..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_private_key(&key)]).unwrap();
-   let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{accounts:&[quai_wallet::full_backup::AccountCustodyCapture{book:&book,address:&quai_wallet::metadata::PublicAddress::imported(&owner).unwrap()}],previous_inventory:Some(&backup),..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_private_key(&key)]).unwrap();
+   let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture::new().with_accounts(&[quai_wallet::full_backup::AccountCustodyCapture{book:&book,address:&quai_wallet::metadata::PublicAddress::imported(&owner).unwrap()}]),vec![quai_wallet::full_backup::BackupOrigin::from_private_key(&key)]).unwrap();
+   let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture::new().with_accounts(&[quai_wallet::full_backup::AccountCustodyCapture{book:&book,address:&quai_wallet::metadata::PublicAddress::imported(&owner).unwrap()}]).with_previous_inventory(Some(&backup)),vec![quai_wallet::full_backup::BackupOrigin::from_private_key(&key)]).unwrap();
    let restored=quai_wallet::account_custody::AccountOperationBook::from_backup(&backup,scope,owner).unwrap();
    let report=book.merge_backup(&backup).unwrap();assert_eq!(report.operations_added,0);assert_eq!(report.candidates_added,0);assert_eq!(book.export_state().unwrap(),restored.export_state().unwrap());
   }
@@ -129,11 +129,11 @@ fuzz_target!(|data:&[u8]| {
    let scope=quai_wallet::discovery::NetworkScope{chain_id:quai_consensus::U256::from(15000),genesis:quai_primitives::Hash32::from_bytes([1;32]),zone:quai_primitives::Zone::from_byte(zone).unwrap()};
    if let Ok(book)=quai_wallet::payment_allocation::PaymentAllocationBook::from_state(data,scope,owner,peer.clone(),direction){
     assert_eq!(book.export_state(),data);assert_eq!(book.scope(),scope);
-    let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{payments:&[&book],..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_seed(&[1;16]).unwrap()]).unwrap();
+    let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture::new().with_payments(&[&book]),vec![quai_wallet::full_backup::BackupOrigin::from_seed(&[1;16]).unwrap()]).unwrap();
     let restored=quai_wallet::payment_allocation::PaymentAllocationBook::from_backup(&backup,scope,owner,peer.clone(),direction).unwrap();assert_eq!(restored.next_index(),book.next_index());
     let mut live=book.clone();let count=live.allocations().count();live.merge_backup(owner,&backup).unwrap();assert_eq!(live.next_index(),book.next_index());assert_eq!(live.allocations().count(),count);
     assert_eq!(quai_wallet::payment_allocation::PaymentAllocationBook::from_state(&live.export_state(),scope,owner,peer.clone(),direction).unwrap().export_state(),live.export_state());
-    let again=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{payments:&[&restored],previous_inventory:Some(&backup),..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_seed(&[1;16]).unwrap()]).unwrap();
+    let again=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture::new().with_payments(&[&restored]).with_previous_inventory(Some(&backup)),vec![quai_wallet::full_backup::BackupOrigin::from_seed(&[1;16]).unwrap()]).unwrap();
     assert_eq!(again.payment_exposures().count(),backup.payment_exposures().count());
     assert_eq!(quai_wallet::payment_allocation::PaymentAllocationBook::from_backup(&again,scope,owner,peer.clone(),direction).unwrap().next_index(),book.next_index());
    }
@@ -153,7 +153,7 @@ fuzz_target!(|data:&[u8]| {
    assert_eq!(book.export_state(),data);assert_eq!(book.scope(),*scope);
    static SEED:std::sync::OnceLock<Vec<u8>>=std::sync::OnceLock::new();
    let seed=SEED.get_or_init(||{let f:serde_json::Value=serde_json::from_str(include_str!("../../test-infra/fixtures/allocation-merge.json")).unwrap();quai_primitives::get_bytes(f["hdSeed"].as_str().unwrap()).unwrap()});
-   let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture{allocations:&[&book],..Default::default()},vec![quai_wallet::full_backup::BackupOrigin::from_seed(seed).unwrap()]).unwrap();
+   let backup=quai_wallet::full_backup::WalletBackup::capture_portable(quai_wallet::full_backup::PortableWalletCapture::new().with_allocations(&[&book]),vec![quai_wallet::full_backup::BackupOrigin::from_seed(seed).unwrap()]).unwrap();
    let count=book.allocations().count();let next=[book.next_index(false),book.next_index(true)];book.merge_backup(&backup).unwrap();assert_eq!(book.allocations().count(),count);assert_eq!([book.next_index(false),book.next_index(true)],next);
    assert_eq!(quai_wallet::allocation::AddressAllocationBook::from_state(&book.export_state(),*scope,account.clone()).unwrap().export_state(),book.export_state());
   }}

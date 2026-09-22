@@ -165,13 +165,12 @@ impl Fixture {
             .collect();
         let coins: Vec<_> = inputs
             .iter()
-            .map(|i| CandidateCoin {
-                outpoint: i.previous_output,
-                address: i.public_key.address().try_into().unwrap(),
-                denomination: Denomination::new(3).unwrap(),
-                unlock_height: U256::ZERO,
-                expires_at: None,
-                reserved: false,
+            .map(|i| {
+                CandidateCoin::new(
+                    i.previous_output,
+                    i.public_key.address().try_into().unwrap(),
+                    Denomination::new(3).unwrap(),
+                )
             })
             .collect();
         let transaction = QiTransaction {
@@ -215,16 +214,14 @@ impl Fixture {
     }
     fn capture(&self) -> WalletBackup {
         WalletBackup::capture_portable(
-            PortableWalletCapture {
-                allocations: &[&self.hd[0], &self.hd[1]],
-                accounts: &[AccountCustodyCapture {
+            PortableWalletCapture::new()
+                .with_allocations(&[&self.hd[0], &self.hd[1]])
+                .with_accounts(&[AccountCustodyCapture {
                     book: &self.account,
                     address: &self.account_address,
-                }],
-                qi: &[&self.qi],
-                payments: &[&self.payments[0], &self.payments[1]],
-                ..Default::default()
-            },
+                }])
+                .with_qi(&[&self.qi])
+                .with_payments(&[&self.payments[0], &self.payments[1]]),
             vec![BackupOrigin::from_seed(&[1; 16]).unwrap()],
         )
         .unwrap()
@@ -293,30 +290,21 @@ fn unified_capture_rejects_duplicate_journals_unowned_inventory_and_cross_ledger
     let origins = || vec![BackupOrigin::from_seed(&[1; 16]).unwrap()];
     assert!(
         WalletBackup::capture_portable(
-            PortableWalletCapture {
-                allocations: &[&f.hd[0], &f.hd[0]],
-                ..Default::default()
-            },
+            PortableWalletCapture::new().with_allocations(&[&f.hd[0], &f.hd[0]]),
             origins()
         )
         .is_err()
     );
     assert!(
         WalletBackup::capture_portable(
-            PortableWalletCapture {
-                qi: &vec![&f.qi; MAX_PORTABLE_CAPTURE_JOURNALS + 1],
-                ..Default::default()
-            },
+            PortableWalletCapture::new().with_qi(&vec![&f.qi; MAX_PORTABLE_CAPTURE_JOURNALS + 1]),
             origins()
         )
         .is_err()
     );
     assert!(
         WalletBackup::capture_portable(
-            PortableWalletCapture {
-                allocations: &[&f.hd[0]],
-                ..Default::default()
-            },
+            PortableWalletCapture::new().with_allocations(&[&f.hd[0]]),
             vec![BackupOrigin::from_seed(&[2; 16]).unwrap()]
         )
         .is_err()
@@ -325,15 +313,13 @@ fn unified_capture_rejects_duplicate_journals_unowned_inventory_and_cross_ledger
     collision.reserve_nonce(id(101), 0).unwrap();
     assert!(
         WalletBackup::capture_portable(
-            PortableWalletCapture {
-                accounts: &[AccountCustodyCapture {
+            PortableWalletCapture::new()
+                .with_accounts(&[AccountCustodyCapture {
                     book: &collision,
-                    address: &f.account_address
-                }],
-                qi: &[&f.qi],
-                payments: &[&f.payments[1]],
-                ..Default::default()
-            },
+                    address: &f.account_address,
+                }])
+                .with_qi(&[&f.qi])
+                .with_payments(&[&f.payments[1]]),
             origins()
         )
         .is_err()
@@ -342,10 +328,8 @@ fn unified_capture_rejects_duplicate_journals_unowned_inventory_and_cross_ledger
     wrong.genesis = Hash32::ZERO;
     assert!(
         WalletBackup::capture_portable(
-            PortableWalletCapture {
-                additional_addresses: &[(wrong, f.account_address.clone())],
-                ..Default::default()
-            },
+            PortableWalletCapture::new()
+                .with_additional_addresses(&[(wrong, f.account_address.clone())]),
             origins()
         )
         .is_err()
@@ -436,11 +420,9 @@ fn portable_capture_retains_exhausted_cursors_across_zones_and_networks() {
         })
         .collect();
     let backup = WalletBackup::capture_portable(
-        PortableWalletCapture {
-            allocations: &hd.iter().collect::<Vec<_>>(),
-            payments: &payment.iter().collect::<Vec<_>>(),
-            ..Default::default()
-        },
+        PortableWalletCapture::new()
+            .with_allocations(&hd.iter().collect::<Vec<_>>())
+            .with_payments(&payment.iter().collect::<Vec<_>>()),
         vec![BackupOrigin::from_seed(&[1; 16]).unwrap()],
     )
     .unwrap();
@@ -475,10 +457,7 @@ fn portable_capture_retains_exhausted_cursors_across_zones_and_networks() {
         .collect();
     assert!(
         WalletBackup::capture_portable(
-            PortableWalletCapture {
-                qi: &many.iter().collect::<Vec<_>>(),
-                ..Default::default()
-            },
+            PortableWalletCapture::new().with_qi(&many.iter().collect::<Vec<_>>()),
             vec![BackupOrigin::from_seed(&[1; 16]).unwrap()]
         )
         .is_err()
@@ -699,39 +678,34 @@ fn repeated_recovery_keeps_old_payment_proofs_and_maximum_cursor_floors() {
     }];
     let allocations: Vec<_> = hd.iter().collect();
     let payment_refs: Vec<_> = payments.iter().collect();
-    let without = PortableWalletCapture {
-        allocations: &allocations,
-        accounts: &accounts,
-        qi: &[&f.qi],
-        payments: &payment_refs,
-        ..Default::default()
-    };
+    let qi = [&f.qi];
+    let without = PortableWalletCapture::new()
+        .with_allocations(&allocations)
+        .with_accounts(&accounts)
+        .with_qi(&qi)
+        .with_payments(&payment_refs);
     assert!(
         WalletBackup::capture_portable(without, vec![BackupOrigin::from_seed(&[1; 16]).unwrap()])
             .is_err()
     );
-    let with = PortableWalletCapture {
-        allocations: &allocations,
-        accounts: &accounts,
-        qi: &[&f.qi],
-        payments: &payment_refs,
-        previous_inventory: Some(&previous),
-        ..Default::default()
-    };
+    let with = PortableWalletCapture::new()
+        .with_allocations(&allocations)
+        .with_accounts(&accounts)
+        .with_qi(&qi)
+        .with_payments(&payment_refs)
+        .with_previous_inventory(Some(&previous));
     let recaptured =
         WalletBackup::capture_portable(with, vec![BackupOrigin::from_seed(&[1; 16]).unwrap()])
             .unwrap();
     f.verify(&recaptured);
     // Capturing the original completed journals again deduplicates exact exposures.
     let same = WalletBackup::capture_portable(
-        PortableWalletCapture {
-            allocations: &[&f.hd[0], &f.hd[1]],
-            accounts: &accounts,
-            qi: &[&f.qi],
-            payments: &[&f.payments[0], &f.payments[1]],
-            previous_inventory: Some(&previous),
-            ..Default::default()
-        },
+        PortableWalletCapture::new()
+            .with_allocations(&[&f.hd[0], &f.hd[1]])
+            .with_accounts(&accounts)
+            .with_qi(&[&f.qi])
+            .with_payments(&[&f.payments[0], &f.payments[1]])
+            .with_previous_inventory(Some(&previous)),
         vec![BackupOrigin::from_seed(&[1; 16]).unwrap()],
     )
     .unwrap();
@@ -747,24 +721,19 @@ fn repeated_recovery_keeps_old_payment_proofs_and_maximum_cursor_floors() {
     )
     .unwrap();
     let protected = WalletBackup::capture_portable(
-        PortableWalletCapture {
-            allocations: &[&stale_hd],
-            accounts: &accounts,
-            qi: &[&f.qi],
-            payments: &[&stale_payment],
-            previous_inventory: Some(&previous),
-            ..Default::default()
-        },
+        PortableWalletCapture::new()
+            .with_allocations(&[&stale_hd])
+            .with_accounts(&accounts)
+            .with_qi(&[&f.qi])
+            .with_payments(&[&stale_payment])
+            .with_previous_inventory(Some(&previous)),
         vec![BackupOrigin::from_seed(&[1; 16]).unwrap()],
     )
     .unwrap();
     f.verify(&protected);
     // This inventory field does not silently copy transaction custody: callers supply all live journals.
     let inventory = WalletBackup::capture_portable(
-        PortableWalletCapture {
-            previous_inventory: Some(&previous),
-            ..Default::default()
-        },
+        PortableWalletCapture::new().with_previous_inventory(Some(&previous)),
         vec![BackupOrigin::from_seed(&[1; 16]).unwrap()],
     )
     .unwrap();
@@ -783,10 +752,7 @@ fn repeated_recovery_keeps_old_payment_proofs_and_maximum_cursor_floors() {
     assert_eq!(inventory.payment_exposures().count(), 2);
     assert!(
         WalletBackup::capture_portable(
-            PortableWalletCapture {
-                previous_inventory: Some(&previous),
-                ..Default::default()
-            },
+            PortableWalletCapture::new().with_previous_inventory(Some(&previous)),
             vec![BackupOrigin::from_seed(&[2; 16]).unwrap()]
         )
         .is_err()
@@ -806,11 +772,9 @@ fn retained_inventory_rejects_conflicting_ancestry_and_exposure_ranges() {
     let conflicting = AddressAllocationBook::new(scope(), wrong_account, 10000, 0).unwrap();
     assert!(
         WalletBackup::capture_portable(
-            PortableWalletCapture {
-                allocations: &[&conflicting],
-                previous_inventory: Some(&previous),
-                ..Default::default()
-            },
+            PortableWalletCapture::new()
+                .with_allocations(&[&conflicting])
+                .with_previous_inventory(Some(&previous)),
             vec![
                 BackupOrigin::from_seed(&[1; 16]).unwrap(),
                 BackupOrigin::from_seed(&[2; 16]).unwrap()
@@ -842,11 +806,9 @@ fn retained_inventory_rejects_conflicting_ancestry_and_exposure_ranges() {
         .unwrap();
     assert!(
         WalletBackup::capture_portable(
-            PortableWalletCapture {
-                payments: &[&different],
-                previous_inventory: Some(&previous),
-                ..Default::default()
-            },
+            PortableWalletCapture::new()
+                .with_payments(&[&different])
+                .with_previous_inventory(Some(&previous)),
             vec![BackupOrigin::from_seed(&[1; 16]).unwrap()]
         )
         .is_err()
@@ -860,12 +822,10 @@ fn retained_inventory_rejects_conflicting_ancestry_and_exposure_ranges() {
         .reserve(PaymentAllocationId(id(9).0), 25)
         .unwrap();
     let newer = WalletBackup::capture_portable(
-        PortableWalletCapture {
-            allocations: &[&advanced_hd],
-            payments: &[&advanced_payment],
-            previous_inventory: Some(&previous),
-            ..Default::default()
-        },
+        PortableWalletCapture::new()
+            .with_allocations(&[&advanced_hd])
+            .with_payments(&[&advanced_payment])
+            .with_previous_inventory(Some(&previous)),
         vec![BackupOrigin::from_seed(&[1; 16]).unwrap()],
     )
     .unwrap();

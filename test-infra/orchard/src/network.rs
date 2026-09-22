@@ -55,12 +55,12 @@ fn select() -> Result<Network, Box<dyn Error>> {
             transfer_a_b_its: U256::from(QUAI / 100),
             conversion_its: U256::from(quai_sdk::consensus::MIN_QUAI_CONVERSION_VALUE),
             conversion_slippage_bps: 100,
-            account_fee: FeePolicy {
-                max_gas: 500_000,
-                max_gas_price: U256::from(100_000_000_000u64),
-                max_total_fee: U256::from(QUAI / 100),
-                gas_margin_bps: 1000,
-            },
+            account_fee: FeePolicy::new(
+                500_000,
+                U256::from(100_000_000_000u64),
+                U256::from(QUAI / 100),
+            )
+            .with_gas_margin_bps(1000),
         }),
         Ok("mainnet") => {
             // Real funds: never keep custody in a directory that may be cleaned.
@@ -83,13 +83,13 @@ fn select() -> Result<Network, Box<dyn Error>> {
                 transfer_a_b_its: U256::from(10 * QUAI),
                 conversion_its: U256::from(200 * QUAI),
                 conversion_slippage_bps: 800,
-                account_fee: FeePolicy {
-                    max_gas: 500_000,
+                account_fee: FeePolicy::new(
+                    500_000,
                     // Observed mainnet prices were about 41,000 gwei on 2026-09-14.
-                    max_gas_price: U256::from(100_000_000_000_000u64),
-                    max_total_fee: U256::from(25 * QUAI),
-                    gas_margin_bps: 1000,
-                },
+                    U256::from(100_000_000_000_000u64),
+                    U256::from(25 * QUAI),
+                )
+                .with_gas_margin_bps(1000),
             })
         }
         _ => Err("QUAI_QUALIFICATION_NETWORK must be orchard or mainnet".into()),

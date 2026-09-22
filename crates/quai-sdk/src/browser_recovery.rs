@@ -42,6 +42,7 @@ pub enum BrowserRecoveryError {
 }
 /// A candidate view committed under the revision captured before network reads.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct BrowserFamilyUpdate {
     /// Resulting IndexedDB revision.
     pub revision: u64,
@@ -55,6 +56,7 @@ pub struct BrowserFamilyUpdate {
 /// family remains persisted; this view and its page anchors are not stored in the
 /// custody frame. Reopen/reconstruct and recheck explicit ranges after restart.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct BrowserSettlementUpdate {
     /// Custody revision committed after the destination reads.
     pub revision: u64,

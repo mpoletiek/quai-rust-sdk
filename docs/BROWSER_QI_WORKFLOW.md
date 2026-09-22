@@ -31,7 +31,7 @@ the same types. Construction never prompts or contacts a node.
    retained by custody. This coverage is the configured journals and scan bounds,
    not a claim that every historical address has been found.
 6. Alternatively, capture `book.snapshot().revision` before reading sources, build
-   `QiSource { scope, checkpoint, coins, owners }`, and call `prepare_observed` with
+   `QiSource::new(scope, checkpoint, coins, owners)`, and call `prepare_observed` with
    that revision. This supports explicitly refreshed imported/payment origins and
    custom history/use hints. `QiSource::from_discovery` validates a successful HD
    report against a trusted xpub; `include_known_qi_addresses` atomically extends an

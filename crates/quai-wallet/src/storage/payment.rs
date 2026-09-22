@@ -18,6 +18,7 @@ CREATE TABLE payment_exposures(network BLOB NOT NULL,local_code BLOB NOT NULL,pe
 ";
 /// Channel metadata with a local database generation used for compare-and-swap imports.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct VersionedPaymentChannel {
     /// Owner-validated public channel metadata, including all zones/directions.
     pub channel: PaymentChannel,
@@ -26,6 +27,7 @@ pub struct VersionedPaymentChannel {
 }
 /// Address returned only after its raw range and public exposure record are durable.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct PaymentAddressAllocation {
     /// Exact matched payment address, public point and child index.
     pub found: PaymentSearchResult,

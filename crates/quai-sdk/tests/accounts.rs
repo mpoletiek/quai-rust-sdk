@@ -146,22 +146,16 @@ fn setup() -> (
     (directory, mock, provider, signer, store)
 }
 fn intent() -> AccountIntent {
-    AccountIntent {
-        to: "0x0011223344556677889900112233445566778899"
+    AccountIntent::new(
+        "0x0011223344556677889900112233445566778899"
             .parse()
             .unwrap(),
-        value: U256::from(10),
-        data: RpcData::new(vec![0x12, 0x34]).unwrap(),
-        access_list: vec![],
-    }
+        U256::from(10),
+    )
+    .with_data(RpcData::new(vec![0x12, 0x34]).unwrap())
 }
 fn policy() -> FeePolicy {
-    FeePolicy {
-        max_gas: 30_000,
-        max_gas_price: U256::from(3),
-        max_total_fee: U256::from(100_000),
-        gas_margin_bps: 1000,
-    }
+    FeePolicy::new(30_000, U256::from(3), U256::from(100_000)).with_gas_margin_bps(1000)
 }
 
 #[tokio::test]
@@ -320,10 +314,7 @@ async fn deployment_reserves_before_grinding_and_estimates_exact_nonce_code_and_
         signer.chain_id(),
         nonce,
         U256::ZERO,
-        DeploymentSearch {
-            start_salt: 0,
-            max_attempts: 10_000,
-        },
+        DeploymentSearch::new(0, 10_000),
         || false,
     )
     .unwrap();
@@ -404,10 +395,7 @@ async fn deployment_fee_failure_keeps_reserved_nonce_for_explicit_recovery() {
         signer.chain_id(),
         nonce,
         U256::ZERO,
-        DeploymentSearch {
-            start_salt: 0,
-            max_attempts: 10_000,
-        },
+        DeploymentSearch::new(0, 10_000),
         || false,
     )
     .unwrap();
@@ -557,10 +545,11 @@ async fn conversion_freezes_slippage_and_recovers_signed_nonce() {
             destination,
             U256::from(10_000_000_000_000_000_000u64),
             ConversionSlippage::new(100).unwrap(),
-            FeePolicy {
-                max_gas: 500_000,
-                max_total_fee: U256::from(1_000_000),
-                ..policy()
+            {
+                let mut updated = policy();
+                updated.max_gas = 500_000;
+                updated.max_total_fee = U256::from(1_000_000);
+                updated
             },
         )
         .await
@@ -607,16 +596,7 @@ async fn released_unsigned_nonce_can_be_explicitly_repaired_without_rewinding_cu
     store.reopen_unsigned_nonce(id).unwrap();
     let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
     let prepared = session
-        .prepare_reserved(
-            id,
-            AccountIntent {
-                to: sender,
-                value: U256::ZERO,
-                data: RpcData::default(),
-                access_list: vec![],
-            },
-            policy(),
-        )
+        .prepare_reserved(id, AccountIntent::new(sender, U256::ZERO), policy())
         .await
         .unwrap();
     assert_eq!(prepared.transaction().nonce, 4);
@@ -658,10 +638,11 @@ async fn explicit_confirmed_observations_pin_every_state_read_and_reject_head_ch
                             .unwrap(),
                         U256::from(10_000_000_000_000_000_000u64),
                         quai_sdk::consensus::ConversionSlippage::new(100).unwrap(),
-                        FeePolicy {
-                            max_gas: 500_000,
-                            max_total_fee: U256::from(1_000_000),
-                            ..policy()
+                        {
+                            let mut updated = policy();
+                            updated.max_gas = 500_000;
+                            updated.max_total_fee = U256::from(1_000_000);
+                            updated
                         },
                     )
                     .await
@@ -698,10 +679,7 @@ async fn replacement_fee_review_preserves_nonce_and_all_signed_candidates_after_
         .with_observation_policy(AccountObservationPolicy::PinnedLatest);
     let initial = session.prepare(id, intent(), policy()).await.unwrap();
     let root = session.sign(&initial).unwrap();
-    let bump = ReplacementPolicy {
-        minimum_price_bump_percent: 5,
-        fees: policy(),
-    };
+    let bump = ReplacementPolicy::new(5, policy());
     let prepared = session
         .prepare_replacement(id, root.hash().unwrap(), bump)
         .await
@@ -722,13 +700,15 @@ async fn replacement_fee_review_preserves_nonce_and_all_signed_candidates_after_
             .await,
         Err(AccountError::FeeLimit)
     ));
-    let bump = ReplacementPolicy {
-        fees: FeePolicy {
-            max_gas_price: U256::from(10),
-            max_total_fee: U256::from(300000),
-            ..policy()
-        },
-        ..bump
+    let bump = {
+        let mut updated = bump;
+        updated.fees = {
+            let mut updated = policy();
+            updated.max_gas_price = U256::from(10);
+            updated.max_total_fee = U256::from(300000);
+            updated
+        };
+        updated
     };
     let prepared = session
         .prepare_replacement(id, first.hash().unwrap(), bump)
@@ -1401,10 +1381,7 @@ async fn deployment_access_discovery_preserves_create_identity_and_mandatory_add
             signer.chain_id(),
             nonce,
             U256::ZERO,
-            quai_sdk::contracts::DeploymentSearch {
-                start_salt: 0,
-                max_attempts: 10000,
-            },
+            quai_sdk::contracts::DeploymentSearch::new(0, 10000),
             || false,
         )
         .unwrap();
@@ -1611,4 +1588,65 @@ async fn a_reorganized_inclusion_is_invalidated_and_never_releases_the_signed_cl
         "the signed payload must be retained for rescan or rebroadcast"
     );
     assert_eq!(after.transaction, Some(signed.hash().unwrap()));
+}
+
+/// Forwards each call to the method-keyed mock, but as one batch per round trip.
+#[derive(Clone)]
+struct Batching {
+    base: Mock,
+    round_trips: Arc<std::sync::Mutex<Vec<Vec<String>>>>,
+}
+impl Transport for Batching {
+    async fn request(&self, e: &Endpoint, m: &str, p: Value) -> Result<Value, RpcError> {
+        self.round_trips.lock().unwrap().push(vec![m.to_owned()]);
+        self.base.request(e, m, p).await
+    }
+    async fn request_batch(
+        &self,
+        e: &Endpoint,
+        requests: Vec<(&str, Value)>,
+    ) -> Option<quai_sdk::rpc::BatchResult> {
+        self.round_trips
+            .lock()
+            .unwrap()
+            .push(requests.iter().map(|(m, _)| (*m).to_owned()).collect());
+        let mut out = Vec::with_capacity(requests.len());
+        for (method, params) in requests {
+            out.push(self.base.request(e, method, params).await);
+        }
+        Some(Ok(out))
+    }
+}
+
+#[tokio::test]
+async fn a_default_prepare_costs_three_round_trips_with_no_address_before_the_genesis() {
+    let (_directory, mock, _, signer, mut store) = setup();
+    let transport = Batching {
+        base: mock,
+        round_trips: Arc::default(),
+    };
+    let provider = Provider::new(
+        transport.clone(),
+        Routing::direct("http://127.0.0.1:9200/exact", Zone::Cyprus1.into()).unwrap(),
+        U256::from(15000),
+    );
+    let mut session = AccountSession::new(&provider, &signer, &mut store).unwrap();
+    session
+        .prepare(ReservationId([7; 16]), intent(), policy())
+        .await
+        .unwrap();
+    let round_trips = transport.round_trips.lock().unwrap().clone();
+    assert_eq!(
+        round_trips,
+        [
+            vec!["quai_chainId", "quai_getHeaderByNumber", "quai_gasPrice"],
+            vec![
+                "quai_chainId",
+                "quai_getBalance",
+                "quai_getTransactionCount"
+            ],
+            vec!["quai_chainId", "quai_estimateGas"],
+        ],
+        "network and fee first, then the sender's state, then the estimate"
+    );
 }

@@ -36,12 +36,12 @@ pub(super) async fn run(
                 .prepare(
                     id,
                     call.into_account_intent(),
-                    FeePolicy {
-                        max_gas: 200000,
-                        max_gas_price: U256::from(10_000_000_000_000_000u64),
-                        max_total_fee: U256::from(2_000_000_000_000_000_000_000u128),
-                        gas_margin_bps: 1000,
-                    },
+                    FeePolicy::new(
+                        200000,
+                        U256::from(10_000_000_000_000_000u64),
+                        U256::from(2_000_000_000_000_000_000_000u128),
+                    )
+                    .with_gas_margin_bps(1000),
                 )
                 .await?;
             assert!(

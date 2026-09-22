@@ -93,7 +93,12 @@ impl Password<'_> {
 #[derive(Clone, Copy, Debug)]
 #[non_exhaustive]
 pub struct KdfLimits {
-    /// Maximum scrypt V/B/T memory even with parallel feature unification; default 256 MiB.
+    /// Maximum scrypt V/B/T memory even with parallel feature unification;
+    /// default 256 MiB plus 64 KiB.
+    ///
+    /// The slack is deliberate: the widely used N=2^18, r=8, p=1 documents
+    /// (geth's and MetaMask's standard) need 256 MiB of V plus 2 KiB of B and T
+    /// workspace, so a flat 256 MiB refused them by 2 KiB.
     pub max_memory_bytes: u64,
     /// Maximum N*r*p work units; default 2^24.
     pub max_scrypt_work: u64,
@@ -118,7 +123,7 @@ pub struct KdfLimits {
 impl Default for KdfLimits {
     fn default() -> Self {
         Self {
-            max_memory_bytes: 256 * 1024 * 1024,
+            max_memory_bytes: 256 * 1024 * 1024 + 64 * 1024,
             max_scrypt_work: 1 << 24,
             max_pbkdf2_rounds: 2_000_000,
             min_scrypt_work: 1 << 20,

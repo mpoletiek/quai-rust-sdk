@@ -16,6 +16,7 @@ pub use crate::discovery::DEFAULT_QI_GAP;
 /// Mutually exclusive current-snapshot balance buckets in native Qits.
 /// Durable claims take precedence over lock/expiry categories.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct QiBalance {
     /// All source-reported currently held outputs, including reserved/locked.
     pub total: U256,
@@ -471,14 +472,10 @@ async fn refresh_once<T: Transport>(
                 if coins.len() == 100_000 || !seen.insert(outpoint) {
                     return Err(QiError::IdentityMismatch);
                 }
-                coins.push(CandidateCoin {
-                    outpoint,
-                    address,
-                    denomination: Denomination::new(output.denomination)?,
-                    unlock_height: output.lock,
-                    expires_at: None,
-                    reserved: false,
-                });
+                coins.push(
+                    CandidateCoin::new(outpoint, address, Denomination::new(output.denomination)?)
+                        .with_unlock_height(output.lock),
+                );
             }
         }
     }
@@ -495,12 +492,7 @@ async fn refresh_once<T: Transport>(
     if after != Some(before) {
         return Ok(None);
     }
-    match store.replace_snapshot(&Snapshot {
-        scope,
-        generation,
-        checkpoint: Some(before),
-        coins,
-    }) {
+    match store.replace_snapshot(&Snapshot::new(scope, generation, Some(before), coins)) {
         Ok(_) => Ok(Some(before)),
         // Another writer committed after our snapshot read. Its snapshot
         // stands in for ours only if it is at least as new; our reads are never

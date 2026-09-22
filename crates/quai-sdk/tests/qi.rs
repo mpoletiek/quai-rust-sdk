@@ -236,17 +236,14 @@ fn refresh(env: &mut Environment) {
             let mut hash = [0u8; 32];
             hash[3] = 0x80;
             hash[31] = i as u8 + 1;
-            CandidateCoin {
-                outpoint: OutPoint {
+            CandidateCoin::new(
+                OutPoint {
                     transaction_hash: quai_sdk::primitives::Hash32::from_bytes(hash),
                     index: 0,
                 },
-                address: public.address().try_into().unwrap(),
-                denomination: Denomination::new(1).unwrap(),
-                unlock_height: U256::ZERO,
-                expires_at: None,
-                reserved: false,
-            }
+                public.address().try_into().unwrap(),
+                Denomination::new(1).unwrap(),
+            )
         })
         .collect();
     env.store.replace_snapshot(&snapshot).unwrap();
@@ -256,24 +253,19 @@ fn pool(env: &mut Environment, count: usize) -> QiChangePool {
     QiChangePool::allocate(&mut env.store, &account, count, 4000, || false).unwrap()
 }
 fn intent() -> QiIntent {
-    QiIntent {
-        amount: U256::from(5),
-        destinations: vec![
+    QiIntent::new(
+        U256::from(5),
+        vec![
             "0x0080000000000000000000000000000000000001"
                 .parse()
                 .unwrap(),
         ],
-    }
+    )
 }
 fn policy() -> QiPolicy {
-    QiPolicy {
-        initial_fee: U256::from(5),
-        max_fee: U256::from(5),
-        max_inputs: 4,
-        max_outputs: 16,
-        max_fee_rounds: 4,
-        max_snapshot_age: 2,
-    }
+    QiPolicy::new(U256::from(5), 4, 16, 2)
+        .with_initial_fee(U256::from(5))
+        .with_max_fee_rounds(4)
 }
 fn id(n: u8) -> ReservationId {
     ReservationId([n; 16])
@@ -834,17 +826,14 @@ async fn imported_and_payment_receive_inputs_are_spent_with_hd_inputs() {
         let mut hash = [0; 32];
         hash[3] = 0x80;
         hash[31] = 100 + index as u8;
-        snapshot.coins.push(CandidateCoin {
-            outpoint: OutPoint {
+        snapshot.coins.push(CandidateCoin::new(
+            OutPoint {
                 transaction_hash: hash.into(),
                 index: 0,
             },
-            address: address.try_into().unwrap(),
-            denomination: Denomination::new(1).unwrap(),
-            unlock_height: U256::ZERO,
-            expires_at: None,
-            reserved: false,
-        });
+            address.try_into().unwrap(),
+            Denomination::new(1).unwrap(),
+        ));
     }
     env.store.replace_snapshot(&snapshot).unwrap();
     let mut keys = QiKeyring::new(Some(&env.wallet)).unwrap();
@@ -1224,9 +1213,10 @@ async fn sweeps_and_cross_zone_transfers_use_durable_exact_payloads() {
             .prepare_sweep(
                 id(93),
                 mode,
-                QiPolicy {
-                    initial_fee: U256::ZERO,
-                    ..policy()
+                {
+                    let mut updated = policy();
+                    updated.initial_fee = U256::ZERO;
+                    updated
                 },
                 outputs,
             )
@@ -1348,9 +1338,10 @@ async fn conflicting_qi_candidates_preserve_recipients_and_survive_restart_and_t
     let mut env = setup();
     let change = pool(&mut env, 4);
     refresh(&mut env);
-    let limits = QiPolicy {
-        initial_fee: U256::from(1),
-        ..policy()
+    let limits = {
+        let mut updated = policy();
+        updated.initial_fee = U256::from(1);
+        updated
     };
     let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
     let prepared = session
@@ -1379,9 +1370,10 @@ async fn conflicting_qi_candidates_preserve_recipients_and_survive_restart_and_t
             .prepare_replacement(
                 id(95),
                 replacement.clone(),
-                QiPolicy {
-                    max_fee: U256::from(1),
-                    ..limits
+                {
+                    let mut updated = limits;
+                    updated.max_fee = U256::from(1);
+                    updated
                 },
                 None
             )
@@ -1453,9 +1445,10 @@ async fn qi_replacement_rechecks_snapshot_after_fee_estimation() {
     let mut env = setup();
     let change = pool(&mut env, 4);
     refresh(&mut env);
-    let limits = QiPolicy {
-        initial_fee: U256::from(1),
-        ..policy()
+    let limits = {
+        let mut updated = policy();
+        updated.initial_fee = U256::from(1);
+        updated
     };
     let scope = env.store.scope();
     let mut session = QiSession::new(&env.provider, &env.wallet, &mut env.store).unwrap();
@@ -2075,21 +2068,20 @@ fn balance_buckets_cover_all_origins_and_preserve_claim_priority() {
         let mut hash = [0; 32];
         hash[3] = 0x80;
         hash[31] = 140 + i as u8;
-        CandidateCoin {
-            outpoint: OutPoint {
+        CandidateCoin::new(
+            OutPoint {
                 transaction_hash: hash.into(),
                 index: 0,
             },
-            address: address.try_into().unwrap(),
-            denomination: Denomination::new(i as u8).unwrap(),
-            unlock_height: if i == 1 { U256::from(32) } else { U256::ZERO },
-            expires_at: if i == 0 || i == 3 {
-                Some(U256::from(17))
-            } else {
-                None
-            },
-            reserved: false,
-        }
+            address.try_into().unwrap(),
+            Denomination::new(i as u8).unwrap(),
+        )
+        .with_unlock_height(if i == 1 { U256::from(32) } else { U256::ZERO })
+        .with_expires_at(if i == 0 || i == 3 {
+            Some(U256::from(17))
+        } else {
+            None
+        })
     })
     .collect();
     let generation = env.store.replace_snapshot(&snapshot).unwrap();
@@ -3109,9 +3101,10 @@ async fn a_prepare_that_loses_its_reservation_to_a_refresh_selects_again() {
 /// A policy and fee quote under which `intent()` leaves change.
 fn with_change(mock: &Mock) -> QiPolicy {
     *mock.fees.lock().unwrap() = [1].into();
-    QiPolicy {
-        initial_fee: U256::ZERO,
-        ..policy()
+    {
+        let mut updated = policy();
+        updated.initial_fee = U256::ZERO;
+        updated
     }
 }
 
@@ -3253,17 +3246,15 @@ async fn a_wrap_aggregates_its_destination_outputs_instead_of_copying_the_inputs
                 let mut hash = [0u8; 32];
                 hash[3] = 0x80;
                 hash[31] = owner.address().bytes()[19] ^ index as u8;
-                CandidateCoin {
-                    outpoint: OutPoint {
+                CandidateCoin::new(
+                    OutPoint {
                         transaction_hash: quai_sdk::primitives::Hash32::from_bytes(hash),
                         index,
                     },
-                    address: owner.address().try_into().unwrap(),
-                    denomination: Denomination::new(1).unwrap(), // Five Qits.
-                    unlock_height: U256::ZERO,
-                    expires_at: None,
-                    reserved: false,
-                }
+                    owner.address().try_into().unwrap(),
+                    // Five Qits.
+                    Denomination::new(1).unwrap(),
+                )
             })
         })
         .collect();
@@ -3469,17 +3460,14 @@ async fn an_aggregating_replacement_shrinks_a_wraps_destination_and_its_gas() {
             let mut hash = [0u8; 32];
             hash[3] = 0x80;
             hash[31] = index as u8 + 1;
-            CandidateCoin {
-                outpoint: OutPoint {
+            CandidateCoin::new(
+                OutPoint {
                     transaction_hash: quai_sdk::primitives::Hash32::from_bytes(hash),
                     index,
                 },
-                address: owner.address().try_into().unwrap(),
-                denomination: Denomination::new(1).unwrap(),
-                unlock_height: U256::ZERO,
-                expires_at: None,
-                reserved: false,
-            }
+                owner.address().try_into().unwrap(),
+                Denomination::new(1).unwrap(),
+            )
         })
         .collect();
     let generation = env.store.replace_snapshot(&snapshot).unwrap();
@@ -3558,10 +3546,11 @@ async fn an_aggregating_replacement_shrinks_a_wraps_destination_and_its_gas() {
     );
 
     // Replace it: collapse the destination and drop the one Qit of change.
-    let limits = QiPolicy {
-        max_inputs: 8,
-        max_outputs: 16,
-        ..policy()
+    let limits = {
+        let mut updated = policy();
+        updated.max_inputs = 8;
+        updated.max_outputs = 16;
+        updated
     };
     let change_index = parent_tx
         .outputs
@@ -3687,17 +3676,14 @@ async fn a_replacement_below_the_inclusion_floor_is_refused_too() {
             let mut hash = [0u8; 32];
             hash[3] = 0x80;
             hash[31] = index as u8 + 1;
-            CandidateCoin {
-                outpoint: OutPoint {
+            CandidateCoin::new(
+                OutPoint {
                     transaction_hash: quai_sdk::primitives::Hash32::from_bytes(hash),
                     index,
                 },
-                address: owner.address().try_into().unwrap(),
-                denomination: Denomination::new(1).unwrap(),
-                unlock_height: U256::ZERO,
-                expires_at: None,
-                reserved: false,
-            }
+                owner.address().try_into().unwrap(),
+                Denomination::new(1).unwrap(),
+            )
         })
         .collect();
     let generation = env.store.replace_snapshot(&snapshot).unwrap();
@@ -3765,10 +3751,11 @@ async fn a_replacement_below_the_inclusion_floor_is_refused_too() {
         .unwrap();
     // The mock's rate puts the floor at five Qits once the profile applies.
     env.mock.mode.store(8, Ordering::SeqCst);
-    let limits = QiPolicy {
-        max_inputs: 8,
-        max_outputs: 16,
-        ..policy()
+    let limits = {
+        let mut updated = policy();
+        updated.max_inputs = 8;
+        updated.max_outputs = 16;
+        updated
     };
     let result = QiSession::new(&env.provider, &env.wallet, &mut env.store)
         .unwrap()

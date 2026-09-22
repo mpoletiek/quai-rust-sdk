@@ -176,6 +176,11 @@ impl<T: Transport + Clone> RpcAccountSigner<T> {
     /// Check network and passive account exposure without requesting permission.
     pub async fn check_account(&self) -> Result<(), RpcSignerFailure> {
         self.check_network().await?;
+        self.check_exposed().await?;
+        self.check_network().await
+    }
+    /// The bound account is among those the remote passively exposes.
+    async fn check_exposed(&self) -> Result<(), RpcSignerFailure> {
         let accounts = self
             .transport
             .request(&self.endpoint, "quai_accounts", json!([]))
@@ -198,17 +203,32 @@ impl<T: Transport + Clone> RpcAccountSigner<T> {
         if !unique.contains(&self.address) {
             return Err(RpcSignerFailure::AccountUnavailable);
         }
+        Ok(())
+    }
+    /// Exposure, then network, immediately before a state-changing request.
+    ///
+    /// The network read sits next to the request on each side, so the pair
+    /// brackets it exactly as `check_account` twice did, in four reads rather
+    /// than six: the accounts list carries no address, so nothing is disclosed
+    /// by reading it before the network is confirmed.
+    async fn check_before(&self) -> Result<(), RpcSignerFailure> {
+        self.check_exposed().await?;
         self.check_network().await
+    }
+    /// Network, then exposure, immediately after a state-changing request.
+    async fn check_after(&self) -> Result<(), RpcSignerFailure> {
+        self.check_network().await?;
+        self.check_exposed().await
     }
     async fn dispatch(&self, method: &str, params: Value) -> Result<Value, RpcSignerError> {
         bounded(&params).map_err(RpcSignerError::before)?;
-        self.check_account().await.map_err(RpcSignerError::before)?;
+        self.check_before().await.map_err(RpcSignerError::before)?;
         let value = self
             .transport
             .request(&self.endpoint, method, params)
             .await
             .map_err(|e| RpcSignerError::after(e.into()))?;
-        self.check_account().await.map_err(RpcSignerError::after)?;
+        self.check_after().await.map_err(RpcSignerError::after)?;
         Ok(value)
     }
     /// Sign exact bytes using personal_sign; recover and verify the bound account.
@@ -324,7 +344,7 @@ impl<T: Transport + Clone> RpcAccountSigner<T> {
         let params = self
             .transaction_params(transaction)
             .map_err(RpcSignerError::before)?;
-        self.check_account().await.map_err(RpcSignerError::before)?;
+        self.check_before().await.map_err(RpcSignerError::before)?;
         let value = self
             .transport
             .request(&self.endpoint, "quai_sendTransaction", params)
@@ -339,7 +359,7 @@ impl<T: Transport + Clone> RpcAccountSigner<T> {
             reported_hash: hash,
             source,
         };
-        self.check_account().await.map_err(after)?;
+        self.check_after().await.map_err(after)?;
         RemoteSendAcknowledgement::from_reported_hash(
             self.scope,
             self.address,
@@ -416,6 +436,7 @@ fn verify_signature(
 
 /// Public request identity to persist before remote dispatch; digest is not a tx ID.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct RemoteSendIdentity {
     /// Trusted network binding.
     pub scope: NetworkScope,
@@ -534,6 +555,7 @@ impl RemoteSendAcknowledgement {
 }
 /// Cryptographically verified transaction and explicit comparison with the request.
 #[derive(Debug)]
+#[non_exhaustive]
 pub struct RemoteSendObservation {
     /// Canonical signed transaction reconstructed from the provider response.
     pub signed: SignedQuaiTransaction,

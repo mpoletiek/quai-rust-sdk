@@ -114,7 +114,18 @@ impl SecretKey {
         let (signature, recovery_id) = signing
             .sign_prehash_recoverable(&representative)
             .map_err(|_| CryptoError::SigningFailed)?;
-        RecoverableSignature::from_compact(&signature.to_bytes().into(), recovery_id.to_byte())
+        let signature = RecoverableSignature::from_compact(
+            &signature.to_bytes().into(),
+            recovery_id.to_byte(),
+        )?;
+        // Recover before returning, as Schnorr signing verifies. RFC 6979 makes
+        // the nonce a function of key and digest, so a faulted computation
+        // released beside a correct one for the same digest reveals the key.
+        // Recovery also proves the recovery ID selects this key.
+        if signature.recover_prehash(digest)? != self.public_key() {
+            return Err(CryptoError::SigningFailed);
+        }
+        Ok(signature)
     }
 
     /// Sign exact bytes with BIP340, obtaining fresh auxiliary entropy from the OS.

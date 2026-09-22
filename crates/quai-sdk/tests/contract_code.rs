@@ -340,11 +340,7 @@ async fn explicit_endpoint_wrapper_code_availability() {
 }
 
 fn code_target() -> quai_sdk::provider::ContractCodeTarget {
-    quai_sdk::provider::ContractCodeTarget {
-        address: WQUAI_ADDRESS.parse().unwrap(),
-        genesis: hash(1),
-        expected_runtime: None,
-    }
+    quai_sdk::provider::ContractCodeTarget::new(WQUAI_ADDRESS.parse().unwrap(), hash(1), None)
 }
 #[cfg(any(target_arch = "wasm32", feature = "http", feature = "ws"))]
 fn code_wait_config(timeout_ms: u32, max_polls: u32) -> quai_sdk::provider::CodeWaitConfig {
@@ -376,26 +372,30 @@ async fn code_target_checks_empty_code_runtime_and_trusted_genesis_without_deplo
     let observed = target.observe(&provider).await.unwrap().unwrap();
     assert_eq!(observed.address, target.address);
     assert_eq!(observed.code.bytes.to_hex(), "0x6000");
-    let mismatch = quai_sdk::provider::ContractCodeTarget {
-        genesis: hash(9),
-        ..target
+    let mismatch = {
+        let mut updated = target;
+        updated.genesis = hash(9);
+        updated
     };
     assert!(mismatch.observe(&provider).await.is_err());
-    let mismatch = quai_sdk::provider::ContractCodeTarget {
-        expected_runtime: Some(hash(9)),
-        ..target
+    let mismatch = {
+        let mut updated = target;
+        updated.expected_runtime = Some(hash(9));
+        updated
     };
     assert!(mismatch.observe(&provider).await.is_err());
-    let matching = quai_sdk::provider::ContractCodeTarget {
-        expected_runtime: Some(observed.code.hash),
-        ..target
+    let matching = {
+        let mut updated = target;
+        updated.expected_runtime = Some(observed.code.hash);
+        updated
     };
     assert!(matching.observe(&provider).await.unwrap().is_some());
     let changed = Mock::new(1, "0x6000");
     assert!(target.observe(&changed.provider()).await.unwrap().is_none());
-    let invalid = quai_sdk::provider::ContractCodeTarget {
-        genesis: Hash32::ZERO,
-        ..target
+    let invalid = {
+        let mut updated = target;
+        updated.genesis = Hash32::ZERO;
+        updated
     };
     let calls = mock.state().calls.len();
     assert!(invalid.observe(&provider).await.is_err());

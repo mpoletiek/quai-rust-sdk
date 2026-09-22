@@ -1,7 +1,7 @@
 //! Portable, exact-nonce account preparation without storage or signing side effects.
 use quai_consensus::{AccessTuple, ConversionSlippage, QuaiToQiTransaction, QuaiTransaction};
 use quai_primitives::{Hash32, QiAddress, QuaiAddress, Zone};
-use quai_provider::{AccessListItem, BlockTag, CallRequest, Provider, ProviderError, RpcData};
+use quai_provider::{BlockTag, CallRequest, Provider, ProviderError, RpcData};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::NetworkScope;
 
@@ -19,6 +19,7 @@ pub enum AccountObservationPolicy {
 
 /// Application-specified limits; there is no implicit unlimited-fee default.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct FeePolicy {
     /// Maximum final gas limit, including the optional safety margin.
     pub max_gas: u64,
@@ -28,6 +29,22 @@ pub struct FeePolicy {
     pub max_total_fee: U256,
     /// Additional gas above the estimate, in basis points (0..=10,000).
     pub gas_margin_bps: u16,
+}
+impl FeePolicy {
+    /// Caps with no gas margin; add one with [`Self::with_gas_margin_bps`].
+    pub const fn new(max_gas: u64, max_gas_price: U256, max_total_fee: U256) -> Self {
+        Self {
+            max_gas,
+            max_gas_price,
+            max_total_fee,
+            gas_margin_bps: 0,
+        }
+    }
+    /// Replace `gas_margin_bps`.
+    pub const fn with_gas_margin_bps(mut self, gas_margin_bps: u16) -> Self {
+        self.gas_margin_bps = gas_margin_bps;
+        self
+    }
 }
 
 impl FeePolicy {
@@ -82,6 +99,7 @@ pub enum AccountAccessListPolicy {
 }
 /// An ordinary same-zone account transfer or contract call.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct AccountIntent {
     /// Exact destination. Deployment, cross-zone and conversion have separate workflows.
     pub to: QuaiAddress,
@@ -92,9 +110,31 @@ pub struct AccountIntent {
     /// Ordered access declaration, retained without normalization.
     pub access_list: Vec<AccessTuple>,
 }
+impl AccountIntent {
+    /// A value transfer with no call data and no access list.
+    pub fn new(to: QuaiAddress, value: U256) -> Self {
+        Self {
+            to,
+            value,
+            data: RpcData::default(),
+            access_list: Vec::new(),
+        }
+    }
+    /// Replace `data`.
+    pub fn with_data(mut self, data: RpcData) -> Self {
+        self.data = data;
+        self
+    }
+    /// Replace `access_list`.
+    pub fn with_access_list(mut self, access_list: Vec<AccessTuple>) -> Self {
+        self.access_list = access_list;
+        self
+    }
+}
 
 /// Explicit same-zone account-ledger conversion into Qi.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QuaiConversionIntent {
     /// Same-zone Qi recipient.
     pub destination: QiAddress,
@@ -102,6 +142,16 @@ pub struct QuaiConversionIntent {
     pub value: U256,
     /// Exact controller slippage encoded in the signed two-byte payload.
     pub slippage: ConversionSlippage,
+}
+impl QuaiConversionIntent {
+    /// A conversion of `value` to a same-zone Qi recipient at exact slippage.
+    pub const fn new(destination: QiAddress, value: U256, slippage: ConversionSlippage) -> Self {
+        Self {
+            destination,
+            value,
+            slippage,
+        }
+    }
 }
 pub(crate) enum AccountOperationIntent {
     Call(AccountIntent),
@@ -354,7 +404,12 @@ pub(crate) async fn quote_operation<T: Transport>(
         QuaiToQiTransaction::new(transaction.clone()).map_err(|_| E::Invalid)?;
     }
     transaction.unsigned_bytes().map_err(|_| E::Invalid)?;
-    check_network(provider, scope).await?;
+    transaction.gas_price = crate::network::gas_price_on_network(provider, scope, scope.zone)
+        .await?
+        .ok_or(E::NetworkMismatch)?;
+    if transaction.gas_price > policy.max_gas_price {
+        return Err(E::FeeLimit);
+    }
     let header = match observation {
         AccountObservationPolicy::Pending => None,
         AccountObservationPolicy::PinnedLatest => Some(
@@ -367,43 +422,26 @@ pub(crate) async fn quote_operation<T: Transport>(
     let block = header.as_ref().map_or(BlockTag::Pending, |h| {
         BlockTag::Number(U256::from(h.number))
     });
-    let remote = provider.transaction_count(sender, block).await?;
+    let state = provider
+        .account_states(&[sender], block)
+        .await?
+        .pop()
+        .ok_or(E::Invalid)?;
+    let remote = state.nonce;
     transaction.nonce = match nonce {
         AccountNonce::AtLeast(floor) => floor.max(remote),
         AccountNonce::Exact(n) if n >= remote => n,
         AccountNonce::Exact(_) => return Err(E::Invalid),
     };
-    transaction.gas_price = provider.gas_price(scope.zone).await?;
-    if transaction.gas_price > policy.max_gas_price {
-        return Err(E::FeeLimit);
-    }
     let estimate = if conversion {
         let typed = QuaiToQiTransaction::new(transaction.clone()).map_err(|_| E::Invalid)?;
         provider
             .estimate_quai_conversion_gas_budget(sender, &typed, block)
             .await?
     } else {
-        let mut request = CallRequest {
-            from: sender,
-            to: transaction
-                .to
-                .map(QuaiAddress::try_from)
-                .transpose()
-                .map_err(|_| E::Invalid)?,
-            gas: Some(policy.max_gas),
-            gas_price: Some(transaction.gas_price),
-            value: Some(transaction.value),
-            nonce: Some(transaction.nonce),
-            input: RpcData::new(transaction.data.clone())?,
-            access_list: transaction
-                .access_list
-                .iter()
-                .map(|a| AccessListItem {
-                    address: a.address,
-                    storage_keys: a.storage_keys.clone(),
-                })
-                .collect(),
-        };
+        let mut request =
+            CallRequest::for_transaction(sender, &transaction).map_err(|_| E::Invalid)?;
+        request.gas = Some(policy.max_gas);
         populate_access(provider, access, &mut request, &mut transaction, block).await?;
         provider.estimate_gas(&request, block).await?
     };
@@ -411,7 +449,7 @@ pub(crate) async fn quote_operation<T: Transport>(
         .bound(estimate, transaction.gas_price, transaction.value)
         .ok_or(E::FeeLimit)?;
     transaction.gas_limit = gas;
-    if debit > provider.balance(sender, block).await? {
+    if debit > state.balance {
         return Err(E::InsufficientBalance);
     }
     if let Some(before) = header {

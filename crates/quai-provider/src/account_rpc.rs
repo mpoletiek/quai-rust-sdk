@@ -9,6 +9,7 @@ use serde_json::{Value, json};
 use std::collections::BTreeSet;
 /// Node-generated access declaration and simulated gas for one exact call.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct AccessListEstimate {
     /// Ordered access declaration, not silently merged into a signed transaction.
     pub access_list: Vec<AccessListItem>,
@@ -17,6 +18,7 @@ pub struct AccessListEstimate {
 }
 /// Current pool counts, including Qi even though account pool content excludes Qi.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct PoolStatus {
     /// Executable account transactions.
     pub pending: u64,
@@ -27,6 +29,7 @@ pub struct PoolStatus {
 }
 /// One validated account pool transaction. Absence cannot authorize nonce release.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct PoolTransaction {
     /// True if queued behind a gap; false if in the node's pending account set.
     pub queued: bool,
@@ -35,6 +38,7 @@ pub struct PoolTransaction {
 }
 /// One source-formatted pool entry; its text is not parsed as authoritative values.
 #[derive(Clone)]
+#[non_exhaustive]
 pub struct PoolInspection {
     /// Account map key, checked against the requested zone.
     pub sender: QuaiAddress,

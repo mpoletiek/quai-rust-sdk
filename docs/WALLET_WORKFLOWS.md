@@ -2,7 +2,7 @@
 
 Implemented against `quais@1.0.0-alpha.57` and go-quai v0.56.0
 `f3f345c877300c044e3e0081a48bf3cf786fb9cc`. These APIs are development-stage;
-[remaining acceptance gates](FEATURE_COMPLETENESS_REVIEW_2026-09-12.md) are explicit.
+[remaining acceptance gates](history/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md) are explicit.
 Enable `sqlite` for native sessions, `payments` for channel orchestration, and
 `abi` for wrappers. Providers and stores take an explicit chain, genesis and zone.
 

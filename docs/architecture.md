@@ -1,6 +1,6 @@
 # Architecture and current trust boundaries
 
-The workspace implements parts of the [audited full plan](../QUAI_RUST_SDK_PLAN.md).
+The workspace implements parts of the [audited full plan](history/QUAI_RUST_SDK_PLAN.md).
 All crates are published on crates.io as `0.1` alphas. Implemented behavior and remaining acceptance
 requirements are listed in [status](../IMPLEMENTATION_STATUS.md) and
 [wallet gaps](WALLET_GAPS.md); this document does not imply a stable API.

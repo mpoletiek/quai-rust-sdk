@@ -325,7 +325,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -350,7 +350,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -750,7 +750,7 @@
         "crates/quai-provider/tests/conversions.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
@@ -939,7 +939,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -1075,7 +1075,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -1122,7 +1122,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -1235,7 +1235,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -1415,7 +1415,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -1523,7 +1523,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -2043,7 +2043,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -2063,7 +2063,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -2115,7 +2115,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -4657,7 +4657,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -4682,7 +4682,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -5211,7 +5211,7 @@
         "crates/quai-browser/tests/support/injected_transaction.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md",
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md",
         "crates/quai-browser/README.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission. Injected providers additionally require explicit signed_submission_transport opt-in; their generic transport remains read-only."
@@ -5401,7 +5401,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -5537,7 +5537,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -5584,7 +5584,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -5697,7 +5697,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -5956,7 +5956,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -6087,7 +6087,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -6712,7 +6712,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -6732,7 +6732,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -6784,7 +6784,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -20671,7 +20671,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -20696,7 +20696,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -21223,7 +21223,7 @@
         "crates/quai-provider/tests/conversions.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
@@ -21412,7 +21412,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -21548,7 +21548,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -21595,7 +21595,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -21708,7 +21708,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -21967,7 +21967,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -22102,7 +22102,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -22700,7 +22700,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -22720,7 +22720,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -22772,7 +22772,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -22996,7 +22996,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -23021,7 +23021,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -23573,7 +23573,7 @@
         "crates/quai-provider/tests/conversions.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
@@ -23762,7 +23762,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -23898,7 +23898,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -23945,7 +23945,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -24058,7 +24058,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -24317,7 +24317,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -24452,7 +24452,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -25050,7 +25050,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -25070,7 +25070,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -25122,7 +25122,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -36978,7 +36978,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -37003,7 +37003,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -37610,7 +37610,7 @@
         "crates/quai-provider/tests/conversions.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
@@ -37799,7 +37799,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -37935,7 +37935,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -37982,7 +37982,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -38095,7 +38095,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -38354,7 +38354,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -38489,7 +38489,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -39087,7 +39087,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -39107,7 +39107,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -39159,7 +39159,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -46805,7 +46805,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -46830,7 +46830,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -47437,7 +47437,7 @@
         "crates/quai-provider/tests/conversions.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
@@ -47649,7 +47649,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -47785,7 +47785,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -47832,7 +47832,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -47945,7 +47945,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -48204,7 +48204,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -48339,7 +48339,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -48989,7 +48989,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -49009,7 +49009,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -49109,7 +49109,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -67157,7 +67157,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -67182,7 +67182,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -67582,7 +67582,7 @@
         "crates/quai-provider/tests/conversions.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
@@ -67771,7 +67771,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -67907,7 +67907,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -67954,7 +67954,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -68067,7 +68067,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -68247,7 +68247,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -68355,7 +68355,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -68875,7 +68875,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -68895,7 +68895,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -68947,7 +68947,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -69807,7 +69807,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -69832,7 +69832,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -70361,7 +70361,7 @@
         "crates/quai-browser/tests/support/injected_transaction.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md",
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md",
         "crates/quai-browser/README.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission. Injected providers additionally require explicit signed_submission_transport opt-in; their generic transport remains read-only."
@@ -70551,7 +70551,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -70687,7 +70687,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -70734,7 +70734,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -70847,7 +70847,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -71106,7 +71106,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -71237,7 +71237,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -71862,7 +71862,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -71882,7 +71882,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -71934,7 +71934,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -72328,7 +72328,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -72353,7 +72353,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -72880,7 +72880,7 @@
         "crates/quai-provider/tests/conversions.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
@@ -73069,7 +73069,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -73205,7 +73205,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -73252,7 +73252,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -73365,7 +73365,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -73624,7 +73624,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -73759,7 +73759,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -74357,7 +74357,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -74377,7 +74377,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -74429,7 +74429,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -74653,7 +74653,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -74678,7 +74678,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -75230,7 +75230,7 @@
         "crates/quai-provider/tests/conversions.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
@@ -75419,7 +75419,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -75555,7 +75555,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -75602,7 +75602,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -75715,7 +75715,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -75974,7 +75974,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -76109,7 +76109,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -76707,7 +76707,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -76727,7 +76727,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -76779,7 +76779,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -80882,7 +80882,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -80907,7 +80907,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -81514,7 +81514,7 @@
         "crates/quai-provider/tests/conversions.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
@@ -81703,7 +81703,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -81839,7 +81839,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -81886,7 +81886,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -81999,7 +81999,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -82258,7 +82258,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -82393,7 +82393,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -82991,7 +82991,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -83011,7 +83011,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -83063,7 +83063,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },
@@ -84659,7 +84659,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Rust FromStr/typed construction and checksummed Display replace the JS literal/promise/Addressable resolver. No asynchronous arbitrary object resolution or implicit name service."
     },
@@ -84684,7 +84684,7 @@
         "crates/quai-provider/tests/blocks.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Typed Latest/Pending/Number selectors, explicit zero for earliest, checked signed-64-bit node bounds and separate hash lookup APIs. No implicit relative offsets, overloaded string/hash interpretation or unsupported safe/finalized finality assertions."
     },
@@ -85291,7 +85291,7 @@
         "crates/quai-provider/tests/conversions.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Immutable verified signed envelopes select exact origin/chain and are submitted once; acknowledgement must match the local ID. Typed send-stage ambiguity retains identity. No raw unverified JS string, automatic receipt lookup, response-class attachment or blind retry; durable SDK sessions persist before submission."
     },
@@ -85503,7 +85503,7 @@
         "crates/quai-provider/tests/qi_special_fee.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Validated chain-bound ordinary transaction, exact ordered inputs/outputs and Qit quote. Nonempty data never goes through the pinned estimator that drops specialized data; conversion/wrapping uses the explicit qualified profile and limits. Estimates do not establish ownership or node acceptance."
     },
@@ -85639,7 +85639,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit routed shard and chain-checked U256 result, without JS Number narrowing or implicit connection/discovery."
     },
@@ -85686,7 +85686,7 @@
         "crates/quai-provider/tests/qi.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned FeeData contains the reported gasPrice; Rust returns exact U256 directly with explicit zone and typed errors. Ordinary Qi fees use the exact-shape estimator; no inferred fallback price or priority-fee fields."
     },
@@ -85799,7 +85799,7 @@
         "crates/quai-browser/tests/worker.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Configured expected chain ID and explicit route, verified on every typed read; explicit genesis identity check. No cached mutable JS Network object, plugin registry or automatic network switching/discovery."
     },
@@ -86058,7 +86058,7 @@
         "crates/quai-provider/tests/provider.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Explicit Prime route returns validated unique published Zone values, not arbitrary location arrays. Advertised zones never silently create routes. The pinned optional shard override is not supported for this Prime query."
     },
@@ -86193,7 +86193,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned JSON-RPC mapping returns null for getTransactionResult and _perform rejects UNSUPPORTED_OPERATION. No historical execution-return data API is claimed; receipts and explicit call simulation are separate capabilities and are not substituted for historical results."
     },
@@ -86843,7 +86843,7 @@
         "crates/quai-rpc/src/routing.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Structured HTTP(S)/WS(S) URL parsing with explicit route/transport selection; rejects credentials in authority, fragments, controls and ambiguous normalization. Paths/query are retained, Debug redacts them. This intentionally differs from the JS HTTP/WS regex overrides."
     },
@@ -86863,7 +86863,7 @@
         "compatibility/scripts/provider-basics.test.mjs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Pinned AbstractProvider.waitForBlock throws NOT_IMPLEMENTED. No Rust API is added solely to reproduce a failing placeholder; explicit block/header reads and canonical head tracking are available separately. This does not claim a general block-wait API."
     },
@@ -86963,7 +86963,7 @@
         "crates/quai-primitives/tests/primitives.rs"
       ],
       "docs": [
-        "docs/PROVIDER_PARITY_REVIEW_2026-09-13.md"
+        "docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md"
       ],
       "deviation": "Synchronous validated typed address lookup, rejecting unknown zones; no promise or dynamically resolved Addressable object."
     },

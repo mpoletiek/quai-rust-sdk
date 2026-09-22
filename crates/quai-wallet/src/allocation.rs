@@ -28,6 +28,7 @@ pub enum AddressAllocationStatus {
 }
 /// Public allocation record; records are returned by immutable reference.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct AddressAllocation {
     /// Stable caller-supplied identity.
     pub id: AddressAllocationId,

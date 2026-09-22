@@ -26,7 +26,7 @@ quai-keystore = { path = "../crates/quai-keystore" }
 quai-payments = { path = "../crates/quai-payments" }
 quai-wallet = { path = "../crates/quai-wallet", features = ["backup"] }
 quai-crypto = { path = "../crates/quai-crypto" }
-serde_json = "1.0"
+serde_json = { version = "1.0", features = ["raw_value"] }
 
 [[bin]]
 name = "transactions"

@@ -512,3 +512,27 @@ async fn passive_account_listing_preserves_order_and_never_requests_access_or_si
             .is_empty()
     );
 }
+
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
+async fn a_dispatch_is_bracketed_by_network_reads_with_exposure_outside_them() {
+    let (signer, mock) = setup(0, signature(&hash_message(b"hello"), 805));
+    signer.sign_message(b"hello").await.unwrap();
+    let methods: Vec<String> = mock
+        .state()
+        .calls
+        .iter()
+        .map(|(method, _)| method.clone())
+        .filter(|method| method != "quai_chainId")
+        .collect();
+    assert_eq!(
+        methods,
+        [
+            "quai_accounts",
+            "quai_getHeaderByNumber",
+            "personal_sign",
+            "quai_getHeaderByNumber",
+            "quai_accounts",
+        ]
+    );
+}

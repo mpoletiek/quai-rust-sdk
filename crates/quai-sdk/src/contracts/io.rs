@@ -164,12 +164,11 @@ impl<'a, T: Transport> Contract<'a, T> {
         }
         let logs = self
             .provider
-            .logs(&LogFilter {
-                zone: self.address.zone(),
-                range,
-                addresses: vec![self.address.address()],
-                topics: topics.to_vec(),
-            })
+            .logs(
+                &LogFilter::new(self.address.zone(), range)
+                    .with_addresses(vec![self.address.address()])
+                    .with_topics(topics.to_vec()),
+            )
             .await?;
         if logs.len() > max_logs {
             return Err(AbiError::Limit.into());

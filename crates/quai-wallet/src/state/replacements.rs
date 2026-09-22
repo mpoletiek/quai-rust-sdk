@@ -5,6 +5,7 @@ use std::collections::BTreeMap;
 /// One immutable replacement edge. Its canonical signed bytes are stored before
 /// exposure. Inclusion is reconciled separately for every candidate hash.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct QuaiReplacement {
     /// Original or earlier replacement transaction hash.
     pub parent: Hash32,

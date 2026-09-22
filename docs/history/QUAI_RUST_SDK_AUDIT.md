@@ -3,8 +3,8 @@
 This is the historical pre-implementation plan audit from 2026-09-11. Its
 statements about no Rust implementation describe that point in time. For the
 current code review and remaining features, see the
-[2026-09-12 completeness review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md)
-and [implementation status](IMPLEMENTATION_STATUS.md).
+[2026-09-12 completeness review](FEATURE_COMPLETENESS_REVIEW_2026-09-12.md)
+and [implementation status](../../IMPLEMENTATION_STATUS.md).
 
 ## Verdict
 

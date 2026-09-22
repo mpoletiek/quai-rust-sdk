@@ -107,6 +107,7 @@ impl AbiEvent {
 
 /// Canonically decoded call data; declaration matching does not prove execution.
 #[derive(Debug)]
+#[non_exhaustive]
 pub struct ParsedCall<'a> {
     /// Exact unambiguous declaration selected by the four-byte selector.
     pub function: &'a AbiFunction,
@@ -115,6 +116,7 @@ pub struct ParsedCall<'a> {
 }
 /// Canonically decoded nonanonymous log, without emitter or chain authentication.
 #[derive(Debug)]
+#[non_exhaustive]
 pub struct ParsedLog<'a> {
     /// Declaration selected by the signature topic.
     pub event: &'a AbiEvent,

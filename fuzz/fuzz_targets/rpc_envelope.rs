@@ -9,6 +9,20 @@
 
 use libfuzzer_sys::fuzz_target;
 use quai_rpc::fuzz_internals::{decode_batch, decode_response};
+use serde_json::value::RawValue;
+use std::collections::HashMap;
+
+/// An envelope's top-level fields, parsed as leniently as the decoders parse
+/// them. A `Value` would range-check numbers in fields the decoders skip
+/// unread, so a correct decode carrying `1e400` in an unknown field would look
+/// like invalid JSON here. The decoders reject duplicate fields, so a map
+/// loses nothing on a decoded envelope.
+type Fields = HashMap<String, Box<RawValue>>;
+fn id(fields: &Fields) -> Option<u64> {
+    fields
+        .get("id")
+        .and_then(|raw| serde_json::from_str(raw.get()).ok())
+}
 
 fuzz_target!(|data: &[u8]| {
     // Derive the expected ID and batch window from the input so the fuzzer can
@@ -22,16 +36,16 @@ fuzz_target!(|data: &[u8]| {
     // ID: that is the property that stops one request's reply satisfying another.
     if let Ok(value) = decode_response(body, expected_id) {
         // The envelope carried this exact ID, and it parsed as JSON.
-        let parsed: serde_json::Value =
-            serde_json::from_slice(body).expect("a decoded envelope is valid JSON");
+        let parsed: Fields =
+            serde_json::from_slice(body).expect("a decoded envelope is a JSON object");
         assert_eq!(
-            parsed.get("id").and_then(serde_json::Value::as_u64),
+            id(&parsed),
             Some(expected_id),
             "decode_response returned a value for a mismatched id"
         );
         // Success and failure are mutually exclusive in a decoded envelope.
         assert!(
-            parsed.get("error").is_none_or(serde_json::Value::is_null),
+            parsed.get("error").is_none_or(|raw| raw.get() == "null"),
             "decode_response returned a result alongside an error"
         );
         // Decoding is deterministic.
@@ -57,12 +71,9 @@ fuzz_target!(|data: &[u8]| {
             // Every row must correspond to an ID inside the issued window, and
             // each ID must appear exactly once. Reordering by the server is
             // allowed; duplicates, gaps and foreign IDs are not.
-            let parsed: Vec<serde_json::Value> =
+            let parsed: Vec<Fields> =
                 serde_json::from_slice(body).expect("a decoded batch is a JSON array");
-            let mut seen: Vec<u64> = parsed
-                .iter()
-                .filter_map(|row| row.get("id").and_then(serde_json::Value::as_u64))
-                .collect();
+            let mut seen: Vec<u64> = parsed.iter().filter_map(id).collect();
             assert_eq!(seen.len(), count, "every row carries an id");
             seen.sort_unstable();
             seen.dedup();

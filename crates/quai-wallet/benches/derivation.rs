@@ -53,33 +53,29 @@ fn fixture_coins(count: usize) -> Vec<CandidateCoin> {
             let mut hash = [0x33u8; 32];
             hash[2] = BENCH_ZONE.byte();
             hash[28..32].copy_from_slice(&(i as u32).to_be_bytes());
-            CandidateCoin {
-                outpoint: OutPoint {
+            CandidateCoin::new(
+                OutPoint {
                     transaction_hash: Hash32::from(hash),
                     index: (i % 65_536) as u16,
                 },
                 address,
                 // Cycle the low denominations so the buckets are genuinely
                 // populated rather than all landing in one.
-                denomination: Denomination::new((i % 8) as u8).expect("index under 15"),
-                unlock_height: U256::ZERO,
-                expires_at: None,
-                reserved: false,
-            }
+                Denomination::new((i % 8) as u8).expect("index under 15"),
+            )
         })
         .collect()
 }
 
 fn fixture_request() -> SelectionRequest {
-    SelectionRequest {
-        zone: BENCH_ZONE,
-        candidate_height: U256::from(1_000u64),
-        target: U256::from(1_000u64),
-        fee: U256::from(10u64),
-        max_fee: U256::from(1_000u64),
-        max_inputs: 4096,
-        max_outputs: 4096,
-    }
+    SelectionRequest::new(
+        BENCH_ZONE,
+        U256::from(1_000u64),
+        U256::from(1_000u64),
+        4096,
+        4096,
+    )
+    .with_fee(U256::from(10u64), U256::from(1_000u64))
 }
 
 fn account() -> AccountPublic {

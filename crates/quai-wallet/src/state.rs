@@ -31,6 +31,7 @@ pub enum ReservationState {
 }
 /// Durable operation record with optional public transaction/block observation.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct Reservation {
     /// Unique caller-assigned operation ID.
     pub id: ReservationId,

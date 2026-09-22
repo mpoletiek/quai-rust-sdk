@@ -58,6 +58,7 @@ const MAILBOX_ABI: &str = r#"[
 
 /// Announcements for one receiver, split into valid distinct codes and rejected entries.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct MailboxNotifications {
     /// Distinct valid sender codes in first-announcement order. Not proof of payment.
     pub senders: Vec<PaymentCode>,
@@ -187,15 +188,15 @@ impl<'a, T: Transport> PaymentMailbox<'a, T> {
         let (mut next, mut width) = (from, MAILBOX_LOG_BLOCKS);
         loop {
             let end = to.min(next.saturating_add(width - 1));
-            let filter = LogFilter {
+            let filter = LogFilter::new(
                 zone,
-                range: LogRange::Inclusive {
+                LogRange::Inclusive {
                     from: next,
                     to: end,
                 },
-                addresses: vec![self.contract.address().address()],
-                topics: vec![TopicMatch::Exact(event.topic_hash())],
-            };
+            )
+            .with_addresses(vec![self.contract.address().address()])
+            .with_topics(vec![TopicMatch::Exact(event.topic_hash())]);
             let logs = match self.provider.logs_served_through(&filter).await {
                 Ok(logs) => logs,
                 Err(ProviderError::Rpc(RpcError::ResponseTooLarge)) if end > next => {

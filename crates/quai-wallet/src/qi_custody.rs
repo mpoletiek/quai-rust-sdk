@@ -17,6 +17,7 @@ pub const MAX_QI_CUSTODY_BYTES: usize = 16 * 1024 * 1024;
 const MAGIC: &[u8; 8] = b"QQICUBK1";
 /// Exact input and owner held independently of any current UTXO snapshot.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct QiInputClaim {
     /// Fixed output identity, including the node-supported u16 index.
     pub outpoint: OutPoint,

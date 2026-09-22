@@ -154,8 +154,20 @@ pub const MAX_BATCH_CALLS: usize = 128;
 /// Entire batch transport/envelope result, containing ordered per-request results.
 pub type BatchResult = Result<Vec<Result<Value, RpcError>>, RpcError>;
 
-#[cfg(all(any(feature = "http", feature = "ws"), not(target_arch = "wasm32")))]
+#[cfg(all(feature = "http", not(target_arch = "wasm32")))]
 pub(crate) fn decode_response(bytes: &[u8], expected_id: u64) -> Result<Value, RpcError> {
+    let (id, result) = decode_envelope(bytes)?;
+    if id != expected_id {
+        return Err(RpcError::InvalidResponse("request ID mismatch"));
+    }
+    result
+}
+
+/// Parse one JSON-RPC response envelope once, returning its ID with its result
+/// or remote error. The outer error is an envelope that cannot be correlated;
+/// the inner one belongs to the request the ID names.
+#[cfg(all(feature = "http", not(target_arch = "wasm32")))]
+pub(crate) fn decode_envelope(bytes: &[u8]) -> Result<(u64, Result<Value, RpcError>), RpcError> {
     #[derive(Default)]
     enum ResultSlot {
         #[default]
@@ -185,18 +197,14 @@ pub(crate) fn decode_response(bytes: &[u8], expected_id: u64) -> Result<Value, R
     if envelope.jsonrpc != "2.0" {
         return Err(RpcError::InvalidResponse("wrong protocol version"));
     }
-    if envelope.id != expected_id {
-        return Err(RpcError::InvalidResponse("request ID mismatch"));
-    }
-    match (envelope.result, envelope.error) {
+    let result = match (envelope.result, envelope.error) {
         (ResultSlot::Present(result), ResultSlot::Absent) => Ok(result),
-        (ResultSlot::Absent, ResultSlot::Present(error)) => {
-            let error: RemoteError = serde_json::from_value(error)
-                .map_err(|_| RpcError::InvalidResponse("malformed error"))?;
-            Err(RpcError::Remote(error))
-        }
+        (ResultSlot::Absent, ResultSlot::Present(error)) => serde_json::from_value(error)
+            .map_err(|_| RpcError::InvalidResponse("malformed error"))
+            .and_then(|error| Err(RpcError::Remote(error))),
         _ => Err(RpcError::InvalidResponse(
             "expected exactly one result or error",
         )),
-    }
+    };
+    Ok((envelope.id, result))
 }

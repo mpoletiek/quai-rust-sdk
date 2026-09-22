@@ -105,7 +105,7 @@ pub use quai_rpc as rpc;
 pub use quai_rpc::DynTransport;
 pub use quai_rpc::{Endpoint, Routing, U256, parse_quantity, parse_use_pathing};
 #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
-pub use quai_rpc::{HttpConfig, HttpTransport};
+pub use quai_rpc::{HttpConfig, HttpProxy, HttpTransport};
 #[cfg(all(feature = "ws", not(target_arch = "wasm32")))]
 pub use quai_rpc::{WsConfig, WsTransport};
 #[cfg(feature = "wallet")]

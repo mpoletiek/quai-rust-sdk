@@ -253,33 +253,123 @@ async fn log_and_pending_filters_use_exact_quai_subscription_arguments() {
     task.await.unwrap();
 }
 #[tokio::test]
-async fn notification_overflow_is_explicit_and_terminates_session_without_silent_loss() {
+async fn notification_overflow_ends_only_the_lagging_subscription() {
+    // Two ways to fall behind: the subscriber's own queue fills, or the
+    // session's shared byte budget cannot hold the notification. Either ends
+    // that subscription with an explicit error and unsubscribes it on the node,
+    // while every other subscription and request on the session carries on.
     for byte_budget in [false, true] {
         let (endpoint, task) = server(move |mut socket| async move {
-            let request = recv(&mut socket).await;
-            respond(&mut socket, &request["id"], json!("sub")).await;
-            notify(&mut socket, "sub", json!("first")).await;
-            if !byte_budget {
-                notify(&mut socket, "sub", json!("second")).await;
+            for id in ["lagger", "keeper"] {
+                let request = recv(&mut socket).await;
+                assert_eq!(request["method"], "quai_subscribe");
+                respond(&mut socket, &request["id"], json!(id)).await;
             }
+            if byte_budget {
+                notify(&mut socket, "lagger", json!("x".repeat(2048))).await;
+            } else {
+                notify(&mut socket, "lagger", json!("first")).await;
+                notify(&mut socket, "lagger", json!("second")).await;
+            }
+            let unsubscribe = recv(&mut socket).await;
+            assert_eq!(unsubscribe["method"], "quai_unsubscribe");
+            assert_eq!(unsubscribe["params"], json!(["lagger"]));
+            respond(&mut socket, &unsubscribe["id"], json!(true)).await;
+            // A notification already in flight when the node saw the
+            // unsubscribe is tolerated, as for a caller's own unsubscribe.
+            notify(&mut socket, "lagger", json!("late")).await;
+            notify(&mut socket, "keeper", json!("alive")).await;
+            let read = recv(&mut socket).await;
+            respond(&mut socket, &read["id"], json!("0x9")).await;
+            let unsubscribe = recv(&mut socket).await;
+            assert_eq!(unsubscribe["params"], json!(["keeper"]));
+            respond(&mut socket, &unsubscribe["id"], json!(true)).await;
             close_seen(&mut socket).await;
         })
         .await;
         let config = WsConfig::default()
             .with_subscription_capacity(1)
-            .with_max_notification_bytes(if byte_budget { 1 } else { 1024 });
-        let client = WsTransport::connect(endpoint, config).await.unwrap();
-        let mut sub = client
+            .with_max_notification_bytes(1024);
+        let client = WsTransport::connect(endpoint.clone(), config)
+            .await
+            .unwrap();
+        let mut lagger = client
             .subscribe(WsSubscriptionKind::NewHeads)
             .await
             .unwrap();
-        task.await.unwrap();
+        let mut keeper = client
+            .subscribe(WsSubscriptionKind::NewHeads)
+            .await
+            .unwrap();
         assert!(matches!(
-            sub.recv().await,
+            lagger.recv().await,
             Err(RpcError::SubscriptionLagged)
         ));
-        assert!(sub.recv().await.unwrap().is_none());
+        assert!(lagger.recv().await.unwrap().is_none());
+        if byte_budget {
+            // Already removed on the node, so this sends nothing and succeeds.
+            lagger.unsubscribe().await.unwrap();
+        } else {
+            // Dropping an ended subscription leaves the session alone.
+            drop(lagger);
+        }
+        assert_eq!(keeper.recv().await.unwrap().unwrap(), "alive");
+        assert_eq!(
+            client
+                .request(&endpoint, "quai_chainId", json!([]))
+                .await
+                .unwrap(),
+            "0x9"
+        );
+        assert!(client.is_open());
+        keeper.unsubscribe().await.unwrap();
+        client.shutdown().await.unwrap();
+        task.await.unwrap();
     }
+}
+#[tokio::test]
+async fn keepalive_closes_a_silent_peer_and_keeps_a_responsive_one() {
+    // A peer that stops reading never answers a ping: two intervals of inbound
+    // silence mark the session disconnected instead of leaving it silent.
+    let (endpoint, task) = server(|socket| async move {
+        tokio::time::sleep(Duration::from_millis(600)).await;
+        drop(socket);
+    })
+    .await;
+    let config = WsConfig::default().with_ping_interval(Some(Duration::from_millis(50)));
+    let client = WsTransport::connect(endpoint.clone(), config.clone())
+        .await
+        .unwrap();
+    tokio::time::sleep(Duration::from_millis(300)).await;
+    assert!(!client.is_open(), "a silent peer must be detected");
+    assert!(matches!(
+        client.request(&endpoint, "quai_chainId", json!([])).await,
+        Err(RpcError::Disconnected)
+    ));
+    task.await.unwrap();
+
+    // A peer that reads answers pings automatically, so an idle session stays
+    // open well past two intervals.
+    let (endpoint, task) = server(|mut socket| async move {
+        let read = recv(&mut socket).await;
+        respond(&mut socket, &read["id"], json!("0x9")).await;
+        close_seen(&mut socket).await;
+    })
+    .await;
+    let client = WsTransport::connect(endpoint.clone(), config)
+        .await
+        .unwrap();
+    tokio::time::sleep(Duration::from_millis(300)).await;
+    assert!(client.is_open(), "a responsive idle peer must stay open");
+    assert_eq!(
+        client
+            .request(&endpoint, "quai_chainId", json!([]))
+            .await
+            .unwrap(),
+        "0x9"
+    );
+    client.shutdown().await.unwrap();
+    task.await.unwrap();
 }
 #[tokio::test]
 async fn cancelled_rpc_releases_capacity_and_late_reply_cannot_match_next_request() {

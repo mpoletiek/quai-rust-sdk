@@ -22,7 +22,7 @@ pub use dyn_transport::DynTransport;
 #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
 mod http;
 #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
-pub use http::{HttpConfig, HttpTransport};
+pub use http::{HttpConfig, HttpProxy, HttpTransport};
 
 #[cfg(all(feature = "ws", not(target_arch = "wasm32")))]
 mod websocket;
@@ -40,7 +40,7 @@ pub use websocket::{WsConfig, WsSubscription, WsSubscriptionKind, WsTransport};
 #[doc(hidden)]
 pub mod fuzz_internals {
     /// Decode one JSON-RPC response envelope against its expected request ID.
-    #[cfg(all(any(feature = "http", feature = "ws"), not(target_arch = "wasm32")))]
+    #[cfg(all(feature = "http", not(target_arch = "wasm32")))]
     pub fn decode_response(
         bytes: &[u8],
         expected_id: u64,

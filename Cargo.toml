@@ -45,6 +45,14 @@ criterion = { version = "0.8.2", default-features = false, features = ["cargo_be
 lto = "fat"
 codegen-units = 1
 
+# Optimize third-party code in debug and test builds. Production-cost scrypt,
+# Argon2 and address grinding otherwise run unoptimized: the keystore suite
+# measured 106 s before and 5.3 s after. `"*"` excludes workspace members, so
+# the SDK's own code keeps debug assertions and overflow checks, and as above a
+# consumer's profile is its own.
+[profile.dev.package."*"]
+opt-level = 2
+
 [workspace.lints.rust]
 unsafe_code = "forbid"
 missing_docs = "warn"

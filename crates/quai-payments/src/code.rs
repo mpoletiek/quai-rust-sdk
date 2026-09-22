@@ -1,5 +1,5 @@
 use crate::PaymentError;
-use bip32::{ChildNumber, ExtendedKey, ExtendedKeyAttrs, Prefix, XPrv, XPub};
+use bip32::{ChildNumber, ExtendedKey, ExtendedKeyAttrs, Prefix, XPrv};
 use core::{fmt, str::FromStr};
 use quai_crypto::{PublicKey, SecretKey, hmac_sha512, sha256};
 use zeroize::Zeroizing;
@@ -18,7 +18,6 @@ pub const HARDENED_INDEX: u32 = 1 << 31;
 #[derive(Clone, PartialEq, Eq)]
 pub struct PaymentCode {
     bytes: [u8; 80],
-    root: XPub,
     public_key: PublicKey,
     notification: PublicKey,
 }
@@ -36,29 +35,11 @@ impl PaymentCode {
         }
         let public_key =
             PublicKey::from_sec1_bytes(&bytes[2..35]).map_err(|_| PaymentError::InvalidCode)?;
-        let root = XPub::try_from(ExtendedKey {
-            prefix: Prefix::XPUB,
-            attrs: ExtendedKeyAttrs {
-                depth: 0,
-                parent_fingerprint: [0; 4],
-                child_number: ChildNumber(0),
-                chain_code: bytes[35..67]
-                    .try_into()
-                    .map_err(|_| PaymentError::InvalidCode)?,
-            },
-            key_bytes: bytes[2..35]
-                .try_into()
-                .map_err(|_| PaymentError::InvalidCode)?,
-        })
-        .map_err(|_| PaymentError::InvalidCode)?;
-        let notification = root
-            .derive_child(child(0)?)
-            .map_err(|_| PaymentError::Derivation)?;
-        let notification = PublicKey::from_sec1_bytes(&notification.to_bytes())
+        let notification = public_key
+            .add_tweak(&child_tweak(&bytes, 0)?)
             .map_err(|_| PaymentError::Derivation)?;
         Ok(Self {
             bytes,
-            root,
             public_key,
             notification,
         })
@@ -95,20 +76,44 @@ impl PaymentCode {
     }
     /// The public BIP32 chain code. Sharing it reduces wallet privacy.
     pub fn chain_code(&self) -> [u8; 32] {
-        self.root.attrs().chain_code
+        let mut chain_code = [0; 32];
+        chain_code.copy_from_slice(&self.bytes[35..67]);
+        chain_code
     }
     /// Cached public notification child at index zero.
     pub const fn notification_public_key(&self) -> PublicKey {
         self.notification
     }
     /// Derive one exact nonhardened payment child, without silently skipping errors.
+    ///
+    /// One HMAC and one generator multiplication from the payload's own key and
+    /// chain code. `bip32` pays a generic multiplication, which never consults
+    /// the precomputed generator table, plus a parent fingerprint this never
+    /// reads; payment grinding repeats this for roughly 512 candidates per
+    /// usable Qi address. The result is bit-identical to `bip32`, which the
+    /// tests assert differentially.
     pub fn child_public_key(&self, index: u32) -> Result<PublicKey, PaymentError> {
-        let node = self
-            .root
-            .derive_child(child(index)?)
-            .map_err(|_| PaymentError::Derivation)?;
-        PublicKey::from_sec1_bytes(&node.to_bytes()).map_err(|_| PaymentError::Derivation)
+        self.public_key
+            .add_tweak(&child_tweak(&self.bytes, index)?)
+            .map_err(|_| PaymentError::Derivation)
     }
+}
+
+/// The BIP32 CKDpub tweak `I_L` for a nonhardened child of a payment code.
+///
+/// `I = HMAC-SHA512(chain code, ser_P(K) || ser32(index))`. Both halves of the
+/// payload are public, but `I_L` of a receive child is added to the root
+/// secret, so it stays in guarded buffers. `bip32` rejects an `I_L` at or above
+/// the order, as this does; the chance is below 1 in 2^127.
+fn child_tweak(bytes: &[u8; 80], index: u32) -> Result<SecretKey, PaymentError> {
+    child(index)?;
+    let mut data = [0u8; 37];
+    data[..33].copy_from_slice(&bytes[2..35]);
+    data[33..].copy_from_slice(&index.to_be_bytes());
+    let hash = Zeroizing::new(hmac_sha512(&bytes[35..67], &data));
+    let mut tweak = Zeroizing::new([0u8; 32]);
+    tweak.copy_from_slice(&hash[..32]);
+    SecretKey::from_bytes(&tweak).map_err(|_| PaymentError::Derivation)
 }
 impl FromStr for PaymentCode {
     type Err = PaymentError;
@@ -123,7 +128,8 @@ impl FromStr for PaymentCode {
 /// receive derivation uses `/index` directly, without an extra change branch.
 /// Seeds and keys have no implicit serialization or ordinary cloning interface.
 pub struct PrivatePaymentCode {
-    root: XPrv,
+    /// The account root scalar, so a receive child is one scalar addition.
+    root_key: SecretKey,
     code: PaymentCode,
     account: u32,
     notification: SecretKey,
@@ -222,7 +228,7 @@ impl PrivatePaymentCode {
             return Err(PaymentError::Derivation);
         }
         Ok(Self {
-            root,
+            root_key: secret(&root)?,
             code,
             account,
             notification,
@@ -262,19 +268,14 @@ impl PrivatePaymentCode {
     }
     /// Derive a locally spendable payment secret from a sender's public code.
     pub fn receive_key(&self, sender: &PaymentCode, index: u32) -> Result<SecretKey, PaymentError> {
-        let node = self
-            .root
-            .derive_child(child(index)?)
-            .map_err(|_| PaymentError::Derivation)?;
-        let receiver = secret(&node)?;
-        let shared = receiver.ecdh_shared_x(&sender.notification_public_key());
-        let hash = Zeroizing::new(sha256(shared.as_slice()));
-        let tweak = SecretKey::from_bytes(&hash).map_err(|_| PaymentError::Derivation)?;
+        let (receiver, receiver_public) = self.receive_child(index)?;
+        let tweak = payment_tweak(&receiver, sender)?;
         let result = receiver
             .add_tweak(&tweak)
             .map_err(|_| PaymentError::Derivation)?;
-        let expected = receiver
-            .public_key()
+        // This key signs spends, so its scalar and point arithmetic are checked
+        // against each other before it is returned.
+        let expected = receiver_public
             .add_tweak(&tweak)
             .map_err(|_| PaymentError::Derivation)?;
         if result.public_key() != expected {
@@ -283,13 +284,41 @@ impl PrivatePaymentCode {
         Ok(result)
     }
     /// Compute a receiving public key without exposing its temporary secret.
+    ///
+    /// The grinding path: its point is the child point plus the payment tweak
+    /// times the generator, so no secret result is formed and no scalar is
+    /// converted back to a point. [`Self::receive_key`] returns the matching
+    /// secret with a cross-check, for signing.
     pub fn receive_public_key(
         &self,
         sender: &PaymentCode,
         index: u32,
     ) -> Result<PublicKey, PaymentError> {
-        Ok(self.receive_key(sender, index)?.public_key())
+        let (receiver, receiver_public) = self.receive_child(index)?;
+        receiver_public
+            .add_tweak(&payment_tweak(&receiver, sender)?)
+            .map_err(|_| PaymentError::Derivation)
     }
+    /// The receive child's secret and point, from one shared CKD tweak.
+    fn receive_child(&self, index: u32) -> Result<(SecretKey, PublicKey), PaymentError> {
+        let tweak = child_tweak(&self.code.bytes, index)?;
+        let secret = self
+            .root_key
+            .add_tweak(&tweak)
+            .map_err(|_| PaymentError::Derivation)?;
+        let public = self
+            .code
+            .public_key
+            .add_tweak(&tweak)
+            .map_err(|_| PaymentError::Derivation)?;
+        Ok((secret, public))
+    }
+}
+/// `SHA256(ECDH_x(receiver, sender notification))` as a scalar.
+fn payment_tweak(receiver: &SecretKey, sender: &PaymentCode) -> Result<SecretKey, PaymentError> {
+    let shared = receiver.ecdh_shared_x(&sender.notification_public_key());
+    let hash = Zeroizing::new(sha256(shared.as_slice()));
+    SecretKey::from_bytes(&hash).map_err(|_| PaymentError::Derivation)
 }
 fn child(index: u32) -> Result<ChildNumber, PaymentError> {
     ChildNumber::new(index, false).map_err(|_| PaymentError::InvalidIndex)
@@ -308,6 +337,87 @@ fn parse_xprv(encoded: &str) -> Result<XPrv, PaymentError> {
         return Err(PaymentError::Derivation);
     }
     XPrv::try_from(extended).map_err(|_| PaymentError::Derivation)
+}
+
+#[cfg(test)]
+mod fast_path_tests {
+    use super::*;
+    use bip32::XPub;
+
+    /// The pre-optimization derivations, through `bip32`, as the oracle.
+    fn bip32_root(seed: &[u8; 32]) -> XPrv {
+        let mut root = XPrv::new(seed).unwrap();
+        for index in [47, QUAI_PAYMENT_COIN, 0] {
+            root = root
+                .derive_child(ChildNumber::new(index, true).unwrap())
+                .unwrap();
+        }
+        root
+    }
+    fn bip32_child_public(code: &PaymentCode, index: u32) -> PublicKey {
+        let root = XPub::try_from(ExtendedKey {
+            prefix: Prefix::XPUB,
+            attrs: ExtendedKeyAttrs {
+                depth: 0,
+                parent_fingerprint: [0; 4],
+                child_number: ChildNumber(0),
+                chain_code: code.chain_code(),
+            },
+            key_bytes: code.public_key().to_compressed(),
+        })
+        .unwrap();
+        let node = root.derive_child(child(index).unwrap()).unwrap();
+        PublicKey::from_sec1_bytes(&node.to_bytes()).unwrap()
+    }
+    fn bip32_receive(root: &XPrv, sender: &PaymentCode, index: u32) -> PublicKey {
+        let receiver = secret(&root.derive_child(child(index).unwrap()).unwrap()).unwrap();
+        let shared = receiver.ecdh_shared_x(&sender.notification_public_key());
+        let tweak = SecretKey::from_bytes(&sha256(shared.as_slice())).unwrap();
+        receiver.add_tweak(&tweak).unwrap().public_key()
+    }
+
+    #[test]
+    fn fast_derivation_matches_bip32_for_children_sends_and_receives() {
+        let (alice_seed, bob_seed) = ([0x11; 32], [0x22; 32]);
+        let alice = PrivatePaymentCode::from_seed(&alice_seed, 0).unwrap();
+        let bob = PrivatePaymentCode::from_seed(&bob_seed, 0).unwrap();
+        let bob_root = bip32_root(&bob_seed);
+        assert_eq!(
+            secret(&bob_root).unwrap().public_key(),
+            bob.public_code().public_key()
+        );
+        for index in (0..300).chain([HARDENED_INDEX - 1]) {
+            for code in [alice.public_code(), bob.public_code()] {
+                assert_eq!(
+                    code.child_public_key(index).unwrap(),
+                    bip32_child_public(code, index)
+                );
+            }
+            let expected = bip32_receive(&bob_root, alice.public_code(), index);
+            assert_eq!(
+                bob.receive_public_key(alice.public_code(), index).unwrap(),
+                expected
+            );
+            assert_eq!(
+                bob.receive_key(alice.public_code(), index)
+                    .unwrap()
+                    .public_key(),
+                expected
+            );
+            assert_eq!(
+                alice.send_public_key(bob.public_code(), index).unwrap(),
+                expected
+            );
+        }
+        assert_eq!(
+            bob.public_code().child_public_key(HARDENED_INDEX),
+            Err(PaymentError::InvalidIndex)
+        );
+        assert_eq!(
+            bob.public_code().notification_public_key(),
+            bip32_child_public(bob.public_code(), 0)
+        );
+    }
 }
 
 #[cfg(test)]

@@ -1099,6 +1099,7 @@ pub struct Search {
 
 /// Public derivation metadata; contains no secret key, mnemonic, seed or chain code.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct DerivedAddress {
     /// Valid address on the wallet's ledger and a known zone.
     pub address: Address,
@@ -1130,6 +1131,7 @@ impl DerivedAddress {
 
 /// Successful search and safe continuation information.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct SearchResult {
     /// First matching address in the requested range.
     pub address: DerivedAddress,

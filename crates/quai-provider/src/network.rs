@@ -180,11 +180,16 @@ impl NetworkRegistry {
 }
 /// Optional exact gas price view. Absence is metadata, never an automatic zero fee.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct FeeData {
     /// Reported gas price when available.
     pub gas_price: Option<U256>,
 }
 impl FeeData {
+    /// A view of an explicitly known or absent gas price.
+    pub const fn new(gas_price: Option<U256>) -> Self {
+        Self { gas_price }
+    }
     /// Decimal-string or null gasPrice, retaining exact quantities.
     pub fn to_json(self) -> Value {
         json!({"gasPrice":self.gas_price.map(|n|n.to_string())})

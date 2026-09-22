@@ -308,12 +308,8 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 session
                     .prepare(
                         id,
-                        AccountIntent {
-                            to: addresses[1 - owner],
-                            value,
-                            data: RpcData::new(vec![])?,
-                            access_list: vec![],
-                        },
+                        AccountIntent::new(addresses[1 - owner], value)
+                            .with_data(RpcData::new(vec![])?),
                         fee,
                     )
                     .await?
@@ -338,10 +334,7 @@ pub async fn run(stage: &str, operation: &str) -> Result<(), Box<dyn Error>> {
                 .prepare_replacement(
                     id,
                     candidates[0].hash()?,
-                    quai_sdk::accounts::ReplacementPolicy {
-                        minimum_price_bump_percent: 100,
-                        fees: net().account_fee,
-                    },
+                    quai_sdk::accounts::ReplacementPolicy::new(100, net().account_fee),
                 )
                 .await?;
             let signed = session.sign_replacement(&prepared)?;

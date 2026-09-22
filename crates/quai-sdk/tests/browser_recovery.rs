@@ -659,13 +659,12 @@ mod browser {
                     .transaction()
                     .inputs
                     .iter()
-                    .map(|i| CandidateCoin {
-                        outpoint: i.previous_output,
-                        address: i.public_key.address().try_into().unwrap(),
-                        denomination: quai_sdk::consensus::Denomination::new(14).unwrap(),
-                        unlock_height: U256::ZERO,
-                        expires_at: None,
-                        reserved: false,
+                    .map(|i| {
+                        CandidateCoin::new(
+                            i.previous_output,
+                            i.public_key.address().try_into().unwrap(),
+                            quai_sdk::consensus::Denomination::new(14).unwrap(),
+                        )
                     })
                     .collect();
                 b.reserve(
@@ -727,13 +726,12 @@ mod browser {
                 .transaction()
                 .inputs
                 .iter()
-                .map(|i| CandidateCoin {
-                    outpoint: i.previous_output,
-                    address: i.public_key.address().try_into().unwrap(),
-                    denomination: quai_sdk::consensus::Denomination::new(14).unwrap(),
-                    unlock_height: U256::ZERO,
-                    expires_at: None,
-                    reserved: false,
+                .map(|i| {
+                    CandidateCoin::new(
+                        i.previous_output,
+                        i.public_key.address().try_into().unwrap(),
+                        quai_sdk::consensus::Denomination::new(14).unwrap(),
+                    )
                 })
                 .collect();
             b.reserve(

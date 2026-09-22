@@ -8,11 +8,8 @@ pub use access::AccountAccessListPolicy;
 use quai_consensus::{QuaiTransaction, SignedQuaiTransaction};
 use quai_primitives::{Hash32, QuaiAddress};
 use quai_provider::{
-    AccessListItem, BlockTag, BroadcastError, BroadcastResult, CallRequest, Provider, ProviderError,
+    BlockTag, BroadcastError, BroadcastResult, CallRequest, Provider, ProviderError,
 };
-// Only `prepare_deployment` builds an init-code call request.
-#[cfg(feature = "abi")]
-use quai_provider::RpcData;
 use quai_rpc::{Transport, U256};
 use quai_signer::{Signer, SignerError};
 use quai_wallet::storage::{
@@ -181,27 +178,24 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         };
         quai_consensus::QuaiToQiTransaction::new(transaction.clone())
             .map_err(|_| AccountError::InvalidOperation)?;
-        self.verify_network().await?;
-        let observation = self.observation().await?;
-        let pending = self
-            .provider
-            .transaction_count(sender, observation.0)
-            .await?;
-        transaction.gas_price = self.provider.gas_price(sender.zone()).await?;
+        transaction.gas_price = self.network_gas_price().await?;
         if transaction.gas_price > policy.max_gas_price {
             return Err(AccountError::FeeLimit);
         }
+        let observation = self.observation().await?;
+        let state = self.account_state(sender, observation.0).await?;
+        let pending = state.nonce;
         // Estimate the pending nonce first; repeat against the actual reserved
         // nonce when concurrent operations advanced the durable cursor.
         transaction.nonce = pending;
         let (mut gas, mut fee) = self
-            .quote_conversion(sender, &transaction, policy, observation.0)
+            .quote_conversion(sender, &transaction, policy, observation.0, state.balance)
             .await?;
         self.verify_observation(observation).await?;
         transaction.nonce = self.store.reserve_nonce(id, sender, pending)?;
         if transaction.nonce != pending {
             (gas, fee) = self
-                .quote_conversion(sender, &transaction, policy, observation.0)
+                .quote_conversion(sender, &transaction, policy, observation.0, state.balance)
                 .await?;
         }
         transaction.gas_limit = gas;
@@ -225,6 +219,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         transaction: &QuaiTransaction,
         policy: FeePolicy,
         block: BlockTag,
+        balance: U256,
     ) -> Result<(u64, U256), AccountError> {
         let typed = quai_consensus::QuaiToQiTransaction::new(transaction.clone())
             .map_err(|_| AccountError::InvalidOperation)?;
@@ -235,7 +230,7 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         let bound = policy
             .bound(estimate, transaction.gas_price, transaction.value)
             .ok_or(AccountError::FeeLimit)?;
-        if bound.debit > self.provider.balance(sender, block).await? {
+        if bound.debit > balance {
             return Err(AccountError::InsufficientBalance);
         }
         Ok((bound.gas, bound.fee))
@@ -300,6 +295,25 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         Ok(())
     }
 
+    /// The network check and the gas price, joined in one round trip.
+    async fn network_gas_price(&mut self) -> Result<U256, AccountError> {
+        let scope = self.store.scope();
+        crate::network::gas_price_on_network(self.provider, scope, scope.zone)
+            .await?
+            .ok_or(AccountError::NetworkMismatch)
+    }
+    /// The sender's nonce and balance at the observed block, in one round trip.
+    async fn account_state(
+        &mut self,
+        sender: QuaiAddress,
+        block: BlockTag,
+    ) -> Result<quai_provider::AccountState, AccountError> {
+        self.provider
+            .account_states(&[sender], block)
+            .await?
+            .pop()
+            .ok_or(AccountError::InvalidOperation)
+    }
     async fn verify_network(&mut self) -> Result<(), AccountError> {
         let scope = self.store.scope();
         if !crate::network::on_network(self.provider, scope, scope.zone).await? {
@@ -363,44 +377,25 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         transaction
             .unsigned_bytes()
             .map_err(|_| AccountError::InvalidOperation)?;
-        self.verify_network().await?;
-        let observation = self.observation().await?;
-        if self
-            .provider
-            .transaction_count(sender, observation.0)
-            .await?
-            > transaction.nonce
-        {
-            return Err(AccountError::InvalidOperation);
-        }
-        let gas_price = self.provider.gas_price(sender.zone()).await?;
+        let gas_price = self.network_gas_price().await?;
         if gas_price > policy.max_gas_price {
             return Err(AccountError::FeeLimit);
         }
-        let mut request = CallRequest {
-            from: sender,
-            to: None,
-            gas: Some(policy.max_gas),
-            gas_price: Some(gas_price),
-            value: Some(transaction.value),
-            nonce: Some(transaction.nonce),
-            input: RpcData::new(transaction.data.clone())?,
-            access_list: transaction
-                .access_list
-                .iter()
-                .map(|a| AccessListItem {
-                    address: a.address,
-                    storage_keys: a.storage_keys.clone(),
-                })
-                .collect(),
-        };
+        let observation = self.observation().await?;
+        let state = self.account_state(sender, observation.0).await?;
+        if state.nonce > transaction.nonce {
+            return Err(AccountError::InvalidOperation);
+        }
+        let mut request = CallRequest::for_transaction(sender, &transaction)?;
+        request.gas = Some(policy.max_gas);
+        request.gas_price = Some(gas_price);
         self.populate_access(&mut request, &mut transaction, observation.0)
             .await?;
         let estimate = self.provider.estimate_gas(&request, observation.0).await?;
         let crate::account_preflight::FeeBound { gas, fee, debit } = policy
             .bound(estimate, gas_price, transaction.value)
             .ok_or(AccountError::FeeLimit)?;
-        if debit > self.provider.balance(sender, observation.0).await? {
+        if debit > state.balance {
             return Err(AccountError::InsufficientBalance);
         }
         transaction.gas_price = gas_price;
@@ -505,16 +500,13 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         {
             return Err(AccountError::InvalidOperation);
         }
-        self.verify_network().await?;
-        let observation = self.observation().await?;
-        let pending_nonce = self
-            .provider
-            .transaction_count(sender, observation.0)
-            .await?;
-        let gas_price = self.provider.gas_price(sender.zone()).await?;
+        let gas_price = self.network_gas_price().await?;
         if gas_price > policy.max_gas_price {
             return Err(AccountError::FeeLimit);
         }
+        let observation = self.observation().await?;
+        let state = self.account_state(sender, observation.0).await?;
+        let pending_nonce = state.nonce;
         let reserved_nonce = if reuse {
             if self
                 .store
@@ -534,27 +526,16 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         } else {
             None
         };
-        let mut request = CallRequest {
-            from: sender,
-            to: Some(intent.to),
-            gas: Some(policy.max_gas),
-            gas_price: Some(gas_price),
-            value: Some(intent.value),
-            nonce: Some(reserved_nonce.unwrap_or(pending_nonce)),
-            input: intent.data,
-            access_list: transaction
-                .access_list
-                .iter()
-                .map(|a| AccessListItem {
-                    address: a.address,
-                    storage_keys: a.storage_keys.clone(),
-                })
-                .collect(),
-        };
+        let mut request = CallRequest::for_transaction(sender, &transaction)?;
+        request.gas = Some(policy.max_gas);
+        request.gas_price = Some(gas_price);
+        request.nonce = Some(reserved_nonce.unwrap_or(pending_nonce));
         let original_access = request.access_list.clone();
         self.populate_access(&mut request, &mut transaction, observation.0)
             .await?;
-        let (mut gas, mut fee) = self.quote_fee(&request, policy, observation.0).await?;
+        let (mut gas, mut fee) = self
+            .quote_fee(&request, policy, observation.0, state.balance)
+            .await?;
         self.verify_observation(observation).await?;
         transaction.nonce = match reserved_nonce {
             Some(nonce) => nonce,
@@ -568,7 +549,9 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
             actual.access_list = original_access;
             self.populate_access(&mut actual, &mut transaction, observation.0)
                 .await?;
-            (gas, fee) = self.quote_fee(&actual, policy, observation.0).await?;
+            (gas, fee) = self
+                .quote_fee(&actual, policy, observation.0, state.balance)
+                .await?;
         }
         transaction.gas_price = gas_price;
         transaction.gas_limit = gas;
@@ -592,13 +575,14 @@ impl<'a, T: Transport, S: Signer> AccountSession<'a, T, S> {
         request: &CallRequest,
         policy: FeePolicy,
         block: BlockTag,
+        balance: U256,
     ) -> Result<(u64, U256), AccountError> {
         let estimate = self.provider.estimate_gas(request, block).await?;
         let gas_price = request.gas_price.ok_or(AccountError::InvalidOperation)?;
         let crate::account_preflight::FeeBound { gas, fee, debit } = policy
             .bound(estimate, gas_price, request.value.unwrap_or(U256::ZERO))
             .ok_or(AccountError::FeeLimit)?;
-        if debit > self.provider.balance(request.from, block).await? {
+        if debit > balance {
             return Err(AccountError::InsufficientBalance);
         }
         Ok((gas, fee))

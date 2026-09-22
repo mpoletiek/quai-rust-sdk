@@ -30,6 +30,7 @@ pub struct PaymentSearch {
 }
 /// Public result of a successful bounded search.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct PaymentSearchResult {
     /// Validated Qi destination.
     pub address: QiAddress,

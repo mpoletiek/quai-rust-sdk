@@ -197,6 +197,7 @@ pub enum AccountCandidateStatus {
 }
 /// Reconciled candidate identities, with at most one canonical member per nonce.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct AccountFamilyObservation {
     /// Original followed by persisted replacement candidates.
     pub candidates: Vec<(Hash32, AccountCandidateStatus)>,
@@ -312,6 +313,7 @@ pub enum AccountNonceOutcome {
 }
 /// Durable family observation together with its nonce outcome.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct AccountNonceObservation {
     /// Registered candidates, exactly as from `observe_candidates`.
     pub family: AccountFamilyObservation,
@@ -419,17 +421,17 @@ mod nonce_tests {
         .unwrap()
     }
     fn candidate(tx: SignedQuaiTransaction) -> AccountNonceCandidate {
-        AccountNonceCandidate {
-            transaction: tx,
-            reason: Some(ReplacementReason::Cancelled),
-            inclusion: Inclusion {
+        let mut candidate = AccountNonceCandidate::new(
+            tx,
+            Inclusion {
                 block_hash: Hash32::from_bytes([1; 32]),
                 block_number: 10,
                 transaction_index: 0,
             },
-            receipt: None,
-            confirmations: 2,
-        }
+        );
+        candidate.reason = Some(ReplacementReason::Cancelled);
+        candidate.confirmations = 2;
+        candidate
     }
 
     #[test]

@@ -18,6 +18,7 @@ pub struct BlockReference {
 }
 /// Executed block transactions; emitted outbound ETXs are deliberately separate extensions.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct TransactionBlock {
     /// Reported block identity.
     pub block: BlockReference,
@@ -32,6 +33,7 @@ pub struct TransactionBlock {
 }
 /// Stable ETX correlation identity; prime processing may change the final transaction hash.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct EtxCorrelation {
     /// Hash of the originally signed transaction.
     pub originating_tx_hash: Hash32,
@@ -120,6 +122,7 @@ pub enum ScanCoverage {
 }
 /// A final-hash ETX and its optionally available, association-checked receipt.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct EtxExecutionObservation {
     /// Executed external transaction with the correlation key preserved.
     pub transaction: Transaction,
@@ -128,6 +131,7 @@ pub struct EtxExecutionObservation {
 }
 /// A bounded, linked and rechecked source observation.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct EtxScanResult {
     /// Requested range completeness; absence is never reclassified as rejection.
     pub coverage: ScanCoverage,
@@ -328,6 +332,7 @@ pub enum ConversionSpendability {
 }
 /// Current lifecycle observations; they are not a persistent monotonic state machine.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct ConversionObservation {
     /// Canonicality-checked origin observation.
     pub origin: ConversionOriginObservation,
@@ -340,6 +345,7 @@ pub struct ConversionObservation {
 }
 /// Latest-only aggregate locked balance; cannot attribute funds to a conversion or historical block.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct LockedBalanceObservation {
     /// Queried account.
     pub address: QuaiAddress,

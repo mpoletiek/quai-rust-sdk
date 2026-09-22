@@ -43,6 +43,7 @@ pub enum CandidateObservation {
 /// Advisory view of a caller-validated mutually exclusive family. A quote does
 /// not persist state, prove finality or authorize releasing signed claims.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct SignedFamilyObservation {
     /// Input order is retained; the caller supplies the root first.
     pub candidates: Vec<(Hash32, CandidateObservation)>,

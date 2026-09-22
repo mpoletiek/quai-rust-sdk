@@ -17,6 +17,7 @@ pub const MAX_PAYMENT_ALLOCATION_BYTES: usize = HEADER + 29 * MAX_PAYMENT_ALLOCA
 pub struct PaymentAllocationId(pub [u8; 16]);
 /// Public exposure; its owner/peer/network context belongs to the enclosing book.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct PaymentAddressRecord {
     /// Send or receive relative to the local owner.
     pub direction: PaymentDirection,
@@ -43,6 +44,7 @@ pub enum PaymentAllocationStatus {
 }
 /// One allocation request, inspected through immutable references.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct PaymentAllocation {
     /// Stable caller identity.
     pub id: PaymentAllocationId,

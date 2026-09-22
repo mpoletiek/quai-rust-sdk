@@ -189,14 +189,11 @@ impl<T: Transport> QiSession<'_, T> {
         {
             return Err(QiError::IdentityMismatch);
         }
-        let metadata: BTreeMap<_, _> = self
+        let owned = self
             .store
-            .addresses()?
-            .into_iter()
-            .map(|entry| (entry.address(), entry))
-            .collect();
+            .public_addresses(change.addresses.iter().map(PublicAddress::address))?;
         for address in &change.addresses {
-            if metadata.get(&address.address()) != Some(address) {
+            if owned.get(&address.address()) != Some(address) {
                 return Err(QiError::IdentityMismatch);
             }
             self.key_for(address)?;
@@ -212,30 +209,19 @@ impl<T: Transport> QiSession<'_, T> {
             // bound by the input denominations.
             let selection = select_fewest_converting(
                 &snapshot.coins,
-                &SelectionRequest {
-                    zone: scope.zone,
-                    candidate_height: height,
-                    target: amount,
-                    fee,
-                    max_fee: policy.max_fee,
-                    max_inputs: policy.max_inputs,
-                    max_outputs: policy.max_outputs,
-                },
+                &SelectionRequest::new(
+                    scope.zone,
+                    height,
+                    amount,
+                    policy.max_inputs,
+                    policy.max_outputs,
+                )
+                .with_fee(fee, policy.max_fee),
             )?;
             if selection.change_outputs.len() > change.addresses.len() {
                 return Err(QiError::InsufficientChange);
             }
-            let mut inputs = Vec::with_capacity(selection.inputs.len());
-            for coin in &selection.inputs {
-                let address = metadata
-                    .get(&coin.address.address())
-                    .ok_or(QiError::IdentityMismatch)?;
-                let key = self.key_for(address)?;
-                inputs.push(QiInput {
-                    previous_output: coin.outpoint,
-                    public_key: key.public_key(),
-                });
-            }
+            let (inputs, entries) = self.selected_inputs(&selection.inputs)?;
             let outputs = selection
                 .change_outputs
                 .iter()
@@ -306,6 +292,7 @@ impl<T: Transport> QiSession<'_, T> {
                     Some(quote)
                 }
             };
+            self.confirm_signable(&entries)?;
             let final_height = self
                 .candidate_height(snapshot.generation, checkpoint, policy.max_snapshot_age)
                 .await?;
@@ -365,25 +352,7 @@ impl<T: Transport> QiSession<'_, T> {
         if expected != actual {
             return Err(QiError::IdentityMismatch);
         }
-        let metadata: BTreeMap<_, _> = self
-            .store
-            .addresses()?
-            .into_iter()
-            .map(|entry| (entry.address(), entry))
-            .collect();
-        let keys = prepared
-            .transaction
-            .transaction()
-            .inputs
-            .iter()
-            .map(|input| {
-                self.key_for(
-                    metadata
-                        .get(&input.public_key.address())
-                        .ok_or(QiError::IdentityMismatch)?,
-                )
-            })
-            .collect::<Result<Vec<_>, _>>()?;
+        let keys = self.input_keys(&prepared.transaction.transaction().inputs)?;
         let keys: Vec<_> = keys.iter().collect();
         let signed = match &prepared.transaction {
             QiSpecialTransaction::Conversion(tx) => {

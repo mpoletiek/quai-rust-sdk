@@ -2061,3 +2061,58 @@ fn schema_five_migrates_to_an_empty_released_set() {
         addresses
     );
 }
+
+#[cfg(unix)]
+#[test]
+fn a_new_store_and_its_wal_files_are_owner_only_and_an_existing_file_keeps_its_mode() {
+    use std::os::unix::fs::PermissionsExt;
+    let mode = |path: &str| std::fs::metadata(path).unwrap().permissions().mode() & 0o777;
+    let database = Database::new();
+    let mut store = database.open();
+    // A write guarantees the WAL and shared-memory files exist.
+    store.import_metadata(0, &metadata()[..1]).unwrap();
+    let path = database.0.display().to_string();
+    for suffix in ["", "-wal", "-shm"] {
+        assert_eq!(mode(&format!("{path}{suffix}")), 0o600, "{suffix}");
+    }
+    drop(store);
+
+    // Tightening a file the caller created is not this API's decision.
+    let existing = Database::new();
+    std::fs::File::create(&existing.0).unwrap();
+    std::fs::set_permissions(&existing.0, std::fs::Permissions::from_mode(0o640)).unwrap();
+    drop(existing.open());
+    assert_eq!(mode(&existing.0.display().to_string()), 0o640);
+}
+
+#[test]
+fn targeted_address_lookup_returns_held_rows_validated_like_the_full_table() {
+    let database = Database::new();
+    let mut store = database.open();
+    store.import_metadata(0, &metadata()[..]).unwrap();
+    let [qi, quai] = metadata().clone();
+    let absent = Address::from_bytes([0; 20]);
+    let found = store
+        .public_addresses([qi.address(), absent, qi.address(), quai.address()])
+        .unwrap();
+    assert_eq!(found.len(), 2);
+    assert_eq!(found[&qi.address()], qi);
+    assert_eq!(found[&quai.address()], quai);
+    assert!(store.public_addresses([]).unwrap().is_empty());
+
+    // A row whose stored key no longer hashes to its address fails the same
+    // way on both reads.
+    store
+        .connection
+        .execute(
+            "UPDATE addresses SET public_key=?1 WHERE address=?2",
+            params![&quai.public_key()[..], &qi.address().bytes()[..]],
+        )
+        .unwrap();
+    assert_eq!(store.addresses().unwrap_err(), StorageError::Invalid);
+    assert_eq!(
+        store.public_addresses([qi.address()]).unwrap_err(),
+        StorageError::Invalid
+    );
+    assert_eq!(store.public_addresses([quai.address()]).unwrap().len(), 1);
+}

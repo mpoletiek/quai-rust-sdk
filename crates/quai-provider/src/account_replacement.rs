@@ -81,6 +81,7 @@ impl AccountReplacementScanRequest {
 }
 /// A cryptographically verified transaction occupying the watched sender/nonce.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct AccountNonceCandidate {
     /// Exact verified signed transaction, possibly not known to the wallet.
     pub transaction: SignedQuaiTransaction,
@@ -93,8 +94,21 @@ pub struct AccountNonceCandidate {
     /// Observed depth including this block; not a finality guarantee.
     pub confirmations: u64,
 }
+impl AccountNonceCandidate {
+    /// An included candidate with no reason, receipt or confirmations recorded.
+    pub fn new(transaction: SignedQuaiTransaction, inclusion: Inclusion) -> Self {
+        Self {
+            transaction,
+            reason: None,
+            inclusion,
+            receipt: None,
+            confirmations: 0,
+        }
+    }
+}
 /// Advisory bounded scan result. Absence only covers the reported page prefix.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct AccountReplacementScan {
     /// At most one verified occupant; competing canonical occupants reject.
     pub candidate: Option<AccountNonceCandidate>,

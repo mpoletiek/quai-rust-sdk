@@ -83,10 +83,7 @@ fn hd_backup(row: &serde_json::Value) -> WalletBackup {
     )
     .unwrap();
     WalletBackup::capture_portable(
-        PortableWalletCapture {
-            allocations: &[&source],
-            ..Default::default()
-        },
+        PortableWalletCapture::new().with_allocations(&[&source]),
         vec![hd_origin()],
     )
     .unwrap()
@@ -101,10 +98,7 @@ fn payment_backup(row: &serde_json::Value) -> WalletBackup {
     )
     .unwrap();
     WalletBackup::capture_portable(
-        PortableWalletCapture {
-            payments: &[&source],
-            ..Default::default()
-        },
+        PortableWalletCapture::new().with_payments(&[&source]),
         vec![payment_origin()],
     )
     .unwrap()

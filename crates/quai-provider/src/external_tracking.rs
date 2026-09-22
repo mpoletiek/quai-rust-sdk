@@ -266,6 +266,7 @@ impl ExternalReference {
 }
 /// Source-reported execution outcome, separate from token minting or Qi maturity.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct ExternalObservation {
     /// Canonical origin emission observation. An outbound ETX is not an execution.
     pub origin: ConversionOriginObservation,

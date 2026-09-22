@@ -265,10 +265,10 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
                     100_000,
                     || false,
                 )?;
-                Some(quai_sdk::qi::QiIntent {
-                    amount: U256::from(100),
-                    destinations: vec![receiver.address.address().try_into()?],
-                })
+                Some(quai_sdk::qi::QiIntent::new(
+                    U256::from(100),
+                    vec![receiver.address.address().try_into()?],
+                ))
             } else if operation != "wrap" && !conversion && !sweeping {
                 // Each payment uses one recipient address, so mainnet amounts must be
                 // a single Qi denomination (250 Qits would need three outputs).
@@ -295,19 +295,17 @@ pub async fn run(operation: &str, stage: &str) -> Result<(), Box<dyn Error>> {
             let mut keys = QiKeyring::new(Some(&wallet))?;
             keys.load_payment_channels(&store, &payment)?;
             let mut session = QiSession::with_keys(&provider, &keys, &mut store);
-            let policy = QiPolicy {
-                initial_fee: U256::ZERO,
-                max_fee: U256::from(match (mainnet, sweeping) {
+            let policy = QiPolicy::new(
+                U256::from(match (mainnet, sweeping) {
                     (true, true) => 1000,
                     (true, false) => 200,
                     (false, true) => 500,
                     (false, false) => 100,
                 }),
-                max_inputs: if sweeping { 128 } else { 8 },
-                max_outputs: 32,
-                max_fee_rounds: 8,
-                max_snapshot_age: 5,
-            };
+                if sweeping { 128 } else { 8 },
+                32,
+                5,
+            );
             let (signed, fee) = if sweeping {
                 let mode = if operation == "aggregate" {
                     quai_sdk::wallet::SweepMode::AggregateThreshold(

@@ -5,6 +5,7 @@ use quai_rpc::Transport;
 
 /// Rechecked indexed transaction inclusion; signature verification is separate.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct ConfirmedTransaction {
     /// Fresh transaction response. Inclusion and other metadata remain node claims.
     pub transaction: Transaction,

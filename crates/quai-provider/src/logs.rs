@@ -29,6 +29,7 @@ pub enum TopicMatch {
 }
 /// Zone-explicit log query with bounded addresses, topics and numeric span.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct LogFilter {
     /// Endpoint zone; no address/hash inference chooses a route implicitly.
     pub zone: Zone,
@@ -39,6 +40,27 @@ pub struct LogFilter {
     pub addresses: Vec<Address>,
     /// Up to four indexed topic filters, in positional order.
     pub topics: Vec<TopicMatch>,
+}
+impl LogFilter {
+    /// Every log in `range` on `zone`; narrow it with the `with_*` methods.
+    pub const fn new(zone: Zone, range: LogRange) -> Self {
+        Self {
+            zone,
+            range,
+            addresses: Vec::new(),
+            topics: Vec::new(),
+        }
+    }
+    /// Replace `addresses`.
+    pub fn with_addresses(mut self, addresses: Vec<Address>) -> Self {
+        self.addresses = addresses;
+        self
+    }
+    /// Replace `topics`.
+    pub fn with_topics(mut self, topics: Vec<TopicMatch>) -> Self {
+        self.topics = topics;
+        self
+    }
 }
 impl LogFilter {
     fn rpc_value(&self) -> Result<Value, ProviderError> {

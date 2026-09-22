@@ -3,18 +3,28 @@ use crate::account_preflight::{
     AccountObservationPolicy, AccountPreflightError, FeePolicy, check_network,
 };
 use quai_consensus::{QuaiToQiTransaction, QuaiTransaction, SignedQuaiTransaction};
-use quai_primitives::{Hash32, Ledger, QuaiAddress};
-use quai_provider::{AccessListItem, BlockTag, CallRequest, Provider, RpcData};
+use quai_primitives::{Hash32, Ledger};
+use quai_provider::{BlockTag, CallRequest, Provider};
 use quai_rpc::{Transport, U256};
 use quai_wallet::discovery::NetworkScope;
 /// Explicit pool bump and maximum debit policy. Nodes may configure different
 /// admission rules; a quote does not guarantee replacement preference or acceptance.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct ReplacementPolicy {
     /// Required price increase relative to the selected parent, 1..=1000 percent.
     pub minimum_price_bump_percent: u16,
     /// Gas/price/debit limits for the reviewed candidate.
     pub fees: FeePolicy,
+}
+impl ReplacementPolicy {
+    /// A replacement at least `minimum_price_bump_percent` above its parent.
+    pub const fn new(minimum_price_bump_percent: u16, fees: FeePolicy) -> Self {
+        Self {
+            minimum_price_bump_percent,
+            fees,
+        }
+    }
 }
 /// Immutable fee-only candidate. The parent may still mine; both retain one nonce.
 #[derive(Debug)]
@@ -137,27 +147,7 @@ pub async fn quote_account_replacement<T: Transport>(
             .estimate_quai_conversion_gas_budget(sender, &typed, block)
             .await?
     } else {
-        let request = CallRequest {
-            from: sender,
-            to: transaction
-                .to
-                .map(QuaiAddress::try_from)
-                .transpose()
-                .map_err(|_| E::Invalid)?,
-            gas: Some(transaction.gas_limit),
-            gas_price: Some(transaction.gas_price),
-            value: Some(transaction.value),
-            nonce: Some(transaction.nonce),
-            input: RpcData::new(transaction.data.clone())?,
-            access_list: transaction
-                .access_list
-                .iter()
-                .map(|a| AccessListItem {
-                    address: a.address,
-                    storage_keys: a.storage_keys.clone(),
-                })
-                .collect(),
-        };
+        let request = CallRequest::for_transaction(sender, &transaction).map_err(|_| E::Invalid)?;
         provider.estimate_gas(&request, block).await?
     };
     // A replacement keeps the parent's gas limit, which already carries the

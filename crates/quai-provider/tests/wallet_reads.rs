@@ -101,15 +101,14 @@ async fn grouped_outpoints_use_batches_and_reject_chain_changes_without_replay()
             _: &Endpoint,
             requests: Vec<(&str, Value)>,
         ) -> Option<quai_rpc::BatchResult> {
-            assert_eq!(requests.len(), 4);
+            assert_eq!(requests.len(), 3);
             assert_eq!(requests[0].0, "quai_chainId");
             assert_eq!(requests[1].0, "quai_getOutpointsByAddress");
-            assert_eq!(requests[3].0, "quai_chainId");
+            assert_eq!(requests[2].0, "quai_getOutpointsByAddress");
             Some(Ok(vec![
-                Ok(json!("0x9")),
-                Ok(json!([])),
-                Ok(json!([])),
                 Ok(json!(if self.wrong_chain { "0xa" } else { "0x9" })),
+                Ok(json!([])),
+                Ok(json!([])),
             ]))
         }
     }
@@ -956,14 +955,8 @@ async fn pool_counts_pending_wire_and_advertised_regions_have_explicit_routes() 
         json!({"pending":"0x2","queued":"0x1","qi":"0x5"}),
         9,
     );
-    assert_eq!(
-        mock.provider(9).pool_status(Zone::Cyprus1).await.unwrap(),
-        quai_provider::PoolStatus {
-            pending: 2,
-            queued: 1,
-            qi: 5
-        }
-    );
+    let status = mock.provider(9).pool_status(Zone::Cyprus1).await.unwrap();
+    assert_eq!((status.pending, status.queued, status.qi), (2, 1, 5));
     mock.drained();
     let mock = Mock::read("quai_getPendingHeader", json!([]), json!("0x000102"), 9);
     assert_eq!(
@@ -1011,14 +1004,14 @@ async fn pool_counts_pending_wire_and_advertised_regions_have_explicit_routes() 
 }
 
 #[tokio::test]
-async fn account_states_batch_by_page_guard_each_end_and_fall_back_in_order() {
+async fn account_states_batch_by_page_guard_each_page_and_fall_back_in_order() {
     use quai_primitives::QuaiAddress;
     use quai_rpc::BatchResult;
     use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering::SeqCst};
     #[derive(Clone, Default)]
     struct States {
         batching: bool,
-        switch_trailing: Arc<AtomicBool>,
+        switch_guard: Arc<AtomicBool>,
         batches: Arc<Mutex<Vec<usize>>>,
         singles: Arc<AtomicUsize>,
     }
@@ -1055,14 +1048,12 @@ async fn account_states_batch_by_page_guard_each_end_and_fall_back_in_order() {
             }
             assert!(requests.len() <= quai_rpc::MAX_BATCH_CALLS);
             assert_eq!(requests.first().unwrap().0, "quai_chainId");
-            assert_eq!(requests.last().unwrap().0, "quai_chainId");
             self.batches.lock().unwrap().push(requests.len());
-            let last = requests.len() - 1;
             Some(Ok(requests
                 .iter()
                 .enumerate()
                 .map(|(n, (method, params))| {
-                    Ok(if n == last && self.switch_trailing.load(SeqCst) {
+                    Ok(if n == 0 && self.switch_guard.load(SeqCst) {
                         json!("0x1")
                     } else {
                         answer(method, params)
@@ -1098,11 +1089,11 @@ async fn account_states_batch_by_page_guard_each_end_and_fall_back_in_order() {
             expected
         );
         if batching {
-            // 70 accounts: a full 63-account page (128 calls), then 7 (16 calls).
-            assert_eq!(*transport.batches.lock().unwrap(), [128, 16]);
+            // 70 accounts: a full 63-account page (127 calls), then 7 (15 calls).
+            assert_eq!(*transport.batches.lock().unwrap(), [127, 15]);
             assert_eq!(transport.singles.load(SeqCst), 0);
-            // A trailing guard mismatch rejects the page instead of returning it.
-            transport.switch_trailing.store(true, SeqCst);
+            // A guard mismatch rejects the page instead of returning it.
+            transport.switch_guard.store(true, SeqCst);
             assert!(matches!(
                 provider.account_states(&accounts[..1], block).await,
                 Err(quai_provider::ProviderError::ChainMismatch { .. })

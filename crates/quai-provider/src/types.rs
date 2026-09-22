@@ -102,6 +102,7 @@ pub struct AccessListItem {
 /// origin simulation does not establish asynchronous destination execution.
 /// Qi conversion recipients use the dedicated conversion request model.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct CallRequest {
     /// Required sender, avoiding implicit node-local zero-address defaults.
     pub from: QuaiAddress,
@@ -131,6 +132,48 @@ impl CallRequest {
             value: None,
             nonce: None,
             input: RpcData::default(),
+            access_list: Vec::new(),
+        }
+    }
+    /// Simulate exactly `transaction` as `from` would sign it: destination,
+    /// gas, price, value, nonce, data and access list. Override a field, such
+    /// as `gas` for an estimate's ceiling, before sending.
+    pub fn for_transaction(
+        from: QuaiAddress,
+        transaction: &quai_consensus::QuaiTransaction,
+    ) -> Result<Self, ProviderError> {
+        Ok(Self {
+            from,
+            to: transaction
+                .to
+                .map(QuaiAddress::try_from)
+                .transpose()
+                .map_err(|_| invalid("call destination is not a Quai address"))?,
+            gas: Some(transaction.gas_limit),
+            gas_price: Some(transaction.gas_price),
+            value: Some(transaction.value),
+            nonce: Some(transaction.nonce),
+            input: RpcData::new(transaction.data.clone())?,
+            access_list: transaction
+                .access_list
+                .iter()
+                .map(|tuple| AccessListItem {
+                    address: tuple.address,
+                    storage_keys: tuple.storage_keys.clone(),
+                })
+                .collect(),
+        })
+    }
+    /// Construct a contract creation from `input` init code.
+    pub fn creation(from: QuaiAddress, input: RpcData) -> Self {
+        Self {
+            from,
+            to: None,
+            gas: None,
+            gas_price: None,
+            value: None,
+            nonce: None,
+            input,
             access_list: Vec::new(),
         }
     }
@@ -245,6 +288,7 @@ pub(crate) fn genesis_hash(value: Value) -> Result<Hash32, ProviderError> {
 
 /// Fields needed to verify a receipt's canonical block association on a zone.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct ZoneHeader {
     /// Work-object identity reported by the node.
     pub hash: Hash32,
@@ -343,6 +387,7 @@ pub struct QuaiTransaction {
 }
 /// External transaction fields, preserving protocol origin rather than pretending it is signed locally.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct ExternalTransaction {
     /// Reported external sender (either ledger).
     pub from: Address,
@@ -409,6 +454,7 @@ pub enum TransactionDetails {
 }
 /// Typed transaction lookup result. Pending inclusion is represented as None.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct Transaction {
     /// Claimed transaction identity, checked against the lookup argument by Provider.
     pub hash: Hash32,
@@ -656,6 +702,7 @@ impl TryFrom<Value> for Transaction {
 
 /// Contract log and its block/transaction association.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct Log {
     /// EVM account or native Qi beneficiary named by a protocol receipt log.
     /// Qi redemption/lockup logs are emitted for Qi addresses, not contracts.
@@ -689,6 +736,7 @@ pub enum ReceiptOutcome {
 }
 /// Initial typed transaction receipt for all three transaction kinds.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct Receipt {
     /// Queried identity.
     pub transaction_hash: Hash32,
@@ -818,6 +866,7 @@ impl TryFrom<Value> for Receipt {
 
 /// Address-index result; presence alone does not prove spendability or index completeness.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AddressOutpoint {
     /// Creating transaction and output index.
     pub outpoint: OutPoint,

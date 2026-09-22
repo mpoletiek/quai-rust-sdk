@@ -101,18 +101,8 @@ pub async fn run(stage: &str) -> Result<(), Box<dyn Error>> {
             let prepared = session
                 .prepare(
                     id,
-                    QiIntent {
-                        amount: U256::from(1000),
-                        destinations: vec![receiver.address().try_into()?],
-                    },
-                    QiPolicy {
-                        initial_fee: U256::ZERO,
-                        max_fee: U256::from(100),
-                        max_inputs: 8,
-                        max_outputs: 32,
-                        max_fee_rounds: 8,
-                        max_snapshot_age: 5,
-                    },
+                    QiIntent::new(U256::from(1000), vec![receiver.address().try_into()?]),
+                    QiPolicy::new(U256::from(100), 8, 32, 5),
                     pool,
                 )
                 .await?;

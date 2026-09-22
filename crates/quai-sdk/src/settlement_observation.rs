@@ -46,6 +46,7 @@ pub enum SettlementKind {
 }
 /// Advisory destination observations; origin inclusion does not imply maturity.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct SignedSettlementObservation {
     /// Conversion and possible refund path, when explicitly selected.
     pub conversion: Option<ConversionObservation>,

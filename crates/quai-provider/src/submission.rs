@@ -9,6 +9,7 @@ use thiserror::Error;
 
 /// The server acknowledged the exact expected ID. Inclusion/finality are separate.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct BroadcastResult {
     /// Locally computed transaction identity, matched against the node response.
     pub transaction_hash: Hash32,

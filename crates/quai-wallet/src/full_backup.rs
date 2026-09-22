@@ -699,8 +699,20 @@ impl WalletBackup {
         }
         Ok(payment_owners)
     }
+    /// The plaintext, in one guarded buffer sized by a counting pass first.
+    ///
+    /// A buffer that grows frees each earlier allocation unwiped, so it must be
+    /// reserved before any secret is written. Reserving the format maximum did
+    /// that at 16 MiB per backup; measuring costs a second encoding pass over
+    /// data already in memory and reserves exactly what is written.
     fn encode(&self) -> Result<Zeroizing<Vec<u8>>> {
-        let mut writer = Writer::new()?;
+        let mut counter = Writer::counting();
+        self.write_plaintext(&mut counter)?;
+        let mut writer = Writer::with_capacity(counter.len())?;
+        self.write_plaintext(&mut writer)?;
+        writer.into_bytes()
+    }
+    fn write_plaintext(&self, writer: &mut Writer) -> Result<()> {
         writer.u32(u32::from(self.version() >= 2))?; // mandatory extension bitmap
         writer.u16(self.origins.len() as u16)?;
         for origin in &self.origins {
@@ -810,8 +822,8 @@ impl WalletBackup {
                 }
             }
         }
-        self.encode_payments(&mut writer)?;
-        Ok(writer.0)
+        self.encode_payments(writer)?;
+        Ok(())
     }
     #[cfg(test)]
     fn decode(plaintext: &[u8]) -> Result<Self> {
@@ -1104,20 +1116,51 @@ fn coin_type(value: u16) -> Result<CoinType> {
         _ => Err(WalletBackupError::Unsupported),
     }
 }
-struct Writer(Zeroizing<Vec<u8>>);
+/// Bounded plaintext writer; with no buffer it only counts, to size one.
+struct Writer {
+    bytes: Option<Zeroizing<Vec<u8>>>,
+    len: usize,
+}
 impl Writer {
-    fn new() -> Result<Self> {
+    fn counting() -> Self {
+        Self {
+            bytes: None,
+            len: 0,
+        }
+    }
+    /// A buffer reserved at exactly `capacity`, which writes never grow.
+    fn with_capacity(capacity: usize) -> Result<Self> {
         let mut bytes = Zeroizing::new(Vec::new());
         bytes
-            .try_reserve_exact(MAX_PLAINTEXT)
+            .try_reserve_exact(capacity)
             .map_err(|_| WalletBackupError::Resources)?;
-        Ok(Self(bytes))
+        Ok(Self {
+            bytes: Some(bytes),
+            len: 0,
+        })
+    }
+    #[cfg(test)]
+    fn new() -> Result<Self> {
+        Self::with_capacity(MAX_PLAINTEXT)
+    }
+    fn len(&self) -> usize {
+        self.len
+    }
+    fn into_bytes(self) -> Result<Zeroizing<Vec<u8>>> {
+        self.bytes.ok_or(WalletBackupError::Resources)
     }
     fn put(&mut self, bytes: &[u8]) -> Result<()> {
-        if bytes.len() > MAX_PLAINTEXT - self.0.len() {
+        if bytes.len() > MAX_PLAINTEXT - self.len {
             return Err(WalletBackupError::InvalidInput);
         }
-        self.0.extend_from_slice(bytes);
+        if let Some(buffer) = &mut self.bytes {
+            // Growing would leave an unwiped copy of what is already written.
+            if bytes.len() > buffer.capacity() - buffer.len() {
+                return Err(WalletBackupError::Resources);
+            }
+            buffer.extend_from_slice(bytes);
+        }
+        self.len += bytes.len();
         Ok(())
     }
     fn u8(&mut self, value: u8) -> Result<()> {

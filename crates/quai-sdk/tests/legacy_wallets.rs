@@ -261,10 +261,7 @@ fn recovery_merge_keeps_newer_burned_floors_and_legacy_export_rejects_unrepresen
     assert_eq!(live.next_index(false), receive + 100);
     assert_eq!(live.next_index(true), change + 100);
     let captured = WalletBackup::capture_portable(
-        PortableWalletCapture {
-            allocations: &[&live],
-            ..Default::default()
-        },
+        PortableWalletCapture::new().with_allocations(&[&live]),
         vec![BackupOrigin::from_mnemonic(&m, "").unwrap()],
     )
     .unwrap();
@@ -324,10 +321,7 @@ fn legacy_export_cannot_discard_account_claims_nonce_floors_or_payment_burned_ra
     )
     .unwrap();
     let backup = WalletBackup::capture_portable(
-        PortableWalletCapture {
-            payments: &[&payment],
-            ..Default::default()
-        },
+        PortableWalletCapture::new().with_payments(&[&payment]),
         vec![BackupOrigin::from_mnemonic(&m, "").unwrap()],
     )
     .unwrap();

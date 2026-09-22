@@ -3,7 +3,9 @@ use quai_sdk::{
     BlockTag, Endpoint, HttpConfig, HttpTransport, Provider, QiAddress, QuaiAddress, Routing, U256,
     Zone,
     abi::AbiInterface,
-    accounts::{AccountIntent, AccountSession, AccountObservationPolicy, FeePolicy, ReplacementPolicy},
+    accounts::{
+        AccountIntent, AccountObservationPolicy, AccountSession, FeePolicy, ReplacementPolicy,
+    },
     consensus::{
         Denomination, OutPoint, QiInput, QiOutput, QiTransaction, SignedQiTransaction,
         SignedQuaiTransaction,
@@ -27,9 +29,9 @@ use std::{
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
-mod wrapper_workflow;
-mod qi_wrapper_workflow;
 mod access_workflow;
+mod qi_wrapper_workflow;
+mod wrapper_workflow;
 const GENESIS: &str = "0x654e7a894d57de62ec19b9c161cb1c647466278e0565d3e1ba5d806ae6af0aee";
 const ROOT: &str = "/tmp/quai-sdk-highlevel-wallets";
 fn key(n: u64) -> SecretKey {
@@ -139,29 +141,18 @@ impl ObservationSource for Quiescent<'_> {
         let coins = points
             .into_iter()
             .map(|p| {
-                Ok(CandidateCoin {
-                    outpoint: OutPoint {
-                        transaction_hash: p.outpoint.tx_hash,
-                        index: p.outpoint.index,
-                    },
-                    address,
-                    denomination: Denomination::new(p.denomination)
-                        .map_err(|_| DiscoveryError::InvalidObservation)?,
-                    unlock_height: p.lock,
-                    expires_at: None,
-                    reserved: false,
-                })
+                let denomination = Denomination::new(p.denomination)
+                    .map_err(|_| DiscoveryError::InvalidObservation)?;
+                let outpoint = OutPoint {
+                    transaction_hash: p.outpoint.tx_hash,
+                    index: p.outpoint.index,
+                };
+                Ok(CandidateCoin::new(outpoint, address, denomination).with_unlock_height(p.lock))
             })
             .collect::<Result<Vec<_>, DiscoveryError>>()?;
-        Ok(AddressObservation {
-            scope: s,
-            checkpoint: c,
-            address: a.address,
-            ever_used: None,
-            account_balance: None,
-            account_nonce: None,
-            coins,
-        })
+        let mut observation = AddressObservation::new(s, c, a.address);
+        observation.coins = coins;
+        Ok(observation)
     }
 }
 fn signed_record(hash: String, bytes: Vec<u8>) -> Value {
@@ -244,23 +235,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
         "account-prepare" => {
             let mut store = SqliteStore::open(&account_path, scope())?;
-            let policy = FeePolicy {
-                max_gas: 1_000_000,
-                max_gas_price: U256::from(10_000_000_000_000_000u64),
-                max_total_fee: U256::from(10_000_000_000_000_000_000_000u128),
-                gas_margin_bps: 1000,
-            };
+            let policy = FeePolicy::new(1_000_000, U256::from(10_000_000_000_000_000u64), U256::from(10_000_000_000_000_000_000_000u128)).with_gas_margin_bps(1000);
             let mut session = AccountSession::new(&provider, &signer, &mut store)?
                 .with_observation_policy(AccountObservationPolicy::PinnedLatest);
             let prepared = session
                 .prepare(
                     account_id,
-                    AccountIntent {
-                        to: "0x0011223344556677889900112233445566778899".parse()?,
-                        value: U256::from(12345),
-                        data: RpcData::new(vec![])?,
-                        access_list: vec![],
-                    },
+                    AccountIntent::new("0x0011223344556677889900112233445566778899".parse()?, U256::from(12345)).with_data(RpcData::new(vec![])?),
                     policy,
                 )
                 .await?;
@@ -280,10 +261,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 scope().chain_id,
                 nonce,
                 U256::ZERO,
-                DeploymentSearch {
-                    start_salt: 0,
-                    max_attempts: 10000,
-                },
+                DeploymentSearch::new(0, 10000),
                 || false,
             )?;
             let counter = deployment.salt();
@@ -381,18 +359,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let prepared = session
                 .prepare(
                     qi_id,
-                    QiIntent {
-                        amount: U256::from(1234),
-                        destinations,
-                    },
-                    QiPolicy {
-                        initial_fee: U256::ZERO,
-                        max_fee: U256::from(1000),
-                        max_inputs: 4,
-                        max_outputs: 64,
-                        max_fee_rounds: 8,
-                        max_snapshot_age: 0,
-                    },
+                    QiIntent::new(U256::from(1234), destinations),
+                    QiPolicy::new(U256::from(1000), 4, 64, 0),
                     pool,
                 )
                 .await?;
@@ -439,11 +407,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "replacement-prepare" => {
             let id=ReservationId([4;16]);
             let mut store=SqliteStore::open(&account_path,scope())?;
-            let policy=FeePolicy{max_gas:1_000_000,max_gas_price:U256::from(10_000_000_000_000_000u64),max_total_fee:U256::from(10_000_000_000_000_000_000_000u128),gas_margin_bps:1000};
+            let policy=FeePolicy::new(1_000_000, U256::from(10_000_000_000_000_000u64), U256::from(10_000_000_000_000_000_000_000u128)).with_gas_margin_bps(1000);
             let mut session=AccountSession::new(&provider,&signer,&mut store)?.with_observation_policy(AccountObservationPolicy::PinnedLatest);
-            let prepared=session.prepare(id,AccountIntent{to:sender,value:U256::from(1),data:RpcData::new(vec![])?,access_list:vec![]},policy).await?;
+            let prepared=session.prepare(id,AccountIntent::new(sender, U256::from(1)).with_data(RpcData::new(vec![])?),policy).await?;
             let original=session.sign(&prepared)?;
-            let prepared=session.prepare_replacement(id,original.hash()?,ReplacementPolicy{minimum_price_bump_percent:5,fees:policy}).await?;
+            let prepared=session.prepare_replacement(id,original.hash()?,ReplacementPolicy::new(5, policy)).await?;
             let replacement=session.sign_replacement(&prepared)?;
             save("replacement-signed.json",json!({"original":original.hash()?.to_string(),"replacement":replacement.hash()?.to_string(),"nonce":replacement.transaction().nonce,"oldPrice":original.transaction().gas_price.to_string(),"newPrice":replacement.transaction().gas_price.to_string(),"signedBytes":RpcData::new(replacement.signed_bytes()?)?.to_hex()}))?;
         }

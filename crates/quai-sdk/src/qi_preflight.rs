@@ -17,6 +17,7 @@ use quai_wallet::{
 use std::collections::{BTreeMap, BTreeSet};
 /// Explicit limits for bounded selection and network fee convergence.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct QiPolicy {
     /// Starting fee in Qits. Zero is valid; estimates only increase it.
     pub initial_fee: U256,
@@ -32,6 +33,35 @@ pub struct QiPolicy {
     /// Maximum observed tip distance from the stored checkpoint, in zone blocks.
     pub max_snapshot_age: u64,
 }
+impl QiPolicy {
+    /// Limits with a zero starting fee and eight fee rounds; change those with
+    /// [`Self::with_initial_fee`] and [`Self::with_max_fee_rounds`].
+    pub const fn new(
+        max_fee: U256,
+        max_inputs: usize,
+        max_outputs: usize,
+        max_snapshot_age: u64,
+    ) -> Self {
+        Self {
+            initial_fee: U256::ZERO,
+            max_fee,
+            max_inputs,
+            max_outputs,
+            max_fee_rounds: 8,
+            max_snapshot_age,
+        }
+    }
+    /// Replace `initial_fee`.
+    pub const fn with_initial_fee(mut self, initial_fee: U256) -> Self {
+        self.initial_fee = initial_fee;
+        self
+    }
+    /// Replace `max_fee_rounds`.
+    pub const fn with_max_fee_rounds(mut self, max_fee_rounds: u8) -> Self {
+        self.max_fee_rounds = max_fee_rounds;
+        self
+    }
+}
 
 /// An exact Qit amount and ordered, distinct recipient address capacity.
 ///
@@ -39,16 +69,27 @@ pub struct QiPolicy {
 /// addresses from the beginning of `destinations`, largest denomination first.
 /// Every output requires its own address. Inspect the prepared outputs before signing.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiIntent {
     /// Positive exact recipient amount in Qits.
     pub amount: U256,
     /// Up to 1024 distinct Qi recipient addresses; cross-zone preparation is explicit.
     pub destinations: Vec<QiAddress>,
 }
+impl QiIntent {
+    /// `amount` Qits across `destinations`, used in order.
+    pub fn new(amount: U256, destinations: Vec<QiAddress>) -> Self {
+        Self {
+            amount,
+            destinations,
+        }
+    }
+}
 
 /// Explicit source observations, including imported and payment-code owners.
 /// Metadata and checkpoints are not cryptographic proof of unspentness or ownership.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiSource {
     /// Independently configured network identity.
     pub scope: NetworkScope,
@@ -58,6 +99,22 @@ pub struct QiSource {
     pub coins: Vec<CandidateCoin>,
     /// Exact public origins used to reconstruct selected input keys.
     pub owners: Vec<PublicAddress>,
+}
+impl QiSource {
+    /// Explicit observations; see [`Self::from_discovery`] for an HD scan.
+    pub fn new(
+        scope: NetworkScope,
+        checkpoint: Checkpoint,
+        coins: Vec<CandidateCoin>,
+        owners: Vec<PublicAddress>,
+    ) -> Self {
+        Self {
+            scope,
+            checkpoint,
+            coins,
+            owners,
+        }
+    }
 }
 impl QiSource {
     /// Convert a successful current HD scan, re-deriving every funded address
@@ -102,16 +159,10 @@ impl QiSource {
                 return Err(QiPreflightError::Invalid);
             }
             let qi = QiAddress::try_from(owner.address()).map_err(|_| QiPreflightError::Invalid)?;
-            source
-                .coins
-                .extend(address.outputs.iter().map(|o| CandidateCoin {
-                    outpoint: o.outpoint,
-                    address: qi,
-                    denomination: o.denomination,
-                    unlock_height: o.unlock_height,
-                    expires_at: None,
-                    reserved: false,
-                }));
+            source.coins.extend(address.outputs.iter().map(|o| {
+                CandidateCoin::new(o.outpoint, qi, o.denomination)
+                    .with_unlock_height(o.unlock_height)
+            }));
             source.owners.push(owner);
         }
         Ok(source)
@@ -186,6 +237,7 @@ pub enum QiPreflightError {
     FeeBelowInclusionFloor,
 }
 /// Read-only preparation inputs. Fresh change allocation and custody are separate.
+#[non_exhaustive]
 pub struct QiQuoteRequest<'a> {
     /// Explicit bounded current observations.
     pub source: &'a QiSource,
@@ -197,6 +249,24 @@ pub struct QiQuoteRequest<'a> {
     pub fees: QiFeeMode,
     /// Already allocated fresh same-zone change addresses, in output order.
     pub change: &'a [PublicAddress],
+}
+impl<'a> QiQuoteRequest<'a> {
+    /// One read-only quote request.
+    pub fn new(
+        source: &'a QiSource,
+        intent: QiOperationIntent,
+        policy: QiPolicy,
+        fees: QiFeeMode,
+        change: &'a [PublicAddress],
+    ) -> Self {
+        Self {
+            source,
+            intent,
+            policy,
+            fees,
+            change,
+        }
+    }
 }
 /// Immutable advisory transaction. A quote alone neither burns change nor claims inputs.
 #[derive(Debug)]
@@ -352,15 +422,14 @@ pub async fn quote_qi<T: Transport>(
         return Err(SelectionError::FeeBudgetExceeded.into());
     }
     for _ in 0..rounds {
-        let selection_request = SelectionRequest {
-            zone: scope.zone,
-            candidate_height: height,
-            target: amount,
-            fee,
-            max_fee: policy.max_fee,
-            max_inputs: policy.max_inputs,
-            max_outputs: policy.max_outputs,
-        };
+        let selection_request = SelectionRequest::new(
+            scope.zone,
+            height,
+            amount,
+            policy.max_inputs,
+            policy.max_outputs,
+        )
+        .with_fee(fee, policy.max_fee);
         let selection = if let Some(mode) = sweep {
             select_sweep(&source.coins, &selection_request, mode)?
         } else if special {
@@ -626,14 +695,14 @@ pub async fn include_known_qi_addresses<T: Transport>(
                 if !points.insert(outpoint) {
                     return Err(QiPreflightError::Invalid);
                 }
-                added.push(CandidateCoin {
-                    outpoint,
-                    address,
-                    denomination: quai_consensus::Denomination::new(output.denomination)?,
-                    unlock_height: output.lock,
-                    expires_at: None,
-                    reserved: false,
-                });
+                added.push(
+                    CandidateCoin::new(
+                        outpoint,
+                        address,
+                        quai_consensus::Denomination::new(output.denomination)?,
+                    )
+                    .with_unlock_height(output.lock),
+                );
             }
         }
     }

@@ -86,10 +86,7 @@ pub(super) async fn probe(
         scope().chain_id,
         nonce,
         U256::ZERO,
-        DeploymentSearch {
-            start_salt: 0,
-            max_attempts: 10000,
-        },
+        DeploymentSearch::new(0, 10000),
         || false,
     )?;
     let contract = deployment.address();
@@ -142,10 +139,7 @@ pub(super) async fn deploy(
                 scope().chain_id,
                 nonce,
                 U256::ZERO,
-                DeploymentSearch {
-                    start_salt: 0,
-                    max_attempts: 10000,
-                },
+                DeploymentSearch::new(0, 10000),
                 || false,
             )?;
             let expected = relocated_runtime(&source_runtime, deployment.address())?;
@@ -153,12 +147,12 @@ pub(super) async fn deploy(
             assert_eq!(probe["nonce"], json!(nonce));
             assert_eq!(probe["contract"], json!(deployment.address().to_string()));
             assert_eq!(probe["runtime"], json!(expected.to_hex()));
-            let policy = FeePolicy {
-                max_gas: 4_000_000,
-                max_gas_price: U256::from(10_000_000_000_000_000u64),
-                max_total_fee: U256::from(40_000_000_000_000_000_000_000u128),
-                gas_margin_bps: 1000,
-            };
+            let policy = FeePolicy::new(
+                4_000_000,
+                U256::from(10_000_000_000_000_000u64),
+                U256::from(40_000_000_000_000_000_000_000u128),
+            )
+            .with_gas_margin_bps(1000);
             let prepared = session.prepare_deployment(id, deployment, policy).await?;
             let signed = session.sign(&prepared)?;
             let mut record = signed_record(signed.hash()?.to_string(), signed.signed_bytes()?);
@@ -290,14 +284,9 @@ pub(super) async fn workflow(
                             },
                         ),
                         fee,
-                        QiPolicy {
-                            initial_fee: fee,
-                            max_fee: fee,
-                            max_inputs: 32,
-                            max_outputs: 32,
-                            max_fee_rounds: 1,
-                            max_snapshot_age: 0,
-                        },
+                        QiPolicy::new(fee, 32, 32, 0)
+                            .with_initial_fee(fee)
+                            .with_max_fee_rounds(1),
                         pool,
                     )
                     .await?;
@@ -323,12 +312,12 @@ pub(super) async fn workflow(
                     destination = Some(address);
                     wrapper.unwrap(address, qits, 9000)?
                 };
-                let policy = FeePolicy {
-                    max_gas: 2_000_000,
-                    max_gas_price: U256::from(10_000_000_000_000_000u64),
-                    max_total_fee: U256::from(20_000_000_000_000_000_000_000u128),
-                    gas_margin_bps: 1000,
-                };
+                let policy = FeePolicy::new(
+                    2_000_000,
+                    U256::from(10_000_000_000_000_000u64),
+                    U256::from(20_000_000_000_000_000_000_000u128),
+                )
+                .with_gas_margin_bps(1000);
                 let mut session = AccountSession::new(provider, signer, &mut store)?
                     .with_observation_policy(AccountObservationPolicy::PinnedLatest);
                 let prepared = session
@@ -494,20 +483,11 @@ pub(super) async fn workflow(
                     let rejected_prepare = session
                         .prepare(
                             rejected,
-                            QiIntent {
-                                amount: balance.total,
-                                destinations: vec![
-                                    "0x0080000000000000000000000000000000000001".parse()?,
-                                ],
-                            },
-                            QiPolicy {
-                                initial_fee: U256::ZERO,
-                                max_fee: U256::from(1000),
-                                max_inputs: 32,
-                                max_outputs: 32,
-                                max_fee_rounds: 1,
-                                max_snapshot_age: 0,
-                            },
+                            QiIntent::new(
+                                balance.total,
+                                vec!["0x0080000000000000000000000000000000000001".parse()?],
+                            ),
+                            QiPolicy::new(U256::from(1000), 32, 32, 0).with_max_fee_rounds(1),
                             pool,
                         )
                         .await;

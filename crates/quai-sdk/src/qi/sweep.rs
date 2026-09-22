@@ -51,14 +51,11 @@ impl<T: Transport> QiSession<'_, T> {
         {
             return Err(QiError::IdentityMismatch);
         }
-        let metadata: BTreeMap<_, _> = self
+        let owned = self
             .store
-            .addresses()?
-            .into_iter()
-            .map(|entry| (entry.address(), entry))
-            .collect();
+            .public_addresses(outputs.addresses.iter().map(PublicAddress::address))?;
         for address in &outputs.addresses {
-            if metadata.get(&address.address()) != Some(address) {
+            if owned.get(&address.address()) != Some(address) {
                 return Err(QiError::IdentityMismatch);
             }
             self.key_for(address)?;
@@ -73,35 +70,20 @@ impl<T: Transport> QiSession<'_, T> {
         for _ in 0..policy.max_fee_rounds {
             let selection = select_sweep(
                 &snapshot.coins,
-                &SelectionRequest {
-                    zone: scope.zone,
-                    candidate_height: height,
-                    target: U256::ZERO,
-                    fee,
-                    max_fee: policy.max_fee,
-                    max_inputs: policy.max_inputs,
-                    max_outputs: policy.max_outputs,
-                },
+                &SelectionRequest::new(
+                    scope.zone,
+                    height,
+                    U256::ZERO,
+                    policy.max_inputs,
+                    policy.max_outputs,
+                )
+                .with_fee(fee, policy.max_fee),
                 mode,
             )?;
             if selection.spend_outputs.len() > outputs.addresses.len() {
                 return Err(QiError::InsufficientChange);
             }
-            let inputs = selection
-                .inputs
-                .iter()
-                .map(|coin| {
-                    let key = self.key_for(
-                        metadata
-                            .get(&coin.address.address())
-                            .ok_or(QiError::IdentityMismatch)?,
-                    )?;
-                    Ok(QiInput {
-                        previous_output: coin.outpoint,
-                        public_key: key.public_key(),
-                    })
-                })
-                .collect::<Result<Vec<_>, QiError>>()?;
+            let (inputs, entries) = self.selected_inputs(&selection.inputs)?;
             let transaction = QiTransaction {
                 chain_id: scope.chain_id,
                 inputs,
@@ -125,6 +107,7 @@ impl<T: Transport> QiSession<'_, T> {
                 fee = quote;
                 continue;
             }
+            self.confirm_signable(&entries)?;
             let final_height = self
                 .candidate_height(snapshot.generation, checkpoint, policy.max_snapshot_age)
                 .await?;

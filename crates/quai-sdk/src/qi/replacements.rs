@@ -104,12 +104,14 @@ impl<T: Transport> QiSession<'_, T> {
         if selected.len() != intent.change_indexes.len() {
             return Err(QiError::InvalidPolicy);
         }
-        let metadata: BTreeMap<_, _> = self
-            .store
-            .addresses()?
-            .into_iter()
-            .map(|m| (m.address(), m))
-            .collect();
+        let metadata = self.store.public_addresses(
+            transaction
+                .inputs
+                .iter()
+                .map(|input| input.public_key.address())
+                .chain(transaction.outputs.iter().map(|output| output.address))
+                .chain(intent.change_outputs.iter().map(|output| output.address)),
+        )?;
         let mut old_change = Vec::new();
         for &index in &selected {
             old_change.push(
@@ -277,24 +279,7 @@ impl<T: Transport> QiSession<'_, T> {
                 return Ok(signed);
             }
         }
-        let metadata: BTreeMap<_, _> = self
-            .store
-            .addresses()?
-            .into_iter()
-            .map(|m| (m.address(), m))
-            .collect();
-        let keys = prepared
-            .transaction
-            .inputs
-            .iter()
-            .map(|i| {
-                self.key_for(
-                    metadata
-                        .get(&i.public_key.address())
-                        .ok_or(QiError::IdentityMismatch)?,
-                )
-            })
-            .collect::<Result<Vec<_>, _>>()?;
+        let keys = self.input_keys(&prepared.transaction.inputs)?;
         let refs: Vec<_> = keys.iter().collect();
         let signed = match prepared.transaction.data.len() {
             0 => SignedQiOperation::Transfer(prepared.transaction.sign_local(&refs)?),
@@ -356,6 +341,7 @@ pub enum QiCandidateStatus {
 }
 /// Reconciled candidate identities, with at most one canonical member per input set.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct QiFamilyObservation {
     /// Original followed by persisted replacement candidates.
     pub candidates: Vec<(Hash32, QiCandidateStatus)>,

@@ -7,32 +7,28 @@ use quai_wallet::{
 };
 use serde_json::Value;
 fn coin(index: u16, denomination: u8) -> CandidateCoin {
-    CandidateCoin {
-        outpoint: OutPoint {
+    CandidateCoin::new(
+        OutPoint {
             transaction_hash: "0x0080008011111111111111111111111111111111111111111111111111111111"
                 .parse()
                 .unwrap(),
             index,
         },
-        address: "0x0088223344556677889900112233445566778899"
+        "0x0088223344556677889900112233445566778899"
             .parse()
             .unwrap(),
-        denomination: Denomination::new(denomination).unwrap(),
-        unlock_height: U256::ZERO,
-        expires_at: None,
-        reserved: false,
-    }
+        Denomination::new(denomination).unwrap(),
+    )
 }
 fn request(target: u64, fee: u64) -> SelectionRequest {
-    SelectionRequest {
-        zone: Zone::Cyprus1,
-        candidate_height: U256::from(100),
-        target: U256::from(target),
-        fee: U256::from(fee),
-        max_fee: U256::from(10000),
-        max_inputs: 100,
-        max_outputs: 1000,
-    }
+    SelectionRequest::new(
+        Zone::Cyprus1,
+        U256::from(100),
+        U256::from(target),
+        100,
+        1000,
+    )
+    .with_fee(U256::from(fee), U256::from(10000))
 }
 #[test]
 fn fee_reselection_preserves_target_and_never_reports_uncovered_or_reversed_adjustments() {

@@ -213,16 +213,12 @@ impl<T: Transport> Provider<T> {
         Ok(())
     }
 
-    /// Read with the chain check bracketing the call.
+    /// Read with the chain check preceding the call.
     ///
-    /// Where the transport supports batching, the guard and the payload travel as
-    /// `[quai_chainId, method, quai_chainId]` in one request instead of two
-    /// sequential round trips. That halves the round trips on every read and
-    /// strengthens the check rather than weakening it: both guards and the call
-    /// are answered on one connection at one instant, so a load balancer cannot
-    /// swap backends between the guard and the call it guards, which the
-    /// sequential form allowed. It remains a configuration check, not
-    /// authentication: a malicious endpoint can still answer both guards
+    /// Where the transport supports batching, the guard and the payload travel
+    /// as `[quai_chainId, method]` in one request instead of two sequential
+    /// round trips, so one backend answers both. It remains a configuration
+    /// check, not authentication: a malicious endpoint can answer the guard
     /// truthfully and lie in the payload.
     ///
     /// Transports without batching return `None`, having sent nothing, and fall
@@ -244,31 +240,35 @@ impl<T: Transport> Provider<T> {
         Ok(self.transport.request(endpoint, method, params).await?)
     }
 
-    /// Send `calls` in one batch bracketed by a chain-ID guard at each end.
+    /// Send `calls` in one batch led by a chain-ID guard.
     ///
-    /// `None` means the transport does not batch and sent nothing. Both guards
+    /// `None` means the transport does not batch and sent nothing. The guard
     /// must pass before any payload is returned, so a chain mismatch is never
     /// reported as a successful read. Results keep the order of `calls`.
+    ///
+    /// There is no trailing guard. A batch is one request that one backend
+    /// answers, so nothing can change chains between its elements; and a
+    /// gateway that splits a batch across backends could route the payload
+    /// away from a guard at either end, so a second guard would not cover
+    /// that case either. It cost a third of every single read's calls, which
+    /// counts against a metered or rate-limited gateway.
     async fn guarded_batch(
         &self,
         endpoint: &Endpoint,
         calls: Vec<(&str, Value)>,
     ) -> Option<Result<Vec<Result<Value, RpcError>>, ProviderError>> {
         let count = calls.len();
-        let mut requests = Vec::with_capacity(count + 2);
+        let mut requests = Vec::with_capacity(count + 1);
         requests.push(("quai_chainId", json!([])));
         requests.extend(calls);
-        requests.push(("quai_chainId", json!([])));
         let batch = self.transport.request_batch(endpoint, requests).await?;
         Some((|| {
             let mut responses = batch?;
-            if responses.len() != count + 2 {
+            if responses.len() != count + 1 {
                 return Err(ProviderError::InvalidResult("batch response count"));
             }
-            let trailing = responses.pop().expect("checked count");
             let leading = responses.remove(0);
             self.check_chain_id(leading?)?;
-            self.check_chain_id(trailing?)?;
             Ok(responses)
         })())
     }
@@ -371,7 +371,7 @@ impl<T: Transport> Provider<T> {
     }
 
     /// Several headers from one zone, in order, as raw responses: guarded
-    /// batches of up to `MAX_BATCH_CALLS - 2` where the transport batches,
+    /// batches of up to `MAX_BATCH_CALLS - 1` where the transport batches,
     /// otherwise one guarded read each. Parse each with `parse_zone_header`, or
     /// `types::genesis_hash` for height zero.
     ///
@@ -397,7 +397,7 @@ impl<T: Transport> Provider<T> {
         values: &mut Vec<Result<Value, ProviderError>>,
     ) -> Result<(), ProviderError> {
         let endpoint = self.routing.endpoint(zone.into())?;
-        for page in blocks.chunks(quai_rpc::MAX_BATCH_CALLS - 2) {
+        for page in blocks.chunks(quai_rpc::MAX_BATCH_CALLS - 1) {
             let calls = page
                 .iter()
                 .map(|block| Ok(("quai_getHeaderByNumber", json!([block.rpc_value()?]))))
@@ -481,6 +481,47 @@ impl<T: Transport> Provider<T> {
     /// Current node-recommended gas price for a zone; this is not a historical quote.
     pub async fn gas_price(&self, zone: Zone) -> Result<U256, ProviderError> {
         quantity(self.read(zone.into(), "quai_gasPrice", json!([])).await?)
+    }
+
+    /// [`Self::gas_price`], read together with the network's genesis in one
+    /// round trip where the transport batches. `None` when the genesis is not
+    /// `genesis`, decided before the price is parsed, so a wrong network is
+    /// reported as such. Both reads are address-free, so joining them discloses
+    /// nothing before the network is confirmed.
+    pub async fn gas_price_on_network(
+        &self,
+        zone: Zone,
+        genesis: Hash32,
+    ) -> Result<Option<U256>, ProviderError> {
+        let endpoint = self.routing.endpoint(zone.into())?;
+        let calls = vec![
+            ("quai_getHeaderByNumber", json!(["0x0"])),
+            ("quai_gasPrice", json!([])),
+        ];
+        let (observed, price) = match self.guarded_batch(endpoint, calls).await {
+            Some(batch) => {
+                let mut values = batch?.into_iter();
+                match (values.next(), values.next()) {
+                    (Some(observed), Some(price)) => (observed?, price),
+                    _ => return Err(ProviderError::InvalidResult("batch response count")),
+                }
+            }
+            // Nothing was sent: the genesis first, so a wrong network is never
+            // asked for anything else.
+            None => {
+                let observed = self
+                    .read(zone.into(), "quai_getHeaderByNumber", json!(["0x0"]))
+                    .await?;
+                if types::genesis_hash(observed)? != genesis {
+                    return Ok(None);
+                }
+                return self.gas_price(zone).await.map(Some);
+            }
+        };
+        if types::genesis_hash(observed)? != genesis {
+            return Ok(None);
+        }
+        Ok(Some(quantity(price?)?))
     }
 
     /// Read account/contract bytecode; empty code is a valid result.

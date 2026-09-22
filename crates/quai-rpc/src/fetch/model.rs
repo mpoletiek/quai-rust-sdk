@@ -120,6 +120,7 @@ impl FetchHeaders {
 }
 /// An owned resource request. Debug never prints URL, headers, or body.
 #[derive(Clone)]
+#[non_exhaustive]
 pub struct FetchRequest {
     url: String,
     method: Option<String>,

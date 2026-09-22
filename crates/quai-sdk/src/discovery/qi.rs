@@ -84,6 +84,7 @@ impl Default for QiDiscoveryOptions {
 }
 /// Compact current output observation. Unknown RPC extension fields are not retained.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct CurrentQiOutput {
     /// Exact creating transaction and output index.
     pub outpoint: OutPoint,
@@ -94,6 +95,7 @@ pub struct CurrentQiOutput {
 }
 /// One matched public HD address, including empty addresses used to measure the gap.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct CurrentQiAddress {
     /// Exact public key, coin/account/branch/index and zone.
     pub derived: DerivedAddress,

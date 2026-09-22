@@ -31,6 +31,7 @@ pub enum BrowserPaymentError {
 }
 /// Detached validated inspection of a persisted public journal.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct BrowserPaymentSnapshot {
     /// Revision of this observation, not a finality or freshness assertion.
     pub revision: u64,

@@ -57,6 +57,7 @@ pub struct ScopedCheckpoint {
 }
 /// Public source response; all addresses/UTXOs are checked before entering a report.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct AddressObservation {
     /// Response identity must equal the requested network scope.
     pub scope: NetworkScope,
@@ -72,6 +73,20 @@ pub struct AddressObservation {
     pub account_nonce: Option<u64>,
     /// Qi current unspent outputs. Provider reserved flags are ignored.
     pub coins: Vec<CandidateCoin>,
+}
+impl AddressObservation {
+    /// An observation with no usage, balance, nonce or coins recorded yet.
+    pub fn new(scope: NetworkScope, checkpoint: Checkpoint, address: Address) -> Self {
+        Self {
+            scope,
+            checkpoint,
+            address,
+            ever_used: None,
+            account_balance: None,
+            account_nonce: None,
+            coins: Vec::new(),
+        }
+    }
 }
 impl AddressObservation {
     /// Whether current state demonstrates activity; false does not imply never used.
@@ -431,6 +446,7 @@ pub struct BranchCoverage {
 }
 /// A matching HD address and its checkpoint-tagged public observation.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct ObservedAddress {
     /// Actual child index and public-key origin, not a count of matching addresses.
     pub derived: DerivedAddress,
@@ -474,6 +490,7 @@ pub struct DiscoveryReport {
 }
 /// Independent spendability flags: a reserved output may also be locked/expired.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct CoinClassification {
     /// A durable local operation still holds this outpoint.
     pub reserved: bool,

@@ -167,7 +167,7 @@ Rust: `quai_sdk::recover_typed_data_signer`, `quai_abi::TypedData`.
 
 Evidence: [crates/quai-sdk/tests/final_utilities.rs](../crates/quai-sdk/tests/final_utilities.rs), [compatibility/scripts/final-utilities.test.mjs](../compatibility/scripts/final-utilities.test.mjs).
 
-Details: [TYPED_DATA_PARITY](../docs/TYPED_DATA_PARITY.md).
+Details: [TYPED_DATA_PARITY](TYPED_DATA_PARITY.md).
 
 ### `Zone`, `Shard`, `toZone`, `toShard`
 
@@ -201,7 +201,7 @@ Rust: `quai_primitives::Address`, `quai_signer::Signer::address`, `quai_sdk::con
 
 Evidence: [crates/quai-sdk/tests/final_utilities.rs](../crates/quai-sdk/tests/final_utilities.rs), [compatibility/scripts/final-utilities.test.mjs](../compatibility/scripts/final-utilities.test.mjs), [crates/quai-sdk/tests/contracts.rs](../crates/quai-sdk/tests/contracts.rs).
 
-Details: [CONTRACT_PARITY](../docs/CONTRACT_PARITY.md).
+Details: [CONTRACT_PARITY](CONTRACT_PARITY.md).
 
 ### `AddressStatus`, `QiAddressInfo`
 
@@ -211,7 +211,7 @@ Rust: `quai_wallet::qi_addresses::QiAddressStatus`, `quai_wallet::qi_addresses::
 
 Evidence: [crates/quai-sdk/tests/qi_address_book.rs](../crates/quai-sdk/tests/qi_address_book.rs).
 
-Details: [QI_ADDRESS_VIEWS](../docs/QI_ADDRESS_VIEWS.md).
+Details: [QI_ADDRESS_VIEWS](QI_ADDRESS_VIEWS.md).
 
 ### `AllowedCoinType`, `NeuteredAddressInfo`
 
@@ -221,7 +221,7 @@ Rust: `quai_wallet::CoinType`, `quai_wallet::metadata::PublicAddress`, `quai_wal
 
 Evidence: [crates/quai-wallet/tests/reference.rs](../crates/quai-wallet/tests/reference.rs), [crates/quai-sdk/tests/key_origins.rs](../crates/quai-sdk/tests/key_origins.rs).
 
-Details: [HD_WALLET_PARITY_REVIEW](../docs/HD_WALLET_PARITY_REVIEW.md).
+Details: [HD_WALLET_PARITY_REVIEW](HD_WALLET_PARITY_REVIEW.md).
 
 ### `OutpointInfo`
 
@@ -231,7 +231,7 @@ Rust: `quai_wallet::CandidateCoin`, `quai_wallet::metadata::PublicAddress`, `qua
 
 Evidence: [crates/quai-wallet/tests/selection.rs](../crates/quai-wallet/tests/selection.rs), [crates/quai-sdk/tests/qi_address_book.rs](../crates/quai-sdk/tests/qi_address_book.rs).
 
-Details: [QI_ADDRESS_VIEWS](../docs/QI_ADDRESS_VIEWS.md).
+Details: [QI_ADDRESS_VIEWS](QI_ADDRESS_VIEWS.md).
 
 ### `SerializedHDWallet`, `SerializedQiHDWallet`
 
@@ -241,7 +241,7 @@ Rust: `quai_wallet::full_backup::legacy::import_quais_json`, `quai_wallet::full_
 
 Evidence: [crates/quai-sdk/tests/legacy_wallets.rs](../crates/quai-sdk/tests/legacy_wallets.rs), [crates/quai-sdk/tests/portable_capture.rs](../crates/quai-sdk/tests/portable_capture.rs).
 
-Details: [LEGACY_WALLET_MIGRATION](../docs/LEGACY_WALLET_MIGRATION.md), [PORTABLE_WALLET_CAPTURE](../docs/PORTABLE_WALLET_CAPTURE.md).
+Details: [LEGACY_WALLET_MIGRATION](LEGACY_WALLET_MIGRATION.md), [PORTABLE_WALLET_CAPTURE](PORTABLE_WALLET_CAPTURE.md).
 
 ### `SpendTarget`
 
@@ -251,7 +251,7 @@ Rust: `quai_sdk::qi_preflight::QiIntent`, `quai_wallet::SelectionRequest`.
 
 Evidence: [crates/quai-sdk/tests/qi_preflight.rs](../crates/quai-sdk/tests/qi_preflight.rs), [crates/quai-wallet/tests/selection.rs](../crates/quai-wallet/tests/selection.rs).
 
-Details: [QI_SELECTION_PARITY_REVIEW](../docs/QI_SELECTION_PARITY_REVIEW.md).
+Details: [QI_SELECTION_PARITY_REVIEW](QI_SELECTION_PARITY_REVIEW.md).
 
 ### `SignatureLike`
 
@@ -261,7 +261,7 @@ Rust: `quai_crypto::RecoverableSignature`, `quai_crypto::SignatureMetadata`.
 
 Evidence: [crates/quai-crypto/tests/metadata.rs](../crates/quai-crypto/tests/metadata.rs), [crates/quai-crypto/tests/utilities.rs](../crates/quai-crypto/tests/utilities.rs).
 
-Details: [CRYPTO_PARITY](../docs/CRYPTO_PARITY.md).
+Details: [CRYPTO_PARITY](CRYPTO_PARITY.md).
 
 ### `EncryptOptions`
 
@@ -271,7 +271,7 @@ Rust: `quai_keystore::encrypt`, `quai_keystore::encrypt_with_mnemonic`, `quai_ke
 
 Evidence: [crates/quai-sdk/tests/utility_completion.rs](../crates/quai-sdk/tests/utility_completion.rs), [crates/quai-keystore/src/lib.rs](../crates/quai-keystore/src/lib.rs).
 
-Details: [CRYPTO_PARITY](../docs/CRYPTO_PARITY.md), [UTILITY_PARITY](../docs/UTILITY_PARITY.md).
+Details: [CRYPTO_PARITY](CRYPTO_PARITY.md), [UTILITY_PARITY](UTILITY_PARITY.md).
 
 ### `FixedFormat`
 
@@ -289,7 +289,7 @@ Rust: `quai_abi::AbiFormat`, `quai_abi::AbiInterface`, `quai_abi::AbiParameter`,
 
 Evidence: [crates/quai-abi/tests/reflection.rs](../crates/quai-abi/tests/reflection.rs), [crates/quai-abi/tests/human.rs](../crates/quai-abi/tests/human.rs).
 
-Details: [ABI_REFLECTION_PARITY](../docs/ABI_REFLECTION_PARITY.md).
+Details: [ABI_REFLECTION_PARITY](ABI_REFLECTION_PARITY.md).
 
 ### `ParamTypeWalkFunc`, `ParamTypeWalkAsyncFunc`
 
@@ -299,7 +299,7 @@ Rust: `quai_abi::AbiParameter::walk`, `quai_abi::AbiParameter::walk_async`.
 
 Evidence: [crates/quai-abi/tests/reflection.rs](../crates/quai-abi/tests/reflection.rs), [crates/quai-sdk/tests/human_abi.rs](../crates/quai-sdk/tests/human_abi.rs).
 
-Details: [ABI_REFLECTION_PARITY](../docs/ABI_REFLECTION_PARITY.md).
+Details: [ABI_REFLECTION_PARITY](ABI_REFLECTION_PARITY.md).
 
 ### `TypedDataDomain`, `TypedDataField`
 
@@ -309,7 +309,7 @@ Rust: `quai_abi::TypedDataField`, `quai_abi::TypedData`, `quai_abi::hash_domain`
 
 Evidence: [crates/quai-abi/tests/typed_data.rs](../crates/quai-abi/tests/typed_data.rs), [crates/quai-abi/tests/typed_utils.rs](../crates/quai-abi/tests/typed_utils.rs).
 
-Details: [TYPED_DATA_PARITY](../docs/TYPED_DATA_PARITY.md).
+Details: [TYPED_DATA_PARITY](TYPED_DATA_PARITY.md).
 
 ### `checkResultErrors`
 
@@ -319,7 +319,7 @@ Rust: `quai_abi::AbiResult`, `quai_abi::AbiError`.
 
 Evidence: [crates/quai-sdk/tests/final_utilities.rs](../crates/quai-sdk/tests/final_utilities.rs), [compatibility/scripts/final-utilities.test.mjs](../compatibility/scripts/final-utilities.test.mjs), [crates/quai-abi/tests/reflection.rs](../crates/quai-abi/tests/reflection.rs).
 
-Details: [ABI_REFLECTION_PARITY](../docs/ABI_REFLECTION_PARITY.md).
+Details: [ABI_REFLECTION_PARITY](ABI_REFLECTION_PARITY.md).
 
 ### `BlockTag`
 
@@ -329,7 +329,7 @@ Rust: `quai_provider::BlockTag`, `quai_provider::Provider::header_by_hash`.
 
 Evidence: [crates/quai-provider/src/lib.rs](../crates/quai-provider/src/lib.rs), [crates/quai-sdk/tests/response_views.rs](../crates/quai-sdk/tests/response_views.rs).
 
-Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md).
+Details: [PROVIDER_PARITY](PROVIDER_PARITY.md).
 
 ### `BlockParams`, `MinedBlock`
 
@@ -339,7 +339,7 @@ Rust: `quai_provider::MinedBlock`, `quai_provider::BlockHashes`, `quai_provider:
 
 Evidence: [crates/quai-sdk/tests/response_views.rs](../crates/quai-sdk/tests/response_views.rs).
 
-Details: [RESPONSE_PARITY](../docs/RESPONSE_PARITY.md).
+Details: [RESPONSE_PARITY](RESPONSE_PARITY.md).
 
 ### `LogParams`, `TransactionReceiptParams`, `TransactionResponseParams`
 
@@ -349,7 +349,7 @@ Rust: `quai_provider::Log`, `quai_provider::Receipt`, `quai_provider::Transactio
 
 Evidence: [crates/quai-sdk/tests/response_views.rs](../crates/quai-sdk/tests/response_views.rs), [crates/quai-sdk/tests/transaction_documents.rs](../crates/quai-sdk/tests/transaction_documents.rs).
 
-Details: [RESPONSE_PARITY](../docs/RESPONSE_PARITY.md), [TRANSACTION_INTERCHANGE_PARITY](../docs/TRANSACTION_INTERCHANGE_PARITY.md).
+Details: [RESPONSE_PARITY](RESPONSE_PARITY.md), [TRANSACTION_INTERCHANGE_PARITY](TRANSACTION_INTERCHANGE_PARITY.md).
 
 ### `MinedTransactionResponse`
 
@@ -359,7 +359,7 @@ Rust: `quai_provider::Inclusion`, `quai_provider::Transaction`, `quai_provider::
 
 Evidence: [crates/quai-sdk/tests/transaction_confirmation.rs](../crates/quai-sdk/tests/transaction_confirmation.rs).
 
-Details: [TRANSACTION_RESPONSE_PARITY](../docs/TRANSACTION_RESPONSE_PARITY.md).
+Details: [TRANSACTION_RESPONSE_PARITY](TRANSACTION_RESPONSE_PARITY.md).
 
 ### `TransactionRequest`, `PreparedTransactionRequest`, `QuaiTransactionRequest`, `QuaiPreparedTransactionRequest`, `QiTransactionRequest`, `QiPreparedTransactionRequest`, `JsonRpcTransactionRequest`, `QuaiJsonRpcTransactionRequest`, `QiJsonRpcTransactionRequest`, `PerformActionTransaction`
 
@@ -369,7 +369,7 @@ Rust: `quai_consensus::TransactionDocument`, `quai_consensus::QuaiTransaction`, 
 
 Evidence: [crates/quai-sdk/tests/transaction_documents.rs](../crates/quai-sdk/tests/transaction_documents.rs), [crates/quai-sdk/tests/account_preflight.rs](../crates/quai-sdk/tests/account_preflight.rs), [crates/quai-sdk/tests/qi_preflight.rs](../crates/quai-sdk/tests/qi_preflight.rs).
 
-Details: [TRANSACTION_INTERCHANGE_PARITY](../docs/TRANSACTION_INTERCHANGE_PARITY.md), [WALLET_WORKFLOWS](../docs/WALLET_WORKFLOWS.md).
+Details: [TRANSACTION_INTERCHANGE_PARITY](TRANSACTION_INTERCHANGE_PARITY.md), [WALLET_WORKFLOWS](WALLET_WORKFLOWS.md).
 
 ### `copyRequest`
 
@@ -379,7 +379,7 @@ Rust: `quai_consensus::TransactionDocument`, `quai_provider::CallRequest`, `quai
 
 Evidence: [crates/quai-sdk/tests/final_utilities.rs](../crates/quai-sdk/tests/final_utilities.rs), [compatibility/scripts/final-utilities.test.mjs](../compatibility/scripts/final-utilities.test.mjs), [crates/quai-sdk/tests/transaction_documents.rs](../crates/quai-sdk/tests/transaction_documents.rs).
 
-Details: [TRANSACTION_INTERCHANGE_PARITY](../docs/TRANSACTION_INTERCHANGE_PARITY.md).
+Details: [TRANSACTION_INTERCHANGE_PARITY](TRANSACTION_INTERCHANGE_PARITY.md).
 
 ### `EventFilter`, `Filter`, `FilterByBlockHash`, `PerformActionFilter`, `TopicFilter`
 
@@ -389,7 +389,7 @@ Rust: `quai_provider::LogFilter`, `quai_provider::LogRange`, `quai_provider::Top
 
 Evidence: [crates/quai-sdk/tests/events.rs](../crates/quai-sdk/tests/events.rs), [crates/quai-sdk/tests/contract_io.rs](../crates/quai-sdk/tests/contract_io.rs).
 
-Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md), [CONTRACT_PARITY](../docs/CONTRACT_PARITY.md).
+Details: [PROVIDER_PARITY](PROVIDER_PARITY.md), [CONTRACT_PARITY](CONTRACT_PARITY.md).
 
 ### `OrphanFilter`
 
@@ -399,7 +399,7 @@ Rust: `quai_provider::HeadTracker`, `quai_provider::HeadUpdate`, `quai_provider:
 
 Evidence: [crates/quai-sdk/tests/replay.rs](../crates/quai-sdk/tests/replay.rs), [crates/quai-sdk/tests/receipt_confirmation.rs](../crates/quai-sdk/tests/receipt_confirmation.rs).
 
-Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md), [ACCOUNT_NONCE_REPLACEMENTS](../docs/ACCOUNT_NONCE_REPLACEMENTS.md).
+Details: [PROVIDER_PARITY](PROVIDER_PARITY.md), [ACCOUNT_NONCE_REPLACEMENTS](ACCOUNT_NONCE_REPLACEMENTS.md).
 
 ### `EventEmitterable`, `Listener`, `ProviderEvent`, `Subscriber`, `Subscription`
 
@@ -409,7 +409,7 @@ Rust: `quai_provider::event_hub::EventHub`, `quai_provider::event_hub::ListenerI
 
 Evidence: [crates/quai-sdk/tests/provider_events.rs](../crates/quai-sdk/tests/provider_events.rs), [compatibility/scripts/subscriber-lifecycle.test.mjs](../compatibility/scripts/subscriber-lifecycle.test.mjs).
 
-Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md), [UTILITY_PARITY](../docs/UTILITY_PARITY.md).
+Details: [PROVIDER_PARITY](PROVIDER_PARITY.md), [UTILITY_PARITY](UTILITY_PARITY.md).
 
 ### `Provider`, `PerformActionRequest`
 
@@ -419,7 +419,7 @@ Rust: `quai_provider::Provider`, `quai_rpc::Transport`.
 
 Evidence: [crates/quai-sdk/tests/response_views.rs](../crates/quai-sdk/tests/response_views.rs), [crates/quai-sdk/tests/account_preflight.rs](../crates/quai-sdk/tests/account_preflight.rs), [crates/quai-sdk/tests/qi_preflight.rs](../crates/quai-sdk/tests/qi_preflight.rs).
 
-Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md).
+Details: [PROVIDER_PARITY](PROVIDER_PARITY.md).
 
 ### `Signer`
 
@@ -429,7 +429,7 @@ Rust: `quai_signer::Signer`, `quai_signer::LocalSigner`, `quai_signer::WatchOnly
 
 Evidence: [crates/quai-signer/tests/signers.rs](../crates/quai-signer/tests/signers.rs), [crates/quai-sdk/tests/rpc_signer.rs](../crates/quai-sdk/tests/rpc_signer.rs).
 
-Details: [SIGNER_PARITY_REVIEW](../docs/SIGNER_PARITY_REVIEW.md), [RPC_SIGNER](../docs/RPC_SIGNER.md).
+Details: [SIGNER_PARITY_REVIEW](SIGNER_PARITY_REVIEW.md), [RPC_SIGNER](RPC_SIGNER.md).
 
 ### `JsonRpcPayload`, `JsonRpcResult`, `JsonRpcError`
 
@@ -439,17 +439,17 @@ Rust: `quai_rpc::Transport`, `quai_rpc::RemoteError`, `quai_rpc::RpcError`.
 
 Evidence: [crates/quai-rpc/tests/http.rs](../crates/quai-rpc/tests/http.rs), [crates/quai-rpc/tests/websocket.rs](../crates/quai-rpc/tests/websocket.rs).
 
-Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md).
+Details: [PROVIDER_PARITY](PROVIDER_PARITY.md).
 
 ### `JsonRpcApiProviderOptions`
 
-Explicit size/deadline/concurrency/routing configuration replaces inherited cache/batch/static-network knobs. Every high-level endpoint read checks chain ID; callers may issue concurrent independent requests. Where the transport batches, the provider sends some related reads, such as a set of headers or one discovery page, as one batch with a chain-ID guard at each end, and batches only the reads that one call issues. There is no stale result cache or static-network bypass.
+Explicit size/deadline/concurrency/routing configuration replaces inherited cache/batch/static-network knobs. Every high-level endpoint read checks chain ID; callers may issue concurrent independent requests. Where the transport batches, the provider sends some related reads, such as a set of headers or one discovery page, as one batch led by a chain-ID guard, and batches only the reads that one call issues. There is no stale result cache or static-network bypass.
 
 Rust: `quai_rpc::HttpConfig`, `quai_rpc::WsConfig`, `quai_rpc::Routing`, `quai_browser::BrowserConfig`.
 
 Evidence: [crates/quai-rpc/tests/http.rs](../crates/quai-rpc/tests/http.rs), [crates/quai-rpc/tests/routing_differential.rs](../crates/quai-rpc/tests/routing_differential.rs).
 
-Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md).
+Details: [PROVIDER_PARITY](PROVIDER_PARITY.md).
 
 ### `Eip1193Provider`, `DebugEventBrowserProvider`
 
@@ -459,7 +459,7 @@ Rust: `quai_browser::InjectedProvider`, `quai_browser::BrowserConfig`, `quai_rpc
 
 Evidence: [crates/quai-browser/src/lib.rs](../crates/quai-browser/src/lib.rs), [crates/quai-sdk/tests/rpc_signer.rs](../crates/quai-sdk/tests/rpc_signer.rs).
 
-Details: [RPC_SIGNER](../docs/RPC_SIGNER.md), [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md).
+Details: [RPC_SIGNER](RPC_SIGNER.md), [PROVIDER_PARITY](PROVIDER_PARITY.md).
 
 ### `WebSocketCreator`, `WebSocketLike`
 
@@ -469,7 +469,7 @@ Rust: `quai_rpc::WsTransport`, `quai_rpc::WsConfig`, `quai_browser::BrowserWebSo
 
 Evidence: [crates/quai-rpc/tests/websocket.rs](../crates/quai-rpc/tests/websocket.rs), [crates/quai-sdk/tests/provider_events.rs](../crates/quai-sdk/tests/provider_events.rs).
 
-Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md).
+Details: [PROVIDER_PARITY](PROVIDER_PARITY.md).
 
 ### `ErrorCode`, `CodedquaisError`, `quaisError`, `UnknownError`, `makeError`, `isError`, `isCallException`
 
@@ -479,7 +479,7 @@ Rust: `quai_rpc::RpcError`, `quai_rpc::RemoteError`, `quai_provider::ProviderErr
 
 Evidence: [crates/quai-sdk/tests/final_utilities.rs](../crates/quai-sdk/tests/final_utilities.rs), [compatibility/scripts/final-utilities.test.mjs](../compatibility/scripts/final-utilities.test.mjs), [crates/quai-rpc/tests/http.rs](../crates/quai-rpc/tests/http.rs).
 
-Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md).
+Details: [PROVIDER_PARITY](PROVIDER_PARITY.md).
 
 ### `NetworkError`, `ServerError`
 
@@ -489,7 +489,7 @@ Rust: `quai_rpc::RpcError`, `quai_provider::ProviderError::ChainMismatch`.
 
 Evidence: [crates/quai-rpc/tests/http.rs](../crates/quai-rpc/tests/http.rs), [crates/quai-sdk/tests/rpc_signer.rs](../crates/quai-sdk/tests/rpc_signer.rs).
 
-Details: [PROVIDER_PARITY](../docs/PROVIDER_PARITY.md).
+Details: [PROVIDER_PARITY](PROVIDER_PARITY.md).
 
 ### `TimeoutError`, `CancelledError`
 
@@ -499,7 +499,7 @@ Rust: `quai_rpc::RpcError::Timeout`, `quai_provider::WaitError`, `quai_rpc::fetc
 
 Evidence: [crates/quai-rpc/tests/fetch.rs](../crates/quai-rpc/tests/fetch.rs), [crates/quai-sdk/tests/rpc_signer.rs](../crates/quai-sdk/tests/rpc_signer.rs), [crates/quai-sdk/tests/receipt_confirmation.rs](../crates/quai-sdk/tests/receipt_confirmation.rs).
 
-Details: [FETCH_PARITY](../docs/FETCH_PARITY.md), [RPC_SIGNER](../docs/RPC_SIGNER.md).
+Details: [FETCH_PARITY](FETCH_PARITY.md), [RPC_SIGNER](RPC_SIGNER.md).
 
 ### `BadDataError`, `BufferOverrunError`
 
@@ -533,7 +533,7 @@ Rust: `quai_primitives::Utf8Normalization`, `quai_primitives::to_utf8_bytes`.
 
 Evidence: [crates/quai-primitives/tests/text.rs](../crates/quai-primitives/tests/text.rs).
 
-Details: [CRYPTO_PARITY](../docs/CRYPTO_PARITY.md).
+Details: [CRYPTO_PARITY](CRYPTO_PARITY.md).
 
 ### `resolveProperties`
 
@@ -551,7 +551,7 @@ Rust: `quai_crypto`, `quai_keystore::derive`.
 
 Evidence: [crates/quai-sdk/tests/final_utilities.rs](../crates/quai-sdk/tests/final_utilities.rs), [compatibility/scripts/final-utilities.test.mjs](../compatibility/scripts/final-utilities.test.mjs).
 
-Details: [CRYPTO_PARITY](../docs/CRYPTO_PARITY.md), [UTILITY_PARITY](../docs/UTILITY_PARITY.md).
+Details: [CRYPTO_PARITY](CRYPTO_PARITY.md), [UTILITY_PARITY](UTILITY_PARITY.md).
 
 ### `NotImplementedError`, `UnsupportedOperationError`
 
@@ -561,7 +561,7 @@ Rust: `quai_signer::SignerError`, `quai_browser::BrowserError`, `quai_provider::
 
 Evidence: [crates/quai-signer/tests/signers.rs](../crates/quai-signer/tests/signers.rs), [crates/quai-browser/src/lib.rs](../crates/quai-browser/src/lib.rs).
 
-Details: [SIGNER_PARITY_REVIEW](../docs/SIGNER_PARITY_REVIEW.md).
+Details: [SIGNER_PARITY_REVIEW](SIGNER_PARITY_REVIEW.md).
 
 ### `CallExceptionAction`, `CallExceptionError`, `CallExceptionTransaction`
 
@@ -571,7 +571,7 @@ Rust: `quai_provider::CallRequest`, `quai_rpc::RemoteError`, `quai_abi::AbiInter
 
 Evidence: [crates/quai-sdk/tests/contracts.rs](../crates/quai-sdk/tests/contracts.rs), [crates/quai-abi/tests/workflows.rs](../crates/quai-abi/tests/workflows.rs).
 
-Details: [CONTRACT_PARITY](../docs/CONTRACT_PARITY.md).
+Details: [CONTRACT_PARITY](CONTRACT_PARITY.md).
 
 ### `InsufficientFundsError`
 
@@ -589,7 +589,7 @@ Rust: `quai_sdk::account_replacement::ReplacementPolicy`, `quai_provider::Accoun
 
 Evidence: [crates/quai-sdk/tests/account_custody.rs](../crates/quai-sdk/tests/account_custody.rs), [crates/quai-sdk/tests/receipt_confirmation.rs](../crates/quai-sdk/tests/receipt_confirmation.rs).
 
-Details: [ACCOUNT_NONCE_REPLACEMENTS](../docs/ACCOUNT_NONCE_REPLACEMENTS.md).
+Details: [ACCOUNT_NONCE_REPLACEMENTS](ACCOUNT_NONCE_REPLACEMENTS.md).
 
 ### `ActionRejectedError`
 
@@ -599,5 +599,5 @@ Rust: `quai_browser::BrowserError::Provider`, `quai_sdk::rpc_signer::RpcSignerEr
 
 Evidence: [crates/quai-browser/src/lib.rs](../crates/quai-browser/src/lib.rs), [crates/quai-sdk/tests/rpc_signer.rs](../crates/quai-sdk/tests/rpc_signer.rs).
 
-Details: [RPC_SIGNER](../docs/RPC_SIGNER.md).
+Details: [RPC_SIGNER](RPC_SIGNER.md).
 

@@ -57,6 +57,7 @@ pub struct BrowserWalletRestoreTargets<'a> {
 
 /// Result of one committed recovery transaction. No network submission occurs.
 #[derive(Debug)]
+#[non_exhaustive]
 pub struct BrowserWalletRestore {
     /// New revisions in allocation, account, Qi, then payment input order.
     pub revisions: Vec<u64>,
@@ -188,6 +189,7 @@ pub enum BrowserJournalKind {
 }
 /// Public identity/revision evidence for one included journal.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub struct BrowserCapturedRevision {
     /// Journal format/category.
     pub kind: BrowserJournalKind,
@@ -201,6 +203,7 @@ pub struct BrowserCapturedRevision {
 /// Ownership-proved backup plus the public revisions collected. Private material
 /// remains guarded by WalletBackup; encrypt explicitly before persisting/exporting.
 #[derive(Debug)]
+#[non_exhaustive]
 pub struct BrowserWalletCapture {
     /// Plaintext guarded backup. Its Debug output redacts secret origins.
     pub backup: WalletBackup,
@@ -311,21 +314,22 @@ pub async fn capture_wallet_backup(
         )?;
     }
     let backup = WalletBackup::capture_portable(
-        PortableWalletCapture {
-            allocations: &addresses.iter().map(|s| &s.book).collect::<Vec<_>>(),
-            accounts: &accounts
-                .iter()
-                .zip(sources.accounts)
-                .map(|(s, source)| AccountCustodyCapture {
-                    book: &s.book,
-                    address: source.address,
-                })
-                .collect::<Vec<_>>(),
-            qi: &qi.iter().map(|s| &s.book).collect::<Vec<_>>(),
-            payments: &payments.iter().map(|s| &s.book).collect::<Vec<_>>(),
-            previous_inventory: sources.previous_inventory,
-            additional_addresses: sources.additional_addresses,
-        },
+        PortableWalletCapture::new()
+            .with_allocations(&addresses.iter().map(|s| &s.book).collect::<Vec<_>>())
+            .with_accounts(
+                &accounts
+                    .iter()
+                    .zip(sources.accounts)
+                    .map(|(s, source)| AccountCustodyCapture {
+                        book: &s.book,
+                        address: source.address,
+                    })
+                    .collect::<Vec<_>>(),
+            )
+            .with_qi(&qi.iter().map(|s| &s.book).collect::<Vec<_>>())
+            .with_payments(&payments.iter().map(|s| &s.book).collect::<Vec<_>>())
+            .with_previous_inventory(sources.previous_inventory)
+            .with_additional_addresses(sources.additional_addresses),
         origins,
     )?;
     Ok(BrowserWalletCapture { backup, revisions })

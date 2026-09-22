@@ -51,6 +51,7 @@ pub struct BrowserStorageScope {
 /// Monotonic snapshot revision and opaque bytes. A tombstone retains its revision,
 /// preventing stale tabs from recreating deleted state with an old revision.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct BrowserSnapshot {
     /// Revision up to JavaScript's maximum safe integer.
     pub revision: u64,

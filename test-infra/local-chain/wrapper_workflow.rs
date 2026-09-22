@@ -78,12 +78,12 @@ pub(super) async fn run(
             let before_native = provider
                 .balance(sender, BlockTag::Number(U256::from(head.number)))
                 .await?;
-            let policy = FeePolicy {
-                max_gas: 2_000_000,
-                max_gas_price: U256::from(10_000_000_000_000_000u64),
-                max_total_fee: U256::from(20_000_000_000_000_000_000_000u128),
-                gas_margin_bps: 1000,
-            };
+            let policy = FeePolicy::new(
+                2_000_000,
+                U256::from(10_000_000_000_000_000u64),
+                U256::from(20_000_000_000_000_000_000_000u128),
+            )
+            .with_gas_margin_bps(1000);
             let mut session = AccountSession::new(provider, signer, &mut store)?
                 .with_observation_policy(AccountObservationPolicy::PinnedLatest);
             let prepared = if operation == "deploy" {
@@ -96,10 +96,7 @@ pub(super) async fn run(
                     scope().chain_id,
                     nonce,
                     U256::ZERO,
-                    DeploymentSearch {
-                        start_salt: 0,
-                        max_attempts: 10000,
-                    },
+                    DeploymentSearch::new(0, 10000),
                     || false,
                 )?;
                 session.prepare_deployment(id, intent, policy).await?

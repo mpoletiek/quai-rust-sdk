@@ -1037,3 +1037,24 @@ fn write_portable_fixture_if_requested(backup: &WalletBackup) {
     )
     .unwrap();
 }
+
+#[test]
+fn the_plaintext_buffer_is_reserved_at_exactly_its_encoded_size() {
+    // Measured, not guessed: a buffer that grew would free an unwiped copy of
+    // the secrets already written, and reserving the 16 MiB format maximum
+    // for every backup was the previous guard.
+    let source = Database::new();
+    let mut store = source.open();
+    populate(&mut store);
+    let backup = WalletBackup::capture(&mut store, vec![seed_origin()]).unwrap();
+    let encoded = backup.encode().unwrap();
+    assert_eq!(encoded.capacity(), encoded.len());
+    assert!(encoded.len() < 64 * 1024);
+    let restored = WalletBackup::decode(&encoded).unwrap();
+    assert_eq!(restored.encode().unwrap()[..], encoded[..]);
+
+    // A writer never grows past its reservation.
+    let mut writer = Writer::with_capacity(4).unwrap();
+    writer.u32(7).unwrap();
+    assert_eq!(writer.u8(1), Err(WalletBackupError::Resources));
+}

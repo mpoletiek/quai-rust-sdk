@@ -5,6 +5,7 @@ use quai_rpc::Transport;
 
 /// A receipt that passed the requested observed confirmations and consistency checks.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct ConfirmedReceipt {
     /// Receipt re-read after validating its block association.
     pub receipt: Receipt,

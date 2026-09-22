@@ -5,6 +5,7 @@ use quai_rpc::Transport;
 
 /// Explicit account and trusted network/runtime constraints, with no deployment hash.
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct ContractCodeTarget {
     /// Account whose code should appear.
     pub address: QuaiAddress,
@@ -12,6 +13,20 @@ pub struct ContractCodeTarget {
     pub genesis: Hash32,
     /// Optional expected runtime Keccak; mismatched nonempty code fails immediately.
     pub expected_runtime: Option<Hash32>,
+}
+impl ContractCodeTarget {
+    /// Code expected at `address` on the `genesis` network, optionally exact.
+    pub const fn new(
+        address: QuaiAddress,
+        genesis: Hash32,
+        expected_runtime: Option<Hash32>,
+    ) -> Self {
+        Self {
+            address,
+            genesis,
+            expected_runtime,
+        }
+    }
 }
 impl ContractCodeTarget {
     /// One bounded code observation. Empty code or changed canonical anchors

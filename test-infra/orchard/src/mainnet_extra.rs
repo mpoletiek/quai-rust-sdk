@@ -330,12 +330,7 @@ pub async fn run(op: &str) -> Result<(), Box<dyn Error>> {
                     match session
                         .prepare(
                             id,
-                            AccountIntent {
-                                to: b,
-                                value: centi,
-                                data: RpcData::new(vec![])?,
-                                access_list: vec![],
-                            },
+                            AccountIntent::new(b, centi).with_data(RpcData::new(vec![])?),
                             net().account_fee,
                         )
                         .await
@@ -420,12 +415,7 @@ pub async fn run(op: &str) -> Result<(), Box<dyn Error>> {
                     match session
                         .prepare(
                             id,
-                            AccountIntent {
-                                to: b,
-                                value: centi,
-                                data: RpcData::new(vec![])?,
-                                access_list: vec![],
-                            },
+                            AccountIntent::new(b, centi).with_data(RpcData::new(vec![])?),
                             net().account_fee,
                         )
                         .await
@@ -544,10 +534,7 @@ pub async fn run(op: &str) -> Result<(), Box<dyn Error>> {
                         ctx.scope.chain_id,
                         nonce,
                         U256::ZERO,
-                        quai_sdk::contracts::DeploymentSearch {
-                            start_salt: 0,
-                            max_attempts: 10_000,
-                        },
+                        quai_sdk::contracts::DeploymentSearch::new(0, 10_000),
                         || false,
                     )?;
                     println!(
@@ -599,30 +586,17 @@ pub async fn run(op: &str) -> Result<(), Box<dyn Error>> {
             let code = ctx
                 .provider
                 .wait_for_contract_code(
-                    quai_sdk::provider::ContractCodeTarget {
-                        address: predicted,
-                        genesis: ctx.scope.genesis,
-                        expected_runtime: Some(Hash32::from_bytes(runtime)),
-                    },
+                    quai_sdk::provider::ContractCodeTarget::new(
+                        predicted,
+                        ctx.scope.genesis,
+                        Some(Hash32::from_bytes(runtime)),
+                    ),
                     quai_sdk::provider::CodeWaitConfig::new(120_000, 3_000, 60),
                 )
                 .await?;
-            let call = ctx
-                .provider
-                .call(
-                    &quai_sdk::provider::CallRequest {
-                        from: a,
-                        to: Some(predicted),
-                        gas: Some(100_000),
-                        gas_price: None,
-                        value: None,
-                        nonce: None,
-                        input: RpcData::new(vec![])?,
-                        access_list: vec![],
-                    },
-                    BlockTag::Latest,
-                )
-                .await?;
+            let mut request = quai_sdk::provider::CallRequest::new(a, predicted);
+            request.gas = Some(100_000);
+            let call = ctx.provider.call(&request, BlockTag::Latest).await?;
             save_record(
                 "deploy",
                 &json!({"check":"durable-grinded-deployment-and-code-wait","hash":hash.to_string(),"nonce":signed.transaction().nonce,

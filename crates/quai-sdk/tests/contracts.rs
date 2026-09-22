@@ -170,10 +170,7 @@ fn deployment_grinds_exact_code_and_includes_mandatory_created_address_access() 
         U256::from(1337),
         u64::MAX,
         U256::ZERO,
-        DeploymentSearch {
-            start_salt: 0,
-            max_attempts: 10_000,
-        },
+        DeploymentSearch::new(0, 10_000),
         || false,
     )
     .unwrap();
@@ -205,10 +202,7 @@ fn deployment_grinds_exact_code_and_includes_mandatory_created_address_access() 
             U256::from(1337),
             0,
             U256::ZERO,
-            DeploymentSearch {
-                start_salt: 0,
-                max_attempts: 10_000
-            },
+            DeploymentSearch::new(0, 10_000),
             || true
         ),
         Err(ContractError::SearchIncomplete)
@@ -222,10 +216,7 @@ fn deployment_grinds_exact_code_and_includes_mandatory_created_address_access() 
             U256::from(1337),
             0,
             U256::from(1),
-            DeploymentSearch {
-                start_salt: 0,
-                max_attempts: 10_000
-            },
+            DeploymentSearch::new(0, 10_000),
             || false
         ),
         Err(ContractError::Nonpayable)
@@ -251,10 +242,7 @@ fn deployment_builder_matches_actual_local_node_accepted_fixture() {
         U256::from(1337),
         2,
         U256::ZERO,
-        DeploymentSearch {
-            start_salt: 0,
-            max_attempts: 10_000,
-        },
+        DeploymentSearch::new(0, 10_000),
         || false,
     )
     .unwrap();

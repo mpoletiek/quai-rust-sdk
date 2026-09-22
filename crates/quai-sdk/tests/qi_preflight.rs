@@ -92,45 +92,35 @@ fn source() -> QiSource {
     h[3] = 0x80;
     h[31] = 1;
     let owner = PublicAddress::imported(&key().public_key()).unwrap();
-    QiSource {
-        scope: scope(),
-        checkpoint: Checkpoint {
+    QiSource::new(
+        scope(),
+        Checkpoint {
             hash: hash(2),
             height: U256::from(16),
         },
-        coins: vec![CandidateCoin {
-            outpoint: OutPoint {
+        vec![CandidateCoin::new(
+            OutPoint {
                 transaction_hash: Hash32::from_bytes(h),
                 index: 0,
             },
-            address: owner.address().try_into().unwrap(),
-            denomination: Denomination::new(2).unwrap(),
-            unlock_height: U256::ZERO,
-            expires_at: None,
-            reserved: false,
-        }],
-        owners: vec![owner],
-    }
+            owner.address().try_into().unwrap(),
+            Denomination::new(2).unwrap(),
+        )],
+        vec![owner],
+    )
 }
 fn intent() -> QiOperationIntent {
-    QiOperationIntent::Transfer(QiIntent {
-        amount: U256::from(5),
-        destinations: vec![
+    QiOperationIntent::Transfer(QiIntent::new(
+        U256::from(5),
+        vec![
             "0x0080000000000000000000000000000000000001"
                 .parse()
                 .unwrap(),
         ],
-    })
+    ))
 }
 fn policy() -> QiPolicy {
-    QiPolicy {
-        initial_fee: U256::ZERO,
-        max_fee: U256::from(5),
-        max_inputs: 4,
-        max_outputs: 16,
-        max_fee_rounds: 4,
-        max_snapshot_age: 2,
-    }
+    QiPolicy::new(U256::from(5), 4, 16, 2).with_max_fee_rounds(4)
 }
 fn special(wrap: bool) -> QiOperationIntent {
     let destination = "0x0000000000000000000000000000000000000001"
@@ -222,13 +212,7 @@ async fn exact_selection_converges_and_keeps_distinct_recipient_and_change_shape
     let change = [change()];
     let q = quote_qi(
         &m.provider(),
-        QiQuoteRequest {
-            source: &source,
-            intent: intent(),
-            policy: policy(),
-            fees: QiFeeMode::Node,
-            change: &change,
-        },
+        QiQuoteRequest::new(&source, intent(), policy(), QiFeeMode::Node, &change),
     )
     .await
     .unwrap();
@@ -264,13 +248,7 @@ async fn special_fee_modes_preserve_data_and_never_use_ordinary_estimation() {
             };
             let q = quote_qi(
                 &m.provider(),
-                QiQuoteRequest {
-                    source: &source(),
-                    intent: special(wrap),
-                    policy: policy(),
-                    fees,
-                    change: &c,
-                },
+                QiQuoteRequest::new(&source(), special(wrap), policy(), fees, &c),
             )
             .await
             .unwrap();
@@ -319,13 +297,13 @@ async fn portable_explicit_fee_below_the_inclusion_floor_is_refused() {
         m.state().mode = 5;
         let error = quote_qi(
             &m.provider(),
-            QiQuoteRequest {
-                source: &source(),
-                intent: special(wrap),
-                policy: policy(),
-                fees: QiFeeMode::Explicit(U256::from(4)),
-                change: &c,
-            },
+            QiQuoteRequest::new(
+                &source(),
+                special(wrap),
+                policy(),
+                QiFeeMode::Explicit(U256::from(4)),
+                &c,
+            ),
         )
         .await
         .unwrap_err();
@@ -340,13 +318,13 @@ async fn portable_explicit_fee_below_the_inclusion_floor_is_refused() {
         m.state().mode = 5;
         let quote = quote_qi(
             &m.provider(),
-            QiQuoteRequest {
-                source: &source(),
-                intent: intent(),
-                policy: policy(),
-                fees: QiFeeMode::Explicit(U256::from(4)),
-                change: &c,
-            },
+            QiQuoteRequest::new(
+                &source(),
+                intent(),
+                policy(),
+                QiFeeMode::Explicit(U256::from(4)),
+                &c,
+            ),
         )
         .await
         .unwrap();
@@ -378,13 +356,7 @@ async fn claims_expiry_fee_bounds_changed_heads_and_invalid_modes_reject_before_
         }
         let result = quote_qi(
             &m.provider(),
-            QiQuoteRequest {
-                source: &source,
-                intent: intent(),
-                policy: p,
-                fees,
-                change: &c,
-            },
+            QiQuoteRequest::new(&source, intent(), p, fees, &c),
         )
         .await;
         assert!(result.is_err());
@@ -402,13 +374,7 @@ async fn claims_expiry_fee_bounds_changed_heads_and_invalid_modes_reject_before_
     assert!(
         quote_qi(
             &m.provider(),
-            QiQuoteRequest {
-                source: &source(),
-                intent: special(false),
-                policy: policy(),
-                fees: QiFeeMode::Node,
-                change: &c
-            }
+            QiQuoteRequest::new(&source(), special(false), policy(), QiFeeMode::Node, &c)
         )
         .await
         .is_err()
@@ -419,37 +385,37 @@ async fn claims_expiry_fee_bounds_changed_heads_and_invalid_modes_reject_before_
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
 async fn explicit_cross_zone_and_sweep_preserve_output_policy() {
     let m = Mock::default();
-    let cross = QiIntent {
-        amount: U256::from(5),
-        destinations: vec![
+    let cross = QiIntent::new(
+        U256::from(5),
+        vec![
             "0x0180000000000000000000000000000000000001"
                 .parse()
                 .unwrap(),
         ],
-    };
+    );
     assert!(
         quote_qi(
             &m.provider(),
-            QiQuoteRequest {
-                source: &source(),
-                intent: QiOperationIntent::Transfer(cross.clone()),
-                policy: policy(),
-                fees: QiFeeMode::Explicit(U256::from(5)),
-                change: &[]
-            }
+            QiQuoteRequest::new(
+                &source(),
+                QiOperationIntent::Transfer(cross.clone()),
+                policy(),
+                QiFeeMode::Explicit(U256::from(5)),
+                &[]
+            )
         )
         .await
         .is_err()
     );
     let q = quote_qi(
         &m.provider(),
-        QiQuoteRequest {
-            source: &source(),
-            intent: QiOperationIntent::CrossZone(cross.clone()),
-            policy: policy(),
-            fees: QiFeeMode::Explicit(U256::from(5)),
-            change: &[],
-        },
+        QiQuoteRequest::new(
+            &source(),
+            QiOperationIntent::CrossZone(cross.clone()),
+            policy(),
+            QiFeeMode::Explicit(U256::from(5)),
+            &[],
+        ),
     )
     .await
     .unwrap();
@@ -467,13 +433,13 @@ async fn explicit_cross_zone_and_sweep_preserve_output_policy() {
     };
     let q = quote_qi(
         &m.provider(),
-        QiQuoteRequest {
-            source: &source(),
-            intent: sweep,
-            policy: policy(),
-            fees: QiFeeMode::Explicit(U256::from(5)),
-            change: &[],
-        },
+        QiQuoteRequest::new(
+            &source(),
+            sweep,
+            policy(),
+            QiFeeMode::Explicit(U256::from(5)),
+            &[],
+        ),
     )
     .await
     .unwrap();
@@ -529,17 +495,17 @@ async fn qi_replacement_reduces_only_owned_change_and_keeps_inputs_and_special_d
         source.owners.push(change.clone());
         let original = quote_qi(
             &p,
-            QiQuoteRequest {
-                source: &source,
-                intent: if kind == 0 {
+            QiQuoteRequest::new(
+                &source,
+                if kind == 0 {
                     intent()
                 } else {
                     special(kind == 2)
                 },
-                policy: policy(),
-                fees: QiFeeMode::Explicit(U256::ZERO),
-                change: std::slice::from_ref(&change),
-            },
+                policy(),
+                QiFeeMode::Explicit(U256::ZERO),
+                std::slice::from_ref(&change),
+            ),
         )
         .await
         .unwrap();
@@ -771,9 +737,9 @@ mod browser {
         source.owners.push(second);
         let c = pool(&a, 1).await;
         source.owners.extend_from_slice(c.addresses());
-        let intent = QiOperationIntent::Transfer(QiIntent {
-            amount: U256::from(15),
-            destinations: vec![
+        let intent = QiOperationIntent::Transfer(QiIntent::new(
+            U256::from(15),
+            vec![
                 "0x0080000000000000000000000000000000000001"
                     .parse()
                     .unwrap(),
@@ -781,7 +747,7 @@ mod browser {
                     .parse()
                     .unwrap(),
             ],
-        });
+        ));
         let session = BrowserQiSession::new(&p, &b, &keys);
         let root = session
             .prepare_observed(
@@ -1084,9 +1050,9 @@ async fn threshold_aggregation_reselects_after_node_fee_and_keeps_exact_value() 
         .collect();
     let q = quote_qi(
         &m.provider(),
-        QiQuoteRequest {
-            source: &src,
-            intent: QiOperationIntent::Sweep {
+        QiQuoteRequest::new(
+            &src,
+            QiOperationIntent::Sweep {
                 destinations: vec![
                     "0x0080000000000000000000000000000000000001"
                         .parse()
@@ -1097,10 +1063,10 @@ async fn threshold_aggregation_reselects_after_node_fee_and_keeps_exact_value() 
                 ],
                 mode: SweepMode::AggregateThreshold(quai_sdk::wallet::AggregationPolicy::default()),
             },
-            policy: policy(),
-            fees: QiFeeMode::Node,
-            change: &[],
-        },
+            policy(),
+            QiFeeMode::Node,
+            &[],
+        ),
     )
     .await
     .unwrap();

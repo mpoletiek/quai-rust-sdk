@@ -28,15 +28,12 @@ fn provider(mock: Mock) -> Provider<Mock> {
     )
 }
 fn filter() -> LogFilter {
-    LogFilter {
-        zone: Zone::Cyprus1,
-        range: LogRange::Inclusive { from: 10, to: 20 },
-        addresses: vec![ADDRESS.parse().unwrap()],
-        topics: vec![
+    LogFilter::new(Zone::Cyprus1, LogRange::Inclusive { from: 10, to: 20 })
+        .with_addresses(vec![ADDRESS.parse().unwrap()])
+        .with_topics(vec![
             TopicMatch::Exact(Hash32::from_bytes([3; 32])),
             TopicMatch::AnyOf(vec![Hash32::from_bytes([4; 32])]),
-        ],
-    }
+        ])
 }
 fn log() -> Value {
     json!({"address":ADDRESS,"topics":[Hash32::from_bytes([3;32]).to_string(),Hash32::from_bytes([4;32]).to_string()],"data":"0x0012","transactionHash":Hash32::from_bytes([5;32]).to_string(),"blockHash":Hash32::from_bytes([6;32]).to_string(),"blockNumber":"0xf","transactionIndex":"0x2","logIndex":"0x3","removed":false})

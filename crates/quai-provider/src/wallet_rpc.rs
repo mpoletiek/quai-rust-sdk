@@ -32,18 +32,18 @@ pub struct ConversionEstimate {
 
 /// Starting addresses per batched outpoint page.
 ///
-/// The transport accepts 128 calls per batch and each page adds two chain-guard
-/// calls, so this is the full usable headroom. It is a starting point rather
+/// The transport accepts 128 calls per batch and each page adds one chain-guard
+/// call, so this is the full usable headroom. It is a starting point rather
 /// than a fixed size: see `outpoints_many` for the downward adaptation.
-const MAX_OUTPOINT_PAGE: usize = 126;
+const MAX_OUTPOINT_PAGE: usize = 127;
 
-/// Each page adds a leading and trailing `quai_chainId` guard, so the page plus
-/// its guards must fit the transport's batch limit. Asserted at compile time
+/// Each page adds a leading `quai_chainId` guard, so the page plus its guard
+/// must fit the transport's batch limit. Asserted at compile time
 /// because the limit lives in another crate: without this, lowering it there
 /// would break `outpoints_many` on its first page with `InvalidConfig`, which is
 /// neither retried nor falls back.
 #[cfg(feature = "http")]
-const _: () = assert!(MAX_OUTPOINT_PAGE + 2 <= quai_rpc::MAX_BATCH_CALLS);
+const _: () = assert!(MAX_OUTPOINT_PAGE < quai_rpc::MAX_BATCH_CALLS);
 
 /// Most addresses one [`Provider::outpoints_many`] call accepts. It pages them
 /// internally, so a caller needs no page size of its own.
@@ -63,13 +63,14 @@ pub struct AccountState {
     pub nonce: u64,
 }
 
-/// Accounts per batched balance-and-nonce page: two calls each, plus the two
-/// chain guards, within the transport's batch limit.
-const ACCOUNT_STATE_PAGE: usize = (quai_rpc::MAX_BATCH_CALLS - 2) / 2;
+/// Accounts per batched balance-and-nonce page: two calls each, plus the
+/// chain guard, within the transport's batch limit.
+const ACCOUNT_STATE_PAGE: usize = (quai_rpc::MAX_BATCH_CALLS - 1) / 2;
 
 /// Exact created/deleted outpoints reported over a block-hash range, inclusive.
 /// The connected node must retain spent/trimmed history; this is not a proof.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct OutpointDeltas {
     /// Created outputs, including outputs subsequently deleted within the range.
     pub created: Vec<AddressOutpoint>,
@@ -319,8 +320,8 @@ impl<T: Transport> Provider<T> {
             Err(error) => Err(error),
         }
     }
-    /// Attempt one batched page, with the chain check bracketing the payload
-    /// calls so both guards are answered on the same connection.
+    /// Attempt one batched page, led by the chain check so one backend answers
+    /// the guard and the payload.
     ///
     /// `None` means the transport does not batch and **nothing was sent**, which
     /// is what makes the caller's fallback safe. Only this path may be retried
@@ -448,7 +449,7 @@ impl<T: Transport> Provider<T> {
     }
     /// Balance and nonce for several accounts at one block, in input order.
     ///
-    /// Uses explicit batches with a chain guard at each end where the transport
+    /// Uses explicit batches led by a chain guard where the transport
     /// supports them, one per zone run of up to 63 accounts. Otherwise each
     /// account is read through the guarded single-call path, at most four in
     /// flight. No failed batch is replayed. Pin `block` to a number and bracket

@@ -283,18 +283,11 @@ pub async fn run(check: &str) -> Result<(), Box<dyn Error>> {
             let result = QiSession::new(&provider, &wallet, &mut store)?
                 .prepare(
                     id,
-                    QiIntent {
-                        amount: U256::from(100),
-                        destinations: vec![receiver.address.address().try_into()?],
-                    },
-                    QiPolicy {
-                        initial_fee: U256::ZERO,
-                        max_fee: U256::from(100),
-                        max_inputs: 8,
-                        max_outputs: 16,
-                        max_fee_rounds: 8,
-                        max_snapshot_age: 5,
-                    },
+                    QiIntent::new(
+                        U256::from(100),
+                        vec![receiver.address.address().try_into()?],
+                    ),
+                    QiPolicy::new(U256::from(100), 8, 16, 5),
                     pool,
                 )
                 .await;
@@ -518,15 +511,16 @@ pub async fn run(check: &str) -> Result<(), Box<dyn Error>> {
             ])?;
             // Deposit/withdraw receipts from 2026-09-14 (0x9a1128 and 0x9a112c).
             let logs = provider
-                .logs(&quai_sdk::provider::LogFilter {
-                    zone: Zone::Cyprus1,
-                    range: quai_sdk::provider::LogRange::Inclusive {
-                        from: 0x9a1128,
-                        to: 0x9a112c,
-                    },
-                    addresses: vec![wquai.address()],
-                    topics: vec![],
-                })
+                .logs(
+                    &quai_sdk::provider::LogFilter::new(
+                        Zone::Cyprus1,
+                        quai_sdk::provider::LogRange::Inclusive {
+                            from: 0x9a1128,
+                            to: 0x9a112c,
+                        },
+                    )
+                    .with_addresses(vec![wquai.address()]),
+                )
                 .await?;
             let mut decoded = Vec::new();
             for log in &logs {

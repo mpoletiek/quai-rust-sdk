@@ -10,6 +10,7 @@ use quai_rpc::{Transport, U256};
 /// Current source-reported outputs attributable to one canonical external hash.
 /// This is not a complete historical credit or an atomic UTXO snapshot.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct QiCreditObservation {
     /// Actual beneficiary, including the signed refund address for Qi refunds.
     pub beneficiary: QiAddress,

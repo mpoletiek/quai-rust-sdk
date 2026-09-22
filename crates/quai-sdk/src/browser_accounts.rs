@@ -30,6 +30,7 @@ pub enum BrowserAccountError {
 }
 /// Complete validated public custody observation and its exact revision.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct BrowserAccountSnapshot {
     /// Capture before asynchronous canonical reads; supply it when committing observations.
     pub revision: u64,

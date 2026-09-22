@@ -81,13 +81,12 @@ fn source(tx: &QiTransaction) -> (Vec<CandidateCoin>, Vec<PublicAddress>) {
     let coins = tx
         .inputs
         .iter()
-        .map(|i| CandidateCoin {
-            outpoint: i.previous_output,
-            address: QiAddress::try_from(i.public_key.address()).unwrap(),
-            denomination: Denomination::new(14).unwrap(),
-            unlock_height: U256::ZERO,
-            expires_at: None,
-            reserved: false,
+        .map(|i| {
+            CandidateCoin::new(
+                i.previous_output,
+                QiAddress::try_from(i.public_key.address()).unwrap(),
+                Denomination::new(14).unwrap(),
+            )
         })
         .collect();
     (coins, owners.into_values().collect())

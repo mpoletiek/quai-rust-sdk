@@ -420,3 +420,24 @@ fn scrypt_cost_beyond_the_rfc_bound_is_refused_like_quais_js() {
     raw["Crypto"]["kdfparams"]["n"] = json!(1 << 15);
     assert!(parsed(&raw).is_ok());
 }
+
+#[test]
+fn default_limits_admit_the_standard_n_2_18_r_8_document() {
+    // geth's and MetaMask's standard parameters: 128*r*p*(N+2) is 256 MiB plus
+    // 2 KiB, which a flat 256 MiB ceiling refused. Parsing validates the KDF
+    // policy without running it.
+    let mut raw = fixtures()[0]["json"].clone();
+    let params = &mut raw["Crypto"]["kdfparams"];
+    params["n"] = json!(1 << 18);
+    params["r"] = json!(8);
+    params["p"] = json!(1);
+    let document = serde_json::to_vec(&raw).unwrap();
+    assert!(Keystore::from_json(&document, KdfLimits::default()).is_ok());
+    assert!(matches!(
+        Keystore::from_json(
+            &document,
+            KdfLimits::default().with_max_memory_bytes(256 * 1024 * 1024)
+        ),
+        Err(KeystoreError::Limit)
+    ));
+}

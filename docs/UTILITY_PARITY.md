@@ -72,7 +72,7 @@ The output is `DerivedKey`, with redacted diagnostics and zeroizing owned storag
 `DeriveLimits` reuses existing KDF memory/parameter ceilings and adds a maximum
 output length (default 64, hard ceiling 1,024 bytes) plus a total PBKDF2 work cap
 (rounds × output blocks). The default work cap is 2^24, with hard ceiling 2^28.
-The existing default scrypt memory limit is 256 MiB and its work cap is 2^24 N*r*p;
+The existing default scrypt memory limit is 256 MiB plus 64 KiB and its work cap is 2^24 N*r*p;
 explicit hard ceilings are 1 GiB and 2^28 work. PBKDF2 rounds default to at most
 2,000,000, with hard ceiling 10,000,000. Output-block work is checked separately so
 large requested keys cannot bypass that policy. Scrypt also enforces N > 1 and

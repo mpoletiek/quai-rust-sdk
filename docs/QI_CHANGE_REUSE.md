@@ -1,7 +1,7 @@
 # Reusing Qi change addresses that were never signed
 
-Design review for ask 2 of [Quai Terminal's asks](WALLET_ASKS_2026-09-19.md),
-phase 3 of [the response](WALLET_ASKS_2026-09-19_RESPONSE.md). It relaxes the
+Design review for ask 2 of [Quai Terminal's asks](history/WALLET_ASKS_2026-09-19.md),
+phase 3 of [the response](history/WALLET_ASKS_2026-09-19_RESPONSE.md). It relaxes the
 rule that an allocated address is never handed out again, so it was reviewed
 for funds safety and privacy before any code was written.
 

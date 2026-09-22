@@ -176,7 +176,7 @@ agent's evidence.
 
 ## Final integrated validation
 
-[Machine-readable evidence and retained logs](../test-infra/reports/security-2026-09-11/summary.json)
+[Machine-readable evidence and retained logs](../../test-infra/reports/security-2026-09-11/summary.json)
 bind the Rust source/manifests and final successful runs. Native tools were Rust/Cargo
 1.97.1 on Linux. These are overlapping configurations, not additive unique coverage.
 
@@ -192,7 +192,7 @@ bind the Rust source/manifests and final successful runs. Native tools were Rust
 | SDK dependency audit | 373 lock entries; zero known vulnerability matches, two unmaintained optional-package warnings |
 | Separate fuzz dependency audit | 259 development lock entries; zero known vulnerability matches, same two warnings |
 
-The [fuzz evidence](../fuzz/smoke-results.json) records binary/lock hashes and counters.
+The [fuzz evidence](../../fuzz/smoke-results.json) records binary/lock hashes and counters.
 The initial sandboxed sanitizer run could not finish LeakSanitizer process inspection;
 it was not counted as passing. The successful rerun permitted local process inspection
 without disabling sanitizers. Initial Python mock-server execution likewise required
@@ -200,7 +200,7 @@ loopback permission, then all tests passed. No failing parser assertion was supp
 Short fuzz runs do not establish exhaustive coverage, upper-bound performance, leak
 freedom or correctness of expensive KDF paths; those paths use separate regression tests.
 
-The [dependency report](dependency-audit.md) records the advisory snapshot and exact
+The [dependency report](../dependency-audit.md) records the advisory snapshot and exact
 lock hashes. `derivative` and `paste` are inactive in the checked native all-features
 graph, but remain in both locks. A strict warning-free audit still fails. Consumer
 feature unification can change which dependencies compile. CI now includes platform,
@@ -208,7 +208,7 @@ browser, fuzz and advisory jobs, but remote CI/macOS/Windows runs were not execu
 
 ## Live wallet evidence and unresolved qualification
 
-The [high-level Qi acceptance run](../test-infra/local-chain/HIGHLEVEL.md) verified
+The [high-level Qi acceptance run](../../test-infra/local-chain/HIGHLEVEL.md) verified
 fee convergence, exact-byte persistence, process restart, explicit submission,
 canonical inclusion, output accounting and retained claims. Its 10,000-Qit input
 produced 1,234 to the recipient, 8,710 change and a 56-Qit fee. The final quote was
@@ -247,4 +247,4 @@ All crates were `publish = false` when this review was written. That is no longe
 true: `Cargo.toml` has carried `publish = ["crates-io"]` since the first alpha
 upload, and releases through `0.1.0-alpha.8` are on crates.io. No security
 certification was performed then or since. Full SDK feature parity also remains unfinished; see the
-[implementation status](../IMPLEMENTATION_STATUS.md) and [wallet gaps](WALLET_GAPS.md).
+[implementation status](../../IMPLEMENTATION_STATUS.md) and [wallet gaps](../WALLET_GAPS.md).

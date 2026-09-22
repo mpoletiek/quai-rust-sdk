@@ -18,7 +18,7 @@ release license inventory and SBOM remain publishing gates.
   source tree is shipped in a Rust crate. The patch scripts retain short Go
   context fragments and development-only modifications; the source files retain
   their original notices (including LGPL-3.0-or-later core files). Copies of the
-  [upstream notices and license texts](test-infra/licenses/README.md) accompany
+  [upstream notices and license texts](https://github.com/mpoletiek/quai-rust-sdk/blob/main/test-infra/licenses/README.md) accompany
   the embedded patch context. Review each
   modified file and the node's distribution obligations before shipping a harness
   image or node binary; the Rust workspace MIT label does not relicense Go code.

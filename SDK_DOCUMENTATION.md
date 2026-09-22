@@ -1222,7 +1222,7 @@ evidence. They supplement the generated native/browser signature reference.
 | Contracts | [ABI](crates/quai-abi/README.md), [code preflight](docs/CONTRACT_CODE_PREFLIGHT.md) |
 | RPC and browser policy | [RPC](crates/quai-rpc/README.md), [provider](crates/quai-provider/README.md), [browser](crates/quai-browser/README.md) |
 | Key interchange | [keystore](crates/quai-keystore/README.md), [payment codes](crates/quai-payments/README.md) |
-| Current status | [implementation](IMPLEMENTATION_STATUS.md), [gaps](docs/WALLET_GAPS.md), [feature review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md) |
+| Current status | [implementation](IMPLEMENTATION_STATUS.md), [gaps](docs/WALLET_GAPS.md), [feature review](docs/history/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md) |
 | Parity evidence | [analysis](SDK_PARITY_ANALYSIS.md), [machine-readable ledger](compatibility/parity.json), [reference lock](compatibility/reference-lock.json) |
 | Test provenance | [retained reports](test-infra/reports), [isolated chain](test-infra/local-chain/README.md), [CI](.github/workflows/ci.yml) |
-| Release/security | [security review](docs/SECURITY_REVIEW_2026-09-11.md), [dependency audit](docs/dependency-audit.md), [third-party notices](THIRD_PARTY_NOTICES.md) |
+| Release/security | [security review](docs/history/SECURITY_REVIEW_2026-09-11.md), [dependency audit](docs/dependency-audit.md), [third-party notices](THIRD_PARTY_NOTICES.md) |

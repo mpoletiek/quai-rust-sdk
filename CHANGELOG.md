@@ -1,5 +1,112 @@
 # Changelog
 
+## Unreleased
+
+Breaking:
+
+- Public structs that the SDK may extend are `#[non_exhaustive]`, so a field
+  added later no longer breaks a caller's struct literal or pattern. That is
+  the change 0.1.0-alpha.9 began for three types; it now covers the rest of
+  the beta surface.
+  - Outputs, which callers read but do not build, need no change: `Receipt`,
+    `ZoneHeader`, `Log`, `Transaction`, `BroadcastResult`, the observation,
+    selection, reservation, allocation and snapshot views, and about sixty
+    more.
+  - Inputs gained constructors, and their fields stay public for reading and
+    assignment. `FeePolicy::new(max_gas, max_gas_price, max_total_fee)` with
+    `with_gas_margin_bps`; `QiPolicy::new(max_fee, max_inputs, max_outputs,
+    max_snapshot_age)`, defaulting to a zero starting fee and eight rounds, with
+    `with_initial_fee` and `with_max_fee_rounds`; `AccountIntent::new(to,
+    value)` with `with_data` and `with_access_list`;
+    `SelectionRequest::new(zone, candidate_height, target, max_inputs,
+    max_outputs)` with `with_fee`; `CandidateCoin::new(outpoint, address,
+    denomination)` with `with_unlock_height`, `with_expires_at` and
+    `with_reserved`; `LogFilter::new(zone, range)` with `with_addresses` and
+    `with_topics`; `PortableWalletCapture::new()` with a `with_*` method per
+    source; `CallRequest::creation` and `CallRequest::for_transaction` beside
+    `CallRequest::new`; and plain `new` for `QiIntent`, `QiSource`,
+    `QiQuoteRequest`, `QuaiConversionIntent`, `ReplacementPolicy`,
+    `DeploymentSearch`, `AggregationPolicy`, `Snapshot`, `AddressObservation`,
+    `ContractCodeTarget`, `AccountNonceCandidate` and `FeeData`.
+  - Types whose fields a protocol or standard fixes stay exhaustive and can
+    still be built with a literal: the transaction, outpoint, input, output and
+    access-list value types, the protobuf DTOs, `NetworkScope`, `Checkpoint`,
+    `IndexRange`, `Search`, `PaymentSearch`, `ExtendedKeyMetadata`,
+    `TypedDataField` and `RemoteError`.
+- CI now fails a change that breaks the published API unless the changelog's
+  top section lists it under `Breaking:`. `test-infra/semver_gate.py` runs
+  `cargo semver-checks` forced to a minor release, because on an unchanged
+  pre-release version the tool assumes a major bump and checks nothing.
+
+Security:
+
+- `SqliteStore::open` creates a new database, and with it the WAL and
+  shared-memory files, readable by its owner only. The store holds account
+  xpubs, which reveal every address a wallet owns, and SQLite otherwise created
+  it at 0644 under the common umask. An existing file keeps its permissions.
+- ECDSA signing recovers the signer before returning, as Schnorr signing
+  already verified. RFC 6979 derives the nonce from the key and digest, so a
+  faulted signature released beside a correct one for the same digest reveals
+  the key. Transactions were already covered by the sender check; personal
+  messages and typed data were not.
+
+Changed:
+
+- Batched reads carry one leading `quai_chainId` guard instead of one at each
+  end. A batch is one request that one backend answers, so nothing changes
+  chains between its elements, and a gateway that splits a batch could route
+  the payload away from a guard at either end, so the trailing guard protected
+  nothing while adding a third of every single read's calls. A custom
+  `Transport` that inspects batches now sees `[quai_chainId, …]`.
+- Account preparation takes three round trips and seven calls instead of five
+  and fifteen: the genesis check and gas price travel together, then the
+  sender's nonce and balance, then the estimate. Nothing carrying an address
+  is sent before the genesis matches. `Provider::gas_price_on_network` is the
+  new joined read.
+- `RpcAccountSigner` brackets each state-changing request with four reads
+  instead of six, keeping a network check immediately before and after it and
+  the account-exposure check on both sides.
+- Qi prepare, sign, broadcast, sweep, conversion, wrap and replacement read the
+  metadata of the addresses they touch rather than the whole table. Every row
+  read is validated at about 30 µs, and a Qi wallet only ever adds addresses.
+  The new `SqliteStore::public_addresses` is the targeted read. Conversion,
+  wrap and sweep preparation also stopped deriving a private key per input on
+  every fee round just to read a stored public key.
+- Payment-code derivation computes children from the code's own key and chain
+  code with the precomputed generator table, and a receive child's point from
+  one shared tweak. Receive grinding, the restore path, measured 2.7 to 2.9
+  times faster against the previous `bip32` path in the same run; send
+  grinding, dominated by its ECDH, 1.3 times. Results are bit-identical,
+  asserted against `bip32` differentially.
+- A WebSocket subscription that overflows its queue or the shared
+  notification byte budget ends alone with `SubscriptionLagged` and is
+  unsubscribed on the node; the session's other subscriptions and requests
+  continue. Dropping or unsubscribing an ended subscription no longer closes
+  the session.
+- WebSocket frames and HTTP batch rows are parsed once instead of twice.
+- `KdfLimits::default().max_memory_bytes` is 256 MiB plus 64 KiB. The standard
+  N=2^18, r=8 documents need 2 KiB over 256 MiB and were refused.
+- Full-wallet backup encoding sizes its plaintext buffer with a counting pass
+  instead of reserving the 16 MiB format maximum for every backup.
+- Workspace debug and test builds optimize third-party dependencies; the
+  keystore suite went from 106 s to 5.3 s. A consumer's profile is its own.
+
+Added:
+
+- `WsConfig::ping_interval`, 30 seconds by default: an idle connection is
+  pinged and closed as disconnected after two intervals with no inbound frame,
+  so a half-open socket fails instead of going silent.
+- `HttpConfig::with_proxy` and `HttpProxy` for an explicit forward proxy.
+  System proxy variables are still never read, `https` endpoints keep
+  end-to-end TLS through `CONNECT`, and proxy credentials are redacted.
+
+Documentation:
+
+- Dated reviews, the original plan and its audit moved to `docs/history/`, and
+  the README drops pinning advice for yanked versions and a dated test count.
+  Packaged `THIRD_PARTY_NOTICES.md` copies link to the license texts by URL,
+  since a relative link cannot resolve inside a published crate.
+
 ## 0.1.0-alpha.9
 
 Breaking:
@@ -133,7 +240,7 @@ Changed:
   evidence behind it. The test passes; the transaction results are unchanged.
 - A full protocol, security, performance and parity review against go-quai
   v0.56.0, `quais@1.0.0-alpha.57` and Pelagus 1.0 is recorded in
-  [docs/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md](docs/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md).
+  [docs/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md](docs/history/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md).
 
 ## 0.1.0-alpha.8
 
@@ -209,7 +316,7 @@ Fixed:
 ## 0.1.0-alpha.6
 
 Answers to Quai Terminal's asks of 2026-09-19
-([response](docs/WALLET_ASKS_2026-09-19_RESPONSE.md)).
+([response](docs/history/WALLET_ASKS_2026-09-19_RESPONSE.md)).
 
 Changed:
 

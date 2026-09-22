@@ -7,7 +7,7 @@ need their own evidence.
 
 
 Updated 2026-09-13 after reviewing public APIs, tests and pinned reference source.
-See the [feature completeness review](FEATURE_COMPLETENESS_REVIEW_2026-09-12.md)
+See the [feature completeness review](history/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md)
 for evidence, priorities and acceptance criteria FC01–FC12. Node observations
 below retain their original 2026-09-11 qualification boundary.
 
@@ -34,7 +34,7 @@ Keys, HD derivation, current gap-50 Qi discovery, mixed-origin signing, payment
 channels, conversion sessions, wrapping adapters and durable state are implemented. End-to-end recovery, remaining
 protocol operations and release qualification are unfinished.
 
-The [audited plan](../QUAI_RUST_SDK_PLAN.md) remains the complete specification.
+The [audited plan](history/QUAI_RUST_SDK_PLAN.md) remains the complete specification.
 The 3,928-row [parity tracker](../compatibility/parity.json) retains every reference
 declaration. It distinguishes implementation from qualification; declaration
 counts are not a defensible percentage of engineering or security completion.

@@ -3,7 +3,7 @@
 **September 20, 2026 update.** `0.1.0-alpha.9` is prepared. A full protocol,
 security, performance and parity review against go-quai v0.56.0,
 `quais@1.0.0-alpha.57` and Pelagus 1.0 is recorded in
-[the protocol alignment review](docs/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md),
+[the protocol alignment review](docs/history/PROTOCOL_ALIGNMENT_REVIEW_2026-09-20.md),
 which is the current assessment and supersedes the dated sections below where
 they disagree. Three things it establishes are worth carrying here:
 
@@ -105,7 +105,7 @@ platform tests and actual funded acceptance are independent gates.
 ## September 12 workflow expansion
 
 See [wallet workflows](docs/WALLET_WORKFLOWS.md) for new public APIs and examples,
-and the [updated review](docs/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md) for FC01–FC12
+and the [updated review](docs/history/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md) for FC01–FC12
 delivery and remaining gates. Wrapping bytes/digests/hashes/signatures match all
 four independent Go oracle cases in `test-infra/go-oracle/WRAPPING-RESULTS.json`.
 Mainnet reports nonempty code at both confirmed wrapper addresses; Orchard
@@ -159,7 +159,7 @@ September 14, 2026; neither establishes production qualification.
 
 ## Historical internal security review closeout
 
-The [internal review](docs/SECURITY_REVIEW_2026-09-11.md) fixed four medium findings
+The [internal review](docs/history/SECURITY_REVIEW_2026-09-11.md) fixed four medium findings
 and hardened password normalization. All three bounded sanitizer fuzz targets passed
 875,310 executions. Final advisory scans found no known vulnerabilities in the SDK
 and separate fuzz lockfiles; two inactive optional unmaintained packages remain.
@@ -525,7 +525,7 @@ tests. Confirmation depth remains an observation, not finality or authorization
 to release signed claims. [Retained evidence](test-infra/reports/browser-receipt-wait-2026-09-13.json).
 
 
-A [provider declaration review](docs/PROVIDER_PARITY_REVIEW_2026-09-13.md) reconciles
+A [provider declaration review](docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md) reconciles
 144 inherited rows against existing typed APIs, explicit
 normalization/routing differences and two pinned unsupported operations. The
 inventory retains all 3,928 rows. Offline prototype probes and Rust comparisons

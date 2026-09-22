@@ -17,7 +17,7 @@ WQI/WQUAI workflows, HD/payment-code derivation, contract operations, native and
 browser transaction custody and recovery. Read the
 [complete SDK guide](SDK_DOCUMENTATION.md) for integration instructions and the
 [release procedure](docs/PUBLISHING.md) for package preparation and upload limits.
-The [historical analysis](SDK_PARITY_HISTORY.md) preserves the earlier audits;
+The [historical analysis](docs/history/SDK_PARITY_HISTORY.md) preserves the earlier audits;
 its old backlog counts are not the current implementation status.
 
 ## Reference and audit method
@@ -93,7 +93,7 @@ of exact behavior: the restrictions below matter when porting an application.
 
 Evidence for the wallet rows is linked from [wallet workflows](docs/WALLET_WORKFLOWS.md),
 [browser custody](docs/BROWSER_QI_CUSTODY.md), [atomic restore](docs/BROWSER_ATOMIC_RESTORE.md),
-[ABI](crates/quai-abi/README.md), [provider review](docs/PROVIDER_PARITY_REVIEW_2026-09-13.md)
+[ABI](crates/quai-abi/README.md), [provider review](docs/history/PROVIDER_PARITY_REVIEW_2026-09-13.md)
 and [retained test reports](test-infra/reports). Per-declaration evidence is in the
 machine-readable ledger. [Unknown account replacements](docs/ACCOUNT_NONCE_REPLACEMENTS.md)
 now have executable reference comparisons and typed observation/wait APIs.

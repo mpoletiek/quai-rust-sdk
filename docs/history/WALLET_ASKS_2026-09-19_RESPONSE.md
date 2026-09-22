@@ -28,7 +28,7 @@ from the plan below, review or measurement changed it:
     | WAL growth over 10 idle refreshes | 370,832 bytes | 0 bytes; one 4 KB page per new block |
     | Generation change over 10 idle refreshes | +10 | 0 |
 - **Phase 3.** Done for change addresses, after the review in
-  [reusing change that was never signed](QI_CHANGE_REUSE.md). Three
+  [reusing change that was never signed](../QI_CHANGE_REUSE.md). Three
   departures:
   - A rejected review returns its change through `QiChangePool::reclaim`,
     which consumes the prepared transaction. `release_unsigned` does not do it.
@@ -95,7 +95,7 @@ attributes read-only; doing it here would take `unsafe`.
 
 **Ask 4.** Deferred. The reasons, and guidance for any builder using payment
 codes beyond payments, are in
-[using payment codes for anything but payments](PAYMENT_CODES_BEYOND_PAYMENTS.md).
+[using payment codes for anything but payments](../PAYMENT_CODES_BEYOND_PAYMENTS.md).
 In short: the notification-to-notification ECDH is the pair's index-0 payment
 secret, and a static key has no forward secrecy on a permanent public chain.
 Messaging should use separate keys that the payment code vouches for, with a

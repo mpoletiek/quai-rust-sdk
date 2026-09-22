@@ -1,8 +1,8 @@
 # Feature completeness review and implementation — 2026-09-12
 
 Historical review: its earlier implementation backlog is superseded by the
-[current parity analysis](../SDK_PARITY_ANALYSIS.md) and
-[SDK guide](../SDK_DOCUMENTATION.md). Retained qualification requirements still
+[current parity analysis](../../SDK_PARITY_ANALYSIS.md) and
+[SDK guide](../../SDK_DOCUMENTATION.md). Retained qualification requirements still
 need their own evidence.
 
 
@@ -60,26 +60,26 @@ Both networks use the confirmed Cyprus-1 addresses:
 - WQI: `0x002b2596EcF05C93a31ff916E8b456DF6C77c750`
 - WQUAI: `0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB`
 
-The [workflow guide](WALLET_WORKFLOWS.md) documents public APIs, units, sequencing,
+The [workflow guide](../WALLET_WORKFLOWS.md) documents public APIs, units, sequencing,
 examples, supported origins and node-specific constraints. Historical
-[local-chain evidence](../test-infra/local-chain/README.md) retains its original
+[local-chain evidence](../../test-infra/local-chain/README.md) retains its original
 patched/unmodified boundary; this change does not reinterpret it as qualification
 for new wrapping or cross-zone workflows.
 
 ## Validation
 
 - Native workspace all-features tests passed; exact summary retained in
-  [implementation status](../IMPLEMENTATION_STATUS.md). Targeted SDK tests were
+  [implementation status](../../IMPLEMENTATION_STATUS.md). Targeted SDK tests were
   rerun after the final balance/example additions.
 - Four independent wrapping fixtures match JS and Rust; the pinned Go oracle
   verifies protobuf, signing digest, signed bytes, transaction hash and signature
-  for all four. [Retained report](../test-infra/go-oracle/WRAPPING-RESULTS.json).
+  for all four. [Retained report](../../test-infra/go-oracle/WRAPPING-RESULTS.json).
 - Four wrapper ABI calls match JS, with separate native-value, atom/Qit rounding,
   overflow, zone, trim-loss and destination-gas regressions.
 - New regressions cover mixed key origins, channel scans/idempotent recovery,
   conversion nonce preparation, specialized restart and full backup, reorg claim
   retention, unsigned nonce-gap repair, sweep and cross-zone payloads.
-- [Read-only deployment observation](../test-infra/reports/wrapper-deployments-2026-09-12.json):
+- [Read-only deployment observation](../../test-infra/reports/wrapper-deployments-2026-09-12.json):
   chain ID 9 mainnet reports 7,255 bytes for WQI and 2,029 bytes for WQUAI;
   Orchard returned HTTP 403. No transaction was submitted during those probes.
 
@@ -97,23 +97,23 @@ and actual worker tests for signature-before-return persistence, competing nonce
 allocations, cancellation and stale canonical observations. Account-only backup capture and live merge now preserve custody;
 Qi custody now covers durable input claims and all three signed Qi forms;
 account/Qi backup capture and live merge preserve custody, while complete
-browser wallet capture across all journals remains open. See [the account workflow](BROWSER_ACCOUNT_CUSTODY.md) and
-[retained validation](../test-infra/reports/browser-account-custody-2026-09-13.json).
+browser wallet capture across all journals remains open. See [the account workflow](../BROWSER_ACCOUNT_CUSTODY.md) and
+[retained validation](../../test-infra/reports/browser-account-custody-2026-09-13.json).
 
-The latest [Orchard read-only recheck](../test-infra/reports/orchard-read-recheck-2026-09-13.json)
+The latest [Orchard read-only recheck](../../test-infra/reports/orchard-read-recheck-2026-09-13.json)
 passed two SDK tests. It observed WQI code but empty code at the configured WQUAI
 address; the faucet hostname still failed DNS resolution. These findings preserve
 the separate funded wrapper and pinned-node qualification gates.
 
-[Browser Qi custody](BROWSER_QI_CUSTODY.md) connects current gap/deep discovery
+[Browser Qi custody](../BROWSER_QI_CUSTODY.md) connects current gap/deep discovery
 to revision-fenced input reservations and local mixed-origin signing. Its independent
-codec and actual worker checks are retained in the [Qi custody report](../test-infra/reports/browser-qi-custody-2026-09-13.json).
+codec and actual worker checks are retained in the [Qi custody report](../../test-infra/reports/browser-qi-custody-2026-09-13.json).
 
 Qi-only authenticated capture and live merge now retain exact claims and signed
 candidate families, reject conflicting or over-capacity unions atomically, and
-restore encrypted captures to native SQLite. See [retained backup validation](../test-infra/reports/browser-qi-backup-2026-09-13.json).
+restore encrypted captures to native SQLite. See [retained backup validation](../../test-infra/reports/browser-qi-backup-2026-09-13.json).
 
-[Combined portable recovery capture](PORTABLE_WALLET_CAPTURE.md) now preserves
+[Combined portable recovery capture](../PORTABLE_WALLET_CAPTURE.md) now preserves
 HD/account/Qi/payment cursor, custody and exposure state in one authenticated
 backup. Detached input collection still requires caller-established consistency;
 allocator request-ID history is outside the existing recovery format.
@@ -129,11 +129,11 @@ restore remains separate from read-only collection.
 
 HD/payment journals now support authenticated live floor merge with retained IDs,
 completed addresses/exposures, abandoned pending work and strict versioned history.
-Both browser adapters use CAS. See [allocation recovery](BROWSER_ALLOCATION_RESTORE.md).
+Both browser adapters use CAS. See [allocation recovery](../BROWSER_ALLOCATION_RESTORE.md).
 
 September 13 follow-up: selected browser HD/payment/account/Qi live backup merges
 now commit atomically across one named IndexedDB database, with cancellation,
-conflict and bounded-capacity tests. See [atomic restore](BROWSER_ATOMIC_RESTORE.md).
-The [consolidated SDK guide](../SDK_DOCUMENTATION.md) and
-[parity analysis](../SDK_PARITY_ANALYSIS.md) retain explicit unfinished workflow,
+conflict and bounded-capacity tests. See [atomic restore](../BROWSER_ATOMIC_RESTORE.md).
+The [consolidated SDK guide](../../SDK_DOCUMENTATION.md) and
+[parity analysis](../../SDK_PARITY_ANALYSIS.md) retain explicit unfinished workflow,
 declaration-review and qualification work.

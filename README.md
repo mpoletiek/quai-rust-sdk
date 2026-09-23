@@ -202,7 +202,7 @@ Unsigned prepared objects are bound to the exact open wallet-store handle.
 - [Security policy and limits](SECURITY.md): threat boundaries, secret handling and unresolved release gates.
 
 The HTTP transport verifies TLS, disables redirects, automatic retries and environment
-proxies (an explicit proxy is opt-in), bounds responses/concurrency/deadlines, and
+proxies (an explicit HTTP(S) or SOCKS5 proxy is opt-in), bounds responses/concurrency/deadlines, and
 redacts credentials in diagnostics. The WebSocket transport pings idle connections
 so a half-open socket fails rather than going silent.
 There is no automatic failover. Chain/genesis checks detect configuration mistakes;

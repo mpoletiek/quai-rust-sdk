@@ -402,10 +402,160 @@ async fn an_explicit_proxy_carries_the_request_and_is_redacted() {
     );
     task.await.unwrap();
 
-    for invalid in ["socks5://127.0.0.1:1080", "ftp://proxy", "not a url"] {
+    for invalid in [
+        "socks4://127.0.0.1:1080",
+        "socks4a://127.0.0.1:1080",
+        "ftp://proxy",
+        "not a url",
+    ] {
         assert!(matches!(
             HttpProxy::parse(invalid),
             Err(RpcError::InvalidConfig)
         ));
     }
+}
+
+/// What a loopback SOCKS5 proxy was asked for.
+struct SocksRequest {
+    /// Username/password sub-negotiation, if the client offered it.
+    credentials: Option<(String, String)>,
+    /// Address type byte: 1 for IPv4, 3 for a domain name.
+    address_type: u8,
+    /// Requested host, as a name or a dotted IPv4 address.
+    host: String,
+    port: u16,
+    /// The HTTP request line carried through the tunnel.
+    request_line: String,
+}
+
+/// A one-connection SOCKS5 proxy that answers the tunnelled JSON-RPC request
+/// itself, so no destination is contacted.
+async fn socks5_proxy() -> (String, oneshot::Receiver<SocksRequest>, JoinHandle<()>) {
+    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap().to_string();
+    let (tx, rx) = oneshot::channel();
+    let task = tokio::spawn(async move {
+        let (mut socket, _) = listener.accept().await.unwrap();
+        let mut head = [0; 2];
+        socket.read_exact(&mut head).await.unwrap();
+        assert_eq!(head[0], 5);
+        let mut methods = vec![0; head[1] as usize];
+        socket.read_exact(&mut methods).await.unwrap();
+        let credentials = if methods.contains(&2) {
+            socket.write_all(&[5, 2]).await.unwrap();
+            let mut version = [0; 2];
+            socket.read_exact(&mut version).await.unwrap();
+            assert_eq!(version[0], 1);
+            let mut user = vec![0; version[1] as usize];
+            socket.read_exact(&mut user).await.unwrap();
+            let mut length = [0; 1];
+            socket.read_exact(&mut length).await.unwrap();
+            let mut password = vec![0; length[0] as usize];
+            socket.read_exact(&mut password).await.unwrap();
+            socket.write_all(&[1, 0]).await.unwrap();
+            Some((
+                String::from_utf8(user).unwrap(),
+                String::from_utf8(password).unwrap(),
+            ))
+        } else {
+            assert!(methods.contains(&0));
+            socket.write_all(&[5, 0]).await.unwrap();
+            None
+        };
+        let mut connect = [0; 4];
+        socket.read_exact(&mut connect).await.unwrap();
+        assert_eq!(connect[..3], [5, 1, 0], "CONNECT command");
+        let address_type = connect[3];
+        let host = match address_type {
+            1 => {
+                let mut ip = [0; 4];
+                socket.read_exact(&mut ip).await.unwrap();
+                std::net::Ipv4Addr::from(ip).to_string()
+            }
+            3 => {
+                let mut length = [0; 1];
+                socket.read_exact(&mut length).await.unwrap();
+                let mut name = vec![0; length[0] as usize];
+                socket.read_exact(&mut name).await.unwrap();
+                String::from_utf8(name).unwrap()
+            }
+            other => panic!("unexpected address type {other}"),
+        };
+        let mut port = [0; 2];
+        socket.read_exact(&mut port).await.unwrap();
+        socket
+            .write_all(&[5, 0, 0, 1, 127, 0, 0, 1, 0, 0])
+            .await
+            .unwrap();
+        let (header, request) = read_request(&mut socket).await;
+        let body = json!({"jsonrpc":"2.0","id":request["id"],"result":"0x3a98"}).to_string();
+        let _ = socket.write_all(response(&body).as_bytes()).await;
+        let _ = tx.send(SocksRequest {
+            credentials,
+            address_type,
+            host,
+            port: u16::from_be_bytes(port),
+            request_line: header.lines().next().unwrap().to_owned(),
+        });
+    });
+    (address, rx, task)
+}
+
+#[tokio::test]
+async fn a_socks5h_proxy_resolves_the_endpoint_name_and_is_redacted() {
+    let (address, rx, task) = socks5_proxy().await;
+    let config = HttpConfig::default().with_proxy(Some(
+        HttpProxy::parse(&format!("socks5h://wallet:SECRET@{address}")).unwrap(),
+    ));
+    assert!(!format!("{config:?}").contains("SECRET"));
+    // `.invalid` never resolves locally, so success shows the name went to the proxy.
+    let destination = Endpoint::parse("http://rpc.invalid:8545/cyprus1").unwrap();
+    let result = HttpTransport::new(config)
+        .unwrap()
+        .request(&destination, "quai_chainId", json!([]))
+        .await
+        .unwrap();
+    assert_eq!(result, "0x3a98");
+    let seen = rx.await.unwrap();
+    assert_eq!(seen.address_type, 3, "domain name, not a resolved address");
+    assert_eq!((seen.host.as_str(), seen.port), ("rpc.invalid", 8545));
+    assert_eq!(
+        seen.credentials,
+        Some(("wallet".to_owned(), "SECRET".to_owned()))
+    );
+    assert_eq!(seen.request_line, "POST /cyprus1 HTTP/1.1");
+    task.await.unwrap();
+}
+
+#[tokio::test]
+async fn a_socks5_proxy_is_never_sent_the_endpoint_name() {
+    let (address, rx, task) = socks5_proxy().await;
+    let config = HttpConfig::default().with_proxy(Some(
+        HttpProxy::parse(&format!("socks5://{address}")).unwrap(),
+    ));
+    let destination = Endpoint::parse("http://localhost:8545/cyprus1").unwrap();
+    let result = HttpTransport::new(config)
+        .unwrap()
+        .request(&destination, "quai_chainId", json!([]))
+        .await
+        .unwrap();
+    assert_eq!(result, "0x3a98");
+    let seen = rx.await.unwrap();
+    // The name never reaches the proxy. An IPv6 result is sent as the bracketed
+    // text `[::1]` under the domain-name type (reqwest 0.12.28 with hyper-util
+    // 0.1.20), which a real proxy cannot resolve; an IPv4 result is sent as an
+    // address.
+    assert_ne!(seen.host, "localhost");
+    assert!(
+        matches!(
+            (seen.address_type, seen.host.as_str()),
+            (1, "127.0.0.1") | (3, "[::1]")
+        ),
+        "{} {}",
+        seen.address_type,
+        seen.host
+    );
+    assert_eq!(seen.port, 8545);
+    assert_eq!(seen.credentials, None);
+    task.await.unwrap();
 }

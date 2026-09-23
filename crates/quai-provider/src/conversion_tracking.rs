@@ -129,6 +129,17 @@ pub struct EtxExecutionObservation {
     /// Missing means unknown; status one does not establish unlocked/spendable funds.
     pub receipt: Option<Receipt>,
 }
+#[cfg(feature = "test-fixtures")]
+impl EtxExecutionObservation {
+    /// Test fixture taking every field; the receipt's association with the
+    /// transaction is not checked. Enabled by `test-fixtures`.
+    pub fn new(transaction: Transaction, receipt: Option<Receipt>) -> Self {
+        Self {
+            transaction,
+            receipt,
+        }
+    }
+}
 /// A bounded, linked and rechecked source observation.
 #[derive(Clone, Debug, PartialEq)]
 #[non_exhaustive]
@@ -141,6 +152,24 @@ pub struct EtxScanResult {
     pub transactions_examined: usize,
     /// At most one execution for this stable key. Conflicting matches fail closed.
     pub execution: Option<EtxExecutionObservation>,
+}
+#[cfg(feature = "test-fixtures")]
+impl EtxScanResult {
+    /// Test fixture taking every field; no scan linkage is checked. Enabled by
+    /// `test-fixtures`.
+    pub fn new(
+        coverage: ScanCoverage,
+        last_block: Option<BlockReference>,
+        transactions_examined: usize,
+        execution: Option<EtxExecutionObservation>,
+    ) -> Self {
+        Self {
+            coverage,
+            last_block,
+            transactions_examined,
+            execution,
+        }
+    }
 }
 
 /// Locally signed conversion identity and intent used to validate origin/final ETX observations.
@@ -342,6 +371,24 @@ pub struct ConversionObservation {
     pub effect: Option<ConversionEffect>,
     /// Always unverified from this receipt/block-only observation.
     pub spendability: ConversionSpendability,
+}
+#[cfg(feature = "test-fixtures")]
+impl ConversionObservation {
+    /// Test fixture taking every field; the effect is not checked against the
+    /// scan. Enabled by `test-fixtures`.
+    pub fn new(
+        origin: ConversionOriginObservation,
+        scan: Option<EtxScanResult>,
+        effect: Option<ConversionEffect>,
+        spendability: ConversionSpendability,
+    ) -> Self {
+        Self {
+            origin,
+            scan,
+            effect,
+            spendability,
+        }
+    }
 }
 /// Latest-only aggregate locked balance; cannot attribute funds to a conversion or historical block.
 #[derive(Clone, Debug, Eq, PartialEq)]

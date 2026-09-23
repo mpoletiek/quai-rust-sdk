@@ -8,7 +8,7 @@ and browser adapters.
 [![crates.io](https://img.shields.io/crates/v/quai-sdk.svg)](https://crates.io/crates/quai-sdk)
 [![docs.rs](https://img.shields.io/docsrs/quai-sdk)](https://docs.rs/quai-sdk)
 
-**Pre-release:** `0.1.0-alpha.10` is published on
+**Pre-release:** `0.1.0-alpha.11` is published on
 [crates.io](https://crates.io/crates/quai-sdk). It is not production-qualified for
 real-fund custody and has had no external security audit; read [SECURITY.md](SECURITY.md)
 and the [wallet gaps](docs/WALLET_GAPS.md) before integrating it. The
@@ -37,7 +37,7 @@ For an application outside this workspace, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.10", features = ["sqlite", "abi"] }
+quai-sdk = { version = "=0.1.0-alpha.11", features = ["sqlite", "abi"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -152,6 +152,7 @@ The facade crate is named **`quai-sdk`**. Its default features are `http` and `w
 | `backup` | Portable authenticated full-wallet capture/restore; includes `wallet,payments` |
 | `browser` | Wasm Fetch and injected-wallet adapters |
 | `rayon` | Opt-in parallel address grinding for scans (native only); includes `wallet` |
+| `test-fixtures` | `new` constructors for provider observation outputs, for a consumer's own tests; they check no invariant |
 
 For a browser build, disable native defaults and select the capabilities you need:
 
@@ -201,7 +202,7 @@ Unsigned prepared objects are bound to the exact open wallet-store handle.
 - [Security policy and limits](SECURITY.md): threat boundaries, secret handling and unresolved release gates.
 
 The HTTP transport verifies TLS, disables redirects, automatic retries and environment
-proxies (an explicit proxy is opt-in), bounds responses/concurrency/deadlines, and
+proxies (an explicit HTTP(S) or SOCKS5 proxy is opt-in), bounds responses/concurrency/deadlines, and
 redacts credentials in diagnostics. The WebSocket transport pings idle connections
 so a half-open socket fails rather than going silent.
 There is no automatic failover. Chain/genesis checks detect configuration mistakes;

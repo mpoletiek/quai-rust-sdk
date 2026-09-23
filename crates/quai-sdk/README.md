@@ -25,6 +25,7 @@ assert_eq!(address.zone(), Zone::Cyprus1);
 | `payments` | BIP47 payment codes; native registered-channel workflows also require `sqlite` |
 | `keystore` | Bounded legacy JSON-keystore import/export |
 | `browser` | Wasm Fetch/injected-provider adapters and IndexedDB snapshots; with `wallet`, durable HD allocation; add `payments` for durable payment destinations |
+| `test-fixtures` | `new` constructors for provider observation outputs, for a consumer's own tests; they check no invariant |
 
 Browser consumers use `default-features = false` and choose the portable features
 they need. SQLite sessions and native HTTP/WebSocket transports are target gated.
@@ -39,7 +40,7 @@ Recovery preserves signed candidates and nonce/input claims across ambiguous
 broadcasts and reorg observations. Confirmation counts do not prove finality or
 cross-zone destination settlement.
 
-This is an alpha SDK; pin the exact version (`quai-sdk = "=0.1.0-alpha.10"`)
+This is an alpha SDK; pin the exact version (`quai-sdk = "=0.1.0-alpha.11"`)
 because later pre-releases may break the API. The repository contains compatibility vectors,
 platform CI, extracted-package consumer tests and qualified node evidence;
 the complete reference mapping, deliberate Rust differences and remaining

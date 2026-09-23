@@ -20,6 +20,10 @@ polling = ["dep:tokio"]
 ws = ["quai-rpc/ws", "polling"]
 # Exposes response parsers to the fuzz harness only; not public API.
 fuzzing = []
+# `new` constructors for observation outputs, so a consumer's tests can build
+# the values its own interpretation reads. For tests only: they check no
+# invariant. Covered by semver, so a field added later is a declared break.
+test-fixtures = []
 
 [dependencies]
 quai-primitives.workspace = true

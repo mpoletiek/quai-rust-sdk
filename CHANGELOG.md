@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.1.0-alpha.11
+
+Added:
+
+- A `test-fixtures` feature on `quai-sdk` and `quai-provider` adds `new`
+  constructors, taking every field, for `QiCreditObservation`,
+  `AddressOutpoint`, `ConversionObservation`, `ExternalObservation`,
+  `EtxScanResult` and `EtxExecutionObservation`. They let a consumer's tests
+  build the observations its own settlement logic reads, which
+  `#[non_exhaustive]` has prevented since 0.1.0-alpha.10. They check no
+  invariant and are meant for tests. They are covered by semver, so a field
+  added to one of these types later changes its constructor and is listed
+  under `Breaking:`. `Log`, `Receipt`, `Transaction` and `ZoneHeader` need no
+  constructor: build them from node JSON with `try_from`.
+- `HttpProxy::parse` accepts `socks5h://` and `socks5://` proxies, so node RPC
+  can go over Tor (`socks5h://127.0.0.1:9050`). `socks5h` has the proxy
+  resolve the endpoint's host name; `socks5` resolves it locally. Credentials
+  are sent with SOCKS5 username/password authentication and stay redacted, and
+  proxies remain opt-in with no environment variables read. An IPv6
+  destination does not work through SOCKS5 yet: the current reqwest sends it
+  as bracketed text that a proxy cannot resolve, so the request fails. SOCKS
+  support adds no crates to the dependency graph.
+
 ## 0.1.0-alpha.10
 
 Breaking:
@@ -12,6 +35,9 @@ Breaking:
     `ZoneHeader`, `Log`, `Transaction`, `BroadcastResult`, the observation,
     selection, reservation, allocation and snapshot views, and about sixty
     more.
+    Code that reads them needs no change, but a test that builds them does:
+    see `test-fixtures` in 0.1.0-alpha.11, or `try_from` for types parsed from
+    node JSON.
   - Inputs gained constructors, and their fields stay public for reading and
     assignment. `FeePolicy::new(max_gas, max_gas_price, max_total_fee)` with
     `with_gas_margin_bps`; `QiPolicy::new(max_fee, max_inputs, max_outputs,

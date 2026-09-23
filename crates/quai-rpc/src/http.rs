@@ -22,7 +22,7 @@ pub struct HttpConfig {
     pub max_response_bytes: usize,
     /// Maximum simultaneous network requests per cloned transport group.
     pub max_in_flight: usize,
-    /// Explicit forward proxy; None connects directly. System proxy
+    /// Explicit HTTP(S) or SOCKS5 forward proxy; None connects directly. System proxy
     /// variables are never consulted either way.
     pub proxy: Option<HttpProxy>,
 }
@@ -54,23 +54,41 @@ impl HttpConfig {
     }
 }
 
-/// An explicit HTTP(S) forward proxy for [`HttpTransport`].
+/// An explicit forward proxy for [`HttpTransport`]: HTTP(S) or SOCKS5.
 ///
 /// Opt-in only: the transport never reads `HTTP_PROXY` or similar variables,
 /// so traffic is routed through a proxy only when the application names one.
-/// An `https` endpoint is tunnelled with `CONNECT` and its TLS is verified end
-/// to end, so the proxy sees the destination host but not the requests; a
-/// plain `http` endpoint's requests are visible to it. The URL may carry
-/// `user:password@` credentials, which diagnostics never display.
+/// An `https` endpoint's TLS is verified end to end through any of these
+/// proxies, so the proxy sees the destination host but not the requests; a
+/// plain `http` endpoint's requests are visible to it.
+///
+/// - `http://` and `https://` proxies tunnel `https` endpoints with `CONNECT`.
+/// - `socks5h://` sends the endpoint's host name to the proxy to resolve, so
+///   no lookup reaches the local resolver. Use it for Tor
+///   (`socks5h://127.0.0.1:9050`).
+/// - `socks5://` resolves the host name locally and sends the proxy an IP
+///   address, so the local resolver still learns which node is contacted.
+/// - Through either SOCKS5 scheme, an IPv6 destination (a literal endpoint, or
+///   a `socks5://` name that resolves to IPv6) reaches the proxy as bracketed
+///   text under the host-name type, which a proxy cannot resolve, so the
+///   request fails. Use an IPv4 address or a name that resolves to one.
+///
+/// The URL may carry `user:password@` credentials, which diagnostics never
+/// display. For SOCKS5 they are sent with username/password authentication,
+/// which Tor also uses to keep differently credentialed traffic on separate
+/// circuits.
 #[derive(Clone)]
 pub struct HttpProxy {
     url: String,
 }
 impl HttpProxy {
-    /// Accept an `http://` or `https://` proxy URL, with optional credentials.
+    /// Accept an `http://`, `https://`, `socks5://` or `socks5h://` proxy URL,
+    /// with optional credentials.
     pub fn parse(url: &str) -> Result<Self, RpcError> {
         let parsed = url::Url::parse(url).map_err(|_| RpcError::InvalidConfig)?;
-        if !matches!(parsed.scheme(), "http" | "https") || parsed.host_str().is_none() {
+        if !matches!(parsed.scheme(), "http" | "https" | "socks5" | "socks5h")
+            || parsed.host_str().is_none()
+        {
             return Err(RpcError::InvalidConfig);
         }
         reqwest::Proxy::all(url).map_err(|_| RpcError::InvalidConfig)?;

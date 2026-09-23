@@ -32,6 +32,8 @@ keystore = ["dep:quai-keystore"]
 # Parallel address grinding for scans that opt in with `Grinding::Parallel`.
 # Native only; see quai-wallet's feature of the same name.
 rayon = ["wallet", "quai-wallet/rayon"]
+# Observation constructors for consumer tests; see quai-provider's feature.
+test-fixtures = ["quai-provider/test-fixtures"]
 
 [dependencies]
 quai-primitives.workspace = true

@@ -34,6 +34,35 @@ pub struct QiCreditObservation {
     /// gas-truncated, not-yet-indexed or unavailable outputs; never assumed lost.
     pub unobserved_qits: U256,
 }
+#[cfg(feature = "test-fixtures")]
+impl QiCreditObservation {
+    /// Test fixture taking every field; no invariant is checked, so a fixture can
+    /// state partial or inconsistent observations. Enabled by `test-fixtures`.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        beneficiary: QiAddress,
+        transaction_hash: Hash32,
+        creating_hash: Hash32,
+        execution: BlockReference,
+        head: BlockReference,
+        outputs: Vec<AddressOutpoint>,
+        locked_qits: U256,
+        unlocked_qits: U256,
+        unobserved_qits: U256,
+    ) -> Self {
+        Self {
+            beneficiary,
+            transaction_hash,
+            creating_hash,
+            execution,
+            head,
+            outputs,
+            locked_qits,
+            unlocked_qits,
+            unobserved_qits,
+        }
+    }
+}
 impl<T: Transport> Provider<T> {
     /// Observe a signed conversion/refund and attribute current Qi outputs to its
     /// final executed hash. Locked and failed receipts are inspected too: the

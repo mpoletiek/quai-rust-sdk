@@ -877,6 +877,19 @@ pub struct AddressOutpoint {
     /// Uninterpreted extension fields.
     pub extensions: Extensions,
 }
+#[cfg(feature = "test-fixtures")]
+impl AddressOutpoint {
+    /// Test fixture taking every field; the denomination index is not checked.
+    /// Enabled by `test-fixtures`.
+    pub fn new(outpoint: OutPoint, denomination: u8, lock: U256, extensions: Extensions) -> Self {
+        Self {
+            outpoint,
+            denomination,
+            lock,
+            extensions,
+        }
+    }
+}
 pub(crate) fn parse_outpoints(value: Value) -> Result<Vec<AddressOutpoint>, ProviderError> {
     let values = array(value, MAX_ITEMS)?;
     let mut result = Vec::with_capacity(values.len());

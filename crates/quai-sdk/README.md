@@ -25,6 +25,7 @@ assert_eq!(address.zone(), Zone::Cyprus1);
 | `payments` | BIP47 payment codes; native registered-channel workflows also require `sqlite` |
 | `keystore` | Bounded legacy JSON-keystore import/export |
 | `browser` | Wasm Fetch/injected-provider adapters and IndexedDB snapshots; with `wallet`, durable HD allocation; add `payments` for durable payment destinations |
+| `test-fixtures` | `new` constructors for provider observation outputs, for a consumer's own tests; they check no invariant |
 
 Browser consumers use `default-features = false` and choose the portable features
 they need. SQLite sessions and native HTTP/WebSocket transports are target gated.

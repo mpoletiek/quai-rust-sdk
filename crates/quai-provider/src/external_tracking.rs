@@ -275,6 +275,22 @@ pub struct ExternalObservation {
     /// Receipt outcome of the intent-matching executed ETX, if supplied.
     pub outcome: Option<ReceiptOutcome>,
 }
+#[cfg(feature = "test-fixtures")]
+impl ExternalObservation {
+    /// Test fixture taking every field; the outcome is not checked against the
+    /// scan. Enabled by `test-fixtures`.
+    pub fn new(
+        origin: ConversionOriginObservation,
+        scan: Option<EtxScanResult>,
+        outcome: Option<ReceiptOutcome>,
+    ) -> Self {
+        Self {
+            origin,
+            scan,
+            outcome,
+        }
+    }
+}
 impl<T: Transport> Provider<T> {
     /// Check signed wrapping/redemption/cross-zone intent against both origin
     /// emission and canonical destination execution. Does not infer finality,

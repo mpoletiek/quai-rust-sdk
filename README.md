@@ -152,6 +152,7 @@ The facade crate is named **`quai-sdk`**. Its default features are `http` and `w
 | `backup` | Portable authenticated full-wallet capture/restore; includes `wallet,payments` |
 | `browser` | Wasm Fetch and injected-wallet adapters |
 | `rayon` | Opt-in parallel address grinding for scans (native only); includes `wallet` |
+| `test-fixtures` | `new` constructors for provider observation outputs, for a consumer's own tests; they check no invariant |
 
 For a browser build, disable native defaults and select the capabilities you need:
 

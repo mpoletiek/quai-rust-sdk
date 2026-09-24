@@ -22,8 +22,12 @@ mod deployment;
 #[cfg(all(feature = "polling", not(target_arch = "wasm32")))]
 pub use deployment::DeploymentWaitError;
 pub use deployment::{DeploymentCode, DeploymentObservation, DeploymentReference};
+mod account_proof;
 mod code_wait;
+pub use account_proof::{MAX_PROVEN_ACCOUNTS, MAX_PROVEN_SLOTS, ProvenAccount, ProvenSlot};
+mod anchored;
 mod contract_code;
+pub mod state_proof;
 pub use code_wait::{CodeWaitConfig, CodeWaitError, ContractCodeTarget};
 pub use contract_code::{ContractCodeObservation, MAX_CONTRACT_CODE_TARGETS};
 mod blocks;
@@ -134,6 +138,10 @@ pub enum ProviderError {
     /// A method result does not match its expected shape.
     #[error("invalid RPC result: {0}")]
     InvalidResult(&'static str),
+    /// A state proof the node returned does not verify, or contradicts the
+    /// values the node reported beside it.
+    #[error(transparent)]
+    Proof(#[from] state_proof::ProofError),
 }
 
 impl ProviderError {
@@ -150,7 +158,8 @@ impl ProviderError {
             | Self::BlockNumberOutOfRange
             | Self::Route(_)
             | Self::Quantity(_)
-            | Self::InvalidResult(_) => ErrorClass::Invalid,
+            | Self::InvalidResult(_)
+            | Self::Proof(_) => ErrorClass::Invalid,
         }
     }
 }

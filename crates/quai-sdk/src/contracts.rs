@@ -465,6 +465,43 @@ impl<'a, T: Transport> Contract<'a, T> {
         }
         Ok(observation)
     }
+    /// [`Self::verify_deployment`] with the code hash proven against the
+    /// block's state root instead of hashed from downloaded bytecode.
+    ///
+    /// The node sends an account proof, about 2 KB, rather than the runtime.
+    /// The same errors apply: `GenesisMismatch` before the address is sent,
+    /// `MissingCode` for an absent account or one without code, and
+    /// `RuntimeMismatch` when `expected_runtime` differs. A proof that does not
+    /// verify is `ContractError::Provider(ProviderError::Proof(_))`.
+    ///
+    /// The block is still the node's report of the canonical chain; see
+    /// [`ProvenAccount`](quai_provider::ProvenAccount).
+    pub async fn prove_deployment(
+        &self,
+        expected_genesis: Hash32,
+        expected_runtime: Option<Hash32>,
+        block: BlockTag,
+    ) -> Result<quai_provider::ProvenAccount, ContractError> {
+        if expected_genesis == Hash32::ZERO {
+            return Err(ContractError::InvalidDeployment);
+        }
+        let proven = match self
+            .provider
+            .prove_accounts(expected_genesis, &[(self.address, &[])], block)
+            .await
+        {
+            Ok(mut proven) => proven.remove(0),
+            Err(ProviderError::GenesisMismatch) => return Err(ContractError::GenesisMismatch),
+            Err(error) => return Err(error.into()),
+        };
+        if !proven.has_code() {
+            return Err(ContractError::MissingCode);
+        }
+        if expected_runtime.is_some_and(|expected| expected != proven.code_hash()) {
+            return Err(ContractError::RuntimeMismatch);
+        }
+        Ok(proven)
+    }
     /// Decode an explicitly selected log, checking its emitter and exact ABI shape.
     /// Anonymous events are accepted here because the caller supplies the declaration;
     /// their topic layout cannot identify that declaration unambiguously on its own.

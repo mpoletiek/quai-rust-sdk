@@ -1,8 +1,9 @@
 //! Runtime-code observations bound to rechecked canonical block and genesis identities.
-use crate::{BlockReference, BlockTag, DeploymentCode, Provider, ProviderError, ZoneHeader, types};
+use crate::anchored::Anchor;
+use crate::{BlockReference, BlockTag, DeploymentCode, Provider, ProviderError, types};
 use quai_primitives::{Hash32, QuaiAddress, Zone};
 use quai_rpc::{Transport, U256};
-use serde_json::{Value, json};
+use serde_json::json;
 
 /// Most addresses one [`Provider::observe_contract_codes`] call accepts: its
 /// second round carries a guard, every code read and two rechecks in one batch.
@@ -99,27 +100,29 @@ impl<T: Transport> Provider<T> {
         block: BlockTag,
         trusted: Option<Hash32>,
     ) -> Result<Vec<ContractCodeObservation>, ProviderError> {
-        match block {
-            BlockTag::Latest => (),
-            BlockTag::Number(n) if n > U256::ZERO && n <= U256::from(i64::MAX as u64) => (),
-            _ => {
-                return Err(ProviderError::InvalidRequest(
-                    "code observation requires a positive mined height or latest",
-                ));
-            }
-        }
-        // Round one is address-free, so a wrong network learns no address.
-        let mut values = self
-            .header_values(zone, &[BlockTag::Number(U256::ZERO), block])
-            .await
-            .into_iter();
-        let genesis = types::genesis_hash(next(&mut values)?)?;
-        if trusted.is_some_and(|trusted| trusted != genesis) {
-            return Err(ProviderError::GenesisMismatch);
-        }
-        let header = Self::parse_zone_header(next(&mut values)?, zone, block)?
-            .ok_or(ProviderError::ObservationChanged)?;
-        let codes = self.read_codes_at(zone, targets, &header, genesis).await?;
+        let anchor = self
+            .anchor(
+                zone,
+                block,
+                trusted,
+                "code observation requires a positive mined height or latest",
+            )
+            .await?;
+        // Reading by hash pins the code to exactly the block that is rechecked.
+        let at = anchor.block_param();
+        let calls = targets
+            .iter()
+            .map(|(address, _)| ("quai_getCode", json!([address.to_string(), at])))
+            .collect();
+        let codes = self
+            .read_at_anchor(&anchor, calls)
+            .await?
+            .into_iter()
+            .map(|value| types::data(value?))
+            .collect::<Result<Vec<_>, _>>()?;
+        let Anchor {
+            genesis, header, ..
+        } = anchor;
         Ok(targets
             .iter()
             .zip(codes)
@@ -142,67 +145,4 @@ impl<T: Transport> Provider<T> {
             })
             .collect())
     }
-
-    /// Read each target's code at `header`'s hash, then recheck that the header
-    /// is still canonical at its height and the genesis is unchanged.
-    ///
-    /// Reading by hash pins the code to that exact block even if the chain
-    /// reorganizes during the read; the header recheck then says whether that
-    /// block is still canonical. A failed recheck outranks a failed code read,
-    /// because a block reorganized away can also make its code unreadable.
-    async fn read_codes_at(
-        &self,
-        zone: Zone,
-        targets: &[(QuaiAddress, Option<Hash32>)],
-        header: &ZoneHeader,
-        genesis: Hash32,
-    ) -> Result<Vec<crate::RpcData>, ProviderError> {
-        let at = json!({ "blockHash": header.hash.to_string() });
-        let recheck = BlockTag::Number(U256::from(header.number));
-        let mut calls = targets
-            .iter()
-            .map(|(address, _)| ("quai_getCode", json!([address.to_string(), at])))
-            .collect::<Vec<_>>();
-        calls.push(("quai_getHeaderByNumber", json!([recheck.rpc_value()?])));
-        calls.push(("quai_getHeaderByNumber", json!(["0x0"])));
-        let endpoint = self.routing.endpoint(zone.into())?;
-        let mut values: Vec<Result<Value, ProviderError>> =
-            match self.guarded_batch(endpoint, calls.clone()).await {
-                Some(batch) => batch?
-                    .into_iter()
-                    .map(|value| value.map_err(ProviderError::from))
-                    .collect(),
-                // Nothing was sent: read each in order, stopping at a failure.
-                None => {
-                    let mut values = Vec::with_capacity(calls.len());
-                    for (method, params) in calls {
-                        values.push(Ok(self.read(zone.into(), method, params).await?));
-                    }
-                    values
-                }
-            };
-        if values.len() != targets.len() + 2 {
-            return Err(ProviderError::InvalidResult("batch response count"));
-        }
-        let rechecked_genesis = values.pop().expect("checked count")?;
-        let rechecked = values.pop().expect("checked count")?;
-        if Self::parse_zone_header(rechecked, zone, recheck)?.is_none_or(|h| h.hash != header.hash)
-            || types::genesis_hash(rechecked_genesis)? != genesis
-        {
-            return Err(ProviderError::ObservationChanged);
-        }
-        values
-            .into_iter()
-            .map(|value| types::data(value?))
-            .collect()
-    }
-}
-
-/// The next of a fixed number of responses; a short list is a malformed batch.
-fn next(
-    values: &mut impl Iterator<Item = Result<Value, ProviderError>>,
-) -> Result<Value, ProviderError> {
-    values
-        .next()
-        .unwrap_or(Err(ProviderError::InvalidResult("batch response count")))
 }

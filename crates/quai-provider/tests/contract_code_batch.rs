@@ -107,7 +107,10 @@ impl Transport for Mock {
                     })
                 }
                 "quai_getCode" => {
-                    assert_eq!(params[1], json!({"blockHash": hash(2).to_string()}));
+                    assert_eq!(
+                        params[1],
+                        json!({"blockHash": hash(2).to_string(), "requireCanonical": true})
+                    );
                     match mode {
                         Mode::CodeFails | Mode::CodeFailsInReorg => Err(RpcError::Transport),
                         _ => Ok(json!(code(params[0].as_str().unwrap()))),

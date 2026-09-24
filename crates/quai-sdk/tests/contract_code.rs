@@ -98,7 +98,10 @@ impl Transport for Mock {
                         return Ok(json!("0x"));
                     }
                     // Pinned to the hash of the header read first.
-                    assert_eq!(params[1], json!({"blockHash": hash(2).to_string()}));
+                    assert_eq!(
+                        params[1],
+                        json!({"blockHash": hash(2).to_string(), "requireCanonical": true})
+                    );
                     if s.mode == 6 {
                         return Err(RpcError::Transport);
                     }
@@ -152,7 +155,10 @@ async fn code_hashes_match_pinned_reference_at_exact_rechecked_block() {
                 m.state().calls[5],
                 (
                     "quai_getCode".into(),
-                    json!([WQI_ADDRESS, {"blockHash": hash(2).to_string()}])
+                    json!([
+                        WQI_ADDRESS,
+                        {"blockHash": hash(2).to_string(), "requireCanonical": true}
+                    ])
                 )
             );
         }

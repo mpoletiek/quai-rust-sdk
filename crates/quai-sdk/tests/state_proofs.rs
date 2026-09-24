@@ -156,3 +156,29 @@ async fn absent_or_codeless_accounts_and_wrong_networks_are_refused() {
     ));
     assert_eq!(error.class(), quai_sdk::primitives::ErrorClass::Invalid);
 }
+
+#[tokio::test]
+async fn contracts_sharing_an_anchor_take_one_round_each() {
+    let fixture = fixture();
+    let genesis = hash(&fixture["genesis"]["woHeader"]["hash"]);
+    let runtime = hash(&fixture["proofs"][0]["result"]["codeHash"]);
+    let (provider, batches) = node();
+    let anchor = provider
+        .state_anchor(genesis, Zone::Cyprus1, BlockTag::Latest)
+        .await
+        .unwrap();
+    assert_eq!(*batches.lock().unwrap(), 1);
+    let wquai = Contract::new(address(0), AbiInterface::default(), &provider);
+    let proven = wquai
+        .prove_deployment_at(&anchor, Some(runtime))
+        .await
+        .unwrap();
+    assert_eq!(proven.block, anchor.block);
+    assert_eq!(proven.header_hash, anchor.header.header_hash);
+    let codeless = Contract::new(address(2), AbiInterface::default(), &provider);
+    assert!(matches!(
+        codeless.prove_deployment_at(&anchor, None).await,
+        Err(ContractError::MissingCode)
+    ));
+    assert_eq!(*batches.lock().unwrap(), 3);
+}

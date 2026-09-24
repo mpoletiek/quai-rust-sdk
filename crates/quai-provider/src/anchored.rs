@@ -5,7 +5,8 @@
 //! so a wrong network learns nothing about what the caller asked for. Round
 //! two carries the caller's reads, pinned to that header's block hash, with the
 //! header and genesis rechecked in the same batch.
-use crate::{BlockTag, Provider, ProviderError, ZoneHeader, types};
+use crate::header_hash::{VerifiedHeader, verify_header_hash};
+use crate::{BlockReference, BlockTag, Provider, ProviderError, ZoneHeader, types};
 use quai_primitives::{Hash32, Zone};
 use quai_rpc::{Transport, U256};
 use serde_json::{Value, json};
@@ -15,24 +16,36 @@ pub(crate) struct Anchor {
     pub(crate) zone: Zone,
     pub(crate) genesis: Hash32,
     pub(crate) header: ZoneHeader,
+    /// The header's recomputed hashes, when round one was asked to verify them.
+    pub(crate) verified: Option<VerifiedHeader>,
 }
 impl Anchor {
-    /// The `quai_*` block parameter naming this anchor's block by hash.
-    pub(crate) fn block_param(&self) -> Value {
-        json!({ "blockHash": self.header.hash.to_string() })
+    pub(crate) fn reference(&self) -> BlockReference {
+        BlockReference {
+            number: self.header.number,
+            hash: self.header.hash,
+        }
     }
+}
+
+/// The `quai_*` block parameter naming a block by hash. `requireCanonical`
+/// has the node refuse a hash it no longer holds canonical at its height.
+pub(crate) fn block_param(block: BlockReference) -> Value {
+    json!({ "blockHash": block.hash.to_string(), "requireCanonical": true })
 }
 
 impl<T: Transport> Provider<T> {
     /// Round one: `Latest` or a positive mined height, and the genesis. A
     /// genesis other than `trusted` returns `GenesisMismatch` before any
     /// address is sent. `what` names the operation in an invalid-block error.
+    /// With `verify`, the header's hashes are recomputed from its fields.
     pub(crate) async fn anchor(
         &self,
         zone: Zone,
         block: BlockTag,
         trusted: Option<Hash32>,
         what: &'static str,
+        verify: bool,
     ) -> Result<Anchor, ProviderError> {
         match block {
             BlockTag::Latest => (),
@@ -47,12 +60,19 @@ impl<T: Transport> Provider<T> {
         if trusted.is_some_and(|trusted| trusted != genesis) {
             return Err(ProviderError::GenesisMismatch);
         }
-        let header = Self::parse_zone_header(next(&mut values)?, zone, block)?
+        let value = next(&mut values)?;
+        let verified = if verify && !value.is_null() {
+            Some(verify_header_hash(&value)?)
+        } else {
+            None
+        };
+        let header = Self::parse_zone_header(value, zone, block)?
             .ok_or(ProviderError::ObservationChanged)?;
         Ok(Anchor {
             zone,
             genesis,
             header,
+            verified,
         })
     }
 
@@ -65,14 +85,16 @@ impl<T: Transport> Provider<T> {
     /// unreadable.
     pub(crate) async fn read_at_anchor(
         &self,
-        anchor: &Anchor,
+        zone: Zone,
+        genesis: Hash32,
+        block: BlockReference,
         mut calls: Vec<(&str, Value)>,
     ) -> Result<Vec<Result<Value, ProviderError>>, ProviderError> {
         let count = calls.len();
-        let recheck = BlockTag::Number(U256::from(anchor.header.number));
+        let recheck = BlockTag::Number(U256::from(block.number));
         calls.push(("quai_getHeaderByNumber", json!([recheck.rpc_value()?])));
         calls.push(("quai_getHeaderByNumber", json!(["0x0"])));
-        let endpoint = self.routing.endpoint(anchor.zone.into())?;
+        let endpoint = self.routing.endpoint(zone.into())?;
         let mut values: Vec<Result<Value, ProviderError>> =
             match self.guarded_batch(endpoint, calls.clone()).await {
                 Some(batch) => batch?
@@ -83,7 +105,7 @@ impl<T: Transport> Provider<T> {
                 None => {
                     let mut values = Vec::with_capacity(calls.len());
                     for (method, params) in calls {
-                        values.push(Ok(self.read(anchor.zone.into(), method, params).await?));
+                        values.push(Ok(self.read(zone.into(), method, params).await?));
                     }
                     values
                 }
@@ -93,9 +115,8 @@ impl<T: Transport> Provider<T> {
         }
         let rechecked_genesis = values.pop().expect("checked count")?;
         let rechecked = values.pop().expect("checked count")?;
-        if Self::parse_zone_header(rechecked, anchor.zone, recheck)?
-            .is_none_or(|h| h.hash != anchor.header.hash)
-            || types::genesis_hash(rechecked_genesis)? != anchor.genesis
+        if Self::parse_zone_header(rechecked, zone, recheck)?.is_none_or(|h| h.hash != block.hash)
+            || types::genesis_hash(rechecked_genesis)? != genesis
         {
             return Err(ProviderError::ObservationChanged);
         }

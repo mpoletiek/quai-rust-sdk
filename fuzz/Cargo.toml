@@ -15,7 +15,8 @@ members = ["."]
 [dependencies]
 quai-sdk = { path = "../crates/quai-sdk", default-features = false, features = ["abi"] }
 libfuzzer-sys = "=0.4.13"
-quai-provider = { path = "../crates/quai-provider", default-features = false, features = ["fuzzing"] }
+# `test-fixtures` supplies the proof trie builder for `state_proof_trie`.
+quai-provider = { path = "../crates/quai-provider", default-features = false, features = ["fuzzing", "test-fixtures"] }
 # `fuzzing` exposes the JSON-RPC envelope decoders and WebSocket dispatch;
 # `http` supplies decode_batch and `ws` the dispatcher.
 quai-rpc = { path = "../crates/quai-rpc", features = ["fuzzing", "http", "ws"] }
@@ -94,6 +95,20 @@ bench = false
 [[bin]]
 name = "state_proof"
 path = "fuzz_targets/state_proof.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "state_proof_trie"
+path = "fuzz_targets/state_proof_trie.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "header_hash"
+path = "fuzz_targets/header_hash.rs"
 test = false
 doc = false
 bench = false

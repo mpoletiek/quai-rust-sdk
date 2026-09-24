@@ -90,3 +90,10 @@ path = "fuzz_targets/provider_responses.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "state_proof"
+path = "fuzz_targets/state_proof.rs"
+test = false
+doc = false
+bench = false

@@ -8,7 +8,7 @@ and browser adapters.
 [![crates.io](https://img.shields.io/crates/v/quai-sdk.svg)](https://crates.io/crates/quai-sdk)
 [![docs.rs](https://img.shields.io/docsrs/quai-sdk)](https://docs.rs/quai-sdk)
 
-**Pre-release:** `0.1.0-alpha.11` is published on
+**Pre-release:** `0.1.0-alpha.12` is published on
 [crates.io](https://crates.io/crates/quai-sdk). It is not production-qualified for
 real-fund custody and has had no external security audit; read [SECURITY.md](SECURITY.md)
 and the [wallet gaps](docs/WALLET_GAPS.md) before integrating it. The
@@ -37,7 +37,7 @@ For an application outside this workspace, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.11", features = ["sqlite", "abi"] }
+quai-sdk = { version = "=0.1.0-alpha.12", features = ["sqlite", "abi"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 

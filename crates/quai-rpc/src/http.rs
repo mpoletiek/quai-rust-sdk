@@ -177,6 +177,8 @@ impl HttpTransport {
             .inner
             .client
             .post(endpoint.as_str())
+            // State proofs and bytecode compress two to five times.
+            .header(reqwest::header::ACCEPT_ENCODING, "gzip")
             .json(body)
             .send()
             .await
@@ -190,20 +192,38 @@ impl HttpTransport {
         {
             return Err(RpcError::ResponseTooLarge);
         }
+        let gzip = match response.headers().get(reqwest::header::CONTENT_ENCODING) {
+            None => false,
+            Some(e) if e.as_bytes().eq_ignore_ascii_case(b"identity") => false,
+            Some(e) if e.as_bytes().eq_ignore_ascii_case(b"gzip") => true,
+            Some(_) => return Err(RpcError::InvalidResponse("unsupported content encoding")),
+        };
+        let limit = self.inner.config.max_response_bytes;
         let mut bytes = Vec::new();
         while let Some(chunk) = response.chunk().await.map_err(map_error)? {
-            if chunk.len()
-                > self
-                    .inner
-                    .config
-                    .max_response_bytes
-                    .saturating_sub(bytes.len())
-            {
+            if chunk.len() > limit.saturating_sub(bytes.len()) {
                 return Err(RpcError::ResponseTooLarge);
             }
             bytes.extend_from_slice(&chunk);
         }
-        Ok(bytes)
+        if !gzip {
+            return Ok(bytes);
+        }
+        // The limit bounds the decoded body too, so a small compressed
+        // response cannot expand without bound.
+        let mut decoded = Vec::new();
+        std::io::Read::read_to_end(
+            &mut std::io::Read::take(
+                flate2::read::MultiGzDecoder::new(bytes.as_slice()),
+                limit as u64 + 1,
+            ),
+            &mut decoded,
+        )
+        .map_err(|_| RpcError::InvalidResponse("malformed gzip body"))?;
+        if decoded.len() > limit {
+            return Err(RpcError::ResponseTooLarge);
+        }
+        Ok(decoded)
     }
 }
 

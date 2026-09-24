@@ -97,7 +97,8 @@ impl Transport for Mock {
                     if s.mode == 8 && s.code_reads == 1 {
                         return Ok(json!("0x"));
                     }
-                    assert_eq!(params[1], "0x10");
+                    // Pinned to the hash of the header read first.
+                    assert_eq!(params[1], json!({"blockHash": hash(2).to_string()}));
                     if s.mode == 6 {
                         return Err(RpcError::Transport);
                     }
@@ -149,7 +150,10 @@ async fn code_hashes_match_pinned_reference_at_exact_rechecked_block() {
             assert_eq!(m.state().calls.len(), 10);
             assert_eq!(
                 m.state().calls[5],
-                ("quai_getCode".into(), json!([WQI_ADDRESS, "0x10"]))
+                (
+                    "quai_getCode".into(),
+                    json!([WQI_ADDRESS, {"blockHash": hash(2).to_string()}])
+                )
             );
         }
     }
@@ -187,9 +191,26 @@ async fn checked_wrappers_reject_empty_code_wrong_genesis_and_runtime_hash() {
                 .await
                 .map(|(_, o)| o)
             };
+            if let Err(error) = &result {
+                let expected = if case == 1 {
+                    quai_sdk::primitives::ErrorClass::NetworkMismatch
+                } else {
+                    quai_sdk::primitives::ErrorClass::Invalid
+                };
+                assert_eq!(error.class(), expected, "retrying cannot help");
+            }
             match case {
                 0 => assert!(matches!(result, Err(ContractError::MissingCode))),
-                1 => assert!(matches!(result, Err(ContractError::GenesisMismatch))),
+                1 => {
+                    assert!(matches!(result, Err(ContractError::GenesisMismatch)));
+                    // The wrong network never learns the contract address.
+                    assert!(
+                        m.state()
+                            .calls
+                            .iter()
+                            .all(|(method, _)| method != "quai_getCode")
+                    );
+                }
                 2 => assert!(matches!(result, Err(ContractError::RuntimeMismatch))),
                 _ => assert_eq!(result.unwrap().code.hash, expected),
             }
@@ -229,6 +250,11 @@ async fn changed_or_missing_anchors_and_chain_mismatch_never_become_verified_cod
         let result = p
             .observe_contract_code(WQI_ADDRESS.parse().unwrap(), BlockTag::Latest, None)
             .await;
+        if (1..=4).contains(&mode) {
+            // A changed anchor is the one failure a deployment check retries.
+            let wrapped = ContractError::from(ProviderError::ObservationChanged);
+            assert_eq!(wrapped.class(), quai_sdk::primitives::ErrorClass::Stale);
+        }
         match mode {
             1..=4 => assert!(matches!(result, Err(ProviderError::ObservationChanged))),
             5 => {
@@ -377,7 +403,12 @@ async fn code_target_checks_empty_code_runtime_and_trusted_genesis_without_deplo
         updated.genesis = hash(9);
         updated
     };
-    assert!(mismatch.observe(&provider).await.is_err());
+    let code_reads = mock.state().code_reads;
+    assert!(matches!(
+        mismatch.observe(&provider).await,
+        Err(ProviderError::GenesisMismatch)
+    ));
+    assert_eq!(mock.state().code_reads, code_reads);
     let mismatch = {
         let mut updated = target;
         updated.expected_runtime = Some(hash(9));

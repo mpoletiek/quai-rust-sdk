@@ -40,15 +40,16 @@ impl ContractCodeTarget {
             return Err(ProviderError::InvalidRequest("zero code target genesis"));
         }
         let observation = match provider
-            .observe_contract_code(self.address, BlockTag::Latest, self.expected_runtime)
+            .observe_contract_codes(
+                self.genesis,
+                &[(self.address, self.expected_runtime)],
+                BlockTag::Latest,
+            )
             .await
         {
             Err(ProviderError::ObservationChanged) => return Ok(None),
-            other => other?,
+            other => other?.remove(0),
         };
-        if observation.genesis != self.genesis {
-            return Err(ProviderError::GenesisMismatch);
-        }
         if observation.code.bytes.bytes().is_empty() {
             return Ok(None);
         }

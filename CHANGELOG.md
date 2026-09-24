@@ -1,5 +1,82 @@
 # Changelog
 
+## Unreleased
+
+Answers the Quai Terminal asks of 2026-09-24 on state proofs.
+
+Fixed:
+
+- A node could forge any proven value. `prove_accounts` checked proofs against
+  the header's `evmRoot` but never tied that root to the header's hashes, so a
+  node that served the real genesis and the real block hash with its own
+  `evmRoot` got any balance, storage value, code hash or absence accepted. A
+  second node comparing block hashes agreed with it. The SDK now recomputes the
+  header's `headerHash`, which covers every root, and refuses a header whose
+  fields do not hash to it (`ProviderError::Header`, class `Invalid`), before
+  any address is sent.
+- The documentation overstated what a proof shows. A proof shows what the
+  serving node's header commits to; it is independent of that node only once
+  another node confirms the header hash. `docs/STATE_PROOFS.md` no longer
+  suggests comparing block hashes, which the forgery above passes.
+- `MAX_PROOF_NODES` is 65, not 64: a key can need a branch per nibble and then
+  a leaf.
+- A large proof request no longer fails with `ResponseTooLarge`. The
+  documented limit of 32 accounts with 64 slots each needs about 4.7 MB, over
+  the default 2 MiB response cap. `prove_accounts` now splits the proofs into
+  batches of about half a megabyte, sent concurrently, each rechecking the
+  block.
+
+Changed:
+
+- `prove_accounts` and `Contract::prove_deployment` refuse a header that does
+  not recompute. A test transport serving a synthetic header must serve one
+  that hashes to its `woHeader.headerHash`; `header_hash::verify_header_hash`
+  checks one. A header field this SDK does not know fails closed as
+  `HeaderHashError::UnknownField`, which after a go-quai upgrade means the SDK
+  needs updating.
+- Reads by block hash (`quai_getCode` for code observations, `quai_getProof`)
+  send `{"blockHash": ..., "requireCanonical": true}`, so the node itself
+  refuses a block it no longer holds canonical. A custom transport that matches
+  parameters exactly must accept the added field; go-quai does.
+- `HttpTransport` asks for gzip and decodes it. Against `rpc.quai.network` on
+  2026-09-24, an account proof arrived 1.9 times smaller and WQUAI's bytecode
+  3.1 times; Quai Terminal measured 5.6 times for a 40 KB router.
+  `max_response_bytes` bounds the decoded body as well as the compressed one.
+  No dependency was added: `flate2` was already in use.
+
+Added:
+
+- `provider::header_hash::verify_header_hash` recomputes a zone header's
+  `headerHash` from `quai_getHeaderByNumber` JSON (protobuf and BLAKE3, as
+  go-quai hashes it) and returns a `VerifiedHeader` with its roots, height and
+  time. It recomputes the block hash too before the KawPoW fork, and after it
+  from a v2 work object (`newHeadsV2`), whose merged-mining coinbase must
+  commit the seal hash. Proof-of-work is not checked. New dependency: `blake3`,
+  built without its C and assembly backends.
+- `StateAnchor`, read by `Provider::state_anchor(genesis, zone, block)`: the
+  block to prove at, its genesis checked and header hashes recomputed. Many
+  `Provider::prove_accounts_at(&anchor, targets)` calls, one round trip each,
+  can share it. `Contract::prove_deployment_at` is the pin check at an anchor.
+- `Provider::confirm_anchor(&anchor)`, called on a second node, reads that
+  node's header at the anchor's height with no address and requires the same
+  header hash. A mismatch is `ProviderError::AnchorDisputed` (class `Stale`).
+  This is what makes a proof independent of the node that served it.
+- `StateAnchor::require_number_at_least` and `require_timestamp_at_least`
+  refuse an old block with `ProviderError::StaleAnchor` (class `Stale`), such
+  as a lagging node or a replayed pre-revocation allowance.
+- `ProvenAccount::header_hash`, so a stored record can be confirmed against
+  another node later, and `Provider::verified_header(zone, block)`, which reads
+  a header and recomputes its hashes.
+- With `test-fixtures`: `state_proof::test_trie::TestTrie`, a trie builder
+  following go-quai's node rules, so a consumer's tests can serve real proofs,
+  and `Account::new`.
+- Tests of proofs through embedded leaves and extension nodes, which the
+  mainnet vectors lack, including every single-byte change. Two fuzz targets:
+  `state_proof_trie` builds a valid trie, then mutates its proofs, and
+  `header_hash` covers header recomputation. Captured header vectors are in
+  `test-infra/fixtures/header-hashes-mainnet.json`
+  (`test-infra/capture_header_hashes.py`).
+
 ## 0.1.0-alpha.13
 
 Added:

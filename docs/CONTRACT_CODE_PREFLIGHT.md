@@ -46,7 +46,9 @@ public gateway (about 0.75 s for five contracts, against 1.0 s in one call).
 
 `Contract::prove_deployment` makes the same check with the code hash proven
 against the block's state root, so the node sends a proof of about 2 KB instead
-of the runtime. See [state proofs](STATE_PROOFS.md).
+of the runtime. `Contract::prove_deployment_at` does it at a shared
+`StateAnchor`, which a second node can confirm first. See
+[state proofs](STATE_PROOFS.md).
 
 Only `Provider::observe_contract_code`, which is not given a trusted genesis,
 still sends the address before the network is confirmed; prefer the checked

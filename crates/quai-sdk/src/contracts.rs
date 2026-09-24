@@ -64,6 +64,37 @@ pub enum ContractError {
     RuntimeMismatch,
 }
 
+impl ContractError {
+    /// How to react to this failure; see [`quai_primitives::ErrorClass`].
+    /// Matched exhaustively so a new variant must choose a class.
+    ///
+    /// A deployment check retries only on `Stale`: a new block or reorg during
+    /// the observation. `NetworkMismatch` (a wrong chain or genesis) and
+    /// `Invalid` (missing code, a runtime mismatch) repeat on every attempt.
+    pub fn class(&self) -> quai_primitives::ErrorClass {
+        use quai_primitives::ErrorClass;
+        match self {
+            Self::Provider(error) => error.class(),
+            Self::GenesisMismatch => ErrorClass::NetworkMismatch,
+            // The same bounded search finds the same nothing; a caller that
+            // cancelled it already knows.
+            Self::SearchIncomplete
+            | Self::MissingFallback
+            | Self::Abi(_)
+            | Self::ZoneMismatch
+            | Self::Nonpayable
+            | Self::WriteFunction
+            | Self::CallMismatch
+            | Self::InvalidResult
+            | Self::InvalidDeployment
+            | Self::AnonymousEvent
+            | Self::InvalidEventFilter
+            | Self::MissingCode
+            | Self::RuntimeMismatch => ErrorClass::Invalid,
+        }
+    }
+}
+
 /// Decoded event values together with their complete source association and removal flag.
 #[derive(Clone, Debug)]
 #[non_exhaustive]
@@ -404,6 +435,10 @@ impl<'a, T: Transport> Contract<'a, T> {
     /// Verify nonempty runtime at a rechecked mined block in the explicitly trusted
     /// genesis. An optional runtime Keccak pins exact bytes, not proxy semantics or
     /// future code. This observation does not authorize any later transaction.
+    ///
+    /// The genesis is confirmed before the contract address is sent. To verify
+    /// several contracts at one block, use
+    /// [`Provider::observe_contract_codes`](quai_provider::Provider::observe_contract_codes).
     pub async fn verify_deployment(
         &self,
         expected_genesis: Hash32,
@@ -413,13 +448,15 @@ impl<'a, T: Transport> Contract<'a, T> {
         if expected_genesis == Hash32::ZERO {
             return Err(ContractError::InvalidDeployment);
         }
-        let observation = self
+        let observation = match self
             .provider
-            .observe_contract_code(self.address, block, expected_runtime)
-            .await?;
-        if observation.genesis != expected_genesis {
-            return Err(ContractError::GenesisMismatch);
-        }
+            .observe_contract_codes(expected_genesis, &[(self.address, expected_runtime)], block)
+            .await
+        {
+            Ok(mut observations) => observations.remove(0),
+            Err(ProviderError::GenesisMismatch) => return Err(ContractError::GenesisMismatch),
+            Err(error) => return Err(error.into()),
+        };
         if observation.code.bytes.bytes().is_empty() {
             return Err(ContractError::MissingCode);
         }

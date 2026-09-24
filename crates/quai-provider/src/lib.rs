@@ -25,7 +25,7 @@ pub use deployment::{DeploymentCode, DeploymentObservation, DeploymentReference}
 mod code_wait;
 mod contract_code;
 pub use code_wait::{CodeWaitConfig, CodeWaitError, ContractCodeTarget};
-pub use contract_code::ContractCodeObservation;
+pub use contract_code::{ContractCodeObservation, MAX_CONTRACT_CODE_TARGETS};
 mod blocks;
 pub use blocks::{
     BlockHashes, BlockMetadata, BlockTransactionId, MinedBlock, OutboundBlockTransaction,

@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.1.0-alpha.12
+
+Changed:
+
+- A contract-code observation takes two round trips instead of five where the
+  transport batches: the genesis and the header first, then the code with both
+  rechecks in one batch. Against `rpc.quai.network` one observation went from
+  1.23 s to 0.49 s. A transport that does not batch makes the same five reads
+  as before.
+- The code is read by the header's block hash (`quai_getCode` with
+  `{"blockHash": ...}`) instead of its height, so the bytes come from exactly the
+  block that is then rechecked, even if the chain reorganizes during the read.
+  A custom transport or node must accept that parameter form; go-quai does.
+- `Contract::verify_deployment` and `ContractCodeTarget` confirm the trusted
+  genesis before sending the contract address, so an endpoint on the wrong
+  network no longer learns which contract was asked about. They still return
+  `GenesisMismatch`.
+
+Added:
+
+- `Provider::observe_contract_codes(genesis, targets, block)` observes up to
+  `MAX_CONTRACT_CODE_TARGETS` contracts of one zone at the same block, each with
+  an optional expected runtime hash, in the same two rounds. It is for
+  same-block consistency and fewer requests. On a high-latency link it is not
+  always faster than concurrent single observations, because every runtime
+  arrives in one response.
+- `ContractError::class()`, like the other public error types, so a caller can
+  retry a deployment check only on `Stale` (a new block or reorg during the
+  observation) and stop on `NetworkMismatch` or `Invalid`.
+
 ## 0.1.0-alpha.11
 
 Added:

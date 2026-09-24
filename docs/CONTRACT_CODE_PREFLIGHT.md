@@ -18,13 +18,35 @@ let deposit = wrapper.deposit(amount_in_its)?;
 // Review the exact deposit and observation before the wallet's prepare/sign flow.
 ```
 
-The provider's configured chain ID is checked before every RPC read. Code is read
-at the height selected by an initial canonical header, then that header and the
-genesis identity are rechecked. `Latest` is sampled once; positive explicit heights
-up to `i64::MAX` are supported. Pending and genesis selectors fail before any I/O.
-Missing/changed headers, a changing genesis, RPC failures and chain mismatches
-remain errors without an automatic workflow retry. Cancellation drops the active
-transport future.
+The provider's configured chain ID is checked before every RPC read or batch. An
+observation takes two rounds where the transport batches:
+
+1. The genesis and the selected header. No address is sent in this round, and a
+   checked binding stops with `GenesisMismatch` here, so an endpoint on the wrong
+   network never learns which contract was asked about.
+2. The code, read by that header's block hash, with the header and genesis
+   rechecked in the same batch. Reading by hash pins the bytes to that exact
+   block even if the chain reorganizes during the read.
+
+A transport that does not batch makes the same five reads one after another.
+`Latest` is sampled once; positive explicit heights up to `i64::MAX` are
+supported. Pending and genesis selectors fail before any I/O. Missing/changed
+headers, a changing genesis, RPC failures and chain mismatches remain errors
+without an automatic workflow retry. A changed anchor outranks a failed code read,
+since a block reorganized away can also make its code unreadable. Cancellation
+drops the active transport future.
+
+`Provider::observe_contract_codes` observes up to `MAX_CONTRACT_CODE_TARGETS`
+contracts of one zone at the same block, with the same two rounds, and requires
+the trusted genesis. `Contract::verify_deployment` and `ContractCodeTarget` use
+it. It is for same-block consistency and fewer requests, not always speed: every
+runtime arrives in one response, and on a high-latency link a large response
+needs extra round trips. Concurrent single observations were faster against the
+public gateway (about 0.75 s for five contracts, against 1.0 s in one call).
+
+Only `Provider::observe_contract_code`, which is not given a trusted genesis,
+still sends the address before the network is confirmed; prefer the checked
+forms when the genesis is known.
 
 `Provider::observe_contract_code` preserves empty code as an observation. Checked
 contract/wrapper bindings reject it with `ContractError::MissingCode`, distinguish

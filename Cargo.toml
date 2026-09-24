@@ -3,7 +3,7 @@ members = ["crates/quai-primitives", "crates/quai-rpc", "crates/quai-provider", 
 resolver = "3"
 
 [workspace.package]
-version = "0.1.0-alpha.11"
+version = "0.1.0-alpha.12"
 edition = "2024"
 rust-version = "1.97"
 license = "MIT"
@@ -13,17 +13,17 @@ publish = ["crates-io"]
 [workspace.dependencies]
 # Siblings are pinned exactly: a caret requirement on a pre-release also matches
 # later pre-releases, so an exact pin on quai-sdk would not pin its siblings.
-quai-primitives = { path = "crates/quai-primitives", version = "=0.1.0-alpha.11" }
-quai-rpc = { path = "crates/quai-rpc", version = "=0.1.0-alpha.11", default-features = false }
-quai-provider = { path = "crates/quai-provider", version = "=0.1.0-alpha.11", default-features = false }
-quai-crypto = { path = "crates/quai-crypto", version = "=0.1.0-alpha.11" }
-quai-wallet = { path = "crates/quai-wallet", version = "=0.1.0-alpha.11" }
-quai-consensus = { path = "crates/quai-consensus", version = "=0.1.0-alpha.11" }
-quai-signer = { path = "crates/quai-signer", version = "=0.1.0-alpha.11" }
-quai-abi = { path = "crates/quai-abi", version = "=0.1.0-alpha.11" }
-quai-browser = { path = "crates/quai-browser", version = "=0.1.0-alpha.11" }
-quai-payments = { path = "crates/quai-payments", version = "=0.1.0-alpha.11" }
-quai-keystore = { path = "crates/quai-keystore", version = "=0.1.0-alpha.11" }
+quai-primitives = { path = "crates/quai-primitives", version = "=0.1.0-alpha.12" }
+quai-rpc = { path = "crates/quai-rpc", version = "=0.1.0-alpha.12", default-features = false }
+quai-provider = { path = "crates/quai-provider", version = "=0.1.0-alpha.12", default-features = false }
+quai-crypto = { path = "crates/quai-crypto", version = "=0.1.0-alpha.12" }
+quai-wallet = { path = "crates/quai-wallet", version = "=0.1.0-alpha.12" }
+quai-consensus = { path = "crates/quai-consensus", version = "=0.1.0-alpha.12" }
+quai-signer = { path = "crates/quai-signer", version = "=0.1.0-alpha.12" }
+quai-abi = { path = "crates/quai-abi", version = "=0.1.0-alpha.12" }
+quai-browser = { path = "crates/quai-browser", version = "=0.1.0-alpha.12" }
+quai-payments = { path = "crates/quai-payments", version = "=0.1.0-alpha.12" }
+quai-keystore = { path = "crates/quai-keystore", version = "=0.1.0-alpha.12" }
 tiny-keccak = { version = "2.0.2", features = ["keccak"] }
 ruint = { version = "1.20.0", default-features = false, features = ["std"] }
 serde = { version = "1.0", features = ["derive"] }

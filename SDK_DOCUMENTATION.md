@@ -1,7 +1,7 @@
 # Quai Rust SDK documentation
 
 This is the integration guide for the SDK in this repository, version
-`0.1.0-alpha.12`. It covers the public crate layers, native and browser workflows,
+`0.1.0-alpha.13`. It covers the public crate layers, native and browser workflows,
 recovery formats, limits, examples and verification. Exact Rust signatures and
 field documentation are hosted on [docs.rs](https://docs.rs/quai-sdk) or can be
 generated from the same checkout with `cargo doc`.
@@ -49,7 +49,7 @@ For another Rust project, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.12", features = ["sqlite", "abi", "payments", "backup"] }
+quai-sdk = { version = "=0.1.0-alpha.13", features = ["sqlite", "abi", "payments", "backup"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -258,6 +258,17 @@ and malformed logs in order; `Contract::receipt_logs` restricts interpretation t
 its bound emitter. See [response API and parity details](docs/RESPONSE_PARITY.md)
 for limits, field mappings, canonicality and published lookup defects.
 
+
+### State proofs
+
+`Provider::prove_accounts(genesis, targets, block)` proves balances, nonces,
+code hashes and chosen storage slots against one block's `evmRoot`, verifying
+every `quai_getProof` result in the SDK. A node that reports a value its proof
+does not show returns `ProviderError::Proof`, never a value. The block itself
+is still the node's report. `Contract::prove_deployment` is the pin check with a
+proven code hash, and `provider::state_proof` verifies stored proofs offline.
+See [state proofs](docs/STATE_PROOFS.md) for wallet use, token slots, errors and
+limits.
 
 ### Passive accounts and portable event delivery
 
@@ -1118,6 +1129,7 @@ Examples separate offline intent/signing from read-only node inspection.
 | `artifact_deployment` | `abi` | Artifact/constructor/deployment preparation |
 | `watch_qi` | `http,wallet` | Bounded head/replay inspection |
 | `qi_message` | `wallet` | Explicit Qi message signing/verification |
+| `prove_state` | `http` | Proven balance, nonce, code hash and token slot; offline re-verification |
 
 Run an example with `cargo run -p quai-sdk --features FEATURES --example NAME`.
 Source files in [the examples directory](crates/quai-sdk/examples) document
@@ -1219,7 +1231,7 @@ evidence. They supplement the generated native/browser signature reference.
 | Native workflows | [wallet workflows](docs/WALLET_WORKFLOWS.md), [account workflow](docs/account-workflow.md), [Qi transactions](docs/qi-transactions.md), [conversions](docs/conversions.md) |
 | Browser custody | [account](docs/BROWSER_ACCOUNT_CUSTODY.md), [Qi](docs/BROWSER_QI_CUSTODY.md), [allocation restore](docs/BROWSER_ALLOCATION_RESTORE.md) |
 | Coordinated recovery | [capture](docs/PORTABLE_WALLET_CAPTURE.md), [atomic restore](docs/BROWSER_ATOMIC_RESTORE.md) |
-| Contracts | [ABI](crates/quai-abi/README.md), [code preflight](docs/CONTRACT_CODE_PREFLIGHT.md) |
+| Contracts | [ABI](crates/quai-abi/README.md), [code preflight](docs/CONTRACT_CODE_PREFLIGHT.md), [state proofs](docs/STATE_PROOFS.md) |
 | RPC and browser policy | [RPC](crates/quai-rpc/README.md), [provider](crates/quai-provider/README.md), [browser](crates/quai-browser/README.md) |
 | Key interchange | [keystore](crates/quai-keystore/README.md), [payment codes](crates/quai-payments/README.md) |
 | Current status | [implementation](IMPLEMENTATION_STATUS.md), [gaps](docs/WALLET_GAPS.md), [feature review](docs/history/FEATURE_COMPLETENESS_REVIEW_2026-09-12.md) |

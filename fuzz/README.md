@@ -28,6 +28,10 @@ Targets:
   never answers a different request ID or a row outside the issued batch window.
 - `provider_responses`: the typed header, block, outpoint and pool-content
   parsers that feed reorg, balance and nonce decisions.
+- `state_proof`: account and storage proof verification on hostile node lists;
+  never panics and answers the same way twice. Seeds are the captured mainnet
+  proofs, and one mode roots the trie at the first node so inputs reach the RLP
+  and trie walk.
 - `ws_dispatch`: stateful WebSocket frame routing over synthetic sessions, so a
   reply never reaches another request or subscription.
 

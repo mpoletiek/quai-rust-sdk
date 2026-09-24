@@ -14,6 +14,11 @@ const MAX_ACCESS_ENTRIES: usize = 4_096;
 /// Hex-encoded RPC bytes, distinct from a numeric quantity. Debug reveals length only.
 #[derive(Clone, Default, Eq, PartialEq)]
 pub struct RpcData(Vec<u8>);
+impl AsRef<[u8]> for RpcData {
+    fn as_ref(&self) -> &[u8] {
+        self.bytes()
+    }
+}
 impl RpcData {
     /// Validate the allocation bound before retaining bytes.
     pub fn new(bytes: Vec<u8>) -> Result<Self, ProviderError> {
@@ -913,6 +918,48 @@ pub(crate) fn parse_outpoints(value: Value) -> Result<Vec<AddressOutpoint>, Prov
         });
     }
     Ok(result)
+}
+/// A `quai_getProof` result as the node reported it, before verification.
+pub(crate) struct ReportedProof {
+    pub(crate) address: Address,
+    pub(crate) account_proof: Vec<RpcData>,
+    pub(crate) balance: U256,
+    pub(crate) nonce: u64,
+    pub(crate) code_hash: Hash32,
+    pub(crate) storage_hash: Hash32,
+    /// Each requested slot: its key as echoed, reported value and proof.
+    pub(crate) storage: Vec<(Hash32, U256, Vec<RpcData>)>,
+}
+/// Parse a `quai_getProof` result with every list bounded before it is read.
+pub(crate) fn parse_account_proof(value: Value) -> Result<ReportedProof, ProviderError> {
+    use crate::state_proof::MAX_PROOF_NODES;
+    let nodes = |value| {
+        array(value, MAX_PROOF_NODES)?
+            .into_iter()
+            .map(data)
+            .collect::<Result<Vec<_>, _>>()
+    };
+    let mut o = object(value)?;
+    let storage = array(take(&mut o, "storageProof")?, crate::MAX_PROVEN_SLOTS)?
+        .into_iter()
+        .map(|slot| {
+            let mut slot = object(slot)?;
+            Ok((
+                hash_field(&mut slot, "key")?,
+                crate::quantity(take(&mut slot, "value")?)?,
+                nodes(take(&mut slot, "proof")?)?,
+            ))
+        })
+        .collect::<Result<Vec<_>, ProviderError>>()?;
+    Ok(ReportedProof {
+        address: address(take(&mut o, "address")?)?,
+        account_proof: nodes(take(&mut o, "accountProof")?)?,
+        balance: crate::quantity(take(&mut o, "balance")?)?,
+        nonce: uint64(take(&mut o, "nonce")?)?,
+        code_hash: hash_field(&mut o, "codeHash")?,
+        storage_hash: hash_field(&mut o, "storageHash")?,
+        storage,
+    })
 }
 pub(crate) fn parse_log(value: Value) -> Result<Log, ProviderError> {
     let mut o = object(value)?;

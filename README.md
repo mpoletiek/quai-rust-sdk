@@ -8,7 +8,7 @@ and browser adapters.
 [![crates.io](https://img.shields.io/crates/v/quai-sdk.svg)](https://crates.io/crates/quai-sdk)
 [![docs.rs](https://img.shields.io/docsrs/quai-sdk)](https://docs.rs/quai-sdk)
 
-**Pre-release:** `0.1.0-alpha.12` is published on
+**Pre-release:** `0.1.0-alpha.13` is published on
 [crates.io](https://crates.io/crates/quai-sdk). It is not production-qualified for
 real-fund custody and has had no external security audit; read [SECURITY.md](SECURITY.md)
 and the [wallet gaps](docs/WALLET_GAPS.md) before integrating it. The
@@ -37,7 +37,7 @@ For an application outside this workspace, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.12", features = ["sqlite", "abi"] }
+quai-sdk = { version = "=0.1.0-alpha.13", features = ["sqlite", "abi"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -198,6 +198,7 @@ Unsigned prepared objects are bound to the exact open wallet-store handle.
 - [Account workflow](docs/account-workflow.md): nonce reservation, fee limits, deployment and restart behavior.
 - [Qi workflow](docs/qi-transactions.md): change allocation, qualified discovery, bounded fee convergence and input claims.
 - [Conversion support](docs/conversions.md): signed intents, correlation, refunds and unverified spendability.
+- [State proofs](docs/STATE_PROOFS.md): balances, nonces, code hashes and token slots a node must prove against a block's state root.
 - [Full-wallet backups](crates/quai-wallet/FULL_BACKUP_FORMAT.md): supported origins, durable state, channel recovery and format limits.
 - [Security policy and limits](SECURITY.md): threat boundaries, secret handling and unresolved release gates.
 

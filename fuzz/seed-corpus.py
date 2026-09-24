@@ -199,4 +199,17 @@ for which, value in [
 ]:
  put('provider_responses', bytes([which]) + json.dumps(value, separators=(',',':')).encode())
 
+# State proofs: mode byte, root, key (an address padded, or a storage slot),
+# then each node as a u16 big-endian length and its bytes.
+def framed(nodes):return b''.join(len(n).to_bytes(2,'big')+n for n in map(hexbytes,nodes))
+proofs=load('test-infra/fixtures/state-proofs-mainnet.json')
+state_root=hexbytes(proofs['header']['evmRoot'])
+for entry in proofs['proofs']:
+ result=entry['result']
+ address=hexbytes(result['address'])+bytes(12)
+ put('state_proof',bytes([0])+state_root+address+framed(result['accountProof']))
+ put('state_proof',bytes([1])+state_root+address+framed(result['accountProof'][1:]))
+ for slot in result['storageProof']:
+  put('state_proof',bytes([2])+hexbytes(result['storageHash'])+hexbytes(slot['key'])+framed(slot['proof']))
+
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

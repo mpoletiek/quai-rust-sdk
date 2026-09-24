@@ -428,6 +428,14 @@
     {
       "source": "compatibility/fixtures/fixed-completion.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/compatibility/fixtures/fixed-completion.json"
+    },
+    {
+      "source": "test-infra/fixtures/state-proofs-mainnet.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/test-infra/fixtures/state-proofs-mainnet.json"
+    },
+    {
+      "source": "test-infra/fixtures/state-proofs-mainnet.json",
+      "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/state-proofs-mainnet.json"
     }
   ]
 }

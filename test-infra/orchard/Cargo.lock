@@ -1900,7 +1900,7 @@ dependencies = [
 
 [[package]]
 name = "quai-abi"
-version = "0.1.0-alpha.13"
+version = "0.1.0-alpha.14"
 dependencies = [
  "quai-primitives",
  "ruint",
@@ -1913,7 +1913,7 @@ dependencies = [
 
 [[package]]
 name = "quai-consensus"
-version = "0.1.0-alpha.13"
+version = "0.1.0-alpha.14"
 dependencies = [
  "prost",
  "quai-crypto",
@@ -1925,7 +1925,7 @@ dependencies = [
 
 [[package]]
 name = "quai-crypto"
-version = "0.1.0-alpha.13"
+version = "0.1.0-alpha.14"
 dependencies = [
  "getrandom 0.2.17",
  "getrandom 0.4.3",
@@ -1953,7 +1953,7 @@ dependencies = [
 
 [[package]]
 name = "quai-payments"
-version = "0.1.0-alpha.13"
+version = "0.1.0-alpha.14"
 dependencies = [
  "bip32",
  "bs58",
@@ -1967,7 +1967,7 @@ dependencies = [
 
 [[package]]
 name = "quai-primitives"
-version = "0.1.0-alpha.13"
+version = "0.1.0-alpha.14"
 dependencies = [
  "base64 0.22.1",
  "bs58",
@@ -1979,7 +1979,7 @@ dependencies = [
 
 [[package]]
 name = "quai-provider"
-version = "0.1.0-alpha.13"
+version = "0.1.0-alpha.14"
 dependencies = [
  "blake3",
  "futures-util",
@@ -1994,7 +1994,7 @@ dependencies = [
 
 [[package]]
 name = "quai-rpc"
-version = "0.1.0-alpha.13"
+version = "0.1.0-alpha.14"
 dependencies = [
  "flate2",
  "futures-util",
@@ -2012,7 +2012,7 @@ dependencies = [
 
 [[package]]
 name = "quai-sdk"
-version = "0.1.0-alpha.13"
+version = "0.1.0-alpha.14"
 dependencies = [
  "futures-util",
  "quai-abi",
@@ -2030,7 +2030,7 @@ dependencies = [
 
 [[package]]
 name = "quai-signer"
-version = "0.1.0-alpha.13"
+version = "0.1.0-alpha.14"
 dependencies = [
  "quai-abi",
  "quai-consensus",
@@ -2042,7 +2042,7 @@ dependencies = [
 
 [[package]]
 name = "quai-wallet"
-version = "0.1.0-alpha.13"
+version = "0.1.0-alpha.14"
 dependencies = [
  "argon2",
  "bip32",

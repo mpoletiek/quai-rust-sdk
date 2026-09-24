@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0-alpha.14
 
 Answers the Quai Terminal asks of 2026-09-24 on state proofs.
 

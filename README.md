@@ -198,6 +198,7 @@ Unsigned prepared objects are bound to the exact open wallet-store handle.
 - [Account workflow](docs/account-workflow.md): nonce reservation, fee limits, deployment and restart behavior.
 - [Qi workflow](docs/qi-transactions.md): change allocation, qualified discovery, bounded fee convergence and input claims.
 - [Conversion support](docs/conversions.md): signed intents, correlation, refunds and unverified spendability.
+- [State proofs](docs/STATE_PROOFS.md): balances, nonces, code hashes and token slots a node must prove against a block's state root.
 - [Full-wallet backups](crates/quai-wallet/FULL_BACKUP_FORMAT.md): supported origins, durable state, channel recovery and format limits.
 - [Security policy and limits](SECURITY.md): threat boundaries, secret handling and unresolved release gates.
 

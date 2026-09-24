@@ -1,5 +1,36 @@
 # Changelog
 
+## Unreleased
+
+Added:
+
+- Verified state proofs. `Provider::prove_accounts(genesis, targets, block)`
+  proves the balance, nonce, code hash and chosen storage slots of up to 32
+  accounts of one zone against one block's `evmRoot`, from `quai_getProof`.
+  - It takes the same two rounds as contract code observation: an
+    address-free first round that refuses a wrong genesis, then every proof
+    by the block's hash with the header and genesis rechecked.
+  - The SDK verifies each proof, and the node's own `balance`, `nonce`,
+    `codeHash`, `storageHash` and slot values must equal what the proof
+    shows. Either failure is the new `ProviderError::Proof` (class `Invalid`),
+    never a value.
+  - `ProvenAccount` keeps its proof nodes, so a wallet can store it and verify
+    it again offline.
+  - The block is still the node's report of the canonical chain.
+- `provider::state_proof`: `verify_account_proof` and `verify_storage_proof`
+  with a strict RLP decoder, bounded to 64 nodes of 1 KiB, plus `Account`
+  (Quai's five-field leaf), `ProofError`, `solidity_mapping_slot`,
+  `address_word`, `EMPTY_TRIE_ROOT` and `EMPTY_CODE_HASH`. No dependency added.
+- `Contract::prove_deployment`, the pin check with a proven code hash and the
+  errors of `verify_deployment`. The node sends a proof of about 2 KB rather
+  than the runtime; against `rpc.quai.network` that was one round trip instead
+  of two.
+- `RpcData` implements `AsRef<[u8]>`.
+- The `prove_state` example, the `state_proof` fuzz target, captured mainnet
+  proof vectors (`test-infra/capture_state_proofs.py`) and
+  [docs/STATE_PROOFS.md](docs/STATE_PROOFS.md), which covers how a wallet uses
+  proofs today and what they do not cover.
+
 ## 0.1.0-alpha.12
 
 Changed:

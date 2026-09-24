@@ -106,16 +106,17 @@ impl<T: Transport> Provider<T> {
                 block,
                 trusted,
                 "code observation requires a positive mined height or latest",
+                false,
             )
             .await?;
         // Reading by hash pins the code to exactly the block that is rechecked.
-        let at = anchor.block_param();
+        let at = crate::anchored::block_param(anchor.reference());
         let calls = targets
             .iter()
             .map(|(address, _)| ("quai_getCode", json!([address.to_string(), at])))
             .collect();
         let codes = self
-            .read_at_anchor(&anchor, calls)
+            .read_at_anchor(anchor.zone, anchor.genesis, anchor.reference(), calls)
             .await?
             .into_iter()
             .map(|value| types::data(value?))

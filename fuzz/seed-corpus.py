@@ -212,4 +212,26 @@ for entry in proofs['proofs']:
  for slot in result['storageProof']:
   put('state_proof',bytes([2])+hexbytes(result['storageHash'])+hexbytes(slot['key'])+framed(slot['proof']))
 
+# Proof tries: mutation, position, then 36-byte entries (base, shared nibbles,
+# value length, fill, path). Paths come from a hash chain, so seeds are fixed.
+def chain(label,count):
+ out=b'';block=label
+ while len(out)<count:block=hashlib.sha256(block).digest();out+=block
+ return out[:count]
+for op,shared,entries in [(0,0,1),(1,9,4),(2,40,8),(3,63,6),(4,2,12),(5,20,16),(6,64,3)]:
+ body=b''
+ for i,path in enumerate(chain(bytes([op,shared,entries]),32*entries)[j:j+32] for j in range(0,32*entries,32)):
+  body+=bytes([i,shared if i else 0,0x80 if i%3==0 else i,i+1])+path
+ put('state_proof_trie',bytes([op,0,op])+body)
+
+# Header hashes: captured v1 headers and a v2 work object, plus each with a
+# root changed, a field removed and an unknown field added.
+headers=load('test-infra/fixtures/header-hashes-mainnet.json')
+for header in headers['v1']+[headers['v2']]:
+ put('header_hash',json.dumps(header,separators=(',',':')).encode())
+head=headers['v1'][-1]
+put('header_hash',json.dumps(dict(head,evmRoot='0x'+'5a'*32),separators=(',',':')).encode())
+put('header_hash',json.dumps({k:v for k,v in head.items() if k!='utxoRoot'},separators=(',',':')).encode())
+put('header_hash',json.dumps(dict(head,futureRoot='0x'+'11'*32),separators=(',',':')).encode())
+
 print(json.dumps({target:len(list((root/'fuzz'/'corpus'/target).iterdir())) for target in counts}))

@@ -475,7 +475,9 @@ impl<'a, T: Transport> Contract<'a, T> {
     /// verify is `ContractError::Provider(ProviderError::Proof(_))`.
     ///
     /// The block is still the node's report of the canonical chain; see
-    /// [`ProvenAccount`](quai_provider::ProvenAccount).
+    /// [`ProvenAccount`](quai_provider::ProvenAccount). To confirm it with a
+    /// second node first, read a [`StateAnchor`](quai_provider::StateAnchor)
+    /// and call [`Self::prove_deployment_at`].
     pub async fn prove_deployment(
         &self,
         expected_genesis: Hash32,
@@ -485,15 +487,30 @@ impl<'a, T: Transport> Contract<'a, T> {
         if expected_genesis == Hash32::ZERO {
             return Err(ContractError::InvalidDeployment);
         }
-        let proven = match self
+        let anchor = match self
             .provider
-            .prove_accounts(expected_genesis, &[(self.address, &[])], block)
+            .state_anchor(expected_genesis, self.address.zone(), block)
             .await
         {
-            Ok(mut proven) => proven.remove(0),
+            Ok(anchor) => anchor,
             Err(ProviderError::GenesisMismatch) => return Err(ContractError::GenesisMismatch),
             Err(error) => return Err(error.into()),
         };
+        self.prove_deployment_at(&anchor, expected_runtime).await
+    }
+    /// [`Self::prove_deployment`] at an anchor already read, and perhaps
+    /// confirmed with a second node: one round trip. Several contracts of the
+    /// anchor's zone can share one anchor.
+    pub async fn prove_deployment_at(
+        &self,
+        anchor: &quai_provider::StateAnchor,
+        expected_runtime: Option<Hash32>,
+    ) -> Result<quai_provider::ProvenAccount, ContractError> {
+        let proven = self
+            .provider
+            .prove_accounts_at(anchor, &[(self.address, &[])])
+            .await?
+            .remove(0);
         if !proven.has_code() {
             return Err(ContractError::MissingCode);
         }

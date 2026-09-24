@@ -1,7 +1,7 @@
 # Quai Rust SDK documentation
 
 This is the integration guide for the SDK in this repository, version
-`0.1.0-alpha.13`. It covers the public crate layers, native and browser workflows,
+`0.1.0-alpha.14`. It covers the public crate layers, native and browser workflows,
 recovery formats, limits, examples and verification. Exact Rust signatures and
 field documentation are hosted on [docs.rs](https://docs.rs/quai-sdk) or can be
 generated from the same checkout with `cargo doc`.
@@ -49,7 +49,7 @@ For another Rust project, depend on the crates.io release:
 
 ```toml
 [dependencies]
-quai-sdk = { version = "=0.1.0-alpha.13", features = ["sqlite", "abi", "payments", "backup"] }
+quai-sdk = { version = "=0.1.0-alpha.14", features = ["sqlite", "abi", "payments", "backup"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -263,11 +263,19 @@ for limits, field mappings, canonicality and published lookup defects.
 
 `Provider::prove_accounts(genesis, targets, block)` proves balances, nonces,
 code hashes and chosen storage slots against one block's `evmRoot`, verifying
-every `quai_getProof` result in the SDK. A node that reports a value its proof
-does not show returns `ProviderError::Proof`, never a value. The block itself
-is still the node's report. `Contract::prove_deployment` is the pin check with a
-proven code hash, and `provider::state_proof` verifies stored proofs offline.
-See [state proofs](docs/STATE_PROOFS.md) for wallet use, token slots, errors and
+every `quai_getProof` result in the SDK. It also recomputes the header's
+`headerHash` from its fields (`header_hash::verify_header_hash`), which binds
+`evmRoot` to that hash. A node that reports a value its proof does not show, or
+a root its header does not hash to, gets an error, never a value.
+
+On its own that shows a value is consistent with the header the serving node
+reported. `Provider::state_anchor` reads the block once;
+`Provider::confirm_anchor`, on a second, independent node, requires the same
+header hash at that height, and `Provider::prove_accounts_at` then proves at
+the anchor in one round trip each. `Contract::prove_deployment_at` is the pin
+check with a proven code hash, `StateAnchor::require_number_at_least` refuses
+an old block, and `provider::state_proof` verifies stored proofs offline. See
+[state proofs](docs/STATE_PROOFS.md) for wallet use, token slots, errors and
 limits.
 
 ### Passive accounts and portable event delivery

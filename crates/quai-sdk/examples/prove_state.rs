@@ -2,7 +2,10 @@
 //! balance, against a block's state root; read-only, never submits.
 //!
 //! QUAI_RPC_URL, QUAI_EXPECTED_CHAIN_ID (decimal) and QUAI_EXPECTED_GENESIS are
-//! required. QUAI_ACCOUNT defaults to WQUAI. For a token balance, set
+//! required. QUAI_CONFIRM_RPC_URL names a second, independent node: the block's
+//! header hash is confirmed there before any address is sent, so the proofs no
+//! longer rest on the first node's word. QUAI_ACCOUNT defaults to WQUAI. For a
+//! token balance, set
 //! QUAI_TOKEN, QUAI_TOKEN_HOLDER and QUAI_BALANCES_SLOT: the slot where that
 //! contract declares its `balanceOf` mapping (3 for WQUAI, a WETH9 layout).
 use quai_sdk::primitives::{Hash32, QuaiAddress};
@@ -21,11 +24,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // WQUAI on mainnet; `quai_sdk::wrappers` names it with the `abi` feature.
         .unwrap_or_else(|_| "0x006C3e2AaAE5DB1bCd11A1a097cE572312EADdBB".into())
         .parse()?;
-    let provider = Provider::new(
-        HttpTransport::new(HttpConfig::default())?,
-        Routing::direct(&url, Zone::Cyprus1.into())?,
-        chain,
-    );
+    let connect = |url: &str| -> Result<_, Box<dyn std::error::Error>> {
+        Ok(Provider::new(
+            HttpTransport::new(HttpConfig::default())?,
+            Routing::direct(url, Zone::Cyprus1.into())?,
+            chain,
+        ))
+    };
+    let provider = connect(&url)?;
+
+    // One block for every proof: its genesis checked and its header's hashes
+    // recomputed, with no address sent yet.
+    let anchor = provider
+        .state_anchor(genesis, account.zone(), BlockTag::Latest)
+        .await?;
+    // A second node that agrees on the header hash agrees on every root in it.
+    let confirmed_by = match var("QUAI_CONFIRM_RPC_URL") {
+        Ok(second) => {
+            connect(&second)?.confirm_anchor(&anchor).await?;
+            Some(second)
+        }
+        Err(_) => None,
+    };
 
     // Accounts to prove at one block, each with the storage slots to prove.
     let mut targets: Vec<(QuaiAddress, Vec<Hash32>)> = vec![(account, vec![])];
@@ -47,9 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .iter()
         .map(|(address, slots)| (*address, slots.as_slice()))
         .collect::<Vec<_>>();
-    let proven = provider
-        .prove_accounts(genesis, &borrowed, BlockTag::Latest)
-        .await?;
+    let proven = provider.prove_accounts_at(&anchor, &borrowed).await?;
 
     // What a wallet can store: the header identity and the proof. Checking it
     // again later needs no node.
@@ -75,6 +93,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         serde_json::json!({
             "block": first.block.number,
             "blockHash": first.block.hash.to_string(),
+            "headerHash": first.header_hash.to_string(),
+            "blockHashRecomputed": anchor.header.hash_verified,
             "stateRoot": first.state_root.to_string(),
             "account": first.address.to_string(),
             "exists": first.account.is_some(),
@@ -84,7 +104,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "hasCode": first.has_code(),
             "accountProofBytes": first.account_proof.iter().map(|n| n.bytes().len()).sum::<usize>(),
             "token": token_balance,
-            "provenAgainst": "the node-reported header above; not an independent header check",
+            "confirmedBy": confirmed_by,
+            "provenAgainst": if confirmed_by.is_some() {
+                "a header hash two nodes agree on"
+            } else {
+                "this node's header only; set QUAI_CONFIRM_RPC_URL to confirm it"
+            },
             "submitted": false,
         })
     );

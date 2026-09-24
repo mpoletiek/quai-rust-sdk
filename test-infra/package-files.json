@@ -436,6 +436,10 @@
     {
       "source": "test-infra/fixtures/state-proofs-mainnet.json",
       "destination": "crates/quai-sdk/tests/fixtures/shared/test-infra/fixtures/state-proofs-mainnet.json"
+    },
+    {
+      "source": "test-infra/fixtures/header-hashes-mainnet.json",
+      "destination": "crates/quai-provider/tests/fixtures/shared/test-infra/fixtures/header-hashes-mainnet.json"
     }
   ]
 }

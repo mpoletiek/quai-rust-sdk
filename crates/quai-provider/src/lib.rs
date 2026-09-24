@@ -24,9 +24,12 @@ pub use deployment::DeploymentWaitError;
 pub use deployment::{DeploymentCode, DeploymentObservation, DeploymentReference};
 mod account_proof;
 mod code_wait;
-pub use account_proof::{MAX_PROVEN_ACCOUNTS, MAX_PROVEN_SLOTS, ProvenAccount, ProvenSlot};
+pub use account_proof::{
+    MAX_PROVEN_ACCOUNTS, MAX_PROVEN_SLOTS, ProvenAccount, ProvenSlot, StateAnchor,
+};
 mod anchored;
 mod contract_code;
+pub mod header_hash;
 pub mod state_proof;
 pub use code_wait::{CodeWaitConfig, CodeWaitError, ContractCodeTarget};
 pub use contract_code::{ContractCodeObservation, MAX_CONTRACT_CODE_TARGETS};
@@ -135,6 +138,16 @@ pub enum ProviderError {
     /// A canonical block anchor or parent link changed during a multi-request observation.
     #[error("canonical observation changed during the request")]
     ObservationChanged,
+    /// A state anchor is older than the caller's freshness bound. The node
+    /// lags, or served an old block: anchor again, or use another node.
+    #[error("state anchor is older than required")]
+    StaleAnchor,
+    /// Another node's header at the anchor's height has a different
+    /// `headerHash`. Near the head this is usually a race, so anchor a few
+    /// blocks deep; if it persists, the nodes disagree about the chain and
+    /// neither node's proofs are confirmed.
+    #[error("another node disputes the state anchor")]
+    AnchorDisputed,
     /// A method result does not match its expected shape.
     #[error("invalid RPC result: {0}")]
     InvalidResult(&'static str),
@@ -142,6 +155,9 @@ pub enum ProviderError {
     /// values the node reported beside it.
     #[error(transparent)]
     Proof(#[from] state_proof::ProofError),
+    /// The header's hashes do not follow from its fields.
+    #[error(transparent)]
+    Header(#[from] header_hash::HeaderHashError),
 }
 
 impl ProviderError {
@@ -151,7 +167,9 @@ impl ProviderError {
         match self {
             Self::Rpc(error) => error.class(),
             Self::ChainMismatch { .. } | Self::GenesisMismatch => ErrorClass::NetworkMismatch,
-            Self::ObservationChanged => ErrorClass::Stale,
+            Self::ObservationChanged | Self::StaleAnchor | Self::AnchorDisputed => {
+                ErrorClass::Stale
+            }
             Self::ReplayHistoryUnavailable
             | Self::InvalidRequest(_)
             | Self::ConversionFeeEstimationUnavailable
@@ -159,7 +177,8 @@ impl ProviderError {
             | Self::Route(_)
             | Self::Quantity(_)
             | Self::InvalidResult(_)
-            | Self::Proof(_) => ErrorClass::Invalid,
+            | Self::Proof(_)
+            | Self::Header(_) => ErrorClass::Invalid,
         }
     }
 }

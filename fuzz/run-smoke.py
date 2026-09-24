@@ -19,7 +19,8 @@ enough: an artifact can be written in a run that still exits zero.
 import argparse, datetime, hashlib, json, os, pathlib, re, secrets, subprocess
 
 TARGETS = ['transactions', 'abi', 'wallet_import', 'encoding', 'fixed', 'head_state',
-           'rpc_envelope', 'ws_dispatch', 'provider_responses', 'state_proof']
+           'rpc_envelope', 'ws_dispatch', 'provider_responses', 'state_proof',
+           'state_proof_trie', 'header_hash']
 ARTIFACT_PREFIXES = ('crash-', 'timeout-', 'oom-', 'leak-', 'slow-unit-')
 root = pathlib.Path(__file__).resolve().parent
 

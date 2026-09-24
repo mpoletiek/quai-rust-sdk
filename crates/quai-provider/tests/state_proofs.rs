@@ -156,8 +156,11 @@ fn any_changed_byte_key_or_root_fails() {
 mod provider {
     use super::*;
     use quai_primitives::{ErrorClass, Zone};
+    use quai_provider::header_hash::HeaderHashError;
     use quai_provider::state_proof::{EMPTY_CODE_HASH, verify_account_proof};
-    use quai_provider::{BlockTag, MAX_PROVEN_ACCOUNTS, MAX_PROVEN_SLOTS, Provider, ProviderError};
+    use quai_provider::{
+        BlockTag, MAX_PROVEN_ACCOUNTS, MAX_PROVEN_SLOTS, Provider, ProviderError, StateAnchor,
+    };
     use quai_rpc::{BatchResult, Endpoint, Routing, RpcError, Transport};
     use serde_json::json;
     use std::sync::{Arc, Mutex};
@@ -175,6 +178,15 @@ mod provider {
         AlteredSlotValue,
         /// The header carries no `evmRoot`.
         NoStateRoot,
+        /// The real header and block hash, with only `evmRoot` replaced: the
+        /// forgery a block-hash comparison cannot see.
+        SwappedRoot,
+        /// Another real block's header, relabeled to the anchor's height.
+        OtherBlock,
+        /// No block at the requested height yet.
+        NoBlock,
+        /// A different genesis.
+        OtherGenesis,
     }
     /// Each batch as sent: its methods and parameters.
     type Sent = Vec<Vec<(String, Value)>>;
@@ -222,10 +234,28 @@ mod provider {
                 .map(|(method, params)| match method {
                     "quai_chainId" => Ok(json!("0x9")),
                     "quai_getHeaderByNumber" if params[0] == "0x0" => {
-                        Ok(fixture["genesis"].clone())
+                        let mut genesis = fixture["genesis"].clone();
+                        if mode == Mode::OtherGenesis {
+                            genesis["woHeader"]["hash"] = json!(format!("0x{}", "77".repeat(32)));
+                        }
+                        Ok(genesis)
+                    }
+                    "quai_getHeaderByNumber" if mode == Mode::NoBlock => Ok(Value::Null),
+                    "quai_getHeaderByNumber" if mode == Mode::OtherBlock => {
+                        let others: Value = serde_json::from_str(include_str!(
+                            "fixtures/shared/test-infra/fixtures/header-hashes-mainnet.json"
+                        ))
+                        .unwrap();
+                        let mut header = others["v1"][3].clone();
+                        header["woHeader"]["number"] =
+                            fixture["header"]["woHeader"]["number"].clone();
+                        Ok(header)
                     }
                     "quai_getHeaderByNumber" => {
                         let mut header = fixture["header"].clone();
+                        if mode == Mode::SwappedRoot {
+                            header["evmRoot"] = json!(format!("0x{}", "5a".repeat(32)));
+                        }
                         if mode == Mode::Reorg && round == 1 {
                             header["woHeader"]["hash"] = json!(format!("0x{}", "99".repeat(32)));
                         }
@@ -235,7 +265,10 @@ mod provider {
                         Ok(header)
                     }
                     "quai_getProof" => {
-                        assert_eq!(params[2], json!({"blockHash": header_hash}));
+                        assert_eq!(
+                            params[2],
+                            json!({"blockHash": header_hash, "requireCanonical": true})
+                        );
                         let entry = fixture["proofs"]
                             .as_array()
                             .unwrap()
@@ -247,8 +280,21 @@ mod provider {
                                     .eq_ignore_ascii_case(params[0].as_str().unwrap())
                             })
                             .expect("a captured address");
-                        assert_eq!(params[1], entry["request"]["params"][1]);
                         let mut result = entry["result"].clone();
+                        // Answer each requested slot, in request order, from the capture.
+                        let captured = result["storageProof"].as_array().unwrap().clone();
+                        result["storageProof"] = params[1]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|key| {
+                                captured
+                                    .iter()
+                                    .find(|slot| slot["key"] == *key)
+                                    .expect("a captured slot")
+                                    .clone()
+                            })
+                            .collect();
                         match mode {
                             Mode::InflatedBalance => result["balance"] = json!("0x1"),
                             Mode::AlteredNode => {
@@ -391,8 +437,196 @@ mod provider {
         ));
         assert!(matches!(
             prove(&Mock::new(Mode::NoStateRoot)).await,
-            Err(ProviderError::InvalidResult(_))
+            Err(ProviderError::Header(HeaderHashError::Missing("evmRoot")))
         ));
+    }
+
+    #[tokio::test]
+    async fn a_swapped_state_root_is_refused_before_any_address_is_sent() {
+        // The node keeps the real genesis and the real block hash, so a second
+        // node comparing block hashes would agree with it. The root no longer
+        // hashes to the header's own headerHash.
+        let mock = Mock::new(Mode::SwappedRoot);
+        let error = prove(&mock).await.unwrap_err();
+        assert!(
+            matches!(
+                error,
+                ProviderError::Header(HeaderHashError::HeaderHashMismatch)
+            ),
+            "{error:?}"
+        );
+        assert_eq!(error.class(), ErrorClass::Invalid);
+        assert_eq!(mock.batches().len(), 1);
+    }
+
+    async fn anchor(mock: &Mock) -> StateAnchor {
+        mock.provider()
+            .state_anchor(genesis(), Zone::Cyprus1, BlockTag::Latest)
+            .await
+            .unwrap()
+    }
+
+    #[tokio::test]
+    async fn an_anchor_is_read_once_and_shared_by_one_round_proofs() {
+        let mock = Mock::new(Mode::Honest);
+        let anchor = anchor(&mock).await;
+        let fixture = fixture();
+        let header = &fixture["header"];
+        assert_eq!(anchor.block.hash, hash(&header["woHeader"]["hash"]));
+        assert_eq!(
+            anchor.header.header_hash,
+            hash(&header["woHeader"]["headerHash"])
+        );
+        assert_eq!(anchor.state_root(), hash(&header["evmRoot"]));
+        let requests = requests();
+        let provider = mock.provider();
+        for (address, slots) in &requests {
+            let proven = provider
+                .prove_accounts_at(&anchor, &[(*address, slots.as_slice())])
+                .await
+                .unwrap();
+            assert_eq!(proven[0].block, anchor.block);
+            assert_eq!(proven[0].header_hash, anchor.header.header_hash);
+        }
+        // One anchor read, then one round per proof.
+        assert_eq!(mock.batches().len(), 1 + requests.len());
+
+        let cyprus2: QuaiAddress = "0x0100000000000000000000000000000000000001"
+            .parse()
+            .unwrap();
+        let other_chain = Provider::new(
+            mock.clone(),
+            Routing::direct("http://127.0.0.1:9200", Zone::Cyprus1.into()).unwrap(),
+            U256::from(15000),
+        );
+        for result in [
+            provider.prove_accounts_at(&anchor, &[(cyprus2, &[])]).await,
+            other_chain
+                .prove_accounts_at(&anchor, &[(requests[0].0, &[])])
+                .await,
+        ] {
+            assert!(matches!(result, Err(ProviderError::InvalidRequest(_))));
+        }
+        assert_eq!(mock.batches().len(), 1 + requests.len());
+    }
+
+    #[tokio::test]
+    async fn a_second_node_confirms_or_disputes_the_anchor_without_any_address() {
+        let anchor = anchor(&Mock::new(Mode::Honest)).await;
+        let second = Mock::new(Mode::Honest);
+        let confirmed = second.provider().confirm_anchor(&anchor).await.unwrap();
+        assert_eq!(confirmed.header_hash, anchor.header.header_hash);
+        let sent = serde_json::to_string(&second.batches()).unwrap();
+        assert!(sent.contains(&format!("{:#x}", anchor.block.number)));
+        for (address, _) in requests() {
+            assert!(
+                !sent
+                    .to_lowercase()
+                    .contains(&address.to_string().to_lowercase()[4..])
+            );
+        }
+        for (mode, expected) in [
+            (Mode::OtherBlock, "AnchorDisputed"),
+            (Mode::NoBlock, "ObservationChanged"),
+            (Mode::OtherGenesis, "GenesisMismatch"),
+        ] {
+            let error = Mock::new(mode)
+                .provider()
+                .confirm_anchor(&anchor)
+                .await
+                .unwrap_err();
+            assert_eq!(format!("{error:?}"), expected);
+        }
+        assert_eq!(ProviderError::AnchorDisputed.class(), ErrorClass::Stale);
+    }
+
+    #[tokio::test]
+    async fn a_stored_record_is_confirmed_by_any_node_s_verified_header() {
+        let proven = prove(&Mock::new(Mode::Honest)).await.unwrap();
+        let record = &proven[0];
+        let at = BlockTag::Number(U256::from(record.block.number));
+        let header = Mock::new(Mode::Honest)
+            .provider()
+            .verified_header(Zone::Cyprus1, at)
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(header.header_hash, record.header_hash);
+        assert_eq!(header.evm_root, record.state_root);
+        let missing = Mock::new(Mode::NoBlock)
+            .provider()
+            .verified_header(Zone::Cyprus1, at)
+            .await;
+        assert!(matches!(missing, Ok(None)));
+        let forged = Mock::new(Mode::SwappedRoot)
+            .provider()
+            .verified_header(Zone::Cyprus1, at)
+            .await;
+        assert!(matches!(forged, Err(ProviderError::Header(_))));
+        let other = Mock::new(Mode::Honest)
+            .provider()
+            .verified_header(Zone::Cyprus2, at)
+            .await;
+        assert!(other.is_err());
+    }
+
+    #[tokio::test]
+    async fn an_old_anchor_fails_a_freshness_bound() {
+        let anchor = anchor(&Mock::new(Mode::Honest)).await;
+        let (number, time) = (anchor.block.number, anchor.header.timestamp);
+        assert!(anchor.require_number_at_least(number).is_ok());
+        assert!(anchor.require_timestamp_at_least(time).is_ok());
+        for result in [
+            anchor.require_number_at_least(number + 1),
+            anchor.require_timestamp_at_least(time + 1),
+        ] {
+            let error = result.unwrap_err();
+            assert!(matches!(error, ProviderError::StaleAnchor));
+            assert_eq!(error.class(), ErrorClass::Stale);
+        }
+    }
+
+    #[tokio::test]
+    async fn a_large_request_is_split_into_rechecked_batches_in_order() {
+        let mock = Mock::new(Mode::Honest);
+        let requests = requests();
+        // The contract with every captured slot, cycled to the per-account limit.
+        let (contract, captured) = &requests[0];
+        let slots = captured
+            .iter()
+            .cycle()
+            .take(MAX_PROVEN_SLOTS)
+            .copied()
+            .collect::<Vec<_>>();
+        let targets = (0..MAX_PROVEN_ACCOUNTS)
+            .map(|i| match i % 3 {
+                0 => (*contract, slots.as_slice()),
+                _ => (requests[i % 3].0, requests[i % 3].1.as_slice()),
+            })
+            .collect::<Vec<_>>();
+        let proven = mock
+            .provider()
+            .prove_accounts(genesis(), &targets, BlockTag::Latest)
+            .await
+            .unwrap();
+        assert_eq!(proven.len(), targets.len());
+        for (account, (address, slots)) in proven.iter().zip(&targets) {
+            assert_eq!(account.address, *address);
+            assert_eq!(account.storage.len(), slots.len());
+        }
+        let rounds = &mock.batches()[1..];
+        assert!(rounds.len() > 1, "{} slots fit one batch", targets.len());
+        let mut proofs = 0;
+        for batch in rounds {
+            let methods = batch.iter().map(|(m, _)| m.as_str()).collect::<Vec<_>>();
+            assert_eq!(methods[0], "quai_chainId");
+            assert_eq!(
+                methods[methods.len() - 2..],
+                ["quai_getHeaderByNumber", "quai_getHeaderByNumber"]
+            );
+            proofs += methods.iter().filter(|m| **m == "quai_getProof").count();
+        }
+        assert_eq!(proofs, targets.len());
     }
 
     #[tokio::test]

@@ -7,8 +7,12 @@ use quai_primitives::{Hash32, QuaiAddress};
 use quai_rpc::U256;
 use thiserror::Error;
 
-/// Most nodes one proof path may hold. A 64-nibble key cannot need more.
-pub const MAX_PROOF_NODES: usize = 64;
+#[cfg(any(test, feature = "test-fixtures"))]
+pub mod test_trie;
+
+/// Most nodes one proof path may hold: a branch for each of a key's 64
+/// nibbles, then a hashed leaf holding what remains, an empty path.
+pub const MAX_PROOF_NODES: usize = 65;
 /// Largest proof node accepted. A full branch node is 532 bytes.
 pub const MAX_PROOF_NODE_BYTES: usize = 1024;
 /// Root of a trie with no entries: Keccak-256 of the RLP empty string.
@@ -62,6 +66,26 @@ pub struct Account {
     pub code_hash: Hash32,
     /// Size of the storage trie, as go-quai records it.
     pub size: U256,
+}
+#[cfg(any(test, feature = "test-fixtures"))]
+impl Account {
+    /// An account for tests, such as a [`test_trie::TestTrie`] leaf. Enabled
+    /// by `test-fixtures`.
+    pub fn new(
+        nonce: u64,
+        balance: U256,
+        storage_root: Hash32,
+        code_hash: Hash32,
+        size: U256,
+    ) -> Self {
+        Self {
+            nonce,
+            balance,
+            storage_root,
+            code_hash,
+            size,
+        }
+    }
 }
 
 /// Verify an account proof under `state_root`, a header's `evmRoot`.
@@ -144,6 +168,18 @@ fn hash32(bytes: &[u8]) -> Result<Hash32, ProofError> {
     <[u8; 32]>::try_from(bytes)
         .map(Hash32::from_bytes)
         .map_err(|_| ProofError::Malformed("expected a 32-byte hash"))
+}
+
+/// Walk a proof along a raw 32-byte trie path, as the verifiers do after
+/// hashing their key, returning the leaf value. For the fuzz harness only.
+#[cfg(feature = "fuzzing")]
+#[doc(hidden)]
+pub fn verify_path<B: AsRef<[u8]>>(
+    root: Hash32,
+    path: &[u8; 32],
+    proof: &[B],
+) -> Result<Option<Vec<u8>>, ProofError> {
+    walk(root, path, proof).map(|leaf| leaf.map(<[u8]>::to_vec))
 }
 
 /// Where the walk goes next: a node named by hash, or one embedded in its parent.
@@ -442,5 +478,139 @@ mod tests {
         let word = address_word(owner);
         assert_eq!(&word.bytes()[..12], &[0; 12]);
         assert_eq!(&word.bytes()[12..], owner.bytes());
+    }
+
+    /// A deterministic xorshift, so every run builds the same tries.
+    struct Rng(u64);
+    impl Rng {
+        fn next(&mut self) -> u64 {
+            self.0 ^= self.0 << 13;
+            self.0 ^= self.0 >> 7;
+            self.0 ^= self.0 << 17;
+            self.0
+        }
+        fn below(&mut self, n: u64) -> usize {
+            (self.next() % n) as usize
+        }
+        fn path(&mut self) -> [u8; 32] {
+            let mut path = [0; 32];
+            for chunk in path.chunks_mut(8) {
+                chunk.copy_from_slice(&self.next().to_le_bytes());
+            }
+            path
+        }
+        /// A path sharing its first `shared` nibbles with `base`, differing at the next.
+        fn near(&mut self, base: &[u8; 32], shared: usize) -> [u8; 32] {
+            let mut path = self.path();
+            for nibble in 0..shared {
+                set(&mut path, nibble, get(base, nibble));
+            }
+            if shared < 64 {
+                set(
+                    &mut path,
+                    shared,
+                    get(base, shared) ^ (1 + self.below(15) as u8),
+                );
+            }
+            path
+        }
+    }
+    fn get(path: &[u8; 32], nibble: usize) -> u8 {
+        (path[nibble / 2] >> if nibble.is_multiple_of(2) { 4 } else { 0 }) & 0x0f
+    }
+    fn set(path: &mut [u8; 32], nibble: usize, value: u8) {
+        let shift = if nibble.is_multiple_of(2) { 4 } else { 0 };
+        path[nibble / 2] = (path[nibble / 2] & !(0x0f << shift)) | ((value & 0x0f) << shift);
+    }
+
+    #[test]
+    fn random_tries_prove_every_key_and_absence_through_every_node_shape() {
+        use test_trie::TestTrie;
+        let mut rng = Rng(0x5eed_1234_abcd_0001);
+        let (mut inline, mut extensions, mut checked) = (0, 0, 0);
+        for _ in 0..100 {
+            let mut entries: Vec<([u8; 32], Vec<u8>)> = Vec::new();
+            for _ in 0..1 + rng.below(24) {
+                let path = match entries.len() {
+                    0 => rng.path(),
+                    n => {
+                        let base = entries[rng.below(n as u64)].0;
+                        let shared = rng.below(65);
+                        rng.near(&base, shared.min(63))
+                    }
+                };
+                // Short values embed deep leaves; long ones force hashing.
+                let length = if rng.below(4) == 0 {
+                    40
+                } else {
+                    1 + rng.below(3)
+                };
+                let value = (0..length).map(|_| 1 + rng.below(255) as u8).collect();
+                entries.retain(|(p, _)| *p != path);
+                entries.push((path, value));
+            }
+            let trie = TestTrie::from_paths(entries.clone());
+            let root = trie.root();
+            let (i, e) = trie.shapes();
+            (inline, extensions) = (inline + i, extensions + e);
+            for (path, value) in &entries {
+                let proof = trie.prove(path);
+                assert_eq!(walk(root, path, &proof).unwrap(), Some(&value[..]));
+                checked += 1;
+                // Every single-byte change, truncation and extra node fails.
+                for node in 0..proof.len() {
+                    for at in [0, proof[node].len() / 2, proof[node].len() - 1] {
+                        let mut changed = proof.clone();
+                        changed[node][at] ^= 0x01;
+                        assert!(walk(root, path, &changed).is_err());
+                    }
+                }
+                assert!(walk(root, path, &proof[..proof.len() - 1]).is_err());
+                assert!(walk(root, path, &proof[1..]).is_err());
+                let mut extra = proof.clone();
+                extra.push(proof[0].clone());
+                assert!(walk(root, path, &extra).is_err());
+            }
+            // Absent paths, near and far, prove absence or fail; never a value.
+            for _ in 0..8 {
+                let base = entries[rng.below(entries.len() as u64)].0;
+                let shared = rng.below(64);
+                let absent = rng.near(&base, shared);
+                if entries.iter().any(|(p, _)| *p == absent) {
+                    continue;
+                }
+                assert_eq!(walk(root, &absent, &trie.prove(&absent)).unwrap(), None);
+                // Another key's proof never shows a value for this one.
+                assert!(walk(root, &absent, &trie.prove(&base)).map_or(true, |v| v.is_none()));
+            }
+        }
+        assert!(
+            checked > 800 && inline > 300 && extensions > 300,
+            "{checked} keys, {inline} embedded nodes, {extensions} extensions"
+        );
+    }
+
+    #[test]
+    fn the_deepest_path_is_sixty_four_branches_and_a_leaf() {
+        use test_trie::TestTrie;
+        // A key that branches from a neighbour at every one of its 64 nibbles.
+        let mut rng = Rng(7);
+        let target = rng.path();
+        let entries = (0..64)
+            .map(|shared| (rng.near(&target, shared), vec![7; 40]))
+            .chain([(target, vec![9; 40])]);
+        let trie = TestTrie::from_paths(entries);
+        let proof = trie.prove(&target);
+        assert_eq!(proof.len(), MAX_PROOF_NODES);
+        assert_eq!(
+            walk(trie.root(), &target, &proof).unwrap(),
+            Some(&[9; 40][..])
+        );
+        let mut longer = proof.clone();
+        longer.push(proof[0].clone());
+        assert_eq!(
+            walk(trie.root(), &target, &longer),
+            Err(ProofError::TooLarge)
+        );
     }
 }

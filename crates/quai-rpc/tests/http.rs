@@ -49,6 +49,13 @@ async fn server<F>(reply: F) -> (Endpoint, oneshot::Receiver<(String, Value)>, J
 where
     F: FnOnce(&Value) -> String + Send + 'static,
 {
+    raw_server(move |request| reply(request).into_bytes()).await
+}
+
+async fn raw_server<F>(reply: F) -> (Endpoint, oneshot::Receiver<(String, Value)>, JoinHandle<()>)
+where
+    F: FnOnce(&Value) -> Vec<u8> + Send + 'static,
+{
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let endpoint = Endpoint::parse(&format!(
         "http://{}/secret?token=HIDDEN",
@@ -61,7 +68,7 @@ where
         let request = read_request(&mut socket).await;
         let response = reply(&request.1);
         tx.send(request).unwrap();
-        let _ = socket.write_all(response.as_bytes()).await;
+        let _ = socket.write_all(&response).await;
     });
     (endpoint, rx, task)
 }
@@ -557,5 +564,84 @@ async fn a_socks5_proxy_is_never_sent_the_endpoint_name() {
     );
     assert_eq!(seen.port, 8545);
     assert_eq!(seen.credentials, None);
+    task.await.unwrap();
+}
+
+fn gzip_response(body: &[u8], encoding: &str) -> Vec<u8> {
+    use std::io::Write;
+    let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
+    encoder.write_all(body).unwrap();
+    let compressed = encoder.finish().unwrap();
+    let mut out = format!(
+        "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Encoding: {encoding}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+        compressed.len()
+    )
+    .into_bytes();
+    out.extend(compressed);
+    out
+}
+
+#[tokio::test]
+async fn gzip_is_requested_and_decoded() {
+    let (endpoint, rx, task) = raw_server(|req| {
+        let body = json!({"jsonrpc":"2.0","id":req["id"],"result":"0x9"}).to_string();
+        gzip_response(body.as_bytes(), "gzip")
+    })
+    .await;
+    let result = transport()
+        .request(&endpoint, "quai_chainId", json!([]))
+        .await
+        .unwrap();
+    assert_eq!(result, "0x9");
+    let (header, _) = rx.await.unwrap();
+    assert!(
+        header
+            .lines()
+            .any(|l| l.eq_ignore_ascii_case("accept-encoding: gzip")),
+        "{header}"
+    );
+    task.await.unwrap();
+}
+
+#[tokio::test]
+async fn the_response_limit_bounds_the_decoded_body() {
+    // 8 MiB of spaces compresses to about 8 KB: under the limit on the wire,
+    // far over it decoded.
+    let (endpoint, rx, task) = raw_server(|_| gzip_response(&vec![b' '; 8 << 20], "gzip")).await;
+    let client =
+        HttpTransport::new(HttpConfig::default().with_max_response_bytes(64 * 1024)).unwrap();
+    assert!(matches!(
+        client.request(&endpoint, "quai_chainId", json!([])).await,
+        Err(RpcError::ResponseTooLarge)
+    ));
+    rx.await.unwrap();
+    task.await.unwrap();
+}
+
+#[tokio::test]
+async fn an_unknown_encoding_or_a_corrupt_gzip_body_is_refused() {
+    let (endpoint, rx, task) = raw_server(|_| gzip_response(b"{}", "br")).await;
+    assert!(matches!(
+        transport()
+            .request(&endpoint, "quai_chainId", json!([]))
+            .await,
+        Err(RpcError::InvalidResponse(_))
+    ));
+    rx.await.unwrap();
+    task.await.unwrap();
+    let (endpoint, rx, task) = raw_server(|_| {
+        let mut response = gzip_response(b"{}", "gzip");
+        let last = response.len() - 1;
+        response[last] ^= 0xff;
+        response
+    })
+    .await;
+    assert!(matches!(
+        transport()
+            .request(&endpoint, "quai_chainId", json!([]))
+            .await,
+        Err(RpcError::InvalidResponse(_))
+    ));
+    rx.await.unwrap();
     task.await.unwrap();
 }

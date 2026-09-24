@@ -47,6 +47,7 @@ futures-util = { version = "0.3", default-features = false, features = ["sink", 
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "net", "io-util"] }
+flate2 = { version = "1.1.10", default-features = false, features = ["rust_backend"] }
 
 [lints]
 workspace = true

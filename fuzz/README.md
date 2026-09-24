@@ -32,6 +32,14 @@ Targets:
   never panics and answers the same way twice. Seeds are the captured mainnet
   proofs, and one mode roots the trie at the first node so inputs reach the RLP
   and trie walk.
+- `state_proof_trie`: proofs from valid tries with extension nodes and embedded
+  leaves, then truncated, spliced, reordered or changed by a byte. The verifier
+  returns the true value or an error, never another value or a false absence.
+  The `state_proof` target cannot build such tries, since any node past the
+  first must match a hash.
+- `header_hash`: header hash recomputation on hostile JSON; never panics,
+  answers the same way twice, and accepts only a header that hashes to the
+  `headerHash` it reports. Seeds are captured mainnet headers.
 - `ws_dispatch`: stateful WebSocket frame routing over synthetic sessions, so a
   reply never reaches another request or subscription.
 
